@@ -16,8 +16,10 @@ class ActionTest(TestCase):
     def test_action_called(self):
         # redundant with the next test, but proves it works with intended usage
         call_count = 0
+
         class Foo(Command):
             action = Action()
+
             @action.register
             def bar(self):
                 nonlocal call_count
@@ -28,6 +30,7 @@ class ActionTest(TestCase):
 
     def test_action_called_mock(self):
         mock = MagicMock(__name__='bar')
+
         class Foo(Command):
             action = Action()
             action.register(mock)
@@ -39,6 +42,7 @@ class ActionTest(TestCase):
 
     def test_action_wrong(self):
         mock = MagicMock(__name__='bar')
+
         class Foo(Command):
             action = Action()
             action.register(mock)
@@ -48,6 +52,7 @@ class ActionTest(TestCase):
 
     def test_action_missing(self):
         mock = MagicMock(__name__='bar')
+
         class Foo(Command):
             action = Action()
             action.register(mock)

@@ -18,8 +18,17 @@ if TYPE_CHECKING:
     from .commands import Command, CommandType
 
 __all__ = [
-    'Parameter', 'PassThru', 'BasePositional', 'Positional', 'LooseString', 'SubCommand', 'Action', 'BaseOption',
-    'Option', 'Flag', 'Counter'
+    'Parameter',
+    'PassThru',
+    'BasePositional',
+    'Positional',
+    'LooseString',
+    'SubCommand',
+    'Action',
+    'BaseOption',
+    'Option',
+    'Flag',
+    'Counter',
 ]
 log = logging.getLogger(__name__)
 
@@ -256,12 +265,7 @@ class Positional(BasePositional):
 
 
 class LooseString(BasePositional):
-    def __init__(
-        self,
-        action: str = 'append',
-        choices: Collection[str] = None,
-        **kwargs,
-    ):
+    def __init__(self, action: str = 'append', choices: Collection[str] = None, **kwargs):
         super().__init__(action=action, **kwargs)
         self.register_choices(choices)
         self._value = []
@@ -403,9 +407,11 @@ class Action(LooseString):
 
 
 class BaseOption(Parameter, ABC):
+    # fmt: off
     _long_opts: set[str]        # --long options
     _short_opts: set[str]       # -short options
     short_combinable: set[str]  # short options without the leading dash (for combined flags)
+    # fmt: on
 
     def __init__(self, *option_strs: str, action: str, **kwargs):
         if bad_opts := ', '.join(opt for opt in option_strs if not 0 < opt.count('-', 0, 3) < 3):
@@ -507,14 +513,7 @@ class Option(BaseOption):
 class Flag(BaseOption, accepts_values=False, accepts_none=True):
     nargs = Nargs(0)
 
-    def __init__(
-        self,
-        *args,
-        action: str = 'store_const',
-        default: Any = False,
-        const: Any = _NotSet,
-        **kwargs,
-    ):
+    def __init__(self, *args, action: str = 'store_const', default: Any = False, const: Any = _NotSet, **kwargs):
         if const is _NotSet:
             try:
                 const = {True: False, False: True}[default]
@@ -548,14 +547,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
     type = int
     nargs = Nargs('?')
 
-    def __init__(
-        self,
-        *args,
-        action: str = 'append',
-        default: int = 0,
-        const: int = 1,
-        **kwargs,
-    ):
+    def __init__(self, *args, action: str = 'append', default: int = 0, const: int = 1, **kwargs):
         vals = {'const': const, 'default': default}
         if bad_types := ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type)):
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')

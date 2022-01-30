@@ -1,10 +1,10 @@
 #!/usr/bin/env python
+# fmt: off
 
 import logging
 import sys
 from pathlib import Path
 from unittest import TestCase, main
-from unittest.mock import Mock, MagicMock
 
 sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser import Command, Counter, NoSuchOption, Option, UsageError

@@ -19,6 +19,7 @@ CommandType = TypeVar('CommandType', bound=Type['Command'])
 
 
 class Command:
+    # fmt: off
     __prog: str = None                          # The name of the program (default: sys.argv[0])
     __usage: str = None                         # Usage message (default: auto-generated)
     __description: str = None                   # Description of what the program does
@@ -30,6 +31,7 @@ class Command:
     __parent: Type['Command'] = None            # Parent command for sub-commands
     __sub_command: SubCommand = None            # A SubCommand parameter, if provided
     __action: Action = None                     # An Action parameter, if provided
+    # fmt: on
 
     def __init_subclass__(
         cls: CommandType,

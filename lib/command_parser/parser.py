@@ -201,13 +201,14 @@ class _Parser:
     def handle_pass_thru(self, args: Sequence[str]) -> deque[str]:
         if (pass_thru := self.cmd_parser.pass_thru) is not None:
             try:
-                split_index = args.index('--')
+                a = args.index('--')
             except ValueError as e:
                 if pass_thru.required:
                     raise MissingArgument(pass_thru, "missing pass thru args separated from others with '--'") from e
             else:
-                pass_thru.take_action(args[split_index + 1:])
-                return deque(args[:split_index])
+                b = a + 1
+                pass_thru.take_action(args[b:])
+                return deque(args[:a])
         return deque(args)
 
     def handle_long(self, arg: str, args: deque[str]):
@@ -328,7 +329,9 @@ def _update_options(opt_dict: dict[str, BaseOption], attr: str, param: BaseOptio
             opt_dict[opt] = param
         else:
             opt_type_names = {
-                'long_opts': 'long option', 'short_opts': 'short option', 'short_combinable': 'combinable short option'
+                'long_opts': 'long option',
+                'short_opts': 'short option',
+                'short_combinable': 'combinable short option',
             }
             opt_type = opt_type_names[attr]
             raise ParameterDefinitionError(

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# fmt: off
 import logging
 import sys
 from pathlib import Path
@@ -24,7 +24,7 @@ class SubCommandTest(TestCase):
     def test_manual_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
-        @Foo.sub_cmd.register
+        @Foo.sub_cmd.register  # noqa E306
         class Bar(Command, cmd='bar'): pass  # noqa
         @Foo.sub_cmd.register
         class Baz(Command, cmd='baz'): pass  # noqa

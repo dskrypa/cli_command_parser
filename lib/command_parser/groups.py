@@ -21,6 +21,7 @@ class ParameterGroup:
     Group nesting is not implemented due to the complexity and potential confusion that it would add for cases where
     differing mutual exclusivity/dependency rules would need to be resolved.  In theory, though, it should be possible.
     """
+
     _lock = Lock()
     _active: Optional['ParameterGroup'] = None
 
