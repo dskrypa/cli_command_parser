@@ -138,35 +138,3 @@ class Command:
                     sys.stdout.close()
                 except Exception:
                     pass
-
-
-class Foo(Command):
-    sub_cmd = SubCommand()
-    verbose: int = Counter('-v')
-
-    with ParameterGroup(mutually_exclusive=True, description='b args') as group:
-        bar = Flag('-b')
-        baz = Flag('-B')
-
-    foo = Option('-f', choices=('a', 'b'))
-
-
-class Bar(Foo, cmd='bar'):
-    actions = Action(help='the method to call')
-
-    @actions.register
-    def example(self):
-        print('example action')
-
-    @actions.register
-    def show_vars(self):
-        print(f'{self.verbose=}, {self.bar=}, {self.baz=}, {self.foo=}')
-
-
-@Foo.sub_cmd.register
-class Baz(Command, cmd='baz one'):
-    pass
-
-
-# class Baz(Foo, cmd='baz one'):
-#     pass
