@@ -1,0 +1,12 @@
+repos:
+  - repo: https://github.com/dskrypa/incr_version
+    hooks:
+      - id: incr_version
+  - repo: https://github.com/psf/black
+    hooks:
+      - id: black
+        types: [python]
+  - repo: https://gitlab.com/pycqa/flake8
+    hooks:
+      - id: flake8
+        types: [python]
