@@ -531,20 +531,6 @@ class BaseOption(Parameter, ABC):
             else:
                 return self.long_opts[0]
 
-    # def format_help(self, width: int = 30, add_default: Bool = True) -> str:
-    #     arg_str = '  ' + self.format_usage(include_meta=True, full=True)
-    #     help_str = self.help or ''
-    #     if add_default and (default := self.default) is not _NotSet:
-    #         pad = ' ' if help_str else ''
-    #         help_str += f'{pad}(default: {default})'
-    #
-    #     if help_str:
-    #         pad_chars = width - 2 - len(arg_str)
-    #         pad = ('\n' + ' ' * width) if pad_chars < 0 else (' ' * pad_chars)
-    #         return f'{arg_str}{pad}{help_str}'
-    #     else:
-    #         return arg_str
-
 
 class Option(BaseOption):
     def __init__(
