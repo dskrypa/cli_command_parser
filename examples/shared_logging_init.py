@@ -35,4 +35,4 @@ class Show(Base, cmd='show'):
 
 
 if __name__ == '__main__':
-    Base().run()
+    Base.parse_and_run()

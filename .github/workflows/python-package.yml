@@ -3,12 +3,14 @@
 name: Test Build
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
+    paths: ["lib/**", "tests/**"]
   pull_request:
-    branches: [ main ]
+    branches: ["main"]
+    paths: ["lib/**", "tests/**"]
 jobs:
   build:
-    runs-on: [ubuntu-latest]
+    runs-on: ["ubuntu-latest"]
     strategy:
       fail-fast: false
       matrix:

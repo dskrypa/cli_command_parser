@@ -3,9 +3,10 @@
 """
 
 import platform
+import sys
 from typing import Type, Callable, Union, Optional
 
-from .exceptions import ParserExit
+from .exceptions import ParserExit, CommandParserException
 
 __all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler']
 
@@ -73,6 +74,12 @@ class ErrorHandler:
 
 
 ErrorHandler.cls_handler(ParserExit)(ParserExit.exit)
+
+
+@ErrorHandler.cls_handler(CommandParserException)
+def _handle_parser_error(exc: CommandParserException):
+    print(exc, file=sys.stderr)
+
 
 error_handler = ErrorHandler()
 error_handler.register(lambda e: print(), KeyboardInterrupt)

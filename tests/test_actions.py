@@ -55,7 +55,7 @@ class ActionTest(TestCase):
             action.register(Mock(__name__='bar'))
 
         with self.assertRaises(MissingArgument):
-            Foo([]).run()
+            Foo([]).main()
 
     def test_custom_name(self):
         call_count = 0

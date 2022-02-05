@@ -118,6 +118,13 @@ class BaseCommand:
     def print_usage(self):
         pass
 
+    @classmethod
+    def parse_and_run(cls, args: Sequence[str] = None, *pargs, **kwargs):
+        handler = cls.__exc_handler or error_handler
+        with handler:
+            self = cls(args)
+            self.main(*args, **kwargs)
+
     def run(self, *args, **kwargs):
         handler = self.__exc_handler or error_handler
         with handler:
