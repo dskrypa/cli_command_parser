@@ -123,7 +123,7 @@ class BaseCommand:
         handler = cls.__exc_handler or error_handler
         with handler:
             self = cls(args)
-            self.main(*args, **kwargs)
+            self.main(*pargs, **kwargs)
 
     def run(self, *args, **kwargs):
         handler = self.__exc_handler or error_handler

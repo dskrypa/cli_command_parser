@@ -9,6 +9,8 @@ sys.path.insert(0, PROJECT_ROOT.joinpath('lib').as_posix())
 
 from command_parser import Command, Counter, SubCommand, Action
 
+log = logging.getLogger(__name__)
+
 
 class Base(Command):
     sub_cmd = SubCommand()
@@ -32,6 +34,12 @@ class Show(Base, cmd='show'):
     @action
     def hello(self):
         print('Hello world!')
+
+    @action
+    def log_test(self):
+        log.debug('This is a debug log')
+        log.info('This is an info log')
+        log.warning('This is a warning log')
 
 
 if __name__ == '__main__':
