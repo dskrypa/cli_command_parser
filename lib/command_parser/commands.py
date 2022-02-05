@@ -16,7 +16,6 @@ __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
 
 CommandType = TypeVar('CommandType', bound=Type['BaseCommand'])
-ExcType = Type[BaseException]
 
 
 class BaseCommand:
@@ -136,7 +135,7 @@ class Command(BaseCommand, exc_handler=extended_error_handler):
         try:
             super().run(*args, **kwargs)
         finally:
-            if close_stdout:
+            if close_stdout:  # TODO: Verify whether this is ever needed anymore
                 """
                 Prevent the following when piping output to utilities such as ``| head``:
                     Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>

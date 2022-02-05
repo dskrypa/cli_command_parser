@@ -58,7 +58,7 @@ setup(
     long_description=long_description,
     url=about['__url__'],
     project_urls={'Source': about['__url__']},
-    packages=['requests_client'],
+    packages=['command_parser'],
     license=about['__license__'],
     classifiers=[
         'License :: OSI Approved :: Apache Software License',

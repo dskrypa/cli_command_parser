@@ -3,7 +3,7 @@
 """
 
 import logging
-from collections import deque
+from collections import deque, defaultdict
 from typing import TYPE_CHECKING, Optional, Iterator
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
@@ -46,8 +46,34 @@ class CommandParser:
         self.sub_command, short_combinable = self._process_parameters(command, parent_parser)
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
-        self.action_flags = sorted((p for p in self._options if isinstance(p, ActionFlag)), key=lambda p: p.priority)
-        # TODO: Validate no priority conflicts
+        self.action_flags = self._process_action_flags()
+
+    def _process_action_flags(self):
+        a_flags = (p for p in self._options if isinstance(p, ActionFlag) and p.enabled)
+        action_flags = sorted(a_flags, key=lambda p: p.priority)
+
+        a_flags_by_prio: dict[float, list[ActionFlag]] = defaultdict(list)
+        for param in action_flags:
+            if param.func is None:
+                raise ParameterDefinitionError(f'No function was registered for {param=}')
+            a_flags_by_prio[param.priority].append(param)
+
+        invalid = {}
+        for prio, params in a_flags_by_prio.items():
+            if len(params) > 1:
+                if (group := next((p.group for p in params if p.group), None)) and group.mutually_exclusive:
+                    if not all(p.group == group for p in params):
+                        invalid[prio] = params
+                else:
+                    invalid[prio] = params
+
+        if invalid:
+            raise CommandDefinitionError(
+                f'ActionFlag parameters must either have different priority values or be in a mutually exclusive'
+                f' ParameterGroup - invalid parameters: {invalid}'
+            )
+
+        return action_flags
 
     def _process_parameters(self, command: 'CommandType', parent: Optional['CommandParser']):
         short_combinable = parent.short_combinable.copy() if parent is not None else {}
