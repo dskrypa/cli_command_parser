@@ -10,7 +10,7 @@ from .parameters import SubCommand, Action, ActionFlag, action_flag
 from .error_handling import ErrorHandler, error_handler, extended_error_handler
 from .exceptions import CommandDefinitionError, ParserExit
 from .parser import CommandParser
-from .utils import Args, Bool
+from .utils import Args, Bool, ProgramMetadata
 
 __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -22,10 +22,11 @@ class BaseCommand:
     # region Initialization
     # fmt: off
     __args: Args                                        # The raw and parsed arguments passed to this command
-    __prog: str = None                                  # The name of the program (default: sys.argv[0])
-    __usage: str = None                                 # Usage message (default: auto-generated)
-    __description: str = None                           # Description of what the program does
-    __epilog: str = None                                # Text to follow parameter descriptions
+    __meta: ProgramMetadata = None                      # Metadata used in help text
+    # __prog: str = None                                  # The name of the program (default: sys.argv[0])
+    # __usage: str = None                                 # Usage message (default: auto-generated)
+    # __description: str = None                           # Description of what the program does
+    # __epilog: str = None                                # Text to follow parameter descriptions
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
     __exc_handler: ErrorHandler = None                  # The ExceptionHandler to wrap main()
     # Attributes related to sub-commands/actions
@@ -46,10 +47,8 @@ class BaseCommand:
         help: str = None,  # noqa
         exc_handler: ErrorHandler = None,
     ):  # noqa
-        cls.__prog = prog
-        cls.__usage = usage
-        cls.__description = description
-        cls.__epilog = epilog
+        if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
+            cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
         cls.__cmd = cmd
         cls.__help = help
         cls.__parser = None
@@ -128,7 +127,11 @@ class BaseCommand:
 class Command(BaseCommand, exc_handler=extended_error_handler):
     @action_flag('-h', priority=float('-inf'), help='Show this help message and exit')
     def help(self):
-        print('TODO: Implement help text')
+        parser: CommandParser = self.parser()  # noqa  # PyCharm is confused about this for some reason...
+        # TODO: --help is not being triggered if there are missing positional args
+        # TODO: parent Command args are not showing up in help text
+        print(parser.format_usage())
+        print(parser.format_help())
         raise ParserExit
 
     def run(self, *args, close_stdout: Bool = False, **kwargs):

@@ -4,12 +4,12 @@
 
 import logging
 from collections import deque, defaultdict
-from typing import TYPE_CHECKING, Optional, Iterator
+from typing import TYPE_CHECKING, Optional, Iterator, Iterable
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
 from .groups import ParameterGroup
 from .parameters import SubCommand, BasePositional, BaseOption, Parameter, PassThru, ActionFlag
-from .utils import Args, Bool
+from .utils import Args, Bool, ProgramMetadata
 
 if TYPE_CHECKING:
     from .commands import CommandType
@@ -174,6 +174,46 @@ class CommandParser:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(args.remaining)))
         else:
             return None
+
+    def format_usage(self, delim: str = ' ') -> str:
+        meta: ProgramMetadata = self.command._BaseCommand__meta
+        if usage := meta.usage:
+            return usage
+        parts = ['usage:', meta.prog]
+        for param in self.positionals:  # type: BasePositional
+            parts.append(param.format_usage())
+        for param in self._options:  # type: BaseOption
+            parts.append('[{}]'.format(param.format_usage(True)))
+        return delim.join(parts)
+
+    def format_help(
+        self, width: int = 30, add_default: Bool = True, add_group_type: Bool = True, extended_epilog: Bool = True
+    ):
+        meta: ProgramMetadata = self.command._BaseCommand__meta
+        parts = [meta.description, ''] if meta.description else []
+        if positionals := self.positionals:
+            parts.extend(_format_group('Positional arguments:', positionals, width, add_default))
+        if options := [p for p in self._options if not p.group]:
+            parts.extend(_format_group('Optional arguments:', options, width, add_default))
+        if groups := self.groups:
+            for group in groups:
+                description = group.description or f'{group.name} Options'
+                if add_group_type and (group.mutually_exclusive or group.mutually_dependent):
+                    description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
+                parts.extend(_format_group(f'{description}:', group.parameters, width, add_default))
+
+        if epilog := meta.format_epilog(extended_epilog):
+            parts.append(epilog)
+
+        return '\n'.join(parts)
+
+
+def _format_group(name: str, params: Iterable[Parameter], width: int = 30, add_default: Bool = True) -> Iterator[str]:
+    yield name
+    for param in params:
+        yield param.format_help(width=width, add_default=add_default)
+
+    yield ''
 
 
 class _Parser:

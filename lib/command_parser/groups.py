@@ -91,10 +91,10 @@ class ParameterGroup:
         # log.debug(f'{provided=}, {missing=}')
         # log.debug(f'provided={len(provided)}, missing={len(missing)}')
         if self.mutually_dependent and provided and missing:
-            p_str = ', '.join(p.usage_str(full=True, delim='/') for p in provided)
-            m_str = ', '.join(p.usage_str(full=True, delim='/') for p in missing)
+            p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
+            m_str = ', '.join(p.format_usage(full=True, delim='/') for p in missing)
             be = 'is' if len(provided) == 1 else 'are'
             raise UsageError(f'When {p_str} {be} provided, then the following must also be provided: {m_str}')
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
-            p_str = ', '.join(p.usage_str(full=True, delim='/') for p in provided)
+            p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
             raise UsageError(f'The following arguments are mutually exclusive - only one is allowed: {p_str}')

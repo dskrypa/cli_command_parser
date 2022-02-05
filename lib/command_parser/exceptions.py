@@ -73,7 +73,7 @@ class ParamUsageError(UsageError):
         if (param := self.param) is None:
             return message
         else:
-            usage_str = param.usage_str(full=True, delim=' / ')
+            usage_str = param.format_usage(full=True, delim=' / ')
             return f'argument {usage_str}: {message}'
 
 

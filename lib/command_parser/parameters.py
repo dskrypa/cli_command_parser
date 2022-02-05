@@ -240,8 +240,22 @@ class Parameter(ABC):
             else:
                 return value
 
-    def usage_str(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        return self.name
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        return self.usage_metavar
+
+    def format_help(self, width: int = 30, add_default: Bool = True) -> str:
+        arg_str = '  ' + self.format_usage(include_meta=True, full=True)
+        help_str = self.help or ''
+        if add_default and (default := self.default) is not _NotSet:
+            pad = ' ' if help_str else ''
+            help_str += f'{pad}(default: {default})'
+
+        if help_str:
+            pad_chars = width - 2 - len(arg_str)
+            pad = ('\n' + ' ' * width) if pad_chars < 0 else (' ' * pad_chars)
+            return f'{arg_str}{pad}{help_str}'
+        else:
+            return arg_str
 
     @property
     def usage_metavar(self) -> str:
@@ -284,6 +298,10 @@ class BasePositional(Parameter, ABC):
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
         super().__init__(action, **kwargs)
+
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        metavar = self.usage_metavar
+        return metavar if not full or self.nargs == 1 else f'{metavar} [{metavar} ...]'
 
 
 class Positional(BasePositional):
@@ -499,7 +517,7 @@ class BaseOption(Parameter, ABC):
     def short_opts(self) -> list[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
 
-    def usage_str(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if include_meta:
             metavar = self.usage_metavar
             fmt = '{}' if self.nargs == 0 else f'{{}} [{metavar}]' if 0 in self.nargs else f'{{}} {metavar}'
@@ -513,19 +531,19 @@ class BaseOption(Parameter, ABC):
             else:
                 return self.long_opts[0]
 
-    def format_help(self, width: int = 30, add_default: Bool = True) -> str:
-        arg_str = '  ' + self.usage_str(include_meta=True, full=True)
-        help_str = self.help or ''
-        if add_default and (default := self.default) is not _NotSet:
-            pad = ' ' if help_str else ''
-            help_str += f'{pad}(default: {default})'
-
-        if help_str:
-            pad_chars = width - 2 - len(arg_str)
-            pad = ('\n' + ' ' * width) if pad_chars < 0 else (' ' * pad_chars)
-            return f'{arg_str}{pad}{help_str}'
-        else:
-            return arg_str
+    # def format_help(self, width: int = 30, add_default: Bool = True) -> str:
+    #     arg_str = '  ' + self.format_usage(include_meta=True, full=True)
+    #     help_str = self.help or ''
+    #     if add_default and (default := self.default) is not _NotSet:
+    #         pad = ' ' if help_str else ''
+    #         help_str += f'{pad}(default: {default})'
+    #
+    #     if help_str:
+    #         pad_chars = width - 2 - len(arg_str)
+    #         pad = ('\n' + ' ' * width) if pad_chars < 0 else (' ' * pad_chars)
+    #         return f'{arg_str}{pad}{help_str}'
+    #     else:
+    #         return arg_str
 
 
 class Option(BaseOption):
