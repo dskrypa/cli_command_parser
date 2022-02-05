@@ -425,6 +425,8 @@ class Action(LooseString):
         else:
             return self._register(name_or_method.__name__, name_or_method)
 
+    __call__ = register
+
     def _register(self, name: str, method: MethodType) -> Callable:
         try:
             action_method = self.name_method_map[name]

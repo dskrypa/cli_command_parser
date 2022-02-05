@@ -45,7 +45,7 @@ class ActionTest(TestCase):
 
         class Foo(Command):
             action = Action()
-            action.register(mock)
+            action(mock)
 
         with self.assertRaises(InvalidChoice):
             Foo(['baz']).run()
@@ -83,7 +83,7 @@ class ActionTest(TestCase):
 
                 class Foo(Command):
                     action = Action()
-                    action.register(name)(MagicMock(__name__='bar'))
+                    action(name)(MagicMock(__name__='bar'))
 
 
 if __name__ == '__main__':
