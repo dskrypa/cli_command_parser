@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# fmt: off
+
 import logging
 import sys
 from pathlib import Path
@@ -15,8 +15,12 @@ class SubCommandTest(TestCase):
     def test_auto_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
-        class Bar(Foo, cmd='bar'): pass  # noqa
-        class Baz(Foo, cmd='baz'): pass  # noqa
+
+        class Bar(Foo, cmd='bar'):
+            pass
+
+        class Baz(Foo, cmd='baz'):
+            pass
 
         self.assertIsInstance(Foo(['bar']), Bar)
         self.assertIsInstance(Foo(['baz']), Baz)
@@ -24,10 +28,14 @@ class SubCommandTest(TestCase):
     def test_manual_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
-        @Foo.sub_cmd.register  # noqa E306
-        class Bar(Command, cmd='bar'): pass  # noqa
+
         @Foo.sub_cmd.register
-        class Baz(Command, cmd='baz'): pass  # noqa
+        class Bar(Command, cmd='bar'):
+            pass
+
+        @Foo.sub_cmd.register
+        class Baz(Command, cmd='baz'):
+            pass
 
         self.assertIsInstance(Foo(['bar']), Bar)
         self.assertIsInstance(Foo(['baz']), Baz)
@@ -35,9 +43,13 @@ class SubCommandTest(TestCase):
     def test_mixed_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
-        class Bar(Foo, cmd='bar'): pass  # noqa
+
+        class Bar(Foo, cmd='bar'):
+            pass
+
         @Foo.sub_cmd.register
-        class Baz(Command, cmd='baz'): pass  # noqa
+        class Baz(Command, cmd='baz'):
+            pass
 
         self.assertIsInstance(Foo(['bar']), Bar)
         self.assertIsInstance(Foo(['baz']), Baz)
@@ -45,7 +57,9 @@ class SubCommandTest(TestCase):
     def test_space_in_cmd(self):
         class Foo(Command):
             sub_cmd = SubCommand()
-        class Bar(Foo, cmd='bar baz'): pass  # noqa
+
+        class Bar(Foo, cmd='bar baz'):
+            pass
 
         self.assertIsInstance(Foo(['bar', 'baz']), Bar)
         self.assertIsInstance(Foo(['bar baz']), Bar)
@@ -60,7 +74,9 @@ class SubCommandTest(TestCase):
     def test_sub_cmd_value_required(self):
         class Foo(Command):
             sub_cmd = SubCommand()
-        class Bar(Foo, cmd='bar'): pass  # noqa
+
+        class Bar(Foo, cmd='bar'):
+            pass
 
         with self.assertRaises(MissingArgument):
             Foo([])
@@ -70,7 +86,8 @@ class SubCommandTest(TestCase):
             sub_cmd = SubCommand()
             verbose = Counter('-v')
 
-        class Bar(Foo, cmd='bar'): pass  # noqa
+        class Bar(Foo, cmd='bar'):
+            pass
 
         cmd = Foo(['bar', '-v'])
         self.assertIsInstance(cmd, Bar)

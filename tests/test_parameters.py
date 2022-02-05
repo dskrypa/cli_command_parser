@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# fmt: off
 
 import logging
 import sys
@@ -14,25 +13,33 @@ log = logging.getLogger(__name__)
 
 class InternalsTest(TestCase):
     def test_param_knows_command(self):
-        class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
         self.assertIs(Foo.foo.command, Foo)
 
 
 class OptionTest(TestCase):
     def test_choice_ok(self):
-        class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
         self.assertEqual(Foo(['-f', 'a']).foo, 'a')
         self.assertEqual(Foo(['-f', 'b']).foo, 'b')
         self.assertEqual(Foo(['--foo', 'a']).foo, 'a')
         self.assertEqual(Foo(['--foo', 'b']).foo, 'b')
 
     def test_choice_bad(self):
-        class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
         with self.assertRaises(UsageError):
             Foo(['-f', 'c'])
 
     def test_instance_values(self):
-        class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
         a = Foo(['-f', 'a'])
         b = Foo(['-f', 'b'])
         self.assertEqual(a.foo, 'a')
@@ -41,38 +48,50 @@ class OptionTest(TestCase):
 
 class CounterTest(TestCase):
     def test_counter_default(self):
-        class Foo(Command): verbose: int = Counter('-v')  # noqa
+        class Foo(Command):
+            verbose: int = Counter('-v')
+
         self.assertEqual(Foo([]).verbose, 0)
 
     def test_counter_1(self):
-        class Foo(Command): verbose: int = Counter('-v')  # noqa
+        class Foo(Command):
+            verbose: int = Counter('-v')
+
         self.assertEqual(Foo(['-v']).verbose, 1)
         self.assertEqual(Foo(['--verbose']).verbose, 1)
         with self.assertRaises(NoSuchOption):
             Foo(['-verbose'])
 
     def test_counter_multi(self):
-        class Foo(Command): verbose: int = Counter('-v')  # noqa
+        class Foo(Command):
+            verbose: int = Counter('-v')
+
         for n in range(1, 11):
             with self.subTest(n=n):
                 self.assertEqual(Foo(['-{}'.format('v' * n)]).verbose, n)
                 self.assertEqual(Foo(['--verbose'] * n).verbose, n)
 
     def test_counter_num_no_space(self):
-        class Foo(Command): verbose: int = Counter('-v')  # noqa
+        class Foo(Command):
+            verbose: int = Counter('-v')
+
         for n in range(-10, 11):
             with self.subTest(n=n):
                 self.assertEqual(Foo([f'-v{n}']).verbose, n)
 
     def test_counter_num_space(self):
-        class Foo(Command): verbose: int = Counter('-v')  # noqa
+        class Foo(Command):
+            verbose: int = Counter('-v')
+
         for n in range(-10, 11):
             with self.subTest(n=n):
                 self.assertEqual(Foo(['-v', str(n)]).verbose, n)
                 self.assertEqual(Foo(['--verbose', str(n)]).verbose, n)
 
     def test_counter_num_eq(self):
-        class Foo(Command): verbose: int = Counter('-v')  # noqa
+        class Foo(Command):
+            verbose: int = Counter('-v')
+
         for n in range(-10, 11):
             with self.subTest(n=n):
                 self.assertEqual(Foo([f'-v={n}']).verbose, n)
