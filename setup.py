@@ -3,7 +3,7 @@
 from distutils.cmd import Command
 from distutils.errors import DistutilsExecError
 from pathlib import Path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 project_root = Path(__file__).resolve().parent
 long_description = project_root.joinpath('readme.rst').read_text('utf-8')
@@ -58,7 +58,8 @@ setup(
     long_description=long_description,
     url=about['__url__'],
     project_urls={'Source': about['__url__']},
-    packages=['command_parser'],
+    packages=find_packages('lib'),
+    package_dir={'': 'lib'},
     license=about['__license__'],
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
