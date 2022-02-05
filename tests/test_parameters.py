@@ -12,6 +12,12 @@ from command_parser import Command, Counter, NoSuchOption, Option, UsageError
 log = logging.getLogger(__name__)
 
 
+class InternalsTest(TestCase):
+    def test_param_knows_command(self):
+        class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa
+        self.assertIs(Foo.foo.command, Foo)
+
+
 class OptionTest(TestCase):
     def test_choice_ok(self):
         class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa

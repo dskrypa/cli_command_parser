@@ -6,8 +6,7 @@ import logging
 from abc import ABC
 from functools import cached_property, partial, update_wrapper
 from itertools import chain
-from string import printable, whitespace
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar
 from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
@@ -17,7 +16,7 @@ from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Args, Bool, validate_positional
 
 if TYPE_CHECKING:
-    from .commands import Command, CommandType
+    from .commands import BaseCommand, CommandType
 
 __all__ = [
     'Parameter',
@@ -31,8 +30,13 @@ __all__ = [
     'Option',
     'Flag',
     'Counter',
+    'ActionFlag',
+    'action_flag',
+    'Param',
 ]
 log = logging.getLogger(__name__)
+
+Param = TypeVar('Param', bound='Parameter')
 
 
 class parameter_action:
@@ -76,7 +80,7 @@ class Parameter(ABC):
     type: Callable = None
     nargs: Nargs = Nargs(1)
     group: ParameterGroup = None
-    command: Type['Command'] = None
+    command: 'CommandType' = None
     hide: Bool = False
 
     def __init_subclass__(cls, accepts_values: bool = None, accepts_none: bool = None):
@@ -133,7 +137,7 @@ class Parameter(ABC):
         if value is not None:
             self._name = value
 
-    def __set_name__(self, command: 'CommandType', name):
+    def __set_name__(self, command: 'CommandType', name: str):
         self.command = command
         if self._name is None:
             self.name = name
@@ -147,10 +151,10 @@ class Parameter(ABC):
         )
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
-    def __get__(self, command: 'Command', owner: 'CommandType'):
+    def __get__(self, command: 'BaseCommand', owner: 'CommandType'):
         if command is None:
             return self
-        value = self.result(command._Command__args)  # noqa
+        value = self.result(command._BaseCommand__args)  # noqa
         if (name := self._name) is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
@@ -305,6 +309,8 @@ class Positional(BasePositional):
 
 
 class LooseString(BasePositional):
+    choices: set[str] = None
+
     def __init__(self, action: str = 'append', choices: Collection[str] = None, **kwargs):
         super().__init__(action=action, **kwargs)
         self.register_choices(choices)
@@ -318,10 +324,19 @@ class LooseString(BasePositional):
         elif not choices:
             raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
         else:
-            lens = set(map(len, map(str.split, choices)))
-            self.nargs = Nargs(range(min(lens), max(lens) + 1))
+            self.choices = set(choices)
+            self._update_nargs()
 
-        self.choices = choices
+    def add_choice(self, choice: str):
+        try:
+            self.choices.add(choice)
+        except AttributeError:  # Initialized with no choices
+            self.choices = {choice}
+        self._update_nargs()
+
+    def _update_nargs(self):
+        lens = set(map(len, map(str.split, self.choices)))
+        self.nargs = Nargs(range(min(lens), max(lens) + 1))
 
     @parameter_action
     def append(self, args: Args, value: str):
@@ -374,14 +389,14 @@ class SubCommand(LooseString):
 
     def register(self, command: 'CommandType') -> 'CommandType':
         """
-        Register a :class:`Command` as a sub-command.  This method may be used as a decorator if the sub-command does
-        not extend its parent Command.  When extending a parent Command, this method is called automatically during
-        Command subclass initialization.
+        Register a :class:`BaseCommand` as a sub-command.  This method may be used as a decorator if the sub-command
+        does not extend its parent BaseCommand.  When extending a parent Command, this method is called automatically
+        during BaseCommand subclass initialization.
         """
         try:
-            cmd = command._Command__cmd
+            cmd = command._BaseCommand__cmd
         except AttributeError:
-            raise CommandDefinitionError(f'Invalid {command=} - expected a Command subclass')
+            raise CommandDefinitionError(f'Invalid {command=} - expected a subclass of BaseCommand')
         else:
             if cmd is None:
                 raise CommandDefinitionError(f"Missing class kwarg 'cmd' for {command}")
@@ -390,15 +405,13 @@ class SubCommand(LooseString):
         try:
             sub_cmd = self.cmd_command_map[cmd]
         except KeyError:
-            if getattr(command, '_Command__parent', None) is None:
-                command._Command__parent = self.command
+            if getattr(command, '_BaseCommand__parent', None) is None:
+                command._BaseCommand__parent = self.command
             self.cmd_command_map[cmd] = command
-            self.choices.add(cmd)
-            lens = set(map(len, map(str.split, self.choices)))
-            self.nargs = Nargs(range(min(lens), max(lens) + 1))
+            self.add_choice(cmd)
             return command
         else:
-            parent = getattr(command, '_Command__parent', None)
+            parent = getattr(command, '_BaseCommand__parent', None)
             raise CommandDefinitionError(f'Invalid {cmd=} for {command} with {parent=} - already assigned to {sub_cmd}')
 
     def result(self, args: Args) -> 'CommandType':
@@ -432,9 +445,7 @@ class Action(LooseString):
             action_method = self.name_method_map[name]
         except KeyError:
             self.name_method_map[name] = method
-            self.choices.add(name)
-            lens = set(map(len, map(str.split, self.choices)))
-            self.nargs = Nargs(range(min(lens), max(lens) + 1))
+            self.add_choice(name)
             return method
         else:
             raise CommandDefinitionError(f'Invalid {name=} for {method} - already assigned to {action_method}')
@@ -471,9 +482,8 @@ class BaseOption(Parameter, ABC):
         if bad_opts := ', '.join(opt for opt in short_opts if '-' in opt[1:]):
             raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
 
-    def __set_name__(self, owner, name):
-        if self.name is None:
-            self.name = name
+    def __set_name__(self, command: 'CommandType', name: str):
+        super().__set_name__(command, name)
         if not self._long_opts:
             self._long_opts.add(f'--{name}')
             try:
@@ -583,6 +593,50 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
 
     def result(self, args: Args) -> Any:
         return args[self]
+
+
+class ActionFlag(Flag):
+    def __init__(self, *args, priority: Union[int, float] = 1, func: Callable = None, **kwargs):
+        expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
+        found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
+        if bad := {k: v for k, v in found.items() if expected[k] != v}:
+            raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
+        super().__init__(*args, **kwargs)
+        self.func = func
+        self.priority = priority
+        self.enabled = True
+
+    @property
+    def func(self):
+        return self._func
+
+    @func.setter
+    def func(self, func: Optional[Callable]):
+        self._func = func
+        if func is not None:
+            update_wrapper(self, func)
+
+    def __call__(self, func: Callable):
+        if self.func is not None:
+            raise CommandDefinitionError(f'Cannot re-assign the func to call for {self}')
+        self.func = func
+        return self
+
+    def __get__(self, command: 'BaseCommand', owner: 'CommandType'):
+        # Allow the method to be called, regardless of whether it was specified
+        if command is None:
+            return self
+        return partial(self.func, command)
+
+    def result(self, args: Args) -> Optional[Callable]:
+        if super().result(args):
+            if func := self.func:
+                return func
+            raise ParameterDefinitionError(f'No function was registered for {self}')
+        return None
+
+
+action_flag = ActionFlag
 
 
 class Counter(BaseOption, accepts_values=True, accepts_none=True):

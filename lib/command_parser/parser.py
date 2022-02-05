@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, Iterator
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
 from .groups import ParameterGroup
-from .parameters import SubCommand, BasePositional, BaseOption, Parameter, PassThru
+from .parameters import SubCommand, BasePositional, BaseOption, Parameter, PassThru, ActionFlag
 from .utils import Args, Bool
 
 if TYPE_CHECKING:
@@ -26,6 +26,7 @@ class CommandParser:
     short_options: dict[str, BaseOption]
     short_combinable: dict[str, BaseOption]
     groups: list[ParameterGroup]
+    action_flags: list[ActionFlag]
 
     def __init__(self, command: 'CommandType'):
         self.command = command
@@ -33,7 +34,7 @@ class CommandParser:
         self._options = []
         self.positionals = []
         # Positionals are not copied from parent because they must be consumed before the child can be picked
-        if (parent := getattr(command, '_Command__parent', None)) is not None:  # type: CommandType
+        if (parent := getattr(command, '_BaseCommand__parent', None)) is not None:  # type: CommandType
             self.parent = parent_parser = parent.parser()
             self.long_options = parent_parser.long_options.copy()
             self.short_options = parent_parser.short_options.copy()
@@ -45,13 +46,15 @@ class CommandParser:
         self.sub_command, short_combinable = self._process_parameters(command, parent_parser)
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
+        self.action_flags = sorted((p for p in self._options if isinstance(p, ActionFlag)), key=lambda p: p.priority)
+        # TODO: Validate no priority conflicts
 
     def _process_parameters(self, command: 'CommandType', parent: Optional['CommandParser']):
         short_combinable = parent.short_combinable.copy() if parent is not None else {}
         sub_cmd_param = None
         var_nargs_pos_param = None
         for attr, param in command.__dict__.items():
-            if attr.startswith(('__', '_Command__')):
+            if attr.startswith(('__', '_BaseCommand__', '_Command__')):
                 continue
             elif isinstance(param, BasePositional):
                 if var_nargs_pos_param is not None:

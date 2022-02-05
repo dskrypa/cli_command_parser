@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest import TestCase, main
 
 sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
-from command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument
+from command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +64,17 @@ class SubCommandTest(TestCase):
 
         with self.assertRaises(MissingArgument):
             Foo([])
+
+    def test_parent_param_inherited(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+            verbose = Counter('-v')
+
+        class Bar(Foo, cmd='bar'): pass  # noqa
+
+        cmd = Foo(['bar', '-v'])
+        self.assertIsInstance(cmd, Bar)
+        self.assertEqual(cmd.verbose, 1)
 
 
 if __name__ == '__main__':

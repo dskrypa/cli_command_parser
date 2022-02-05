@@ -2,6 +2,8 @@
 
 import logging
 import sys
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from unittest import TestCase, main
 from unittest.mock import MagicMock
@@ -84,6 +86,21 @@ class ActionTest(TestCase):
                 class Foo(Command):
                     action = Action()
                     action(name)(MagicMock(__name__='bar'))
+
+    def test_help_action(self):
+        mock = MagicMock(__name__='bar')
+
+        class Foo(Command):
+            action = Action()
+            action.register(mock)
+
+        sio = StringIO()
+        with redirect_stdout(sio):
+            foo = Foo(['bar', '-h'])
+            foo.run()
+
+        self.assertEqual(sio.getvalue(), 'TODO: Implement help text\n')  # TODO: Update after implementing
+        self.assertEqual(mock.call_count, 0)
 
 
 if __name__ == '__main__':

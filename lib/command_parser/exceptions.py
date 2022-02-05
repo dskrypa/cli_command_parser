@@ -4,6 +4,7 @@ Exceptions for Command Parser
 :author: Doug Skrypa
 """
 
+import sys
 from typing import TYPE_CHECKING, Any, Collection
 
 if TYPE_CHECKING:
@@ -22,11 +23,26 @@ __all__ = [
     'NoSuchOption',
     'BadArgumentUsage',
     'BadOptionUsage',
+    'ParserExit',
 ]
 
 
 class CommandParserException(Exception):
     pass
+
+
+class ParserExit(CommandParserException):
+    def __init__(self, message: str = None, code: int = None):
+        self.code = code
+        self.message = message
+
+    def __str__(self):
+        return self.message or ''
+
+    def exit(self):
+        if message := self.message:
+            print(message, file=sys.stderr)
+        sys.exit(self.code)
 
 
 class CommandDefinitionError(CommandParserException):

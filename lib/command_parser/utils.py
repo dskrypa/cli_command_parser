@@ -30,20 +30,34 @@ class Args:
         return f'<{self.__class__.__name__}[parsed={self._parsed}, remaining={self.remaining}, {provided=}]>'
 
     def record_action(self, param: 'Parameter', val_count: int = 1):
-        self._provided[param.name] += val_count
+        # self._provided[param.name] += val_count
+        self._provided[param] += val_count
 
     def num_provided(self, param: 'Parameter') -> int:
-        return self._provided[param.name]
+        # return self._provided[param.name]
+        return self._provided[param]
 
-    def __getitem__(self, param: 'Parameter'):
+    def __getitem__(self, param: Union['Parameter', str]):
         try:
-            return self._parsed[param.name]
+            # return self._parsed[param.name]
+            return self._parsed[param]
         except KeyError:
-            self._parsed[param.name] = value = param._init_value_factory()
-            return value
+            if isinstance(param, str):
+                try:
+                    return next((v for p, v in self._parsed.items() if p.name == param))
+                except StopIteration:
+                    raise KeyError(f'{param=} was not provided / parsed') from None
+            else:
+                # self._parsed[param.name] = value = param._init_value_factory()
+                self._parsed[param] = value = param._init_value_factory()
+                return value
 
     def __setitem__(self, param: 'Parameter', value):
-        self._parsed[param.name] = value
+        # self._parsed[param.name] = value
+        self._parsed[param] = value
+
+    def find_all(self, param_type: Type['Parameter']) -> dict['Parameter', Any]:
+        return {param: val for param, val in self._parsed.items() if isinstance(param, param_type)}
 
 
 def validate_positional(
