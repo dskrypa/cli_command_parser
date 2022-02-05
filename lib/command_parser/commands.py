@@ -7,6 +7,7 @@ import sys
 from typing import Type, TypeVar, Sequence, Optional, Union
 
 from .parameters import SubCommand, Action, ActionFlag, action_flag
+from .error_handling import ErrorHandler, error_handler, extended_error_handler
 from .exceptions import CommandDefinitionError, ParserExit
 from .parser import CommandParser
 from .utils import Args, Bool
@@ -15,23 +16,25 @@ __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
 
 CommandType = TypeVar('CommandType', bound=Type['BaseCommand'])
+ExcType = Type[BaseException]
 
 
 class BaseCommand:
     # region Initialization
     # fmt: off
-    __args: Args                                # The raw and parsed arguments passed to this command
-    __prog: str = None                          # The name of the program (default: sys.argv[0])
-    __usage: str = None                         # Usage message (default: auto-generated)
-    __description: str = None                   # Description of what the program does
-    __epilog: str = None                        # Text to follow parameter descriptions
-    __parser: Optional[CommandParser] = None    # The CommandParser used by this command
+    __args: Args                                        # The raw and parsed arguments passed to this command
+    __prog: str = None                                  # The name of the program (default: sys.argv[0])
+    __usage: str = None                                 # Usage message (default: auto-generated)
+    __description: str = None                           # Description of what the program does
+    __epilog: str = None                                # Text to follow parameter descriptions
+    __parser: Optional[CommandParser] = None            # The CommandParser used by this command
+    __exc_handler: ErrorHandler = None                  # The ExceptionHandler to wrap main()
     # Attributes related to sub-commands/actions
-    __cmd: str = None                           # SubCommand value that maps to this command
-    __help: str = None                          # Help text to be displayed as a SubCommand option
-    __parent: Optional[CommandType] = None      # Parent command for sub-commands
-    __sub_command: Optional[SubCommand] = None  # A SubCommand parameter, if provided
-    __action: Optional[Action] = None           # An Action parameter, if provided
+    __cmd: str = None                                   # SubCommand value that maps to this command
+    __help: str = None                                  # Help text to be displayed as a SubCommand option
+    __parent: Optional[CommandType] = None              # Parent command for sub-commands
+    __sub_command: Optional[SubCommand] = None          # A SubCommand parameter, if provided
+    __action: Optional[Action] = None                   # An Action parameter, if provided
     # fmt: on
 
     def __init_subclass__(
@@ -42,6 +45,7 @@ class BaseCommand:
         description: str = None,
         epilog: str = None,
         help: str = None,  # noqa
+        exc_handler: ErrorHandler = None,
     ):  # noqa
         cls.__prog = prog
         cls.__usage = usage
@@ -52,6 +56,9 @@ class BaseCommand:
         cls.__parser = None
         cls.__sub_command = None
         cls.__parent = None
+        if exc_handler is not None:
+            cls.__exc_handler = exc_handler
+
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None):
             cls.__parent = parent
             if cmd and parent is not Command:
@@ -114,25 +121,20 @@ class BaseCommand:
         pass
 
     def run(self, *args, **kwargs):
-        try:
+        handler = self.__exc_handler or error_handler
+        with handler:
             self.main(*args, **kwargs)
-        except ParserExit as e:
-            e.exit()
-        except KeyboardInterrupt:
-            print()
 
 
-class Command(BaseCommand):
+class Command(BaseCommand, exc_handler=extended_error_handler):
     @action_flag('-h', priority=float('-inf'), help='Show this help message and exit')
     def help(self):
         print('TODO: Implement help text')
-        # raise ParserExit
+        raise ParserExit
 
     def run(self, *args, close_stdout: Bool = False, **kwargs):
         try:
-            self.__run(*args, **kwargs)
-        except BrokenPipeError:
-            pass
+            super().run(*args, **kwargs)
         finally:
             if close_stdout:
                 """
@@ -144,23 +146,3 @@ class Command(BaseCommand):
                     sys.stdout.close()
                 except Exception:
                     pass
-
-    def __run(self, *args, **kwargs):
-        try:
-            super().run(*args, **kwargs)
-        except OSError as e:
-            import platform
-
-            if platform.system().lower() == 'windows' and e.errno == 22:
-                # When using |head, the pipe will be closed when head is done, but Python will still think that it
-                # is open - checking whether sys.stdout is writable or closed doesn't work, so triggering the
-                # error again seems to be the most reliable way to detect this (hopefully) without false positives
-                try:
-                    sys.stdout.write('\n')
-                    sys.stdout.flush()
-                except OSError:
-                    pass
-                else:
-                    raise  # If it wasn't the expected error, let the main Exception handler handle it
-            else:
-                raise

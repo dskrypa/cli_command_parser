@@ -9,7 +9,7 @@ from unittest import TestCase, main
 from unittest.mock import MagicMock
 
 sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
-from command_parser import Command, Action, InvalidChoice, MissingArgument, ParameterDefinitionError
+from command_parser import Command, Action, InvalidChoice, MissingArgument, ParameterDefinitionError, no_exit_handler
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class ActionTest(TestCase):
     def test_help_action(self):
         mock = MagicMock(__name__='bar')
 
-        class Foo(Command):
+        class Foo(Command, exc_handler=no_exit_handler):
             action = Action()
             action.register(mock)
 
