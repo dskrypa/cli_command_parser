@@ -2,6 +2,7 @@
 :author: Doug Skrypa
 """
 
+import logging
 from threading import Lock
 from typing import TYPE_CHECKING, Any, Optional, Union, Iterator
 
@@ -10,8 +11,10 @@ from .exceptions import ParameterDefinitionError, UsageError
 if TYPE_CHECKING:
     from .commands import CommandType
     from .parameters import Parameter
+    from .utils import Args
 
 __all__ = ['ParameterGroup']
+log = logging.getLogger(__name__)
 
 
 class ParameterGroup:
@@ -27,18 +30,18 @@ class ParameterGroup:
 
     def __init__(
         self,
-        title: str = None,
+        name: str = None,
         *,
         description: str = None,
         mutually_exclusive: Union[bool, Any] = False,
         mutually_dependent: Union[bool, Any] = False,
     ):
-        self.title = title
+        self.name = name
         self.description = description
         self.parameters: list['Parameter'] = []
         if mutually_dependent and mutually_exclusive:
-            title = self.title or 'Options'
-            raise ParameterDefinitionError(f'group={title!r} cannot be both mutually_exclusive and mutually_dependent')
+            name = self.name or 'Options'
+            raise ParameterDefinitionError(f'group={name!r} cannot be both mutually_exclusive and mutually_dependent')
         self.mutually_exclusive = mutually_exclusive
         self.mutually_dependent = mutually_dependent
 
@@ -47,8 +50,13 @@ class ParameterGroup:
         param.group = self
 
     def __set_name__(self, owner: 'CommandType', name: str):
-        if self.title is None:
-            self.title = name
+        if self.name is None:
+            self.name = name
+
+    def __repr__(self) -> str:
+        exclusive, dependent = self.mutually_exclusive, self.mutually_dependent
+        members = len(self.parameters)
+        return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
 
     def __enter__(self) -> 'ParameterGroup':
         self._lock.acquire()
@@ -63,22 +71,25 @@ class ParameterGroup:
     def __iter__(self) -> Iterator['Parameter']:
         yield from self.parameters
 
-    def _categorize_params(self) -> tuple[list['Parameter'], list['Parameter']]:
+    def _categorize_params(self, args: 'Args') -> tuple[list['Parameter'], list['Parameter']]:
         provided = []
         missing = []
         for param in self.parameters:
-            if param.provided:
+            if args.num_provided(param):
                 provided.append(param)
             else:
                 missing.append(param)
 
         return provided, missing
 
-    def check_conflicts(self):
+    def check_conflicts(self, args: 'Args'):
+        # log.debug(f'{self}: Checking group conflicts in {args=}')
         if not (self.mutually_dependent or self.mutually_exclusive):
             return
 
-        provided, missing = self._categorize_params()
+        provided, missing = self._categorize_params(args)
+        # log.debug(f'{provided=}, {missing=}')
+        # log.debug(f'provided={len(provided)}, missing={len(missing)}')
         if self.mutually_dependent and provided and missing:
             p_str = ', '.join(p.usage_str(full=True, delim='/') for p in provided)
             m_str = ', '.join(p.usage_str(full=True, delim='/') for p in missing)

@@ -4,13 +4,12 @@
 
 import logging
 import sys
-from typing import Type, TypeVar, Sequence, Optional
+from typing import Type, TypeVar, Sequence, Optional, Union
 
-from .parameters import Option, Flag, Counter, SubCommand, Action
+from .parameters import SubCommand, Action
 from .exceptions import CommandDefinitionError
-from .groups import ParameterGroup
 from .parser import CommandParser
-from .utils import Bool
+from .utils import Args, Bool
 
 __all__ = ['Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -20,6 +19,7 @@ CommandType = TypeVar('CommandType', bound=Type['Command'])
 
 class Command:
     # fmt: off
+    __args: Args                                # The raw and parsed arguments passed to this Command
     __prog: str = None                          # The name of the program (default: sys.argv[0])
     __usage: str = None                         # Usage message (default: auto-generated)
     __description: str = None                   # Description of what the program does
@@ -81,22 +81,22 @@ class Command:
             cls.__parser = CommandParser(cls)
         return cls.__parser
 
-    def __new__(cls, args: Sequence[str] = None):
+    def __new__(cls, args: Union[Args, Sequence[str]] = None):
         parser = cls.parser()
-        if parser.parsed:
-            parser.reset()
-
-        sub_cmd, remaining = parser.parse_args(args)
-        if sub_cmd is not None and sub_cmd is not cls:
-            # log.debug(f'Passing {remaining=} to be parsed by {sub_cmd}')
-            return sub_cmd.__new__(sub_cmd, remaining)
+        if not isinstance(args, Args):
+            args = Args(args)
+        if sub_cmd := parser.parse_args(args):
+            return sub_cmd.__new__(sub_cmd, args)
         else:
-            return super().__new__(cls)
+            self = super().__new__(cls)
+            self.__args = args
+            return self
 
-    def __init__(self, args: Sequence[str] = None):
+    def __init__(self, args: Union[Args, Sequence[str]] = None):
         pass
 
     def main(self, *args, **kwargs):
+        # TODO: ActionFlag with a priority param to resolve conflicts when multiple are provided (for --help, etc)
         if (action_method := self.__action) is not None:
             action_method(self, *args, **kwargs)
 

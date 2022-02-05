@@ -12,6 +12,17 @@ log = logging.getLogger(__name__)
 
 
 class GroupTest(TestCase):
+    def test_params_know_own_group(self):
+        class Foo(Command):
+            foo = Flag('-f')
+            with ParameterGroup(mutually_exclusive=True) as group:
+                bar = Flag('-b')
+                baz = Flag('-B')
+
+        self.assertIs(Foo.foo.group, None)
+        self.assertIs(Foo.bar.group, Foo.group)
+        self.assertIs(Foo.baz.group, Foo.group)
+
     def test_me_ok(self):
         class Foo(Command):
             with ParameterGroup(mutually_exclusive=True) as group:
@@ -109,6 +120,7 @@ class GroupTest(TestCase):
 
 
 if __name__ == '__main__':
+    # logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     try:
         main(warnings='ignore', verbosity=2, exit=False)
     except KeyboardInterrupt:

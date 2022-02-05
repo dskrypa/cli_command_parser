@@ -3,14 +3,13 @@
 """
 
 import logging
-import sys
 from collections import deque
-from typing import TYPE_CHECKING, Optional, Sequence, Iterator
+from typing import TYPE_CHECKING, Optional, Iterator
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
 from .groups import ParameterGroup
 from .parameters import SubCommand, BasePositional, BaseOption, Parameter, PassThru
-from .utils import Bool
+from .utils import Args, Bool
 
 if TYPE_CHECKING:
     from .commands import CommandType
@@ -46,7 +45,6 @@ class CommandParser:
         self.sub_command, short_combinable = self._process_parameters(command, parent_parser)
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
-        self.parsed = False
 
     def _process_parameters(self, command: 'CommandType', parent: Optional['CommandParser']):
         short_combinable = parent.short_combinable.copy() if parent is not None else {}
@@ -91,8 +89,9 @@ class CommandParser:
         options = len(self._options)
         return f'<{self.__class__.__name__}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
-    def __contains__(self, item: str) -> bool:
+    def _contains(self, args: Args, item: str) -> bool:
         """
+        :param args: The raw / partially parsed arguments for this parser
         :param item: An option string
         :return: True if this parser contains a matching Option parameter, False otherwise
         """
@@ -107,19 +106,19 @@ class CommandParser:
             short_combinable = self.short_combinable
             if (param := short_combinable.get(key)) is None:
                 return False
-            elif not value or param.would_accept(value):
+            elif not value or param.would_accept(args, value):
                 return True
             else:
                 return all(c in short_combinable for c in item[1:])
         else:
             return False
 
-    def contains(self, item: str) -> bool:
-        if item in self:
+    def contains(self, args: Args, item: str, recursive: Bool = True) -> bool:
+        if self._contains(args, item):
             return True
-        elif (sub_command := self.sub_command) is not None:
+        elif recursive and (sub_command := self.sub_command) is not None:
             for command in sub_command.cmd_command_map.values():
-                if command.parser().contains(item):
+                if command.parser().contains(args, item, recursive):
                     return True
         return False
 
@@ -134,112 +133,98 @@ class CommandParser:
         yield from self.positionals
         yield from self._options
 
-    def reset(self):
-        # log.debug(f'Resetting parsed values for {self}')
-        for param in self.all_parameters():
-            param.reset()
-        self.parsed = False
-
-    def parse_args(
-        self, args: Sequence[str] = None, allow_unknown: Bool = False
-    ) -> tuple[Optional['CommandType'], list[str]]:
-        self.parsed = True
+    def parse_args(self, args: Args, allow_unknown: Bool = False) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
-        # parser = _Parser(self)
-        # sub_command = self.sub_command
-        remaining = _Parser(self).parse_args(sys.argv[1:] if args is None else args)
-        # try:
-        #     parser.parse_args(sys.argv[1:] if args is None else args)
-        # except PositionalsExhausted:
-        #     if sub_command is None:
-        #         raise
+        _Parser(self, args).parse_args()
         for group in self.groups:
-            group.check_conflicts()
+            group.check_conflicts(args)
 
-        # remaining = parser.remaining()
-        # if sub_command is not None:
         if (sub_command := self.sub_command) is not None:
-            return sub_command.result(), remaining
-        elif remaining and not allow_unknown:
-            raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(remaining)))
+            return sub_command.result(args)
+        elif args.remaining and not allow_unknown:
+            raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(args.remaining)))
         else:
-            return None, remaining
+            return None
 
 
 class _Parser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    def __init__(self, cmd_parser: CommandParser):
+    def __init__(self, cmd_parser: CommandParser, args: Args):
         self.cmd_parser = cmd_parser
         self.long_options = cmd_parser.long_options
         self.short_options = cmd_parser.short_options
         self.short_combinable = cmd_parser.short_combinable
-        self.deferred = []
+        self.deferred = None
+        self.args = args
 
-    def parse_args(self, args: Sequence[str]):
-        args = self.handle_pass_thru(args)
+    def parse_args(self):
+        args = self.args
+        arg_deque = self.handle_pass_thru()
+        self.deferred = args.remaining = []
         pos_iter = iter(self.cmd_parser.positionals)
-        while args:
-            arg = args.popleft()
+        # TODO: Error message for variable kwarg immediately before positional
+        while arg_deque:
+            arg = arg_deque.popleft()
             if arg == '--' or arg.startswith('---'):
                 raise NoSuchOption(f'invalid argument: {arg}')
             elif arg.startswith('--'):
-                self.handle_long(arg, args)
+                self.handle_long(arg, arg_deque)
             elif arg.startswith('-') and arg != '-':
-                self.handle_short(arg, args)
+                self.handle_short(arg, arg_deque)
             else:
                 try:
                     param = next(pos_iter)  # type: BasePositional
                 except StopIteration:
                     self.deferred.append(arg)
                 else:
-                    found = param.take_action(arg)
-                    self.consume_values(param, args, found=found)
+                    found = param.take_action(args, arg)
+                    self.consume_values(param, arg_deque, found=found)
 
-        return self.deferred
-
-    def handle_pass_thru(self, args: Sequence[str]) -> deque[str]:
+    def handle_pass_thru(self) -> deque[str]:
+        args = self.args
+        remaining = args.remaining
         if (pass_thru := self.cmd_parser.pass_thru) is not None:
             try:
-                a = args.index('--')
+                a = remaining.index('--')
             except ValueError as e:
                 if pass_thru.required:
                     raise MissingArgument(pass_thru, "missing pass thru args separated from others with '--'") from e
             else:
                 b = a + 1
-                pass_thru.take_action(args[b:])
-                return deque(args[:a])
-        return deque(args)
+                pass_thru.take_action(args, remaining[b:])
+                return deque(remaining[:a])
+        return deque(remaining)
 
-    def handle_long(self, arg: str, args: deque[str]):
+    def handle_long(self, arg: str, arg_deque: deque[str]):
         try:
             param, value = self.split_long(arg)
         except KeyError:
             self.deferred.append(arg)
         else:
             if value is not None or (param.accepts_none and not param.accepts_values):
-                param.take_action(value)
-            elif not self.consume_values(param, args) and param.accepts_none:
-                param.take_action(None)
+                param.take_action(self.args, value)
+            elif not self.consume_values(param, arg_deque) and param.accepts_none:
+                param.take_action(self.args, None)
 
-    def handle_short(self, arg: str, args: deque[str]):
+    def handle_short(self, arg: str, arg_deque: deque[str]):
         if not (param_val_combos := self.split_short(arg)):
             return
         elif len(param_val_combos) == 1:
             param, value = param_val_combos[0]
             if value is not None or (param.accepts_none and not param.accepts_values):
-                param.take_action(value)
-            elif not self.consume_values(param, args) and param.accepts_none:
-                param.take_action(None)
+                param.take_action(self.args, value)
+            elif not self.consume_values(param, arg_deque) and param.accepts_none:
+                param.take_action(self.args, None)
         else:
             last = param_val_combos[-1][0]
             for param, _ in param_val_combos[:-1]:
-                param.take_action(None)
+                param.take_action(self.args, None)
 
             if last.accepts_none and not last.accepts_values:
-                last.take_action(None)
-            elif not self.consume_values(last, args) and last.accepts_none:
-                last.take_action(None)
+                last.take_action(self.args, None)
+            elif not self.consume_values(last, arg_deque) and last.accepts_none:
+                last.take_action(self.args, None)
 
     def split_long(self, arg: str) -> tuple[BaseOption, Optional[str]]:
         try:
@@ -270,7 +255,7 @@ class _Parser:
             return []
         elif not value:
             return [(param, None)]
-        elif param.would_accept(value):
+        elif param.would_accept(self.args, value):
             return [(param, value)]
         else:
             try:
@@ -279,16 +264,16 @@ class _Parser:
                 self.deferred.append(arg)
                 return []
 
-    def consume_values(self, param: Parameter, args: deque[str], found: int = 0) -> int:
-        result = self._consume_values(param, args, found)
-        param.result()  # Trigger validation errors, if any
+    def consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
+        result = self._consume_values(param, arg_deque, found)
+        param.result(self.args)  # Trigger validation errors, if any
         return result
 
-    def _consume_values(self, param: Parameter, args: deque[str], found: int = 0) -> int:
+    def _consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
         nargs = param.nargs
         while True:
             try:
-                value = args.popleft()
+                value = arg_deque.popleft()
             except IndexError as e:
                 if nargs.satisfied(found):
                     return found
@@ -296,26 +281,26 @@ class _Parser:
             else:
                 if value.startswith('--'):
                     if nargs.satisfied(found):
-                        args.appendleft(value)
+                        arg_deque.appendleft(value)
                         return found
                     raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}')
                 elif value.startswith('-') and value != '-':
-                    if self.cmd_parser.contains(value):
+                    if self.cmd_parser.contains(self.args, value):
                         if nargs.satisfied(found):
-                            args.appendleft(value)
+                            arg_deque.appendleft(value)
                             return found
                         raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}')
-                    elif not param.would_accept(value):
+                    elif not param.would_accept(self.args, value):
                         if nargs.satisfied(found):
-                            args.appendleft(value)
+                            arg_deque.appendleft(value)
                             return found
                         raise NoSuchOption(f'invalid argument: {value}')
 
                 try:
-                    found += param.take_action(value)
+                    found += param.take_action(self.args, value)
                 except UsageError:
                     if nargs.satisfied(found):
-                        args.appendleft(value)
+                        arg_deque.appendleft(value)
                         return found
                     else:
                         raise

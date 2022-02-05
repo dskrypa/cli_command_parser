@@ -3,7 +3,7 @@
 """
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection
@@ -12,7 +12,7 @@ from types import MethodType
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError
 from .groups import ParameterGroup
-from .utils import _NotSet, Nargs, NargsValue, Bool, parameter_action
+from .utils import _NotSet, Args, Nargs, NargsValue, Bool, parameter_action
 
 if TYPE_CHECKING:
     from .commands import Command, CommandType
@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 
 class Parameter(ABC):
     _actions: frozenset[str] = frozenset()
+    _name: str = None
     accepts_values: bool = True
     accepts_none: bool = False
     type: Callable = None
@@ -78,15 +79,28 @@ class Parameter(ABC):
         self.name = name
         self.metavar = metavar
         self.choices = choices
-        self._value = _NotSet
-        self.provided = 0
         self.help = help
         if (group := ParameterGroup._active) is not None:
             group.register(self)  # This sets self.group = group
 
-    def __set_name__(self, command: Type['Command'], name):
+    @staticmethod
+    def _init_value_factory():
+        return _NotSet
+
+    @property
+    def name(self) -> str:
+        if (name := self._name) is not None:
+            return name
+        return f'{self.__class__.__name__}#{id(self)}'
+
+    @name.setter
+    def name(self, value: Optional[str]):
+        if value is not None:
+            self._name = value
+
+    def __set_name__(self, command: 'CommandType', name):
         self.command = command
-        if self.name is None:
+        if self._name is None:
             self.name = name
 
     def __repr__(self) -> str:
@@ -98,41 +112,43 @@ class Parameter(ABC):
         )
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
-    def __get__(self, instance, owner):
-        if instance is None:
+    def __get__(self, command: 'Command', owner: 'CommandType'):
+        if command is None:
             return self
-        instance.__dict__[self.name] = value = self.result()
+        value = self.result(command._Command__args)  # noqa
+        if (name := self._name) is not None:
+            command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def take_action(self, value: Optional[str]):
+    def take_action(self, args: Args, value: Optional[str]):
         # log.debug(f'{self!r}.take_action({value!r})')
-        if (action := self.action) == 'store' and self._value is not _NotSet:
-            raise ParamUsageError(self, f'received {value=} but a stored value={self._value!r} already exists')
+        if (action := self.action) == 'store' and args[self] is not _NotSet:
+            raise ParamUsageError(self, f'received {value=} but a stored value={args[self]!r} already exists')
         elif action == 'append':
             nargs = self.nargs
             try:
-                if (val_count := len(self._value)) >= nargs.max:
+                if (val_count := len(args[self])) >= nargs.max:
                     raise ParamUsageError(self, f'cannot accept any additional args with {nargs=}: {val_count=}')
             except TypeError:
                 pass
 
-        self.provided += 1
+        args.record_action(self)
         action_method = getattr(self, self.action)
         if action in {'store_const', 'append_const'}:
             if value is not None:
                 raise ParamUsageError(self, f'received {value=} but no values are accepted for {action=}')
-            return action_method()
+            return action_method(args)
         else:
             normalized = self.prepare_value(value) if value is not None else value
-            return action_method(normalized)
+            return action_method(args, normalized)
 
-    def would_accept(self, value: str) -> bool:
-        if (action := self.action) in {'store', 'store_all'} and self._value is not _NotSet:
+    def would_accept(self, args: Args, value: str) -> bool:
+        if (action := self.action) in {'store', 'store_all'} and args[self] is not _NotSet:
             return False
         elif action == 'append':
             nargs = self.nargs
             try:
-                if len(self._value) == nargs.max:
+                if len(args[self]) == nargs.max:
                     return False
             except TypeError:
                 pass
@@ -140,7 +156,7 @@ class Parameter(ABC):
             normalized = self.prepare_value(value)
         except BadArgument:
             return False
-        return self.is_valid_arg(normalized)
+        return self.is_valid_arg(args, normalized)
 
     def prepare_value(self, value: str) -> Any:
         if (type_func := self.type) is None:
@@ -152,7 +168,7 @@ class Parameter(ABC):
         except Exception as e:
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
-    def is_valid_arg(self, value: Any) -> bool:
+    def is_valid_arg(self, args: Args, value: Any) -> bool:
         if choices := self.choices:
             return value in choices
         elif isinstance(value, str) and value.startswith('-'):
@@ -162,8 +178,8 @@ class Parameter(ABC):
         else:
             return self.accepts_values
 
-    def result(self) -> Any:
-        value = self._value
+    def result(self, args: Args) -> Any:
+        value = args[self]
         if self.action == 'store':
             if value is _NotSet:
                 if self.required:
@@ -195,34 +211,26 @@ class Parameter(ABC):
         else:
             return self.metavar or self.name.upper()
 
-    @abstractmethod
-    def reset(self):
-        raise NotImplementedError
-
 
 class PassThru(Parameter):
     nargs = Nargs('*')
 
     def __init__(self, action: str = 'store_all', **kwargs):
         super().__init__(action=action, **kwargs)
-        self._value = _NotSet
 
-    def take_action(self, values: Collection[str]):
-        if self._value is not _NotSet:
-            raise ParamUsageError(self, f'received {values=} but a stored value={self._value!r} already exists')
+    def take_action(self, args: Args, values: Collection[str]):
+        value = args[self]
+        if value is not _NotSet:
+            raise ParamUsageError(self, f'received {values=} but a stored {value=} already exists')
 
-        self.provided += 1
+        args.record_action(self)
         normalized = list(map(self.prepare_value, values))
         action_method = getattr(self, self.action)
-        return action_method(normalized)
+        return action_method(args, normalized)
 
     @parameter_action
-    def store_all(self, values: Collection[str]):
-        self._value = values
-
-    def reset(self):
-        self.provided = 0
-        self._value = _NotSet
+    def store_all(self, args: Args, values: Collection[str]):
+        args[self] = values
 
 
 # region Positional Parameters
@@ -249,30 +257,23 @@ class Positional(BasePositional):
         if action is _NotSet:
             action = 'store' if self.nargs == 1 else 'append'
         super().__init__(action=action, **kwargs)
-        self._value = [] if action == 'append' else _NotSet
-
-    def reset(self):
-        self.provided = 0
-        self._value = [] if self.action == 'append' else _NotSet
+        if action == 'append':
+            self._init_value_factory = list
 
     @parameter_action
-    def store(self, value: Any):
-        self._value = value
+    def store(self, args: Args, value: Any):
+        args[self] = value
 
     @parameter_action
-    def append(self, value: Any):
-        self._value.append(value)
+    def append(self, args: Args, value: Any):
+        args[self].append(value)
 
 
 class LooseString(BasePositional):
     def __init__(self, action: str = 'append', choices: Collection[str] = None, **kwargs):
         super().__init__(action=action, **kwargs)
         self.register_choices(choices)
-        self._value = []
-
-    def reset(self):
-        self.provided = 0
-        self._value = []
+        self._init_value_factory = list
 
     def register_choices(self, choices: Collection[str]):
         if choices is None:
@@ -288,18 +289,18 @@ class LooseString(BasePositional):
         self.choices = choices
 
     @parameter_action
-    def append(self, value: str):
+    def append(self, args: Args, value: str):
         values = value.split()
-        if not self.is_valid_arg(' '.join(values)):
+        if not self.is_valid_arg(args, ' '.join(values)):
             raise InvalidChoice(self, value, self.choices)
 
-        self._value.extend(values)
+        args[self].extend(values)
         n_values = len(values)
-        self.provided += n_values - 1
+        args.record_action(self, n_values - 1)
         return n_values
 
-    def is_valid_arg(self, value: str) -> bool:
-        if values := self._value:
+    def is_valid_arg(self, args: Args, value: str) -> bool:
+        if values := args[self]:
             combined = ' '.join(values) + ' ' + value
         else:
             combined = value
@@ -309,8 +310,8 @@ class LooseString(BasePositional):
             return False
         return True
 
-    def result(self) -> str:
-        values = self._value
+    def result(self, args: Args) -> str:
+        values = args[self]
         nargs = self.nargs
         if (val_count := len(values)) == 0 and 0 not in nargs:
             raise MissingArgument(self)
@@ -364,8 +365,8 @@ class SubCommand(LooseString):
             parent = getattr(command, '_Command__parent', None)
             raise CommandDefinitionError(f'Invalid {cmd=} for {command} with {parent=} - already assigned to {sub_cmd}')
 
-    def result(self) -> 'CommandType':
-        cmd = super().result()
+    def result(self, args: Args) -> 'CommandType':
+        cmd = super().result(args)
         return self.cmd_command_map[cmd]
 
 
@@ -395,8 +396,8 @@ class Action(LooseString):
         else:
             raise CommandDefinitionError(f'Invalid {name=} for {method} - already assigned to {action_method}')
 
-    def result(self) -> MethodType:
-        name = super().result()
+    def result(self, args: Args) -> MethodType:
+        name = super().result(args)
         return self.name_method_map[name]
 
 
@@ -495,19 +496,16 @@ class Option(BaseOption):
         elif action == 'store' and self.nargs != 1:
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for {action=}')
         super().__init__(*args, action=action, default=default, required=required, **kwargs)
-        self._value = [] if action == 'append' else _NotSet
-
-    def reset(self):
-        self.provided = 0
-        self._value = [] if self.action == 'append' else _NotSet
+        if action == 'append':
+            self._init_value_factory = list
 
     @parameter_action
-    def store(self, value: Any):
-        self._value = value
+    def store(self, args: Args, value: Any):
+        args[self] = value
 
     @parameter_action
-    def append(self, value: Any):
-        self._value.append(value)
+    def append(self, args: Args, value: Any):
+        args[self].append(value)
 
 
 class Flag(BaseOption, accepts_values=False, accepts_none=True):
@@ -522,25 +520,26 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
                 raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with {default=}") from e
         super().__init__(*args, action=action, default=default, **kwargs)
         self.const = const
-        self._value = default if action == 'store_const' else []
 
-    def reset(self):
-        self.provided = 0
-        self._value = self.default if self.action == 'store_const' else []
-
-    @parameter_action
-    def store_const(self):
-        self._value = self.const
+    def _init_value_factory(self):
+        if self.action == 'store_const':
+            return self.default
+        else:
+            return []
 
     @parameter_action
-    def append_const(self):
-        self._value.append(self.const)
+    def store_const(self, args: Args):
+        args[self] = self.const
 
-    def would_accept(self, value: Optional[str]) -> bool:
+    @parameter_action
+    def append_const(self, args: Args):
+        args[self].append(self.const)
+
+    def would_accept(self, args: Args, value: Optional[str]) -> bool:
         return value is None
 
-    def result(self) -> Any:
-        return self._value
+    def result(self, args: Args) -> Any:
+        return args[self]
 
 
 class Counter(BaseOption, accepts_values=True, accepts_none=True):
@@ -553,11 +552,9 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')
         super().__init__(*args, action=action, default=default, **kwargs)
         self.const = const
-        self._value = default
 
-    def reset(self):
-        self.provided = 0
-        self._value = self.default
+    def _init_value_factory(self):
+        return self.default
 
     def prepare_value(self, value: Optional[str]) -> int:
         if value is None:
@@ -570,12 +567,12 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
             raise BadArgument(self, f'bad counter {value=}') from e
 
     @parameter_action
-    def append(self, value: Optional[int]):
+    def append(self, args: Args, value: Optional[int]):
         if value is None:
             value = self.const
-        self._value += value
+        args[self] += value
 
-    def is_valid_arg(self, value: Any) -> bool:
+    def is_valid_arg(self, args: Args, value: Any) -> bool:
         if value is None or isinstance(value, self.type):
             return True
         try:
@@ -585,8 +582,8 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         else:
             return True
 
-    def result(self) -> int:
-        return self._value
+    def result(self, args: Args) -> int:
+        return args[self]
 
 
 # endregion

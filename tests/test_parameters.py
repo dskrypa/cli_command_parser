@@ -25,6 +25,13 @@ class OptionTest(TestCase):
         with self.assertRaises(UsageError):
             Foo(['-f', 'c'])
 
+    def test_instance_values(self):
+        class Foo(Command): foo = Option('-f', choices=('a', 'b'))  # noqa
+        a = Foo(['-f', 'a'])
+        b = Foo(['-f', 'b'])
+        self.assertEqual(a.foo, 'a')
+        self.assertEqual(b.foo, 'b')
+
 
 class CounterTest(TestCase):
     def test_counter_default(self):
