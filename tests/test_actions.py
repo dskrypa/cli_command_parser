@@ -7,7 +7,7 @@ from unittest import TestCase, main
 from unittest.mock import MagicMock
 
 sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
-from command_parser import Command, Action, InvalidChoice, MissingArgument
+from command_parser import Command, Action, InvalidChoice, MissingArgument, ParameterDefinitionError
 
 log = logging.getLogger(__name__)
 
@@ -59,6 +59,31 @@ class ActionTest(TestCase):
 
         with self.assertRaises(MissingArgument):
             Foo([]).run()
+
+    def test_custom_name(self):
+        call_count = 0
+
+        class Foo(Command):
+            action = Action()
+
+            @action.register('bar-baz')
+            def bar(self):
+                nonlocal call_count
+                call_count += 1
+
+        with self.assertRaises(InvalidChoice):
+            Foo(['bar']).run()
+
+        Foo(['bar-baz']).run()
+        self.assertEqual(call_count, 1)
+
+    def test_invalid_names(self):
+        for name in ('baz\n', 'a\nb', '\x00', '-baz', '--baz'):
+            with self.subTest(name=name), self.assertRaises(ParameterDefinitionError):
+
+                class Foo(Command):
+                    action = Action()
+                    action.register(name)(MagicMock(__name__='bar'))
 
 
 if __name__ == '__main__':

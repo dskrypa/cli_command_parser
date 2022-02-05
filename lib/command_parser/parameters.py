@@ -4,15 +4,17 @@
 
 import logging
 from abc import ABC
-from functools import cached_property
+from functools import cached_property, partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection
+from string import printable, whitespace
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union
 from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError
 from .groups import ParameterGroup
-from .utils import _NotSet, Args, Nargs, NargsValue, Bool, parameter_action
+from .nargs import Nargs, NargsValue
+from .utils import _NotSet, Args, Bool, validate_positional
 
 if TYPE_CHECKING:
     from .commands import Command, CommandType
@@ -31,6 +33,39 @@ __all__ = [
     'Counter',
 ]
 log = logging.getLogger(__name__)
+
+
+class parameter_action:
+    def __init__(self, method: MethodType):
+        self.method = method
+        update_wrapper(self, method)
+
+    def __set_name__(self, parameter_cls: Type['Parameter'], name: str):
+        """
+        Registers the decorated method in the Parameter subclass's _actions dict, then replaces the action decorator
+        with the original method.
+
+        Since `__set_name__` is called on descriptors before their containing class's parent's `__init_subclass__` is
+        called, name action/method name conflicts are handled by imitating a name mangled dunder attribute that will be
+        unique to each subclass.  The mangled name is replaced with the friendlier `_actions` in
+        :meth:`Parameter.__init_subclass__`.
+        """
+        try:
+            actions = getattr(parameter_cls, f'_{parameter_cls.__name__}__actions')
+        except AttributeError:
+            actions = set()
+            setattr(parameter_cls, f'_{parameter_cls.__name__}__actions', actions)
+
+        actions.add(name)
+
+    def __call__(self, *args, **kwargs) -> int:
+        result = self.method(*args, **kwargs)
+        return 1 if result is None else result
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return partial(self.__call__, instance)
 
 
 class Parameter(ABC):
@@ -350,6 +385,7 @@ class SubCommand(LooseString):
         else:
             if cmd is None:
                 raise CommandDefinitionError(f"Missing class kwarg 'cmd' for {command}")
+            validate_positional(f'{self.__class__.__name__} for {command}', cmd, 'cmd', exc=CommandDefinitionError)
 
         try:
             sub_cmd = self.cmd_command_map[cmd]
@@ -371,7 +407,6 @@ class SubCommand(LooseString):
 
 
 class Action(LooseString):
-    # TODO: Either register should accept an optional name arg, or this should not extend LooseString
     name_method_map: dict[str, MethodType]
 
     def __init__(self, *args, **kwargs):
@@ -383,8 +418,14 @@ class Action(LooseString):
         self.choices = set()
         self.name_method_map = {}
 
-    def register(self, method: MethodType) -> Callable:
-        name = method.__name__
+    def register(self, name_or_method: Union[str, MethodType]) -> Callable:
+        if isinstance(name_or_method, str):
+            validate_positional(self.__class__.__name__, name_or_method)
+            return partial(self._register, name_or_method)
+        else:
+            return self._register(name_or_method.__name__, name_or_method)
+
+    def _register(self, name: str, method: MethodType) -> Callable:
         try:
             action_method = self.name_method_map[name]
         except KeyError:
