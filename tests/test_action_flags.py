@@ -28,7 +28,7 @@ class ActionFlagTest(TestCase):
             foo = Foo(['bar', '-h'])
             foo.run()
 
-        self.assertEqual(sio.getvalue(), 'TODO: Implement help text\n')  # TODO: Update after implementing
+        self.assertTrue(sio.getvalue().startswith('usage: '))
         self.assertEqual(mock.call_count, 0)
 
     def test_af_func_missing(self):
