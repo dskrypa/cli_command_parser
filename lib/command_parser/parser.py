@@ -19,31 +19,35 @@ log = logging.getLogger(__name__)
 
 
 class CommandParser:
+    command: 'CommandType'
     parent: Optional['CommandParser'] = None
     sub_command: Optional[SubCommand] = None
     pass_thru: Optional[PassThru] = None
+    groups: list[ParameterGroup]
+    _options: list[BaseOption]
+    positionals: list[BasePositional]
     long_options: dict[str, BaseOption]
     short_options: dict[str, BaseOption]
     short_combinable: dict[str, BaseOption]
-    groups: list[ParameterGroup]
     action_flags: list[ActionFlag]
 
     def __init__(self, command: 'CommandType'):
         self.command = command
-        self.groups = []
-        self._options = []
-        self.positionals = []
-        # Positionals are not copied from parent because they must be consumed before the child can be picked
-        if (parent := getattr(command, '_BaseCommand__parent', None)) is not None:  # type: CommandType
-            self.parent = parent_parser = parent.parser()
-            self.long_options = parent_parser.long_options.copy()
-            self.short_options = parent_parser.short_options.copy()
+        self.positionals = []  # Not copied from the parent because they must be consumed before the child can be picked
+        if (cmd_parent := getattr(self.command, '_BaseCommand__parent', None)) is not None:  # type: CommandType
+            self.parent = parent = cmd_parent.parser()
+            self.groups = parent.groups.copy()
+            self._options = parent._options.copy()
+            self.long_options = parent.long_options.copy()
+            self.short_options = parent.short_options.copy()
         else:
-            parent_parser = None
+            parent = None
+            self.groups = []
+            self._options = []
             self.long_options = {}
             self.short_options = {}
 
-        self.sub_command, short_combinable = self._process_parameters(command, parent_parser)
+        self.sub_command, short_combinable = self._process_parameters(self.command, parent)
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
         self.action_flags = self._process_action_flags()
@@ -169,11 +173,15 @@ class CommandParser:
             group.check_conflicts(args)
 
         if (sub_command := self.sub_command) is not None:
-            return sub_command.result(args)
+            try:
+                return sub_command.result(args)
+            except UsageError:
+                if not args.find_all(ActionFlag):  # propagate if --help or similar was not found
+                    raise
         elif args.remaining and not allow_unknown:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(args.remaining)))
-        else:
-            return None
+
+        return None
 
     def format_usage(self, delim: str = ' ') -> str:
         meta: ProgramMetadata = self.command._BaseCommand__meta
@@ -190,7 +198,9 @@ class CommandParser:
         self, width: int = 30, add_default: Bool = True, add_group_type: Bool = True, extended_epilog: Bool = True
     ):
         meta: ProgramMetadata = self.command._BaseCommand__meta
-        parts = [meta.description, ''] if meta.description else []
+        parts = [self.format_usage(), '']
+        if description := meta.description:
+            parts += [description, '']
         if positionals := self.positionals:
             parts.extend(_format_group('Positional arguments:', positionals, width, add_default))
         if options := [p for p in self._options if not p.group]:

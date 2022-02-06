@@ -251,8 +251,10 @@ class Parameter(ABC):
             help_str += f'{pad}(default: {default})'
 
         if help_str:
-            pad_chars = width - 2 - len(arg_str)
-            pad = ('\n' + ' ' * width) if pad_chars < 0 else (' ' * pad_chars)
+            if (pad_chars := width - len(arg_str)) < 0:
+                pad = '\n' + ' ' * width
+            else:
+                pad = ' ' * pad_chars
             return f'{arg_str}{pad}{help_str}'
         else:
             return arg_str
@@ -391,6 +393,9 @@ class LooseString(BasePositional):
             raise InvalidChoice(self, combined, choices)
 
         return combined
+
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        return self.usage_metavar
 
 
 class SubCommand(LooseString):
@@ -600,6 +605,7 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
 
 
 class ActionFlag(Flag):
+    # TODO: Refactor to automatically be part of a mutually exclusive group
     def __init__(self, *args, priority: Union[int, float] = 1, func: Callable = None, **kwargs):
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}

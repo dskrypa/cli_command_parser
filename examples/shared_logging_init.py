@@ -16,11 +16,11 @@ class Base(Command):
     sub_cmd = SubCommand()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
-    def main(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose else '%(message)s'
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)
-        super().main(*args, **kwargs)
 
 
 class Show(Base, cmd='show'):

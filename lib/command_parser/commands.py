@@ -135,9 +135,6 @@ class Command(BaseCommand, exc_handler=extended_error_handler):
     @action_flag('-h', priority=float('-inf'), help='Show this help message and exit')
     def help(self):
         parser: CommandParser = self.parser()  # noqa  # PyCharm is confused about this for some reason...
-        # TODO: --help is not being triggered if there are missing positional args
-        # TODO: parent Command args are not showing up in help text
-        print(parser.format_usage())
         print(parser.format_help())
         raise ParserExit
 
