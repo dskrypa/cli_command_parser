@@ -6,7 +6,10 @@ from pathlib import Path
 from unittest import TestCase, main
 
 sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
-from command_parser import Command, Counter, NoSuchOption, Option, UsageError
+from command_parser import Command, Counter, Option, Flag
+from command_parser.exceptions import NoSuchOption, UsageError, ParameterDefinitionError, ParamUsageError
+from command_parser.parameters import parameter_action
+from command_parser.utils import Args
 
 log = logging.getLogger(__name__)
 
@@ -96,6 +99,38 @@ class CounterTest(TestCase):
             with self.subTest(n=n):
                 self.assertEqual(Foo.parse([f'-v={n}']).verbose, n)
                 self.assertEqual(Foo.parse([f'--verbose={n}']).verbose, n)
+
+
+class MiscParameterTest(TestCase):
+    def test_unregistered_action_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Flag(action='foo')
+
+    def test_empty_choices(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Option(choices=())
+
+    def test_action_is_parameter_action(self):
+        self.assertIsInstance(Flag.store_const, parameter_action)
+
+    def test_re_assign_rejected(self):
+        option = Option(action='store')
+        args = Args([])
+        option.take_action(args, 'foo')
+        with self.assertRaises(ParamUsageError):
+            option.take_action(args, 'foo')
+
+    def test_too_many_rejected(self):
+        option = Option(action='append', nargs=1)
+        args = Args([])
+        option.take_action(args, 'foo')
+        with self.assertRaises(ParamUsageError):
+            option.take_action(args, 'foo')
+
+    def test_non_none_rejected(self):
+        flag = Flag()
+        with self.assertRaises(ParamUsageError):
+            flag.take_action(Args([]), 'foo')
 
 
 if __name__ == '__main__':
