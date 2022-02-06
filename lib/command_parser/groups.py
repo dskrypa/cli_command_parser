@@ -4,14 +4,14 @@
 
 import logging
 from threading import Lock
-from typing import TYPE_CHECKING, Any, Optional, Union, Iterator
+from typing import TYPE_CHECKING, Any, Optional, Union, Iterator, Iterable
 
 from .exceptions import ParameterDefinitionError, UsageError
 
 if TYPE_CHECKING:
     from .commands import CommandType
     from .parameters import Parameter
-    from .utils import Args
+    from .utils import Args, Bool
 
 __all__ = ['ParameterGroup']
 log = logging.getLogger(__name__)
@@ -45,9 +45,23 @@ class ParameterGroup:
         self.mutually_exclusive = mutually_exclusive
         self.mutually_dependent = mutually_dependent
 
+    def add(self, param: 'Parameter'):
+        """Add the given parameter without storing a back-reference.  Primary use case is for help text only groups."""
+        self.parameters.append(param)
+
+    def maybe_add_all(self, params: Iterable['Parameter']):
+        for param in params:
+            if not param.group:
+                self.add(param)
+
     def register(self, param: 'Parameter'):
         self.parameters.append(param)
         param.group = self
+
+    def register_all(self, params: Iterable['Parameter']):
+        for param in params:
+            self.parameters.append(param)
+            param.group = self
 
     def __set_name__(self, owner: 'CommandType', name: str):
         if self.name is None:
@@ -98,3 +112,16 @@ class ParameterGroup:
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
             p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
             raise UsageError(f'The following arguments are mutually exclusive - only one is allowed: {p_str}')
+
+    def format_description(self, group_type: 'Bool' = True) -> str:
+        description = self.description or f'{self.name} options'
+        if group_type and (self.mutually_exclusive or self.mutually_dependent):
+            description += ' (mutually {})'.format('exclusive' if self.mutually_exclusive else 'dependent')
+        return description
+
+    def format_help(self, width: int = 30, add_default: 'Bool' = True, group_type: 'Bool' = True):
+        parts = [self.format_description(group_type) + ':']
+        for param in self.parameters:
+            parts.append(param.format_help(width=width, add_default=add_default))
+        parts.append('')
+        return '\n'.join(parts)

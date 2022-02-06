@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, Iterator, Iterable
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
 from .groups import ParameterGroup
-from .parameters import SubCommand, BasePositional, BaseOption, Parameter, PassThru, ActionFlag
+from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
 from .utils import Args, Bool, ProgramMetadata
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ class CommandParser:
     pass_thru: Optional[PassThru] = None
     groups: list[ParameterGroup]
     _options: list[BaseOption]
-    positionals: list[BasePositional]
+    positionals: list[_Positional]
     long_options: dict[str, BaseOption]
     short_options: dict[str, BaseOption]
     short_combinable: dict[str, BaseOption]
@@ -34,12 +34,16 @@ class CommandParser:
     def __init__(self, command: 'CommandType'):
         self.command = command
         self.positionals = []  # Not copied from the parent because they must be consumed before the child can be picked
+        self.pos_group = ParameterGroup(description='Positional arguments')
+        self.opt_group = ParameterGroup(description='Optional arguments')
         if (cmd_parent := getattr(self.command, '_BaseCommand__parent', None)) is not None:  # type: CommandType
             self.parent = parent = cmd_parent.parser()
             self.groups = parent.groups.copy()
             self._options = parent._options.copy()
             self.long_options = parent.long_options.copy()
             self.short_options = parent.short_options.copy()
+
+            self.opt_group.maybe_add_all(self._options)
         else:
             parent = None
             self.groups = []
@@ -47,10 +51,59 @@ class CommandParser:
             self.long_options = {}
             self.short_options = {}
 
-        self.sub_command, short_combinable = self._process_parameters(self.command, parent)
+        short_combinable = self._process_parameters(self.command, parent)
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
         self.action_flags = self._process_action_flags()
+
+    # region Initialization / Parameter Processing
+
+    def _process_parameters(self, command: 'CommandType', parent: Optional['CommandParser']):
+        short_combinable = parent.short_combinable.copy() if parent is not None else {}
+        var_nargs_pos_param = None
+        for attr, param in command.__dict__.items():
+            if attr.startswith(('__', '_BaseCommand__', '_Command__')):
+                continue
+            elif isinstance(param, _Positional):
+                var_nargs_pos_param = self._add_positional(param, var_nargs_pos_param)
+            elif isinstance(param, BaseOption):
+                self._add_option(param, short_combinable, command)
+            elif isinstance(param, ParameterGroup):
+                self.groups.append(param)
+            elif isinstance(param, PassThru):
+                if self.has_pass_thru():
+                    raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
+                self.pass_thru = param
+
+        if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.cmd_command_map:
+            raise CommandDefinitionError(f'{command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
+
+        return short_combinable
+
+    def _add_positional(self, param: _Positional, var_nargs_param: Optional[_Positional]) -> Optional[_Positional]:
+        if var_nargs_param is not None:
+            raise CommandDefinitionError(
+                f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
+                f'a variable number of arguments - {param=} is invalid'
+            )
+        elif (sub_cmd := self.sub_command) is not None:
+            raise CommandDefinitionError(f'Positional {param=} may not follow a previous one: {sub_cmd}')
+        self.positionals.append(param)
+        if not param.group:
+            self.pos_group.add(param)
+        if isinstance(param, SubCommand) and param.command is self.command:
+            self.sub_command = param
+        if param.nargs.variable:
+            return param
+        return None
+
+    def _add_option(self, param: BaseOption, short_combinable: dict[str, BaseOption], command: 'CommandType'):
+        self._options.append(param)
+        if not param.group:
+            self.opt_group.add(param)
+        _update_options(self.long_options, 'long_opts', param, command)
+        _update_options(self.short_options, 'short_opts', param, command)
+        _update_options(short_combinable, 'short_combinable', param, command)
 
     def _process_action_flags(self):
         a_flags = (p for p in self._options if isinstance(p, ActionFlag) and p.enabled)
@@ -79,48 +132,21 @@ class CommandParser:
 
         return action_flags
 
-    def _process_parameters(self, command: 'CommandType', parent: Optional['CommandParser']):
-        short_combinable = parent.short_combinable.copy() if parent is not None else {}
-        sub_cmd_param = None
-        var_nargs_pos_param = None
-        for attr, param in command.__dict__.items():
-            if attr.startswith(('__', '_BaseCommand__', '_Command__')):
-                continue
-            elif isinstance(param, BasePositional):
-                if var_nargs_pos_param is not None:
-                    raise CommandDefinitionError(
-                        f'Additional Positional parameters cannot follow {var_nargs_pos_param} because it accepts'
-                        f'a variable number of arguments - {param=} is invalid'
-                    )
-                elif sub_cmd_param is not None:
-                    raise CommandDefinitionError(f'Positional {param=} may not follow a previous one: {sub_cmd_param}')
-
-                self.positionals.append(param)
-                if isinstance(param, SubCommand) and param.command is command:
-                    sub_cmd_param = param
-                if param.nargs.variable:
-                    var_nargs_pos_param = param
-            elif isinstance(param, BaseOption):
-                self._options.append(param)
-                _update_options(self.long_options, 'long_opts', param, command)
-                _update_options(self.short_options, 'short_opts', param, command)
-                _update_options(short_combinable, 'short_combinable', param, command)
-            elif isinstance(param, ParameterGroup):
-                self.groups.append(param)
-            elif isinstance(param, PassThru):
-                if self.has_pass_thru():
-                    raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
-                self.pass_thru = param
-
-        if sub_cmd_param is not None and not sub_cmd_param.cmd_command_map:
-            raise CommandDefinitionError(f'{command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
-
-        return sub_cmd_param, short_combinable
+    # endregion
 
     def __repr__(self) -> str:
         positionals = len(self.positionals)
         options = len(self._options)
         return f'<{self.__class__.__name__}[command={self.command.__name__}, {positionals=}, {options=}]>'
+
+    def contains(self, args: Args, item: str, recursive: Bool = True) -> bool:
+        if self._contains(args, item):
+            return True
+        elif recursive and (sub_command := self.sub_command) is not None:
+            for command in sub_command.cmd_command_map.values():
+                if command.parser().contains(args, item, recursive):
+                    return True
+        return False
 
     def _contains(self, args: Args, item: str) -> bool:
         """
@@ -146,15 +172,6 @@ class CommandParser:
         else:
             return False
 
-    def contains(self, args: Args, item: str, recursive: Bool = True) -> bool:
-        if self._contains(args, item):
-            return True
-        elif recursive and (sub_command := self.sub_command) is not None:
-            for command in sub_command.cmd_command_map.values():
-                if command.parser().contains(args, item, recursive):
-                    return True
-        return False
-
     def has_pass_thru(self) -> bool:
         if self.pass_thru:
             return True
@@ -162,9 +179,9 @@ class CommandParser:
             return parent.has_pass_thru()
         return False
 
-    def all_parameters(self) -> Iterator[Parameter]:
-        yield from self.positionals
-        yield from self._options
+    # def all_parameters(self) -> Iterator[Parameter]:
+    #     yield from self.positionals
+    #     yield from self._options
 
     def parse_args(self, args: Args, allow_unknown: Bool = False) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
@@ -188,29 +205,24 @@ class CommandParser:
         if usage := meta.usage:
             return usage
         parts = ['usage:', meta.prog]
-        for param in self.positionals:  # type: BasePositional
+        for param in self.positionals:  # type: _Positional
             parts.append(param.format_usage())
         for param in self._options:  # type: BaseOption
             parts.append('[{}]'.format(param.format_usage(True)))
         return delim.join(parts)
 
     def format_help(
-        self, width: int = 30, add_default: Bool = True, add_group_type: Bool = True, extended_epilog: Bool = True
+        self, width: int = 30, add_default: Bool = True, group_type: Bool = True, extended_epilog: Bool = True
     ):
         meta: ProgramMetadata = self.command._BaseCommand__meta
         parts = [self.format_usage(), '']
         if description := meta.description:
             parts += [description, '']
-        if positionals := self.positionals:
-            parts.extend(_format_group('Positional arguments:', positionals, width, add_default))
-        if options := [p for p in self._options if not p.group]:
-            parts.extend(_format_group('Optional arguments:', options, width, add_default))
-        if groups := self.groups:
-            for group in groups:
-                description = group.description or f'{group.name} Options'
-                if add_group_type and (group.mutually_exclusive or group.mutually_dependent):
-                    description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
-                parts.extend(_format_group(f'{description}:', group.parameters, width, add_default))
+
+        groups = [self.pos_group, self.opt_group] + self.groups
+        for group in groups:
+            if group.parameters:
+                parts.append(group.format_help(width=width, add_default=add_default, group_type=group_type))
 
         if epilog := meta.format_epilog(extended_epilog):
             parts.append(epilog)
@@ -253,7 +265,7 @@ class _Parser:
                 self.handle_short(arg, arg_deque)
             else:
                 try:
-                    param = next(pos_iter)  # type: BasePositional
+                    param = next(pos_iter)  # type: _Positional
                 except StopIteration:
                     self.deferred.append(arg)
                 else:
