@@ -2,9 +2,9 @@
 :author: Doug Skrypa
 """
 
-from typing import Union
+from typing import Union, Sequence
 
-NargsValue = Union[str, int, tuple[int, int], range]
+NargsValue = Union[str, int, tuple[int, int], Sequence[int], range]
 
 NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None)}
 
@@ -23,10 +23,6 @@ class Nargs:
                 self.min, self.max = self.allowed = NARGS_STR_RANGES[nargs]
             except KeyError as e:
                 raise ValueError(f'Invalid {nargs=} string - expected one of ?, *, or +') from e
-        elif isinstance(nargs, tuple):
-            if len(nargs) != 2 or not all(isinstance(v, int) for v in nargs) or not 0 <= nargs[0] <= nargs[1]:
-                raise ValueError(f'Invalid {nargs=} tuple - expected 2-tuple of integers where 0 <= a <= b')
-            self.min, self.max = self.allowed = nargs
         elif isinstance(nargs, range):
             if not 0 <= nargs.start <= nargs.stop or nargs.step < 0:
                 raise ValueError(f'Invalid {nargs=} range - expected positive step and 0 <= start <= stop')
@@ -34,6 +30,15 @@ class Nargs:
             self.allowed = nargs
             self.min = nargs.start
             self.max = nargs.stop
+        elif isinstance(nargs, Sequence):
+            bad_len = len(nargs) != 2
+            if not bad_len and not all(isinstance(v, int) for v in nargs):
+                raise TypeError(f'Invalid {nargs=} sequence - expected 2-tuple of integers where 0 <= a <= b')
+            elif bad_len or not 0 <= nargs[0] <= nargs[1]:
+                raise ValueError(f'Invalid {nargs=} sequence - expected 2-tuple of integers where 0 <= a <= b')
+            self.min, self.max = self.allowed = nargs
+        else:
+            raise TypeError(f'Unexpected type={nargs.__class__.__name__} for {nargs=}')
 
         self.variable = self.min != self.max
 
@@ -48,14 +53,22 @@ class Nargs:
         elif self.min == self.max:
             return str(self.min)
         else:
-            return f'{self.min} or {self.max}'
+            return f'{self.min} ~ {self.max}'
 
     def __contains__(self, num: int) -> bool:
         return self.satisfied(num)
 
     def __eq__(self, other: Union['Nargs', int]) -> bool:
         if isinstance(other, Nargs):
-            return self.allowed == other.allowed
+            if isinstance(other._orig, type(self._orig)):
+                return self.allowed == other.allowed
+            elif (s_range := self.range) is not None and s_range.step != 1:
+                if (o_range := other.range) is None or o_range.step != s_range.step:
+                    return False
+            elif (o_range := other.range) is not None and o_range.step != 1:
+                return False
+            else:
+                return self.min == other.min and self.max == other.max
         elif isinstance(other, int):
             return self.min == self.max == other
         else:
@@ -69,9 +82,3 @@ class Nargs:
             return count >= self.min
         else:
             return count in self.allowed
-
-    def needs_more(self, count: int) -> bool:
-        return count < self.min
-
-    def allows_more(self, count: int) -> bool:
-        return self.max is None or count < self.max
