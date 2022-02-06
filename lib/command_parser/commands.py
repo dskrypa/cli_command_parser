@@ -73,7 +73,7 @@ class BaseCommand:
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None):
             cls.__parent = parent
-            if cmd and parent is not Command:
+            if cmd and parent not in (Command, BaseCommand):
                 if (sub_cmd := parent.__sub_command) is None:
                     raise CommandDefinitionError(
                         f'{cls} cannot extend {parent=} with {cmd=} - no SubCommand parameter was found in {parent}'
