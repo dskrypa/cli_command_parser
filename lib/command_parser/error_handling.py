@@ -10,6 +10,8 @@ from .exceptions import ParserExit, CommandParserException
 
 __all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler']
 
+WINDOWS = platform.system().lower() == 'windows'
+
 
 class ErrorHandler:
     _exc_handler_map: dict[Type[BaseException], Callable] = {}
@@ -90,13 +92,11 @@ no_exit_handler(ParserExit)(ParserExit.show)
 
 extended_error_handler = error_handler.copy()
 
-if platform.system().lower() == 'windows':
+if WINDOWS or (sys.argv and sys.argv[0].lower().endswith('pytest')):
 
     @extended_error_handler(OSError)
     def _handle_os_error(e: OSError):
         if e.errno == 22:
-            import sys
-
             # When using |head, the pipe will be closed when head is done, but Python will still think that it
             # is open - checking whether sys.stdout is writable or closed doesn't work, so triggering the
             # error again seems to be the most reliable way to detect this (hopefully) without false positives
