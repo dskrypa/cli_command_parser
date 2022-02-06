@@ -399,6 +399,7 @@ class LooseString(BasePositional):
 
 
 class SubCommand(LooseString):
+    # TODO: Include command._BaseCommand__help in help text; the cmds should be listed like a mutually exclusive group
     cmd_command_map: dict[str, 'CommandType']
 
     def __init__(self, *args, **kwargs):

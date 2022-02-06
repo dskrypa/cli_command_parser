@@ -22,8 +22,8 @@ class SubCommandTest(TestCase):
         class Baz(Foo, cmd='baz'):
             pass
 
-        self.assertIsInstance(Foo(['bar']), Bar)
-        self.assertIsInstance(Foo(['baz']), Baz)
+        self.assertIsInstance(Foo.parse(['bar']), Bar)
+        self.assertIsInstance(Foo.parse(['baz']), Baz)
 
     def test_manual_register(self):
         class Foo(Command):
@@ -37,8 +37,8 @@ class SubCommandTest(TestCase):
         class Baz(Command, cmd='baz'):
             pass
 
-        self.assertIsInstance(Foo(['bar']), Bar)
-        self.assertIsInstance(Foo(['baz']), Baz)
+        self.assertIsInstance(Foo.parse(['bar']), Bar)
+        self.assertIsInstance(Foo.parse(['baz']), Baz)
 
     def test_mixed_register(self):
         class Foo(Command):
@@ -51,8 +51,8 @@ class SubCommandTest(TestCase):
         class Baz(Command, cmd='baz'):
             pass
 
-        self.assertIsInstance(Foo(['bar']), Bar)
-        self.assertIsInstance(Foo(['baz']), Baz)
+        self.assertIsInstance(Foo.parse(['bar']), Bar)
+        self.assertIsInstance(Foo.parse(['baz']), Baz)
 
     def test_space_in_cmd(self):
         class Foo(Command):
@@ -61,15 +61,15 @@ class SubCommandTest(TestCase):
         class Bar(Foo, cmd='bar baz'):
             pass
 
-        self.assertIsInstance(Foo(['bar', 'baz']), Bar)
-        self.assertIsInstance(Foo(['bar baz']), Bar)
+        self.assertIsInstance(Foo.parse(['bar', 'baz']), Bar)
+        self.assertIsInstance(Foo.parse(['bar baz']), Bar)
 
     def test_sub_cmd_cls_required(self):
         class Foo(Command):
             sub_cmd = SubCommand()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo([])
+            Foo.parse([])
 
     def test_sub_cmd_value_required(self):
         class Foo(Command):
@@ -79,7 +79,7 @@ class SubCommandTest(TestCase):
             pass
 
         with self.assertRaises(MissingArgument):
-            Foo([])
+            Foo.parse([])
 
     def test_parent_param_inherited(self):
         class Foo(Command):
@@ -89,7 +89,7 @@ class SubCommandTest(TestCase):
         class Bar(Foo, cmd='bar'):
             pass
 
-        cmd = Foo(['bar', '-v'])
+        cmd = Foo.parse(['bar', '-v'])
         self.assertIsInstance(cmd, Bar)
         self.assertEqual(cmd.verbose, 1)
 

@@ -16,14 +16,13 @@ class Base(Command):
     sub_cmd = SubCommand()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose else '%(message)s'
+    def __init__(self, args):
+        log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)
 
 
-class Show(Base, cmd='show'):
+class Show(Base, cmd='show', help='Show the results of an action'):
     action = Action(help='What to show')
 
     @action
@@ -43,4 +42,5 @@ class Show(Base, cmd='show'):
 
 
 if __name__ == '__main__':
+    # Base.parse().run()
     Base.parse_and_run()

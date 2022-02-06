@@ -25,7 +25,7 @@ class ActionFlagTest(TestCase):
 
         sio = StringIO()
         with redirect_stdout(sio):
-            foo = Foo(['bar', '-h'])
+            foo = Foo.parse(['bar', '-h'])
             foo.run()
 
         self.assertTrue(sio.getvalue().startswith('usage: '))
@@ -36,7 +36,7 @@ class ActionFlagTest(TestCase):
             foo = ActionFlag()
 
         with self.assertRaises(ParameterDefinitionError) as ctx:
-            Foo([])
+            Foo.parse([])
         self.assertIn('No function was registered', str(ctx.exception))
 
     def test_af_prio_conflict(self):
@@ -45,7 +45,7 @@ class ActionFlagTest(TestCase):
             bar = ActionFlag()(Mock())
 
         with self.assertRaises(CommandDefinitionError) as ctx:
-            Foo([])
+            Foo.parse([])
 
         self.assertIn('different priority values', str(ctx.exception))
 
@@ -56,7 +56,7 @@ class ActionFlagTest(TestCase):
                 bar = ActionFlag()(Mock())
 
         with self.assertRaises(CommandDefinitionError) as ctx:
-            Foo([])
+            Foo.parse([])
 
         self.assertIn('different priority values', str(ctx.exception))
 
@@ -67,7 +67,7 @@ class ActionFlagTest(TestCase):
                 bar = ActionFlag()(Mock())
 
         with self.assertRaises(CommandDefinitionError) as ctx:
-            Foo([])
+            Foo.parse([])
 
         self.assertIn('different priority values', str(ctx.exception))
 
@@ -77,7 +77,7 @@ class ActionFlagTest(TestCase):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        foo = Foo([])
+        foo = Foo.parse([])
         with self.assertRaises(KeyError):
             self.assertFalse(foo.args['foo'])
         with self.assertRaises(KeyError):

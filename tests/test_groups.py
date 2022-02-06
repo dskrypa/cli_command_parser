@@ -29,7 +29,7 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo(['-b'])
+        foo = Foo.parse(['-b'])
         self.assertTrue(foo.bar)
         self.assertFalse(foo.baz)
 
@@ -40,7 +40,7 @@ class GroupTest(TestCase):
                 baz = Flag('-B')
 
         with self.assertRaises(UsageError):
-            Foo(['-b', '-B'])
+            Foo.parse(['-b', '-B'])
 
     def test_me_skipped(self):
         class Foo(Command):
@@ -48,7 +48,7 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo([])
+        foo = Foo.parse([])
         self.assertFalse(foo.bar)
         self.assertFalse(foo.baz)
 
@@ -58,7 +58,7 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo(['-b', '-B'])
+        foo = Foo.parse(['-b', '-B'])
         self.assertTrue(foo.bar)
         self.assertTrue(foo.baz)
 
@@ -69,10 +69,10 @@ class GroupTest(TestCase):
                 baz = Flag('-B')
 
         with self.assertRaises(UsageError):
-            Foo(['-b'])
+            Foo.parse(['-b'])
 
         with self.assertRaises(UsageError):
-            Foo(['-B'])
+            Foo.parse(['-B'])
 
     def test_md_skipped(self):
         class Foo(Command):
@@ -80,7 +80,7 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo([])
+        foo = Foo.parse([])
         self.assertFalse(foo.bar)
         self.assertFalse(foo.baz)
 
@@ -90,11 +90,11 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo(['-b'])
+        foo = Foo.parse(['-b'])
         self.assertTrue(foo.bar)
         self.assertFalse(foo.baz)
 
-        foo = Foo(['-B'])
+        foo = Foo.parse(['-B'])
         self.assertFalse(foo.bar)
         self.assertTrue(foo.baz)
 
@@ -104,7 +104,7 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo(['-b', '-B'])
+        foo = Foo.parse(['-b', '-B'])
         self.assertTrue(foo.bar)
         self.assertTrue(foo.baz)
 
@@ -114,7 +114,7 @@ class GroupTest(TestCase):
                 bar = Flag('-b')
                 baz = Flag('-B')
 
-        foo = Foo([])
+        foo = Foo.parse([])
         self.assertFalse(foo.bar)
         self.assertFalse(foo.baz)
 

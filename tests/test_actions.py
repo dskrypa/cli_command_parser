@@ -26,7 +26,7 @@ class ActionTest(TestCase):
                 nonlocal call_count
                 call_count += 1
 
-        Foo(['bar']).run()
+        Foo.parse(['bar']).run()
         self.assertEqual(call_count, 1)
 
     def test_action_called_mock(self):
@@ -36,7 +36,7 @@ class ActionTest(TestCase):
             action = Action()
             action.register(mock)
 
-        foo = Foo(['bar'])
+        foo = Foo.parse(['bar'])
         foo.run()
         self.assertEqual(mock.call_count, 1)
         self.assertEqual(mock.call_args.args[0], foo)
@@ -47,7 +47,7 @@ class ActionTest(TestCase):
             action(Mock(__name__='bar'))
 
         with self.assertRaises(InvalidChoice):
-            Foo(['baz']).run()
+            Foo.parse(['baz']).main()
 
     def test_action_missing(self):
         class Foo(Command):
@@ -55,7 +55,7 @@ class ActionTest(TestCase):
             action.register(Mock(__name__='bar'))
 
         with self.assertRaises(MissingArgument):
-            Foo([]).main()
+            Foo.parse([]).main()
 
     def test_custom_name(self):
         call_count = 0
@@ -69,9 +69,9 @@ class ActionTest(TestCase):
                 call_count += 1
 
         with self.assertRaises(InvalidChoice):
-            Foo(['bar']).run()
+            Foo.parse(['bar']).run()
 
-        Foo(['bar-baz']).run()
+        Foo.parse(['bar-baz']).run()
         self.assertEqual(call_count, 1)
 
     def test_invalid_names(self):

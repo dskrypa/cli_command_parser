@@ -24,24 +24,24 @@ class OptionTest(TestCase):
         class Foo(Command):
             foo = Option('-f', choices=('a', 'b'))
 
-        self.assertEqual(Foo(['-f', 'a']).foo, 'a')
-        self.assertEqual(Foo(['-f', 'b']).foo, 'b')
-        self.assertEqual(Foo(['--foo', 'a']).foo, 'a')
-        self.assertEqual(Foo(['--foo', 'b']).foo, 'b')
+        self.assertEqual(Foo.parse(['-f', 'a']).foo, 'a')
+        self.assertEqual(Foo.parse(['-f', 'b']).foo, 'b')
+        self.assertEqual(Foo.parse(['--foo', 'a']).foo, 'a')
+        self.assertEqual(Foo.parse(['--foo', 'b']).foo, 'b')
 
     def test_choice_bad(self):
         class Foo(Command):
             foo = Option('-f', choices=('a', 'b'))
 
         with self.assertRaises(UsageError):
-            Foo(['-f', 'c'])
+            Foo.parse(['-f', 'c'])
 
     def test_instance_values(self):
         class Foo(Command):
             foo = Option('-f', choices=('a', 'b'))
 
-        a = Foo(['-f', 'a'])
-        b = Foo(['-f', 'b'])
+        a = Foo.parse(['-f', 'a'])
+        b = Foo.parse(['-f', 'b'])
         self.assertEqual(a.foo, 'a')
         self.assertEqual(b.foo, 'b')
 
@@ -51,16 +51,16 @@ class CounterTest(TestCase):
         class Foo(Command):
             verbose: int = Counter('-v')
 
-        self.assertEqual(Foo([]).verbose, 0)
+        self.assertEqual(Foo.parse([]).verbose, 0)
 
     def test_counter_1(self):
         class Foo(Command):
             verbose: int = Counter('-v')
 
-        self.assertEqual(Foo(['-v']).verbose, 1)
-        self.assertEqual(Foo(['--verbose']).verbose, 1)
+        self.assertEqual(Foo.parse(['-v']).verbose, 1)
+        self.assertEqual(Foo.parse(['--verbose']).verbose, 1)
         with self.assertRaises(NoSuchOption):
-            Foo(['-verbose'])
+            Foo.parse(['-verbose'])
 
     def test_counter_multi(self):
         class Foo(Command):
@@ -68,8 +68,8 @@ class CounterTest(TestCase):
 
         for n in range(1, 11):
             with self.subTest(n=n):
-                self.assertEqual(Foo(['-{}'.format('v' * n)]).verbose, n)
-                self.assertEqual(Foo(['--verbose'] * n).verbose, n)
+                self.assertEqual(Foo.parse(['-{}'.format('v' * n)]).verbose, n)
+                self.assertEqual(Foo.parse(['--verbose'] * n).verbose, n)
 
     def test_counter_num_no_space(self):
         class Foo(Command):
@@ -77,7 +77,7 @@ class CounterTest(TestCase):
 
         for n in range(-10, 11):
             with self.subTest(n=n):
-                self.assertEqual(Foo([f'-v{n}']).verbose, n)
+                self.assertEqual(Foo.parse([f'-v{n}']).verbose, n)
 
     def test_counter_num_space(self):
         class Foo(Command):
@@ -85,8 +85,8 @@ class CounterTest(TestCase):
 
         for n in range(-10, 11):
             with self.subTest(n=n):
-                self.assertEqual(Foo(['-v', str(n)]).verbose, n)
-                self.assertEqual(Foo(['--verbose', str(n)]).verbose, n)
+                self.assertEqual(Foo.parse(['-v', str(n)]).verbose, n)
+                self.assertEqual(Foo.parse(['--verbose', str(n)]).verbose, n)
 
     def test_counter_num_eq(self):
         class Foo(Command):
@@ -94,8 +94,8 @@ class CounterTest(TestCase):
 
         for n in range(-10, 11):
             with self.subTest(n=n):
-                self.assertEqual(Foo([f'-v={n}']).verbose, n)
-                self.assertEqual(Foo([f'--verbose={n}']).verbose, n)
+                self.assertEqual(Foo.parse([f'-v={n}']).verbose, n)
+                self.assertEqual(Foo.parse([f'--verbose={n}']).verbose, n)
 
 
 if __name__ == '__main__':
