@@ -82,6 +82,8 @@ class CommandParser:
 
     def _add_positional(self, param: _Positional, var_nargs_param: Optional[_Positional]) -> Optional[_Positional]:
         if var_nargs_param is not None:
+            # TODO: It should be possible to specify positional parameters after Action parameters if the Action doesn't
+            #  allow variable nargs
             raise CommandDefinitionError(
                 f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
                 f'a variable number of arguments - {param=} is invalid'

@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
-import sys
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
-from pathlib import Path
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser.error_handling import ErrorHandler, extended_error_handler, _handle_os_error
 from command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
 from command_parser.parameters import Flag

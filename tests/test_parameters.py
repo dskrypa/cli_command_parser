@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
 import logging
-import sys
-from pathlib import Path
 from unittest import TestCase, main
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser import Command, Counter, Option, Flag
 from command_parser.exceptions import NoSuchOption, UsageError, ParameterDefinitionError, ParamUsageError
 from command_parser.parameters import parameter_action

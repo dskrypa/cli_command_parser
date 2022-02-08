@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 
 import logging
-import sys
 from contextlib import redirect_stdout
 from io import StringIO
-from pathlib import Path
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser import Command, Action, no_exit_handler, ActionFlag, ParameterGroup
 from command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError
 
@@ -19,7 +16,7 @@ class ActionFlagTest(TestCase):
     def test_help_action(self):
         mock = Mock(__name__='bar')
 
-        class Foo(Command, exc_handler=no_exit_handler):
+        class Foo(Command, error_handler=no_exit_handler):
             action = Action()
             action.register(mock)
 

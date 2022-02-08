@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-import logging
-import sys
-from pathlib import Path
 from unittest import TestCase, main
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser import ParameterGroup, Command, Flag, UsageError, ParameterDefinitionError
-
-log = logging.getLogger(__name__)
 
 
 class GroupTest(TestCase):
@@ -186,6 +180,7 @@ class GroupTest(TestCase):
 
 
 if __name__ == '__main__':
+    # import logging
     # logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     try:
         main(warnings='ignore', verbosity=2, exit=False)

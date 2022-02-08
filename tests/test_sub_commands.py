@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
 import logging
-import sys
-from pathlib import Path
 from unittest import TestCase, main
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
 
 log = logging.getLogger(__name__)

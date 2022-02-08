@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
 import logging
-import sys
-from pathlib import Path
-from unittest import TestCase, main
+from unittest import TestCase, main, skip
 from unittest.mock import Mock
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
-from command_parser import Command, Action
+from command_parser import Command, Action, Positional
 from command_parser.exceptions import ParameterDefinitionError, MissingArgument, InvalidChoice
 
 log = logging.getLogger(__name__)
@@ -81,6 +78,17 @@ class ActionTest(TestCase):
                 class Foo(Command):
                     action = Action()
                     action(name)(Mock(__name__='bar'))
+
+    @skip('Pending fix to make this work')
+    def test_positional_allowed_after_action(self):
+        class Foo(Command):
+            action = Action(help='The action to take')
+            text = Positional(nargs='+')
+            action(Mock(__name__='foo'))
+
+        foo = Foo.parse(['foo', 'bar'])
+        self.assertTrue(foo.args['foo'])
+        self.assertEqual(foo.text, ['bar'])
 
 
 if __name__ == '__main__':

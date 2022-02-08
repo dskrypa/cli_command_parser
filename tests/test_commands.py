@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
-import sys
 from contextlib import redirect_stdout
-from pathlib import Path
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
 from command_parser import Command, Action, ActionFlag, SubCommand
 from command_parser.exceptions import CommandDefinitionError
 from command_parser.utils import Args

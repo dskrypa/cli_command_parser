@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
 import logging
-import sys
-from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, PROJECT_ROOT.joinpath('lib').as_posix())
 
 from command_parser import Command, Counter, SubCommand, Action
 

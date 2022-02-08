@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
-import sys
-from pathlib import Path
 from unittest import TestCase, main
-
-sys.path.append(Path(__file__).parents[1].joinpath('lib').as_posix())
-from command_parser.nargs import Nargs
 
 
 class MiscTest(TestCase):

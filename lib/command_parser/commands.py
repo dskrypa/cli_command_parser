@@ -12,7 +12,7 @@ from .parameters import SubCommand, Action, ActionFlag, action_flag
 from .error_handling import ErrorHandler, extended_error_handler, error_handler as _error_handler
 from .exceptions import CommandDefinitionError, ParserExit
 from .parser import CommandParser
-from .utils import Args, Bool, ProgramMetadata
+from .utils import _NotSet, Args, Bool, ProgramMetadata
 
 __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class BaseCommand:
     args: Args                                          # Same as __args, but can be overwritten.  Not used internally.
     __meta: ProgramMetadata = None                      # Metadata used in help text
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
-    __exc_handler: ErrorHandler = None                  # The ExceptionHandler to wrap main()
+    __error_handler: Optional[ErrorHandler] = _NotSet   # The ExceptionHandler to wrap main()
     # Attributes related to sub-commands/actions
     __cmd: str = None                                   # SubCommand value that maps to this command
     __help: str = None                                  # Help text to be displayed as a SubCommand option
@@ -50,7 +50,7 @@ class BaseCommand:
         description: str = None,
         epilog: str = None,
         help: str = None,  # noqa
-        exc_handler: ErrorHandler = None,
+        error_handler: ErrorHandler = _NotSet,
     ):  # noqa
         """
         :param cmd: SubCommand value that maps to this command
@@ -59,7 +59,7 @@ class BaseCommand:
         :param description: Description of what the program does
         :param epilog: Text to follow parameter descriptions
         :param help: Help text to be displayed as a SubCommand option
-        :param exc_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`
+        :param error_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`
         """
         if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
             cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
@@ -68,8 +68,8 @@ class BaseCommand:
         cls.__parser = None
         cls.__sub_command = None
         cls.__parent = None
-        if exc_handler is not None:
-            cls.__exc_handler = exc_handler
+        if error_handler is not _NotSet:
+            cls.__error_handler = error_handler
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None):
             cls.__parent = parent
@@ -115,7 +115,8 @@ class BaseCommand:
     def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs):
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
-        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.
+        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
+        exceptions during parsing using the configured :class:`ErrorHandler`.
 
         To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use
         the above mentioned methods separately.
@@ -124,8 +125,19 @@ class BaseCommand:
         :param args: Positional arguments to pass to :meth:`.run`
         :param kwargs: Keyword arguments to pass to :meth:`.run`
         """
-        self = cls.parse(argv)
-        self.run(*args, **kwargs)
+        error_handler = _error_handler if cls.__error_handler is _NotSet else cls.__error_handler
+        if error_handler is not None:
+            with error_handler:
+                self = cls.parse(argv)
+        else:
+            self = cls.parse(argv)
+
+        try:
+            run = self.run
+        except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
+            pass
+        else:
+            self.run(*args, **kwargs)
 
     @classmethod
     def parse(cls, args: Sequence[str] = None) -> 'BaseCommand':
@@ -147,13 +159,16 @@ class BaseCommand:
         """
         Primary entry point for running a command.  Calls :meth:`.main` and handles exceptions using the configured
         :class:`ErrorHandler`.  Alternate error handlers can be specified during Command class initialization.  To skip
-        error handling, call :meth:`.main` directly.
+        error handling, call :meth:`.main` directly or define the class with ``error_handler=None``.
 
         :param args: Positional arguments to pass to :meth:`.main`
         :param kwargs: Keyword arguments to pass to :meth:`.main`
         """
-        error_handler = self.__exc_handler or _error_handler
-        with error_handler:
+        error_handler = _error_handler if self.__error_handler is _NotSet else self.__error_handler
+        if error_handler is not None:
+            with error_handler:
+                self.main(*args, **kwargs)
+        else:
             self.main(*args, **kwargs)
 
     def main(self, *args, **kwargs) -> bool:
@@ -178,7 +193,7 @@ class BaseCommand:
         return False
 
 
-class Command(BaseCommand, exc_handler=extended_error_handler):
+class Command(BaseCommand, error_handler=extended_error_handler):
     """
     The main class that other Commands should extend.  Provides the ``--help`` action and handles more Exceptions by
     default, compared to :class:`BaseCommand`.
