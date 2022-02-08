@@ -3,7 +3,7 @@
 """
 
 import logging
-from threading import Lock
+from threading import local
 from typing import TYPE_CHECKING, Any, Optional, Union, Iterator, Iterable
 
 from .exceptions import ParameterDefinitionError, UsageError
@@ -25,8 +25,7 @@ class ParameterGroup:
     differing mutual exclusivity/dependency rules would need to be resolved.  In theory, though, it should be possible.
     """
 
-    _lock = Lock()
-    _active: Optional['ParameterGroup'] = None
+    _local = local()
 
     def __init__(
         self,
@@ -72,15 +71,27 @@ class ParameterGroup:
         members = len(self.parameters)
         return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
 
+    @classmethod
+    def active_group(cls) -> Optional['ParameterGroup']:
+        try:
+            return cls._local.stack[-1]
+        except (AttributeError, IndexError):
+            return None
+
     def __enter__(self) -> 'ParameterGroup':
-        self._lock.acquire()
-        self.__class__._active = self
+        try:
+            stack = self._local.stack
+        except AttributeError:
+            self._local.stack = stack = []
+        stack.append(self)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.__class__._active = None
-        self._lock.release()
+        self._local.stack.pop()
         return None
+
+    def __contains__(self, param: 'Parameter') -> bool:
+        return param in self.parameters
 
     def __iter__(self) -> Iterator['Parameter']:
         yield from self.parameters

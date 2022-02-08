@@ -119,7 +119,7 @@ class Parameter(ABC):
         self.metavar = metavar
         self.choices = choices
         self.help = help
-        if (group := ParameterGroup._active) is not None:
+        if (group := ParameterGroup.active_group()) is not None:
             group.register(self)  # This sets self.group = group
 
     @staticmethod

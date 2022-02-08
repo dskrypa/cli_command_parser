@@ -140,6 +140,50 @@ class GroupTest(TestCase):
         group = ParameterGroup('foo', mutually_exclusive=True)
         self.assertIn('exclusive', group.format_description())
 
+    def test_nested_me_in_md(self):
+        class Foo(Command):
+            with ParameterGroup(mutually_dependent=True) as outer:
+                with ParameterGroup(mutually_exclusive=True) as inner:
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        self.assertIn(Foo.foo, Foo.inner)
+        self.assertIn(Foo.bar, Foo.inner)
+        self.assertIn(Foo.baz, Foo.outer)
+        self.assertNotIn(Foo.foo, Foo.outer)
+        self.assertNotIn(Foo.bar, Foo.outer)
+        self.assertNotIn(Foo.baz, Foo.inner)
+        # self.assertIn(Foo.inner, Foo.outer)  # TODO: Implement
+
+        with self.assertRaises(UsageError):  # 2 from exclusive group + baz missing
+            Foo.parse(['--foo', '--bar'])
+
+        with self.assertRaises(UsageError):  # 2 from exclusive group
+            Foo.parse(['--foo', '--bar', '--baz'])
+
+        # TODO: Implement
+        # for case in ('--foo', '--bar', '--baz'):
+        #     # Since the outer group is mutually dependent, --baz must always accompany one of the inner group's args
+        #     with self.subTest(case=case), self.assertRaises(UsageError):
+        #         Foo.parse([case])
+
+        foo = Foo.parse(['--foo', '--baz'])
+        self.assertTrue(foo.foo)
+        self.assertTrue(foo.baz)
+        foo = Foo.parse(['--bar', '--baz'])
+        self.assertTrue(foo.bar)
+        self.assertTrue(foo.baz)
+
+    # def test_nested_me_in_me(self):
+    #     pass
+    #
+    # def test_nested_md_in_me(self):
+    #     pass
+    #
+    # def test_nested_md_in_md(self):
+    #     pass
+
 
 if __name__ == '__main__':
     # logging.basicConfig(level=logging.DEBUG, format='%(message)s')
