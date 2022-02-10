@@ -3,15 +3,15 @@
 """
 
 import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 from functools import cached_property, partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar
+from threading import local
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar, Iterable, Iterator
 from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from .exceptions import ParamUsageError
-from .groups import ParameterGroup
+from .exceptions import ParamUsageError, UsageError
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Args, Bool, validate_positional
 
@@ -33,10 +33,13 @@ __all__ = [
     'ActionFlag',
     'action_flag',
     'Param',
+    'ParameterGroup',
+    'ParamOrGroup',
 ]
 log = logging.getLogger(__name__)
 
 Param = TypeVar('Param', bound='Parameter')
+ParamOrGroup = Union[Param, 'ParameterGroup']
 
 
 class parameter_action:
@@ -72,15 +75,189 @@ class parameter_action:
         return partial(self.__call__, instance)
 
 
-class Parameter(ABC):
-    _actions: frozenset[str] = frozenset()
+class ParamBase(ABC):
     _name: str = None
+    group: 'ParameterGroup' = None
+    command: 'CommandType' = None
+    required: Bool = False
+    help: str = None
+
+    def __init__(self, name: str = None, required: Bool = False, help: str = None):  # noqa
+        self.required = required
+        self.name = name
+        self.help = help
+        if (group := ParameterGroup.active_group()) is not None:
+            group.register(self)  # noqa  # This sets self.group = group
+
+    @property
+    def name(self) -> str:
+        if (name := self._name) is not None:
+            return name
+        return f'{self.__class__.__name__}#{id(self)}'
+
+    @name.setter
+    def name(self, value: Optional[str]):
+        if value is not None:
+            self._name = value
+
+    def __set_name__(self, command: 'CommandType', name: str):
+        self.command = command
+        if self._name is None:
+            self.name = name
+
+    @abstractmethod
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def format_help(self, width: int = 30, add_default: Bool = True) -> str:
+        raise NotImplementedError
+
+
+class ParameterGroup(ParamBase):
+    """
+    A group of parameters.
+
+    Group nesting is not implemented due to the complexity and potential confusion that it would add for cases where
+    differing mutual exclusivity/dependency rules would need to be resolved.  In theory, though, it should be possible.
+    """
+
+    _local = local()
+    description: Optional[str]
+    parameters: list['Parameter']
+    groups: list['ParameterGroup']
+    mutually_exclusive: Bool = False
+    mutually_dependent: Bool = False
+
+    def __init__(
+        self,
+        name: str = None,
+        *,
+        description: str = None,
+        mutually_exclusive: Bool = False,
+        mutually_dependent: Bool = False,
+        required: Bool = False,
+    ):
+        super().__init__(name=name, required=required)
+        self.description = description
+        self.parameters = []
+        self.groups = []
+        if mutually_dependent and mutually_exclusive:
+            name = self.name or 'Options'
+            raise ParameterDefinitionError(f'group={name!r} cannot be both mutually_exclusive and mutually_dependent')
+        self.mutually_exclusive = mutually_exclusive
+        self.mutually_dependent = mutually_dependent
+
+    def add(self, param: ParamOrGroup):
+        """Add the given parameter without storing a back-reference.  Primary use case is for help text only groups."""
+        if isinstance(param, ParameterGroup):
+            self.groups.append(param)
+        else:
+            self.parameters.append(param)
+
+    def maybe_add_all(self, params: Iterable[ParamOrGroup]):
+        for param in params:
+            if not param.group:
+                self.add(param)
+
+    def register(self, param: ParamOrGroup):
+        if isinstance(param, ParameterGroup):
+            self.groups.append(param)
+        else:
+            self.parameters.append(param)
+        param.group = self
+
+    def register_all(self, params: Iterable[ParamOrGroup]):
+        for param in params:
+            if isinstance(param, ParameterGroup):
+                self.groups.append(param)
+            else:
+                self.parameters.append(param)
+            param.group = self
+
+    def __repr__(self) -> str:
+        exclusive, dependent = self.mutually_exclusive, self.mutually_dependent
+        members = len(self.parameters)
+        return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
+
+    @classmethod
+    def active_group(cls) -> Optional['ParameterGroup']:
+        try:
+            return cls._local.stack[-1]
+        except (AttributeError, IndexError):
+            return None
+
+    def __enter__(self) -> 'ParameterGroup':
+        try:
+            stack = self._local.stack
+        except AttributeError:
+            self._local.stack = stack = []
+        stack.append(self)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._local.stack.pop()
+        return None
+
+    def __contains__(self, param: ParamOrGroup) -> bool:
+        return param in self.parameters or param in self.groups
+
+    def __iter__(self) -> Iterator[Param]:
+        yield from self.parameters
+
+    def _categorize_params(self, args: 'Args') -> tuple[list[Param], list[Param]]:
+        provided = []
+        missing = []
+        for param in self.parameters:
+            if args.num_provided(param):
+                provided.append(param)
+            else:
+                missing.append(param)
+
+        return provided, missing
+
+    def check_conflicts(self, args: 'Args'):
+        # log.debug(f'{self}: Checking group conflicts in {args=}')
+        if not (self.mutually_dependent or self.mutually_exclusive):
+            return
+
+        provided, missing = self._categorize_params(args)
+        # log.debug(f'{provided=}, {missing=}')
+        # log.debug(f'provided={len(provided)}, missing={len(missing)}')
+        if self.mutually_dependent and provided and missing:
+            p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
+            m_str = ', '.join(p.format_usage(full=True, delim='/') for p in missing)
+            be = 'is' if len(provided) == 1 else 'are'
+            raise UsageError(f'When {p_str} {be} provided, then the following must also be provided: {m_str}')
+        elif self.mutually_exclusive and not 0 <= len(provided) < 2:
+            p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
+            raise UsageError(f'The following arguments are mutually exclusive - only one is allowed: {p_str}')
+
+    def format_description(self, group_type: 'Bool' = True) -> str:
+        description = self.description or f'{self.name} options'
+        if group_type and (self.mutually_exclusive or self.mutually_dependent):
+            description += ' (mutually {})'.format('exclusive' if self.mutually_exclusive else 'dependent')
+        return description
+
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        p_groups = (self.parameters, self.groups)
+        choices = ','.join(p.format_usage(include_meta, full, delim) for p_group in p_groups for p in p_group)
+        return f'{{{choices}}}'
+
+    def format_help(self, width: int = 30, add_default: 'Bool' = True, group_type: 'Bool' = True):
+        parts = [self.format_description(group_type) + ':']
+        for param in self.parameters:
+            parts.append(param.format_help(width=width, add_default=add_default))
+        parts.append('')
+        return '\n'.join(parts)
+
+
+class Parameter(ParamBase):
+    _actions: frozenset[str] = frozenset()
     accepts_values: bool = True
     accepts_none: bool = False
     type: Callable = None
     nargs: Nargs = Nargs(1)
-    group: ParameterGroup = None
-    command: 'CommandType' = None
     hide: Bool = False
 
     def __init_subclass__(cls, accepts_values: bool = None, accepts_none: bool = None):
@@ -112,35 +289,15 @@ class Parameter(ABC):
             raise ParameterDefinitionError(f'Invalid {action=} for {cls_name} - valid actions: {sorted(self._actions)}')
         elif not choices and choices is not None:
             raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
+        super().__init__(name=name, required=required, help=help)
         self.action = action
-        self.required = required
         self.default = None if default is _NotSet and not required else default
-        self.name = name
         self.metavar = metavar
         self.choices = choices
-        self.help = help
-        if (group := ParameterGroup.active_group()) is not None:
-            group.register(self)  # This sets self.group = group
 
     @staticmethod
     def _init_value_factory():
         return _NotSet
-
-    @property
-    def name(self) -> str:
-        if (name := self._name) is not None:
-            return name
-        return f'{self.__class__.__name__}#{id(self)}'
-
-    @name.setter
-    def name(self, value: Optional[str]):
-        if value is not None:
-            self._name = value
-
-    def __set_name__(self, command: 'CommandType', name: str):
-        self.command = command
-        if self._name is None:
-            self.name = name
 
     def __repr__(self) -> str:
         attrs = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')

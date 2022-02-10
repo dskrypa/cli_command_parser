@@ -7,5 +7,4 @@ Command Parser
 from .commands import BaseCommand, Command
 from .exceptions import *  # noqa
 from .error_handling import ErrorHandler, error_handler, no_exit_handler
-from .groups import ParameterGroup
 from .parameters import *  # noqa

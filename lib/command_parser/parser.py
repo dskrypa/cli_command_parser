@@ -7,7 +7,7 @@ from collections import deque, defaultdict
 from typing import TYPE_CHECKING, Optional, Iterator, Iterable
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
-from .groups import ParameterGroup
+from .parameters import ParameterGroup
 from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
 from .utils import Args, Bool, ProgramMetadata
 
