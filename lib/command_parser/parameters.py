@@ -422,13 +422,13 @@ class Parameter(ParamBase):
 
     def result(self, args: Args) -> Any:
         value = args[self]
-        if self.action == 'store':
-            if value is _NotSet:
-                if self.required:
-                    raise MissingArgument(self)
-                else:
-                    return self.default
-            elif (choices := self.choices) and value not in choices:
+        if value is _NotSet:
+            if self.required:
+                raise MissingArgument(self)
+            else:
+                return self.default
+        elif self.action == 'store':
+            if (choices := self.choices) and value not in choices:
                 raise InvalidChoice(self, value, choices)
             else:
                 return value

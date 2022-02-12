@@ -4,8 +4,14 @@ import logging
 from unittest import TestCase, main
 
 from command_parser import Command, Counter, Option, Flag
-from command_parser.exceptions import NoSuchOption, UsageError, ParameterDefinitionError, ParamUsageError
-from command_parser.parameters import parameter_action
+from command_parser.exceptions import (
+    NoSuchOption,
+    UsageError,
+    ParameterDefinitionError,
+    ParamUsageError,
+    MissingArgument,
+)
+from command_parser.parameters import parameter_action, PassThru
 from command_parser.utils import Args
 
 log = logging.getLogger(__name__)
@@ -96,6 +102,37 @@ class CounterTest(TestCase):
             with self.subTest(n=n):
                 self.assertEqual(Foo.parse([f'-v={n}']).verbose, n)
                 self.assertEqual(Foo.parse([f'--verbose={n}']).verbose, n)
+
+
+class PassThruTest(TestCase):
+    def test_pass_thru(self):
+        class Foo(Command):
+            bar = Flag()
+            baz = PassThru()
+
+        foo = Foo.parse(['--bar', '--', 'test', 'one', 'two', 'three'])
+        self.assertTrue(foo.bar)
+        self.assertEqual(foo.baz, ['test', 'one', 'two', 'three'])
+
+        foo = Foo.parse(['--', '--bar', '--', 'test', 'one', 'two', 'three'])
+        self.assertFalse(foo.bar)
+        self.assertEqual(foo.baz, ['--bar', '--', 'test', 'one', 'two', 'three'])
+
+        foo = Foo.parse(['--bar', '--'])
+        self.assertTrue(foo.bar)
+        self.assertEqual(foo.baz, [])
+
+        foo = Foo.parse(['--bar'])
+        self.assertTrue(foo.bar)
+        self.assertIs(foo.baz, None)
+
+    def test_pass_thru_missing(self):
+        class Foo(Command):
+            bar = Flag()
+            baz = PassThru(required=True)
+
+        with self.assertRaises(MissingArgument):
+            Foo.parse([])
 
 
 class MiscParameterTest(TestCase):
