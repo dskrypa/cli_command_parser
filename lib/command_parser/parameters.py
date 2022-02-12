@@ -510,7 +510,7 @@ class BasePositional(Parameter, ABC):
 
 
 class Positional(BasePositional):
-    def __init__(self, nargs: NargsValue = None, action: str = _NotSet, **kwargs):
+    def __init__(self, nargs: NargsValue = None, action: str = _NotSet, type: Callable = None, **kwargs):  # noqa
         if nargs is not None:
             self.nargs = Nargs(nargs)
             if self.nargs == 0:
@@ -519,6 +519,7 @@ class Positional(BasePositional):
         if action is _NotSet:
             action = 'store' if self.nargs == 1 else 'append'
         super().__init__(action=action, **kwargs)
+        self.type = type
         if action == 'append':
             self._init_value_factory = list
 
@@ -620,10 +621,11 @@ class SubCommand(LooseString):
         help: Optional[str],  # noqa
         command: 'CommandType',
     ) -> 'CommandType':
-        validate_positional(f'{self.__class__.__name__} for {command}', choice, 'choice', exc=CommandDefinitionError)
         parent = command.parser().command_parent
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
+        else:
+            validate_positional(f'{self.__class__.__name__} for {command}', choice, exc=CommandDefinitionError)
         try:
             sub_cmd = self.choice_command_map[choice]
         except KeyError:
@@ -773,6 +775,7 @@ class Option(BaseOption):
         action: str = _NotSet,
         default: Any = _NotSet,
         required: Bool = False,
+        type: Callable = None,  # noqa
         **kwargs,
     ):
         if not required and default is _NotSet:
@@ -786,6 +789,7 @@ class Option(BaseOption):
         elif action == 'store' and self.nargs != 1:
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for {action=}')
         super().__init__(*args, action=action, default=default, required=required, **kwargs)
+        self.type = type
         if action == 'append':
             self._init_value_factory = list
 

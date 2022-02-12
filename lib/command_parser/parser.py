@@ -416,6 +416,6 @@ def _update_options(opt_dict: dict[str, BaseOption], attr: str, param: BaseOptio
                 'short_combinable': 'combinable short option',
             }
             opt_type = opt_type_names[attr]
-            raise ParameterDefinitionError(
+            raise CommandDefinitionError(
                 f'{opt_type}={opt!r} conflict for {command=} between params {existing} and {param}'
             )

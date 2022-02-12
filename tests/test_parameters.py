@@ -2,6 +2,7 @@
 
 import logging
 from unittest import TestCase, main
+from unittest.mock import Mock
 
 from command_parser import Command, Counter, Option, Flag
 from command_parser.exceptions import (
@@ -11,8 +12,9 @@ from command_parser.exceptions import (
     CommandDefinitionError,
     ParamUsageError,
     MissingArgument,
+    BadArgument,
 )
-from command_parser.parameters import parameter_action, PassThru, Positional
+from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand
 from command_parser.utils import Args
 
 log = logging.getLogger(__name__)
@@ -32,7 +34,7 @@ class PositionalTest(TestCase):
             bar = Positional()
 
         with self.assertRaises(NoSuchOption):
-            foo = Foo.parse(['bar', 'baz'])
+            Foo.parse(['bar', 'baz'])
 
         foo = Foo.parse(['bar', 'baz'], allow_unknown=True)
         self.assertEqual(foo.args.remaining, ['baz'])
@@ -72,6 +74,14 @@ class OptionTest(TestCase):
             with self.subTest(case=case), self.assertRaises(NoSuchOption):
                 Foo.parse(case)
 
+    def test_misc_dash_rejected(self):
+        class Foo(Command):
+            bar = Flag()
+
+        for case in (['----'], ['----bar'], ['--bar', '----'], ['--bar', '----bar'], ['-'], ['--bar', '-']):
+            with self.subTest(case=case), self.assertRaises(NoSuchOption):
+                Foo.parse(case)
+
     def test_extra_long_option_deferred(self):
         class Foo(Command):
             bar = Positional()
@@ -104,6 +114,12 @@ class OptionTest(TestCase):
         foo = Foo.parse(['bar', '-b', 'a'], allow_unknown=True)
         self.assertEqual(foo.args.remaining, ['-b', 'a'])
 
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '-b=a'])
+
+        foo = Foo.parse(['bar', '-b=a'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['-b=a'])
+
     def test_value_missing(self):
         class Foo(Command):
             foo = Flag('-f')
@@ -115,6 +131,21 @@ class OptionTest(TestCase):
                 Foo.parse(case)
 
         self.assertTrue(Foo.parse(['--foo']).foo)
+
+    def test_short_value_invalid(self):
+        class Foo(Command):
+            foo = Flag()
+            bar = Option()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['--bar', '-f'])
+
+    def test_invalid_value(self):
+        class Foo(Command):
+            bar = Option(type=Mock(side_effect=TypeError))
+
+        with self.assertRaises(BadArgument):
+            Foo.parse(['--bar', '1'])
 
 
 class CounterTest(TestCase):
@@ -287,6 +318,49 @@ class MiscParameterTest(TestCase):
         flag = Flag()
         with self.assertRaises(ParamUsageError):
             flag.take_action(Args([]), 'foo')
+
+
+class ParserTest(TestCase):
+    def test_parser_repr(self):
+        class Foo(Command):
+            bar = Positional()
+
+        rep = repr(Foo.parser())
+        self.assertIn('Foo', rep)
+        self.assertIn('positionals=', rep)
+        self.assertIn('options=', rep)
+
+    def test_parser_contains_recursive(self):
+        class Foo(Command):
+            cmd = SubCommand()
+
+        class Bar(Foo):
+            bar = Counter('-b')
+
+        for cls in (Foo, Bar):
+            parser = cls.parser()
+            self.assertTrue(parser.contains(Args([]), '-h'))
+            self.assertFalse(parser.contains(Args([]), '-H'))
+            self.assertTrue(parser.contains(Args([]), '-b=1'))
+            self.assertFalse(parser.contains(Args([]), '-B=1'))
+            self.assertFalse(parser.contains(Args([]), '-ba'))
+            self.assertTrue(parser.contains(Args([]), '--bar=1'))
+            self.assertFalse(parser.contains(Args([]), '--baz=1'))
+            self.assertFalse(parser.contains(Args([]), 'baz'))
+            self.assertTrue(parser.contains(Args([]), '-b=1'))
+            self.assertFalse(parser.contains(Args([]), '-B=1'))
+            self.assertTrue(parser.contains(Args([]), '-bb'))
+            self.assertFalse(parser.contains(Args([]), '-ab'))
+
+    def test_redefine_param_rejected(self):
+        class Foo(Command):
+            cmd = SubCommand()
+            bar = Flag('-b')
+
+        with self.assertRaises(CommandDefinitionError):
+
+            class Bar(Foo):
+                bar = Counter('-b')
 
 
 if __name__ == '__main__':
