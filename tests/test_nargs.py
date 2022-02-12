@@ -122,7 +122,7 @@ class NargsTest(TestCase):
                         self.assertEqual(nargs.variable, a != b)
                         self.assertIn(str(case), repr(nargs))
                         self.assertEqual(str(nargs), str(a) if a == b else f'{a} ~ {b}')
-                        self.assertEqual(nargs, Nargs(range(*case)))
+                        self.assertEqual(nargs, Nargs(range(a, b + 1)))
                         self.assertNotIn(-1, nargs)
                         self.assertIn(a, nargs)
                         self.assertIn(b, nargs)
@@ -136,18 +136,18 @@ class NargsTest(TestCase):
 
     def test_range(self):
         for a in range(5):
-            for b in range(a, 11):
+            for b in range(a + 1, 11):
                 case = range(a, b)
                 with self.subTest(case=case):
                     nargs = Nargs(case)
                     self.assertEqual(nargs.range, case)
                     self.assertEqual(nargs.min, a)
-                    self.assertEqual(nargs.max, b)
+                    self.assertEqual(nargs.max, b - 1)
                     self.assertEqual(nargs.allowed, case)
-                    self.assertEqual(nargs.variable, a != b)
+                    self.assertEqual(nargs.variable, a != (b - 1))
                     self.assertIn(str(case), repr(nargs))
                     self.assertEqual(str(nargs), f'{case.start} ~ {case.stop}')
-                    self.assertEqual(nargs, Nargs((a, b)))
+                    self.assertEqual(nargs, Nargs((a, b - 1)))
                     self.assertNotIn(-1, nargs)
                     if a != b:
                         self.assertIn(a, nargs)
@@ -162,15 +162,16 @@ class NargsTest(TestCase):
 
     def test_range_step(self):
         for a in range(5):
-            for b in range(a, 11):
+            for b in range(a + 1, 11):
                 case = range(a, b, 2)
                 with self.subTest(case=case):
                     nargs = Nargs(case)
                     self.assertEqual(nargs.range, case)
                     self.assertEqual(nargs.min, a)
-                    self.assertEqual(nargs.max, b)
+                    last = (b - 2) if a % 2 == b % 2 else (b - 1)
+                    self.assertEqual(nargs.max, last)
                     self.assertEqual(nargs.allowed, case)
-                    self.assertEqual(nargs.variable, a != b)
+                    self.assertEqual(nargs.variable, a != last)
                     self.assertIn(str(case), repr(nargs))
                     self.assertEqual(str(nargs), f'{case.start} ~ {case.stop} (step={case.step})')
                     self.assertEqual(nargs, Nargs(range(a, b, 2)))
@@ -187,9 +188,59 @@ class NargsTest(TestCase):
                     self.assertFalse(nargs.satisfied(a - 1))
                     self.assertFalse(nargs.satisfied(b + 1))
 
+    def test_set_single(self):
+        for n in range(5):
+            with self.subTest(n=n):
+                nargs = Nargs({n})
+                self.assertEqual(nargs.min, n)
+                self.assertEqual(nargs.max, n)
+                self.assertEqual(nargs.allowed, {n})
+                self.assertFalse(nargs.variable)
+                self.assertIn(f'{n}', str(nargs))
+                self.assertNotIn(-1, nargs)
+                self.assertNotIn(n - 1, nargs)
+                self.assertNotIn(None, nargs)
+                self.assertIn(n, nargs)
+                self.assertNotIn(n + 1, nargs)
+                self.assertFalse(nargs.satisfied(-1))
+                self.assertFalse(nargs.satisfied(n - 1))
+                self.assertTrue(nargs.satisfied(n))
+                self.assertFalse(nargs.satisfied(n + 1))
+                self.assertEqual(nargs, n)
+                self.assertEqual(nargs, Nargs(n))
+                self.assertEqual(nargs, Nargs((n, n)))
+                self.assertNotEqual(nargs, n - 1)
+                self.assertNotEqual(nargs, n + 1)
+                if n:
+                    self.assertNotEqual(nargs, Nargs(n - 1))
+                self.assertNotEqual(nargs, Nargs(n + 1))
+                self.assertEqual(nargs, Nargs(range(n, n + 1)))
+                self.assertNotEqual(nargs, Nargs(range(n + 2)))
+                self.assertNotEqual(nargs, Nargs('+'))
+
+    def test_tup_no_max(self):
+        nargs = Nargs((3, None))
+        self.assertNotEqual(nargs, Nargs('+'))
+        self.assertNotEqual(nargs, Nargs('*'))
+        self.assertIs(nargs.max, None)
+        self.assertNotIn(0, nargs)
+        self.assertNotIn(2, nargs)
+        self.assertIn(3, nargs)
+        self.assertIn(4, nargs)
+        self.assertIn(100, nargs)
+
     # endregion
 
     # region Input Validation Tests
+
+    def test_bad_set(self):
+        for case in (set(), {-1}):
+            with self.subTest(case=case), self.assertRaises(ValueError):
+                Nargs(case)
+
+        for case in (None, '', 'foo', 1.5, range(2)):
+            with self.subTest(case=case), self.assertRaises(TypeError):
+                Nargs({case})  # noqa
 
     def test_int_negative(self):
         for n in range(1, 11):
@@ -253,6 +304,22 @@ class NargsTest(TestCase):
         self.assertNotEqual(b, c)
         self.assertNotEqual(c, b)
         self.assertNotEqual(c, a)
+
+    def test_set_str(self):
+        nargs = Nargs({5, 9, 2})
+        self.assertIn('{2,5,9}', str(nargs))
+
+    def test_range_set_compare(self):
+        a = Nargs({0, 1, 2, 3})
+        b = Nargs(range(4))
+        self.assertEqual(a, b)
+        self.assertEqual(b, a)
+
+        c = Nargs(range(5))
+        self.assertNotEqual(a, c)
+        self.assertNotEqual(b, c)
+        self.assertNotEqual(c, a)
+        self.assertNotEqual(c, b)
 
     # endregion
 
