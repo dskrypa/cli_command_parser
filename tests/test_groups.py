@@ -148,7 +148,7 @@ class GroupTest(TestCase):
         self.assertNotIn(Foo.foo, Foo.outer)
         self.assertNotIn(Foo.bar, Foo.outer)
         self.assertNotIn(Foo.baz, Foo.inner)
-        # self.assertIn(Foo.inner, Foo.outer)  # TODO: Implement
+        self.assertIn(Foo.inner, Foo.outer)
 
         with self.assertRaises(UsageError):  # 2 from exclusive group + baz missing
             Foo.parse(['--foo', '--bar'])
@@ -156,11 +156,10 @@ class GroupTest(TestCase):
         with self.assertRaises(UsageError):  # 2 from exclusive group
             Foo.parse(['--foo', '--bar', '--baz'])
 
-        # TODO: Implement
-        # for case in ('--foo', '--bar', '--baz'):
-        #     # Since the outer group is mutually dependent, --baz must always accompany one of the inner group's args
-        #     with self.subTest(case=case), self.assertRaises(UsageError):
-        #         Foo.parse([case])
+        for case in ('--foo', '--bar', '--baz'):
+            # Since the outer group is mutually dependent, --baz must always accompany one of the inner group's args
+            with self.subTest(case=case), self.assertRaises(UsageError):
+                Foo.parse([case])
 
         foo = Foo.parse(['--foo', '--baz'])
         self.assertTrue(foo.foo)
@@ -169,14 +168,60 @@ class GroupTest(TestCase):
         self.assertTrue(foo.bar)
         self.assertTrue(foo.baz)
 
-    # def test_nested_me_in_me(self):
-    #     pass
-    #
-    # def test_nested_md_in_me(self):
-    #     pass
-    #
-    # def test_nested_md_in_md(self):
-    #     pass
+    def test_nested_me_in_me(self):
+        class Foo(Command):
+            with ParameterGroup(mutually_exclusive=True) as outer:
+                with ParameterGroup(mutually_exclusive=True) as inner:
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        cases = (['--foo', '--bar'], ['--foo', '--baz'], ['--bar', '--baz'], ['--foo', '--bar', '--baz'])
+        for case in cases:
+            with self.subTest(case=case), self.assertRaises(UsageError):
+                Foo.parse(case)
+
+        for case in ('--foo', '--bar', '--baz'):
+            with self.subTest(case=case):
+                foo = Foo.parse([case])
+                self.assertTrue(getattr(foo, case[2:]))
+
+    def test_nested_md_in_me(self):
+        class Foo(Command):
+            with ParameterGroup(mutually_exclusive=True) as outer:
+                with ParameterGroup(mutually_dependent=True) as inner:
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        foo = Foo.parse(['--foo', '--bar'])
+        self.assertTrue(foo.foo)
+        self.assertTrue(foo.bar)
+        foo = Foo.parse(['--baz'])
+        self.assertTrue(foo.baz)
+
+        cases = (['--foo', '--baz'], ['--bar', '--baz'], ['--foo', '--bar', '--baz'])
+        for case in cases:
+            with self.subTest(case=case), self.assertRaises(UsageError):
+                Foo.parse(case)
+
+    def test_nested_md_in_md(self):
+        class Foo(Command):
+            with ParameterGroup(mutually_dependent=True) as outer:
+                with ParameterGroup(mutually_dependent=True) as inner:
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        foo = Foo.parse(['--foo', '--bar', '--baz'])
+        self.assertTrue(foo.foo)
+        self.assertTrue(foo.bar)
+        self.assertTrue(foo.baz)
+
+        cases = (['--foo', '--bar'], ['--foo', '--baz'], ['--bar', '--baz'], ['--foo'], ['--bar'], ['--baz'])
+        for case in cases:
+            with self.subTest(case=case), self.assertRaises(UsageError):
+                Foo.parse(case)
 
 
 if __name__ == '__main__':

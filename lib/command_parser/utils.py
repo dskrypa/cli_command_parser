@@ -12,7 +12,7 @@ from string import whitespace, printable
 from .exceptions import ParameterDefinitionError
 
 if TYPE_CHECKING:
-    from .parameters import Parameter
+    from .parameters import Parameter, ParamOrGroup
 
 Bool = Union[bool, Any]
 
@@ -30,10 +30,10 @@ class Args:
         provided = dict(self._provided)
         return f'<{self.__class__.__name__}[parsed={self._parsed}, remaining={self.remaining}, {provided=}]>'
 
-    def record_action(self, param: 'Parameter', val_count: int = 1):
+    def record_action(self, param: 'ParamOrGroup', val_count: int = 1):
         self._provided[param] += val_count
 
-    def num_provided(self, param: 'Parameter') -> int:
+    def num_provided(self, param: 'ParamOrGroup') -> int:
         return self._provided[param]
 
     def __getitem__(self, param: Union['Parameter', str]):

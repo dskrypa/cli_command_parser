@@ -4,8 +4,9 @@
 
 import logging
 from abc import ABC, abstractmethod
-from functools import cached_property, partial, update_wrapper
+from functools import cached_property, partial, update_wrapper, reduce
 from itertools import chain
+from operator import xor
 from threading import local
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar, Iterable, Iterator
 from types import MethodType
@@ -76,6 +77,7 @@ class parameter_action:
 
 
 class ParamBase(ABC):
+    __name: str = None
     _name: str = None
     group: 'ParameterGroup' = None
     command: 'CommandType' = None
@@ -114,6 +116,10 @@ class ParamBase(ABC):
         self.command = command
         if self._name is None:
             self.name = name
+        self.__name = name
+
+    def __hash__(self) -> int:
+        return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
     @abstractmethod
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
@@ -205,6 +211,29 @@ class ParameterGroup(ParamBase):
         except (AttributeError, IndexError):
             return None
 
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+    def __eq__(self, other: 'ParameterGroup') -> bool:
+        if isinstance(other, ParameterGroup) and self.group == other.group:
+            attrs = ('mutually_exclusive', 'mutually_dependent', 'name', 'description', 'parameters', 'groups')
+            return all(getattr(self, a) == getattr(other, a) for a in attrs)
+        return False
+
+    def __lt__(self, other: 'ParameterGroup') -> bool:
+        if not isinstance(other, ParameterGroup):
+            return NotImplemented
+
+        group = self.group
+        if group == other.group:
+            return self.name < other.name
+        elif group is None:  # Top-level - push to right (process conflicts last)
+            return False
+        elif group in other.groups:  # Nested in other - push to left (process conflicts first)
+            return True
+        else:
+            return self.name < other.name
+
     def __enter__(self) -> 'ParameterGroup':
         try:
             stack = self._local.stack
@@ -226,20 +255,21 @@ class ParameterGroup(ParamBase):
     def _categorize_params(self, args: 'Args') -> tuple[list[Param], list[Param]]:
         provided = []
         missing = []
-        for param in self.parameters:
-            if args.num_provided(param):
-                provided.append(param)
+        for obj in chain(self.parameters, self.groups):
+            if args.num_provided(obj):
+                provided.append(obj)
             else:
-                missing.append(param)
+                missing.append(obj)
 
         return provided, missing
 
     def check_conflicts(self, args: 'Args'):
         # log.debug(f'{self}: Checking group conflicts in {args=}')
+        provided, missing = self._categorize_params(args)
+        args.record_action(self, len(provided))
         if not (self.mutually_dependent or self.mutually_exclusive):
             return
 
-        provided, missing = self._categorize_params(args)
         # log.debug(f'{provided=}, {missing=}')
         # log.debug(f'provided={len(provided)}, missing={len(missing)}')
         if self.mutually_dependent and provided and missing:

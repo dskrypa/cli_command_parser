@@ -58,6 +58,7 @@ class CommandParser:
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
         self.action_flags = self._process_action_flags()
+        self.groups = sorted(self.groups)
 
     # region Initialization / Parameter Processing
 
