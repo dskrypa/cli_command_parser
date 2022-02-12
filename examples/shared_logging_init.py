@@ -17,7 +17,7 @@ class Base(Command):
         logging.basicConfig(level=level, format=log_fmt)
 
 
-class Show(Base, cmd='show', help='Show the results of an action'):
+class Show(Base, choice='show', help='Show the results of an action'):
     action = Action(help='What to show')
 
     @action
