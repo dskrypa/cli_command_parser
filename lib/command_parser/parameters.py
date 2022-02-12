@@ -79,13 +79,23 @@ class ParamBase(ABC):
     _name: str = None
     group: 'ParameterGroup' = None
     command: 'CommandType' = None
+    choices: Optional[Collection[Any]] = None
     required: Bool = False
     help: str = None
 
-    def __init__(self, name: str = None, required: Bool = False, help: str = None):  # noqa
+    def __init__(
+        self,
+        name: str = None,
+        required: Bool = False,
+        help: str = None,  # noqa
+        choices: Collection[Any] = None,
+    ):
+        if not choices and choices is not None:
+            raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
         self.required = required
         self.name = name
         self.help = help
+        self.choices = choices
         if (group := ParameterGroup.active_group()) is not None:
             group.register(self)  # noqa  # This sets self.group = group
 
@@ -126,6 +136,7 @@ class ParameterGroup(ParamBase):
     description: Optional[str]
     parameters: list['Parameter']
     groups: list['ParameterGroup']
+    choices: list[ParamOrGroup]
     mutually_exclusive: Bool = False
     mutually_dependent: Bool = False
 
@@ -142,6 +153,7 @@ class ParameterGroup(ParamBase):
         self.description = description
         self.parameters = []
         self.groups = []
+        self.choices = []
         if mutually_dependent and mutually_exclusive:
             name = self.name or 'Options'
             raise ParameterDefinitionError(f'group={name!r} cannot be both mutually_exclusive and mutually_dependent')
@@ -154,6 +166,8 @@ class ParameterGroup(ParamBase):
             self.groups.append(param)
         else:
             self.parameters.append(param)
+        if self.mutually_exclusive:
+            self.choices.append(param)
 
     def maybe_add_all(self, params: Iterable[ParamOrGroup]):
         for param in params:
@@ -165,6 +179,8 @@ class ParameterGroup(ParamBase):
             self.groups.append(param)
         else:
             self.parameters.append(param)
+        if self.mutually_exclusive:
+            self.choices.append(param)
         param.group = self
 
     def register_all(self, params: Iterable[ParamOrGroup]):
@@ -173,6 +189,8 @@ class ParameterGroup(ParamBase):
                 self.groups.append(param)
             else:
                 self.parameters.append(param)
+            if self.mutually_exclusive:
+                self.choices.append(param)
             param.group = self
 
     def __repr__(self) -> str:
@@ -284,16 +302,14 @@ class Parameter(ParamBase):
         choices: Collection[Any] = None,
         help: str = None,  # noqa
     ):
-        cls_name = self.__class__.__name__
         if action not in self._actions:
-            raise ParameterDefinitionError(f'Invalid {action=} for {cls_name} - valid actions: {sorted(self._actions)}')
-        elif not choices and choices is not None:
-            raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
-        super().__init__(name=name, required=required, help=help)
+            raise ParameterDefinitionError(
+                f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
+            )
+        super().__init__(name=name, required=required, help=help, choices=choices)
         self.action = action
         self.default = None if default is _NotSet and not required else default
         self.metavar = metavar
-        self.choices = choices
 
     @staticmethod
     def _init_value_factory():
@@ -512,8 +528,7 @@ class LooseString(BasePositional):
         self._update_nargs()
 
     def _update_nargs(self):
-        lens = set(map(len, map(str.split, self.choices)))
-        self.nargs = Nargs(range(min(lens), max(lens) + 1))
+        self.nargs = Nargs(set(map(len, map(str.split, self.choices))))
 
     @parameter_action
     def append(self, args: Args, value: str):

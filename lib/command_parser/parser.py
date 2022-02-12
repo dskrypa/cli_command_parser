@@ -82,21 +82,23 @@ class CommandParser:
 
     def _add_positional(self, param: _Positional, var_nargs_param: Optional[_Positional]) -> Optional[_Positional]:
         if var_nargs_param is not None:
-            # TODO: It should be possible to specify positional parameters after Action parameters if the Action doesn't
-            #  allow variable nargs
             raise CommandDefinitionError(
                 f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
-                f'a variable number of arguments - {param=} is invalid'
+                f'a variable number of arguments with no specific choices defined - {param=} is invalid'
             )
         elif (sub_cmd := self.sub_command) is not None:
-            raise CommandDefinitionError(f'Positional {param=} may not follow a previous one: {sub_cmd}')
+            raise CommandDefinitionError(
+                f'Positional {param=} may not follow the sub command {sub_cmd} - re-order the positionals, move it into'
+                'the sub command(s), or convert it to an optional parameter'
+            )
         self.positionals.append(param)
         if not param.group:
             self.pos_group.add(param)
         if isinstance(param, SubCommand) and param.command is self.command:
             self.sub_command = param
-        if param.nargs.variable:
+        if param.nargs.variable and not param.choices:
             return param
+
         return None
 
     def _add_option(self, param: BaseOption, short_combinable: dict[str, BaseOption], command: 'CommandType'):
