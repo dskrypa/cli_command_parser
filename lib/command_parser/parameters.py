@@ -833,7 +833,6 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
 
 
 class ActionFlag(Flag):
-    # TODO: Refactor to automatically be part of a mutually exclusive group
     def __init__(self, *args, priority: Union[int, float] = 1, func: Callable = None, **kwargs):
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}

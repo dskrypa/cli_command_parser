@@ -80,6 +80,18 @@ class ActionFlagTest(TestCase):
         with self.assertRaises(KeyError):
             self.assertFalse(foo.args['bar'])
 
+    def test_af_mixed_grouping_rejected(self):
+        class Foo(Command):
+            with ParameterGroup(mutually_exclusive=True) as group:
+                foo = ActionFlag()(Mock())
+                bar = ActionFlag()(Mock())
+            baz = ActionFlag()(Mock())
+
+        with self.assertRaises(CommandDefinitionError) as ctx:
+            Foo.parser()
+
+        self.assertIn('different priority values', str(ctx.exception))
+
     def test_no_reassign(self):
         with self.assertRaises(CommandDefinitionError):
 
