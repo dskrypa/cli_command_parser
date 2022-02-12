@@ -111,8 +111,8 @@ class ProgramMetadata:
 
     def _find_dunder_info(self, top_level_frame_info):  # noqa
         g = top_level_frame_info.frame.f_globals
-        installed_via_setup = 'load_entry_point' in g and 'main' not in g
-        for level in reversed(stack[:-1]):
+        installed_via_setup = 'load_entry_point' in g and 'main' not in g  # TODO: This may need to be tweaked
+        for level in reversed(stack()[:-1]):
             g = level.frame.f_globals
             if any(k in g for k in ('__author_email__', '__version__', '__url__')):
                 return installed_via_setup, g

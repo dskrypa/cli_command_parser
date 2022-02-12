@@ -3,11 +3,12 @@
 from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
 from unittest import TestCase, main
-from unittest.mock import Mock
+from unittest.mock import Mock, patch, MagicMock
 
 from command_parser import Command, no_exit_handler
 from command_parser.commands import CommandType
 from command_parser.parameters import Positional, SubCommand, Action, ActionFlag, Option, ParameterGroup, PassThru, Flag
+from command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
 TEST_EPILOG = 'This is a test epilog'
@@ -65,6 +66,67 @@ class HelpTextTest(TestCase):
         self.assertTrue(any(line == 'test group:' for line in stdout.splitlines()))
         self.assertNotIn('group foo:', stdout)
         self.assertNotIn('Positional arguments:', stdout)
+
+    def test_meta_init(self):
+        g = {'__author_email__': 'example@fake.com', '__version__': '3.2.1', '__url__': 'https://github.com/foo/bar'}
+        with (
+            patch('command_parser.utils.getsourcefile', return_value='foo-script.py'),
+            patch.object(ProgramMetadata, '_find_dunder_info', return_value=(True, g)),
+            patch('command_parser.utils.sys.argv', ['bar.py']),
+        ):
+            meta = ProgramMetadata()
+            self.assertEqual(meta.path.name, 'bar.py')
+            self.assertEqual(meta.prog, 'bar.py')
+            self.assertEqual(meta.docs_url, 'https://foo.github.io/bar/')
+            self.assertEqual(meta.url, g['__url__'])
+            self.assertEqual(meta.email, g['__author_email__'])
+            self.assertEqual(meta.version, g['__version__'])
+
+    def test_extended_epilog(self):
+        meta = ProgramMetadata(
+            prog='foo', epilog='test', version='4.3.2', email='example@fake.com', url='http://fake.com'
+        )
+        self.assertEqual(meta.format_epilog(False), 'test')
+        expected = 'test\n\nReport foo [ver. 4.3.2] bugs to example@fake.com\n\nOnline documentation: http://fake.com'
+        self.assertEqual(meta.format_epilog(), expected)
+
+    def test_extended_epilog_no_email(self):
+        meta = ProgramMetadata(prog='foo', epilog='test', version='4.3.2', url='http://fake.com')
+        self.assertEqual(meta.format_epilog(), 'test\n\nOnline documentation: http://fake.com')
+
+    def test_doc_url_none(self):
+        meta = ProgramMetadata(url='https://github.com/foo')
+        self.assertIs(meta.docs_url, None)
+
+    def test_find_dunder_info(self):
+        g = {
+            '__author_email__': 'example@fake.com',
+            '__version__': '3.2.1',
+            '__url__': 'https://github.com/foo/bar',
+            'load_entry_point': Mock(),
+        }
+        frame_info = MagicMock(frame=Mock(f_globals=g))
+        with (
+            patch('command_parser.utils.getsourcefile', return_value='foo-script.py'),
+            patch('command_parser.utils.stack', return_value=[frame_info, frame_info]),
+            patch('command_parser.utils.sys.argv', []),
+        ):
+            meta = ProgramMetadata()
+            self.assertEqual(meta.path.name, 'foo.py')
+            self.assertEqual(meta.prog, 'foo.py')
+            self.assertEqual(meta.docs_url, 'https://foo.github.io/bar/')
+            self.assertEqual(meta.url, g['__url__'])
+            self.assertEqual(meta.email, g['__author_email__'])
+            self.assertEqual(meta.version, g['__version__'])
+
+    def test_find_info_error(self):
+        with patch.object(ProgramMetadata, '_find_info', side_effect=RuntimeError):
+            meta = ProgramMetadata()
+            self.assertEqual(meta.path.name, 'utils.py')
+            self.assertIs(meta.docs_url, None)
+            self.assertIs(meta.url, None)
+            self.assertIs(meta.email, None)
+            self.assertEqual(meta.version, '')
 
 
 def _get_output(command: CommandType, args: list[str]) -> tuple[str, str]:
