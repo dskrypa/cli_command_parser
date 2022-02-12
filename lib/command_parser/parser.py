@@ -82,15 +82,15 @@ class CommandParser:
         return short_combinable
 
     def _add_positional(self, param: _Positional, var_nargs_param: Optional[_Positional]) -> Optional[_Positional]:
-        if var_nargs_param is not None:
-            raise CommandDefinitionError(
-                f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
-                f'a variable number of arguments with no specific choices defined - {param=} is invalid'
-            )
-        elif self.sub_command is not None:
+        if self.sub_command is not None:
             raise CommandDefinitionError(
                 f'Positional {param=} may not follow the sub command {self.sub_command} - re-order the positionals,'
                 ' move it into the sub command(s), or convert it to an optional parameter'
+            )
+        elif var_nargs_param is not None:
+            raise CommandDefinitionError(
+                f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
+                f' a variable number of arguments with no specific choices defined - {param=} is invalid'
             )
 
         self.positionals.append(param)
@@ -98,10 +98,10 @@ class CommandParser:
             self.pos_group.add(param)
 
         if isinstance(param, (SubCommand, Action)) and param.command is self.command:
-            if previous := self.sub_command or self.action:
+            if action := self.action:  # self.sub_command being already defined is handled above
                 raise CommandDefinitionError(
-                    f'Only 1 Action or SubCommand is allowed in a given Command - {self.command.__name__} cannot'
-                    f' contain both {previous} and {param}'
+                    f'Only 1 Action xor SubCommand is allowed in a given Command - {self.command.__name__} cannot'
+                    f' contain both {action} and {param}'
                 )
             elif isinstance(param, SubCommand):
                 self.sub_command = param
@@ -269,7 +269,6 @@ class _Parser:
         arg_deque = self.handle_pass_thru()
         self.deferred = args.remaining = []
         pos_iter = iter(self.cmd_parser.positionals)
-        # TODO: Error message for variable kwarg immediately before positional
         while arg_deque:
             arg = arg_deque.popleft()
             if arg == '--' or arg.startswith('---'):

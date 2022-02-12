@@ -8,6 +8,7 @@ from command_parser.exceptions import (
     NoSuchOption,
     UsageError,
     ParameterDefinitionError,
+    CommandDefinitionError,
     ParamUsageError,
     MissingArgument,
 )
@@ -133,6 +134,14 @@ class PassThruTest(TestCase):
 
         with self.assertRaises(MissingArgument):
             Foo.parse([])
+
+    def test_multiple_rejected(self):
+        class Foo(Command):
+            bar = PassThru()
+            baz = PassThru()
+
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parser()
 
 
 class MiscParameterTest(TestCase):

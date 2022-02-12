@@ -4,7 +4,7 @@ from contextlib import redirect_stdout
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, ActionFlag, SubCommand
+from command_parser import Command, Action, ActionFlag, SubCommand, Positional
 from command_parser.exceptions import CommandDefinitionError
 from command_parser.utils import Args
 
@@ -105,6 +105,40 @@ class TestCommands(TestCase):
 
             class Foo(Command, choice='foo'):
                 pass
+
+    def test_positional_after_sub_cmd_rejected(self):
+        with self.assertRaises(CommandDefinitionError) as ctx:
+
+            class Foo(Command):
+                sub = SubCommand()
+                pos = Positional()
+
+            class Bar(Foo, choice='bar'):
+                pass
+
+        self.assertIn('may not follow the sub command', str(ctx.exception))
+
+    def test_two_actions_rejected(self):
+        class Foo(Command):
+            foo = Action()
+            bar = Action()
+            foo(Mock(__name__='baz'))
+
+        with self.assertRaises(CommandDefinitionError) as ctx:
+            Foo.parser()
+
+        self.assertIn('Only 1 Action xor SubCommand is allowed', str(ctx.exception))
+
+    def test_action_with_sub_command_rejected(self):
+        class Foo(Command):
+            foo = Action()
+            bar = SubCommand()
+            foo(Mock(__name__='baz'))
+
+        with self.assertRaises(CommandDefinitionError) as ctx:
+            Foo.parser()
+
+        self.assertIn('Only 1 Action xor SubCommand is allowed', str(ctx.exception))
 
 
 if __name__ == '__main__':
