@@ -53,35 +53,38 @@ class TestCommands(TestCase):
         Foo.parse_and_run(['bar'])
         self.assertEqual(mock.call_count, 1)
 
-    def test_cmd_in_sub_class_requires_sub_cmd_param(self):
+    def test_choice_in_sub_class_warns_on_no_sub_cmd_param(self):
         class Foo(Command):
             pass
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertWarnsRegex(Warning, expected_regex='has no SubCommand parameter'):
 
-            class Bar(Foo, cmd='bar'):
+            class Bar(Foo, choice='bar'):
                 pass
 
     def test_multiple_actions_rejected(self):
-        with self.assertRaises(CommandDefinitionError):
+        class Foo(Command):
+            a = Action()
+            b = Action()
 
-            class Foo(Command):
-                a = Action()
-                b = Action()
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parser()
 
     def test_multiple_sub_cmds_rejected(self):
-        with self.assertRaises(CommandDefinitionError):
+        class Foo(Command):
+            a = SubCommand()
+            b = SubCommand()
 
-            class Foo(Command):
-                a = SubCommand()
-                b = SubCommand()
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parser()
 
     def test_action_with_sub_cmd_rejected(self):
-        with self.assertRaises(CommandDefinitionError):
+        class Foo(Command):
+            a = SubCommand()
+            b = Action()
 
-            class Foo(Command):
-                a = SubCommand()
-                b = Action()
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parser()
 
     def test_stdout_close(self):
         mock = Mock(close=Mock())
@@ -96,6 +99,12 @@ class TestCommands(TestCase):
             Command(Args([])).run(close_stdout=True)
 
         self.assertTrue(mock.close.called)
+
+    def test_choice_with_no_parent_warns(self):
+        with self.assertWarnsRegex(Warning, 'because it has no parent Command'):
+
+            class Foo(Command, choice='foo'):
+                pass
 
 
 if __name__ == '__main__':

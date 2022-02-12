@@ -7,10 +7,11 @@ The core Command classes that are intended as the entry point for a given progra
 import logging
 import sys
 from typing import Type, TypeVar, Sequence, Optional
+from warnings import warn
 
-from .parameters import SubCommand, Action, ActionFlag, action_flag
+from .parameters import ActionFlag, action_flag
 from .error_handling import ErrorHandler, extended_error_handler, error_handler as _error_handler
-from .exceptions import CommandDefinitionError, ParserExit
+from .exceptions import ParserExit
 from .parser import CommandParser
 from .utils import _NotSet, Args, Bool, ProgramMetadata
 
@@ -35,70 +36,54 @@ class BaseCommand:
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
     __error_handler: Optional[ErrorHandler] = _NotSet   # The ExceptionHandler to wrap main()
     # Attributes related to sub-commands/actions
-    __cmd: str = None                                   # SubCommand value that maps to this command
     __help: str = None                                  # Help text to be displayed as a SubCommand option
-    __parent: Optional[CommandType] = None              # Parent command for sub-commands
-    __sub_command: Optional[SubCommand] = None          # A SubCommand parameter, if provided
-    __action: Optional[Action] = None                   # An Action parameter, if provided
+    __abstract: Bool = True                             # False if viable for containing sub commands
     # fmt: on
 
     def __init_subclass__(
         cls: CommandType,
-        cmd: str = None,
+        choice: str = None,
         prog: str = None,
         usage: str = None,
         description: str = None,
         epilog: str = None,
         help: str = None,  # noqa
         error_handler: ErrorHandler = _NotSet,
+        abstract: Bool = False,
     ):  # noqa
         """
-        :param cmd: SubCommand value that maps to this command
+        :param choice: SubCommand value that maps to this command
         :param prog: The name of the program (default: sys.argv[0])
         :param usage: Usage message (default: auto-generated)
         :param description: Description of what the program does
         :param epilog: Text to follow parameter descriptions
         :param help: Help text to be displayed as a SubCommand option
         :param error_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`
+        :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub
+          commands
         """
         if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
             cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
-        cls.__cmd = cmd
         cls.__help = help
         cls.__parser = None
-        cls.__sub_command = None
-        cls.__parent = None
+        cls.__abstract = abstract
         if error_handler is not _NotSet:
             cls.__error_handler = error_handler
 
-        if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None):
-            cls.__parent = parent
-            if cmd and parent not in (Command, BaseCommand):
-                if (sub_cmd := parent.__sub_command) is None:
-                    raise CommandDefinitionError(
-                        f'{cls} cannot extend {parent=} with {cmd=} - no SubCommand parameter was found in {parent}'
-                    )
-                else:
-                    sub_cmd.register(cls)
-
-        last = None
-        for key, val in list(cls.__dict__.items()):  # Only examine attrs specific to this subclass
-            if not isinstance(val, (SubCommand, Action)):
-                continue
-            elif last is not None:
-                raise CommandDefinitionError(
-                    f'Only 1 Action or SubCommand is allowed in a given Command - {cls.__name__} cannot contain both'
-                    f' {last} and {val}'
-                )
-            elif isinstance(val, SubCommand):
-                cls.__sub_command = last = val
-            elif isinstance(val, Action):
-                cls.__action = last = val
+        if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and not c.__abstract), None):
+            if (sub_cmd := parent.parser().sub_command) is not None:
+                sub_cmd.register_sub_command(choice, cls)
+            elif choice:
+                warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
+        elif choice:
+            warn(f'{choice=} was not registered for {cls} because it has no parent Command')
 
     @classmethod
     def parser(cls) -> CommandParser:
         if cls.__parser is None:
-            cls.__parser = CommandParser(cls)
+            # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
+            parent = next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None)
+            cls.__parser = CommandParser(cls, parent)
         return cls.__parser
 
     def __new__(cls, args: Args):
@@ -187,13 +172,13 @@ class BaseCommand:
             param = min(action_flags, key=lambda p: p.priority)
             param.func(self, *args, **kwargs)  # noqa
             return True
-        elif (action_method := self.__action) is not None:
-            action_method(self, *args, **kwargs)  # noqa  # PyCharm is confused by __call__ vs call after __get__
+        elif (action := self.parser().action) is not None:
+            action.__get__(self, self.__class__)(self, *args, **kwargs)
             return True
         return False
 
 
-class Command(BaseCommand, error_handler=extended_error_handler):
+class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
     """
     The main class that other Commands should extend.  Provides the ``--help`` action and handles more Exceptions by
     default, compared to :class:`BaseCommand`.

@@ -13,7 +13,7 @@ from types import MethodType
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, UsageError
 from .nargs import Nargs, NargsValue
-from .utils import _NotSet, Args, Bool, validate_positional
+from .utils import _NotSet, Args, Bool, validate_positional, camel_to_snake_case
 
 if TYPE_CHECKING:
     from .commands import BaseCommand, CommandType
@@ -583,32 +583,36 @@ class SubCommand(LooseString):
         self.choices = set()
         self.cmd_command_map = {}
 
-    def register(self, command: 'CommandType') -> 'CommandType':
-        """
-        Register a :class:`BaseCommand` as a sub-command.  This method may be used as a decorator if the sub-command
-        does not extend its parent BaseCommand.  When extending a parent Command, this method is called automatically
-        during BaseCommand subclass initialization.
-        """
+    def register_sub_command(self, choice: Optional[str], command: 'CommandType') -> 'CommandType':
+        validate_positional(f'{self.__class__.__name__} for {command}', choice, 'choice', exc=CommandDefinitionError)
+        parent = command.parser().command_parent
+        if choice is None:
+            choice = camel_to_snake_case(command.__name__)
         try:
-            cmd = command._BaseCommand__cmd
-        except AttributeError:
-            raise CommandDefinitionError(f'Invalid {command=} - expected a subclass of BaseCommand')
-        else:
-            if cmd is None:
-                raise CommandDefinitionError(f"Missing class kwarg 'cmd' for {command}")
-            validate_positional(f'{self.__class__.__name__} for {command}', cmd, 'cmd', exc=CommandDefinitionError)
-
-        try:
-            sub_cmd = self.cmd_command_map[cmd]
+            sub_cmd = self.cmd_command_map[choice]
         except KeyError:
-            if getattr(command, '_BaseCommand__parent', None) is None:
-                command._BaseCommand__parent = self.command
-            self.cmd_command_map[cmd] = command
-            self.add_choice(cmd)
+            # if parent is None:
+            #     command.parser().command_parent = self.command
+            self.cmd_command_map[choice] = command
+            self.add_choice(choice)
             return command
         else:
-            parent = getattr(command, '_BaseCommand__parent', None)
-            raise CommandDefinitionError(f'Invalid {cmd=} for {command} with {parent=} - already assigned to {sub_cmd}')
+            raise CommandDefinitionError(
+                f'Invalid {choice=} for {command} with {parent=} - already assigned to {sub_cmd}'
+            )
+
+    def register(self, choice: str = None) -> Callable:
+        """
+        Decorator version of :meth:`.register_sub_command`.  Registers the wrapped :class:`BaseCommand` as a sub command
+        with the specified value to be used as the parameter choice that will be associated with that command.
+
+        This is only necessary for sub commands that do not extend their parent Command class.  When extending a parent
+        Command, it is automatically registered during BaseCommand subclass initialization.
+
+        :param choice: The ``choice`` value for the positional parameter that determines which sub command was chosen.
+          Defaults to the name of the decorated class, converted from CamelCase to snake_case.
+        """
+        return partial(self.register_sub_command, choice)
 
     def result(self, args: Args) -> 'CommandType':
         cmd = super().result(args)

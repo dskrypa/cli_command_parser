@@ -7,7 +7,7 @@ from collections import deque, defaultdict
 from typing import TYPE_CHECKING, Optional, Iterator, Iterable
 
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
-from .parameters import ParameterGroup
+from .parameters import ParameterGroup, Action
 from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
 from .utils import Args, Bool, ProgramMetadata
 
@@ -20,8 +20,10 @@ log = logging.getLogger(__name__)
 
 class CommandParser:
     command: 'CommandType'
+    command_parent: Optional['CommandType']
     parent: Optional['CommandParser'] = None
     sub_command: Optional[SubCommand] = None
+    action: Optional[Action] = None
     pass_thru: Optional[PassThru] = None
     groups: list[ParameterGroup]
     _options: list[BaseOption]
@@ -31,13 +33,14 @@ class CommandParser:
     short_combinable: dict[str, BaseOption]
     action_flags: list[ActionFlag]
 
-    def __init__(self, command: 'CommandType'):
+    def __init__(self, command: 'CommandType', command_parent: 'CommandType' = None):
         self.command = command
+        self.command_parent = command_parent
         self.positionals = []  # Not copied from the parent because they must be consumed before the child can be picked
         self.pos_group = ParameterGroup(description='Positional arguments')
         self.opt_group = ParameterGroup(description='Optional arguments')
-        if (cmd_parent := getattr(self.command, '_BaseCommand__parent', None)) is not None:  # type: CommandType
-            self.parent = parent = cmd_parent.parser()
+        if command_parent is not None:
+            self.parent = parent = command_parent.parser()
             self.groups = parent.groups.copy()
             self._options = parent._options.copy()
             self.long_options = parent.long_options.copy()
@@ -75,9 +78,6 @@ class CommandParser:
                     raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
                 self.pass_thru = param
 
-        if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.cmd_command_map:
-            raise CommandDefinitionError(f'{command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
-
         return short_combinable
 
     def _add_positional(self, param: _Positional, var_nargs_param: Optional[_Positional]) -> Optional[_Positional]:
@@ -86,16 +86,27 @@ class CommandParser:
                 f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
                 f'a variable number of arguments with no specific choices defined - {param=} is invalid'
             )
-        elif (sub_cmd := self.sub_command) is not None:
+        elif self.sub_command is not None:
             raise CommandDefinitionError(
-                f'Positional {param=} may not follow the sub command {sub_cmd} - re-order the positionals, move it into'
-                'the sub command(s), or convert it to an optional parameter'
+                f'Positional {param=} may not follow the sub command {self.sub_command} - re-order the positionals,'
+                ' move it into the sub command(s), or convert it to an optional parameter'
             )
+
         self.positionals.append(param)
         if not param.group:
             self.pos_group.add(param)
-        if isinstance(param, SubCommand) and param.command is self.command:
-            self.sub_command = param
+
+        if isinstance(param, (SubCommand, Action)) and param.command is self.command:
+            if previous := self.sub_command or self.action:
+                raise CommandDefinitionError(
+                    f'Only 1 Action or SubCommand is allowed in a given Command - {self.command.__name__} cannot'
+                    f' contain both {previous} and {param}'
+                )
+            elif isinstance(param, SubCommand):
+                self.sub_command = param
+            else:
+                self.action = param
+
         if param.nargs.variable and not param.choices:
             return param
 
@@ -183,12 +194,11 @@ class CommandParser:
             return parent.has_pass_thru()
         return False
 
-    # def all_parameters(self) -> Iterator[Parameter]:
-    #     yield from self.positionals
-    #     yield from self._options
-
     def parse_args(self, args: Args, allow_unknown: Bool = False) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
+        if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.cmd_command_map:
+            raise CommandDefinitionError(f'{self.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
+
         _Parser(self, args).parse_args()
         for group in self.groups:
             group.check_conflicts(args)

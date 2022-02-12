@@ -13,10 +13,10 @@ class SubCommandTest(TestCase):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        class Bar(Foo, cmd='bar'):
+        class Bar(Foo, choice='bar'):
             pass
 
-        class Baz(Foo, cmd='baz'):
+        class Baz(Foo, choice='baz'):
             pass
 
         self.assertIsInstance(Foo.parse(['bar']), Bar)
@@ -26,12 +26,12 @@ class SubCommandTest(TestCase):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        @Foo.sub_cmd.register
-        class Bar(Command, cmd='bar'):
+        @Foo.sub_cmd.register('bar')
+        class Bar(Command):
             pass
 
-        @Foo.sub_cmd.register
-        class Baz(Command, cmd='baz'):
+        @Foo.sub_cmd.register('baz')
+        class Baz(Command):
             pass
 
         self.assertIsInstance(Foo.parse(['bar']), Bar)
@@ -41,11 +41,11 @@ class SubCommandTest(TestCase):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        class Bar(Foo, cmd='bar'):
+        class Bar(Foo, choice='bar'):
             pass
 
-        @Foo.sub_cmd.register
-        class Baz(Command, cmd='baz'):
+        @Foo.sub_cmd.register('baz')
+        class Baz(Command):
             pass
 
         self.assertIsInstance(Foo.parse(['bar']), Bar)
@@ -55,7 +55,7 @@ class SubCommandTest(TestCase):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        class Bar(Foo, cmd='bar baz'):
+        class Bar(Foo, choice='bar baz'):
             pass
 
         self.assertIsInstance(Foo.parse(['bar', 'baz']), Bar)
@@ -72,7 +72,7 @@ class SubCommandTest(TestCase):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        class Bar(Foo, cmd='bar'):
+        class Bar(Foo, choice='bar'):
             pass
 
         with self.assertRaises(MissingArgument):
@@ -83,7 +83,7 @@ class SubCommandTest(TestCase):
             sub_cmd = SubCommand()
             verbose = Counter('-v')
 
-        class Bar(Foo, cmd='bar'):
+        class Bar(Foo, choice='bar'):
             pass
 
         cmd = Foo.parse(['bar', '-v'])

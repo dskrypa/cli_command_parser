@@ -141,3 +141,7 @@ class ProgramMetadata:
         if url := self.docs_url or self.url:
             parts.append(f'Online documentation: {url}')
         return '\n\n'.join(parts)
+
+
+def camel_to_snake_case(text: str, delim: str = '_') -> str:
+    return ''.join(f'{delim}{c}' if i and c.isupper() else c for i, c in enumerate(text)).lower()
