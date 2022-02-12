@@ -571,8 +571,8 @@ class LooseString(BasePositional):
 
 
 class SubCommand(LooseString):
-    # TODO: Include command._BaseCommand__help in help text; the cmds should be listed like a mutually exclusive group
-    cmd_command_map: dict[str, 'CommandType']
+    choice_command_map: dict[str, 'CommandType']
+    choice_help_map: dict[str, Optional[str]]
 
     def __init__(self, *args, **kwargs):
         if (choices := kwargs.setdefault('choices', None)) is not None:
@@ -581,19 +581,26 @@ class SubCommand(LooseString):
             )
         super().__init__(*args, **kwargs)
         self.choices = set()
-        self.cmd_command_map = {}
+        self.choice_command_map = {}
+        self.choice_help_map = {}
 
-    def register_sub_command(self, choice: Optional[str], command: 'CommandType') -> 'CommandType':
+    def register_sub_command(
+        self,
+        choice: Optional[str],
+        help: Optional[str],  # noqa
+        command: 'CommandType',
+    ) -> 'CommandType':
         validate_positional(f'{self.__class__.__name__} for {command}', choice, 'choice', exc=CommandDefinitionError)
         parent = command.parser().command_parent
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
         try:
-            sub_cmd = self.cmd_command_map[choice]
+            sub_cmd = self.choice_command_map[choice]
         except KeyError:
             # if parent is None:
             #     command.parser().command_parent = self.command
-            self.cmd_command_map[choice] = command
+            self.choice_command_map[choice] = command
+            self.choice_help_map[choice] = help
             self.add_choice(choice)
             return command
         else:
@@ -601,7 +608,7 @@ class SubCommand(LooseString):
                 f'Invalid {choice=} for {command} with {parent=} - already assigned to {sub_cmd}'
             )
 
-    def register(self, choice: str = None) -> Callable:
+    def register(self, choice: str = None, help: str = None) -> Callable:  # noqa
         """
         Decorator version of :meth:`.register_sub_command`.  Registers the wrapped :class:`BaseCommand` as a sub command
         with the specified value to be used as the parameter choice that will be associated with that command.
@@ -611,16 +618,18 @@ class SubCommand(LooseString):
 
         :param choice: The ``choice`` value for the positional parameter that determines which sub command was chosen.
           Defaults to the name of the decorated class, converted from CamelCase to snake_case.
+        :param help: Help text to be displayed as a SubCommand option
         """
-        return partial(self.register_sub_command, choice)
+        return partial(self.register_sub_command, choice, help)
 
     def result(self, args: Args) -> 'CommandType':
-        cmd = super().result(args)
-        return self.cmd_command_map[cmd]
+        choice = super().result(args)
+        return self.choice_command_map[choice]
 
 
 class Action(LooseString):
-    name_method_map: dict[str, MethodType]
+    choice_method_map: dict[str, MethodType]
+    choice_help_map: dict[str, Optional[str]]
 
     def __init__(self, *args, **kwargs):
         if (choices := kwargs.setdefault('choices', None)) is not None:
@@ -629,30 +638,42 @@ class Action(LooseString):
             )
         super().__init__(*args, **kwargs)
         self.choices = set()
-        self.name_method_map = {}
+        self.choice_method_map = {}
+        self.choice_help_map = {}
 
-    def register(self, name_or_method: Union[str, MethodType]) -> Callable:
-        if isinstance(name_or_method, str):
-            validate_positional(self.__class__.__name__, name_or_method)
-            return partial(self._register, name_or_method)
+    def register(
+        self, method_or_choice: Union[str, MethodType] = None, /, choice: str = None, help: str = None  # noqa
+    ) -> Callable:
+        if method_or_choice is None:
+            return partial(self._register, choice, help)
+        elif isinstance(method_or_choice, str):
+            if choice is not None:
+                raise CommandDefinitionError(f'Cannot combine a positional {method_or_choice=} choice with {choice=}')
+            return partial(self._register, method_or_choice, help)
         else:
-            return self._register(name_or_method.__name__, name_or_method)
+            return self._register(choice, help, method_or_choice)
 
     __call__ = register
 
-    def _register(self, name: str, method: MethodType) -> Callable:
+    def _register(self, choice: str, help: str, method: MethodType) -> Callable:  # noqa
+        if choice:
+            validate_positional(self.__class__.__name__, choice)
+        else:
+            choice = method.__name__
+
         try:
-            action_method = self.name_method_map[name]
+            action_method = self.choice_method_map[choice]
         except KeyError:
-            self.name_method_map[name] = method
-            self.add_choice(name)
+            self.choice_method_map[choice] = method
+            self.choice_help_map[choice] = help
+            self.add_choice(choice)
             return method
         else:
-            raise CommandDefinitionError(f'Invalid {name=} for {method} - already assigned to {action_method}')
+            raise CommandDefinitionError(f'Invalid {choice=} for {method} - already assigned to {action_method}')
 
     def result(self, args: Args) -> MethodType:
-        name = super().result(args)
-        return self.name_method_map[name]
+        choice = super().result(args)
+        return self.choice_method_map[choice]
 
 
 # endregion

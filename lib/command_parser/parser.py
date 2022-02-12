@@ -158,7 +158,7 @@ class CommandParser:
         if self._contains(args, item):
             return True
         elif recursive and (sub_command := self.sub_command) is not None:
-            for command in sub_command.cmd_command_map.values():
+            for command in sub_command.choice_command_map.values():
                 if command.parser().contains(args, item, recursive):
                     return True
         return False
@@ -196,7 +196,7 @@ class CommandParser:
 
     def parse_args(self, args: Args, allow_unknown: Bool = False) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
-        if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.cmd_command_map:
+        if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.choice_command_map:
             raise CommandDefinitionError(f'{self.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         _Parser(self, args).parse_args()

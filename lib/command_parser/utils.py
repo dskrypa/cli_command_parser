@@ -57,7 +57,7 @@ class Args:
 
 
 def validate_positional(
-    param_cls: str, value: str, prefix: str = 'name', exc: Type[Exception] = ParameterDefinitionError
+    param_cls: str, value: str, prefix: str = 'choice', exc: Type[Exception] = ParameterDefinitionError
 ):
     if not value or value.startswith('-'):
         raise exc(f"Invalid {param_cls} {prefix}={value!r} - may not be empty or start with '-'")

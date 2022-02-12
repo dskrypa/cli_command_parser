@@ -36,7 +36,6 @@ class BaseCommand:
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
     __error_handler: Optional[ErrorHandler] = _NotSet   # The ExceptionHandler to wrap main()
     # Attributes related to sub-commands/actions
-    __help: str = None                                  # Help text to be displayed as a SubCommand option
     __abstract: Bool = True                             # False if viable for containing sub commands
     # fmt: on
 
@@ -57,14 +56,14 @@ class BaseCommand:
         :param usage: Usage message (default: auto-generated)
         :param description: Description of what the program does
         :param epilog: Text to follow parameter descriptions
-        :param help: Help text to be displayed as a SubCommand option
+        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
         :param error_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`
         :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub
           commands
         """
         if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
             cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
-        cls.__help = help
+
         cls.__parser = None
         cls.__abstract = abstract
         if error_handler is not _NotSet:
@@ -72,7 +71,7 @@ class BaseCommand:
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and not c.__abstract), None):
             if (sub_cmd := parent.parser().sub_command) is not None:
-                sub_cmd.register_sub_command(choice, cls)
+                sub_cmd.register_sub_command(choice, help, cls)
             elif choice:
                 warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
         elif choice:

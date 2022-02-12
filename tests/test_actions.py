@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import logging
-from unittest import TestCase, main, skip
+from unittest import TestCase, main
 from unittest.mock import Mock
 
 from command_parser import Command, Action, Positional
-from command_parser.exceptions import ParameterDefinitionError, MissingArgument, InvalidChoice
+from command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, MissingArgument, InvalidChoice
 
 log = logging.getLogger(__name__)
 
@@ -79,7 +79,6 @@ class ActionTest(TestCase):
                     action = Action()
                     action(name)(Mock(__name__='bar'))
 
-    @skip('Pending fix to make this work')
     def test_positional_allowed_after_action(self):
         class Foo(Command):
             action = Action(help='The action to take')
@@ -87,8 +86,15 @@ class ActionTest(TestCase):
             action(Mock(__name__='foo'))
 
         foo = Foo.parse(['foo', 'bar'])
-        self.assertTrue(foo.args['foo'])
+        self.assertTrue(foo.args['action'])
         self.assertEqual(foo.text, ['bar'])
+
+    def test_reject_double_choice(self):
+        with self.assertRaises(CommandDefinitionError):
+
+            class Foo(Command):
+                action = Action()
+                action('foo', choice='foo')(Mock(__name__='foo'))
 
 
 if __name__ == '__main__':
