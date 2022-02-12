@@ -96,7 +96,7 @@ class BaseCommand:
     # endregion
 
     @classmethod
-    def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs):
+    def parse_and_run(cls, argv: Sequence[str] = None, *args, allow_unknown: Bool = False, **kwargs):
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
         to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
@@ -107,14 +107,16 @@ class BaseCommand:
 
         :param argv: The arguments to parse (defaults to ``sys.argv``)
         :param args: Positional arguments to pass to :meth:`.run`
+        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
+          arguments are encountered)
         :param kwargs: Keyword arguments to pass to :meth:`.run`
         """
         error_handler = _error_handler if cls.__error_handler is _NotSet else cls.__error_handler
         if error_handler is not None:
             with error_handler:
-                self = cls.parse(argv)
+                self = cls.parse(argv, allow_unknown)
         else:
-            self = cls.parse(argv)
+            self = cls.parse(argv, allow_unknown)
 
         try:
             run = self.run
@@ -124,17 +126,19 @@ class BaseCommand:
             self.run(*args, **kwargs)
 
     @classmethod
-    def parse(cls, args: Sequence[str] = None) -> 'BaseCommand':
+    def parse(cls, args: Sequence[str] = None, allow_unknown: Bool = False) -> 'BaseCommand':
         """
         Parses the specified arguments (or ``sys.argv``), and resolves the final sub-command class based on the parsed
         arguments, if necessary.
 
         :param args: The arguments to parse (defaults to ``sys.argv``)
+        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
+          arguments are encountered)
         :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
         """
         args = Args(args)
         cmd_cls = cls
-        while sub_cmd := cmd_cls.parser().parse_args(args):  # noqa  # PyCharm is confused about this for some reason...
+        while sub_cmd := cmd_cls.parser().parse_args(args, allow_unknown):
             cmd_cls = sub_cmd
 
         return cmd_cls(args)

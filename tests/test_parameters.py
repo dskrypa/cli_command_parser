@@ -12,7 +12,7 @@ from command_parser.exceptions import (
     ParamUsageError,
     MissingArgument,
 )
-from command_parser.parameters import parameter_action, PassThru
+from command_parser.parameters import parameter_action, PassThru, Positional
 from command_parser.utils import Args
 
 log = logging.getLogger(__name__)
@@ -24,6 +24,18 @@ class InternalsTest(TestCase):
             foo = Option('-f', choices=('a', 'b'))
 
         self.assertIs(Foo.foo.command, Foo)
+
+
+class PositionalTest(TestCase):
+    def test_extra_positional_deferred(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with self.assertRaises(NoSuchOption):
+            foo = Foo.parse(['bar', 'baz'])
+
+        foo = Foo.parse(['bar', 'baz'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['baz'])
 
 
 class OptionTest(TestCase):
@@ -51,6 +63,58 @@ class OptionTest(TestCase):
         b = Foo.parse(['-f', 'b'])
         self.assertEqual(a.foo, 'a')
         self.assertEqual(b.foo, 'b')
+
+    def test_triple_dash_rejected(self):
+        class Foo(Command):
+            bar = Flag()
+
+        for case in (['---'], ['---bar'], ['--bar', '---'], ['--bar', '---bar']):
+            with self.subTest(case=case), self.assertRaises(NoSuchOption):
+                Foo.parse(case)
+
+    def test_extra_long_option_deferred(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '--baz'])
+
+        foo = Foo.parse(['bar', '--baz'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['--baz'])
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '--baz', 'a'])
+
+        foo = Foo.parse(['bar', '--baz', 'a'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['--baz', 'a'])
+
+    def test_extra_short_option_deferred(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '-b'])
+
+        foo = Foo.parse(['bar', '-b'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['-b'])
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '-b', 'a'])
+
+        foo = Foo.parse(['bar', '-b', 'a'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['-b', 'a'])
+
+    def test_value_missing(self):
+        class Foo(Command):
+            foo = Flag('-f')
+            bar = Option()
+
+        cases = (['--foo', '--bar'], ['--bar', '--foo'], ['-f', '--bar'], ['--bar', '-f'])
+        for case in cases:
+            with self.subTest(case=case), self.assertRaises(MissingArgument):
+                Foo.parse(case)
+
+        self.assertTrue(Foo.parse(['--foo']).foo)
 
 
 class CounterTest(TestCase):
@@ -104,6 +168,48 @@ class CounterTest(TestCase):
                 self.assertEqual(Foo.parse([f'-v={n}']).verbose, n)
                 self.assertEqual(Foo.parse([f'--verbose={n}']).verbose, n)
 
+    def test_combined_counters(self):
+        class Foo(Command):
+            foo = Counter('-f')
+            bar = Counter('-b')
+
+        cases = {
+            '-ffbb': (2, 2),
+            '-fbfb': (2, 2),
+            '-ffb': (2, 1),
+            '-fbf': (2, 1),
+            '-fbb': (1, 2),
+            '-bfb': (1, 2),
+            '-bb': (0, 2),
+            '-ff': (2, 0),
+            ('-fb', '3'): (1, 3),
+        }
+        for case, (f, b) in cases.items():
+            foo = Foo.parse([case] if isinstance(case, str) else case)
+            self.assertEqual(foo.foo, f)
+            self.assertEqual(foo.bar, b)
+
+    def test_counter_flag_combo(self):
+        class Foo(Command):
+            foo = Flag('-f')
+            bar = Counter('-b')
+
+        cases = {
+            '-ffbb': (True, 2),
+            '-fbfb': (True, 2),
+            '-ffb': (True, 1),
+            '-fbf': (True, 1),
+            '-fbb': (True, 2),
+            '-bfb': (True, 2),
+            '-bb': (False, 2),
+            '-ff': (True, 0),
+            ('-fb', '3'): (True, 3),
+        }
+        for case, (f, b) in cases.items():
+            foo = Foo.parse([case] if isinstance(case, str) else case)
+            self.assertEqual(foo.foo, f)
+            self.assertEqual(foo.bar, b)
+
 
 class PassThruTest(TestCase):
     def test_pass_thru(self):
@@ -142,6 +248,13 @@ class PassThruTest(TestCase):
 
         with self.assertRaises(CommandDefinitionError):
             Foo.parser()
+
+    def test_double_dash_without_pass_thru_rejected(self):
+        class Foo(Command):
+            bar = Flag()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['--'])
 
 
 class MiscParameterTest(TestCase):

@@ -245,14 +245,6 @@ class CommandParser:
         return '\n'.join(parts)
 
 
-def _format_group(name: str, params: Iterable[Parameter], width: int = 30, add_default: Bool = True) -> Iterator[str]:
-    yield name
-    for param in params:
-        yield param.format_help(width=width, add_default=add_default)
-
-    yield ''
-
-
 class _Parser:
     """Stateful parser used for a single pass of argument parsing"""
 
