@@ -123,7 +123,7 @@ class BaseCommand:
         except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
             pass
         else:
-            self.run(*args, **kwargs)
+            run(*args, **kwargs)
 
     @classmethod
     def parse(cls, args: Sequence[str] = None, allow_unknown: Bool = False) -> 'BaseCommand':

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from contextlib import redirect_stdout
+from contextlib import redirect_stdout, redirect_stderr
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, ActionFlag, SubCommand, Positional
+from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option
 from command_parser.exceptions import CommandDefinitionError
 from command_parser.utils import Args
 
@@ -139,6 +139,55 @@ class TestCommands(TestCase):
             Foo.parser()
 
         self.assertIn('Only 1 Action xor SubCommand is allowed', str(ctx.exception))
+
+    def test_no_error_handler_run(self):
+        class Foo(Command, error_handler=None):
+            bar = Flag()
+            run = Mock()
+
+        Foo.parse_and_run([])
+        self.assertTrue(Foo.run.called)
+
+    def test_no_error_handler_main(self):
+        class Foo(Command, error_handler=None):
+            bar = Flag()
+            main = Mock()
+
+        Foo.parse_and_run([])
+        self.assertTrue(Foo.main.called)
+
+    def test_no_run_after_parse_error(self):
+        class Foo(Command):
+            bar = Flag()
+            run = Mock()
+
+        mock = Mock(close=Mock())
+        with redirect_stdout(mock), redirect_stderr(mock):
+            Foo.parse_and_run(['-B'])
+
+        self.assertFalse(Foo.run.called)
+
+    def test_no_warn_on_parent_without_choice(self):
+        class Foo(Command):
+            pass
+
+        class Bar(Foo):
+            pass
+
+        self.assertEqual(Bar.parser().command_parent, Foo)
+
+
+class TestParsing(TestCase):
+    def test_flag_and_option(self):
+        class Ipython(Command):
+            interactive = Flag('-i')
+            module = Option('-m')
+
+        for case in (['-im', 'lib.command_parser'], ['-i', '-m', 'lib.command_parser']):
+            with self.subTest(case=case):
+                cmd = Ipython.parse(case)
+                self.assertTrue(cmd.interactive)
+                self.assertEqual(cmd.module, 'lib.command_parser')
 
 
 if __name__ == '__main__':
