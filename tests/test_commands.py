@@ -7,6 +7,7 @@ from unittest.mock import Mock
 from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option
 from command_parser.exceptions import CommandDefinitionError
 from command_parser.utils import Args
+from command_parser.error_handling import no_exit_handler
 
 
 class TestCommands(TestCase):
@@ -151,7 +152,7 @@ class TestCommands(TestCase):
         self.assertTrue(Foo.main.called)
 
     def test_no_run_after_parse_error(self):
-        class Foo(Command):
+        class Foo(Command, error_handler=no_exit_handler):
             bar = Flag()
             run = Mock()
 

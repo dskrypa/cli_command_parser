@@ -44,7 +44,7 @@ class ErrorHandlingTest(TestCase):
     def test_handle_parser_exception(self):
         handler = ErrorHandler()
         sio = StringIO()
-        with redirect_stderr(sio), handler:
+        with redirect_stderr(sio), self.assertRaises(SystemExit), handler:
             raise CommandParserException('test one')
 
         self.assertEqual(sio.getvalue(), 'test one\n')

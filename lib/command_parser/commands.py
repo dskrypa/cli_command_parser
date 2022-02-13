@@ -190,7 +190,7 @@ class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
     @action_flag('-h', priority=float('-inf'), help='Show this help message and exit')
     def help(self):
         parser: CommandParser = self.parser()
-        print(parser.format_help())
+        print(parser.formatter.format_help())
         raise ParserExit
 
     def run(self, *args, close_stdout: Bool = False, **kwargs):  # noqa

@@ -28,7 +28,15 @@ __all__ = [
 
 
 class CommandParserException(Exception):
-    pass
+    code: int = 2
+
+    def show(self):
+        if message := str(self):
+            print(message, file=sys.stderr)
+
+    def exit(self):
+        self.show()
+        sys.exit(self.code)
 
 
 class ParserExit(CommandParserException):
@@ -38,14 +46,6 @@ class ParserExit(CommandParserException):
 
     def __str__(self):
         return self.message or ''
-
-    def show(self):
-        if message := self.message:
-            print(message, file=sys.stderr)
-
-    def exit(self):
-        self.show()
-        sys.exit(self.code)
 
 
 class CommandDefinitionError(CommandParserException):

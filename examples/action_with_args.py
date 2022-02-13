@@ -5,13 +5,13 @@ from command_parser import Command, Action, Positional
 
 class Example(Command):
     action = Action(help='The action to take')
-    text = Positional(nargs='+')
+    text = Positional(nargs='+', help='The text to print')
 
-    @action
+    @action(help='Echo the provided text')
     def echo(self):
         print(' '.join(self.text))
 
-    @action
+    @action(help='Split the provided text so that each word is on a new line')
     def split(self):
         print('\n'.join(self.text))
 

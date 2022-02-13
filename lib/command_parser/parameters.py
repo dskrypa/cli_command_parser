@@ -120,6 +120,11 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
+    @property
+    @abstractmethod
+    def show_in_help(self) -> bool:
+        raise NotImplementedError
+
     @abstractmethod
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         raise NotImplementedError
@@ -139,9 +144,7 @@ class ParameterGroup(ParamBase):
 
     _local = local()
     description: Optional[str]
-    parameters: list['Parameter']
-    groups: list['ParameterGroup']
-    choices: list[ParamOrGroup]
+    members: list[ParamOrGroup]
     mutually_exclusive: Bool = False
     mutually_dependent: Bool = False
 
@@ -156,9 +159,7 @@ class ParameterGroup(ParamBase):
     ):
         super().__init__(name=name, required=required)
         self.description = description
-        self.parameters = []
-        self.groups = []
-        self.choices = []
+        self.members = []
         if mutually_dependent and mutually_exclusive:
             name = self.name or 'Options'
             raise ParameterDefinitionError(f'group={name!r} cannot be both mutually_exclusive and mutually_dependent')
@@ -167,12 +168,7 @@ class ParameterGroup(ParamBase):
 
     def add(self, param: ParamOrGroup):
         """Add the given parameter without storing a back-reference.  Primary use case is for help text only groups."""
-        if isinstance(param, ParameterGroup):
-            self.groups.append(param)
-        else:
-            self.parameters.append(param)
-        if self.mutually_exclusive:
-            self.choices.append(param)
+        self.members.append(param)
 
     def maybe_add_all(self, params: Iterable[ParamOrGroup]):
         for param in params:
@@ -180,27 +176,18 @@ class ParameterGroup(ParamBase):
                 self.add(param)
 
     def register(self, param: ParamOrGroup):
-        if isinstance(param, ParameterGroup):
-            self.groups.append(param)
-        else:
-            self.parameters.append(param)
-        if self.mutually_exclusive:
-            self.choices.append(param)
+        # TODO: Error on adding positional parameters to a mutually exclusive group
+        self.members.append(param)
         param.group = self
 
     def register_all(self, params: Iterable[ParamOrGroup]):
         for param in params:
-            if isinstance(param, ParameterGroup):
-                self.groups.append(param)
-            else:
-                self.parameters.append(param)
-            if self.mutually_exclusive:
-                self.choices.append(param)
+            self.members.append(param)
             param.group = self
 
     def __repr__(self) -> str:
         exclusive, dependent = self.mutually_exclusive, self.mutually_dependent
-        members = len(self.parameters)
+        members = len(self.members)
         return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
 
     @classmethod
@@ -215,7 +202,7 @@ class ParameterGroup(ParamBase):
 
     def __eq__(self, other: 'ParameterGroup') -> bool:
         if isinstance(other, ParameterGroup) and self.group == other.group:
-            attrs = ('mutually_exclusive', 'mutually_dependent', 'name', 'description', 'parameters', 'groups')
+            attrs = ('mutually_exclusive', 'mutually_dependent', 'name', 'description', 'members')
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
         return False
 
@@ -228,7 +215,7 @@ class ParameterGroup(ParamBase):
             return self.name < other.name
         elif group is None:  # Top-level - push to right (process conflicts last)
             return False
-        elif group in other.groups:  # Nested in other - push to left (process conflicts first)
+        elif group in other.members:  # Nested in other - push to left (process conflicts first)
             return True
         else:
             return self.name < other.name
@@ -246,15 +233,15 @@ class ParameterGroup(ParamBase):
         return None
 
     def __contains__(self, param: ParamOrGroup) -> bool:
-        return param in self.parameters or param in self.groups
+        return param in self.members
 
-    def __iter__(self) -> Iterator[Param]:
-        yield from self.parameters
+    def __iter__(self) -> Iterator[ParamOrGroup]:
+        yield from self.members
 
     def _categorize_params(self, args: 'Args') -> tuple[list[Param], list[Param]]:
         provided = []
         missing = []
-        for obj in chain(self.parameters, self.groups):
+        for obj in self.members:
             if args.num_provided(obj):
                 provided.append(obj)
             else:
@@ -280,6 +267,10 @@ class ParameterGroup(ParamBase):
             p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
             raise UsageError(f'The following arguments are mutually exclusive - only one is allowed: {p_str}')
 
+    @property
+    def show_in_help(self) -> bool:
+        return bool(self.members)
+
     def format_description(self, group_type: 'Bool' = True) -> str:
         description = self.description or f'{self.name} options'
         if group_type and (self.mutually_exclusive or self.mutually_dependent):
@@ -287,14 +278,37 @@ class ParameterGroup(ParamBase):
         return description
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        p_groups = (self.parameters, self.groups)
-        choices = ','.join(p.format_usage(include_meta, full, delim) for p_group in p_groups for p in p_group)
+        choices = ','.join(mem.format_usage(include_meta, full, delim) for mem in self.members)
         return f'{{{choices}}}'
 
-    def format_help(self, width: int = 30, add_default: 'Bool' = True, group_type: 'Bool' = True):
+    def format_help(
+        self, width: int = 30, add_default: 'Bool' = True, group_type: 'Bool' = True, clean: Bool = True
+    ) -> str:
+        """
+        Prepare the help text for this group.
+
+        :param width: The width of the option/action/command column.
+        :param add_default: Whether default values should be included in the help text for parameters.
+        :param group_type: Whether the group type should be included in the description if this is a mutually
+          exclusive / dependent group
+        :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
+          description.
+        :return: The formatted help text.
+        """
         parts = [self.format_description(group_type) + ':']
-        for param in self.parameters:
-            parts.append(param.format_help(width=width, add_default=add_default))
+
+        nested, params = 0, 0
+        for member in self.members:
+            if isinstance(member, (ChoiceMap, ParameterGroup)):
+                nested += 1
+                parts.append('')  # Add space for readability
+            else:
+                params += 1
+            parts.append(member.format_help(width=width, add_default=add_default))
+
+        if clean and nested and not params:
+            parts = parts[2:]  # remove description and the first spacer
+
         parts.append('')
         return '\n'.join(parts)
 
@@ -442,6 +456,10 @@ class Parameter(ParamBase):
             else:
                 return value
 
+    @property
+    def show_in_help(self) -> bool:
+        return not self.hide
+
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.usage_metavar
 
@@ -521,6 +539,11 @@ class Positional(BasePositional):
     @parameter_action
     def append(self, args: Args, value: Any):
         args[self].append(value)
+
+
+# endregion
+
+# region Choice Mapping Parameters
 
 
 class Choice:
@@ -614,6 +637,10 @@ class ChoiceMap(BasePositional):
         elif (choice := ' '.join(values)) not in choices:
             raise InvalidChoice(self, choice, choices)
         return choices[choice].target
+
+    @property
+    def show_in_help(self) -> bool:
+        return bool(self.choices)
 
     def format_usage(self, include_meta: Bool = None, full: Bool = None, delim: str = None) -> str:
         return self.usage_metavar
@@ -714,7 +741,6 @@ class Action(ChoiceMap, title='Actions'):
 
 
 # endregion
-
 
 # region Optional Parameters
 

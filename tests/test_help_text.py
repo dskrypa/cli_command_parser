@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 from command_parser import Command, no_exit_handler
 from command_parser.commands import CommandType
-from command_parser.parameters import Positional, SubCommand, Action, ActionFlag, Option, ParameterGroup, PassThru, Flag
+from command_parser.parameters import Positional, SubCommand, Action, Counter, ParameterGroup
 from command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
@@ -24,7 +24,7 @@ class HelpTextTest(TestCase):
         self.assertTrue(stdout.startswith('usage: foo.py {bar}'), f'Unexpected stdout: {stdout}')
         self.assertNotIn(TEST_DESCRIPTION, stdout)
         self.assertNotIn(TEST_EPILOG, stdout)
-        self.assertIn('Positional arguments:', stdout)
+        self.assertIn('Actions:', stdout)
         self.assertIn('Optional arguments:', stdout)
         self.assertIn('--help, -h', stdout)
 
@@ -63,7 +63,7 @@ class HelpTextTest(TestCase):
                 baz = Positional()
 
         stdout, stderr = _get_output(Foo, ['-h'])
-        self.assertTrue(any(line == 'test group:' for line in stdout.splitlines()))
+        self.assertIn('test group:', stdout.splitlines())
         self.assertNotIn('group foo:', stdout)
         self.assertNotIn('Positional arguments:', stdout)
 
@@ -127,6 +127,27 @@ class HelpTextTest(TestCase):
             self.assertIs(meta.url, None)
             self.assertIs(meta.email, None)
             self.assertEqual(meta.version, '')
+
+    def test_empty_groups_hidden(self):
+        class Base(Command):
+            sub_cmd = SubCommand()
+            verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+
+        class Show(Base, choice='show', help='Show the results of an action'):
+            action = Action(help='What to show')
+            action(Mock(__name__='attrs'))
+            action(Mock(__name__='hello'))
+            action(Mock(__name__='log_test'))
+
+        help_text = Base.parser().formatter.format_help()
+        self.assertNotIn('Positional arguments:', help_text)
+        expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
+        self.assertIn(expected_sub_cmd, help_text)
+        expected_opt = """Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)"""
+        self.assertIn(expected_opt, help_text)
 
 
 def _get_output(command: CommandType, args: list[str]) -> tuple[str, str]:

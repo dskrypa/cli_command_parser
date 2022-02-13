@@ -75,20 +75,14 @@ class ErrorHandler:
         return clone
 
 
-ErrorHandler.cls_handler(ParserExit)(ParserExit.exit)
-
-
-@ErrorHandler.cls_handler(CommandParserException)
-def _handle_parser_error(exc: CommandParserException):
-    print(exc, file=sys.stderr)
-
+ErrorHandler.cls_handler(CommandParserException)(CommandParserException.exit)
 
 error_handler = ErrorHandler()
 error_handler.register(lambda e: print(), KeyboardInterrupt)
 error_handler.register(lambda e: None, BrokenPipeError)
 
 no_exit_handler = error_handler.copy()
-no_exit_handler(ParserExit)(ParserExit.show)
+no_exit_handler(CommandParserException)(CommandParserException.show)
 
 extended_error_handler = error_handler.copy()
 
