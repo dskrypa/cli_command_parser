@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>command_parser.commands &mdash; Command Parser 2022.02.13-6 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.commands.html">Commands Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.error_handling.html">Error_Handling Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.exceptions.html">Exceptions Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.formatting.html">Formatting Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.nargs.html">Nargs Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.parameters.html">Parameters Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.parser.html">Parser Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.utils.html">Utils Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>command_parser.commands</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="None" target="_blank" class="fa fa-github"> View on GitHub</a>
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for command_parser.commands</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The core Command classes that are intended as the entry point for a given program.</span>
+
+<span class="sd">:author: Doug Skrypa</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">action_flag</span>
+<span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span><span class="p">,</span> <span class="n">error_handler</span> <span class="k">as</span> <span class="n">_error_handler</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParserExit</span>
+<span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">CommandType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Type</span><span class="p">[</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="BaseCommand"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand">[docs]</a><span class="k">class</span> <span class="nc">BaseCommand</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for Commands that provides all of the core functionality.  It is generally recommended to extend</span>
+<span class="sd">    :class:`Command` instead unless you need to omit/re-define the ``--help`` action or any other behavior that strays</span>
+<span class="sd">    from the core functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># region Initialization</span>
+    <span class="c1"># fmt: off</span>
+    <span class="n">__args</span><span class="p">:</span> <span class="n">Args</span>                                        <span class="c1"># The raw and parsed arguments passed to this command</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">Args</span>                                          <span class="c1"># Same as __args, but can be overwritten.  Not used internally.</span>
+    <span class="n">__meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="kc">None</span>                      <span class="c1"># Metadata used in help text</span>
+    <span class="n">__parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>            <span class="c1"># The CommandParser used by this command</span>
+    <span class="n">__error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>   <span class="c1"># The ExceptionHandler to wrap main()</span>
+    <span class="c1"># Attributes related to sub-commands/actions</span>
+    <span class="n">__abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>                             <span class="c1"># False if viable for containing sub commands</span>
+    <span class="c1"># fmt: on</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span>
+        <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">error_handler</span><span class="p">:</span> <span class="n">ErrorHandler</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+        <span class="n">abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param choice: SubCommand value that maps to this command</span>
+<span class="sd">        :param prog: The name of the program (default: sys.argv[0])</span>
+<span class="sd">        :param usage: Usage message (default: auto-generated)</span>
+<span class="sd">        :param description: Description of what the program does</span>
+<span class="sd">        :param epilog: Text to follow parameter descriptions</span>
+<span class="sd">        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</span>
+<span class="sd">        :param error_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`</span>
+<span class="sd">        :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub</span>
+<span class="sd">          commands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__meta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">prog</span> <span class="ow">or</span> <span class="n">usage</span> <span class="ow">or</span> <span class="n">description</span> <span class="ow">or</span> <span class="n">epilog</span><span class="p">:</span>  <span class="c1"># Inherit from parent when possible</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__meta</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="n">epilog</span><span class="p">)</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__abstract</span> <span class="o">=</span> <span class="n">abstract</span>
+        <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span> <span class="o">=</span> <span class="n">error_handler</span>
+
+        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">BaseCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">__abstract</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sub_cmd</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because its </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> has no SubCommand parameter&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because it has no parent Command&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseCommand.parser"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParser</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># The parent here is different than in __init_subclass__ to allow ActionFlag inheritance</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">BaseCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">BaseCommand</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span></div>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Args</span><span class="p">):</span>
+        <span class="c1"># By storing the parsed Args here instead of __init__, every single sub class won&#39;t need to</span>
+        <span class="c1"># call super().__init__(...) from their own __init__ for this step</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># endregion</span>
+
+<div class="viewcode-block" id="BaseCommand.parse_and_run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`</span>
+<span class="sd">        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles</span>
+<span class="sd">        exceptions during parsing using the configured :class:`ErrorHandler`.</span>
+
+<span class="sd">        To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use</span>
+<span class="sd">        the above mentioned methods separately.</span>
+
+<span class="sd">        :param argv: The arguments to parse (defaults to ``sys.argv``)</span>
+<span class="sd">        :param args: Positional arguments to pass to :meth:`.run`</span>
+<span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
+<span class="sd">          arguments are encountered)</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.run`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">error_handler</span> <span class="o">=</span> <span class="n">_error_handler</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span>
+        <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_handler</span><span class="p">:</span>
+                <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span>
+        <span class="k">except</span> <span class="ne">UnboundLocalError</span><span class="p">:</span>  <span class="c1"># There was an error handled during parsing, so self was not defined</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseCommand.parse"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parse">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BaseCommand&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses the specified arguments (or ``sys.argv``), and resolves the final sub-command class based on the parsed</span>
+<span class="sd">        arguments, if necessary.</span>
+
+<span class="sd">        :param args: The arguments to parse (defaults to ``sys.argv``)</span>
+<span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
+<span class="sd">          arguments are encountered)</span>
+<span class="sd">        :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">Args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
+        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">):</span>
+            <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
+
+        <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseCommand.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Primary entry point for running a command.  Calls :meth:`.main` and handles exceptions using the configured</span>
+<span class="sd">        :class:`ErrorHandler`.  Alternate error handlers can be specified during Command class initialization.  To skip</span>
+<span class="sd">        error handling, call :meth:`.main` directly or define the class with ``error_handler=None``.</span>
+
+<span class="sd">        :param args: Positional arguments to pass to :meth:`.main`</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.main`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">error_handler</span> <span class="o">=</span> <span class="n">_error_handler</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_handler</span>
+        <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">error_handler</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseCommand.main"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If any arguments were specified that are associated with triggering an action method, then that method is called</span>
+<span class="sd">        here.  Subclasses can override this method if they have only one action, if they need to override the action</span>
+<span class="sd">        handling logic here, or if they have code that should run based on whether an action was executed or not.</span>
+
+<span class="sd">        Initialization code that is common for all actions should be placed in ``__init__`` instead of overriding main.</span>
+
+<span class="sd">        :param args: Positional arguments to pass to the action method</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the action method</span>
+<span class="sd">        :return: True if an action method was called, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">action_flags</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">ActionFlag</span><span class="p">):</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">action_flags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">action</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span><span class="o">.</span><span class="n">action</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">action</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">,</span> <span class="n">error_handler</span><span class="o">=</span><span class="n">extended_error_handler</span><span class="p">,</span> <span class="n">abstract</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The main class that other Commands should extend.  Provides the ``--help`` action and handles more Exceptions by</span>
+<span class="sd">    default, compared to :class:`BaseCommand`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Command.help"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.help">[docs]</a>    <span class="nd">@action_flag</span><span class="p">(</span><span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-inf&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show this help message and exit&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">parser</span><span class="p">:</span> <span class="n">CommandParser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">())</span>
+        <span class="k">raise</span> <span class="n">ParserExit</span></div>
+
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">close_stdout</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">close_stdout</span><span class="p">:</span>  <span class="c1"># TODO: Verify whether this is ever needed anymore</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Prevent the following when piping output to utilities such as ``| head``:</span>
+<span class="sd">                    Exception ignored in: &lt;_io.TextIOWrapper name=&#39;&lt;stdout&gt;&#39; mode=&#39;w&#39; encoding=&#39;utf-8&#39;&gt;</span>
+<span class="sd">                    OSError: [Errno 22] Invalid argument</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
