@@ -107,7 +107,7 @@ class TestCommands(TestCase):
                 pass
 
     def test_positional_after_sub_cmd_rejected(self):
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'may not follow the sub command'):
 
             class Foo(Command):
                 sub = SubCommand()
@@ -116,18 +116,14 @@ class TestCommands(TestCase):
             class Bar(Foo, choice='bar'):
                 pass
 
-        self.assertIn('may not follow the sub command', str(ctx.exception))
-
     def test_two_actions_rejected(self):
         class Foo(Command):
             foo = Action()
             bar = Action()
             foo(Mock(__name__='baz'))
 
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parser()
-
-        self.assertIn('Only 1 Action xor SubCommand is allowed', str(ctx.exception))
 
     def test_action_with_sub_command_rejected(self):
         class Foo(Command):
@@ -135,10 +131,8 @@ class TestCommands(TestCase):
             bar = SubCommand()
             foo(Mock(__name__='baz'))
 
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parser()
-
-        self.assertIn('Only 1 Action xor SubCommand is allowed', str(ctx.exception))
 
     def test_no_error_handler_run(self):
         class Foo(Command, error_handler=None):

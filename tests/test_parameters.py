@@ -357,10 +357,11 @@ class ParserTest(TestCase):
             cmd = SubCommand()
             bar = Flag('-b')
 
-        with self.assertRaises(CommandDefinitionError):
+        class Bar(Foo):
+            bar = Counter('-b')
 
-            class Bar(Foo):
-                bar = Counter('-b')
+        with self.assertRaisesRegex(CommandDefinitionError, 'conflict for command=.* between params'):
+            Foo.parse(['bar'])
 
 
 if __name__ == '__main__':

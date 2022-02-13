@@ -32,19 +32,16 @@ class ActionFlagTest(TestCase):
         class Foo(Command):
             foo = ActionFlag()
 
-        with self.assertRaises(ParameterDefinitionError) as ctx:
+        with self.assertRaisesRegex(ParameterDefinitionError, 'No function was registered'):
             Foo.parse([])
-        self.assertIn('No function was registered', str(ctx.exception))
 
     def test_af_prio_conflict(self):
         class Foo(Command):
             foo = ActionFlag()(Mock())
             bar = ActionFlag()(Mock())
 
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
             Foo.parse([])
-
-        self.assertIn('different priority values', str(ctx.exception))
 
     def test_af_non_me_group_conflict(self):
         class Foo(Command):
@@ -52,10 +49,8 @@ class ActionFlagTest(TestCase):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
             Foo.parse([])
-
-        self.assertIn('different priority values', str(ctx.exception))
 
     def test_af_md_group_conflict(self):
         class Foo(Command):
@@ -63,10 +58,8 @@ class ActionFlagTest(TestCase):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
             Foo.parse([])
-
-        self.assertIn('different priority values', str(ctx.exception))
 
     def test_af_me_group_ok(self):
         class Foo(Command):
@@ -87,10 +80,8 @@ class ActionFlagTest(TestCase):
                 bar = ActionFlag()(Mock())
             baz = ActionFlag()(Mock())
 
-        with self.assertRaises(CommandDefinitionError) as ctx:
+        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
             Foo.parser()
-
-        self.assertIn('different priority values', str(ctx.exception))
 
     def test_no_reassign(self):
         with self.assertRaises(CommandDefinitionError):

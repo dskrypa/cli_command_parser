@@ -13,20 +13,25 @@ class SubCommandTest(TestCase):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        class Bar(Foo, choice='bar'):
+        class FooBar(Foo, choice='bar'):
             pass
 
         class Baz(Foo, choice='baz'):
             pass
 
-        self.assertIsInstance(Foo.parse(['bar']), Bar)
+        self.assertNotIn('foo_bar', Foo.sub_cmd.choices)
+        self.assertIsInstance(Foo.parse(['bar']), FooBar)
         self.assertIsInstance(Foo.parse(['baz']), Baz)
 
     def test_manual_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        @Foo.sub_cmd.register('bar')
+        @Foo.sub_cmd.register()
+        class FooBar(Command):
+            pass
+
+        @Foo.sub_cmd.register
         class Bar(Command):
             pass
 
@@ -34,6 +39,7 @@ class SubCommandTest(TestCase):
         class Baz(Command):
             pass
 
+        self.assertIsInstance(Foo.parse(['foo_bar']), FooBar)
         self.assertIsInstance(Foo.parse(['bar']), Bar)
         self.assertIsInstance(Foo.parse(['baz']), Baz)
 
@@ -44,7 +50,7 @@ class SubCommandTest(TestCase):
         class Bar(Foo, choice='bar'):
             pass
 
-        @Foo.sub_cmd.register('baz')
+        @Foo.sub_cmd.register(choice='baz', help='test')
         class Baz(Command):
             pass
 
@@ -89,6 +95,16 @@ class SubCommandTest(TestCase):
         cmd = Foo.parse(['bar', '-v'])
         self.assertIsInstance(cmd, Bar)
         self.assertEqual(cmd.verbose, 1)
+
+    def test_default_choice_registered(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class FooBar(Foo):
+            pass
+
+        self.assertIn('foo_bar', Foo.sub_cmd.choices)
+        self.assertIsInstance(Foo.parse(['foo_bar']), FooBar)
 
 
 if __name__ == '__main__':

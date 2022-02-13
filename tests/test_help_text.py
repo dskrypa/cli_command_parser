@@ -59,8 +59,8 @@ class HelpTextTest(TestCase):
         class Foo(Command, error_handler=no_exit_handler):
             foo = ParameterGroup(description='group foo')
             with ParameterGroup(description='test group') as group:
-                bar = Flag()
-                baz = Flag()
+                bar = Positional()
+                baz = Positional()
 
         stdout, stderr = _get_output(Foo, ['-h'])
         self.assertTrue(any(line == 'test group:' for line in stdout.splitlines()))

@@ -71,7 +71,7 @@ class BaseCommand:
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and not c.__abstract), None):
             if (sub_cmd := parent.parser().sub_command) is not None:
-                sub_cmd.register_sub_command(choice, help, cls)
+                sub_cmd.register_command(choice, cls, help)
             elif choice:
                 warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
         elif choice:
@@ -189,7 +189,7 @@ class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
 
     @action_flag('-h', priority=float('-inf'), help='Show this help message and exit')
     def help(self):
-        parser: CommandParser = self.parser()  # noqa  # PyCharm is confused about this for some reason...
+        parser: CommandParser = self.parser()
         print(parser.format_help())
         raise ParserExit
 

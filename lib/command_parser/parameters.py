@@ -14,7 +14,7 @@ from types import MethodType
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, UsageError
 from .nargs import Nargs, NargsValue
-from .utils import _NotSet, Args, Bool, validate_positional, camel_to_snake_case
+from .utils import _NotSet, Args, Bool, validate_positional, camel_to_snake_case, format_help_entry
 
 if TYPE_CHECKING:
     from .commands import BaseCommand, CommandType
@@ -24,7 +24,6 @@ __all__ = [
     'PassThru',
     'BasePositional',
     'Positional',
-    'LooseString',
     'SubCommand',
     'Action',
     'BaseOption',
@@ -447,20 +446,12 @@ class Parameter(ParamBase):
         return self.usage_metavar
 
     def format_help(self, width: int = 30, add_default: Bool = True) -> str:
-        arg_str = '  ' + self.format_usage(include_meta=True, full=True)
-        help_str = self.help or ''
+        usage = self.format_usage(include_meta=True, full=True)
+        description = self.help or ''
         if add_default and (default := self.default) is not _NotSet:
-            pad = ' ' if help_str else ''
-            help_str += f'{pad}(default: {default})'
-
-        if help_str:
-            if (pad_chars := width - len(arg_str)) < 0:
-                pad = '\n' + ' ' * width
-            else:
-                pad = ' ' * pad_chars
-            return f'{arg_str}{pad}{help_str}'
-        else:
-            return arg_str
+            pad = ' ' if description else ''
+            description += f'{pad}(default: {default})'
+        return format_help_entry(usage, description, width=width)
 
     @property
     def usage_metavar(self) -> str:
@@ -532,34 +523,61 @@ class Positional(BasePositional):
         args[self].append(value)
 
 
-class LooseString(BasePositional):
-    choices: set[str] = None
+class Choice:
+    __slots__ = ('choice', 'target', 'help')
 
-    def __init__(self, action: str = 'append', choices: Collection[str] = None, **kwargs):
+    def __init__(self, choice: str, target: Any = _NotSet, help: str = None):  # noqa
+        self.choice = choice
+        self.target = choice if target is _NotSet else target
+        self.help = help
+
+    def __repr__(self) -> str:
+        help_str = f', help={self.help!r}' if self.help else ''
+        target_str = f', target={self.target}' if self.choice != self.target else ''
+        return f'{self.__class__.__name__}({self.choice!r}{target_str}{help_str})'
+
+    def format_help(self, width: int = 30, lpad: int = 4) -> str:
+        return format_help_entry(self.choice, self.help, width=width, lpad=lpad)
+
+
+class ChoiceMap(BasePositional):
+    _choice_validation_exc = ParameterDefinitionError
+    _default_title: str = 'Choices'
+    nargs = Nargs('+')
+    choices: dict[str, Choice]
+    title: Optional[str]
+    description: Optional[str]
+
+    def __init_subclass__(cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if title is not None:
+            cls._default_title = title
+        if choice_validation_exc is not None:
+            cls._choice_validation_exc = choice_validation_exc
+
+    def __init__(self, action: str = 'append', title: str = None, description: str = None, **kwargs):
+        if (choices := kwargs.setdefault('choices', None)) is not None:
+            raise ParameterDefinitionError(
+                f'Invalid {choices=} - {self.__class__.__name__} choices must be added via register'
+            )
         super().__init__(action=action, **kwargs)
-        self.register_choices(choices)
         self._init_value_factory = list
-
-    def register_choices(self, choices: Collection[str]):
-        if choices is None:
-            self.nargs = Nargs('+')
-        elif choices and not all(isinstance(c, str) for c in choices):
-            raise ParameterDefinitionError(f'Invalid {choices=} - all {self.__class__.__name__} choices must be strs')
-        elif not choices:
-            raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
-        else:
-            self.choices = set(choices)
-            self._update_nargs()
-
-    def add_choice(self, choice: str):
-        try:
-            self.choices.add(choice)
-        except AttributeError:  # Initialized with no choices
-            self.choices = {choice}
-        self._update_nargs()
+        self.title = title
+        self.description = description
+        self.choices = {}
 
     def _update_nargs(self):
         self.nargs = Nargs(set(map(len, map(str.split, self.choices))))
+
+    def register_choice(self, choice: str, target: Any = _NotSet, help: str = None):  # noqa
+        validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+        try:
+            existing = self.choices[choice]
+        except KeyError:
+            self.choices[choice] = Choice(choice, target, help)
+            self._update_nargs()
+        else:
+            raise CommandDefinitionError(f'Invalid {choice=} for {target=} - already assigned to {existing}')
 
     @parameter_action
     def append(self, args: Args, value: str):
@@ -569,143 +587,130 @@ class LooseString(BasePositional):
 
         args[self].extend(values)
         n_values = len(values)
-        args.record_action(self, n_values - 1)
+        args.record_action(self, n_values - 1)  # - 1 because it was already called before dispatching to this method
         return n_values
 
     def is_valid_arg(self, args: Args, value: str) -> bool:
-        if values := args[self]:
-            combined = ' '.join(values) + ' ' + value
-        else:
-            combined = value
+        values = args[self].copy()
+        values.append(value)
         if choices := self.choices:
-            return combined in choices or any(c.startswith(combined) for c in choices)
-        elif value.startswith('-'):
-            return False
-        return True
+            choice = ' '.join(values)
+            if choice in choices:
+                return True
+            elif len(values) > self.nargs.max:
+                return False
+            prefix = choice + ' '
+            return any(c.startswith(prefix) for c in choices)
+        else:
+            return not value.startswith('-')
 
-    def result(self, args: Args) -> str:
-        values = args[self]
-        nargs = self.nargs
-        if (val_count := len(values)) == 0 and 0 not in nargs:
+    def result(self, args: Args):
+        if not (choices := self.choices):
+            raise CommandDefinitionError(f'No choices were registered for {self}')
+        elif not (values := args[self]):
             raise MissingArgument(self)
-        elif val_count not in nargs:
-            raise BadArgument(self, f'expected {nargs=} values but found {val_count}')
+        elif (val_count := len(values)) not in self.nargs:
+            raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
+        elif (choice := ' '.join(values)) not in choices:
+            raise InvalidChoice(self, choice, choices)
+        return choices[choice].target
 
-        combined = ' '.join(values)
-        if (choices := self.choices) and combined not in choices:
-            raise InvalidChoice(self, combined, choices)
-
-        return combined
-
-    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+    def format_usage(self, include_meta: Bool = None, full: Bool = None, delim: str = None) -> str:
         return self.usage_metavar
 
+    def format_help(self, width: int = 30, add_default: 'Bool' = None):
+        title = self.title or self._default_title
+        parts = [f'{title}:', format_help_entry(self.format_usage(), self.description, width=width, lpad=2)]
+        for choice in self.choices.values():
+            parts.append(choice.format_help(width, lpad=4))
 
-class SubCommand(LooseString):
-    choice_command_map: dict[str, 'CommandType']
-    choice_help_map: dict[str, Optional[str]]
+        parts.append('')
+        return '\n'.join(parts)
 
-    def __init__(self, *args, **kwargs):
-        if (choices := kwargs.setdefault('choices', None)) is not None:
-            raise ParameterDefinitionError(
-                f'Invalid {choices=} - {self.__class__.__name__} choices must be added via register'
-            )
-        super().__init__(*args, **kwargs)
-        self.choices = set()
-        self.choice_command_map = {}
-        self.choice_help_map = {}
 
-    def register_sub_command(
-        self,
-        choice: Optional[str],
-        help: Optional[str],  # noqa
-        command: 'CommandType',
+class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):
+    def register_command(
+        self, choice: Optional[str], command: 'CommandType', help: Optional[str]  # noqa
     ) -> 'CommandType':
-        parent = command.parser().command_parent
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
         else:
-            validate_positional(f'{self.__class__.__name__} for {command}', choice, exc=CommandDefinitionError)
+            validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+
         try:
-            sub_cmd = self.choice_command_map[choice]
-        except KeyError:
-            # if parent is None:
-            #     command.parser().command_parent = self.command
-            self.choice_command_map[choice] = command
-            self.choice_help_map[choice] = help
-            self.add_choice(choice)
-            return command
-        else:
+            self.register_choice(choice, command, help)
+        except CommandDefinitionError:
+            parent = command.parser().command_parent
             raise CommandDefinitionError(
-                f'Invalid {choice=} for {command} with {parent=} - already assigned to {sub_cmd}'
-            )
+                f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
+            ) from None
 
-    def register(self, choice: str = None, help: str = None) -> Callable:  # noqa
+        return command
+
+    def register(
+        self, command_or_choice: Union[str, 'CommandType'] = None, /, choice: str = None, help: str = None  # noqa
+    ) -> Callable:
         """
-        Decorator version of :meth:`.register_sub_command`.  Registers the wrapped :class:`BaseCommand` as a sub command
-        with the specified value to be used as the parameter choice that will be associated with that command.
+        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`BaseCommand` as the
+        subcommand class to be used for further parsing when the given choice is specified for this parameter.
 
-        This is only necessary for sub commands that do not extend their parent Command class.  When extending a parent
-        Command, it is automatically registered during BaseCommand subclass initialization.
+        This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent
+        Command, it is automatically registered as a subcommand during BaseCommand subclass initialization.
 
-        :param choice: The ``choice`` value for the positional parameter that determines which sub command was chosen.
-          Defaults to the name of the decorated class, converted from CamelCase to snake_case.
-        :param help: Help text to be displayed as a SubCommand option
+        :param command_or_choice: When not called explicitly, this will be Command class that will be wrapped.  When
+          called to provide arguments, the ``choice`` value for the positional parameter that determines which
+          subcommand was chosen may be provided here.  Defaults to the name of the decorated class, converted from
+          CamelCase to snake_case.
+        :param choice: Keyword-only way to provide the ``choice`` value.  May not be combined with a positional
+          ``choice`` string value.
+        :param help: (Keyword-only) The help text / description to be displayed for this choice
         """
-        return partial(self.register_sub_command, choice, help)
+        if command_or_choice is None:
+            return partial(self.register_command, choice, help=help)
+        elif isinstance(command_or_choice, str):
+            if choice is not None:
+                raise CommandDefinitionError(f'Cannot combine a positional {command_or_choice=} choice with {choice=}')
+            return partial(self.register_command, command_or_choice, help=help)
+        else:
+            return self.register_command(choice, command_or_choice, help=help)  # noqa
 
-    def result(self, args: Args) -> 'CommandType':
-        choice = super().result(args)
-        return self.choice_command_map[choice]
 
-
-class Action(LooseString):
-    choice_method_map: dict[str, MethodType]
-    choice_help_map: dict[str, Optional[str]]
-
-    def __init__(self, *args, **kwargs):
-        if (choices := kwargs.setdefault('choices', None)) is not None:
-            raise ParameterDefinitionError(
-                f'Invalid {choices=} - {self.__class__.__name__} choices must be added via register'
-            )
-        super().__init__(*args, **kwargs)
-        self.choices = set()
-        self.choice_method_map = {}
-        self.choice_help_map = {}
+class Action(ChoiceMap, title='Actions'):
+    def register_action(self, choice: Optional[str], method: MethodType, help: str = None) -> Callable:  # noqa
+        self.register_choice(choice or method.__name__, method, help)
+        return method
 
     def register(
         self, method_or_choice: Union[str, MethodType] = None, /, choice: str = None, help: str = None  # noqa
     ) -> Callable:
+        """
+        Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.
+        Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so
+        calls this method.
+
+        This decorator may be used with or without arguments.  When no arguments are needed, it does not need to be
+        explicitly called.
+
+        :param method_or_choice: When not called explicitly, this will be the method that will be wrapped.  When called
+          to provide arguments, the ``choice`` value may be provided as a positional argument here.  Defaults to the
+          name of the decorated method.
+        :param choice: Keyword-only way to provide the ``choice`` value.  May not be combined with a positional
+          ``choice`` string value.
+        :param help: (Keyword-only) The help text / description to be displayed for this choice
+        :return: The original method, unchanged.  When called explicitly, a :class:`partial<functools.partial>` method
+          will be returned first, which will automatically be called by the interpreter with the method to be decorated,
+          and that call will return the original method.
+        """
         if method_or_choice is None:
-            return partial(self._register, choice, help)
+            return partial(self.register_action, choice, help=help)
         elif isinstance(method_or_choice, str):
             if choice is not None:
                 raise CommandDefinitionError(f'Cannot combine a positional {method_or_choice=} choice with {choice=}')
-            return partial(self._register, method_or_choice, help)
+            return partial(self.register_action, method_or_choice, help=help)
         else:
-            return self._register(choice, help, method_or_choice)
+            return self.register_action(choice, method_or_choice, help)
 
     __call__ = register
-
-    def _register(self, choice: str, help: str, method: MethodType) -> Callable:  # noqa
-        if choice:
-            validate_positional(self.__class__.__name__, choice)
-        else:
-            choice = method.__name__
-
-        try:
-            action_method = self.choice_method_map[choice]
-        except KeyError:
-            self.choice_method_map[choice] = method
-            self.choice_help_map[choice] = help
-            self.add_choice(choice)
-            return method
-        else:
-            raise CommandDefinitionError(f'Invalid {choice=} for {method} - already assigned to {action_method}')
-
-    def result(self, args: Args) -> MethodType:
-        choice = super().result(args)
-        return self.choice_method_map[choice]
 
 
 # endregion
