@@ -1,11 +1,52 @@
 #!/usr/bin/env python
 
 import sys
+from functools import reduce
+from operator import xor
 from pathlib import Path
 from subprocess import Popen, PIPE
-from unittest import TestCase, main
+from unittest import TestCase, TestSuite as _TestSuite, main
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[1].joinpath('examples')
+WORKERS = 8
+
+try:
+    from testtools import ConcurrentTestSuite, iterate_tests
+except ImportError:
+    pass  # This is only used to improve run time when testing locally; they are not essential
+else:
+
+    def load_tests(loader, suite, pattern):
+        """
+        Called by unittest both when invoked via main and via ``coverage run -m unittest``, but not via pytest.  Returns a
+        testtools.ConcurrentTestSuite to run the above methods in parallel instead of in series.
+        """
+        suites = []
+        tests = list(iterate_tests(suite))
+        chunk_size, remaining = divmod(len(tests), WORKERS)
+        i = 0
+        for c in range(WORKERS):
+            j = i + chunk_size + (1 if remaining > 0 else 0)
+            remaining -= 1
+            suites.append(HashableSuite(tests[i:j]))
+            i = j
+
+        return ConcurrentTestSuite(suite, lambda s: suites)
+
+
+class HashableSuite(_TestSuite):
+    # This is needed to make testtools.ConcurrentTestSuite work properly
+    def __init__(self, tests=()):
+        super().__init__(tests)
+        self.__tests = list(self)
+
+    def __hash__(self):
+        return reduce(xor, map(hash, (self.__class__, *self.__tests)))
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.__tests == other.__tests
 
 
 class ExampleScriptTest(TestCase):

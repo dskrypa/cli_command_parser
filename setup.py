@@ -69,8 +69,9 @@ setup(
     ],
     python_requires='~=3.9',
     install_requires=[],
+    tests_require=[],
     extras_require={
-        'dev': ['pre-commit', 'ipython', 'sphinx', 'sphinx_rtd_theme'],
+        'dev': ['pre-commit', 'ipython', 'sphinx', 'sphinx_rtd_theme', 'testtools'],
     },
     cmdclass={'docs': BuildDocsCmd},
 )
