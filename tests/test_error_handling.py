@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 from contextlib import redirect_stderr, redirect_stdout
+from importlib import reload
 from io import StringIO
 from unittest import TestCase, main
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
+import command_parser.error_handling
 from command_parser.error_handling import ErrorHandler, extended_error_handler, _handle_os_error
 from command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
 from command_parser.parameters import Flag
@@ -69,6 +71,20 @@ class ErrorHandlingTest(TestCase):
         with redirect_stdout(Mock()), self.assertRaises(OSError), extended_error_handler:
             raise OSError(21, 'test')
 
+    def test_keyboard_interrupt_print(self):
+        mock = Mock(write=Mock())
+        with redirect_stdout(mock), extended_error_handler:
+            raise KeyboardInterrupt
+
+        self.assertEqual(mock.write.call_args.args[0], '\n')
+
+    def test_broken_pipe_caught(self):
+        mock = Mock(write=Mock())
+        with redirect_stdout(mock), extended_error_handler:
+            raise BrokenPipeError
+
+        self.assertFalse(mock.write.called)
+
 
 class ExceptionTest(TestCase):
     def test_exit_str(self):
@@ -90,6 +106,24 @@ class ExceptionTest(TestCase):
 
     def test_multiple_invalid(self):
         self.assertIn("choices: 'a', 'b'", str(InvalidChoice(Flag('--foo'), ['a', 'b'], ['c', 'd'])))
+
+
+class ModuleLoadTest(TestCase):
+    def test_error_handling_windows(self):
+        with patch('platform.system', return_value='windows'):
+            reload(command_parser.error_handling)
+
+    def test_error_handling_linux(self):
+        with patch('platform.system', return_value='linux'):
+            reload(command_parser.error_handling)
+
+    def test_error_handling_pytest(self):
+        with patch('sys.argv', ['pytest']):
+            reload(command_parser.error_handling)
+
+    def test_error_handling_no_argv(self):
+        with patch('sys.argv', []):
+            reload(command_parser.error_handling)
 
 
 if __name__ == '__main__':
