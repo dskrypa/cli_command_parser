@@ -5,6 +5,5 @@ Nargs Module
 
 .. automodule:: command_parser.nargs
    :members:
-   :private-members:
    :undoc-members:
    :show-inheritance:

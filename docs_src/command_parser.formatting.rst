@@ -5,6 +5,5 @@ Formatting Module
 
 .. automodule:: command_parser.formatting
    :members:
-   :private-members:
    :undoc-members:
    :show-inheritance:

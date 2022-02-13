@@ -5,6 +5,5 @@ Error_Handling Module
 
 .. automodule:: command_parser.error_handling
    :members:
-   :private-members:
    :undoc-members:
    :show-inheritance:

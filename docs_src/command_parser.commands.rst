@@ -5,6 +5,5 @@ Commands Module
 
 .. automodule:: command_parser.commands
    :members:
-   :private-members:
    :undoc-members:
    :show-inheritance:

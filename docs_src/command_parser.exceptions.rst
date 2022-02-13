@@ -5,6 +5,5 @@ Exceptions Module
 
 .. automodule:: command_parser.exceptions
    :members:
-   :private-members:
    :undoc-members:
    :show-inheritance:

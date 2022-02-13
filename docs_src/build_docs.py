@@ -24,6 +24,17 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)
 
+    def main(self, *args, **kwargs):
+        super().main(*args, **kwargs)
+        if self.clean:
+            self.clean_docs()
+        if self.update:
+            self.update_rsts()
+
+        cmd = ['sphinx-build', 'docs_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
+        log.debug(f'Running: {cmd}')
+        check_call(cmd)
+
     def clean_docs(self):
         log.info('Removing old docs dir before re-building docs')
         docs_path = PROJECT_ROOT.joinpath('docs')
@@ -31,6 +42,10 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
             shutil.rmtree(docs_path)
         docs_path.mkdir()
         docs_path.joinpath('.nojekyll').touch()
+
+    def update_rsts(self):
+        self._backup_rsts()
+        self._generate_rsts()
 
     def _backup_rsts(self):
         docs_src_dir = PROJECT_ROOT.joinpath('docs_src')
@@ -41,6 +56,15 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
                 dst_path = backup_dir.joinpath(src_path.name)
                 log.debug(f'Moving {src_path.as_posix()} -> {dst_path.as_posix()}')
                 src_path.rename(dst_path)
+
+    def _generate_rsts(self):
+        modules = []
+        for path in PROJECT_ROOT.joinpath(PACKAGE).glob('[a-zA-Z]*.py'):
+            name = f'{path.parent.name}.{path.stem}'
+            modules.append(name)
+            self._make_module_rst(name)
+
+        self._write_index(modules)
 
     def _write_index(self, modules: list[str]):
         title = __description__
@@ -56,35 +80,12 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     def _make_module_rst(self, module: str):
         title = '{} Module'.format(module.split('.')[-1].title())
         bar = '*' * len(title)
-        attrs = '   :members:\n   :private-members:\n   :undoc-members:\n   :show-inheritance:\n'
+        # attrs = '   :members:\n   :private-members:\n   :undoc-members:\n   :show-inheritance:\n'
+        attrs = '   :members:\n   :undoc-members:\n   :show-inheritance:\n'
         content = f'{title}\n{bar}\n\n.. currentmodule:: {module}\n\n.. automodule:: {module}\n{attrs}'
         with PROJECT_ROOT.joinpath('docs_src', f'{module}.rst').open('w', encoding='utf-8', newline='\n') as f:
             log.info(f'Writing {f.name}')
             f.write(content)
-
-    def _generate_rsts(self):
-        modules = []
-        for path in PROJECT_ROOT.joinpath(PACKAGE).glob('[a-zA-Z]*.py'):
-            name = f'{path.parent.name}.{path.stem}'
-            modules.append(name)
-            self._make_module_rst(name)
-
-        self._write_index(modules)
-
-    def update_rsts(self):
-        self._backup_rsts()
-        self._generate_rsts()
-
-    def main(self, *args, **kwargs):
-        super().main(*args, **kwargs)
-        if self.clean:
-            self.clean_docs()
-        if self.update:
-            self.update_rsts()
-
-        cmd = ['sphinx-build', 'docs_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
-        log.debug(f'Running: {cmd}')
-        check_call(cmd)
 
 
 if __name__ == '__main__':

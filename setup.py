@@ -32,5 +32,6 @@ setup(
     tests_require=[],
     extras_require={
         'dev': ['pre-commit', 'ipython', 'sphinx', 'sphinx_rtd_theme', 'testtools'],
+        'docs': ['sphinx', 'sphinx_rtd_theme'],
     },
 )

@@ -27,6 +27,13 @@ viewcode_follow_imported_members = False
 show_on_github_user = 'dskrypa'
 show_on_github_repo = project_root.name
 
+autodoc_default_options = {
+    'exclude-members': '_abc_impl',
+    'member-order': 'bysource',
+    'special-members': '__init__',
+}
+autodoc_typehints_format = 'short'
+
 templates_path = [docs_src_path.joinpath('templates').as_posix()]
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
