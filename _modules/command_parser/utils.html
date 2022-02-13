@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>command_parser.utils &mdash; Command Parser 2022.02.13-8 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.commands.html">Commands Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.error_handling.html">Error_Handling Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.exceptions.html">Exceptions Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.formatting.html">Formatting Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.nargs.html">Nargs Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.parameters.html">Parameters Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.parser.html">Parser Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.utils.html">Utils Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>command_parser.utils</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="None" target="_blank" class="fa fa-github"> View on GitHub</a>
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for command_parser.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:author: Doug Skrypa</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">getsourcefile</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">whitespace</span><span class="p">,</span> <span class="n">printable</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
+
+<span class="n">Bool</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<span class="n">_NotSet</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Args"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.Args">[docs]</a><span class="k">class</span> <span class="nc">Args</span><span class="p">:</span>
+<div class="viewcode-block" id="Args.__init__"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.Args.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">provided</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_provided</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[parsed=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="si">}</span><span class="s1">, remaining=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">provided</span><span class="si">=}</span><span class="s1">]&gt;&#39;</span>
+
+<div class="viewcode-block" id="Args.record_action"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.Args.record_action">[docs]</a>    <span class="k">def</span> <span class="nf">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">,</span> <span class="n">val_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val_count</span></div>
+
+<div class="viewcode-block" id="Args.num_provided"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.Args.num_provided">[docs]</a>    <span class="k">def</span> <span class="nf">num_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span><span class="p">[</span><span class="n">param</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">v</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">param</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> was not provided / parsed&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Args.find_all"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.Args.find_all">[docs]</a>    <span class="k">def</span> <span class="nf">find_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">param</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">param_type</span><span class="p">)}</span></div></div>
+
+
+<div class="viewcode-block" id="validate_positional"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.validate_positional">[docs]</a><span class="k">def</span> <span class="nf">validate_positional</span><span class="p">(</span>
+    <span class="n">param_cls</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="n">ParameterDefinitionError</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">exc</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">param_cls</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> - may not be empty or start with &#39;-&#39;&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">bad</span> <span class="o">:=</span> <span class="p">{</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">whitespace</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">printable</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="n">exc</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">param_cls</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - invalid characters: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProgramMetadata"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.ProgramMetadata">[docs]</a><span class="k">class</span> <span class="nc">ProgramMetadata</span><span class="p">:</span>
+<div class="viewcode-block" id="ProgramMetadata.__init__"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.ProgramMetadata.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">docs_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">email</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">found_email</span><span class="p">,</span> <span class="n">found_version</span><span class="p">,</span> <span class="n">found_url</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_info</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+            <span class="n">found_email</span><span class="p">,</span> <span class="n">found_version</span><span class="p">,</span> <span class="n">found_url</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prog</span> <span class="o">=</span> <span class="n">prog</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">docs_url_from_repo_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_url_from_repo_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docs_url</span> <span class="o">=</span> <span class="n">docs_url</span> <span class="ow">or</span> <span class="n">docs_url_from_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">or</span> <span class="n">docs_url_from_repo_url</span><span class="p">(</span><span class="n">found_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="ow">or</span> <span class="n">found_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span> <span class="ow">or</span> <span class="n">found_email</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span> <span class="ow">or</span> <span class="n">found_version</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usage</span> <span class="o">=</span> <span class="n">usage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="o">=</span> <span class="n">epilog</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">()</span>
+        <span class="n">top_level_frame_info</span> <span class="o">=</span> <span class="n">_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_dunder_info</span><span class="p">(</span><span class="n">top_level_frame_info</span><span class="p">)</span>
+        <span class="n">email</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">repo_url</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__author_email__&#39;</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__version__&#39;</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__url__&#39;</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">getsourcefile</span><span class="p">(</span><span class="n">top_level_frame_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">installed_via_setup</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;-script.py&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.py&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">email</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">repo_url</span><span class="p">,</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">_find_dunder_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_level_frame_info</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">top_level_frame_info</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
+        <span class="n">installed_via_setup</span> <span class="o">=</span> <span class="s1">&#39;load_entry_point&#39;</span> <span class="ow">in</span> <span class="n">g</span> <span class="ow">and</span> <span class="s1">&#39;main&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span>  <span class="c1"># TODO: This may need to be tweaked</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">stack</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">g</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;__author_email__&#39;</span><span class="p">,</span> <span class="s1">&#39;__version__&#39;</span><span class="p">,</span> <span class="s1">&#39;__url__&#39;</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span>
+        <span class="k">return</span> <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span>
+
+    <span class="k">def</span> <span class="nf">_docs_url_from_repo_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>  <span class="c1"># noqa</span>
+        <span class="k">if</span> <span class="n">repo_url</span> <span class="ow">and</span> <span class="n">repo_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;https://github.com&#39;</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">user</span><span class="p">,</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">repo_url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;https://</span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s1">.github.io/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s1">/&#39;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProgramMetadata.format_epilog"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.ProgramMetadata.format_epilog">[docs]</a>    <span class="k">def</span> <span class="nf">format_epilog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">epilog</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">parts</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extended</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; [ver. </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">]&#39;</span>
+        <span class="k">if</span> <span class="n">email</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Report </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prog</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s1"> bugs to </span><span class="si">{</span><span class="n">email</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">url</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Online documentation: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="camel_to_snake_case"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.camel_to_snake_case">[docs]</a><span class="k">def</span> <span class="nf">camel_to_snake_case</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delim</span><span class="si">}{</span><span class="n">c</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="format_help_entry"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.format_help_entry">[docs]</a><span class="k">def</span> <span class="nf">format_help_entry</span><span class="p">(</span><span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">left_pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">left_pad</span> <span class="o">+</span> <span class="n">usage</span>
+    <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+        <span class="n">pad_chars</span> <span class="o">=</span> <span class="n">width</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pad_chars</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mid_pad</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">width</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mid_pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">pad_chars</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="si">}{</span><span class="n">mid_pad</span><span class="si">}{</span><span class="n">description</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
