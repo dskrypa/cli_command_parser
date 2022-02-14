@@ -40,7 +40,7 @@ class ActionFlagTest(TestCase):
             foo = ActionFlag()(Mock())
             bar = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
+        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_non_me_group_conflict(self):
@@ -49,7 +49,7 @@ class ActionFlagTest(TestCase):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
+        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_md_group_conflict(self):
@@ -58,7 +58,7 @@ class ActionFlagTest(TestCase):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
+        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_me_group_ok(self):
@@ -80,7 +80,7 @@ class ActionFlagTest(TestCase):
                 bar = ActionFlag()(Mock())
             baz = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different priority values'):
+        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
             Foo.parser()
 
     def test_no_reassign(self):
@@ -92,6 +92,8 @@ class ActionFlagTest(TestCase):
                 @foo
                 def bar(self):
                     pass
+
+    # TODO: Test multiple ordered
 
 
 if __name__ == '__main__':

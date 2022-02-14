@@ -10,7 +10,7 @@ from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageE
 from .formatting import HelpFormatter
 from .parameters import ParameterGroup, Action
 from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
-from .utils import Args, Bool, ProgramMetadata
+from .utils import Args, Bool
 
 if TYPE_CHECKING:
     from .commands import CommandType
@@ -124,13 +124,13 @@ class CommandParser:
 
     def _process_action_flags(self):
         a_flags = (p for p in self.options if isinstance(p, ActionFlag) and p.enabled)
-        action_flags = sorted(a_flags, key=lambda p: p.priority)
+        action_flags = sorted(a_flags, key=lambda p: p.order)
 
         a_flags_by_prio: dict[float, list[ActionFlag]] = defaultdict(list)
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for {param=}')
-            a_flags_by_prio[param.priority].append(param)
+            a_flags_by_prio[param.order].append(param)
 
         invalid = {}
         for prio, params in a_flags_by_prio.items():
@@ -143,7 +143,7 @@ class CommandParser:
 
         if invalid:
             raise CommandDefinitionError(
-                f'ActionFlag parameters must either have different priority values or be in a mutually exclusive'
+                f'ActionFlag parameters must either have different order values or be in a mutually exclusive'
                 f' ParameterGroup - invalid parameters: {invalid}'
             )
 

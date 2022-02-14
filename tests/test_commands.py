@@ -31,7 +31,7 @@ class TestCommands(TestCase):
 
         foo = Foo.parse(['--foo'])
         self.assertFalse(mock.called)
-        self.assertTrue(foo.main())
+        self.assertEqual(1, foo.main())
         self.assertTrue(mock.called)
 
     def test_false_on_no_action(self):

@@ -29,6 +29,7 @@ class BaseCommand:
     """
 
     # region Initialization
+    # TODO: Single public `command_settings` attr to hold settings
     # fmt: off
     __args: Args                                        # The raw and parsed arguments passed to this command
     args: Args                                          # Same as __args, but can be overwritten.  Not used internally.
@@ -37,6 +38,7 @@ class BaseCommand:
     __error_handler: Optional[ErrorHandler] = _NotSet   # The ExceptionHandler to wrap main()
     # Attributes related to sub-commands/actions
     __abstract: Bool = True                             # False if viable for containing sub commands
+    __allow_multiple_action_flags: Bool = False         # True to allow multiple action flags to be specified and run
     # fmt: on
 
     def __init_subclass__(
@@ -49,6 +51,7 @@ class BaseCommand:
         help: str = None,  # noqa
         error_handler: ErrorHandler = _NotSet,
         abstract: Bool = False,
+        allow_multiple_action_flags: Bool = False,
     ):  # noqa
         """
         :param choice: SubCommand value that maps to this command
@@ -66,6 +69,7 @@ class BaseCommand:
 
         cls.__parser = None
         cls.__abstract = abstract
+        cls.__allow_multiple_action_flags = allow_multiple_action_flags
         if error_handler is not _NotSet:
             cls.__error_handler = error_handler
 
@@ -159,7 +163,7 @@ class BaseCommand:
         else:
             self.main(*args, **kwargs)
 
-    def main(self, *args, **kwargs) -> bool:
+    def main(self, *args, **kwargs) -> int:
         """
         If any arguments were specified that are associated with triggering an action method, then that method is called
         here.  Subclasses can override this method if they have only one action, if they need to override the action
@@ -169,16 +173,19 @@ class BaseCommand:
 
         :param args: Positional arguments to pass to the action method
         :param kwargs: Keyword arguments to pass to the action method
-        :return: True if an action method was called, False otherwise
+        :return: The number of actions that were taken
         """
         if action_flags := self.__args.find_all(ActionFlag):
-            param = min(action_flags, key=lambda p: p.priority)
-            param.func(self, *args, **kwargs)  # noqa
-            return True
+            i = 0
+            for i, param in enumerate(sorted(action_flags, key=lambda p: p.order), 1):
+                param.func(self, *args, **kwargs)  # noqa
+                if not self.__allow_multiple_action_flags:
+                    break
+            return i
         elif (action := self.parser().action) is not None:
             action.__get__(self, self.__class__)(self, *args, **kwargs)
-            return True
-        return False
+            return 1
+        return 0
 
 
 class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
@@ -187,7 +194,7 @@ class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
     default, compared to :class:`BaseCommand`.
     """
 
-    @action_flag('-h', priority=float('-inf'), help='Show this help message and exit')
+    @action_flag('-h', order=float('-inf'), help='Show this help message and exit')
     def help(self):
         parser: CommandParser = self.parser()
         print(parser.formatter.format_help())

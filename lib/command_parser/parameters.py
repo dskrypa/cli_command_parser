@@ -863,14 +863,14 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
 
 
 class ActionFlag(Flag):
-    def __init__(self, *args, priority: Union[int, float] = 1, func: Callable = None, **kwargs):
+    def __init__(self, *args, order: Union[int, float] = 1, func: Callable = None, **kwargs):
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
         if bad := {k: v for k, v in found.items() if expected[k] != v}:
             raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
         super().__init__(*args, **kwargs)
         self.func = func
-        self.priority = priority
+        self.order = order
         self.enabled = True
 
     @property

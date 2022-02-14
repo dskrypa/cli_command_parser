@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
 
-from command_parser import Command, Counter, Flag
+from command_parser import Command, Counter, action_flag
 from command_parser.__version__ import __description__
 
 log = logging.getLogger(__name__)
@@ -14,9 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = 'lib/command_parser'
 
 
-class BuildDocs(Command, description='Build documentation using Sphinx'):
-    clean = Flag('-c', help='Clean the docs directory before building docs')
-    update = Flag('-u', help='Update RST files')
+class BuildDocs(Command, description='Build documentation using Sphinx', allow_multiple_action_flags=True):
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
     def __init__(self, args):
@@ -26,16 +24,12 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     def main(self, *args, **kwargs):
         super().main(*args, **kwargs)
-        if self.clean:
-            self.clean_docs()
-        if self.update:
-            self.update_rsts()
-
         cmd = ['sphinx-build', 'docs_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
         log.debug(f'Running: {cmd}')
         check_call(cmd)
 
-    def clean_docs(self):
+    @action_flag('-c', help='Clean the docs directory before building docs', order=1)
+    def clean(self):
         log.info('Removing old docs dir before re-building docs')
         docs_path = PROJECT_ROOT.joinpath('docs')
         if docs_path.exists():
@@ -43,7 +37,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         docs_path.mkdir()
         docs_path.joinpath('.nojekyll').touch()
 
-    def update_rsts(self):
+    @action_flag('-u', help='Update RST files', order=2)
+    def update(self):
         self._backup_rsts()
         self._generate_rsts()
 

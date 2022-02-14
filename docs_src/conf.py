@@ -30,7 +30,7 @@ show_on_github_repo = project_root.name
 autodoc_default_options = {
     'exclude-members': '_abc_impl',
     'member-order': 'bysource',
-    'special-members': '__init__',
+    # 'special-members': '__init__',
 }
 autodoc_typehints_format = 'short'
 
