@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.exceptions &mdash; Command Parser 2022.02.14 documentation</title>
+  <title>command_parser.exceptions &mdash; Command Parser 2022.02.14-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -117,9 +117,9 @@
 
 
 <div class="viewcode-block" id="ParserExit"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParserExit">[docs]</a><span class="k">class</span> <span class="nc">ParserExit</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-<div class="viewcode-block" id="ParserExit.__init__"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParserExit.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span></div>
@@ -140,10 +140,10 @@
 <div class="viewcode-block" id="ParamUsageError"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParamUsageError">[docs]</a><span class="k">class</span> <span class="nc">ParamUsageError</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ParamUsageError.__init__"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParamUsageError.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
         <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s1">&#39;usage error&#39;</span>
@@ -159,13 +159,13 @@
 
 
 <div class="viewcode-block" id="InvalidChoice"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.InvalidChoice">[docs]</a><span class="k">class</span> <span class="nc">InvalidChoice</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>
-<div class="viewcode-block" id="InvalidChoice.__init__"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.InvalidChoice.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="n">Collection</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">bad_str</span> <span class="o">=</span> <span class="s1">&#39;choices: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">invalid</span><span class="p">)))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">bad_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;choice: </span><span class="si">{</span><span class="n">invalid</span><span class="si">!r}</span><span class="s1">&#39;</span>
         <span class="n">choices_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">choices</span><span class="p">))</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">bad_str</span><span class="si">}</span><span class="s1"> (choose from: </span><span class="si">{</span><span class="n">choices_str</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">bad_str</span><span class="si">}</span><span class="s1"> (choose from: </span><span class="si">{</span><span class="n">choices_str</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MissingArgument"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.MissingArgument">[docs]</a><span class="k">class</span> <span class="nc">MissingArgument</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>

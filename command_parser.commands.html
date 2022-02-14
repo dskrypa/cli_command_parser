@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commands Module &mdash; Command Parser 2022.02.14 documentation</title>
+  <title>Commands Module &mdash; Command Parser 2022.02.14-1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -159,7 +159,7 @@ error handling, call <a class="reference internal" href="#command_parser.command
 
 <dl class="py method">
 <dt class="sig sig-object py" id="command_parser.commands.BaseCommand.main">
-<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand.main" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand.main" title="Permalink to this definition"></a></dt>
 <dd><p>If any arguments were specified that are associated with triggering an action method, then that method is called
 here.  Subclasses can override this method if they have only one action, if they need to override the action
 handling logic here, or if they have code that should run based on whether an action was executed or not.</p>
@@ -172,7 +172,7 @@ handling logic here, or if they have code that should run based on whether an ac
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if an action method was called, False otherwise</p>
+<dd class="field-even"><p>The number of actions that were taken</p>
 </dd>
 </dl>
 </dd></dl>

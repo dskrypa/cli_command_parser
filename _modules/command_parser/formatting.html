@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.formatting &mdash; Command Parser 2022.02.14 documentation</title>
+  <title>command_parser.formatting &mdash; Command Parser 2022.02.14-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -90,12 +90,12 @@
 
 
 <div class="viewcode-block" id="HelpFormatter"><a class="viewcode-back" href="../../command_parser.formatting.html#command_parser.formatting.HelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">HelpFormatter</span><span class="p">:</span>
-<div class="viewcode-block" id="HelpFormatter.__init__"><a class="viewcode-back" href="../../command_parser.formatting.html#command_parser.formatting.HelpFormatter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">parser</span><span class="p">:</span> <span class="s1">&#39;CommandParser&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">parser</span><span class="p">:</span> <span class="s1">&#39;CommandParser&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span> <span class="o">=</span> <span class="n">ParameterGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Positional arguments&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span> <span class="o">=</span> <span class="n">ParameterGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Optional arguments&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="p">]</span>
 
 <div class="viewcode-block" id="HelpFormatter.maybe_add"><a class="viewcode-back" href="../../command_parser.formatting.html#command_parser.formatting.HelpFormatter.maybe_add">[docs]</a>    <span class="k">def</span> <span class="nf">maybe_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
