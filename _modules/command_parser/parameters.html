@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parameters &mdash; Command Parser 2022.02.13-8 documentation</title>
+  <title>command_parser.parameters &mdash; Command Parser 2022.02.14 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -212,12 +212,7 @@
 
 
 <div class="viewcode-block" id="ParameterGroup"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParameterGroup">[docs]</a><span class="k">class</span> <span class="nc">ParameterGroup</span><span class="p">(</span><span class="n">ParamBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A group of parameters.</span>
-
-<span class="sd">    Group nesting is not implemented due to the complexity and potential confusion that it would add for cases where</span>
-<span class="sd">    differing mutual exclusivity/dependency rules would need to be resolved.  In theory, though, it should be possible.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A group of parameters.&quot;&quot;&quot;</span>
 
     <span class="n">_local</span> <span class="o">=</span> <span class="n">local</span><span class="p">()</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -753,7 +748,7 @@
 
 <div class="viewcode-block" id="SubCommand.register"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.SubCommand.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">command_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">],</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`BaseCommand` as the</span>
 <span class="sd">        subcommand class to be used for further parsing when the given choice is specified for this parameter.</span>
@@ -780,13 +775,13 @@
 
 
 <div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.Action">[docs]</a><span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
-<div class="viewcode-block" id="Action.register_action"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.Action.register_action">[docs]</a>    <span class="k">def</span> <span class="nf">register_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="n">MethodType</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="Action.register_action"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.Action.register_action">[docs]</a>    <span class="k">def</span> <span class="nf">register_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="n">MethodType</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MethodType</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_choice</span><span class="p">(</span><span class="n">choice</span> <span class="ow">or</span> <span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">method</span></div>
 
 <div class="viewcode-block" id="Action.register"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.Action.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">method_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MethodType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">MethodType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MethodType</span><span class="p">],</span> <span class="n">MethodType</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.</span>
 <span class="sd">        Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so</span>
