@@ -135,12 +135,7 @@ class ParamBase(ABC):
 
 
 class ParameterGroup(ParamBase):
-    """
-    A group of parameters.
-
-    Group nesting is not implemented due to the complexity and potential confusion that it would add for cases where
-    differing mutual exclusivity/dependency rules would need to be resolved.  In theory, though, it should be possible.
-    """
+    """A group of parameters."""
 
     _local = local()
     description: Optional[str]
@@ -676,7 +671,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
 
     def register(
         self, command_or_choice: Union[str, 'CommandType'] = None, /, choice: str = None, help: str = None  # noqa
-    ) -> Callable:
+    ) -> Callable[['CommandType'], 'CommandType']:
         """
         Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`BaseCommand` as the
         subcommand class to be used for further parsing when the given choice is specified for this parameter.
@@ -703,13 +698,13 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
 
 
 class Action(ChoiceMap, title='Actions'):
-    def register_action(self, choice: Optional[str], method: MethodType, help: str = None) -> Callable:  # noqa
+    def register_action(self, choice: Optional[str], method: MethodType, help: str = None) -> MethodType:  # noqa
         self.register_choice(choice or method.__name__, method, help)
         return method
 
     def register(
         self, method_or_choice: Union[str, MethodType] = None, /, choice: str = None, help: str = None  # noqa
-    ) -> Callable:
+    ) -> Union[MethodType, Callable[[MethodType], MethodType]]:
         """
         Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.
         Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so
