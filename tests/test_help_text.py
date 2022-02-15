@@ -139,7 +139,7 @@ class HelpTextTest(TestCase):
             action(Mock(__name__='hello'))
             action(Mock(__name__='log_test'))
 
-        help_text = Base.parser().formatter.format_help()
+        help_text = Base.parser.formatter.format_help()
         self.assertNotIn('Positional arguments:', help_text)
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
         self.assertIn(expected_sub_cmd, help_text)

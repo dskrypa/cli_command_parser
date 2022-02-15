@@ -4,9 +4,11 @@
 
 import sys
 from collections import defaultdict
+from functools import update_wrapper
 from inspect import stack, getsourcefile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type
+from types import MethodType
 from string import whitespace, printable
 
 from .exceptions import ParameterDefinitionError
@@ -17,6 +19,20 @@ if TYPE_CHECKING:
 Bool = Union[bool, Any]
 
 _NotSet = object()
+
+
+class classproperty:
+    """A read-only class property."""
+
+    def __init__(self, method: Union[classmethod, MethodType]):
+        if not isinstance(method, classmethod):
+            method = classmethod(method)
+        self.method = method
+        self._get = method.__get__  # classmethod.__get__
+        update_wrapper(self, method)
+
+    def __get__(self, obj, cls):
+        return self._get(obj, cls)()
 
 
 class Args:

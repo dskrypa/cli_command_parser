@@ -69,7 +69,7 @@ class TestCommands(TestCase):
             b = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_multiple_sub_cmds_rejected(self):
         class Foo(Command):
@@ -77,7 +77,7 @@ class TestCommands(TestCase):
             b = SubCommand()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_action_with_sub_cmd_rejected(self):
         class Foo(Command):
@@ -85,7 +85,7 @@ class TestCommands(TestCase):
             b = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_stdout_close(self):
         mock = Mock(close=Mock())
@@ -124,7 +124,7 @@ class TestCommands(TestCase):
             foo(Mock(__name__='baz'))
 
         with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_action_with_sub_command_rejected(self):
         class Foo(Command):
@@ -133,7 +133,7 @@ class TestCommands(TestCase):
             foo(Mock(__name__='baz'))
 
         with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_no_error_handler_run(self):
         class Foo(Command, error_handler=None):
@@ -169,7 +169,7 @@ class TestCommands(TestCase):
         class Bar(Foo):
             pass
 
-        self.assertEqual(Bar.parser().command_parent, Foo)
+        self.assertEqual(Bar.parser.command_parent, Foo)
 
 
 class TestParsing(TestCase):

@@ -662,7 +662,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         try:
             self.register_choice(choice, command, help)
         except CommandDefinitionError:
-            parent = command.parser().command_parent
+            parent = command.parser.command_parent
             raise CommandDefinitionError(
                 f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
             ) from None

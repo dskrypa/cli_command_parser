@@ -9,11 +9,12 @@ import sys
 from typing import Type, TypeVar, Sequence, Optional
 from warnings import warn
 
-from .parameters import ActionFlag, action_flag
+from .config import CommandConfig
 from .error_handling import ErrorHandler, extended_error_handler, error_handler as _error_handler
-from .exceptions import ParserExit
+from .exceptions import ParserExit, CommandDefinitionError
+from .parameters import ActionFlag, action_flag
 from .parser import CommandParser
-from .utils import _NotSet, Args, Bool, ProgramMetadata
+from .utils import _NotSet, Args, Bool, ProgramMetadata, classproperty
 
 __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -29,16 +30,14 @@ class BaseCommand:
     """
 
     # region Initialization
-    # TODO: Single public `command_settings` attr to hold settings
     # fmt: off
     __args: Args                                        # The raw and parsed arguments passed to this command
     args: Args                                          # Same as __args, but can be overwritten.  Not used internally.
+    __command_config: CommandConfig = None              # Configured Command options
     __meta: ProgramMetadata = None                      # Metadata used in help text
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
     __error_handler: Optional[ErrorHandler] = _NotSet   # The ExceptionHandler to wrap main()
-    # Attributes related to sub-commands/actions
     __abstract: Bool = True                             # False if viable for containing sub commands
-    __allow_multiple_action_flags: Bool = False         # True to allow multiple action flags to be specified and run
     # fmt: on
 
     def __init_subclass__(
@@ -51,8 +50,9 @@ class BaseCommand:
         help: str = None,  # noqa
         error_handler: ErrorHandler = _NotSet,
         abstract: Bool = False,
-        allow_multiple_action_flags: Bool = False,
-    ):  # noqa
+        config: CommandConfig = None,
+        **kwargs,
+    ):
         """
         :param choice: SubCommand value that maps to this command
         :param prog: The name of the program (default: sys.argv[0])
@@ -67,27 +67,37 @@ class BaseCommand:
         if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
             cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
 
+        if config is not None:
+            if kwargs:
+                raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
+            cls.__command_config = config
+        elif kwargs or (cls.__command_config is None and not abstract):
+            cls.__command_config = CommandConfig(**kwargs)
+
         cls.__parser = None
         cls.__abstract = abstract
-        cls.__allow_multiple_action_flags = allow_multiple_action_flags
         if error_handler is not _NotSet:
             cls.__error_handler = error_handler
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and not c.__abstract), None):
-            if (sub_cmd := parent.parser().sub_command) is not None:
+            if (sub_cmd := parent.parser.sub_command) is not None:
                 sub_cmd.register_command(choice, cls, help)
             elif choice:
                 warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
         elif choice:
             warn(f'{choice=} was not registered for {cls} because it has no parent Command')
 
-    @classmethod
-    def parser(cls) -> CommandParser:
+    @classproperty
+    def parser(cls: CommandType) -> CommandParser:  # noqa
         if cls.__parser is None:
             # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
             parent = next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None)
             cls.__parser = CommandParser(cls, parent)
         return cls.__parser
+
+    @classproperty
+    def command_config(cls: CommandType) -> CommandConfig:  # noqa
+        return cls.__command_config
 
     def __new__(cls, args: Args):
         # By storing the parsed Args here instead of __init__, every single sub class won't need to
@@ -142,7 +152,7 @@ class BaseCommand:
         """
         args = Args(args)
         cmd_cls = cls
-        while sub_cmd := cmd_cls.parser().parse_args(args, allow_unknown):
+        while sub_cmd := cmd_cls.parser.parse_args(args, allow_unknown):
             cmd_cls = sub_cmd
 
         return cmd_cls(args)
@@ -175,17 +185,19 @@ class BaseCommand:
         :param kwargs: Keyword arguments to pass to the action method
         :return: The number of actions that were taken
         """
+        i = 0
+        config = self.__command_config
         if action_flags := self.__args.find_all(ActionFlag):
-            i = 0
             for i, param in enumerate(sorted(action_flags, key=lambda p: p.order), 1):
                 param.func(self, *args, **kwargs)  # noqa
-                if not self.__allow_multiple_action_flags:
+                if not config.multiple_action_flags:
                     break
-            return i
-        elif (action := self.parser().action) is not None:
+
+        if (i == 0 or config.action_after_action_flags) and (action := self.parser.action) is not None:
             action.__get__(self, self.__class__)(self, *args, **kwargs)
-            return 1
-        return 0
+            i += 1
+
+        return i
 
 
 class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
@@ -196,8 +208,7 @@ class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
 
     @action_flag('-h', order=float('-inf'), help='Show this help message and exit')
     def help(self):
-        parser: CommandParser = self.parser()
-        print(parser.formatter.format_help())
+        print(self.parser.formatter.format_help())
         raise ParserExit
 
     def run(self, *args, close_stdout: Bool = False, **kwargs):  # noqa

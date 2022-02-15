@@ -81,7 +81,7 @@ class ActionFlagTest(TestCase):
             baz = ActionFlag()(Mock())
 
         with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_no_reassign(self):
         with self.assertRaises(CommandDefinitionError):

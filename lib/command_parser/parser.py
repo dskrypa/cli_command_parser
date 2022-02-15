@@ -41,7 +41,7 @@ class CommandParser:
         self.positionals = []  # Not copied from the parent because they must be consumed before the child can be picked
         self.formatter = HelpFormatter(command, self)
         if command_parent is not None:
-            self.parent = parent = command_parent.parser()
+            self.parent = parent = command_parent.parser
             self.groups = parent.groups.copy()
             self.options = parent.options.copy()
             self.long_options = parent.long_options.copy()
@@ -161,7 +161,7 @@ class CommandParser:
             return True
         elif recursive and (sub_command := self.sub_command) is not None:
             for choice in sub_command.choices.values():
-                if choice.target.parser().contains(args, item, recursive):
+                if choice.target.parser.contains(args, item, recursive):
                     return True
         return False
 

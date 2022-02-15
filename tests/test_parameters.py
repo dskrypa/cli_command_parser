@@ -278,7 +278,7 @@ class PassThruTest(TestCase):
             baz = PassThru()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser()
+            Foo.parser  # noqa
 
     def test_double_dash_without_pass_thru_rejected(self):
         class Foo(Command):
@@ -325,7 +325,7 @@ class ParserTest(TestCase):
         class Foo(Command):
             bar = Positional()
 
-        rep = repr(Foo.parser())
+        rep = repr(Foo.parser)
         self.assertIn('Foo', rep)
         self.assertIn('positionals=', rep)
         self.assertIn('options=', rep)
@@ -338,7 +338,7 @@ class ParserTest(TestCase):
             bar = Counter('-b')
 
         for cls in (Foo, Bar):
-            parser = cls.parser()
+            parser = cls.parser
             self.assertTrue(parser.contains(Args([]), '-h'))
             self.assertFalse(parser.contains(Args([]), '-H'))
             self.assertTrue(parser.contains(Args([]), '-b=1'))
