@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.config &mdash; Command Parser 2022.02.15-2 documentation</title>
+  <title>command_parser.config &mdash; Command Parser 2022.02.15-3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -91,7 +91,10 @@
 
 <div class="viewcode-block" id="CommandConfig"><a class="viewcode-back" href="../../command_parser.config.html#command_parser.config.CommandConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>
+    <span class="c1">#: Whether multiple action_flag methods are allowed to run if they are all specified</span>
     <span class="n">multiple_action_flags</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation</span>
     <span class="n">action_after_action_flags</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 </pre></div>
 
