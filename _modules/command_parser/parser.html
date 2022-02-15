@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parser &mdash; Command Parser 2022.02.14-1 documentation</title>
+  <title>command_parser.parser &mdash; Command Parser 2022.02.15-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -39,6 +39,7 @@
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.commands.html">Commands Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.config.html">Config Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.error_handling.html">Error_Handling Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.exceptions.html">Exceptions Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.formatting.html">Formatting Module</a></li>
@@ -118,7 +119,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Not copied from the parent because they must be consumed before the child can be picked</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">HelpFormatter</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">command_parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="n">parser</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">long_options</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">long_options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -200,17 +201,16 @@
         <span class="n">_update_options</span><span class="p">(</span><span class="n">short_combinable</span><span class="p">,</span> <span class="s1">&#39;short_combinable&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">a_flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">enabled</span><span class="p">)</span>
-        <span class="n">action_flags</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">a_flags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">order</span><span class="p">)</span>
+        <span class="n">action_flags</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">enabled</span><span class="p">))</span>
 
-        <span class="n">a_flags_by_prio</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">a_flags_by_order</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">action_flags</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No function was registered for </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">a_flags_by_prio</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">order</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">a_flags_by_order</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">order</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 
         <span class="n">invalid</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">prio</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">a_flags_by_prio</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">prio</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">a_flags_by_order</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">group</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">and</span> <span class="n">group</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="o">==</span> <span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">):</span>
@@ -238,7 +238,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="n">recursive</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">parser</span><span class="p">()</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">recursive</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">recursive</span><span class="p">):</span>
                     <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 

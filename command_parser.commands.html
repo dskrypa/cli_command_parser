@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commands Module &mdash; Command Parser 2022.02.14-1 documentation</title>
+  <title>Commands Module &mdash; Command Parser 2022.02.15-2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Error_Handling Module" href="command_parser.error_handling.html" />
+    <link rel="next" title="Config Module" href="command_parser.config.html" />
     <link rel="prev" title="Command Parser" href="index.html" />
     <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
@@ -42,6 +42,7 @@
               <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Commands Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_parser.config.html">Config Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.error_handling.html">Error_Handling Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.exceptions.html">Exceptions Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.formatting.html">Formatting Module</a></li>
@@ -97,8 +98,33 @@ from the core functionality.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="command_parser.commands.BaseCommand.__init_subclass__">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choice:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prog:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epilog:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_handler:</span> <span class="pre">~command_parser.error_handling.ErrorHandler</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abstract:</span> <span class="pre">~typing.Union[bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config:</span> <span class="pre">~typing.Optional[~command_parser.config.CommandConfig]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand.__init_subclass__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand.__init_subclass__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>choice</strong> – SubCommand value that maps to this command</p></li>
+<li><p><strong>prog</strong> – The name of the program (default: sys.argv[0])</p></li>
+<li><p><strong>usage</strong> – Usage message (default: auto-generated)</p></li>
+<li><p><strong>description</strong> – Description of what the program does</p></li>
+<li><p><strong>epilog</strong> – Text to follow parameter descriptions</p></li>
+<li><p><strong>help</strong> – Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</p></li>
+<li><p><strong>error_handler</strong> – The ExceptionHandler to be used by <a class="reference internal" href="#command_parser.commands.BaseCommand.run" title="command_parser.commands.BaseCommand.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> to wrap <a class="reference internal" href="#command_parser.commands.BaseCommand.main" title="command_parser.commands.BaseCommand.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a></p></li>
+<li><p><strong>abstract</strong> – Set to True to prevent a command from being considered to be a parent that may contain sub
+commands</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="command_parser.commands.BaseCommand.parser">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="command_parser.parser.html#command_parser.parser.CommandParser" title="command_parser.parser.CommandParser"><span class="pre">CommandParser</span></a></span></span><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand.parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand.parser" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parser</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CommandParser[command=BaseCommand,</span> <span class="pre">positionals=0,</span> <span class="pre">options=0]&gt;</span></em><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand.parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand.parser" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="command_parser.commands.BaseCommand.command_config">
+<span class="sig-name descname"><span class="pre">command_config</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand.command_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand.command_config" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -215,7 +241,7 @@ error handling, call <a class="reference internal" href="#command_parser.command
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Command Parser" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="command_parser.error_handling.html" class="btn btn-neutral float-right" title="Error_Handling Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="command_parser.config.html" class="btn btn-neutral float-right" title="Config Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
