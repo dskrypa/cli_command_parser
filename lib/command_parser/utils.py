@@ -14,7 +14,7 @@ from string import whitespace, printable
 from .exceptions import ParameterDefinitionError
 
 if TYPE_CHECKING:
-    from .parameters import Parameter, ParamOrGroup
+    from .parameters import Parameter, ParamOrGroup, Param
 
 Bool = Union[bool, Any]
 
@@ -68,7 +68,7 @@ class Args:
     def __setitem__(self, param: 'Parameter', value):
         self._parsed[param] = value
 
-    def find_all(self, param_type: Type['Parameter']) -> dict['Parameter', Any]:
+    def find_all(self, param_type: Type['Param']) -> dict['Param', Any]:
         return {param: val for param, val in self._parsed.items() if isinstance(param, param_type)}
 
 

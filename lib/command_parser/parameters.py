@@ -883,6 +883,19 @@ class ActionFlag(Flag):
         if func is not None:
             update_wrapper(self, func)
 
+    def __hash__(self) -> int:
+        return reduce(xor, map(hash, (self.__class__, self.name, self.command, self.func, self.order)))
+
+    def __eq__(self, other: 'ActionFlag') -> bool:
+        if not isinstance(other, ActionFlag):
+            return NotImplemented
+        return all(getattr(self, a) == getattr(other, a) for a in ('name', 'func', 'command', 'order'))
+
+    def __lt__(self, other: 'ActionFlag') -> bool:
+        if not isinstance(other, ActionFlag):
+            return NotImplemented
+        return (self.order, self.name) < (other.order, other.name)
+
     def __call__(self, func: Callable):
         if self.func is not None:
             raise CommandDefinitionError(f'Cannot re-assign the func to call for {self}')

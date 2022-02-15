@@ -188,8 +188,8 @@ class BaseCommand:
         i = 0
         config = self.__command_config
         if action_flags := self.__args.find_all(ActionFlag):
-            for i, param in enumerate(sorted(action_flags, key=lambda p: p.order), 1):
-                param.func(self, *args, **kwargs)  # noqa
+            for i, param in enumerate(sorted(action_flags), 1):
+                param.func(self, *args, **kwargs)
                 if not config.multiple_action_flags:
                     break
 

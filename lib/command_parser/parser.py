@@ -123,17 +123,16 @@ class CommandParser:
         _update_options(short_combinable, 'short_combinable', param, command)
 
     def _process_action_flags(self):
-        a_flags = (p for p in self.options if isinstance(p, ActionFlag) and p.enabled)
-        action_flags = sorted(a_flags, key=lambda p: p.order)
+        action_flags = sorted((p for p in self.options if isinstance(p, ActionFlag) and p.enabled))
 
-        a_flags_by_prio: dict[float, list[ActionFlag]] = defaultdict(list)
+        a_flags_by_order: dict[float, list[ActionFlag]] = defaultdict(list)
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for {param=}')
-            a_flags_by_prio[param.order].append(param)
+            a_flags_by_order[param.order].append(param)
 
         invalid = {}
-        for prio, params in a_flags_by_prio.items():
+        for prio, params in a_flags_by_order.items():
             if len(params) > 1:
                 if (group := next((p.group for p in params if p.group), None)) and group.mutually_exclusive:
                     if not all(p.group == group for p in params):
