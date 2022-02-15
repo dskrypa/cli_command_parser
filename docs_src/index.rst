@@ -7,6 +7,7 @@ Command Parser
    :hidden:
 
    command_parser.commands
+   command_parser.config
    command_parser.error_handling
    command_parser.exceptions
    command_parser.formatting

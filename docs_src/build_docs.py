@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = 'lib/command_parser'
 
 
-class BuildDocs(Command, description='Build documentation using Sphinx', allow_multiple_action_flags=True):
+class BuildDocs(Command, description='Build documentation using Sphinx', multiple_action_flags=True):
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
     def __init__(self, args):
