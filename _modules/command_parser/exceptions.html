@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.exceptions &mdash; Command Parser 2022.02.15-3 documentation</title>
+  <title>command_parser.exceptions &mdash; Command Parser 2022.02.17-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -102,6 +102,7 @@
     <span class="s1">&#39;BadArgumentUsage&#39;</span><span class="p">,</span>
     <span class="s1">&#39;BadOptionUsage&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParserExit&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ParamConflict&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -153,6 +154,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">usage_str</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s1">&#39; / &#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;argument </span><span class="si">{</span><span class="n">usage_str</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
+<div class="viewcode-block" id="ParamConflict"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParamConflict">[docs]</a><span class="k">class</span> <span class="nc">ParamConflict</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">params_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s1">&#39; / &#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;argument conflict - the following arguments cannot be combined: </span><span class="si">{</span><span class="n">params_str</span><span class="si">}{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span></div>
 
 
 <div class="viewcode-block" id="BadArgument"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.BadArgument">[docs]</a><span class="k">class</span> <span class="nc">BadArgument</span><span class="p">(</span><span class="n">ParamUsageError</span><span class="p">):</span>
