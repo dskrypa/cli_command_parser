@@ -11,7 +11,7 @@ from warnings import warn
 
 from .config import CommandConfig
 from .error_handling import ErrorHandler, extended_error_handler, error_handler as _error_handler
-from .exceptions import ParserExit, CommandDefinitionError
+from .exceptions import ParserExit, CommandDefinitionError, ParamConflict
 from .parameters import ActionFlag, action_flag
 from .parser import CommandParser
 from .utils import _NotSet, Args, Bool, ProgramMetadata, classproperty
@@ -96,7 +96,7 @@ class BaseCommand:
         return cls.__parser
 
     @classproperty
-    def command_config(cls: CommandType) -> CommandConfig:  # noqa
+    def command_config(cls) -> CommandConfig:  # noqa
         return cls.__command_config
 
     def __new__(cls, args: Args):
@@ -187,11 +187,12 @@ class BaseCommand:
         """
         i = 0
         config = self.__command_config
-        if action_flags := self.__args.find_all(ActionFlag):
+        if action_flags := self.__args.find_all(ActionFlag):  # this will contain only the ones that were specified
+            if not config.multiple_action_flags and len(action_flags) > 1:
+                raise ParamConflict(action_flags, 'combining multiple action flags is disabled')
+
             for i, param in enumerate(sorted(action_flags), 1):
                 param.func(self, *args, **kwargs)
-                if not config.multiple_action_flags:
-                    break
 
         if (i == 0 or config.action_after_action_flags) and (action := self.parser.action) is not None:
             action.__get__(self, self.__class__)(self, *args, **kwargs)

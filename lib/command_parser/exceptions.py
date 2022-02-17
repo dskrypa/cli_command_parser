@@ -24,6 +24,7 @@ __all__ = [
     'BadArgumentUsage',
     'BadOptionUsage',
     'ParserExit',
+    'ParamConflict',
 ]
 
 
@@ -75,6 +76,20 @@ class ParamUsageError(UsageError):
         else:
             usage_str = param.format_usage(full=True, delim=' / ')
             return f'argument {usage_str}: {message}'
+
+
+class ParamConflict(UsageError):
+    message: str = None
+
+    def __init__(self, params: Collection['Parameter'], message: str = None):
+        self.params = params
+        if message:
+            self.message = message
+
+    def __str__(self) -> str:
+        params_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in self.params)
+        message = f' ({self.message})' if self.message else ''
+        return f'argument conflict - the following arguments cannot be combined: {params_str}{message}'
 
 
 class BadArgument(ParamUsageError):

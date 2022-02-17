@@ -7,8 +7,7 @@ from collections import defaultdict
 from functools import update_wrapper
 from inspect import stack, getsourcefile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type
-from types import MethodType
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, TypeVar, Callable
 from string import whitespace, printable
 
 from .exceptions import ParameterDefinitionError
@@ -17,6 +16,8 @@ if TYPE_CHECKING:
     from .parameters import Parameter, ParamOrGroup, Param
 
 Bool = Union[bool, Any]
+T = TypeVar('T')
+V = TypeVar('V')
 
 _NotSet = object()
 
@@ -24,15 +25,12 @@ _NotSet = object()
 class classproperty:
     """A read-only class property."""
 
-    def __init__(self, method: Union[classmethod, MethodType]):
-        if not isinstance(method, classmethod):
-            method = classmethod(method)
-        self.method = method
-        self._get = method.__get__  # classmethod.__get__
-        update_wrapper(self, method)
+    def __init__(self, getter: Callable[[Any], V]):
+        self.getter = getter
+        update_wrapper(self, getter)
 
-    def __get__(self, obj, cls):
-        return self._get(obj, cls)()
+    def __get__(self, obj: Optional[T], cls: Type[T]) -> V:
+        return self.getter(cls)
 
 
 class Args:
