@@ -14,12 +14,13 @@ from .error_handling import ErrorHandler, extended_error_handler, error_handler 
 from .exceptions import ParserExit, CommandDefinitionError, ParamConflict
 from .parameters import ActionFlag, action_flag
 from .parser import CommandParser
-from .utils import _NotSet, Args, Bool, ProgramMetadata, classproperty
+from .utils import _NotSet, Args, Bool, ProgramMetadata
 
 __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
 
 CommandType = TypeVar('CommandType', bound=Type['BaseCommand'])
+CommandObj = TypeVar('CommandObj', bound='BaseCommand')
 
 
 class BaseCommand:
@@ -55,12 +56,13 @@ class BaseCommand:
     ):
         """
         :param choice: SubCommand value that maps to this command
-        :param prog: The name of the program (default: sys.argv[0])
+        :param prog: The name of the program (default: ``sys.argv[0]``)
         :param usage: Usage message (default: auto-generated)
         :param description: Description of what the program does
         :param epilog: Text to follow parameter descriptions
         :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
-        :param error_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`
+        :param error_handler: The :class:`ErrorHandler<command_parser.error_handling.ErrorHandler>` to be used by
+          :meth:`.run` to wrap :meth:`.main`
         :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub
           commands
         """
@@ -80,14 +82,15 @@ class BaseCommand:
             cls.__error_handler = error_handler
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and not c.__abstract), None):
-            if (sub_cmd := parent.parser.sub_command) is not None:
+            if (sub_cmd := parent.parser.sub_command) is not None:  # noqa
                 sub_cmd.register_command(choice, cls, help)
             elif choice:
                 warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
         elif choice:
             warn(f'{choice=} was not registered for {cls} because it has no parent Command')
 
-    @classproperty
+    @classmethod
+    @property
     def parser(cls: CommandType) -> CommandParser:  # noqa
         if cls.__parser is None:
             # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
@@ -95,7 +98,8 @@ class BaseCommand:
             cls.__parser = CommandParser(cls, parent)
         return cls.__parser
 
-    @classproperty
+    @classmethod
+    @property
     def command_config(cls) -> CommandConfig:  # noqa
         return cls.__command_config
 
@@ -110,20 +114,24 @@ class BaseCommand:
     # endregion
 
     @classmethod
-    def parse_and_run(cls, argv: Sequence[str] = None, *args, allow_unknown: Bool = False, **kwargs):
+    def parse_and_run(
+        cls, argv: Sequence[str] = None, *args, allow_unknown: Bool = False, **kwargs
+    ) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
         to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
-        exceptions during parsing using the configured :class:`ErrorHandler`.
+        exceptions during parsing using the configured :class:`ErrorHandler
+        <command_parser.error_handling.ErrorHandler>`.
 
         To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use
         the above mentioned methods separately.
 
-        :param argv: The arguments to parse (defaults to ``sys.argv``)
+        :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :param args: Positional arguments to pass to :meth:`.run`
         :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
           arguments are encountered)
         :param kwargs: Keyword arguments to pass to :meth:`.run`
+        :return: The Command instance with parsed arguments for which :meth:`.run` was already called.
         """
         error_handler = _error_handler if cls.__error_handler is _NotSet else cls.__error_handler
         if error_handler is not None:
@@ -135,24 +143,25 @@ class BaseCommand:
         try:
             run = self.run
         except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
-            pass
+            return None
         else:
             run(*args, **kwargs)
+            return self
 
     @classmethod
-    def parse(cls, args: Sequence[str] = None, allow_unknown: Bool = False) -> 'BaseCommand':
+    def parse(cls, args: Sequence[str] = None, allow_unknown: Bool = False) -> CommandObj:
         """
-        Parses the specified arguments (or ``sys.argv``), and resolves the final sub-command class based on the parsed
-        arguments, if necessary.
+        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the
+        parsed arguments, if necessary.
 
-        :param args: The arguments to parse (defaults to ``sys.argv``)
+        :param args: The arguments to parse (defaults to :data:`sys.argv`)
         :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
           arguments are encountered)
         :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
         """
         args = Args(args)
         cmd_cls = cls
-        while sub_cmd := cmd_cls.parser.parse_args(args, allow_unknown):
+        while sub_cmd := cmd_cls.parser.parse_args(args, allow_unknown):  # noqa
             cmd_cls = sub_cmd
 
         return cmd_cls(args)
@@ -160,8 +169,9 @@ class BaseCommand:
     def run(self, *args, **kwargs):
         """
         Primary entry point for running a command.  Calls :meth:`.main` and handles exceptions using the configured
-        :class:`ErrorHandler`.  Alternate error handlers can be specified during Command class initialization.  To skip
-        error handling, call :meth:`.main` directly or define the class with ``error_handler=None``.
+        :class:`ErrorHandler<command_parser.error_handling.ErrorHandler>`.  Alternate error handlers can be specified
+        during :meth:`Command class initialization<BaseCommand.__init_subclass__>`.  To skip error handling, call
+        :meth:`.main` directly or define the class with ``error_handler=None``.
 
         :param args: Positional arguments to pass to :meth:`.main`
         :param kwargs: Keyword arguments to pass to :meth:`.main`
@@ -188,6 +198,7 @@ class BaseCommand:
         i = 0
         config = self.__command_config
         if action_flags := self.__args.find_all(ActionFlag):  # this will contain only the ones that were specified
+            # TODO: Before/after main actions; maybe move this logic to run instead of main?
             if not config.multiple_action_flags and len(action_flags) > 1:
                 raise ParamConflict(action_flags, 'combining multiple action flags is disabled')
 

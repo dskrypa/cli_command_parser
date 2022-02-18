@@ -4,10 +4,9 @@
 
 import sys
 from collections import defaultdict
-from functools import update_wrapper
 from inspect import stack, getsourcefile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, TypeVar, Callable
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type
 from string import whitespace, printable
 
 from .exceptions import ParameterDefinitionError
@@ -16,21 +15,8 @@ if TYPE_CHECKING:
     from .parameters import Parameter, ParamOrGroup, Param
 
 Bool = Union[bool, Any]
-T = TypeVar('T')
-V = TypeVar('V')
 
 _NotSet = object()
-
-
-class classproperty:
-    """A read-only class property."""
-
-    def __init__(self, getter: Callable[[Any], V]):
-        self.getter = getter
-        update_wrapper(self, getter)
-
-    def __get__(self, obj: Optional[T], cls: Type[T]) -> V:
-        return self.getter(cls)
 
 
 class Args:

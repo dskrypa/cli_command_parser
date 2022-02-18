@@ -52,7 +52,7 @@ def html_page_context(app, pagename, templatename, context, doctree):
             return
         context['show_on_github_url'] = get_github_url(app, rel_path)
 
-    log.info('Github URL for {!r} => {}'.format(pagename, context['show_on_github_url']))
+    log.debug('Github URL for {!r} => {}'.format(pagename, context['show_on_github_url']))
 
 
 def setup(app):

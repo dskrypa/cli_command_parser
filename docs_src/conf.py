@@ -17,7 +17,13 @@ release = __version__
 author = __author__
 copyright = '{}, {}'.format(datetime.now().strftime('%Y'), author)
 
-extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'show_on_github']
+extensions = [
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autodoc',  # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
+    'sphinx.ext.viewcode',
+    # 'sphinx.ext.autosummary',  # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
+    'show_on_github',
+]
 
 # Extension options
 intersphinx_mapping = {
