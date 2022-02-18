@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.17-1 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.18 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -92,12 +92,13 @@
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParserExit</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">action_flag</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">classproperty</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">CommandType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Type</span><span class="p">[</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">])</span>
+<span class="n">CommandObj</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CommandObj&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BaseCommand"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand">[docs]</a><span class="k">class</span> <span class="nc">BaseCommand</span><span class="p">:</span>
@@ -133,12 +134,13 @@
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param choice: SubCommand value that maps to this command</span>
-<span class="sd">        :param prog: The name of the program (default: sys.argv[0])</span>
+<span class="sd">        :param prog: The name of the program (default: ``sys.argv[0]``)</span>
 <span class="sd">        :param usage: Usage message (default: auto-generated)</span>
 <span class="sd">        :param description: Description of what the program does</span>
 <span class="sd">        :param epilog: Text to follow parameter descriptions</span>
 <span class="sd">        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</span>
-<span class="sd">        :param error_handler: The ExceptionHandler to be used by :meth:`.run` to wrap :meth:`.main`</span>
+<span class="sd">        :param error_handler: The :class:`ErrorHandler&lt;command_parser.error_handling.ErrorHandler&gt;` to be used by</span>
+<span class="sd">          :meth:`.run` to wrap :meth:`.main`</span>
 <span class="sd">        :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub</span>
 <span class="sd">          commands</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -158,14 +160,15 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span> <span class="o">=</span> <span class="n">error_handler</span>
 
         <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">BaseCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">__abstract</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa</span>
                 <span class="n">sub_cmd</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
                 <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because its </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> has no SubCommand parameter&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because it has no parent Command&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseCommand.parser"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parser">[docs]</a>    <span class="nd">@classproperty</span>
+<div class="viewcode-block" id="BaseCommand.parser"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parser">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParser</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># The parent here is different than in __init_subclass__ to allow ActionFlag inheritance</span>
@@ -173,7 +176,8 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span></div>
 
-<div class="viewcode-block" id="BaseCommand.command_config"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.command_config">[docs]</a>    <span class="nd">@classproperty</span>
+<div class="viewcode-block" id="BaseCommand.command_config"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.command_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">command_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span></div>
 
@@ -188,20 +192,24 @@
     <span class="c1"># endregion</span>
 
 <div class="viewcode-block" id="BaseCommand.parse_and_run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`</span>
 <span class="sd">        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles</span>
-<span class="sd">        exceptions during parsing using the configured :class:`ErrorHandler`.</span>
+<span class="sd">        exceptions during parsing using the configured :class:`ErrorHandler</span>
+<span class="sd">        &lt;command_parser.error_handling.ErrorHandler&gt;`.</span>
 
 <span class="sd">        To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use</span>
 <span class="sd">        the above mentioned methods separately.</span>
 
-<span class="sd">        :param argv: The arguments to parse (defaults to ``sys.argv``)</span>
+<span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
 <span class="sd">        :param args: Positional arguments to pass to :meth:`.run`</span>
 <span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
 <span class="sd">          arguments are encountered)</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.run`</span>
+<span class="sd">        :return: The Command instance with parsed arguments for which :meth:`.run` was already called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">error_handler</span> <span class="o">=</span> <span class="n">_error_handler</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span>
         <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -213,24 +221,25 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span>
         <span class="k">except</span> <span class="ne">UnboundLocalError</span><span class="p">:</span>  <span class="c1"># There was an error handled during parsing, so self was not defined</span>
-            <span class="k">pass</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="BaseCommand.parse"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parse">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BaseCommand&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parses the specified arguments (or ``sys.argv``), and resolves the final sub-command class based on the parsed</span>
-<span class="sd">        arguments, if necessary.</span>
+<span class="sd">        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the</span>
+<span class="sd">        parsed arguments, if necessary.</span>
 
-<span class="sd">        :param args: The arguments to parse (defaults to ``sys.argv``)</span>
+<span class="sd">        :param args: The arguments to parse (defaults to :data:`sys.argv`)</span>
 <span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
 <span class="sd">          arguments are encountered)</span>
 <span class="sd">        :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">Args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
-        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">):</span>  <span class="c1"># noqa</span>
             <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
 
         <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
@@ -238,8 +247,9 @@
 <div class="viewcode-block" id="BaseCommand.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for running a command.  Calls :meth:`.main` and handles exceptions using the configured</span>
-<span class="sd">        :class:`ErrorHandler`.  Alternate error handlers can be specified during Command class initialization.  To skip</span>
-<span class="sd">        error handling, call :meth:`.main` directly or define the class with ``error_handler=None``.</span>
+<span class="sd">        :class:`ErrorHandler&lt;command_parser.error_handling.ErrorHandler&gt;`.  Alternate error handlers can be specified</span>
+<span class="sd">        during :meth:`Command class initialization&lt;BaseCommand.__init_subclass__&gt;`.  To skip error handling, call</span>
+<span class="sd">        :meth:`.main` directly or define the class with ``error_handler=None``.</span>
 
 <span class="sd">        :param args: Positional arguments to pass to :meth:`.main`</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.main`</span>
@@ -266,6 +276,7 @@
         <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command_config</span>
         <span class="k">if</span> <span class="n">action_flags</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">ActionFlag</span><span class="p">):</span>  <span class="c1"># this will contain only the ones that were specified</span>
+            <span class="c1"># TODO: Before/after main actions; maybe move this logic to run instead of main?</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">action_flags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">action_flags</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
 
