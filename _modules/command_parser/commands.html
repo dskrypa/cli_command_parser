@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.18 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.19-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -92,7 +92,7 @@
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParserExit</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">action_flag</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">classproperty</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -110,6 +110,8 @@
 
     <span class="c1"># region Initialization</span>
     <span class="c1"># fmt: off</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">CommandParser</span>                               <span class="c1"># Must declare here for PyCharm&#39;s type checker to work properly</span>
+    <span class="n">command_config</span><span class="p">:</span> <span class="n">CommandConfig</span>                       <span class="c1"># Must declare here for PyCharm&#39;s type checker to work properly</span>
     <span class="n">__args</span><span class="p">:</span> <span class="n">Args</span>                                        <span class="c1"># The raw and parsed arguments passed to this command</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">Args</span>                                          <span class="c1"># Same as __args, but can be overwritten.  Not used internally.</span>
     <span class="n">__command_config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1"># Configured Command options</span>
@@ -167,8 +169,7 @@
         <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because it has no parent Command&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseCommand.parser"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parser">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="BaseCommand.parser"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.parser">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParser</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># The parent here is different than in __init_subclass__ to allow ActionFlag inheritance</span>
@@ -176,8 +177,7 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span></div>
 
-<div class="viewcode-block" id="BaseCommand.command_config"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.command_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="BaseCommand.command_config"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.command_config">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">command_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span></div>
 
@@ -239,7 +239,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">Args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
-        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">):</span>
             <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
 
         <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>

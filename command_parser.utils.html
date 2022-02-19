@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Utils Module &mdash; Command Parser 2022.02.18 documentation</title>
+  <title>Utils Module &mdash; Command Parser 2022.02.19-2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -83,6 +83,18 @@
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="command_parser.utils.classproperty">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">classproperty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/utils.html#classproperty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.utils.classproperty" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">classmethod</span></code></p>
+<p>A read-only class property.</p>
+<p>While this could be accomplished by applying <code class="docutils literal notranslate"><span class="pre">&#64;classmethod</span></code> after (above) <code class="docutils literal notranslate"><span class="pre">&#64;property</span></code>, doing so confuses
+PyCharm’s type checker.  This implementation requires the decorated method to declare its type separately for
+PyCharm to recognize the return type, and again as the return type of the method for Sphinx to include it in
+documentation.  PyCharm did not properly recognize the return type by any means when stacking classmethod and
+property.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="command_parser.utils.Args">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">Args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.10)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/utils.html#Args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.utils.Args" title="Permalink to this definition"></a></dt>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.utils &mdash; Command Parser 2022.02.18 documentation</title>
+  <title>command_parser.utils &mdash; Command Parser 2022.02.19-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,7 +84,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">getsourcefile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">whitespace</span><span class="p">,</span> <span class="n">printable</span>
 
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
@@ -95,6 +95,25 @@
 <span class="n">Bool</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
 <span class="n">_NotSet</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="classproperty"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.classproperty">[docs]</a><span class="k">class</span> <span class="nc">classproperty</span><span class="p">(</span><span class="nb">classmethod</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A read-only class property.</span>
+
+<span class="sd">    While this could be accomplished by applying ``@classmethod`` after (above) ``@property``, doing so confuses</span>
+<span class="sd">    PyCharm&#39;s type checker.  This implementation requires the decorated method to declare its type separately for</span>
+<span class="sd">    PyCharm to recognize the return type, and again as the return type of the method for Sphinx to include it in</span>
+<span class="sd">    documentation.  PyCharm did not properly recognize the return type by any means when stacking classmethod and</span>
+<span class="sd">    property.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">property</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>  <span class="c1"># noqa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Args"><a class="viewcode-back" href="../../command_parser.utils.html#command_parser.utils.Args">[docs]</a><span class="k">class</span> <span class="nc">Args</span><span class="p">:</span>
