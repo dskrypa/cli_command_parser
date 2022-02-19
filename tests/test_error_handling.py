@@ -76,7 +76,7 @@ class ExceptionTest(TestCase):
         self.assertNotIn('(', str(exc))
 
 
-with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL'):  # Ensure coverage from Linux
+with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', create=True):
     reload(command_parser.error_handling)
     from command_parser.error_handling import extended_error_handler, _handle_os_error
 
