@@ -47,7 +47,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx', multipl
         self._backup_rsts()
         self._generate_rsts()
 
-    @after_main('-o', help='Open the docs in the default web browser after running sphinx-build', order=3)
+    @after_main('-o', help='Open the docs in the default web browser after running sphinx-build')
     def open(self):
         index_path = PROJECT_ROOT.joinpath('docs', 'index.html').as_posix()
         webbrowser.open(f'file://{index_path}')

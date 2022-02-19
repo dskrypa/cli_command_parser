@@ -125,25 +125,26 @@ class CommandParser:
     def _process_action_flags(self):
         action_flags = sorted((p for p in self.options if isinstance(p, ActionFlag) and p.enabled))
 
-        a_flags_by_order: dict[float, list[ActionFlag]] = defaultdict(list)
+        a_flags_by_before_and_order: dict[bool, dict[float, list[ActionFlag]]] = defaultdict(lambda: defaultdict(list))
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for {param=}')
-            a_flags_by_order[param.order].append(param)
+            a_flags_by_before_and_order[param.before_main][param.order].append(param)
 
         invalid = {}
-        for prio, params in a_flags_by_order.items():
-            if len(params) > 1:
-                if (group := next((p.group for p in params if p.group), None)) and group.mutually_exclusive:
-                    if not all(p.group == group for p in params):
-                        invalid[prio] = params
-                else:
-                    invalid[prio] = params
+        for before_main, prio_params in a_flags_by_before_and_order.items():
+            for prio, params in prio_params.items():
+                if len(params) > 1:
+                    if (group := next((p.group for p in params if p.group), None)) and group.mutually_exclusive:
+                        if not all(p.group == group for p in params):
+                            invalid[(before_main, prio)] = params
+                    else:
+                        invalid[(before_main, prio)] = params
 
         if invalid:
             raise CommandDefinitionError(
-                f'ActionFlag parameters must either have different order values or be in a mutually exclusive'
-                f' ParameterGroup - invalid parameters: {invalid}'
+                f'ActionFlag parameters with the same before/after main setting must either have different order values'
+                f' or be in a mutually exclusive ParameterGroup - invalid parameters: {invalid}'
             )
 
         return action_flags

@@ -874,7 +874,7 @@ class ActionFlag(Flag):
         super().__init__(*args, **kwargs)
         self.func = func
         self.order = order
-        self.before_main = before_main  # TODO: Allow order match if before/after main differs
+        self.before_main = before_main
         self.enabled = True
 
     @property
