@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.exceptions &mdash; Command Parser 2022.02.19-7 documentation</title>
+  <title>command_parser.exceptions &mdash; Command Parser 2022.02.19-8 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -89,7 +89,6 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span>
 
-<span class="c1"># TODO: Cleanup and make usage consistent</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;CommandParserException&#39;</span><span class="p">,</span>
     <span class="s1">&#39;CommandDefinitionError&#39;</span><span class="p">,</span>
@@ -100,14 +99,14 @@
     <span class="s1">&#39;InvalidChoice&#39;</span><span class="p">,</span>
     <span class="s1">&#39;MissingArgument&#39;</span><span class="p">,</span>
     <span class="s1">&#39;NoSuchOption&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;BadArgumentUsage&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;BadOptionUsage&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParserExit&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParamConflict&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="CommandParserException"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.CommandParserException">[docs]</a><span class="k">class</span> <span class="nc">CommandParserException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for all other Command Parser exceptions&quot;&quot;&quot;</span>
+
     <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
 
 <div class="viewcode-block" id="CommandParserException.show"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.CommandParserException.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -190,14 +189,6 @@
 
 
 <div class="viewcode-block" id="NoSuchOption"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.NoSuchOption">[docs]</a><span class="k">class</span> <span class="nc">NoSuchOption</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="BadArgumentUsage"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.BadArgumentUsage">[docs]</a><span class="k">class</span> <span class="nc">BadArgumentUsage</span><span class="p">(</span><span class="n">ParamUsageError</span><span class="p">):</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="BadOptionUsage"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.BadOptionUsage">[docs]</a><span class="k">class</span> <span class="nc">BadOptionUsage</span><span class="p">(</span><span class="n">BadArgumentUsage</span><span class="p">):</span>
     <span class="k">pass</span></div>
 </pre></div>
 

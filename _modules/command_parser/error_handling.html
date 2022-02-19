@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.error_handling &mdash; Command Parser 2022.02.19-7 documentation</title>
+  <title>command_parser.error_handling &mdash; Command Parser 2022.02.19-8 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -173,23 +173,32 @@
 
 <span class="n">extended_error_handler</span> <span class="o">=</span> <span class="n">error_handler</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-<span class="k">if</span> <span class="n">WINDOWS</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;pytest&#39;</span><span class="p">)):</span>
+<span class="k">if</span> <span class="n">WINDOWS</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">ctypes</span>
+
+    <span class="n">RtlGetLastNtStatus</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="s1">&#39;ntdll&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">RtlGetLastNtStatus</span>
+    <span class="n">RtlGetLastNtStatus</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span>
+    <span class="n">NT_STATUSES</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0xC000_00B1</span><span class="p">:</span> <span class="s1">&#39;STATUS_PIPE_CLOSING&#39;</span><span class="p">,</span> <span class="mh">0xC000_014B</span><span class="p">:</span> <span class="s1">&#39;STATUS_PIPE_BROKEN&#39;</span><span class="p">}</span>
 
     <span class="nd">@extended_error_handler</span><span class="p">(</span><span class="ne">OSError</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_handle_os_error</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="ne">OSError</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">22</span><span class="p">:</span>
-            <span class="c1"># When using |head, the pipe will be closed when head is done, but Python will still think that it</span>
-            <span class="c1"># is open - checking whether sys.stdout is writable or closed doesn&#39;t work, so triggering the</span>
-            <span class="c1"># error again seems to be the most reliable way to detect this (hopefully) without false positives</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a workaround for `issue35754 &lt;https://bugs.python.org/issue35754&gt;`_, which is a bug in the way that the</span>
+<span class="sd">        windows error code for a broken pipe is translated into an errno value.  It should be translated to</span>
+<span class="sd">        :data:`~errno.EPIPE`, but it uses :data:`~errno.EINVAL` (22) instead.</span>
+
+<span class="sd">        Prevents the following when piping output to utilities such as ``| head``:</span>
+<span class="sd">            Exception ignored in: &lt;_io.TextIOWrapper name=&#39;&lt;stdout&gt;&#39; mode=&#39;w&#39; encoding=&#39;utf-8&#39;&gt;</span>
+<span class="sd">            OSError: [Errno 22] Invalid argument</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">22</span> <span class="ow">and</span> <span class="n">RtlGetLastNtStatus</span><span class="p">()</span> <span class="ow">in</span> <span class="n">NT_STATUSES</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># If it wasn&#39;t the expected error, let the main Exception handler handle it</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">pass</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
 </pre></div>
 
            </div>

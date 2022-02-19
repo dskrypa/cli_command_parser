@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commands Module &mdash; Command Parser 2022.02.19-7 documentation</title>
+  <title>Commands Module &mdash; Command Parser 2022.02.19-8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -259,27 +259,6 @@ default, compared to <a class="reference internal" href="#command_parser.command
 <dt class="sig sig-object py" id="command_parser.commands.Command.help">
 <span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/commands.html#Command.help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.Command.help" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="command_parser.commands.Command.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close_stdout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="_modules/command_parser/commands.html#Command.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.Command.run" title="Permalink to this definition"></a></dt>
-<dd><p>Primary entry point for running a command.  Subclasses generally should not override this method.</p>
-<p>Handles exceptions using the configured <a class="reference internal" href="command_parser.error_handling.html#command_parser.error_handling.ErrorHandler" title="command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a>.  Alternate error handlers can
-be specified via the <a class="reference internal" href="#command_parser.commands.BaseCommand.__init_subclass__.params.error_handler" title="command_parser.commands.BaseCommand.__init_subclass__"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">error_handler</span></code></a> parameter during Command class
-initialization.  To skip error handling, define the class with <code class="docutils literal notranslate"><span class="pre">error_handler=None</span></code>.</p>
-<p>Calls 3 methods in order: <a class="reference internal" href="#command_parser.commands.BaseCommand.before_main" title="command_parser.commands.BaseCommand.before_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">before_main()</span></code></a>, <a class="reference internal" href="#command_parser.commands.BaseCommand.main" title="command_parser.commands.BaseCommand.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a>, and <a class="reference internal" href="#command_parser.commands.BaseCommand.after_main" title="command_parser.commands.BaseCommand.after_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">after_main()</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="command_parser.commands.Command.run.params.args"></span><strong>args</strong><a class="paramlink headerlink reference internal" href="#command_parser.commands.Command.run.params.args">¶</a> – Positional arguments to pass to <a class="reference internal" href="#command_parser.commands.BaseCommand.before_main" title="command_parser.commands.BaseCommand.before_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">before_main()</span></code></a>, <a class="reference internal" href="#command_parser.commands.BaseCommand.main" title="command_parser.commands.BaseCommand.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a>, and <a class="reference internal" href="#command_parser.commands.BaseCommand.after_main" title="command_parser.commands.BaseCommand.after_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">after_main()</span></code></a></p></li>
-<li><p><span class="target" id="command_parser.commands.Command.run.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#command_parser.commands.Command.run.params.kwargs">¶</a> – Keyword arguments to pass to <a class="reference internal" href="#command_parser.commands.BaseCommand.before_main" title="command_parser.commands.BaseCommand.before_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">before_main()</span></code></a>, <a class="reference internal" href="#command_parser.commands.BaseCommand.main" title="command_parser.commands.BaseCommand.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a>, and <a class="reference internal" href="#command_parser.commands.BaseCommand.after_main" title="command_parser.commands.BaseCommand.after_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">after_main()</span></code></a></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The total number of actions that were taken</p>
-</dd>
-</dl>
-</dd></dl>
 
 </dd></dl>
 
