@@ -19,6 +19,9 @@ class ErrorHandler:
     def __init__(self):
         self.exc_handler_map: dict[Type[BaseException], Callable] = {}
 
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__}[handlers={len(self.exc_handler_map)}]>'
+
     def register(self, handler: Callable, *exceptions: Type[BaseException]):
         for exc in exceptions:
             self.exc_handler_map[exc] = handler

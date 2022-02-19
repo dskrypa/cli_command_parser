@@ -49,6 +49,9 @@ class ErrorHandlingTest(TestCase):
 
         self.assertEqual(sio.getvalue(), 'test one\n')
 
+    def test_error_handler_repr(self):
+        self.assertIn('handlers=', repr(ErrorHandler()))
+
 
 class ExceptionTest(TestCase):
     def test_exit_str(self):

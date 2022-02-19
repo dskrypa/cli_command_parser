@@ -18,7 +18,7 @@ from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, form
 
 if TYPE_CHECKING:
     from .args import Args
-    from .commands import BaseCommand, CommandType
+    from .commands import Command, CommandType
 
 __all__ = [
     'Parameter',
@@ -364,10 +364,10 @@ class Parameter(ParamBase):
         )
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
-    def __get__(self, command: 'BaseCommand', owner: 'CommandType'):
+    def __get__(self, command: 'Command', owner: 'CommandType'):
         if command is None:
             return self
-        value = self.result(command._BaseCommand__args)  # noqa
+        value = self.result(command._Command__args)  # noqa
         if (name := self._name) is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
@@ -675,11 +675,11 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         self, command_or_choice: Union[str, 'CommandType'] = None, /, choice: str = None, help: str = None  # noqa
     ) -> Callable[['CommandType'], 'CommandType']:
         """
-        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`BaseCommand` as the
+        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`Command` as the
         subcommand class to be used for further parsing when the given choice is specified for this parameter.
 
         This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent
-        Command, it is automatically registered as a subcommand during BaseCommand subclass initialization.
+        Command, it is automatically registered as a subcommand during Command subclass initialization.
 
         :param command_or_choice: When not called explicitly, this will be Command class that will be wrapped.  When
           called to provide arguments, the ``choice`` value for the positional parameter that determines which
@@ -908,7 +908,7 @@ class ActionFlag(Flag):
         self.func = func
         return self
 
-    def __get__(self, command: 'BaseCommand', owner: 'CommandType'):
+    def __get__(self, command: 'Command', owner: 'CommandType'):
         # Allow the method to be called, regardless of whether it was specified
         if command is None:
             return self

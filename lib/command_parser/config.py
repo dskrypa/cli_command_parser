@@ -4,9 +4,13 @@ Configuration options for Command behavior.
 :author: Doug Skrypa
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
+from typing import TYPE_CHECKING, Optional, Any
 
-from .utils import Bool
+from .utils import Bool, _NotSet
+
+if TYPE_CHECKING:
+    from .error_handling import ErrorHandler
 
 __all__ = ['CommandConfig']
 
@@ -18,3 +22,18 @@ class CommandConfig:
 
     #: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation
     action_after_action_flags: Bool = False
+
+    #: Whether the --help / -h action_flag should be added
+    add_help: Bool = True
+
+    #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.run`
+    error_handler: Optional['ErrorHandler'] = _NotSet
+
+    def as_dict(self) -> dict[str, Any]:
+        """
+        Return a dict representing the configured options.
+
+        This was necessary because :func:`dataclasses.asdict` copies values, which breaks the use of _NotSet as a
+        non-None sentinel value.
+        """
+        return {name: getattr(self, name) for field in fields(self) if (name := field.name)}

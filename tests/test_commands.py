@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 from contextlib import redirect_stdout, redirect_stderr
-from dataclasses import asdict
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, BaseCommand, CommandConfig
-from command_parser.error_handling import no_exit_handler, error_handler
-from command_parser.exceptions import CommandDefinitionError
+from command_parser import Command, CommandConfig
+from command_parser.error_handling import no_exit_handler, extended_error_handler
+from command_parser.exceptions import CommandDefinitionError, NoSuchOption
 from command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag, Option
 
 
@@ -171,7 +170,7 @@ class TestCommands(TestCase):
             pass
 
         config = Foo.command_config
-        self.assertDictEqual(asdict(config), asdict(CommandConfig()))
+        self.assertDictEqual(config.as_dict(), CommandConfig().as_dict())
 
     def test_config_from_kwarg(self):
         default = CommandConfig().multiple_action_flags
@@ -208,7 +207,24 @@ class TestCommands(TestCase):
         self.assertNotEqual(Foo.command_config.multiple_action_flags, default_config.multiple_action_flags)
 
     def test_default_error_handler_returned(self):
-        self.assertIs(error_handler, BaseCommand._BaseCommand__get_error_handler())  # noqa
+        self.assertIs(extended_error_handler, Command._Command__get_error_handler())  # noqa
+
+    def test_no_help(self):
+        class Foo(Command, add_help=False, error_handler=None):
+            pass
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse_and_run(['-h'])
+
+    def test_sub_command_adds_help(self):
+        class Foo(Command, abstract=True):
+            pass
+
+        class Bar(Foo):
+            pass
+
+        with redirect_stdout(Mock()), self.assertRaises(SystemExit):
+            Bar.parse_and_run(['-h'])
 
 
 class TestParsing(TestCase):

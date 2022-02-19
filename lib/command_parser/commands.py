@@ -5,31 +5,27 @@ The core Command classes that are intended as the entry point for a given progra
 """
 
 import logging
-import sys
-from dataclasses import asdict
 from typing import Type, TypeVar, Sequence, Optional, Union
 from warnings import warn
 
+from .actions import help_action
 from .args import Args
 from .config import CommandConfig
-from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler, error_handler as _error_handler
-from .exceptions import ParserExit, CommandDefinitionError, ParamConflict
-from .parameters import action_flag
+from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
+from .exceptions import CommandDefinitionError, ParamConflict
 from .parser import CommandParser
 from .utils import _NotSet, Bool, ProgramMetadata, classproperty
 
-__all__ = ['BaseCommand', 'Command', 'CommandType']
+__all__ = ['Command', 'CommandType']
 log = logging.getLogger(__name__)
 
-CommandType = TypeVar('CommandType', bound=Type['BaseCommand'])
-CommandObj = TypeVar('CommandObj', bound='BaseCommand')
+CommandType = TypeVar('CommandType', bound=Type['Command'])
+CommandObj = TypeVar('CommandObj', bound='Command')
 
 
-class BaseCommand:
+class Command:
     """
-    Base class for Commands that provides all of the core functionality.  It is generally recommended to extend
-    :class:`Command` instead unless you need to omit/re-define the ``--help`` action or any other behavior that strays
-    from the core functionality.
+    The main class that other Commands should extend.
     """
 
     # region Initialization
@@ -41,7 +37,6 @@ class BaseCommand:
     __command_config: CommandConfig = None              # Configured Command options
     __meta: ProgramMetadata = None                      # Metadata used in help text
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
-    __error_handler: Optional[ErrorHandler] = _NotSet   # The ErrorHandler to wrap main()
     __abstract: Bool = True                             # False if viable for containing sub commands
     # fmt: on
 
@@ -53,7 +48,6 @@ class BaseCommand:
         description: str = None,
         epilog: str = None,
         help: str = None,  # noqa
-        error_handler: ErrorHandler = _NotSet,
         abstract: Bool = False,
         config: CommandConfig = None,
         **kwargs,
@@ -67,6 +61,11 @@ class BaseCommand:
         :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
         :param error_handler: The :class:`ErrorHandler<command_parser.error_handling.ErrorHandler>` to be used by
           :meth:`.run` to wrap :meth:`.main`
+        :param bool add_help: Whether the --help / -h action_flag should be added
+        :param bool action_after_action_flags: Whether action_flag methods are allowed to be combined with a positional
+          Action method in a given CLI invocation
+        :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all
+          specified
         :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub
           commands
         """
@@ -79,15 +78,17 @@ class BaseCommand:
             cls.__command_config = config
         elif kwargs or (cls.__command_config is None and not abstract):
             if cls.__command_config is not None:  # Inherit existing configs and override specified values
-                kwargs = asdict(cls.__command_config) | kwargs
+                kwargs = cls.__command_config.as_dict() | kwargs
             cls.__command_config = CommandConfig(**kwargs)
+
+        if (config := cls.__command_config) is not None:
+            if config.add_help and not hasattr(cls, '_Command__help'):
+                cls.__help = help_action
 
         cls.__parser = None
         cls.__abstract = abstract
-        if error_handler is not _NotSet:
-            cls.__error_handler = error_handler
 
-        if parent := next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and not c.__abstract), None):
+        if parent := next((c for c in cls.mro()[1:] if issubclass(c, Command) and not c.__abstract), None):
             if (sub_cmd := parent.parser.sub_command) is not None:  # noqa
                 sub_cmd.register_command(choice, cls, help)
             elif choice:
@@ -99,7 +100,7 @@ class BaseCommand:
     def parser(cls: CommandType) -> CommandParser:  # noqa
         if cls.__parser is None:
             # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
-            parent = next((c for c in cls.mro()[1:] if issubclass(c, BaseCommand) and c is not BaseCommand), None)
+            parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
             cls.__parser = CommandParser(cls, parent)
         return cls.__parser
 
@@ -109,8 +110,13 @@ class BaseCommand:
 
     @classmethod
     def __get_error_handler(cls) -> Union[ErrorHandler, NullErrorHandler]:
-        if (error_handler := cls.__error_handler) is _NotSet:
-            return _error_handler
+        if (config := cls.__command_config) is not None:
+            error_handler = config.error_handler
+        else:
+            error_handler = _NotSet
+
+        if error_handler is _NotSet:
+            return extended_error_handler
         elif error_handler is None:
             return NullErrorHandler()
         else:
@@ -180,7 +186,7 @@ class BaseCommand:
         Primary entry point for running a command.  Subclasses generally should not override this method.
 
         Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can
-        be specified via the :paramref:`~BaseCommand.__init_subclass__.error_handler` parameter during Command class
+        be specified via the :paramref:`~Command.__init_subclass__.error_handler` parameter during Command class
         initialization.  To skip error handling, define the class with ``error_handler=None``.
 
         Calls 3 methods in order: :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`.
@@ -250,15 +256,3 @@ class BaseCommand:
         """
         for param in self.__args.after_main_actions:
             param.func(self, *args, **kwargs)
-
-
-class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
-    """
-    The main class that other Commands should extend.  Provides the ``--help`` action and handles more Exceptions by
-    default, compared to :class:`BaseCommand`.
-    """
-
-    @action_flag('-h', order=float('-inf'), help='Show this help message and exit')
-    def help(self):
-        print(self.parser.formatter.format_help())
-        raise ParserExit

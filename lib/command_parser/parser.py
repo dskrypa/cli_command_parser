@@ -68,7 +68,7 @@ class CommandParser:
         short_combinable = parent.short_combinable.copy() if parent is not None else {}
         var_nargs_pos_param = None
         for attr, param in command.__dict__.items():
-            if attr.startswith(('__', '_BaseCommand__', '_Command__')):
+            if attr.startswith('__'):
                 continue
             elif isinstance(param, _Positional):
                 var_nargs_pos_param = self._add_positional(param, var_nargs_pos_param)

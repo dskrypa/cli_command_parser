@@ -16,7 +16,7 @@ class Args:
     """
     Stores the raw and parsed arguments.
 
-    Keeps track of the actions that were taken before/during/after :meth:`~.commands.BaseCommand.main`
+    Keeps track of the actions that were taken before/during/after :meth:`~.commands.Command.main`
 
     :param args: The arguments that should be parsed (default: :data:`sys.argv`)
     """

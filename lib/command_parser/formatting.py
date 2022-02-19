@@ -34,7 +34,7 @@ class HelpFormatter:
                     self.opt_group.add(param)
 
     def format_usage(self, delim: str = ' ') -> str:
-        meta: ProgramMetadata = self.command._BaseCommand__meta
+        meta: ProgramMetadata = self.command._Command__meta
         if usage := meta.usage:
             return usage
         parts = ['usage:', meta.prog]
@@ -47,7 +47,7 @@ class HelpFormatter:
     def format_help(
         self, width: int = 30, add_default: Bool = True, group_type: Bool = True, extended_epilog: Bool = True
     ):
-        meta: ProgramMetadata = self.command._BaseCommand__meta
+        meta: ProgramMetadata = self.command._Command__meta
         parts = [self.format_usage(), '']
         if description := meta.description:
             parts += [description, '']

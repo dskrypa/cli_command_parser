@@ -16,7 +16,7 @@ TEST_EPILOG = 'This is a test epilog'
 
 class HelpTextTest(TestCase):
     def test_prog(self):
-        class Foo(Command, error_handler=no_exit_handler, prog='foo.py'):
+        class Foo(Command, error_handler=no_exit_handler, prog='foo.py', add_help=True):
             action = Action()
             action(Mock(__name__='bar'))
 
@@ -143,11 +143,16 @@ class HelpTextTest(TestCase):
         self.assertNotIn('Positional arguments:', help_text)
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
         self.assertIn(expected_sub_cmd, help_text)
-        expected_opt = """Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
-  --verbose [VERBOSE], -v [VERBOSE]
-                              Increase logging verbosity (can specify multiple times) (default: 0)"""
-        self.assertIn(expected_opt, help_text)
+
+        help_text_lines = help_text.splitlines()
+        optional_header_index = help_text_lines.index('Optional arguments:')
+        help_line = '  --help, -h                  Show this help message and exit (default: False)'
+        self.assertIn(help_line, help_text_lines[optional_header_index:])
+        verbose_line_1 = '  --verbose [VERBOSE], -v [VERBOSE]'
+        verbose_line_2 = (' ' * 30) + 'Increase logging verbosity (can specify multiple times) (default: 0)'
+        verbose_line_1_index = help_text_lines.index(verbose_line_1)
+        self.assertGreater(verbose_line_1_index, optional_header_index)
+        self.assertIn(verbose_line_2, help_text_lines[verbose_line_1_index:])
 
 
 def _get_output(command: CommandType, args: list[str]) -> tuple[str, str]:

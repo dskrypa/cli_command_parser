@@ -8,6 +8,9 @@ from subprocess import Popen, PIPE
 from unittest import TestCase, TestSuite as _TestSuite, main
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[1].joinpath('examples')
+
+# region Test Setup
+
 WORKERS = 8
 
 try:
@@ -49,6 +52,9 @@ class HashableSuite(_TestSuite):
         return self.__tests == other.__tests
 
 
+# endregion
+
+
 class ExampleScriptTest(TestCase):
     _path: str = None
 
@@ -61,6 +67,10 @@ class ExampleScriptTest(TestCase):
         stdout, stderr = proc.communicate()
         return proc.wait(), stdout, stderr
 
+    def assertLinesStartWith(self, prefix: str, text: str):
+        first_line = text.splitlines()[0]
+        self.assertEqual(prefix, first_line)
+
 
 class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):
     def test_no_args(self):
@@ -71,7 +81,7 @@ class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):
     def test_help(self):
         code, stdout, stderr = self.call_script('-h')
         self.assertEqual(code, 0)
-        self.assertTrue(stdout.startswith('usage: action_with_args.py {echo,split} TEXT [--help]\n'))
+        self.assertLinesStartWith('usage: action_with_args.py {echo,split} TEXT [--help]', stdout)
 
     def test_echo(self):
         code, stdout, stderr = self.call_script('echo', 'test', 'one')
@@ -98,7 +108,8 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_help(self):
         code, stdout, stderr = self.call_script('--help')
         self.assertEqual(code, 0)
-        self.assertTrue(stdout.startswith('usage: shared_logging_init.py {show} [--help] [--verbose [VERBOSE]]\n'))
+        expected = 'usage: shared_logging_init.py {show} [--verbose [VERBOSE]] [--help]'
+        self.assertLinesStartWith(expected, stdout)
 
     def test_show_no_args(self):
         code, stdout, stderr = self.call_script('show')
@@ -108,9 +119,8 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_show_help(self):
         code, stdout, stderr = self.call_script('show', '--help')
         self.assertEqual(code, 0)
-        self.assertTrue(
-            stdout.startswith('usage: shared_logging_init.py {attrs,hello,log_test} [--help] [--verbose [VERBOSE]]\n')
-        )
+        expected = 'usage: shared_logging_init.py {attrs,hello,log_test} [--verbose [VERBOSE]] [--help]'
+        self.assertLinesStartWith(expected, stdout)
 
     def test_show_attrs(self):
         code, stdout, stderr = self.call_script('show', 'attrs')
