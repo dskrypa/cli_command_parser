@@ -10,9 +10,10 @@ from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageE
 from .formatting import HelpFormatter
 from .parameters import ParameterGroup, Action
 from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
-from .utils import Args, Bool
+from .utils import Bool
 
 if TYPE_CHECKING:
+    from .args import Args
     from .commands import CommandType
 
 __all__ = ['CommandParser']
@@ -156,7 +157,7 @@ class CommandParser:
         options = len(self.options)
         return f'<{self.__class__.__name__}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
-    def contains(self, args: Args, item: str, recursive: Bool = True) -> bool:
+    def contains(self, args: 'Args', item: str, recursive: Bool = True) -> bool:
         if self._contains(args, item):
             return True
         elif recursive and (sub_command := self.sub_command) is not None:
@@ -165,7 +166,7 @@ class CommandParser:
                     return True
         return False
 
-    def _contains(self, args: Args, item: str) -> bool:
+    def _contains(self, args: 'Args', item: str) -> bool:
         """
         :param args: The raw / partially parsed arguments for this parser
         :param item: An option string
@@ -196,7 +197,7 @@ class CommandParser:
             return parent.has_pass_thru()
         return False
 
-    def parse_args(self, args: Args, allow_unknown: Bool = False) -> Optional['CommandType']:
+    def parse_args(self, args: 'Args', allow_unknown: Bool = False) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
         if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{self.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
@@ -220,7 +221,7 @@ class CommandParser:
 class _Parser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    def __init__(self, cmd_parser: CommandParser, args: Args):
+    def __init__(self, cmd_parser: CommandParser, args: 'Args'):
         self.cmd_parser = cmd_parser
         self.long_options = cmd_parser.long_options
         self.short_options = cmd_parser.short_options

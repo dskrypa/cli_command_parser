@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option, CommandConfig, BaseCommand
 from command_parser.exceptions import CommandDefinitionError
-from command_parser.utils import Args
+from command_parser.args import Args
 from command_parser.error_handling import no_exit_handler, error_handler
 
 

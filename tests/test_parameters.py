@@ -15,7 +15,7 @@ from command_parser.exceptions import (
     BadArgument,
 )
 from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand
-from command_parser.utils import Args
+from command_parser.args import Args
 
 log = logging.getLogger(__name__)
 

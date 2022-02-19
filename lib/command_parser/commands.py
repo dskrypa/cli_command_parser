@@ -10,12 +10,13 @@ from dataclasses import asdict
 from typing import Type, TypeVar, Sequence, Optional, Union
 from warnings import warn
 
+from .args import Args
 from .config import CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler, error_handler as _error_handler
 from .exceptions import ParserExit, CommandDefinitionError, ParamConflict
 from .parameters import action_flag
 from .parser import CommandParser
-from .utils import _NotSet, Args, Bool, ProgramMetadata, classproperty
+from .utils import _NotSet, Bool, ProgramMetadata, classproperty
 
 __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)

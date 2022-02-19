@@ -14,9 +14,10 @@ from types import MethodType
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, UsageError, ParamConflict
 from .nargs import Nargs, NargsValue
-from .utils import _NotSet, Args, Bool, validate_positional, camel_to_snake_case, format_help_entry
+from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, format_help_entry
 
 if TYPE_CHECKING:
+    from .args import Args
     from .commands import BaseCommand, CommandType
 
 __all__ = [
@@ -371,7 +372,7 @@ class Parameter(ParamBase):
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def take_action(self, args: Args, value: Optional[str]):
+    def take_action(self, args: 'Args', value: Optional[str]):
         # log.debug(f'{self!r}.take_action({value!r})')
         if (action := self.action) == 'store' and args[self] is not _NotSet:
             raise ParamUsageError(self, f'received {value=} but a stored value={args[self]!r} already exists')
@@ -393,7 +394,7 @@ class Parameter(ParamBase):
             normalized = self.prepare_value(value) if value is not None else value
             return action_method(args, normalized)
 
-    def would_accept(self, args: Args, value: str) -> bool:
+    def would_accept(self, args: 'Args', value: str) -> bool:
         if (action := self.action) in {'store', 'store_all'} and args[self] is not _NotSet:
             return False
         elif action == 'append':
@@ -419,7 +420,7 @@ class Parameter(ParamBase):
         except Exception as e:
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
-    def is_valid_arg(self, args: Args, value: Any) -> bool:
+    def is_valid_arg(self, args: 'Args', value: Any) -> bool:
         if choices := self.choices:
             return value in choices
         elif isinstance(value, str) and value.startswith('-'):
@@ -429,7 +430,7 @@ class Parameter(ParamBase):
         else:
             return self.accepts_values
 
-    def result(self, args: Args) -> Any:
+    def result(self, args: 'Args') -> Any:
         value = args[self]
         if value is _NotSet:
             if self.required:
@@ -481,7 +482,7 @@ class PassThru(Parameter):
     def __init__(self, action: str = 'store_all', **kwargs):
         super().__init__(action=action, **kwargs)
 
-    def take_action(self, args: Args, values: Collection[str]):
+    def take_action(self, args: 'Args', values: Collection[str]):
         value = args[self]
         if value is not _NotSet:
             raise ParamUsageError(self, f'received {values=} but a stored {value=} already exists')
@@ -492,7 +493,7 @@ class PassThru(Parameter):
         return action_method(args, normalized)
 
     @parameter_action
-    def store_all(self, args: Args, values: Collection[str]):
+    def store_all(self, args: 'Args', values: Collection[str]):
         args[self] = values
 
 
@@ -529,11 +530,11 @@ class Positional(BasePositional):
             self._init_value_factory = list
 
     @parameter_action
-    def store(self, args: Args, value: Any):
+    def store(self, args: 'Args', value: Any):
         args[self] = value
 
     @parameter_action
-    def append(self, args: Args, value: Any):
+    def append(self, args: 'Args', value: Any):
         args[self].append(value)
 
 
@@ -599,7 +600,7 @@ class ChoiceMap(BasePositional):
             raise CommandDefinitionError(f'Invalid {choice=} for {target=} - already assigned to {existing}')
 
     @parameter_action
-    def append(self, args: Args, value: str):
+    def append(self, args: 'Args', value: str):
         values = value.split()
         if not self.is_valid_arg(args, ' '.join(values)):
             raise InvalidChoice(self, value, self.choices)
@@ -609,7 +610,7 @@ class ChoiceMap(BasePositional):
         args.record_action(self, n_values - 1)  # - 1 because it was already called before dispatching to this method
         return n_values
 
-    def is_valid_arg(self, args: Args, value: str) -> bool:
+    def is_valid_arg(self, args: 'Args', value: str) -> bool:
         values = args[self].copy()
         values.append(value)
         if choices := self.choices:
@@ -623,7 +624,7 @@ class ChoiceMap(BasePositional):
         else:
             return not value.startswith('-')
 
-    def result(self, args: Args):
+    def result(self, args: 'Args'):
         if not (choices := self.choices):
             raise CommandDefinitionError(f'No choices were registered for {self}')
         elif not (values := args[self]):
@@ -821,11 +822,11 @@ class Option(BaseOption):
             self._init_value_factory = list
 
     @parameter_action
-    def store(self, args: Args, value: Any):
+    def store(self, args: 'Args', value: Any):
         args[self] = value
 
     @parameter_action
-    def append(self, args: Args, value: Any):
+    def append(self, args: 'Args', value: Any):
         args[self].append(value)
 
 
@@ -849,17 +850,17 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
             return []
 
     @parameter_action
-    def store_const(self, args: Args):
+    def store_const(self, args: 'Args'):
         args[self] = self.const
 
     @parameter_action
-    def append_const(self, args: Args):
+    def append_const(self, args: 'Args'):
         args[self].append(self.const)
 
-    def would_accept(self, args: Args, value: Optional[str]) -> bool:
+    def would_accept(self, args: 'Args', value: Optional[str]) -> bool:
         return value is None
 
-    def result(self, args: Args) -> Any:
+    def result(self, args: 'Args') -> Any:
         return args[self]
 
 
@@ -913,7 +914,7 @@ class ActionFlag(Flag):
             return self
         return partial(self.func, command)
 
-    def result(self, args: Args) -> Optional[Callable]:
+    def result(self, args: 'Args') -> Optional[Callable]:
         if super().result(args):
             if func := self.func:
                 return func
@@ -951,12 +952,12 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
             raise BadArgument(self, f'bad counter {value=}') from e
 
     @parameter_action
-    def append(self, args: Args, value: Optional[int]):
+    def append(self, args: 'Args', value: Optional[int]):
         if value is None:
             value = self.const
         args[self] += value
 
-    def is_valid_arg(self, args: Args, value: Any) -> bool:
+    def is_valid_arg(self, args: 'Args', value: Any) -> bool:
         if value is None or isinstance(value, self.type):
             return True
         try:
@@ -966,7 +967,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         else:
             return True
 
-    def result(self, args: Args) -> int:
+    def result(self, args: 'Args') -> int:
         return args[self]
 
 

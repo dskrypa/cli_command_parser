@@ -2,7 +2,8 @@
 
 from unittest import TestCase, main
 
-from command_parser.utils import camel_to_snake_case, Args
+from command_parser.args import Args
+from command_parser.utils import camel_to_snake_case
 
 
 class UtilsTest(TestCase):
@@ -16,8 +17,6 @@ class UtilsTest(TestCase):
 
 
 if __name__ == '__main__':
-    # import logging
-    # logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     try:
         main(warnings='ignore', verbosity=2, exit=False)
     except KeyboardInterrupt:
