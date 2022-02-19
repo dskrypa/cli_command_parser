@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.19-2 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.19-3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,13 +84,14 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
-<span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span><span class="p">,</span> <span class="n">error_handler</span> <span class="k">as</span> <span class="n">_error_handler</span>
+<span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span><span class="p">,</span> <span class="n">error_handler</span> <span class="k">as</span> <span class="n">_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParserExit</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
-<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">action_flag</span>
+<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">action_flag</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">classproperty</span>
 
@@ -117,7 +118,7 @@
     <span class="n">__command_config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1"># Configured Command options</span>
     <span class="n">__meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="kc">None</span>                      <span class="c1"># Metadata used in help text</span>
     <span class="n">__parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>            <span class="c1"># The CommandParser used by this command</span>
-    <span class="n">__error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>   <span class="c1"># The ExceptionHandler to wrap main()</span>
+    <span class="n">__error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>   <span class="c1"># The ErrorHandler to wrap main()</span>
     <span class="n">__abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>                             <span class="c1"># False if viable for containing sub commands</span>
     <span class="c1"># fmt: on</span>
 
@@ -154,6 +155,8 @@
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot combine </span><span class="si">{</span><span class="n">config</span><span class="si">=}</span><span class="s1"> with keyword config arguments=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="k">elif</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">abstract</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Inherit existing configs and override specified values</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span><span class="p">)</span> <span class="o">|</span> <span class="n">kwargs</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span> <span class="o">=</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="kc">None</span>
@@ -180,6 +183,15 @@
 <div class="viewcode-block" id="BaseCommand.command_config"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.command_config">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">command_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__get_error_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">error_handler</span> <span class="o">:=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span><span class="p">)</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_error_handler</span>
+        <span class="k">elif</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">NullErrorHandler</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">error_handler</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Args</span><span class="p">):</span>
         <span class="c1"># By storing the parsed Args here instead of __init__, every single sub class won&#39;t need to</span>
@@ -211,11 +223,7 @@
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.run`</span>
 <span class="sd">        :return: The Command instance with parsed arguments for which :meth:`.run` was already called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">error_handler</span> <span class="o">=</span> <span class="n">_error_handler</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__error_handler</span>
-        <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">error_handler</span><span class="p">:</span>
-                <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__get_error_handler</span><span class="p">():</span>
             <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -244,50 +252,81 @@
 
         <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseCommand.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseCommand.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Primary entry point for running a command.  Calls :meth:`.main` and handles exceptions using the configured</span>
-<span class="sd">        :class:`ErrorHandler&lt;command_parser.error_handling.ErrorHandler&gt;`.  Alternate error handlers can be specified</span>
-<span class="sd">        during :meth:`Command class initialization&lt;BaseCommand.__init_subclass__&gt;`.  To skip error handling, call</span>
-<span class="sd">        :meth:`.main` directly or define the class with ``error_handler=None``.</span>
+<span class="sd">        Primary entry point for running a command.  Subclasses generally should not override this method.</span>
 
-<span class="sd">        :param args: Positional arguments to pass to :meth:`.main`</span>
-<span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.main`</span>
+<span class="sd">        Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can</span>
+<span class="sd">        be specified during :meth:`Command class initialization&lt;BaseCommand.__init_subclass__&gt;`.  To skip error</span>
+<span class="sd">        handling, define the class with ``error_handler=None``.</span>
+
+<span class="sd">        Calls 3 methods in order: :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`.</span>
+
+<span class="sd">        :param args: Positional arguments to pass to :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`</span>
+<span class="sd">        :return: The total number of actions that were taken</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">error_handler</span> <span class="o">=</span> <span class="n">_error_handler</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__error_handler</span>
-        <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">error_handler</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_error_handler</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">before_main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">after_main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BaseCommand.main"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">actions_taken</span></div>
+
+<div class="viewcode-block" id="BaseCommand.before_main"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.before_main">[docs]</a>    <span class="k">def</span> <span class="nf">before_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        If any arguments were specified that are associated with triggering an action method, then that method is called</span>
-<span class="sd">        here.  Subclasses can override this method if they have only one action, if they need to override the action</span>
-<span class="sd">        handling logic here, or if they have code that should run based on whether an action was executed or not.</span>
+<span class="sd">        Called by :meth:`.run` before :meth:`.main` is called.  Validates the number of ActionFlags that were specified,</span>
+<span class="sd">        and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions</span>
+<span class="sd">        that were defined with ``before_main=True`` in their configured order.</span>
 
-<span class="sd">        Initialization code that is common for all actions should be placed in ``__init__`` instead of overriding main.</span>
+<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span>
+        <span class="n">action_flags</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">action_flags</span>
+        <span class="k">if</span> <span class="n">action_flags</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command_config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">action_flags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">action_flags</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parsed</span><span class="o">.</span><span class="n">before_main_actions</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseCommand.main"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Primary</span>
+
+<span class="sd">        If any arguments were specified that are associated with triggering a method that was decorated / registered as</span>
+<span class="sd">        a positional :class:`~.parameters.Action`&#39;s target method, then that method is called here.</span>
+
+<span class="sd">        Commands that do not have any :class:`~.parameters.Action`s can override this method, and do **not** need</span>
+<span class="sd">        to call ``super().main(*args, **kwargs)``.</span>
+
+<span class="sd">        Initialization code that is common for all actions, or that should be run before :meth:`.before_main` should be</span>
+<span class="sd">        placed in ``__init__``.</span>
 
 <span class="sd">        :param args: Positional arguments to pass to the action method</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the action method</span>
-<span class="sd">        :return: The number of actions that were taken</span>
+<span class="sd">        :return: The total number of actions that were taken so far</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command_config</span>
-        <span class="k">if</span> <span class="n">action_flags</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">ActionFlag</span><span class="p">):</span>  <span class="c1"># this will contain only the ones that were specified</span>
-            <span class="c1"># TODO: Before/after main actions; maybe move this logic to run instead of main?</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">action_flags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">action_flags</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">action_flags</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">action</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">action</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">action</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command_config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">):</span>
+            <span class="c1"># TODO: Error on action when config.action_after_action_flags is False?</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">action</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">return</span> <span class="n">i</span></div></div>
+        <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span></div>
+
+<div class="viewcode-block" id="BaseCommand.after_main"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.BaseCommand.after_main">[docs]</a>    <span class="k">def</span> <span class="nf">after_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by :meth:`.run` after :meth:`.main` is called.  Calls all of the specified</span>
+<span class="sd">        :obj:`~.parameters.after_main` / :obj:`~.parameters.action_flag` actions that were defined with</span>
+<span class="sd">        ``before_main=False`` in their configured order.</span>
+
+<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">after_main_actions</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">,</span> <span class="n">error_handler</span><span class="o">=</span><span class="n">extended_error_handler</span><span class="p">,</span> <span class="n">abstract</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -301,9 +340,9 @@
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">())</span>
         <span class="k">raise</span> <span class="n">ParserExit</span></div>
 
-<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">close_stdout</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">close_stdout</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">close_stdout</span><span class="p">:</span>  <span class="c1"># TODO: Verify whether this is ever needed anymore</span>
                 <span class="sd">&quot;&quot;&quot;</span>
