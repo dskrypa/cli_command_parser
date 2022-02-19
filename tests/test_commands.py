@@ -5,10 +5,10 @@ from dataclasses import asdict
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option, CommandConfig, BaseCommand
-from command_parser.exceptions import CommandDefinitionError
-from command_parser.args import Args
+from command_parser import Command, BaseCommand, CommandConfig
 from command_parser.error_handling import no_exit_handler, error_handler
+from command_parser.exceptions import CommandDefinitionError
+from command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag, Option
 
 
 class TestCommands(TestCase):
@@ -89,20 +89,6 @@ class TestCommands(TestCase):
 
         with self.assertRaises(CommandDefinitionError):
             Foo.parser  # noqa
-
-    def test_stdout_close(self):
-        mock = Mock(close=Mock())
-        with redirect_stdout(mock):
-            Command(Args([])).run(close_stdout=True)
-
-        self.assertTrue(mock.close.called)
-
-    def test_stdout_close_error(self):
-        mock = Mock(close=Mock(side_effect=ValueError))
-        with redirect_stdout(mock):
-            Command(Args([])).run(close_stdout=True)
-
-        self.assertTrue(mock.close.called)
 
     def test_choice_with_no_parent_warns(self):
         with self.assertWarnsRegex(Warning, 'because it has no parent Command'):

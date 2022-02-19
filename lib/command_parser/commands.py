@@ -262,18 +262,3 @@ class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
     def help(self):
         print(self.parser.formatter.format_help())
         raise ParserExit
-
-    def run(self, *args, close_stdout: Bool = False, **kwargs) -> int:
-        try:
-            return super().run(*args, **kwargs)
-        finally:
-            if close_stdout:  # TODO: Verify whether this is ever needed anymore
-                """
-                Prevent the following when piping output to utilities such as ``| head``:
-                    Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
-                    OSError: [Errno 22] Invalid argument
-                """
-                try:
-                    sys.stdout.close()
-                except Exception:
-                    pass

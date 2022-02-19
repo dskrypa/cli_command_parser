@@ -13,6 +13,14 @@ __all__ = ['Args']
 
 
 class Args:
+    """
+    Stores the raw and parsed arguments.
+
+    Keeps track of the actions that were taken before/during/after :meth:`~.commands.BaseCommand.main`
+
+    :param args: The arguments that should be parsed (default: :data:`sys.argv`)
+    """
+
     def __init__(self, args: Optional[Sequence[str]]):
         self.raw = sys.argv[1:] if args is None else args
         self.remaining = self.raw

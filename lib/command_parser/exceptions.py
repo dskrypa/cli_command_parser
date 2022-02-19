@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Collection
 if TYPE_CHECKING:
     from .parameters import Parameter
 
-# TODO: Cleanup and make usage consistent
 __all__ = [
     'CommandParserException',
     'CommandDefinitionError',
@@ -21,14 +20,14 @@ __all__ = [
     'InvalidChoice',
     'MissingArgument',
     'NoSuchOption',
-    'BadArgumentUsage',
-    'BadOptionUsage',
     'ParserExit',
     'ParamConflict',
 ]
 
 
 class CommandParserException(Exception):
+    """Base class for all other Command Parser exceptions"""
+
     code: int = 2
 
     def show(self):
@@ -111,12 +110,4 @@ class MissingArgument(BadArgument):
 
 
 class NoSuchOption(UsageError):
-    pass
-
-
-class BadArgumentUsage(ParamUsageError):
-    pass
-
-
-class BadOptionUsage(BadArgumentUsage):
     pass

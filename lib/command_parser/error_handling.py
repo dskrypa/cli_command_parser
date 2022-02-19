@@ -94,20 +94,29 @@ no_exit_handler(CommandParserException)(CommandParserException.show)
 
 extended_error_handler = error_handler.copy()
 
-if WINDOWS or (sys.argv and sys.argv[0].lower().endswith('pytest')):
+if WINDOWS:
+    import ctypes
+
+    RtlGetLastNtStatus = ctypes.WinDLL('ntdll').RtlGetLastNtStatus
+    RtlGetLastNtStatus.restype = ctypes.c_ulong
+    NT_STATUSES = {0xC000_00B1: 'STATUS_PIPE_CLOSING', 0xC000_014B: 'STATUS_PIPE_BROKEN'}
 
     @extended_error_handler(OSError)
     def _handle_os_error(e: OSError):
-        if e.errno == 22:
-            # When using |head, the pipe will be closed when head is done, but Python will still think that it
-            # is open - checking whether sys.stdout is writable or closed doesn't work, so triggering the
-            # error again seems to be the most reliable way to detect this (hopefully) without false positives
+        """
+        This is a workaround for `issue35754 <https://bugs.python.org/issue35754>`_, which is a bug in the way that the
+        windows error code for a broken pipe is translated into an errno value.  It should be translated to
+        :data:`~errno.EPIPE`, but it uses :data:`~errno.EINVAL` (22) instead.
+
+        Prevents the following when piping output to utilities such as ``| head``:
+            Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
+            OSError: [Errno 22] Invalid argument
+        """
+        if e.errno == 22 and RtlGetLastNtStatus() in NT_STATUSES:
             try:
-                sys.stdout.write('\n')
-                sys.stdout.flush()
+                sys.stdout.close()
             except OSError:
-                return None
-            else:
-                return False  # If it wasn't the expected error, let the main Exception handler handle it
-        else:
-            return False
+                pass
+            return True
+
+        return False
