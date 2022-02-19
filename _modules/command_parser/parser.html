@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parser &mdash; Command Parser 2022.02.19-5 documentation</title>
+  <title>command_parser.parser &mdash; Command Parser 2022.02.19-7 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -89,9 +89,10 @@
 <span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpFormatter</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ParameterGroup</span><span class="p">,</span> <span class="n">Action</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">BasePositional</span> <span class="k">as</span> <span class="n">_Positional</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.args</span> <span class="kn">import</span> <span class="n">Args</span>
     <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">CommandType</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandParser&#39;</span><span class="p">]</span>
@@ -235,7 +236,7 @@
         <span class="n">options</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">positionals</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">options</span><span class="si">=}</span><span class="s1">]&gt;&#39;</span>
 
-<div class="viewcode-block" id="CommandParser.contains"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Args</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandParser.contains"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="n">recursive</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -244,7 +245,7 @@
                     <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="nf">_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Args</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param args: The raw / partially parsed arguments for this parser</span>
 <span class="sd">        :param item: An option string</span>
@@ -275,7 +276,7 @@
             <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">has_pass_thru</span><span class="p">()</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
+<div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
         <span class="c1"># log.debug(f&#39;{self!r}.parse_args({args=}, {allow_unknown=})&#39;)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd_param</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">sub_cmd_param</span><span class="si">}</span><span class="s1"> has no sub Commands&#39;</span><span class="p">)</span>
@@ -299,7 +300,7 @@
 <span class="k">class</span> <span class="nc">_Parser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Stateful parser used for a single pass of argument parsing&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_parser</span><span class="p">:</span> <span class="n">CommandParser</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_parser</span><span class="p">:</span> <span class="n">CommandParser</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cmd_parser</span> <span class="o">=</span> <span class="n">cmd_parser</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">long_options</span> <span class="o">=</span> <span class="n">cmd_parser</span><span class="o">.</span><span class="n">long_options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span> <span class="o">=</span> <span class="n">cmd_parser</span><span class="o">.</span><span class="n">short_options</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.19-5 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.19-7 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -89,12 +89,13 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
+<span class="kn">from</span> <span class="nn">.args</span> <span class="kn">import</span> <span class="n">Args</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span><span class="p">,</span> <span class="n">error_handler</span> <span class="k">as</span> <span class="n">_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParserExit</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">action_flag</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Args</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">classproperty</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">classproperty</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BaseCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>

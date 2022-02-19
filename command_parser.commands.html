@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commands Module &mdash; Command Parser 2022.02.19-5 documentation</title>
+  <title>Commands Module &mdash; Command Parser 2022.02.19-7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -88,14 +88,14 @@
 </dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="command_parser.commands.BaseCommand">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">command_parser.commands.</span></span><span class="sig-name descname"><span class="pre">BaseCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="command_parser.utils.html#command_parser.utils.Args" title="command_parser.utils.Args"><span class="pre">Args</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">command_parser.commands.</span></span><span class="sig-name descname"><span class="pre">BaseCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/commands.html#BaseCommand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.BaseCommand" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Base class for Commands that provides all of the core functionality.  It is generally recommended to extend
 <a class="reference internal" href="#command_parser.commands.Command" title="command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> instead unless you need to omit/re-define the <code class="docutils literal notranslate"><span class="pre">--help</span></code> action or any other behavior that strays
 from the core functionality.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="command_parser.commands.BaseCommand.args">
-<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="command_parser.utils.html#command_parser.utils.Args" title="command_parser.utils.Args"><span class="pre">command_parser.utils.Args</span></a></em><a class="headerlink" href="#command_parser.commands.BaseCommand.args" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">command_parser.args.Args</span></em><a class="headerlink" href="#command_parser.commands.BaseCommand.args" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -251,7 +251,7 @@ placed in <code class="docutils literal notranslate"><span class="pre">__init__<
 
 <dl class="py class">
 <dt class="sig sig-object py" id="command_parser.commands.Command">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">command_parser.commands.</span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="command_parser.utils.html#command_parser.utils.Args" title="command_parser.utils.Args"><span class="pre">Args</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/commands.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.Command" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">command_parser.commands.</span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/command_parser/commands.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.Command" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#command_parser.commands.BaseCommand" title="command_parser.commands.BaseCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></a></p>
 <p>The main class that other Commands should extend.  Provides the <code class="docutils literal notranslate"><span class="pre">--help</span></code> action and handles more Exceptions by
 default, compared to <a class="reference internal" href="#command_parser.commands.BaseCommand" title="command_parser.commands.BaseCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCommand</span></code></a>.</p>
