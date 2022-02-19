@@ -6,9 +6,17 @@ import logging
 from collections import deque, defaultdict
 from typing import TYPE_CHECKING, Optional
 
-from .exceptions import CommandDefinitionError, ParameterDefinitionError, UsageError, NoSuchOption, MissingArgument
+from .actions import help_action
+from .exceptions import (
+    CommandDefinitionError,
+    ParameterDefinitionError,
+    UsageError,
+    NoSuchOption,
+    MissingArgument,
+    ParamsMissing,
+)
 from .formatting import HelpFormatter
-from .parameters import ParameterGroup, Action
+from .parameters import ParameterGroup, Action, ChoiceMap
 from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
 from .utils import Bool
 
@@ -197,6 +205,15 @@ class CommandParser:
             return parent.has_pass_thru()
         return False
 
+    def _get_missing(self, args: 'Args') -> list['Parameter']:
+        missing_pos: list['Parameter'] = [
+            p
+            for p in self.positionals
+            if p.group is None and args.num_provided(p) == 0 and not isinstance(p, SubCommand)
+        ]
+        missing_opt = [p for p in self.options if p.required and p.group is None and args.num_provided(p) == 0]
+        return missing_pos + missing_opt
+
     def parse_args(self, args: 'Args', allow_unknown: Bool = False) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
         if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.choices:
@@ -204,14 +221,24 @@ class CommandParser:
 
         _Parser(self, args).parse_args()
         for group in self.groups:
-            group.check_conflicts(args)
+            group.validate(args)
 
         if (sub_command := self.sub_command) is not None:
             try:
-                return sub_command.result(args)
+                next_cmd = sub_command.result(args)  # type: CommandType
             except UsageError:
-                if not args.find_all(ActionFlag):  # propagate if --help or similar was not found
+                if help_action not in args:
                     raise
+            else:
+                if (missing := self._get_missing(args)) and next_cmd.parser.parent is not self.command:
+                    if help_action in args:
+                        return None
+                    raise ParamsMissing(missing)
+                return next_cmd
+        elif (missing := self._get_missing(args)) and (not self.action or self.action not in missing):
+            # The action is excluded because it provides a better error message
+            if help_action not in args:
+                raise ParamsMissing(missing)
         elif args.remaining and not allow_unknown:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(args.remaining)))
 

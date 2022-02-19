@@ -8,7 +8,14 @@ from unittest.mock import Mock, patch
 
 import command_parser.error_handling
 from command_parser.error_handling import ErrorHandler
-from command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice, ParamConflict
+from command_parser.exceptions import (
+    CommandParserException,
+    ParserExit,
+    ParamUsageError,
+    InvalidChoice,
+    ParamConflict,
+    ParamsMissing,
+)
 from command_parser.parameters import Flag
 
 
@@ -77,6 +84,14 @@ class ExceptionTest(TestCase):
     def test_conflict_no_message(self):
         exc = ParamConflict([Flag('-t')])
         self.assertNotIn('(', str(exc))
+
+    def test_params_missing_no_message(self):
+        exc = ParamsMissing([Flag('-t')])
+        self.assertNotIn('(', str(exc))
+
+    def test_params_missing_message(self):
+        exc = ParamsMissing([Flag('-a'), Flag('-b')], 'test')
+        self.assertTrue(str(exc).endswith('-a, -b (test)'))
 
 
 with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', create=True):

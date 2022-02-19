@@ -38,6 +38,21 @@ class Args:
     def num_provided(self, param: 'ParamOrGroup') -> int:
         return self._provided[param]
 
+    def __contains__(self, param: Union['ParamOrGroup', str, Any]) -> bool:
+        try:
+            self._parsed[param]
+        except KeyError:
+            if isinstance(param, str):
+                try:
+                    next((v for p, v in self._parsed.items() if p.name == param))
+                except StopIteration:
+                    return False
+                else:
+                    return True
+            return False
+        else:
+            return True
+
     def __getitem__(self, param: Union['Parameter', str]):
         try:
             return self._parsed[param]

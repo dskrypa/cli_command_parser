@@ -8,7 +8,7 @@ import sys
 from typing import TYPE_CHECKING, Any, Collection
 
 if TYPE_CHECKING:
-    from .parameters import Parameter
+    from .parameters import Parameter, ParamOrGroup
 
 __all__ = [
     'CommandParserException',
@@ -22,6 +22,7 @@ __all__ = [
     'NoSuchOption',
     'ParserExit',
     'ParamConflict',
+    'ParamsMissing',
 ]
 
 
@@ -63,7 +64,7 @@ class UsageError(CommandParserException):
 class ParamUsageError(UsageError):
     message: str = None
 
-    def __init__(self, param: 'Parameter', message: str = None):
+    def __init__(self, param: 'ParamOrGroup', message: str = None):
         self.param = param
         if message:
             self.message = message
@@ -80,7 +81,7 @@ class ParamUsageError(UsageError):
 class ParamConflict(UsageError):
     message: str = None
 
-    def __init__(self, params: Collection['Parameter'], message: str = None):
+    def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
         self.params = params
         if message:
             self.message = message
@@ -89,6 +90,24 @@ class ParamConflict(UsageError):
         params_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in self.params)
         message = f' ({self.message})' if self.message else ''
         return f'argument conflict - the following arguments cannot be combined: {params_str}{message}'
+
+
+class ParamsMissing(UsageError):
+    message: str = None
+
+    def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
+        self.params = params
+        if message:
+            self.message = message
+
+    def __str__(self) -> str:
+        params_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in self.params)
+        message = f' ({self.message})' if self.message else ''
+        if len(self.params) > 1:
+            prefix = 'arguments missing - the following arguments are required'
+        else:
+            prefix = 'argument missing - the following argument is required'
+        return f'{prefix}: {params_str}{message}'
 
 
 class BadArgument(ParamUsageError):

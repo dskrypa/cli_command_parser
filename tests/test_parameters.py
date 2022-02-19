@@ -16,6 +16,7 @@ from command_parser.exceptions import (
     ParamUsageError,
     MissingArgument,
     BadArgument,
+    ParamsMissing,
 )
 from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand
 from command_parser.args import Args
@@ -282,6 +283,15 @@ class PassThruTest(TestCase):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['--'])
 
+    def test_parser_has_pass_thru(self):
+        class Foo(Command):
+            pt = PassThru()
+
+        class Bar(Foo):
+            pass
+
+        self.assertTrue((Bar.parser.has_pass_thru()))
+
 
 class MiscParameterTest(TestCase):
     def test_param_knows_command(self):
@@ -365,7 +375,7 @@ class ParserTest(TestCase):
             Foo.parse(['bar'])
 
     def test_pos_after_optional(self):
-        class Foo(Command):
+        class Foo(Command, error_handler=None):
             cmd = Positional(help='The command to perform')
             id = Positional(help='The ID to act upon')
             auth = Option('-a', choices=('a', 'b'), help='Auth mode')
@@ -374,6 +384,12 @@ class ParserTest(TestCase):
         self.assertEqual(foo.cmd, 'foo')
         self.assertEqual(foo.id, 'bar')
         self.assertEqual(foo.auth, 'b')
+        self.assertIn('cmd', foo.args)
+        self.assertIn(Foo.cmd, foo.args)
+        self.assertNotIn('bar', foo.args)
+
+        with self.assertRaises(ParamsMissing):
+            Foo.parse_and_run(['foo', '-a', 'b'])
 
 
 class TypeCastTest(TestCase):

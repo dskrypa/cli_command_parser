@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Uni
 from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from .exceptions import ParamUsageError, UsageError, ParamConflict
+from .exceptions import ParamUsageError, UsageError, ParamConflict, ParamsMissing
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, format_help_entry, get_descriptor_value_type
 
@@ -174,14 +174,24 @@ class ParameterGroup(ParamBase):
                 self.add(param)
 
     def register(self, param: ParamOrGroup):
-        # TODO: Error on adding positional parameters to a mutually exclusive group
+        if self.mutually_exclusive:
+            if isinstance(param, (BasePositional, PassThru)):
+                cls_name = param.__class__.__name__
+                raise CommandDefinitionError(
+                    f'Cannot add {param=} to {self} - {cls_name} parameters cannot be mutually exclusive'
+                )
+            elif isinstance(param, BaseOption) and param.required:
+                raise CommandDefinitionError(
+                    f'Cannot add {param=} to {self} - required parameters cannot be mutually exclusive (but the group'
+                    f' can be required)'
+                )
+
         self.members.append(param)
         param.group = self
 
     def register_all(self, params: Iterable[ParamOrGroup]):
         for param in params:
-            self.members.append(param)
-            param.group = self
+            self.register(param)
 
     def __repr__(self) -> str:
         exclusive, dependent = self.mutually_exclusive, self.mutually_dependent
@@ -247,10 +257,8 @@ class ParameterGroup(ParamBase):
 
         return provided, missing
 
-    def check_conflicts(self, args: 'Args'):
+    def _check_conflicts(self, provided: list[Param], missing: list[Param]):
         # log.debug(f'{self}: Checking group conflicts in {args=}')
-        provided, missing = self._categorize_params(args)
-        args.record_action(self, len(provided))
         if not (self.mutually_dependent or self.mutually_exclusive):
             return
 
@@ -263,6 +271,15 @@ class ParameterGroup(ParamBase):
             raise UsageError(f'When {p_str} {be} provided, then the following must also be provided: {m_str}')
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
             raise ParamConflict(provided, 'they are mutually exclusive - only one is allowed')
+
+    def validate(self, args: 'Args'):
+        provided, missing = self._categorize_params(args)
+        args.record_action(self, len(provided))
+        self._check_conflicts(provided, missing)
+
+        required = self.required or (self.mutually_dependent and any(p.required for p in self.members))
+        if required and not args.num_provided(self):
+            raise ParamsMissing(missing)
 
     @property
     def show_in_help(self) -> bool:

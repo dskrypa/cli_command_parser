@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-import logging
+from contextlib import redirect_stdout
 from unittest import TestCase, main
+from unittest.mock import Mock
 
 from command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
-
-log = logging.getLogger(__name__)
 
 
 class SubCommandTest(TestCase):
@@ -105,6 +104,19 @@ class SubCommandTest(TestCase):
 
         self.assertIn('foo_bar', Foo.sub_cmd.choices)
         self.assertIsInstance(Foo.parse(['foo_bar']), FooBar)
+
+    def test_missing_sub_cmd_but_help(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class FooBar(Foo):
+            pass
+
+        mock = Mock(write=Mock())
+        with redirect_stdout(mock), self.assertRaises(SystemExit):
+            Foo.parse_and_run(['-h'])
+
+        self.assertIn('--help, -h', mock.write.call_args_list[0].args[0])
 
 
 if __name__ == '__main__':
