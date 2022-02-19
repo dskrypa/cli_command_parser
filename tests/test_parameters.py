@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import logging
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import TestCase, main
 from unittest.mock import Mock
 
@@ -18,14 +21,6 @@ from command_parser.parameters import parameter_action, PassThru, Positional, Su
 from command_parser.args import Args
 
 log = logging.getLogger(__name__)
-
-
-class InternalsTest(TestCase):
-    def test_param_knows_command(self):
-        class Foo(Command):
-            foo = Option('-f', choices=('a', 'b'))
-
-        self.assertIs(Foo.foo.command, Foo)
 
 
 class PositionalTest(TestCase):
@@ -289,6 +284,12 @@ class PassThruTest(TestCase):
 
 
 class MiscParameterTest(TestCase):
+    def test_param_knows_command(self):
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
+        self.assertIs(Foo.foo.command, Foo)
+
     def test_unregistered_action_rejected(self):
         with self.assertRaises(ParameterDefinitionError):
             Flag(action='foo')
@@ -362,6 +363,155 @@ class ParserTest(TestCase):
 
         with self.assertRaisesRegex(CommandDefinitionError, 'conflict for command=.* between params'):
             Foo.parse(['bar'])
+
+    def test_pos_after_optional(self):
+        class Foo(Command):
+            cmd = Positional(help='The command to perform')
+            id = Positional(help='The ID to act upon')
+            auth = Option('-a', choices=('a', 'b'), help='Auth mode')
+
+        foo = Foo.parse_and_run(['foo', '-a', 'b', 'bar'])
+        self.assertEqual(foo.cmd, 'foo')
+        self.assertEqual(foo.id, 'bar')
+        self.assertEqual(foo.auth, 'b')
+
+
+class TypeCastTest(TestCase):
+    def test_type_cast_single_1(self):
+        class Foo(Command):
+            num: int = Positional()
+
+        self.assertEqual(5, Foo.parse(['5']).num)
+
+    def test_type_cast_single_2(self):
+        class Foo(Command):
+            num: Optional[int] = Positional()
+
+        self.assertEqual(5, Foo.parse(['5']).num)
+
+    def test_type_cast_single_3(self):
+        class Foo(Command):
+            num: Union[int, str] = Positional()
+
+        self.assertEqual('5', Foo.parse(['5']).num)
+
+    def test_type_cast_single_4(self):
+        class Foo(Command):
+            num: Union[int] = Positional()
+
+        self.assertEqual(5, Foo.parse(['5']).num)
+
+    def test_type_cast_single_5(self):
+        class Foo(Command):
+            num: Union[int, str, None] = Positional()
+
+        self.assertEqual('5', Foo.parse(['5']).num)
+
+    def test_type_cast_single_6(self):
+        class Foo(Command):
+            num: _C = Positional()
+
+        self.assertEqual(_C('5'), Foo.parse(['5']).num)
+
+    def test_type_cast_single_7(self):
+        class Foo(Command):
+            paths: _resolved_path = Positional()  # Not a proper annotation
+
+        self.assertEqual('test_parameters.py', Foo.parse(['test_parameters.py']).paths)
+
+    def test_type_cast_single_8(self):
+        class Foo(Command):
+            paths: Union[_resolved_path] = Positional()  # Not a proper annotation
+
+        self.assertEqual('test_parameters.py', Foo.parse(['test_parameters.py']).paths)
+
+    def test_type_cast_single_9(self):
+        class Foo(Command):
+            paths: Optional[_resolved_path] = Positional()  # Not a proper annotation
+
+        self.assertEqual('test_parameters.py', Foo.parse(['test_parameters.py']).paths)
+
+    def test_type_cast_single_10(self):
+        class Foo(Command):
+            num: Union[str, _C] = Positional()
+
+        self.assertEqual('5', Foo.parse(['5']).num)
+
+    def test_type_cast_multi_1(self):
+        class Foo(Command):
+            num: list[int] = Positional(nargs='+')
+
+        self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
+
+    def test_type_cast_multi_2(self):
+        for wrapper in (Optional, Union):
+            with self.subTest(wrapper=wrapper):
+
+                class Foo(Command):
+                    num: list[wrapper[int]] = Positional(nargs='+')
+
+                self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
+
+    def test_type_cast_multi_3(self):
+        class Foo(Command):
+            num: Optional[list[int]] = Positional(nargs='+')
+
+        self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
+
+    def test_type_cast_multi_4(self):
+        class Foo(Command):
+            num: tuple[int, ...] = Positional(nargs='+')
+
+        self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
+
+    def test_type_cast_multi_generics(self):
+        for generic in (Sequence, Collection, Iterable, Union):
+            with self.subTest(generic=generic):
+
+                class Foo(Command):
+                    num: generic[int] = Positional(nargs='+')  # noqa
+
+                self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
+
+    def test_type_cast_multi_5(self):
+        class Foo(Command):
+            num: list = Positional(nargs='+')
+
+        self.assertListEqual([['1', '2'], ['3']], Foo.parse(['12', '3']).num)
+
+    def test_type_cast_multi_6(self):
+        class Foo(Command):
+            num: list[Union[int, str, None]] = Positional(nargs='+')
+
+        self.assertListEqual(['12', '3'], Foo.parse(['12', '3']).num)
+
+    def test_type_cast_multi_7(self):
+        class Foo(Command):
+            num: tuple[int, str, None] = Positional(nargs='+')
+
+        self.assertListEqual(['12', '3'], Foo.parse(['12', '3']).num)
+
+    def test_type_cast_multi_8(self):
+        class Foo(Command):
+            num: list[_C] = Positional(nargs='+')
+
+        self.assertEqual([_C('1'), _C('2')], Foo.parse(['1', '2']).num)
+
+    def test_type_cast_multi_9(self):
+        class Foo(Command):
+            paths: list[_resolved_path] = Positional(nargs='+')  # Not a proper annotation
+
+        expected = ['test_parameters.py', 'test_commands.py']
+        self.assertEqual(expected, Foo.parse(['test_parameters.py', 'test_commands.py']).paths)
+
+
+def _resolved_path(path):
+    return Path(path).resolve()
+
+
+@dataclass
+class _C:
+    x: str
 
 
 if __name__ == '__main__':

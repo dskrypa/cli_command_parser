@@ -3,9 +3,11 @@
 """
 
 import sys
-from inspect import stack, getsourcefile
+from collections.abc import Collection, Iterable
+from inspect import stack, getsourcefile, isclass
 from pathlib import Path
-from typing import Any, Union, Optional, Type, Callable
+from typing import Any, Union, Optional, Type, Callable, get_type_hints, get_origin, get_args
+from types import NoneType
 from string import whitespace, printable
 
 from .exceptions import ParameterDefinitionError
@@ -137,3 +139,48 @@ def format_help_entry(usage: str, description: Optional[str], width: int = 30, l
         return f'{base}{mid_pad}{description}'
     else:
         return base
+
+
+def get_descriptor_value_type(command_cls, attr: str):
+    try:
+        annotation = get_type_hints(command_cls)[attr]
+    except KeyError:
+        return None
+
+    if (origin := get_origin(annotation)) is None and isinstance(annotation, type):
+        return annotation
+    elif isclass(origin) and issubclass(origin, (Collection, Iterable)):
+        return _type_from_collection(origin, annotation)
+    elif origin is Union:
+        return _type_from_union(annotation)
+    return None
+
+
+def _type_from_union(annotation):
+    args = get_args(annotation)
+    # Note: Unions of a single argument return the argument; i.e., Union[T] returns T, so the len can never be 1
+    if len(args) == 2 and NoneType in args:
+        arg = args[0] if args[1] is NoneType else args[1]
+    else:
+        return None
+
+    if (origin := get_origin(arg)) is None and isinstance(arg, type):
+        return arg
+    elif isclass(origin) and issubclass(origin, (Collection, Iterable)):
+        return _type_from_collection(origin, arg)
+    else:
+        return None
+
+
+def _type_from_collection(origin, annotation):
+    args = get_args(annotation)
+    if not (len(args) == 2 and origin is tuple and args[1] is Ellipsis) and len(args) != 1:
+        return None
+
+    annotation = args[0]
+    if (origin := get_origin(annotation)) is None and isinstance(annotation, type):
+        return annotation
+    elif origin is Union:
+        return _type_from_union(annotation)
+    else:
+        return None

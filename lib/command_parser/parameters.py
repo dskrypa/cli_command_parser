@@ -14,7 +14,7 @@ from types import MethodType
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, UsageError, ParamConflict
 from .nargs import Nargs, NargsValue
-from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, format_help_entry
+from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, format_help_entry, get_descriptor_value_type
 
 if TYPE_CHECKING:
     from .args import Args
@@ -363,6 +363,11 @@ class Parameter(ParamBase):
             if (v := getattr(self, a, None)) not in (None, _NotSet) and not (a == 'hide' and not v)
         )
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
+
+    def __set_name__(self, command: 'CommandType', name: str):
+        super().__set_name__(command, name)
+        if self.type is None and (annotated_type := get_descriptor_value_type(command, name)) is not None:
+            self.type = annotated_type
 
     def __get__(self, command: 'Command', owner: 'CommandType'):
         if command is None:
