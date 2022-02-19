@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parser &mdash; Command Parser 2022.02.19-9 documentation</title>
+  <title>command_parser.parser &mdash; Command Parser 2022.02.19-10 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -147,7 +147,7 @@
         <span class="n">short_combinable</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">short_combinable</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">var_nargs_pos_param</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;__&#39;</span><span class="p">,</span> <span class="s1">&#39;_BaseCommand__&#39;</span><span class="p">,</span> <span class="s1">&#39;_Command__&#39;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">_Positional</span><span class="p">):</span>
                 <span class="n">var_nargs_pos_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_positional</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">var_nargs_pos_param</span><span class="p">)</span>

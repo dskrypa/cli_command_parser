@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.formatting &mdash; Command Parser 2022.02.19-9 documentation</title>
+  <title>command_parser.formatting &mdash; Command Parser 2022.02.19-10 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -113,7 +113,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HelpFormatter.format_usage"><a class="viewcode-back" href="../../command_parser.formatting.html#command_parser.formatting.HelpFormatter.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">_BaseCommand__meta</span>
+        <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">_Command__meta</span>
         <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="n">meta</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">usage</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;usage:&#39;</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">prog</span><span class="p">]</span>
@@ -126,7 +126,7 @@
 <div class="viewcode-block" id="HelpFormatter.format_help"><a class="viewcode-back" href="../../command_parser.formatting.html#command_parser.formatting.HelpFormatter.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">add_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">):</span>
-        <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">_BaseCommand__meta</span>
+        <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">_Command__meta</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">description</span> <span class="o">:=</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
             <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="n">description</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parameters &mdash; Command Parser 2022.02.19-9 documentation</title>
+  <title>command_parser.parameters &mdash; Command Parser 2022.02.19-10 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -97,7 +97,7 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.args</span> <span class="kn">import</span> <span class="n">Args</span>
-    <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">BaseCommand</span><span class="p">,</span> <span class="n">CommandType</span>
+    <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">CommandType</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span>
@@ -443,10 +443,10 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1">, </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">)&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;BaseCommand&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">_BaseCommand__args</span><span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">_Command__args</span><span class="p">)</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># Skip __get__ on subsequent accesses</span>
         <span class="k">return</span> <span class="n">value</span>
@@ -754,11 +754,11 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">command_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">],</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`BaseCommand` as the</span>
+<span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`Command` as the</span>
 <span class="sd">        subcommand class to be used for further parsing when the given choice is specified for this parameter.</span>
 
 <span class="sd">        This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent</span>
-<span class="sd">        Command, it is automatically registered as a subcommand during BaseCommand subclass initialization.</span>
+<span class="sd">        Command, it is automatically registered as a subcommand during Command subclass initialization.</span>
 
 <span class="sd">        :param command_or_choice: When not called explicitly, this will be Command class that will be wrapped.  When</span>
 <span class="sd">          called to provide arguments, the ``choice`` value for the positional parameter that determines which</span>
@@ -987,7 +987,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;BaseCommand&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
         <span class="c1"># Allow the method to be called, regardless of whether it was specified</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
