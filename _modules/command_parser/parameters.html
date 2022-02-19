@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parameters &mdash; Command Parser 2022.02.19-12 documentation</title>
+  <title>command_parser.parameters &mdash; Command Parser 2022.02.19-14 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -91,7 +91,7 @@
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
 
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">CommandDefinitionError</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">ParamConflict</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParamsMissing</span>
 <span class="kn">from</span> <span class="nn">.nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">validate_positional</span><span class="p">,</span> <span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">format_help_entry</span><span class="p">,</span> <span class="n">get_descriptor_value_type</span>
 
@@ -253,14 +253,24 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParameterGroup.register"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParameterGroup.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
-        <span class="c1"># TODO: Error on adding positional parameters to a mutually exclusive group</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">BasePositional</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">)):</span>
+                <span class="n">cls_name</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Cannot add </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> to </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s1"> parameters cannot be mutually exclusive&#39;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Cannot add </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> to </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> - required parameters cannot be mutually exclusive (but the group&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; can be required)&#39;</span>
+                <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
         <span class="n">param</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="ParameterGroup.register_all"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParameterGroup.register_all">[docs]</a>    <span class="k">def</span> <span class="nf">register_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]):</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">self</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">exclusive</span><span class="p">,</span> <span class="n">dependent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span>
@@ -326,10 +336,8 @@
 
         <span class="k">return</span> <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span>
 
-<div class="viewcode-block" id="ParameterGroup.check_conflicts"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParameterGroup.check_conflicts">[docs]</a>    <span class="k">def</span> <span class="nf">check_conflicts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_conflicts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provided</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Param</span><span class="p">],</span> <span class="n">missing</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Param</span><span class="p">]):</span>
         <span class="c1"># log.debug(f&#39;{self}: Checking group conflicts in {args=}&#39;)</span>
-        <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categorize_params</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">):</span>
             <span class="k">return</span>
 
@@ -341,7 +349,16 @@
             <span class="n">be</span> <span class="o">=</span> <span class="s1">&#39;is&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;are&#39;</span>
             <span class="k">raise</span> <span class="n">UsageError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;When </span><span class="si">{</span><span class="n">p_str</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">be</span><span class="si">}</span><span class="s1"> provided, then the following must also be provided: </span><span class="si">{</span><span class="n">m_str</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="ow">and</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="s1">&#39;they are mutually exclusive - only one is allowed&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="s1">&#39;they are mutually exclusive - only one is allowed&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ParameterGroup.validate"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParameterGroup.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">):</span>
+        <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categorize_params</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_conflicts</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="n">missing</span><span class="p">)</span>
+
+        <span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParameterGroup.show_in_help"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParameterGroup.show_in_help">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
