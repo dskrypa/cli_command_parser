@@ -92,7 +92,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx', multipl
         head = f'{self.title}\n{bar}\n\n.. toctree::\n   :maxdepth: 1\n   :caption: Modules\n   :hidden:\n\n'
         foot = '\n\nIndices and tables\n==================\n\n* :ref:`genindex`\n* :ref:`modindex`\n* :ref:`search`\n'
         # mod_list = '\n'.join(map('   {}'.format, ['api'] + modules))
-        mod_list = '\n'.join(map('   {}'.format, modules))
+        mod_list = '\n'.join(map('   {}'.format, sorted(modules)))
         self._write_rst('index', head + mod_list + foot)
 
     def _make_module_rst(self, module: str):
