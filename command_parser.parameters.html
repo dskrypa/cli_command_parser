@@ -4,9 +4,10 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parameters Module &mdash; Command Parser 2022.02.19-3 documentation</title>
+  <title>Parameters Module &mdash; Command Parser 2022.02.19-4 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -235,13 +236,13 @@ Command, it is automatically registered as a subcommand during BaseCommand subcl
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>command_or_choice</strong> – When not called explicitly, this will be Command class that will be wrapped.  When
+<li><p><span class="target" id="command_parser.parameters.SubCommand.register.params.command_or_choice"></span><strong>command_or_choice</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.SubCommand.register.params.command_or_choice">¶</a> – When not called explicitly, this will be Command class that will be wrapped.  When
 called to provide arguments, the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value for the positional parameter that determines which
 subcommand was chosen may be provided here.  Defaults to the name of the decorated class, converted from
 CamelCase to snake_case.</p></li>
-<li><p><strong>choice</strong> – Keyword-only way to provide the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value.  May not be combined with a positional
+<li><p><span class="target" id="command_parser.parameters.SubCommand.register.params.choice"></span><strong>choice</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.SubCommand.register.params.choice">¶</a> – Keyword-only way to provide the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value.  May not be combined with a positional
 <code class="docutils literal notranslate"><span class="pre">choice</span></code> string value.</p></li>
-<li><p><strong>help</strong> – (Keyword-only) The help text / description to be displayed for this choice</p></li>
+<li><p><span class="target" id="command_parser.parameters.SubCommand.register.params.help"></span><strong>help</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.SubCommand.register.params.help">¶</a> – (Keyword-only) The help text / description to be displayed for this choice</p></li>
 </ul>
 </dd>
 </dl>
@@ -269,12 +270,12 @@ explicitly called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>method_or_choice</strong> – When not called explicitly, this will be the method that will be wrapped.  When called
+<li><p><span class="target" id="command_parser.parameters.Action.register.params.method_or_choice"></span><strong>method_or_choice</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.Action.register.params.method_or_choice">¶</a> – When not called explicitly, this will be the method that will be wrapped.  When called
 to provide arguments, the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value may be provided as a positional argument here.  Defaults to the
 name of the decorated method.</p></li>
-<li><p><strong>choice</strong> – Keyword-only way to provide the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value.  May not be combined with a positional
+<li><p><span class="target" id="command_parser.parameters.Action.register.params.choice"></span><strong>choice</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.Action.register.params.choice">¶</a> – Keyword-only way to provide the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value.  May not be combined with a positional
 <code class="docutils literal notranslate"><span class="pre">choice</span></code> string value.</p></li>
-<li><p><strong>help</strong> – (Keyword-only) The help text / description to be displayed for this choice</p></li>
+<li><p><span class="target" id="command_parser.parameters.Action.register.params.help"></span><strong>help</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.Action.register.params.help">¶</a> – (Keyword-only) The help text / description to be displayed for this choice</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -531,11 +532,11 @@ and that call will return the original method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>width</strong> – The width of the option/action/command column.</p></li>
-<li><p><strong>add_default</strong> – Whether default values should be included in the help text for parameters.</p></li>
-<li><p><strong>group_type</strong> – Whether the group type should be included in the description if this is a mutually
+<li><p><span class="target" id="command_parser.parameters.ParameterGroup.format_help.params.width"></span><strong>width</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.ParameterGroup.format_help.params.width">¶</a> – The width of the option/action/command column.</p></li>
+<li><p><span class="target" id="command_parser.parameters.ParameterGroup.format_help.params.add_default"></span><strong>add_default</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.ParameterGroup.format_help.params.add_default">¶</a> – Whether default values should be included in the help text for parameters.</p></li>
+<li><p><span class="target" id="command_parser.parameters.ParameterGroup.format_help.params.group_type"></span><strong>group_type</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.ParameterGroup.format_help.params.group_type">¶</a> – Whether the group type should be included in the description if this is a mutually
 exclusive / dependent group</p></li>
-<li><p><strong>clean</strong> – If this group only contains other groups or Action or SubCommand parameters, then omit the
+<li><p><span class="target" id="command_parser.parameters.ParameterGroup.format_help.params.clean"></span><strong>clean</strong><a class="paramlink headerlink reference internal" href="#command_parser.parameters.ParameterGroup.format_help.params.clean">¶</a> – If this group only contains other groups or Action or SubCommand parameters, then omit the
 description.</p></li>
 </ul>
 </dd>

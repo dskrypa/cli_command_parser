@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.19-3 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.19-4 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -257,8 +258,8 @@
 <span class="sd">        Primary entry point for running a command.  Subclasses generally should not override this method.</span>
 
 <span class="sd">        Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can</span>
-<span class="sd">        be specified during :meth:`Command class initialization&lt;BaseCommand.__init_subclass__&gt;`.  To skip error</span>
-<span class="sd">        handling, define the class with ``error_handler=None``.</span>
+<span class="sd">        be specified via the :paramref:`~BaseCommand.__init_subclass__.error_handler` parameter during Command class</span>
+<span class="sd">        initialization.  To skip error handling, define the class with ``error_handler=None``.</span>
 
 <span class="sd">        Calls 3 methods in order: :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`.</span>
 
