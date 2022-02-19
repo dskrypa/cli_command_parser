@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Uni
 from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from .exceptions import ParamUsageError, UsageError
+from .exceptions import ParamUsageError, UsageError, ParamConflict
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Args, Bool, validate_positional, camel_to_snake_case, format_help_entry
 
@@ -259,8 +259,7 @@ class ParameterGroup(ParamBase):
             be = 'is' if len(provided) == 1 else 'are'
             raise UsageError(f'When {p_str} {be} provided, then the following must also be provided: {m_str}')
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
-            p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
-            raise UsageError(f'The following arguments are mutually exclusive - only one is allowed: {p_str}')
+            raise ParamConflict(provided, 'they are mutually exclusive - only one is allowed')
 
     @property
     def show_in_help(self) -> bool:

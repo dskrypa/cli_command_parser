@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 import command_parser.error_handling
 from command_parser.error_handling import ErrorHandler, extended_error_handler, _handle_os_error
-from command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
+from command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice, ParamConflict
 from command_parser.parameters import Flag
 
 
@@ -106,6 +106,10 @@ class ExceptionTest(TestCase):
 
     def test_multiple_invalid(self):
         self.assertIn("choices: 'a', 'b'", str(InvalidChoice(Flag('--foo'), ['a', 'b'], ['c', 'd'])))
+
+    def test_conflict_no_message(self):
+        exc = ParamConflict([Flag('-t')])
+        self.assertNotIn('(', str(exc))
 
 
 class ModuleLoadTest(TestCase):

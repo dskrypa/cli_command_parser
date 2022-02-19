@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from contextlib import redirect_stdout, redirect_stderr
+from dataclasses import asdict
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option
+from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option, CommandConfig
 from command_parser.exceptions import CommandDefinitionError
 from command_parser.utils import Args
 from command_parser.error_handling import no_exit_handler
@@ -170,6 +171,35 @@ class TestCommands(TestCase):
             pass
 
         self.assertEqual(Bar.parser.command_parent, Foo)
+
+    def test_double_config_rejected(self):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine .* with keyword config'):
+
+            class Foo(Command, config=CommandConfig(), multiple_action_flags=True):
+                pass
+
+    def test_config_defaults(self):
+        class Foo(Command):
+            pass
+
+        config = Foo.command_config
+        self.assertDictEqual(asdict(config), asdict(CommandConfig()))
+
+    def test_config_from_kwarg(self):
+        default = CommandConfig().multiple_action_flags
+
+        class Foo(Command, multiple_action_flags=not default):
+            pass
+
+        self.assertEqual(Foo.command_config.multiple_action_flags, not default)
+
+    def test_config_explicit(self):
+        default = CommandConfig().multiple_action_flags
+
+        class Foo(Command, config=CommandConfig(multiple_action_flags=not default)):
+            pass
+
+        self.assertEqual(Foo.command_config.multiple_action_flags, not default)
 
 
 class TestParsing(TestCase):
