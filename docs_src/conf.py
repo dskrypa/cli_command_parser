@@ -22,6 +22,7 @@ extensions = [
     'sphinx.ext.autodoc',  # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
     'sphinx.ext.viewcode',
     # 'sphinx.ext.autosummary',  # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
+    'sphinx_paramlinks',  # https://github.com/sqlalchemyorg/sphinx-paramlinks
     'show_on_github',
 ]
 

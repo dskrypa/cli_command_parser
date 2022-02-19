@@ -179,8 +179,8 @@ class BaseCommand:
         Primary entry point for running a command.  Subclasses generally should not override this method.
 
         Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can
-        be specified during :meth:`Command class initialization<BaseCommand.__init_subclass__>`.  To skip error
-        handling, define the class with ``error_handler=None``.
+        be specified via the :paramref:`~BaseCommand.__init_subclass__.error_handler` parameter during Command class
+        initialization.  To skip error handling, define the class with ``error_handler=None``.
 
         Calls 3 methods in order: :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`.
 
