@@ -7,8 +7,12 @@ from collections.abc import Collection, Iterable
 from inspect import stack, getsourcefile, isclass
 from pathlib import Path
 from typing import Any, Union, Optional, Type, Callable, get_type_hints, get_origin, get_args
-from types import NoneType
 from string import whitespace, printable
+
+try:
+    from types import NoneType
+except ImportError:  # Added in 3.10
+    NoneType = type(None)
 
 from .exceptions import ParameterDefinitionError
 
