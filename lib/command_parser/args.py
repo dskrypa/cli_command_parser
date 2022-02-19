@@ -5,10 +5,9 @@
 import sys
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, Iterator
+from typing import Any, Union, Sequence, Optional, Type, Iterator
 
-if TYPE_CHECKING:
-    from .parameters import Parameter, ParamOrGroup, Param, ActionFlag
+from .parameters import Parameter, ParamOrGroup, Param, ActionFlag
 
 __all__ = ['Args']
 
@@ -52,8 +51,6 @@ class Args:
 
     @cached_property
     def _action_flags(self) -> tuple[dict['ActionFlag', Any], list['ActionFlag'], list['ActionFlag']]:
-        from .parameters import ActionFlag  # here due to circular dependency
-
         action_flags = self.find_all(ActionFlag)
         before = []
         after = []
