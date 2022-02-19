@@ -23,7 +23,7 @@ jobs:
         python -m pip install flake8 pytest pytest-cov
         pip install -e .[docs]
     - name: Generate docs
-      run: python docs_src/build_docs.py -c
+      run: python docs_src/build_docs.py -cu
     - name: GitHub Pages action
       uses: peaceiris/actions-gh-pages@v3
       with:

@@ -226,7 +226,7 @@ class Command:
         If any arguments were specified that are associated with triggering a method that was decorated / registered as
         a positional :class:`~.parameters.Action`'s target method, then that method is called here.
 
-        Commands that do not have any :class:`~.parameters.Action`s can override this method, and do **not** need
+        Commands that do not have any :class:`~.parameters.Action` s can override this method, and do **not** need
         to call ``super().main(*args, **kwargs)``.
 
         Initialization code that is common for all actions, or that should be run before :meth:`.before_main` should be

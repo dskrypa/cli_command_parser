@@ -6,6 +6,8 @@ Command Parser
    :caption: Modules
    :hidden:
 
+   command_parser.actions
+   command_parser.args
    command_parser.commands
    command_parser.config
    command_parser.error_handling
