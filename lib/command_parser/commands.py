@@ -14,7 +14,7 @@ from .error_handling import ErrorHandler, extended_error_handler, error_handler 
 from .exceptions import ParserExit, CommandDefinitionError, ParamConflict
 from .parameters import ActionFlag, action_flag
 from .parser import CommandParser
-from .utils import _NotSet, Args, Bool, ProgramMetadata
+from .utils import _NotSet, Args, Bool, ProgramMetadata, classproperty
 
 __all__ = ['BaseCommand', 'Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -32,6 +32,8 @@ class BaseCommand:
 
     # region Initialization
     # fmt: off
+    parser: CommandParser                               # Must declare here for PyCharm's type checker to work properly
+    command_config: CommandConfig                       # Must declare here for PyCharm's type checker to work properly
     __args: Args                                        # The raw and parsed arguments passed to this command
     args: Args                                          # Same as __args, but can be overwritten.  Not used internally.
     __command_config: CommandConfig = None              # Configured Command options
@@ -89,8 +91,7 @@ class BaseCommand:
         elif choice:
             warn(f'{choice=} was not registered for {cls} because it has no parent Command')
 
-    @classmethod
-    @property
+    @classproperty
     def parser(cls: CommandType) -> CommandParser:  # noqa
         if cls.__parser is None:
             # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
@@ -98,8 +99,7 @@ class BaseCommand:
             cls.__parser = CommandParser(cls, parent)
         return cls.__parser
 
-    @classmethod
-    @property
+    @classproperty
     def command_config(cls) -> CommandConfig:  # noqa
         return cls.__command_config
 
@@ -161,7 +161,7 @@ class BaseCommand:
         """
         args = Args(args)
         cmd_cls = cls
-        while sub_cmd := cmd_cls.parser.parse_args(args, allow_unknown):  # noqa
+        while sub_cmd := cmd_cls.parser.parse_args(args, allow_unknown):
             cmd_cls = sub_cmd
 
         return cmd_cls(args)

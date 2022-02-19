@@ -6,7 +6,7 @@ import sys
 from collections import defaultdict
 from inspect import stack, getsourcefile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, Callable
 from string import whitespace, printable
 
 from .exceptions import ParameterDefinitionError
@@ -17,6 +17,25 @@ if TYPE_CHECKING:
 Bool = Union[bool, Any]
 
 _NotSet = object()
+
+
+class classproperty(classmethod):
+    """
+    A read-only class property.
+
+    While this could be accomplished by applying ``@classmethod`` after (above) ``@property``, doing so confuses
+    PyCharm's type checker.  This implementation requires the decorated method to declare its type separately for
+    PyCharm to recognize the return type, and again as the return type of the method for Sphinx to include it in
+    documentation.  PyCharm did not properly recognize the return type by any means when stacking classmethod and
+    property.
+    """
+
+    def __init__(self, func: Callable):
+        super().__init__(property(func))  # noqa
+        self.func = func
+
+    def __get__(self, obj: None, cls):  # noqa
+        return self.func(cls)
 
 
 class Args:
