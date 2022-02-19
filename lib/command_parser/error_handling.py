@@ -6,9 +6,9 @@ import platform
 import sys
 from typing import Type, Callable, Union, Optional
 
-from .exceptions import ParserExit, CommandParserException
+from .exceptions import CommandParserException
 
-__all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler']
+__all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler', 'NullErrorHandler']
 
 WINDOWS = platform.system().lower() == 'windows'
 
@@ -73,6 +73,14 @@ class ErrorHandler:
         clone = self.__class__()
         clone.exc_handler_map.update(self.exc_handler_map)
         return clone
+
+
+class NullErrorHandler:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return None
 
 
 ErrorHandler.cls_handler(CommandParserException)(CommandParserException.exit)

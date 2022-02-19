@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
 
-from command_parser import Command, Counter, action_flag, Flag
+from command_parser import Command, Counter, after_main, before_main
 from command_parser.__version__ import __description__
 
 log = logging.getLogger(__name__)
@@ -15,7 +15,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class BuildDocs(Command, description='Build documentation using Sphinx', multiple_action_flags=True):
-    open = Flag('-o', help='Open the docs in the default web browser after running sphinx-build')
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
     def __init__(self, args):
@@ -28,20 +27,13 @@ class BuildDocs(Command, description='Build documentation using Sphinx', multipl
         logging.basicConfig(level=level, format=log_fmt)
 
     def main(self, *args, **kwargs):
-        super().main(*args, **kwargs)
-        self.run_sphinx_build()
-        if self.open:
-            index_path = PROJECT_ROOT.joinpath('docs', 'index.html').as_posix()
-            webbrowser.open(f'file://{index_path}')
-
-    # region Actions
-
-    def run_sphinx_build(self):
         cmd = ['sphinx-build', 'docs_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
         log.info(f'Running: {cmd}')
         check_call(cmd)
 
-    @action_flag('-c', help='Clean the docs directory before building docs', order=1)
+    # region Actions
+
+    @before_main('-c', help='Clean the docs directory before building docs', order=1)
     def clean(self):
         log.info('Removing old docs dir before re-building docs')
         docs_path = PROJECT_ROOT.joinpath('docs')
@@ -50,10 +42,15 @@ class BuildDocs(Command, description='Build documentation using Sphinx', multipl
         docs_path.mkdir()
         docs_path.joinpath('.nojekyll').touch()  # Force GitHub to use the RTD theme instead of their Jekyll theme
 
-    @action_flag('-u', help='Update RST files', order=2)
+    @before_main('-u', help='Update RST files', order=2)
     def update(self):
         self._backup_rsts()
         self._generate_rsts()
+
+    @after_main('-o', help='Open the docs in the default web browser after running sphinx-build', order=3)
+    def open(self):
+        index_path = PROJECT_ROOT.joinpath('docs', 'index.html').as_posix()
+        webbrowser.open(f'file://{index_path}')
 
     # endregion
 

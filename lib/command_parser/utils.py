@@ -4,15 +4,16 @@
 
 import sys
 from collections import defaultdict
+from functools import cached_property
 from inspect import stack, getsourcefile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, Callable
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, Callable, Iterator
 from string import whitespace, printable
 
 from .exceptions import ParameterDefinitionError
 
 if TYPE_CHECKING:
-    from .parameters import Parameter, ParamOrGroup, Param
+    from .parameters import Parameter, ParamOrGroup, Param, ActionFlag
 
 Bool = Union[bool, Any]
 
@@ -44,6 +45,7 @@ class Args:
         self.remaining = self.raw
         self._parsed = {}
         self._provided = defaultdict(int)
+        self.actions_taken = 0
 
     def __repr__(self) -> str:
         provided = dict(self._provided)
@@ -73,6 +75,37 @@ class Args:
 
     def find_all(self, param_type: Type['Param']) -> dict['Param', Any]:
         return {param: val for param, val in self._parsed.items() if isinstance(param, param_type)}
+
+    @cached_property
+    def _action_flags(self) -> tuple[dict['ActionFlag', Any], list['ActionFlag'], list['ActionFlag']]:
+        from .parameters import ActionFlag  # here due to circular dependency
+
+        action_flags = self.find_all(ActionFlag)
+        before = []
+        after = []
+        for flag in action_flags:
+            if flag.before_main:
+                before.append(flag)
+            else:
+                after.append(flag)
+
+        return action_flags, sorted(before), sorted(after)
+
+    @property
+    def action_flags(self) -> dict['ActionFlag', Any]:
+        return self._action_flags[0]
+
+    @property
+    def before_main_actions(self) -> Iterator['ActionFlag']:
+        for action_flag in self._action_flags[1]:
+            self.actions_taken += 1
+            yield action_flag
+
+    @property
+    def after_main_actions(self) -> Iterator['ActionFlag']:
+        for action_flag in self._action_flags[2]:
+            self.actions_taken += 1
+            yield action_flag
 
 
 def validate_positional(

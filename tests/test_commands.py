@@ -5,10 +5,10 @@ from dataclasses import asdict
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option, CommandConfig
+from command_parser import Command, Action, ActionFlag, SubCommand, Positional, Flag, Option, CommandConfig, BaseCommand
 from command_parser.exceptions import CommandDefinitionError
 from command_parser.utils import Args
-from command_parser.error_handling import no_exit_handler
+from command_parser.error_handling import no_exit_handler, error_handler
 
 
 class TestCommands(TestCase):
@@ -24,7 +24,7 @@ class TestCommands(TestCase):
         self.assertTrue(foo.main())
         self.assertTrue(mock.called)
 
-    def test_true_on_action_flag_handled(self):
+    def test_actions_taken_incremented_on_action_flag_handled(self):
         mock = Mock()
 
         class Foo(Command):
@@ -32,7 +32,9 @@ class TestCommands(TestCase):
 
         foo = Foo.parse(['--foo'])
         self.assertFalse(mock.called)
-        self.assertEqual(1, foo.main())
+        self.assertEqual(0, foo.args.actions_taken)
+        self.assertEqual(1, foo.run())
+        self.assertEqual(1, foo.args.actions_taken)
         self.assertTrue(mock.called)
 
     def test_false_on_no_action(self):
@@ -200,6 +202,27 @@ class TestCommands(TestCase):
             pass
 
         self.assertEqual(Foo.command_config.multiple_action_flags, not default)
+
+    def test_config_inherited(self):
+        default_config = CommandConfig()
+
+        class Foo(Command, multiple_action_flags=not default_config.multiple_action_flags):
+            pass
+
+        self.assertEqual(Foo.command_config.action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Foo.command_config.multiple_action_flags, default_config.multiple_action_flags)
+
+        class Bar(Foo, action_after_action_flags=not default_config.action_after_action_flags):
+            pass
+
+        self.assertNotEqual(Bar.command_config.action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Bar.command_config.multiple_action_flags, default_config.multiple_action_flags)
+        # Ensure Foo config has not changed:
+        self.assertEqual(Foo.command_config.action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Foo.command_config.multiple_action_flags, default_config.multiple_action_flags)
+
+    def test_default_error_handler_returned(self):
+        self.assertIs(error_handler, BaseCommand._BaseCommand__get_error_handler())  # noqa
 
 
 class TestParsing(TestCase):

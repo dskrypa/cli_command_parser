@@ -3,11 +3,12 @@
 import logging
 from contextlib import redirect_stdout
 from io import StringIO
-from time import monotonic, sleep
+from itertools import count
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, no_exit_handler, ActionFlag, ParameterGroup, action_flag
+from command_parser import Command, Action, no_exit_handler, ActionFlag, ParameterGroup
+from command_parser.parameters import before_main, after_main, action_flag
 from command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
 
 log = logging.getLogger(__name__)
@@ -142,24 +143,58 @@ class ActionFlagTest(TestCase):
     def test_multi_flag_order_followed(self):
         class Foo(Command, multiple_action_flags=True):
             def __init__(self, args):
-                self.call_times = {}
+                self.call_order = {}
+                self.counter = count()
 
             @action_flag('-f', order=1)
             def foo(self):
-                self.call_times['foo'] = monotonic()
-                sleep(0.05)  # prevent both calls from happening without a detectable time delta
+                self.call_order['foo'] = next(self.counter)
 
             @action_flag('-b', order=2)
             def bar(self):
-                self.call_times['bar'] = monotonic()
-                sleep(0.05)
+                self.call_order['bar'] = next(self.counter)
 
-        foo = Foo.parse(['-fb'])
-        foo.run()
-        self.assertLess(foo.call_times['foo'], foo.call_times['bar'])
-        foo = Foo.parse(['-b', '-f'])
-        foo.run()
-        self.assertLess(foo.call_times['foo'], foo.call_times['bar'])
+        for case, args in {'combined': ['-fb'], 'split': ['-b', '-f']}.items():
+            with self.subTest(case=case):
+                foo = Foo.parse_and_run(args)
+                self.assertLess(foo.call_order['foo'], foo.call_order['bar'])
+
+    def test_before_and_after_flags(self):
+        class Foo(Command, multiple_action_flags=True):
+            def __init__(self, args):
+                self.call_order = {}
+                self.counter = count()
+
+            @before_main('-f', order=1)
+            def foo(self):
+                self.call_order['foo'] = next(self.counter)
+
+            def main(self):
+                super().main()
+                self.call_order['main'] = next(self.counter)
+
+            @after_main('-b', order=2)
+            def bar(self):
+                self.call_order['bar'] = next(self.counter)
+
+        for case, args in {'combined': ['-fb'], 'split': ['-b', '-f']}.items():
+            with self.subTest(case=case):
+                foo = Foo.parse_and_run(args)
+                self.assertLess(foo.call_order['foo'], foo.call_order['main'])
+                self.assertLess(foo.call_order['main'], foo.call_order['bar'])
+                self.assertEqual(2, foo.args.actions_taken)  # 2 because no non-flag Actions
+
+        with self.subTest(case='only after'):
+            foo = Foo.parse_and_run(['-b'])
+            self.assertNotIn('foo', foo.call_order)
+            self.assertLess(foo.call_order['main'], foo.call_order['bar'])
+            self.assertEqual(1, foo.args.actions_taken)  # 1 because no non-flag Actions
+
+        with self.subTest(case='only before'):
+            foo = Foo.parse_and_run(['-f'])
+            self.assertLess(foo.call_order['foo'], foo.call_order['main'])
+            self.assertNotIn('bar', foo.call_order)
+            self.assertEqual(1, foo.args.actions_taken)  # 1 because no non-flag Actions
 
 
 if __name__ == '__main__':

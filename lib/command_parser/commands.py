@@ -6,13 +6,14 @@ The core Command classes that are intended as the entry point for a given progra
 
 import logging
 import sys
-from typing import Type, TypeVar, Sequence, Optional
+from dataclasses import asdict
+from typing import Type, TypeVar, Sequence, Optional, Union
 from warnings import warn
 
 from .config import CommandConfig
-from .error_handling import ErrorHandler, extended_error_handler, error_handler as _error_handler
+from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler, error_handler as _error_handler
 from .exceptions import ParserExit, CommandDefinitionError, ParamConflict
-from .parameters import ActionFlag, action_flag
+from .parameters import action_flag
 from .parser import CommandParser
 from .utils import _NotSet, Args, Bool, ProgramMetadata, classproperty
 
@@ -39,7 +40,7 @@ class BaseCommand:
     __command_config: CommandConfig = None              # Configured Command options
     __meta: ProgramMetadata = None                      # Metadata used in help text
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
-    __error_handler: Optional[ErrorHandler] = _NotSet   # The ExceptionHandler to wrap main()
+    __error_handler: Optional[ErrorHandler] = _NotSet   # The ErrorHandler to wrap main()
     __abstract: Bool = True                             # False if viable for containing sub commands
     # fmt: on
 
@@ -76,6 +77,8 @@ class BaseCommand:
                 raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
             cls.__command_config = config
         elif kwargs or (cls.__command_config is None and not abstract):
+            if cls.__command_config is not None:  # Inherit existing configs and override specified values
+                kwargs = asdict(cls.__command_config) | kwargs
             cls.__command_config = CommandConfig(**kwargs)
 
         cls.__parser = None
@@ -102,6 +105,15 @@ class BaseCommand:
     @classproperty
     def command_config(cls) -> CommandConfig:  # noqa
         return cls.__command_config
+
+    @classmethod
+    def __get_error_handler(cls) -> Union[ErrorHandler, NullErrorHandler]:
+        if (error_handler := cls.__error_handler) is _NotSet:
+            return _error_handler
+        elif error_handler is None:
+            return NullErrorHandler()
+        else:
+            return error_handler
 
     def __new__(cls, args: Args):
         # By storing the parsed Args here instead of __init__, every single sub class won't need to
@@ -133,11 +145,7 @@ class BaseCommand:
         :param kwargs: Keyword arguments to pass to :meth:`.run`
         :return: The Command instance with parsed arguments for which :meth:`.run` was already called.
         """
-        error_handler = _error_handler if cls.__error_handler is _NotSet else cls.__error_handler
-        if error_handler is not None:
-            with error_handler:
-                self = cls.parse(argv, allow_unknown)
-        else:
+        with cls.__get_error_handler():
             self = cls.parse(argv, allow_unknown)
 
         try:
@@ -166,50 +174,81 @@ class BaseCommand:
 
         return cmd_cls(args)
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, **kwargs) -> int:
         """
-        Primary entry point for running a command.  Calls :meth:`.main` and handles exceptions using the configured
-        :class:`ErrorHandler<command_parser.error_handling.ErrorHandler>`.  Alternate error handlers can be specified
-        during :meth:`Command class initialization<BaseCommand.__init_subclass__>`.  To skip error handling, call
-        :meth:`.main` directly or define the class with ``error_handler=None``.
+        Primary entry point for running a command.  Subclasses generally should not override this method.
 
-        :param args: Positional arguments to pass to :meth:`.main`
-        :param kwargs: Keyword arguments to pass to :meth:`.main`
+        Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can
+        be specified during :meth:`Command class initialization<BaseCommand.__init_subclass__>`.  To skip error
+        handling, define the class with ``error_handler=None``.
+
+        Calls 3 methods in order: :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`.
+
+        :param args: Positional arguments to pass to :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`
+        :param kwargs: Keyword arguments to pass to :meth:`.before_main`, :meth:`.main`, and :meth:`.after_main`
+        :return: The total number of actions that were taken
         """
-        error_handler = _error_handler if self.__error_handler is _NotSet else self.__error_handler
-        if error_handler is not None:
-            with error_handler:
-                self.main(*args, **kwargs)
-        else:
+        with self.__get_error_handler():
+            self.before_main(*args, **kwargs)
             self.main(*args, **kwargs)
+            self.after_main(*args, **kwargs)
 
-    def main(self, *args, **kwargs) -> int:
+        return self.__args.actions_taken
+
+    def before_main(self, *args, **kwargs):
         """
-        If any arguments were specified that are associated with triggering an action method, then that method is called
-        here.  Subclasses can override this method if they have only one action, if they need to override the action
-        handling logic here, or if they have code that should run based on whether an action was executed or not.
+        Called by :meth:`.run` before :meth:`.main` is called.  Validates the number of ActionFlags that were specified,
+        and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions
+        that were defined with ``before_main=True`` in their configured order.
 
-        Initialization code that is common for all actions should be placed in ``__init__`` instead of overriding main.
+        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
+        """
+        parsed = self.__args
+        action_flags = parsed.action_flags
+        if action_flags and not self.__command_config.multiple_action_flags and len(action_flags) > 1:
+            raise ParamConflict(action_flags, 'combining multiple action flags is disabled')
+
+        for param in parsed.before_main_actions:
+            param.func(self, *args, **kwargs)
+
+    def main(self, *args, **kwargs) -> Optional[int]:
+        """
+        Primary
+
+        If any arguments were specified that are associated with triggering a method that was decorated / registered as
+        a positional :class:`~.parameters.Action`'s target method, then that method is called here.
+
+        Commands that do not have any :class:`~.parameters.Action`s can override this method, and do **not** need
+        to call ``super().main(*args, **kwargs)``.
+
+        Initialization code that is common for all actions, or that should be run before :meth:`.before_main` should be
+        placed in ``__init__``.
 
         :param args: Positional arguments to pass to the action method
         :param kwargs: Keyword arguments to pass to the action method
-        :return: The number of actions that were taken
+        :return: The total number of actions that were taken so far
         """
-        i = 0
-        config = self.__command_config
-        if action_flags := self.__args.find_all(ActionFlag):  # this will contain only the ones that were specified
-            # TODO: Before/after main actions; maybe move this logic to run instead of main?
-            if not config.multiple_action_flags and len(action_flags) > 1:
-                raise ParamConflict(action_flags, 'combining multiple action flags is disabled')
-
-            for i, param in enumerate(sorted(action_flags), 1):
-                param.func(self, *args, **kwargs)
-
-        if (i == 0 or config.action_after_action_flags) and (action := self.parser.action) is not None:
+        parsed = self.__args
+        action = self.parser.action
+        if action is not None and (parsed.actions_taken == 0 or self.__command_config.action_after_action_flags):
+            # TODO: Error on action when config.action_after_action_flags is False?
+            parsed.actions_taken += 1
             action.__get__(self, self.__class__)(self, *args, **kwargs)
-            i += 1
 
-        return i
+        return parsed.actions_taken
+
+    def after_main(self, *args, **kwargs):
+        """
+        Called by :meth:`.run` after :meth:`.main` is called.  Calls all of the specified
+        :obj:`~.parameters.after_main` / :obj:`~.parameters.action_flag` actions that were defined with
+        ``before_main=False`` in their configured order.
+
+        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
+        """
+        for param in self.__args.after_main_actions:
+            param.func(self, *args, **kwargs)
 
 
 class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
@@ -223,9 +262,9 @@ class Command(BaseCommand, error_handler=extended_error_handler, abstract=True):
         print(self.parser.formatter.format_help())
         raise ParserExit
 
-    def run(self, *args, close_stdout: Bool = False, **kwargs):  # noqa
+    def run(self, *args, close_stdout: Bool = False, **kwargs) -> int:
         try:
-            super().run(*args, **kwargs)
+            return super().run(*args, **kwargs)
         finally:
             if close_stdout:  # TODO: Verify whether this is ever needed anymore
                 """

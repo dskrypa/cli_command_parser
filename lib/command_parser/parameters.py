@@ -32,6 +32,8 @@ __all__ = [
     'Counter',
     'ActionFlag',
     'action_flag',
+    'before_main',
+    'after_main',
     'Param',
     'ParameterGroup',
     'ParamOrGroup',
@@ -862,7 +864,9 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
 
 
 class ActionFlag(Flag):
-    def __init__(self, *args, order: Union[int, float] = 1, func: Callable = None, **kwargs):
+    def __init__(
+        self, *args, order: Union[int, float] = 1, func: Callable = None, before_main: Bool = True, **kwargs  # noqa
+    ):
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
         if bad := {k: v for k, v in found.items() if expected[k] != v}:
@@ -870,6 +874,7 @@ class ActionFlag(Flag):
         super().__init__(*args, **kwargs)
         self.func = func
         self.order = order
+        self.before_main = before_main  # TODO: Allow order match if before/after main differs
         self.enabled = True
 
     @property
@@ -883,17 +888,18 @@ class ActionFlag(Flag):
             update_wrapper(self, func)
 
     def __hash__(self) -> int:
-        return reduce(xor, map(hash, (self.__class__, self.name, self.command, self.func, self.order)))
+        attrs = (self.__class__, self.name, self.command, self.func, self.order, self.before_main)
+        return reduce(xor, map(hash, attrs))
 
     def __eq__(self, other: 'ActionFlag') -> bool:
         if not isinstance(other, ActionFlag):
             return NotImplemented
-        return all(getattr(self, a) == getattr(other, a) for a in ('name', 'func', 'command', 'order'))
+        return all(getattr(self, a) == getattr(other, a) for a in ('name', 'func', 'command', 'order', 'before_main'))
 
     def __lt__(self, other: 'ActionFlag') -> bool:
         if not isinstance(other, ActionFlag):
             return NotImplemented
-        return (self.order, self.name) < (other.order, other.name)
+        return (not self.before_main, self.order, self.name) < (not self.before_main, other.order, other.name)
 
     def __call__(self, func: Callable):
         if self.func is not None:
@@ -916,6 +922,8 @@ class ActionFlag(Flag):
 
 
 action_flag = ActionFlag
+before_main = partial(ActionFlag, before_main=True)  #: An ActionFlag that will be executed before main()
+after_main = partial(ActionFlag, before_main=False)  #: An ActionFlag that will be executed after main()
 
 
 class Counter(BaseOption, accepts_values=True, accepts_none=True):
