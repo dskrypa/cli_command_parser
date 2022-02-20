@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.exceptions &mdash; Command Parser 2022.02.20-1 documentation</title>
+  <title>command_parser.exceptions &mdash; Command Parser 2022.02.20-4 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -122,6 +122,8 @@
 
 
 <div class="viewcode-block" id="ParserExit"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParserExit">[docs]</a><span class="k">class</span> <span class="nc">ParserExit</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception used to exit with the given message and status code&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
@@ -130,19 +132,29 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span></div>
 
 
+<span class="c1"># region Developer Errors</span>
+
+
 <div class="viewcode-block" id="CommandDefinitionError"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.CommandDefinitionError">[docs]</a><span class="k">class</span> <span class="nc">CommandDefinitionError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An error related to the definition of a command&quot;&quot;&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Command, or an invalid combination of Parameters&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ParameterDefinitionError"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParameterDefinitionError">[docs]</a><span class="k">class</span> <span class="nc">ParameterDefinitionError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Parameter&quot;&quot;&quot;</span></div>
+
+
+<span class="c1"># endregion</span>
+
+<span class="c1"># region User Errors</span>
 
 
 <div class="viewcode-block" id="UsageError"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.UsageError">[docs]</a><span class="k">class</span> <span class="nc">UsageError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&quot;&quot;&quot;Base exception for user errors&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ParamUsageError"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParamUsageError">[docs]</a><span class="k">class</span> <span class="nc">ParamUsageError</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a Parameter was not used correctly&quot;&quot;&quot;</span>
+
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -160,6 +172,8 @@
 
 
 <div class="viewcode-block" id="ParamConflict"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParamConflict">[docs]</a><span class="k">class</span> <span class="nc">ParamConflict</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when mutually exclusive Parameters were combined&quot;&quot;&quot;</span>
+
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -174,6 +188,8 @@
 
 
 <div class="viewcode-block" id="ParamsMissing"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.ParamsMissing">[docs]</a><span class="k">class</span> <span class="nc">ParamsMissing</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when one or more required Parameters were not provided&quot;&quot;&quot;</span>
+
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -192,10 +208,12 @@
 
 
 <div class="viewcode-block" id="BadArgument"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.BadArgument">[docs]</a><span class="k">class</span> <span class="nc">BadArgument</span><span class="p">(</span><span class="n">ParamUsageError</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&quot;&quot;&quot;Error raised when an invalid value is provided for a Parameter&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="InvalidChoice"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.InvalidChoice">[docs]</a><span class="k">class</span> <span class="nc">InvalidChoice</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="n">Collection</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">bad_str</span> <span class="o">=</span> <span class="s1">&#39;choices: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">invalid</span><span class="p">)))</span>
@@ -206,11 +224,16 @@
 
 
 <div class="viewcode-block" id="MissingArgument"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.MissingArgument">[docs]</a><span class="k">class</span> <span class="nc">MissingArgument</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a value for a Parameter was not provided&quot;&quot;&quot;</span>
+
     <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;missing required argument value&#39;</span></div>
 
 
 <div class="viewcode-block" id="NoSuchOption"><a class="viewcode-back" href="../../command_parser.exceptions.html#command_parser.exceptions.NoSuchOption">[docs]</a><span class="k">class</span> <span class="nc">NoSuchOption</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&quot;&quot;&quot;Error raised when an option that was not defined as a Parameter was provided&quot;&quot;&quot;</span></div>
+
+
+<span class="c1"># endregion</span>
 </pre></div>
 
            </div>
