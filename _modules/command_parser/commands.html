@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.20 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.20-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -302,13 +302,13 @@
 
 <div class="viewcode-block" id="Command.main"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Primary</span>
+<span class="sd">        Primary method that is called when running a Command.</span>
 
 <span class="sd">        If any arguments were specified that are associated with triggering a method that was decorated / registered as</span>
 <span class="sd">        a positional :class:`~.parameters.Action`&#39;s target method, then that method is called here.</span>
 
-<span class="sd">        Commands that do not have any :class:`~.parameters.Action` s can override this method, and do **not** need</span>
-<span class="sd">        to call ``super().main(*args, **kwargs)``.</span>
+<span class="sd">        Commands that do not have any positional :class:`Actions&lt;.parameters.Action&gt;` can override this method, and do</span>
+<span class="sd">        **not** need to call ``super().main(*args, **kwargs)``.</span>
 
 <span class="sd">        Initialization code that is common for all actions, or that should be run before :meth:`.before_main` should be</span>
 <span class="sd">        placed in ``__init__``.</span>
@@ -322,7 +322,7 @@
         <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command_config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">):</span>
             <span class="c1"># TODO: Error on action when config.action_after_action_flags is False?</span>
             <span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">action</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">parsed</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span></div>
 

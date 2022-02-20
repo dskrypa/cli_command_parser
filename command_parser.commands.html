@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commands Module &mdash; Command Parser 2022.02.20 documentation</title>
+  <title>Commands Module &mdash; Command Parser 2022.02.20-1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -217,11 +217,11 @@ that were defined with <code class="docutils literal notranslate"><span class="p
 <dl class="py method">
 <dt class="sig sig-object py" id="command_parser.commands.Command.main">
 <span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/command_parser/commands.html#Command.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#command_parser.commands.Command.main" title="Permalink to this definition"></a></dt>
-<dd><p>Primary</p>
+<dd><p>Primary method that is called when running a Command.</p>
 <p>If any arguments were specified that are associated with triggering a method that was decorated / registered as
 a positional <a class="reference internal" href="command_parser.parameters.html#command_parser.parameters.Action" title="command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a>’s target method, then that method is called here.</p>
-<p>Commands that do not have any <a class="reference internal" href="command_parser.parameters.html#command_parser.parameters.Action" title="command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> s can override this method, and do <strong>not</strong> need
-to call <code class="docutils literal notranslate"><span class="pre">super().main(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
+<p>Commands that do not have any positional <a class="reference internal" href="command_parser.parameters.html#command_parser.parameters.Action" title="command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Actions</span></code></a> can override this method, and do
+<strong>not</strong> need to call <code class="docutils literal notranslate"><span class="pre">super().main(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
 <p>Initialization code that is common for all actions, or that should be run before <a class="reference internal" href="#command_parser.commands.Command.before_main" title="command_parser.commands.Command.before_main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">before_main()</span></code></a> should be
 placed in <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
 <dl class="field-list simple">
