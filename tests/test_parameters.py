@@ -7,6 +7,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock
 
 from command_parser import Command, Counter, Option, Flag
+from command_parser.args import Args
 from command_parser.exceptions import (
     NoSuchOption,
     UsageError,
@@ -17,14 +18,14 @@ from command_parser.exceptions import (
     BadArgument,
 )
 from command_parser.parameters import parameter_action, PassThru, Positional
-from command_parser.args import Args
+from command_parser.testing import ParserTest
 
 
 class PositionalTest(TestCase):
     pass
 
 
-class OptionTest(TestCase):
+class OptionTest(ParserTest):
     def test_choice_ok(self):
         class Foo(Command):
             foo = Option('-f', choices=('a', 'b'))
@@ -81,7 +82,7 @@ class OptionTest(TestCase):
             Foo.parse(['--bar', '1'])
 
 
-class CounterTest(TestCase):
+class CounterTest(ParserTest):
     def test_counter_default(self):
         class Foo(Command):
             verbose: int = Counter('-v')
@@ -175,7 +176,7 @@ class CounterTest(TestCase):
             self.assertEqual(foo.bar, b)
 
 
-class PassThruTest(TestCase):
+class PassThruTest(ParserTest):
     def test_pass_thru(self):
         class Foo(Command):
             bar = Flag()
@@ -230,7 +231,7 @@ class PassThruTest(TestCase):
         self.assertTrue((Bar.parser.has_pass_thru()))
 
 
-class MiscParameterTest(TestCase):
+class MiscParameterTest(ParserTest):
     def test_param_knows_command(self):
         class Foo(Command):
             foo = Option('-f', choices=('a', 'b'))
@@ -267,8 +268,15 @@ class MiscParameterTest(TestCase):
         with self.assertRaises(ParamUsageError):
             flag.take_action(Args([]), 'foo')
 
+    def test_explicit_name(self):
+        class Foo(Command):
+            bar = Option(name='foo')
 
-class TypeCastTest(TestCase):
+        self.assert_parse_results(Foo, ['--bar', 'a'], {'foo': 'a'})
+        self.assert_parse_fails(Foo, ['--foo', 'a'], expected_pattern='unrecognized arguments:')
+
+
+class TypeCastTest(ParserTest):
     def test_type_cast_single_1(self):
         class Foo(Command):
             num: int = Positional()
