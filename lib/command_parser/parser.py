@@ -3,8 +3,12 @@
 """
 
 import logging
+
+# import re
 from collections import deque, defaultdict
-from typing import TYPE_CHECKING, Optional
+
+# from functools import cached_property
+from typing import TYPE_CHECKING, Optional, Any, Collection
 
 from .actions import help_action
 from .exceptions import (
@@ -16,7 +20,7 @@ from .exceptions import (
     ParamsMissing,
 )
 from .formatting import HelpFormatter
-from .parameters import ParameterGroup, Action, ChoiceMap
+from .parameters import ParameterGroup, Action
 from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
 from .utils import Bool
 
@@ -69,6 +73,13 @@ class CommandParser:
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
         self.action_flags = self._process_action_flags()
         self.groups = sorted(self.groups)
+
+    # @cached_property
+    # def has_numeric_short_option(self) -> bool:
+    #     if self.parent and self.parent.has_numeric_short_option:
+    #         return True
+    #     is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
+    #     return any(map(is_numeric, self.short_options))
 
     # region Initialization / Parameter Processing
 
@@ -132,17 +143,16 @@ class CommandParser:
         _update_options(short_combinable, 'short_combinable', param, command)
 
     def _process_action_flags(self):
-        action_flags = sorted((p for p in self.options if isinstance(p, ActionFlag) and p.enabled))
-
-        a_flags_by_before_and_order: dict[bool, dict[float, list[ActionFlag]]] = defaultdict(lambda: defaultdict(list))
+        action_flags = sorted((p for p in self.options if isinstance(p, ActionFlag)))
+        grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for {param=}')
-            a_flags_by_before_and_order[param.before_main][param.order].append(param)
+            grouped_ordered_flags[param.before_main][param.order].append(param)
 
         invalid = {}
-        for before_main, prio_params in a_flags_by_before_and_order.items():
-            for prio, params in prio_params.items():
+        for before_main, prio_params in grouped_ordered_flags.items():
+            for prio, params in prio_params.items():  # noqa
                 if len(params) > 1:
                     if (group := next((p.group for p in params if p.group), None)) and group.mutually_exclusive:
                         if not all(p.group == group for p in params):
@@ -251,6 +261,19 @@ class CommandParser:
 
         return None
 
+    def arg_dict(self, args: 'Args', exclude: Collection['Parameter'] = ()) -> dict[str, Any]:
+        if (parent := self.parent) is not None:
+            arg_dict = parent.arg_dict(args)
+        else:
+            arg_dict = {}
+
+        for group in (self.positionals, self.options):
+            for param in group:
+                if param not in exclude:
+                    arg_dict[param.name] = param.result_value(args)
+
+        return arg_dict
+
 
 class _Parser:
     """Stateful parser used for a single pass of argument parsing"""
@@ -281,7 +304,10 @@ class _Parser:
                     self.handle_short(arg, arg_deque)
                 except NotAShortOption:
                     if self.pos_available:
-                        self.handle_positional(arg, arg_deque)
+                        try:
+                            self.handle_positional(arg, arg_deque)
+                        except UsageError:
+                            self.deferred.append(arg)
                     else:
                         self.deferred.append(arg)
             else:
@@ -328,19 +354,23 @@ class _Parser:
         # log.debug(f'Split {arg=} into {param_val_combos=}')
         if len(param_val_combos) == 1:
             param, value = param_val_combos[0]
-            if value is not None or (param.accepts_none and not param.accepts_values):
-                param.take_action(self.args, value)
-            elif not self.consume_values(param, arg_deque) and param.accepts_none:
-                param.take_action(self.args, None)
+            self._handle_short_value(param, value, arg_deque)
         else:
             last = param_val_combos[-1][0]
             for param, _ in param_val_combos[:-1]:
                 param.take_action(self.args, None)
 
-            if last.accepts_none and not last.accepts_values:
-                last.take_action(self.args, None)
-            elif not self.consume_values(last, arg_deque) and last.accepts_none:
-                last.take_action(self.args, None)
+            self._handle_short_value(last, None, arg_deque)
+
+    def _handle_short_value(self, param: BaseOption, value: Any, arg_deque: deque[str]):
+        # log.debug(f'Handling short {value=} for {param=}')
+        if value is not None or (param.accepts_none and not param.accepts_values):
+            param.take_action(self.args, value)
+        elif not self.consume_values(param, arg_deque):
+            if param.accepts_none:
+                param.take_action(self.args, None)
+            else:
+                raise MissingArgument(param)
 
     def split_long(self, arg: str) -> tuple[BaseOption, Optional[str]]:
         try:
@@ -356,7 +386,8 @@ class _Parser:
         try:
             key, value = arg.split('=', 1)
         except ValueError:
-            pass
+            if (param := self.short_options.get(arg)) is not None:
+                return [(param, None)]
         else:
             if (param := self.short_options.get(key)) is not None:
                 return [(param, value)]
@@ -367,8 +398,9 @@ class _Parser:
         short_combinable = self.short_combinable
         if (param := short_combinable.get(key)) is None:
             raise NotAShortOption
-        elif not value:
-            return [(param, None)]
+        # elif not value:
+        # # Commented out now because this case should be handled by self.short_options.get(arg)
+        #     return [(param, None)]
         elif param.would_accept(self.args, value):
             return [(param, value)]
         else:
@@ -379,6 +411,7 @@ class _Parser:
 
     def consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
         result = self._consume_values(param, arg_deque, found)
+        # log.debug(f'_consume_values {result=} for {param=}')
         param.result(self.args)  # Trigger validation errors, if any
         return result
 
@@ -388,10 +421,12 @@ class _Parser:
             try:
                 value = arg_deque.popleft()
             except IndexError as e:
+                # log.debug(f'Ran out of values in deque while processing {param=}')
                 if nargs.satisfied(found):
                     return found
                 raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}') from e
             else:
+                # log.debug(f'Found {value=} in deque - may use it for {param=}')
                 if value.startswith('--'):
                     if nargs.satisfied(found):
                         arg_deque.appendleft(value)

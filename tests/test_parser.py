@@ -5,6 +5,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock
 
 from command_parser import Command, Counter, Flag, Positional, SubCommand, Option
+from command_parser.actions import help_action
 from command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
 from command_parser.args import Args
 
@@ -112,6 +113,16 @@ class ParserTest(TestCase):
             Foo.parse_and_run(['bar', '-h'])
         with redirect_stdout(Mock()), self.assertRaises(ParserExit):
             Foo.parse_and_run(['-h'])
+
+    def test_arg_dict_with_parent(self):
+        class Foo(Command):
+            pass
+
+        class Bar(Foo):
+            pass
+
+        expected = {help_action.name: False}
+        self.assertDictEqual(expected, Bar.parser.arg_dict(Args([])))
 
 
 if __name__ == '__main__':

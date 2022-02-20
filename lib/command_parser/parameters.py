@@ -12,9 +12,17 @@ from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Uni
 from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from .exceptions import ParamUsageError, UsageError, ParamConflict, ParamsMissing
+from .exceptions import ParamUsageError, ParamConflict, ParamsMissing
 from .nargs import Nargs, NargsValue
-from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, format_help_entry, get_descriptor_value_type
+from .utils import (
+    _NotSet,
+    Bool,
+    validate_positional,
+    camel_to_snake_case,
+    format_help_entry,
+    get_descriptor_value_type,
+    is_numeric,
+)
 
 if TYPE_CHECKING:
     from .args import Args
@@ -266,9 +274,8 @@ class ParameterGroup(ParamBase):
         # log.debug(f'provided={len(provided)}, missing={len(missing)}')
         if self.mutually_dependent and provided and missing:
             p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
-            m_str = ', '.join(p.format_usage(full=True, delim='/') for p in missing)
-            be = 'is' if len(provided) == 1 else 'are'
-            raise UsageError(f'When {p_str} {be} provided, then the following must also be provided: {m_str}')
+            be = 'was' if len(provided) == 1 else 'were'
+            raise ParamsMissing(missing, f'because {p_str} {be} provided')
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
             raise ParamConflict(provided, 'they are mutually exclusive - only one is allowed')
 
@@ -416,6 +423,7 @@ class Parameter(ParamBase):
             return action_method(args)
         else:
             normalized = self.prepare_value(value) if value is not None else value
+            self.validate(args, normalized)
             return action_method(args, normalized)
 
     def would_accept(self, args: 'Args', value: str) -> bool:
@@ -439,17 +447,27 @@ class Parameter(ParamBase):
         except Exception as e:
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
-    def is_valid_arg(self, args: 'Args', value: Any) -> bool:
-        if choices := self.choices:
-            return value in choices
+    def validate(self, args: 'Args', value: Any):
+        if (choices := self.choices) and value not in choices:
+            raise InvalidChoice(self, value, choices)
         elif isinstance(value, str) and value.startswith('-'):
-            return False
+            if not is_numeric(value):
+                raise BadArgument(self, f'invalid {value=}')
         elif value is None:
-            return self.accepts_none
-        else:
-            return self.accepts_values
+            if not self.accepts_none:
+                raise MissingArgument(self)
+        elif not self.accepts_values:
+            raise BadArgument(self, f'does not accept values, but {value=} was provided')
 
-    def result(self, args: 'Args') -> Any:
+    def is_valid_arg(self, args: 'Args', value: Any) -> bool:
+        try:
+            self.validate(args, value)
+        except (InvalidChoice, BadArgument, MissingArgument):
+            return False
+        else:
+            return True
+
+    def result_value(self, args: 'Args') -> Any:
         value = args[self]
         if value is _NotSet:
             if self.required:
@@ -471,6 +489,8 @@ class Parameter(ParamBase):
                 raise InvalidChoice(self, bad_values, choices)
             else:
                 return value
+
+    result = result_value
 
     @property
     def show_in_help(self) -> bool:
@@ -629,21 +649,22 @@ class ChoiceMap(BasePositional):
         args.record_action(self, n_values - 1)  # - 1 because it was already called before dispatching to this method
         return n_values
 
-    def is_valid_arg(self, args: 'Args', value: str) -> bool:
+    def validate(self, args: 'Args', value: str):
         values = args[self].copy()
         values.append(value)
         if choices := self.choices:
             choice = ' '.join(values)
             if choice in choices:
-                return True
+                return
             elif len(values) > self.nargs.max:
-                return False
+                raise BadArgument(self, 'too many values')
             prefix = choice + ' '
-            return any(c.startswith(prefix) for c in choices)
-        else:
-            return not value.startswith('-')
+            if not any(c.startswith(prefix) for c in choices):
+                raise InvalidChoice(self, prefix[:-1], choices)
+        elif value.startswith('-'):
+            raise BadArgument(self, f'invalid {value=}')
 
-    def result(self, args: 'Args'):
+    def result_value(self, args: 'Args') -> str:
         if not (choices := self.choices):
             raise CommandDefinitionError(f'No choices were registered for {self}')
         elif not (values := args[self]):
@@ -652,7 +673,11 @@ class ChoiceMap(BasePositional):
             raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
         elif (choice := ' '.join(values)) not in choices:
             raise InvalidChoice(self, choice, choices)
-        return choices[choice].target
+        return choice
+
+    def result(self, args: 'Args'):
+        choice = self.result_value(args)
+        return self.choices[choice].target
 
     @property
     def show_in_help(self) -> bool:
@@ -879,8 +904,10 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     def would_accept(self, args: 'Args', value: Optional[str]) -> bool:
         return value is None
 
-    def result(self, args: 'Args') -> Any:
+    def result_value(self, args: 'Args') -> Any:
         return args[self]
+
+    result = result_value
 
 
 class ActionFlag(Flag):
@@ -895,7 +922,6 @@ class ActionFlag(Flag):
         self.func = func
         self.order = order
         self.before_main = before_main
-        self.enabled = True
 
     @property
     def func(self):
@@ -934,7 +960,7 @@ class ActionFlag(Flag):
         return partial(self.func, command)
 
     def result(self, args: 'Args') -> Optional[Callable]:
-        if super().result(args):
+        if self.result_value(args):
             if func := self.func:
                 return func
             raise ParameterDefinitionError(f'No function was registered for {self}')
@@ -976,18 +1002,20 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
             value = self.const
         args[self] += value
 
-    def is_valid_arg(self, args: 'Args', value: Any) -> bool:
+    def validate(self, args: 'Args', value: Any):
         if value is None or isinstance(value, self.type):
-            return True
+            return
         try:
             value = self.type(value)
-        except (ValueError, TypeError):
-            return False
+        except (ValueError, TypeError) as e:
+            raise BadArgument(self, f'invalid {value=}') from e
         else:
-            return True
+            return
 
-    def result(self, args: 'Args') -> int:
+    def result_value(self, args: 'Args') -> int:
         return args[self]
+
+    result = result_value
 
 
 # endregion

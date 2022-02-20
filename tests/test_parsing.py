@@ -1,23 +1,80 @@
 #!/usr/bin/env python
 
+from dataclasses import dataclass
+from typing import Any, Iterable, Type, Union
 from unittest import TestCase, main
 
-from command_parser import Command
-from command_parser.exceptions import NoSuchOption, BadArgument, ParamsMissing
+from command_parser.actions import help_action
+from command_parser.commands import CommandType, Command
+from command_parser.exceptions import NoSuchOption, BadArgument, ParamsMissing, UsageError, MissingArgument
 from command_parser.parameters import Positional, Option, Flag
 
+Argv = list[str]
+Expected = dict[str, Any]
+Case = tuple[Argv, Expected]
+ExceptionCase = Union[tuple[Argv, Type[Exception]], tuple[Argv, Type[Exception], str]]
 
-class ParamComboTest(TestCase):
+
+class ParserTest(TestCase):
+    # def setUp(self):
+    #     print()
+    #
+    # def subTest(self, *args, **kwargs):
+    #     print()
+    #     return super().subTest(*args, **kwargs)
+
+    def assert_parse_results(
+        self, cmd_cls: CommandType, argv: Argv, expected: Expected, message: str = None
+    ) -> Command:
+        cmd = cmd_cls.parse(argv)
+        parsed = cmd.parser.arg_dict(cmd.args, (help_action,))  # noqa
+        self.assertDictEqual(expected, parsed, message)
+        return cmd
+
+    def assert_parse_results_cases(self, cmd_cls: CommandType, cases: Iterable[Case], message: str = None):
+        for argv, expected in cases:
+            with self.subTest(expected='results', argv=argv):
+                self.assert_parse_results(cmd_cls, argv, expected, message)
+
+    def assert_parse_fails(
+        self,
+        cmd_cls: CommandType,
+        argv: Argv,
+        expected_exc: Type[Exception] = UsageError,
+        expected_pattern: str = None,
+        message: str = None,
+    ):
+        if expected_pattern:
+            with self.assertRaisesRegex(expected_exc, expected_pattern, msg=message):
+                cmd_cls.parse(argv)
+        else:
+            with self.assertRaises(expected_exc, msg=message):
+                cmd_cls.parse(argv)
+
+    def assert_parse_fails_cases(self, cmd_cls: CommandType, cases: Iterable[ExceptionCase], message: str = None):
+        for case in cases:
+            try:
+                argv, exc, pat = case
+            except ValueError:
+                argv, exc = case
+                pat = None
+
+            with self.subTest(expected='exception', argv=argv):
+                self.assert_parse_fails(cmd_cls, argv, exc, pat, message=message)
+
+
+class ParamComboTest(ParserTest):
     def test_flag_and_option(self):
         class Ipython(Command):
             interactive = Flag('-i')
             module = Option('-m')
 
-        for case in (['-im', 'lib.command_parser'], ['-i', '-m', 'lib.command_parser']):
-            with self.subTest(case=case):
-                cmd = Ipython.parse(case)
-                self.assertTrue(cmd.interactive)
-                self.assertEqual(cmd.module, 'lib.command_parser')
+        success_cases = [
+            (['-im', 'lib.command_parser'], {'interactive': True, 'module': 'lib.command_parser'}),
+            (['-i', '-m', 'lib.command_parser'], {'interactive': True, 'module': 'lib.command_parser'}),
+            (['-m', 'lib.command_parser'], {'interactive': False, 'module': 'lib.command_parser'}),
+        ]
+        self.assert_parse_results_cases(Ipython, success_cases)
 
     def test_pos_after_optional(self):
         class Foo(Command, error_handler=None):
@@ -25,10 +82,7 @@ class ParamComboTest(TestCase):
             id = Positional(help='The ID to act upon')
             auth = Option('-a', choices=('a', 'b'), help='Auth mode')
 
-        foo = Foo.parse_and_run(['foo', '-a', 'b', 'bar'])
-        self.assertEqual(foo.cmd, 'foo')
-        self.assertEqual(foo.id, 'bar')
-        self.assertEqual(foo.auth, 'b')
+        foo = self.assert_parse_results(Foo, ['foo', '-a', 'b', 'bar'], {'cmd': 'foo', 'id': 'bar', 'auth': 'b'})
         self.assertIn('cmd', foo.args)
         self.assertIn(Foo.cmd, foo.args)
         self.assertNotIn('bar', foo.args)
@@ -41,66 +95,255 @@ class ParamComboTest(TestCase):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        foo = Foo.parse(['-fb'])
-        self.assertTrue(foo.foo)
-        self.assertTrue(foo.bar)
+        success_cases = [
+            (['-fb'], {'foo': True, 'bar': True}),
+            (['-bf'], {'foo': True, 'bar': True}),
+            (['-f'], {'foo': True, 'bar': False}),
+            (['-b'], {'foo': False, 'bar': True}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
-class NumericValueTest(TestCase):
-    # def setUp(self):
-    #     print()
-    #
-    # def subTest(self, *args, **kwargs):
-    #     print()
-    #     return super().subTest(*args, **kwargs)
-
+class NumericValueTest(ParserTest):
     def test_int_option(self):
         class Foo(Command, error_handler=None):
             bar: int = Option()
 
-        foo = Foo.parse(['--bar', '-1'])
-        self.assertEqual(-1, foo.bar)
-
-        for val, exc in {'-1.5': NoSuchOption, '1.5': BadArgument, 'a': BadArgument}.items():
-            with self.subTest(val=val), self.assertRaises(exc):
-                Foo.parse(['--bar', val])
+        self.assertEqual(-1, Foo.parse(['--bar', '-1']).bar)
+        fail_cases = [
+            (['--bar', '-1.5'], NoSuchOption),
+            (['--bar', '1.5'], BadArgument),
+            (['--bar', 'a'], BadArgument),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
 
     def test_int_positional(self):
         class Foo(Command, error_handler=None):
             bar: int = Positional()
 
-        foo = Foo.parse(['-1'])
-        self.assertEqual(-1, foo.bar)
-
-        for val in ('-1.5', '1.5', '-1.5.1', '1.5.1', 'a'):
-            with self.subTest(val=val), self.assertRaises(BadArgument):
-                Foo.parse([val])
+        self.assertEqual(-1, Foo.parse(['-1']).bar)
+        fail_cases = [
+            (['-1.5'], NoSuchOption),
+            (['1.5'], BadArgument),
+            (['-1.5.1'], NoSuchOption),
+            (['1.5.1'], BadArgument),
+            (['a'], BadArgument),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
 
     def test_float_option(self):
         class Foo(Command, error_handler=None):
             bar: float = Option()
 
-        for key, val in {'1': 1, '-1': -1, '-1.5': -1.5, '1.5': 1.5, '0': 0}.items():
-            with self.subTest(val=val):
-                foo = Foo.parse(['--bar', key])
-                self.assertEqual(val, foo.bar)
-
-        for val, exc in {'-1.5.1': NoSuchOption, '1.5.1': BadArgument, 'a': BadArgument}.items():
-            with self.subTest(val=val), self.assertRaises(exc):
-                Foo.parse(['--bar', val])
+        success_cases = [
+            (['--bar', '1'], {'bar': 1}),
+            (['--bar', '-1'], {'bar': -1}),
+            (['--bar', '1.5'], {'bar': 1.5}),
+            (['--bar', '-1.5'], {'bar': -1.5}),
+            (['--bar', '0'], {'bar': 0}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            (['--bar', '-1.5.1'], NoSuchOption),
+            (['--bar', '1.5.1'], BadArgument),
+            (['--bar', 'a'], BadArgument),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
 
     def test_float_positional(self):
         class Foo(Command, error_handler=None):
-            bar = Positional(type=float)
+            bar: float = Positional()
 
-        for key, val in {'1': 1, '-1': -1, '-1.5': -1.5, '1.5': 1.5, '0': 0}.items():
-            with self.subTest(val=val):
-                foo = Foo.parse([key])
-                self.assertEqual(val, foo.bar)
+        success_cases = [
+            (['1'], {'bar': 1}),
+            (['-1'], {'bar': -1}),
+            (['1.5'], {'bar': 1.5}),
+            (['-1.5'], {'bar': -1.5}),
+            (['0'], {'bar': 0}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            (['-1.5.1'], NoSuchOption),
+            (['1.5.1'], BadArgument),
+            (['a'], BadArgument),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
 
-        for val in ('-1.5.1', '1.5.1', 'a'):
-            with self.subTest(val=val), self.assertRaises(BadArgument):
-                Foo.parse([val])
+    def test_str_option(self):
+        class Foo(Command, error_handler=None):
+            bar = Option()
+
+        success_cases = [
+            (['--bar', '1'], {'bar': '1'}),
+            (['--bar', '-1'], {'bar': '-1'}),
+            (['--bar', '1.5'], {'bar': '1.5'}),
+            (['--bar', '-1.5'], {'bar': '-1.5'}),
+            (['--bar', '1.5.1'], {'bar': '1.5.1'}),
+            (['--bar', '0'], {'bar': '0'}),
+            (['--bar', 'a'], {'bar': 'a'}),
+            (['--bar', 'a b'], {'bar': 'a b'}),
+            (['--bar', ' -a'], {'bar': ' -a'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            (['-a'], NoSuchOption),
+            (['--a'], NoSuchOption),
+            (['--bar', '-a'], NoSuchOption),
+            (['--bar', '-1.5.1'], NoSuchOption),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
+
+class OptionTest(ParserTest):
+    def test_triple_dash_rejected(self):
+        class Foo(Command):
+            bar = Flag()
+
+        for case in (['---'], ['---bar'], ['--bar', '---'], ['--bar', '---bar']):
+            with self.subTest(case=case), self.assertRaises(NoSuchOption):
+                Foo.parse(case)
+
+    def test_misc_dash_rejected(self):
+        class Foo(Command):
+            bar = Flag()
+
+        for case in (['----'], ['----bar'], ['--bar', '----'], ['--bar', '----bar'], ['-'], ['--bar', '-']):
+            with self.subTest(case=case), self.assertRaises(NoSuchOption):
+                Foo.parse(case)
+
+    def test_extra_long_option_deferred(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '--baz'])
+
+        foo = Foo.parse(['bar', '--baz'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['--baz'])
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '--baz', 'a'])
+
+        foo = Foo.parse(['bar', '--baz', 'a'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['--baz', 'a'])
+
+    def test_extra_short_option_deferred(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '-b'])
+
+        foo = Foo.parse(['bar', '-b'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['-b'])
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '-b', 'a'])
+
+        foo = Foo.parse(['bar', '-b', 'a'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['-b', 'a'])
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', '-b=a'])
+
+        foo = Foo.parse(['bar', '-b=a'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['-b=a'])
+
+    def test_short_value_invalid(self):
+        class Foo(Command):
+            foo = Flag()
+            bar = Option()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['--bar', '-f'])
+
+    def test_short_value_no_space(self):
+        class Foo(Command):
+            bar = Option('-b')
+
+        self.assert_parse_results(Foo, ['-bar'], {'bar': 'ar'})
+
+    def test_short_value_ambiguous(self):
+        class Foo(Command):
+            foo = Option('-f')
+            foobar = Option('-foobar')
+            foorab = Option('-foorab')
+
+        success_cases = [
+            ([], {'foo': None, 'foobar': None, 'foorab': None}),
+            (['-f', 'a'], {'foo': 'a', 'foobar': None, 'foorab': None}),
+            (['-fa'], {'foo': 'a', 'foobar': None, 'foorab': None}),
+            (['-foo'], {'foo': 'oo', 'foobar': None, 'foorab': None}),
+            (['-foa'], {'foo': 'oa', 'foobar': None, 'foorab': None}),
+            (['-fooa'], {'foo': 'ooa', 'foobar': None, 'foorab': None}),
+            (['-fooba'], {'foo': 'ooba', 'foobar': None, 'foorab': None}),
+            (['-foora'], {'foo': 'oora', 'foobar': None, 'foorab': None}),
+            (['-foobar', 'a'], {'foo': None, 'foobar': 'a', 'foorab': None}),
+            (['-foorab', 'a'], {'foo': None, 'foobar': None, 'foorab': 'a'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [
+            (['-f'], MissingArgument),
+            (['-foo', 'a'], UsageError),
+            (['--foo'], MissingArgument),
+            (['-foobar'], MissingArgument),
+            (['--foobar'], MissingArgument),
+            (['-foorab'], MissingArgument),
+            (['--foorab'], MissingArgument),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_custom_type_starting_with_dash(self):
+        @dataclass
+        class TimeOffset:
+            value: str
+
+        class Foo(Command):
+            action = Positional()
+            time: TimeOffset = Option('-t')
+
+        success_cases = [
+            (['a', '-t', '-h@h'], {'action': 'a', 'time': TimeOffset('-h@h')}),
+            (['a', '--time', '-h@h'], {'action': 'a', 'time': TimeOffset('-h@h')}),
+            (['a', '-t', '-2h@h'], {'action': 'a', 'time': TimeOffset('-2h@h')}),
+            (['a', '--time', '-2h@h'], {'action': 'a', 'time': TimeOffset('-2h@h')}),
+            (['a', '-t', '@h'], {'action': 'a', 'time': TimeOffset('@h')}),
+            (['a', '--time', '@h'], {'action': 'a', 'time': TimeOffset('@h')}),
+            (['a', '-t', '@h-5m'], {'action': 'a', 'time': TimeOffset('@h-5m')}),
+            (['a', '--time', '@h-5m'], {'action': 'a', 'time': TimeOffset('@h-5m')}),
+            (['a', '-t', '@h+5m'], {'action': 'a', 'time': TimeOffset('@h+5m')}),
+            (['a', '--time', '@h+5m'], {'action': 'a', 'time': TimeOffset('@h+5m')}),
+            (['a', '-t', 'now'], {'action': 'a', 'time': TimeOffset('now')}),
+            (['a', '--time', 'now'], {'action': 'a', 'time': TimeOffset('now')}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [
+            (['-h@h'], NoSuchOption),
+            (['-2h@h'], NoSuchOption),
+            (['a', '-t'], MissingArgument),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
+
+class PositionalTest(ParserTest):
+    def test_extra_positional_deferred(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with self.assertRaises(NoSuchOption):
+            Foo.parse(['bar', 'baz'])
+
+        foo = Foo.parse(['bar', 'baz'], allow_unknown=True)
+        self.assertEqual(foo.args.remaining, ['baz'])
+
+    def test_first_rejects_bad_choice(self):
+        class Foo(Command):
+            bar = Positional(choices=('a', 'b'))
+
+        with self.assertRaises(BadArgument):
+            Foo.parse(['c'])
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@
 :author: Doug Skrypa
 """
 
+import re
 import sys
 from collections.abc import Collection, Iterable
 from inspect import stack, getsourcefile, isclass
@@ -189,3 +190,11 @@ def _type_from_collection(origin, annotation):
         return _type_from_union(annotation)
     else:
         return None
+
+
+def is_numeric(text: str) -> Bool:
+    try:
+        num_match = is_numeric._num_match
+    except AttributeError:
+        is_numeric._num_match = num_match = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
+    return num_match(text)

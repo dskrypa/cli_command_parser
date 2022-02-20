@@ -41,6 +41,8 @@ class CommandParserException(Exception):
 
 
 class ParserExit(CommandParserException):
+    """Exception used to exit with the given message and status code"""
+
     def __init__(self, message: str = None, code: int = None):
         self.code = code
         self.message = message
@@ -49,19 +51,29 @@ class ParserExit(CommandParserException):
         return self.message or ''
 
 
+# region Developer Errors
+
+
 class CommandDefinitionError(CommandParserException):
-    """An error related to the definition of a command"""
+    """An error caused by providing invalid options for a Command, or an invalid combination of Parameters"""
 
 
 class ParameterDefinitionError(CommandParserException):
-    pass
+    """An error caused by providing invalid options for a Parameter"""
+
+
+# endregion
+
+# region User Errors
 
 
 class UsageError(CommandParserException):
-    pass
+    """Base exception for user errors"""
 
 
 class ParamUsageError(UsageError):
+    """Error raised when a Parameter was not used correctly"""
+
     message: str = None
 
     def __init__(self, param: 'ParamOrGroup', message: str = None):
@@ -79,6 +91,8 @@ class ParamUsageError(UsageError):
 
 
 class ParamConflict(UsageError):
+    """Error raised when mutually exclusive Parameters were combined"""
+
     message: str = None
 
     def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
@@ -93,6 +107,8 @@ class ParamConflict(UsageError):
 
 
 class ParamsMissing(UsageError):
+    """Error raised when one or more required Parameters were not provided"""
+
     message: str = None
 
     def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
@@ -111,10 +127,12 @@ class ParamsMissing(UsageError):
 
 
 class BadArgument(ParamUsageError):
-    pass
+    """Error raised when an invalid value is provided for a Parameter"""
 
 
 class InvalidChoice(BadArgument):
+    """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
+
     def __init__(self, param: 'Parameter', invalid: Any, choices: Collection[Any]):
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
             bad_str = 'choices: {}'.format(', '.join(map(repr, invalid)))
@@ -125,8 +143,13 @@ class InvalidChoice(BadArgument):
 
 
 class MissingArgument(BadArgument):
+    """Error raised when a value for a Parameter was not provided"""
+
     message = 'missing required argument value'
 
 
 class NoSuchOption(UsageError):
-    pass
+    """Error raised when an option that was not defined as a Parameter was provided"""
+
+
+# endregion

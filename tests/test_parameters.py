@@ -21,15 +21,7 @@ from command_parser.args import Args
 
 
 class PositionalTest(TestCase):
-    def test_extra_positional_deferred(self):
-        class Foo(Command):
-            bar = Positional()
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', 'baz'])
-
-        foo = Foo.parse(['bar', 'baz'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['baz'])
+    pass
 
 
 class OptionTest(TestCase):
@@ -58,79 +50,28 @@ class OptionTest(TestCase):
         self.assertEqual(a.foo, 'a')
         self.assertEqual(b.foo, 'b')
 
-    def test_triple_dash_rejected(self):
-        class Foo(Command):
-            bar = Flag()
-
-        for case in (['---'], ['---bar'], ['--bar', '---'], ['--bar', '---bar']):
-            with self.subTest(case=case), self.assertRaises(NoSuchOption):
-                Foo.parse(case)
-
-    def test_misc_dash_rejected(self):
-        class Foo(Command):
-            bar = Flag()
-
-        for case in (['----'], ['----bar'], ['--bar', '----'], ['--bar', '----bar'], ['-'], ['--bar', '-']):
-            with self.subTest(case=case), self.assertRaises(NoSuchOption):
-                Foo.parse(case)
-
-    def test_extra_long_option_deferred(self):
-        class Foo(Command):
-            bar = Positional()
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '--baz'])
-
-        foo = Foo.parse(['bar', '--baz'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['--baz'])
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '--baz', 'a'])
-
-        foo = Foo.parse(['bar', '--baz', 'a'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['--baz', 'a'])
-
-    def test_extra_short_option_deferred(self):
-        class Foo(Command):
-            bar = Positional()
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '-b'])
-
-        foo = Foo.parse(['bar', '-b'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['-b'])
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '-b', 'a'])
-
-        foo = Foo.parse(['bar', '-b', 'a'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['-b', 'a'])
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '-b=a'])
-
-        foo = Foo.parse(['bar', '-b=a'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['-b=a'])
-
     def test_value_missing(self):
         class Foo(Command):
             foo = Flag('-f')
-            bar = Option()
+            bar = Option('-b')
 
-        cases = (['--foo', '--bar'], ['--bar', '--foo'], ['-f', '--bar'], ['--bar', '-f'])
+        cases = (
+            ['--foo', '--bar'],
+            ['--foo', '-b'],
+            ['--bar', '--foo'],
+            ['-b', '--foo'],
+            ['-f', '--bar'],
+            ['-f', '-b'],
+            ['--bar', '-f'],
+            ['-b', '-f'],
+            ['-b'],
+            ['--bar'],
+        )
         for case in cases:
             with self.subTest(case=case), self.assertRaises(MissingArgument):
                 Foo.parse(case)
 
         self.assertTrue(Foo.parse(['--foo']).foo)
-
-    def test_short_value_invalid(self):
-        class Foo(Command):
-            foo = Flag()
-            bar = Option()
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['--bar', '-f'])
 
     def test_invalid_value(self):
         class Foo(Command):
