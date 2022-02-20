@@ -151,6 +151,7 @@ def get_descriptor_value_type(command_cls, attr: str):
     except KeyError:
         return None
 
+    # TODO: Also return container type, if specified?
     if (origin := get_origin(annotation)) is None and isinstance(annotation, type):
         return annotation
     elif isclass(origin) and issubclass(origin, (Collection, Iterable)):

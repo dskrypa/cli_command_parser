@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
@@ -16,12 +15,9 @@ from command_parser.exceptions import (
     ParamUsageError,
     MissingArgument,
     BadArgument,
-    ParamsMissing,
 )
-from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand
+from command_parser.parameters import parameter_action, PassThru, Positional
 from command_parser.args import Args
-
-log = logging.getLogger(__name__)
 
 
 class PositionalTest(TestCase):
@@ -329,67 +325,6 @@ class MiscParameterTest(TestCase):
         flag = Flag()
         with self.assertRaises(ParamUsageError):
             flag.take_action(Args([]), 'foo')
-
-
-class ParserTest(TestCase):
-    def test_parser_repr(self):
-        class Foo(Command):
-            bar = Positional()
-
-        rep = repr(Foo.parser)
-        self.assertIn('Foo', rep)
-        self.assertIn('positionals=', rep)
-        self.assertIn('options=', rep)
-
-    def test_parser_contains_recursive(self):
-        class Foo(Command):
-            cmd = SubCommand()
-
-        class Bar(Foo):
-            bar = Counter('-b')
-
-        for cls in (Foo, Bar):
-            parser = cls.parser
-            self.assertTrue(parser.contains(Args([]), '-h'))
-            self.assertFalse(parser.contains(Args([]), '-H'))
-            self.assertTrue(parser.contains(Args([]), '-b=1'))
-            self.assertFalse(parser.contains(Args([]), '-B=1'))
-            self.assertFalse(parser.contains(Args([]), '-ba'))
-            self.assertTrue(parser.contains(Args([]), '--bar=1'))
-            self.assertFalse(parser.contains(Args([]), '--baz=1'))
-            self.assertFalse(parser.contains(Args([]), 'baz'))
-            self.assertTrue(parser.contains(Args([]), '-b=1'))
-            self.assertFalse(parser.contains(Args([]), '-B=1'))
-            self.assertTrue(parser.contains(Args([]), '-bb'))
-            self.assertFalse(parser.contains(Args([]), '-ab'))
-
-    def test_redefine_param_rejected(self):
-        class Foo(Command):
-            cmd = SubCommand()
-            bar = Flag('-b')
-
-        class Bar(Foo):
-            bar = Counter('-b')
-
-        with self.assertRaisesRegex(CommandDefinitionError, 'conflict for command=.* between params'):
-            Foo.parse(['bar'])
-
-    def test_pos_after_optional(self):
-        class Foo(Command, error_handler=None):
-            cmd = Positional(help='The command to perform')
-            id = Positional(help='The ID to act upon')
-            auth = Option('-a', choices=('a', 'b'), help='Auth mode')
-
-        foo = Foo.parse_and_run(['foo', '-a', 'b', 'bar'])
-        self.assertEqual(foo.cmd, 'foo')
-        self.assertEqual(foo.id, 'bar')
-        self.assertEqual(foo.auth, 'b')
-        self.assertIn('cmd', foo.args)
-        self.assertIn(Foo.cmd, foo.args)
-        self.assertNotIn('bar', foo.args)
-
-        with self.assertRaises(ParamsMissing):
-            Foo.parse_and_run(['foo', '-a', 'b'])
 
 
 class TypeCastTest(TestCase):

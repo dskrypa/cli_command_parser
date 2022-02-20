@@ -227,19 +227,6 @@ class TestCommands(TestCase):
             Bar.parse_and_run(['-h'])
 
 
-class TestParsing(TestCase):
-    def test_flag_and_option(self):
-        class Ipython(Command):
-            interactive = Flag('-i')
-            module = Option('-m')
-
-        for case in (['-im', 'lib.command_parser'], ['-i', '-m', 'lib.command_parser']):
-            with self.subTest(case=case):
-                cmd = Ipython.parse(case)
-                self.assertTrue(cmd.interactive)
-                self.assertEqual(cmd.module, 'lib.command_parser')
-
-
 if __name__ == '__main__':
     try:
         main(warnings='ignore', verbosity=2, exit=False)

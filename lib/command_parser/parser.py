@@ -180,13 +180,20 @@ class CommandParser:
         :param item: An option string
         :return: True if this parser contains a matching Option parameter, False otherwise
         """
-        if (dash_count := item.count('-', 0, 3)) == 2:
+        if item.startswith('---'):
+            return False
+        elif item.startswith('--'):
             return item.split('=', 1)[0] in self.long_options
-        elif dash_count == 1:
-            if '=' in item:
-                return item.split('=', 1)[0] in self.short_options
-            elif item in self.short_options:
-                return True
+        elif item.startswith('-'):
+            try:
+                item, value = item.split('=', 1)
+            except ValueError:
+                if item in self.short_options:
+                    return True
+                # else: process further
+            else:
+                return item in self.short_options
+
             key, value = item[1], item[2:]
             short_combinable = self.short_combinable
             if (param := short_combinable.get(key)) is None:
@@ -255,12 +262,14 @@ class _Parser:
         self.short_combinable = cmd_parser.short_combinable
         self.deferred = None
         self.args = args
+        positionals = self.cmd_parser.positionals
+        self.pos_available = bool(positionals)
+        self.pos_iter = iter(positionals)
 
     def parse_args(self):
         args = self.args
         arg_deque = self.handle_pass_thru()
         self.deferred = args.remaining = []
-        pos_iter = iter(self.cmd_parser.positionals)
         while arg_deque:
             arg = arg_deque.popleft()
             if arg == '--' or arg.startswith('---'):
@@ -268,15 +277,15 @@ class _Parser:
             elif arg.startswith('--'):
                 self.handle_long(arg, arg_deque)
             elif arg.startswith('-') and arg != '-':
-                self.handle_short(arg, arg_deque)
-            else:
                 try:
-                    param = next(pos_iter)  # type: _Positional
-                except StopIteration:
-                    self.deferred.append(arg)
-                else:
-                    found = param.take_action(args, arg)
-                    self.consume_values(param, arg_deque, found=found)
+                    self.handle_short(arg, arg_deque)
+                except NotAShortOption:
+                    if self.pos_available:
+                        self.handle_positional(arg, arg_deque)
+                    else:
+                        self.deferred.append(arg)
+            else:
+                self.handle_positional(arg, arg_deque)
 
     def handle_pass_thru(self) -> deque[str]:
         args = self.args
@@ -293,6 +302,16 @@ class _Parser:
                 return deque(remaining[:a])
         return deque(remaining)
 
+    def handle_positional(self, arg: str, arg_deque: deque[str]):
+        try:
+            param = next(self.pos_iter)  # type: _Positional
+        except StopIteration:
+            self.pos_available = False
+            self.deferred.append(arg)
+        else:
+            found = param.take_action(self.args, arg)
+            self.consume_values(param, arg_deque, found=found)
+
     def handle_long(self, arg: str, arg_deque: deque[str]):
         try:
             param, value = self.split_long(arg)
@@ -305,9 +324,9 @@ class _Parser:
                 param.take_action(self.args, None)
 
     def handle_short(self, arg: str, arg_deque: deque[str]):
-        if not (param_val_combos := self.split_short(arg)):
-            return
-        elif len(param_val_combos) == 1:
+        param_val_combos = self.split_short(arg)
+        # log.debug(f'Split {arg=} into {param_val_combos=}')
+        if len(param_val_combos) == 1:
             param, value = param_val_combos[0]
             if value is not None or (param.accepts_none and not param.accepts_values):
                 param.take_action(self.args, value)
@@ -342,14 +361,12 @@ class _Parser:
             if (param := self.short_options.get(key)) is not None:
                 return [(param, value)]
             else:
-                self.deferred.append(arg)
-                return []
+                raise NotAShortOption
 
         key, value = arg[1], arg[2:]
         short_combinable = self.short_combinable
         if (param := short_combinable.get(key)) is None:
-            self.deferred.append(arg)
-            return []
+            raise NotAShortOption
         elif not value:
             return [(param, None)]
         elif param.would_accept(self.args, value):
@@ -357,9 +374,8 @@ class _Parser:
         else:
             try:
                 return [(short_combinable[c], None) for c in arg[1:]]
-            except KeyError:
-                self.deferred.append(arg)
-                return []
+            except KeyError as e:
+                raise NotAShortOption from e
 
     def consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
         result = self._consume_values(param, arg_deque, found)
@@ -383,24 +399,32 @@ class _Parser:
                     raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}')
                 elif value.startswith('-') and value != '-':
                     if self.cmd_parser.contains(self.args, value):
+                        # log.debug(f'{value=} will not be used with {param=} - it is also a parameter')
                         if nargs.satisfied(found):
                             arg_deque.appendleft(value)
                             return found
                         raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}')
                     elif not param.would_accept(self.args, value):
+                        # log.debug(f'{value=} will not be used with {param=} - it would not be accepted')
                         if nargs.satisfied(found):
                             arg_deque.appendleft(value)
                             return found
                         raise NoSuchOption(f'invalid argument: {value}')
+                    # log.debug(f'{value=} may be used with {param=} as a value')
 
                 try:
                     found += param.take_action(self.args, value)
                 except UsageError:
+                    # log.debug(f'{value=} was rejected by {param=}', exc_info=True)
                     if nargs.satisfied(found):
                         arg_deque.appendleft(value)
                         return found
                     else:
                         raise
+
+
+class NotAShortOption(Exception):
+    """Used only during parsing to indicate that a given arg is not a short option"""
 
 
 def _update_options(opt_dict: dict[str, BaseOption], attr: str, param: BaseOption, command: 'CommandType'):
