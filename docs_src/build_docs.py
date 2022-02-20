@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-class BuildDocs(Command, description='Build documentation using Sphinx', multiple_action_flags=True):
+class BuildDocs(Command, description='Build documentation using Sphinx'):
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
     def __init__(self, args):
@@ -74,7 +74,6 @@ class BuildDocs(Command, description='Build documentation using Sphinx', multipl
             modules.append(name)
             self._make_module_rst(name)
 
-        # self._write_api()
         self._write_index(modules)
 
     def _write_rst(self, name: str, content: str):
@@ -83,22 +82,16 @@ class BuildDocs(Command, description='Build documentation using Sphinx', multipl
             log.info(f'Writing {path.as_posix()}')
             f.write(content)
 
-    # def _write_api(self):
-    #     content = f'API\n===\n\n.. autosummary::\n   :toctree: generated\n\n   {self.package}\n'
-    #     self._write_rst('api', content)
-
     def _write_index(self, modules: list[str]):
         bar = '*' * len(self.title)
         head = f'{self.title}\n{bar}\n\n.. toctree::\n   :maxdepth: 1\n   :caption: Modules\n   :hidden:\n\n'
         foot = '\n\nIndices and tables\n==================\n\n* :ref:`genindex`\n* :ref:`modindex`\n* :ref:`search`\n'
-        # mod_list = '\n'.join(map('   {}'.format, ['api'] + modules))
         mod_list = '\n'.join(map('   {}'.format, sorted(modules)))
         self._write_rst('index', head + mod_list + foot)
 
     def _make_module_rst(self, module: str):
         title = '{} Module'.format(module.split('.')[-1].title())
         bar = '*' * len(title)
-        # attrs = '   :members:\n   :private-members:\n   :undoc-members:\n   :show-inheritance:\n'
         attrs = '   :members:\n   :undoc-members:\n   :show-inheritance:\n'
         content = f'{title}\n{bar}\n\n.. currentmodule:: {module}\n\n.. automodule:: {module}\n{attrs}'
         self._write_rst(module, content)

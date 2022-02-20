@@ -221,13 +221,13 @@ class Command:
 
     def main(self, *args, **kwargs) -> Optional[int]:
         """
-        Primary
+        Primary method that is called when running a Command.
 
         If any arguments were specified that are associated with triggering a method that was decorated / registered as
         a positional :class:`~.parameters.Action`'s target method, then that method is called here.
 
-        Commands that do not have any :class:`~.parameters.Action` s can override this method, and do **not** need
-        to call ``super().main(*args, **kwargs)``.
+        Commands that do not have any positional :class:`Actions<.parameters.Action>` can override this method, and do
+        **not** need to call ``super().main(*args, **kwargs)``.
 
         Initialization code that is common for all actions, or that should be run before :meth:`.before_main` should be
         placed in ``__init__``.
@@ -241,7 +241,7 @@ class Command:
         if action is not None and (parsed.actions_taken == 0 or self.__command_config.action_after_action_flags):
             # TODO: Error on action when config.action_after_action_flags is False?
             parsed.actions_taken += 1
-            action.__get__(self, self.__class__)(self, *args, **kwargs)
+            action.result(parsed)(self, *args, **kwargs)
 
         return parsed.actions_taken
 

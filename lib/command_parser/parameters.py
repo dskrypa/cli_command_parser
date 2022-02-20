@@ -394,17 +394,19 @@ class Parameter(ParamBase):
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
+    def _nargs_max_reached(self, args: 'Args'):
+        try:
+            return len(args[self]) >= self.nargs.max
+        except TypeError:
+            return False
+
     def take_action(self, args: 'Args', value: Optional[str]):
         # log.debug(f'{self!r}.take_action({value!r})')
         if (action := self.action) == 'store' and args[self] is not _NotSet:
             raise ParamUsageError(self, f'received {value=} but a stored value={args[self]!r} already exists')
-        elif action == 'append':
-            nargs = self.nargs
-            try:
-                if (val_count := len(args[self])) >= nargs.max:
-                    raise ParamUsageError(self, f'cannot accept any additional args with {nargs=}: {val_count=}')
-            except TypeError:
-                pass
+        elif action == 'append' and self._nargs_max_reached(args):
+            val_count = len(args[self])
+            raise ParamUsageError(self, f'cannot accept any additional args with nargs={self.nargs}: {val_count=}')
 
         args.record_action(self)
         action_method = getattr(self, self.action)
@@ -419,13 +421,8 @@ class Parameter(ParamBase):
     def would_accept(self, args: 'Args', value: str) -> bool:
         if (action := self.action) in {'store', 'store_all'} and args[self] is not _NotSet:
             return False
-        elif action == 'append':
-            nargs = self.nargs
-            try:
-                if len(args[self]) == nargs.max:
-                    return False
-            except TypeError:
-                pass
+        elif action == 'append' and self._nargs_max_reached(args):
+            return False
         try:
             normalized = self.prepare_value(value)
         except BadArgument:

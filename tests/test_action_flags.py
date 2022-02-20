@@ -129,7 +129,7 @@ class ActionFlagTest(TestCase):
     def test_extra_flags_provided_cause_error(self):
         mocks = [Mock(), Mock()]
 
-        class Foo(Command, error_handler=None):
+        class Foo(Command, error_handler=None, multiple_action_flags=False):
             foo = ActionFlag('-f', order=1)(mocks[0])
             bar = ActionFlag('-b', order=2)(mocks[1])
 
