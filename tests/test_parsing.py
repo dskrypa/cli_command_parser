@@ -30,6 +30,7 @@ class ParamComboTest(ParserTest):
             (['-m', '-i'], MissingArgument),
             (['-i', 'm'], NoSuchOption),
             (['-m'], MissingArgument),
+            (['-i=True'], UsageError),
         ]
         self.assert_parse_fails_cases(Ipython, fail_cases)
 
@@ -127,6 +128,27 @@ class ParamComboTest(ParserTest):
             (['-bf', 'b'], NoSuchOption),
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_multi_value_opt_with_positional(self):
+        class Foo(Command):
+            bar = Option(nargs=2)
+            baz = Positional()
+
+        self.assertEqual('append', Foo.bar.action)
+        success_cases = [
+            (['--bar', 'a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'}),
+            (['c', '--bar', 'a', 'b'], {'bar': ['a', 'b'], 'baz': 'c'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            [],
+            ['a', 'b'],
+            ['c', 'd', '--bar', 'a', 'b'],
+            ['c', '--bar', 'a'],
+            ['--bar', 'a', 'b', 'c', 'd'],
+            ['--bar', 'a', 'b', '-baz'],
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 class NumericValueTest(ParserTest):
@@ -393,6 +415,16 @@ class PositionalTest(ParserTest):
 
         with self.assertRaises(BadArgument):
             Foo.parse(['c'])
+
+    def test_multiple_positionals(self):
+        class Foo(Command):
+            bar = Positional(nargs=2)
+            baz = Positional()
+
+        self.assertEqual('append', Foo.bar.action)
+        self.assert_parse_results(Foo, ['a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'})
+        fail_cases = [[], ['a', 'b', 'c', 'd'], ['a', 'b']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 if __name__ == '__main__':

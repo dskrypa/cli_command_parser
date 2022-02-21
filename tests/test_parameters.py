@@ -90,6 +90,12 @@ class OptionTest(ParserTest):
         ]
         self.assert_call_fails_cases(Option, fail_cases)
 
+    def test_bad_option_strs_rejected(self):
+        fail_cases = ['---foo', '-f-', '-foo--', '--foo-', '--foo=', '-f=', '-foo=', '=', '-', '--', '---', '-=', '--=']
+        for option_str in fail_cases:
+            with self.subTest(option_str=option_str), self.assertRaises(ParameterDefinitionError):
+                Option(option_str)
+
 
 class FlagTest(ParserTest):
     def test_default_consts(self):
@@ -354,6 +360,35 @@ class MiscParameterTest(ParserTest):
         for group in sort_cases:
             with self.subTest(group=group), self.assertRaises(TypeError):
                 sorted(group)
+
+    def test_late_param_addition(self):
+        class Foo(Command):
+            pass
+
+        Foo.bar = Flag('--bar', '-b')
+        key = f'Flag#{id(Foo.bar)}'
+        success_cases = [([], {key: False}), (['--bar'], {key: True}), (['-b'], {key: True})]
+        self.assert_parse_results_cases(Foo, success_cases)
+        for argv, expected in success_cases:
+            with self.subTest(argv=argv):
+                self.assertEqual(expected[key], Foo.parse(argv).bar)
+
+    def test_unexpected_prep_value_error(self):
+        class Foo(Command):
+            bar = Positional(type=Mock(side_effect=OSError))
+
+        self.assert_parse_fails(Foo, ['a'], BadArgument, 'unable to cast value=.* to type=')
+
+    def test_none_invalid(self):
+        with self.assertRaises(MissingArgument):
+            Option().validate(Args([]), None)
+
+    def test_none_valid(self):
+        self.assertIs(None, Flag().validate(Args([]), None))
+
+    def test_value_invalid(self):
+        with self.assertRaises(BadArgument):
+            Flag().validate(Args([]), 1)
 
 
 class TypeCastTest(ParserTest):
