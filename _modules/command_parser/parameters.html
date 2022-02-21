@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parameters &mdash; Command Parser 2022.02.21-7 documentation</title>
+  <title>command_parser.parameters &mdash; Command Parser 2022.02.21-9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -257,12 +257,6 @@
 <div class="viewcode-block" id="ParamGroup.add"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParamGroup.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add the given parameter without storing a back-reference.  Primary use case is for help text only groups.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
-
-    <span class="c1"># def maybe_add_all(self, params: Iterable[ParamOrGroup]):</span>
-    <span class="c1">#     # TODO: Remove entirely</span>
-    <span class="c1">#     for param in params:</span>
-    <span class="c1">#         if not param.group:</span>
-    <span class="c1">#             self.add(param)</span>
 
 <div class="viewcode-block" id="ParamGroup.register"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.ParamGroup.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.21-7 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.21-9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -148,6 +148,10 @@
 <span class="sd">          Action method in a given CLI invocation</span>
 <span class="sd">        :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all</span>
 <span class="sd">          specified</span>
+<span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
+<span class="sd">          arguments are encountered)</span>
+<span class="sd">        :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when</span>
+<span class="sd">          required arguments are missing)</span>
 <span class="sd">        :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub</span>
 <span class="sd">          commands</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -215,9 +219,7 @@
     <span class="c1"># endregion</span>
 
 <div class="viewcode-block" id="Command.parse_and_run"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`</span>
 <span class="sd">        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles</span>
@@ -229,13 +231,11 @@
 
 <span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
 <span class="sd">        :param args: Positional arguments to pass to :meth:`.run`</span>
-<span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
-<span class="sd">          arguments are encountered)</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.run`</span>
 <span class="sd">        :return: The Command instance with parsed arguments for which :meth:`.run` was already called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__get_error_handler</span><span class="p">():</span>
-            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">)</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span>
@@ -246,20 +246,20 @@
             <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Command.parse"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.parse">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the</span>
 <span class="sd">        parsed arguments, if necessary.</span>
 
 <span class="sd">        :param args: The arguments to parse (defaults to :data:`sys.argv`)</span>
-<span class="sd">        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
-<span class="sd">          arguments are encountered)</span>
 <span class="sd">        :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">Args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
-        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">command_config</span>
+        <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">allow_unknown</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">allow_missing</span><span class="p">):</span>
             <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">command_config</span>
 
         <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 

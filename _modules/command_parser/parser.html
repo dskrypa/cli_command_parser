@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parser &mdash; Command Parser 2022.02.21-7 documentation</title>
+  <title>command_parser.parser &mdash; Command Parser 2022.02.21-9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -329,7 +329,12 @@
         <span class="n">missing_opt</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">missing_pos</span> <span class="o">+</span> <span class="n">missing_opt</span>
 
-<div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
+<div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span>
+        <span class="n">allow_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_missing</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
         <span class="c1"># log.debug(f&#39;{self!r}.parse_args({args=}, {allow_unknown=})&#39;)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd_param</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">sub_cmd_param</span><span class="si">}</span><span class="s1"> has no sub Commands&#39;</span><span class="p">)</span>
@@ -350,8 +355,11 @@
                         <span class="k">return</span> <span class="kc">None</span>
                     <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">next_cmd</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">missing</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_missing</span><span class="p">(</span><span class="n">args</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">):</span>
-            <span class="c1"># The action is excluded because it provides a better error message</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">missing</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_missing</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">allow_missing</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">)</span>  <span class="c1"># excluded because it provides a better error message</span>
+        <span class="p">):</span>
             <span class="k">if</span> <span class="n">help_action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">remaining</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">allow_unknown</span><span class="p">:</span>
