@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.formatting &mdash; Command Parser 2022.02.21-9 documentation</title>
+  <title>command_parser.formatting &mdash; Command Parser 2022.02.21-11 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -86,7 +86,7 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
+<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">Bool</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -119,11 +119,13 @@
         <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">_Command__meta</span>
         <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="n">meta</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">usage</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">positionals</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">options</span>  <span class="c1"># noqa</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">pass_thru</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pass_thru</span><span class="p">)</span>
+
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;usage:&#39;</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">prog</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">positionals</span><span class="p">:</span>  <span class="c1"># type: BasePositional</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">format_usage</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>  <span class="c1"># type: BaseOption</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">format_basic_usage</span><span class="p">()</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HelpFormatter.format_help"><a class="viewcode-back" href="../../command_parser.formatting.html#command_parser.formatting.HelpFormatter.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span>
