@@ -18,12 +18,44 @@ from command_parser.exceptions import (
     BadArgument,
     InvalidChoice,
 )
-from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand, ParamGroup, ActionFlag
+from command_parser.parameters import (
+    parameter_action,
+    PassThru,
+    Positional,
+    SubCommand,
+    ParamGroup,
+    ActionFlag,
+    BasePositional,
+    Action,
+)
 from command_parser.testing import ParserTest
 
 
 class PositionalTest(TestCase):
-    pass
+    def test_required_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Positional(required=False)
+
+    def test_default_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Positional(default=None)
+
+    def test_custom_default_rejected(self):
+        class CustomPositional(BasePositional):
+            foo = parameter_action(Mock())
+
+        with self.assertRaises(ParameterDefinitionError):
+            CustomPositional(default=None, action='foo')
+
+    def test_nargs_0_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Positional(nargs=0)
+
+    def test_action_nargs_mismatch_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Positional(nargs=2, action='store')
+
+        self.assertEqual(1, Positional(action='store').nargs)
 
 
 class OptionTest(ParserTest):
@@ -442,6 +474,16 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         with self.assertRaises(InvalidChoice):
             foo.bar  # noqa
 
+    def test_bad_choice_append_rejected(self):
+        class Foo(Command):
+            action = Action()
+            action('foo bar')(Mock())
+
+        args = Args([])
+        Foo.action.take_action(args, 'foo')
+        with self.assertRaises(InvalidChoice):
+            Foo.action.append(args, 'baz')
+
 
 class TypeCastTest(ParserTest):
     def test_type_cast_singles(self):
@@ -495,6 +537,20 @@ class TypeCastTest(ParserTest):
                 bar: annotation = Option(type=type_val)
 
             self.assertEqual(expected, Foo.parse(argv).bar)
+
+
+class ChoiceMapTest(ParserTest):
+    def test_early_choices_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Action(choices=())
+
+    def test_reassign_choice_rejected(self):
+        with self.assertRaises(CommandDefinitionError):
+
+            class Foo(Command):
+                action = Action()
+                action('foo')(Mock())
+                action('foo')(Mock())
 
 
 def _resolved_path(path):

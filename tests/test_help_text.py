@@ -7,7 +7,17 @@ from unittest.mock import Mock, patch, MagicMock
 
 from command_parser import Command, no_exit_handler
 from command_parser.commands import CommandType
-from command_parser.parameters import Positional, SubCommand, Action, Counter, ParamGroup, Option, Flag, PassThru
+from command_parser.parameters import (
+    Positional,
+    SubCommand,
+    Action,
+    Counter,
+    ParamGroup,
+    Option,
+    Flag,
+    PassThru,
+    ChoiceMap,
+)
 from command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
@@ -128,6 +138,12 @@ class HelpTextTest(TestCase):
         help_text = Foo.parser.formatter.format_help()
         self.assertIn('--foo', help_text)
         self.assertIn('[-- BAR]', help_text)
+
+    def test_custom_choice_map(self):
+        class Custom(ChoiceMap):
+            pass
+
+        self.assertTrue(Custom().format_help().startswith('Choices:'))
 
 
 class ProgramMetadataTest(TestCase):

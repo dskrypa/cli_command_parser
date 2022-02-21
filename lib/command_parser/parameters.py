@@ -560,6 +560,8 @@ class Positional(BasePositional):
                 raise ParameterDefinitionError(f'Invalid nargs={self.nargs} - {cls_name} must allow at least 1 value')
         if action is _NotSet:
             action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
+        elif action == 'store' and self.nargs.max != 1:
+            raise ParameterDefinitionError(f'Invalid {action=} for nargs={self.nargs}')
         if default is not _NotSet and (action != 'store' or 0 not in self.nargs):
             raise ParameterDefinitionError(f'Invalid {default=} - only allowed for Positional parameters when nargs=?')
         super().__init__(action=action, **kwargs)
