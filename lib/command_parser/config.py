@@ -29,6 +29,12 @@ class CommandConfig:
     #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.run`
     error_handler: Optional['ErrorHandler'] = _NotSet
 
+    #: Whether unknown arguments should be allowed (default: raise an exception when unknown arguments are encountered)
+    allow_unknown: Bool = False
+
+    #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
+    allow_missing: Bool = False
+
     def as_dict(self) -> dict[str, Any]:
         """
         Return a dict representing the configured options.

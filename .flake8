@@ -4,6 +4,7 @@ ignore =
     F401,   # <module> imported but unused
     W605,   # invalid escape sequence <seq>
     F841,   # local variable <var> is assigned to but never used
+    W503,   # line break before binary operator (conflicts with Black)
 max-line-length = 9000
 exclude = .git,__pycache__,*.yaml,*.yml,Makefile,.flake8,*.toml,*.md,*.rst,*.sh
 max-complexity = 100

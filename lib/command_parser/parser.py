@@ -247,7 +247,12 @@ class CommandParser:
         missing_opt = [p for p in self.options if p.required and p.group is None and args.num_provided(p) == 0]
         return missing_pos + missing_opt
 
-    def parse_args(self, args: 'Args', allow_unknown: Bool = False) -> Optional['CommandType']:
+    def parse_args(
+        self,
+        args: 'Args',
+        allow_unknown: Bool = False,
+        allow_missing: Bool = False,
+    ) -> Optional['CommandType']:
         # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=})')
         if (sub_cmd_param := self.sub_command) is not None and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{self.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
@@ -268,8 +273,11 @@ class CommandParser:
                         return None
                     raise ParamsMissing(missing)
                 return next_cmd
-        elif (missing := self._get_missing(args)) and (not self.action or self.action not in missing):
-            # The action is excluded because it provides a better error message
+        elif (
+            (missing := self._get_missing(args))
+            and not allow_missing
+            and (not self.action or self.action not in missing)  # excluded because it provides a better error message
+        ):
             if help_action not in args:
                 raise ParamsMissing(missing)
         elif args.remaining and not allow_unknown:

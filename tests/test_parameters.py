@@ -16,6 +16,7 @@ from command_parser.exceptions import (
     ParamUsageError,
     MissingArgument,
     BadArgument,
+    InvalidChoice,
 )
 from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand, ParamGroup, ActionFlag
 from command_parser.testing import ParserTest
@@ -389,6 +390,49 @@ class MiscParameterTest(ParserTest):
     def test_value_invalid(self):
         with self.assertRaises(BadArgument):
             Flag().validate(Args([]), 1)
+
+    def test_missing_required_value_single(self):
+        class Foo(Command, allow_missing=True):
+            bar = Option(required=True)
+
+        with self.assertRaises(MissingArgument):
+            Foo.parse([]).bar  # noqa
+
+    def test_missing_required_value_multi(self):
+        class Foo(Command, allow_missing=True):
+            bar = Option(nargs='+', required=True)
+
+        with self.assertRaises(MissingArgument):
+            Foo.parse([]).bar  # noqa
+
+    def test_too_few_values(self):
+        class Foo(Command):
+            bar = Option(nargs=2)
+
+        args = Args(['--bar', 'a'])
+        foo = Foo(args)  # This is NOT the recommended way of initializing a Command
+        with self.assertRaises(BadArgument):
+            foo.parser.parse_args(args)
+        with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
+            foo.bar  # noqa
+
+    def test_bad_choice(self):
+        class Foo(Command):
+            bar = Option(choices=('a', 'b', 'c'))
+
+        foo = Foo.parse(['--bar', 'c'])
+        Foo.bar.choices = ('a', 'b')
+        with self.assertRaises(InvalidChoice):
+            foo.bar  # noqa
+
+    def test_bad_choices(self):
+        class Foo(Command):
+            bar = Option(nargs='+', choices=('a', 'b', 'c'))
+
+        foo = Foo.parse(['--bar', 'c'])
+        Foo.bar.choices = ('a', 'b')
+        with self.assertRaises(InvalidChoice):
+            foo.bar  # noqa
 
 
 class TypeCastTest(ParserTest):

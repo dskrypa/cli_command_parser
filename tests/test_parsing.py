@@ -265,36 +265,24 @@ class OptionTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', '--baz'])
 
-        foo = Foo.parse(['bar', '--baz'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['--baz'])
-
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', '--baz', 'a'])
 
-        foo = Foo.parse(['bar', '--baz', 'a'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['--baz', 'a'])
+        Foo.command_config.allow_unknown = True
+        self.assertEqual(Foo.parse(['bar', '--baz']).args.remaining, ['--baz'])
+        self.assertEqual(Foo.parse(['bar', '--baz', 'a']).args.remaining, ['--baz', 'a'])
 
     def test_extra_short_option_deferred(self):
         class Foo(Command):
             bar = Positional()
 
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '-b'])
+        fail_cases = [['bar', '-b'], ['bar', '-b', 'a'], ['bar', '-b=a']]
+        self.assert_parse_fails_cases(Foo, fail_cases, NoSuchOption)
 
-        foo = Foo.parse(['bar', '-b'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['-b'])
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '-b', 'a'])
-
-        foo = Foo.parse(['bar', '-b', 'a'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['-b', 'a'])
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['bar', '-b=a'])
-
-        foo = Foo.parse(['bar', '-b=a'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['-b=a'])
+        Foo.command_config.allow_unknown = True
+        self.assertEqual(Foo.parse(['bar', '-b']).args.remaining, ['-b'])
+        self.assertEqual(Foo.parse(['bar', '-b', 'a']).args.remaining, ['-b', 'a'])
+        self.assertEqual(Foo.parse(['bar', '-b=a']).args.remaining, ['-b=a'])
 
     def test_short_value_invalid(self):
         class Foo(Command):
@@ -406,8 +394,8 @@ class PositionalTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', 'baz'])
 
-        foo = Foo.parse(['bar', 'baz'], allow_unknown=True)
-        self.assertEqual(foo.args.remaining, ['baz'])
+        Foo.command_config.allow_unknown = True
+        self.assertEqual(Foo.parse(['bar', 'baz']).args.remaining, ['baz'])
 
     def test_first_rejects_bad_choice(self):
         class Foo(Command):

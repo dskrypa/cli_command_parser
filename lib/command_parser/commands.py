@@ -66,6 +66,10 @@ class Command:
           Action method in a given CLI invocation
         :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all
           specified
+        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
+          arguments are encountered)
+        :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when
+          required arguments are missing)
         :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub
           commands
         """
@@ -133,9 +137,7 @@ class Command:
     # endregion
 
     @classmethod
-    def parse_and_run(
-        cls, argv: Sequence[str] = None, *args, allow_unknown: Bool = False, **kwargs
-    ) -> Optional[CommandObj]:
+    def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
         to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
@@ -147,13 +149,11 @@ class Command:
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :param args: Positional arguments to pass to :meth:`.run`
-        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
-          arguments are encountered)
         :param kwargs: Keyword arguments to pass to :meth:`.run`
         :return: The Command instance with parsed arguments for which :meth:`.run` was already called.
         """
         with cls.__get_error_handler():
-            self = cls.parse(argv, allow_unknown)
+            self = cls.parse(argv)
 
         try:
             run = self.run
@@ -164,20 +164,20 @@ class Command:
             return self
 
     @classmethod
-    def parse(cls, args: Sequence[str] = None, allow_unknown: Bool = False) -> CommandObj:
+    def parse(cls, args: Sequence[str] = None) -> CommandObj:
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the
         parsed arguments, if necessary.
 
         :param args: The arguments to parse (defaults to :data:`sys.argv`)
-        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
-          arguments are encountered)
         :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
         """
         args = Args(args)
         cmd_cls = cls
-        while sub_cmd := cmd_cls.parser.parse_args(args, allow_unknown):
+        config = cmd_cls.command_config
+        while sub_cmd := cmd_cls.parser.parse_args(args, config.allow_unknown, config.allow_missing):
             cmd_cls = sub_cmd
+            config = cmd_cls.command_config
 
         return cmd_cls(args)
 
