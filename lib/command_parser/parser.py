@@ -20,8 +20,17 @@ from .exceptions import (
     ParamsMissing,
 )
 from .formatting import HelpFormatter
-from .parameters import ParameterGroup, Action
-from .parameters import SubCommand, BaseOption, Parameter, PassThru, ActionFlag, BasePositional as _Positional
+from .parameters import (
+    SubCommand,
+    BaseOption,
+    ParamBase,
+    Parameter,
+    PassThru,
+    ActionFlag,
+    ParameterGroup,
+    Action,
+    BasePositional,
+)
 from .utils import Bool
 
 if TYPE_CHECKING:
@@ -42,7 +51,7 @@ class CommandParser:
     pass_thru: Optional[PassThru] = None
     groups: list[ParameterGroup]
     options: list[BaseOption]
-    positionals: list[_Positional]
+    positionals: list[BasePositional]
     long_options: dict[str, BaseOption]
     short_options: dict[str, BaseOption]
     short_combinable: dict[str, BaseOption]
@@ -68,7 +77,7 @@ class CommandParser:
             self.long_options = {}
             self.short_options = {}
 
-        short_combinable = self._process_parameters(self.command, parent)
+        short_combinable = self._process_parameters(parent)
         # Sort flags by reverse key length, but forward alphabetical key for keys with the same length
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
         self.action_flags = self._process_action_flags()
@@ -83,16 +92,37 @@ class CommandParser:
 
     # region Initialization / Parameter Processing
 
-    def _process_parameters(self, command: 'CommandType', parent: Optional['CommandParser']):
+    def _process_parameters(self, parent: Optional['CommandParser']) -> dict[str, BaseOption]:
+        """
+        Register all of the parameters defined in this parser's Command and handle any conflicts between them.
+
+        :param parent: The parent command's CommandParser, if this parser's command has a parent.
+        :return: Unsorted short combinable options
+        """
+        # This isn't stored as self.short_combinable yet because it needs to be sorted after initial processing
         short_combinable = parent.short_combinable.copy() if parent is not None else {}
         var_nargs_pos_param = None
-        for attr, param in command.__dict__.items():
-            if attr.startswith('__'):
+        name_param_map = {}  # Allow sub-classes to override names, but not within a given command
+
+        for attr, param in self.command.__dict__.items():
+            if attr.startswith('__') or not isinstance(param, ParamBase):
                 continue
-            elif isinstance(param, _Positional):
+
+            name = param.name
+            try:
+                other_attr, other_param = name_param_map[name]
+            except KeyError:
+                name_param_map[name] = (attr, param)
+            else:
+                raise CommandDefinitionError(
+                    'Name conflict - multiple parameters within a Command cannot have the same name - conflicting'
+                    f' params: {other_attr}={other_param}, {attr}={param}'
+                )
+
+            if isinstance(param, BasePositional):
                 var_nargs_pos_param = self._add_positional(param, var_nargs_pos_param)
             elif isinstance(param, BaseOption):
-                self._add_option(param, short_combinable, command)
+                self._add_option(param, short_combinable)
             elif isinstance(param, ParameterGroup):
                 self.formatter.maybe_add(param)
                 self.groups.append(param)
@@ -104,7 +134,9 @@ class CommandParser:
 
         return short_combinable
 
-    def _add_positional(self, param: _Positional, var_nargs_param: Optional[_Positional]) -> Optional[_Positional]:
+    def _add_positional(
+        self, param: BasePositional, var_nargs_param: Optional[BasePositional]
+    ) -> Optional[BasePositional]:
         if self.sub_command is not None:
             raise CommandDefinitionError(
                 f'Positional {param=} may not follow the sub command {self.sub_command} - re-order the positionals,'
@@ -135,7 +167,8 @@ class CommandParser:
 
         return None
 
-    def _add_option(self, param: BaseOption, short_combinable: dict[str, BaseOption], command: 'CommandType'):
+    def _add_option(self, param: BaseOption, short_combinable: dict[str, BaseOption]):
+        command = self.command
         self.options.append(param)
         self.formatter.maybe_add(param)
         _update_options(self.long_options, 'long_opts', param, command)
@@ -263,13 +296,13 @@ class CommandParser:
 
     def arg_dict(self, args: 'Args', exclude: Collection['Parameter'] = ()) -> dict[str, Any]:
         if (parent := self.parent) is not None:
-            arg_dict = parent.arg_dict(args)
+            arg_dict = parent.arg_dict(args, exclude)
         else:
             arg_dict = {}
 
-        for group in (self.positionals, self.options):
+        for group in (self.positionals, self.options, (self.pass_thru,)):
             for param in group:
-                if param not in exclude:
+                if param and param not in exclude:
                     arg_dict[param.name] = param.result_value(args)
 
         return arg_dict
@@ -330,7 +363,7 @@ class _Parser:
 
     def handle_positional(self, arg: str, arg_deque: deque[str]):
         try:
-            param = next(self.pos_iter)  # type: _Positional
+            param = next(self.pos_iter)  # type: BasePositional
         except StopIteration:
             self.pos_available = False
             self.deferred.append(arg)

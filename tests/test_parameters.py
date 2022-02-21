@@ -17,7 +17,7 @@ from command_parser.exceptions import (
     MissingArgument,
     BadArgument,
 )
-from command_parser.parameters import parameter_action, PassThru, Positional
+from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand
 from command_parser.testing import ParserTest
 
 
@@ -182,21 +182,15 @@ class PassThruTest(ParserTest):
             bar = Flag()
             baz = PassThru()
 
-        foo = Foo.parse(['--bar', '--', 'test', 'one', 'two', 'three'])
-        self.assertTrue(foo.bar)
-        self.assertEqual(foo.baz, ['test', 'one', 'two', 'three'])
-
-        foo = Foo.parse(['--', '--bar', '--', 'test', 'one', 'two', 'three'])
-        self.assertFalse(foo.bar)
-        self.assertEqual(foo.baz, ['--bar', '--', 'test', 'one', 'two', 'three'])
-
-        foo = Foo.parse(['--bar', '--'])
-        self.assertTrue(foo.bar)
-        self.assertEqual(foo.baz, [])
-
-        foo = Foo.parse(['--bar'])
-        self.assertTrue(foo.bar)
-        self.assertIs(foo.baz, None)
+        success_cases = [
+            (['--bar', '--', 'a', 'b', 'c'], {'bar': True, 'baz': ['a', 'b', 'c']}),
+            (['--', '--bar', '--', 'a', 'b', 'c'], {'bar': False, 'baz': ['--bar', '--', 'a', 'b', 'c']}),
+            (['--bar', '--'], {'bar': True, 'baz': []}),
+            (['--', '--bar'], {'bar': False, 'baz': ['--bar']}),
+            (['--'], {'bar': False, 'baz': []}),
+            (['--bar'], {'bar': True, 'baz': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
     def test_pass_thru_missing(self):
         class Foo(Command):
@@ -229,6 +223,17 @@ class PassThruTest(ParserTest):
             pass
 
         self.assertTrue((Bar.parser.has_pass_thru()))
+
+    def test_sub_cmd_multiple_rejected(self):
+        class Foo(Command):
+            sub = SubCommand()
+            pt1 = PassThru()
+
+        class Bar(Foo):
+            pt2 = PassThru()
+
+        with self.assertRaises(CommandDefinitionError):
+            Bar.parser  # noqa
 
 
 class MiscParameterTest(ParserTest):
@@ -277,132 +282,50 @@ class MiscParameterTest(ParserTest):
 
 
 class TypeCastTest(ParserTest):
-    def test_type_cast_single_1(self):
-        class Foo(Command):
-            num: int = Positional()
+    # TODO: Test combining annotation + explicit type value
 
-        self.assertEqual(5, Foo.parse(['5']).num)
-
-    def test_type_cast_single_2(self):
-        class Foo(Command):
-            num: Optional[int] = Positional()
-
-        self.assertEqual(5, Foo.parse(['5']).num)
-
-    def test_type_cast_single_3(self):
-        class Foo(Command):
-            num: Union[int, str] = Positional()
-
-        self.assertEqual('5', Foo.parse(['5']).num)
-
-    def test_type_cast_single_4(self):
-        class Foo(Command):
-            num: Union[int] = Positional()
-
-        self.assertEqual(5, Foo.parse(['5']).num)
-
-    def test_type_cast_single_5(self):
-        class Foo(Command):
-            num: Union[int, str, None] = Positional()
-
-        self.assertEqual('5', Foo.parse(['5']).num)
-
-    def test_type_cast_single_6(self):
-        class Foo(Command):
-            num: _C = Positional()
-
-        self.assertEqual(_C('5'), Foo.parse(['5']).num)
-
-    def test_type_cast_single_7(self):
-        class Foo(Command):
-            paths: _resolved_path = Positional()  # Not a proper annotation
-
-        self.assertEqual('test_parameters.py', Foo.parse(['test_parameters.py']).paths)
-
-    def test_type_cast_single_8(self):
-        class Foo(Command):
-            paths: Union[_resolved_path] = Positional()  # Not a proper annotation
-
-        self.assertEqual('test_parameters.py', Foo.parse(['test_parameters.py']).paths)
-
-    def test_type_cast_single_9(self):
-        class Foo(Command):
-            paths: Optional[_resolved_path] = Positional()  # Not a proper annotation
-
-        self.assertEqual('test_parameters.py', Foo.parse(['test_parameters.py']).paths)
-
-    def test_type_cast_single_10(self):
-        class Foo(Command):
-            num: Union[str, _C] = Positional()
-
-        self.assertEqual('5', Foo.parse(['5']).num)
-
-    def test_type_cast_multi_1(self):
-        class Foo(Command):
-            num: list[int] = Positional(nargs='+')
-
-        self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
-
-    def test_type_cast_multi_2(self):
-        for wrapper in (Optional, Union):
-            with self.subTest(wrapper=wrapper):
+    def test_type_cast_singles(self):
+        cases = [
+            (int, '5', 5),
+            (Optional[int], '5', 5),
+            (Union[int], '5', 5),  # results in just int
+            (Union[int, str], '5', '5'),
+            (Union[int, str, None], '5', '5'),
+            (_C, '5', _C('5')),
+            (Union[int, _C], '5', '5'),
+            (_resolved_path, 'test_parameters.py', 'test_parameters.py'),  # Not a proper annotation
+            (Optional[_resolved_path], 'test_parameters.py', 'test_parameters.py'),  # Not a proper annotation
+        ]
+        for annotation, arg, expected in cases:
+            with self.subTest(annotation=annotation):
 
                 class Foo(Command):
-                    num: list[wrapper[int]] = Positional(nargs='+')
+                    bar: annotation = Positional()
 
-                self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
+                self.assertEqual(expected, Foo.parse([arg]).bar)
 
-    def test_type_cast_multi_3(self):
-        class Foo(Command):
-            num: Optional[list[int]] = Positional(nargs='+')
-
-        self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
-
-    def test_type_cast_multi_4(self):
-        class Foo(Command):
-            num: tuple[int, ...] = Positional(nargs='+')
-
-        self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
-
-    def test_type_cast_multi_generics(self):
-        for generic in (Sequence, Collection, Iterable, Union):
-            with self.subTest(generic=generic):
+    def test_type_cast_multiples(self):
+        cases = [
+            (list[int], ['1', '2'], [1, 2]),
+            (list[Optional[int]], ['1', '2'], [1, 2]),
+            (Optional[list[int]], ['1', '2'], [1, 2]),
+            (tuple[int, ...], ['1', '2'], [1, 2]),
+            (Sequence[int], ['1', '2'], [1, 2]),
+            (Collection[int], ['1', '2'], [1, 2]),
+            (Iterable[int], ['1', '2'], [1, 2]),
+            (list[_C], ['1', '2'], [_C('1'), _C('2')]),
+            (list, ['12', '3'], [['1', '2'], ['3']]),
+            (list[Union[int, str, None]], ['12', '3'], ['12', '3']),
+            (tuple[int, str, None], ['12', '3'], ['12', '3']),
+            (list[_resolved_path], ['test_parser.py', 'test_commands.py'], ['test_parser.py', 'test_commands.py']),
+        ]
+        for annotation, argv, expected in cases:
+            with self.subTest(annotation=annotation):
 
                 class Foo(Command):
-                    num: generic[int] = Positional(nargs='+')  # noqa
+                    bar: annotation = Positional(nargs='+')
 
-                self.assertListEqual([1, 2], Foo.parse(['1', '2']).num)
-
-    def test_type_cast_multi_5(self):
-        class Foo(Command):
-            num: list = Positional(nargs='+')
-
-        self.assertListEqual([['1', '2'], ['3']], Foo.parse(['12', '3']).num)
-
-    def test_type_cast_multi_6(self):
-        class Foo(Command):
-            num: list[Union[int, str, None]] = Positional(nargs='+')
-
-        self.assertListEqual(['12', '3'], Foo.parse(['12', '3']).num)
-
-    def test_type_cast_multi_7(self):
-        class Foo(Command):
-            num: tuple[int, str, None] = Positional(nargs='+')
-
-        self.assertListEqual(['12', '3'], Foo.parse(['12', '3']).num)
-
-    def test_type_cast_multi_8(self):
-        class Foo(Command):
-            num: list[_C] = Positional(nargs='+')
-
-        self.assertEqual([_C('1'), _C('2')], Foo.parse(['1', '2']).num)
-
-    def test_type_cast_multi_9(self):
-        class Foo(Command):
-            paths: list[_resolved_path] = Positional(nargs='+')  # Not a proper annotation
-
-        expected = ['test_parameters.py', 'test_commands.py']
-        self.assertEqual(expected, Foo.parse(['test_parameters.py', 'test_commands.py']).paths)
+                self.assertEqual(expected, Foo.parse(argv).bar)
 
 
 def _resolved_path(path):

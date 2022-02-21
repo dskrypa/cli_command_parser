@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
 from contextlib import redirect_stdout
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock
 
 from command_parser import Command, Counter, Flag, Positional, SubCommand, Option
 from command_parser.actions import help_action
-from command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
 from command_parser.args import Args
+from command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
+from command_parser.testing import ParserTest as _ParserTest
 
 
-class ParserTest(TestCase):
+class ParserTest(_ParserTest):
     # def setUp(self):
     #     print()
     #
@@ -123,6 +124,48 @@ class ParserTest(TestCase):
 
         expected = {help_action.name: False}
         self.assertDictEqual(expected, Bar.parser.arg_dict(Args([])))
+
+    def test_explicit_name_conflict_before(self):
+        class Foo(Command):
+            bar = Option(name='baz')
+            baz = Option()
+
+        with self.assertRaisesRegex(CommandDefinitionError, 'Name conflict.*bar=Option.*baz=Option'):
+            Foo.parse([])
+
+    def test_explicit_name_conflict_after(self):
+        class Foo(Command):
+            baz = Option()
+            bar = Option(name='baz')
+
+        with self.assertRaisesRegex(CommandDefinitionError, 'Name conflict.*baz=Option.*bar=Option'):
+            Foo.parse([])
+
+    def test_sub_cmd_param_override_rejected(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+            bar = Option()
+
+        class Baz(Foo):
+            bar = Option()
+
+        self.assert_parse_fails(Baz, [], CommandDefinitionError, 'conflict for command=.* between params')
+        self.assert_parse_fails(Foo, ['baz'], CommandDefinitionError, 'conflict for command=.* between params')
+
+    def test_sub_cmd_param_name_override_ok(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+            bar = Option()
+
+        class Baz(Foo):
+            baz = Option(name='bar')
+
+        success_cases = [
+            (['baz', '--bar', 'a', '--baz', 'b'], {'sub_cmd': 'baz', 'bar': 'b'}),
+            (['baz', '--bar', 'a'], {'sub_cmd': 'baz', 'bar': None}),
+            (['baz', '--baz', 'a'], {'sub_cmd': 'baz', 'bar': 'a'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
 if __name__ == '__main__':
