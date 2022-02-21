@@ -131,6 +131,11 @@ class CommandParser:
                     raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
                 self.formatter.maybe_add(param)
                 self.pass_thru = param
+            else:
+                raise CommandDefinitionError(
+                    f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
+                    ' BasePositional, BaseOption, or ParameterGroup'
+                )
 
         return short_combinable
 

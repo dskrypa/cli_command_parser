@@ -1,8 +1,4 @@
 repos:
-  - repo: https://github.com/dskrypa/incr_version
-    rev: f49a29fcceccf60c612e68de6d715e98369490ec
-    hooks:
-      - id: incr_version
   - repo: https://github.com/psf/black
     rev: 22.1.0
     hooks:
@@ -13,3 +9,7 @@ repos:
     hooks:
       - id: flake8
         types: [python]
+  - repo: https://github.com/dskrypa/incr_version
+    rev: f49a29fcceccf60c612e68de6d715e98369490ec
+    hooks:
+      - id: incr_version

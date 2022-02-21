@@ -4,10 +4,11 @@ from contextlib import redirect_stdout
 from unittest import main
 from unittest.mock import Mock
 
-from command_parser import Command, Counter, Flag, Positional, SubCommand, Option
+from command_parser import Command
 from command_parser.actions import help_action
 from command_parser.args import Args
 from command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
+from command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
 from command_parser.testing import ParserTest as _ParserTest
 
 
@@ -166,6 +167,16 @@ class ParserTest(_ParserTest):
             (['baz', '--baz', 'a'], {'sub_cmd': 'baz', 'bar': 'a'}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_bad_custom_param_rejected(self):
+        class TestParam(Parameter):
+            test = parameter_action(Mock())
+
+        class Foo(Command):
+            bar = TestParam('test')
+
+        with self.assertRaisesRegex(CommandDefinitionError, 'custom parameters must extend'):
+            Foo.parser  # noqa
 
 
 if __name__ == '__main__':
