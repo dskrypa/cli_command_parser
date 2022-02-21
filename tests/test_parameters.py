@@ -81,6 +81,15 @@ class OptionTest(ParserTest):
         with self.assertRaises(BadArgument):
             Foo.parse(['--bar', '1'])
 
+    def test_nargs_0_rejected(self):
+        fail_cases = [
+            ({'nargs': '?'}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
+            ({'nargs': 0}, ParameterDefinitionError),
+            ({'nargs': (0, 2)}, ParameterDefinitionError),
+            ({'nargs': range(2)}, ParameterDefinitionError),
+        ]
+        self.assert_call_fails_cases(Option, fail_cases)
+
 
 class CounterTest(ParserTest):
     def test_counter_default(self):

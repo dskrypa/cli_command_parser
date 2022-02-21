@@ -123,7 +123,7 @@ class ParamBase(ABC):
             self._name = value
 
     def __set_name__(self, command: 'CommandType', name: str):
-        self.command = command
+        self.command = command  # TODO: Is it really necessary to store a reference to the command?
         if self._name is None:
             self.name = name
         self.__name = name
@@ -335,13 +335,14 @@ class ParameterGroup(ParamBase):
         return '\n'.join(parts)
 
 
-class Parameter(ParamBase):
+class Parameter(ParamBase, ABC):
     _actions: frozenset[str] = frozenset()
-    accepts_values: bool = True
     accepts_none: bool = False
-    type: Callable = None
-    nargs: Nargs = Nargs(1)
+    accepts_values: bool = True
     hide: Bool = False
+    metavar: str = None
+    nargs: Nargs = Nargs(1)
+    type: Callable = None
 
     def __init_subclass__(cls, accepts_values: bool = None, accepts_none: bool = None):
         actions = set(cls._actions)  # Inherit actions from parent
@@ -408,7 +409,7 @@ class Parameter(ParamBase):
         except TypeError:
             return False
 
-    def take_action(self, args: 'Args', value: Optional[str]):
+    def take_action(self, args: 'Args', value: Optional[str], short_combo: bool = False):
         # log.debug(f'{self!r}.take_action({value!r})')
         if (action := self.action) == 'store' and args[self] is not _NotSet:
             raise ParamUsageError(self, f'received {value=} but a stored value={args[self]!r} already exists')
@@ -423,22 +424,22 @@ class Parameter(ParamBase):
                 raise ParamUsageError(self, f'received {value=} but no values are accepted for {action=}')
             return action_method(args)
         else:
-            normalized = self.prepare_value(value) if value is not None else value
+            normalized = self.prepare_value(value, short_combo) if value is not None else value
             self.validate(args, normalized)
             return action_method(args, normalized)
 
-    def would_accept(self, args: 'Args', value: str) -> bool:
+    def would_accept(self, args: 'Args', value: str, short_combo: bool = False) -> bool:
         if (action := self.action) in {'store', 'store_all'} and args[self] is not _NotSet:
             return False
         elif action == 'append' and self._nargs_max_reached(args):
             return False
         try:
-            normalized = self.prepare_value(value)
+            normalized = self.prepare_value(value, short_combo)
         except BadArgument:
             return False
         return self.is_valid_arg(args, normalized)
 
-    def prepare_value(self, value: str) -> Any:
+    def prepare_value(self, value: str, short_combo: bool = False) -> Any:
         if (type_func := self.type) is None:
             return value
         try:
@@ -514,27 +515,6 @@ class Parameter(ParamBase):
             return '{{{}}}'.format(','.join(map(str, choices)))
         else:
             return self.metavar or self.name.upper()
-
-
-class PassThru(Parameter):
-    nargs = Nargs('*')
-
-    def __init__(self, action: str = 'store_all', **kwargs):
-        super().__init__(action=action, **kwargs)
-
-    def take_action(self, args: 'Args', values: Collection[str]):
-        value = args[self]
-        if value is not _NotSet:
-            raise ParamUsageError(self, f'received {values=} but a stored {value=} already exists')
-
-        args.record_action(self)
-        normalized = list(map(self.prepare_value, values))
-        action_method = getattr(self, self.action)
-        return action_method(args, normalized)
-
-    @parameter_action
-    def store_all(self, args: 'Args', values: Collection[str]):
-        args[self] = values
 
 
 # region Positional Parameters
@@ -902,7 +882,14 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     def append_const(self, args: 'Args'):
         args[self].append(self.const)
 
-    def would_accept(self, args: 'Args', value: Optional[str]) -> bool:
+    def prepare_value(self, value: Optional[str], short_combo: bool = False) -> int:
+        if value is None:
+            return self.const
+        if short_combo and (combinable := self.short_combinable) and all(c in combinable for c in value):  # noqa
+            return self.const
+        raise BadArgument(self, f'bad flag {value=}')
+
+    def would_accept(self, args: 'Args', value: Optional[str], short_combo: bool = False) -> bool:
         return value is None
 
     def result_value(self, args: 'Args') -> Any:
@@ -987,13 +974,13 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
     def _init_value_factory(self):
         return self.default
 
-    def prepare_value(self, value: Optional[str]) -> int:
+    def prepare_value(self, value: Optional[str], short_combo: bool = False) -> int:
         if value is None:
             return self.const
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
-            if (combinable := self.short_combinable) and all(c in combinable for c in value):
+            if short_combo and (combinable := self.short_combinable) and all(c in combinable for c in value):  # noqa
                 return len(value) + 1  # +1 for the -short that preceded this value
             raise BadArgument(self, f'bad counter {value=}') from e
 
@@ -1020,3 +1007,24 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
 
 
 # endregion
+
+
+class PassThru(Parameter):
+    nargs = Nargs('*')
+
+    def __init__(self, action: str = 'store_all', **kwargs):
+        super().__init__(action=action, **kwargs)
+
+    def take_action(self, args: 'Args', values: Collection[str], short_combo: bool = False):
+        value = args[self]
+        if value is not _NotSet:
+            raise ParamUsageError(self, f'received {values=} but a stored {value=} already exists')
+
+        args.record_action(self)
+        normalized = list(map(self.prepare_value, values))
+        action_method = getattr(self, self.action)
+        return action_method(args, normalized)
+
+    @parameter_action
+    def store_all(self, args: 'Args', values: Collection[str]):
+        args[self] = values

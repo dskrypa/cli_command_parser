@@ -5,8 +5,11 @@ from unittest import main
 
 from command_parser.commands import Command
 from command_parser.exceptions import NoSuchOption, BadArgument, ParamsMissing, UsageError, MissingArgument
-from command_parser.parameters import Positional, Option, Flag
+from command_parser.nargs import Nargs
+from command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action
 from command_parser.testing import ParserTest
+
+# TODO: Make sure missing required params in a non-ME/MD group trigger missing arg exception
 
 
 class ParamComboTest(ParserTest):
@@ -21,6 +24,14 @@ class ParamComboTest(ParserTest):
             (['-m', 'lib.command_parser'], {'interactive': False, 'module': 'lib.command_parser'}),
         ]
         self.assert_parse_results_cases(Ipython, success_cases)
+        fail_cases = [
+            (['-im'], MissingArgument),
+            (['-i', '-m'], MissingArgument),
+            (['-m', '-i'], MissingArgument),
+            (['-i', 'm'], NoSuchOption),
+            (['-m'], MissingArgument),
+        ]
+        self.assert_parse_fails_cases(Ipython, fail_cases)
 
     def test_pos_after_optional(self):
         class Foo(Command, error_handler=None):
@@ -44,10 +55,78 @@ class ParamComboTest(ParserTest):
         success_cases = [
             (['-fb'], {'foo': True, 'bar': True}),
             (['-bf'], {'foo': True, 'bar': True}),
+            (['-bff'], {'foo': True, 'bar': True}),
+            (['-bfb'], {'foo': True, 'bar': True}),
+            (['-bbf'], {'foo': True, 'bar': True}),
+            (['-fbf'], {'foo': True, 'bar': True}),
             (['-f'], {'foo': True, 'bar': False}),
+            (['-ff'], {'foo': True, 'bar': False}),
             (['-b'], {'foo': False, 'bar': True}),
+            (['-bb'], {'foo': False, 'bar': True}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_flag_counter_combo(self):
+        class Foo(Command):
+            foo = Flag('-f')
+            bar = Counter('-b')
+
+        success_cases = [
+            (['-fb'], {'foo': True, 'bar': 1}),
+            (['-bf'], {'foo': True, 'bar': 1}),
+            (['-f'], {'foo': True, 'bar': 0}),
+            (['-ff'], {'foo': True, 'bar': 0}),
+            (['-b'], {'foo': False, 'bar': 1}),
+            (['-b3'], {'foo': False, 'bar': 3}),
+            (['-bb'], {'foo': False, 'bar': 2}),
+            (['-bfb'], {'foo': True, 'bar': 2}),
+            (['-fbb'], {'foo': True, 'bar': 2}),
+            (['-bbf'], {'foo': True, 'bar': 2}),
+            (['-ffb'], {'foo': True, 'bar': 1}),
+            (['-b', '-b'], {'foo': False, 'bar': 2}),
+            (['-b', '-fb'], {'foo': True, 'bar': 2}),
+            (['-bf', '-b'], {'foo': True, 'bar': 2}),
+            (['-f', '-bb'], {'foo': True, 'bar': 2}),
+            (['-fb', '-b'], {'foo': True, 'bar': 2}),
+            (['-bbf'], {'foo': True, 'bar': 2}),
+            (['-b', '-bf'], {'foo': True, 'bar': 2}),
+            (['-bb', '-f'], {'foo': True, 'bar': 2}),
+            (['-ff', '-b'], {'foo': True, 'bar': 1}),
+            (['-b3', '-b'], {'foo': False, 'bar': 4}),
+            (['-b', '3', '-b'], {'foo': False, 'bar': 4}),
+            (['-b=3'], {'foo': False, 'bar': 3}),
+            (['-b', '-b=3'], {'foo': False, 'bar': 4}),
+            (['-fb', '-b=3'], {'foo': True, 'bar': 4}),
+            (['-bf', '-b=3'], {'foo': True, 'bar': 4}),
+            (['-b=3', '-b'], {'foo': False, 'bar': 4}),
+            (['-bfb', '3'], {'foo': True, 'bar': 4}),
+            (['-bf', '-b3'], {'foo': True, 'bar': 4}),
+            (['-bf', '-b', '3'], {'foo': True, 'bar': 4}),
+            (['-fb', '3'], {'foo': True, 'bar': 3}),
+            (['-f', '-b3'], {'foo': True, 'bar': 3}),
+            (['-b3', '-f'], {'foo': True, 'bar': 3}),
+            (['-ffb', '3'], {'foo': True, 'bar': 3}),
+            (['-ff', '-b3'], {'foo': True, 'bar': 3}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [
+            (['-bf3'], NoSuchOption),
+            (['-b3b'], NoSuchOption),
+            (['-bb3'], NoSuchOption),
+            (['-bb=3'], NoSuchOption),
+            (['-bfb3'], NoSuchOption),
+            (['-fb3'], NoSuchOption),
+            (['-b3f'], NoSuchOption),
+            (['-ffb3'], NoSuchOption),
+            (['-bb', '3'], NoSuchOption),
+            (['-fb', 'b'], NoSuchOption),
+            (['-fb', 'f'], NoSuchOption),
+            (['-fb', 'a'], NoSuchOption),
+            (['-bf', '3'], NoSuchOption),
+            (['-bf', 'b'], NoSuchOption),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
 
 
 class NumericValueTest(ParserTest):
@@ -271,6 +350,30 @@ class OptionTest(ParserTest):
             (['a', '-t'], MissingArgument),
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_nargs_question(self):
+        class CustomOption(BaseOption):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, action='store', **kwargs)
+                self.nargs = Nargs('?')
+
+            @parameter_action
+            def store(self, args, value):
+                args[self] = value
+
+        class Foo(Command):
+            bar = CustomOption('-b')
+
+        success_cases = [
+            ([], {'bar': None}),
+            (['--bar'], {'bar': None}),
+            (['--bar', 'a'], {'bar': 'a'}),
+            (['--bar=a'], {'bar': 'a'}),
+            (['-b'], {'bar': None}),
+            (['-b', 'a'], {'bar': 'a'}),
+            (['-b=a'], {'bar': 'a'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
 class PositionalTest(ParserTest):

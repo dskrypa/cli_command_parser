@@ -4,7 +4,7 @@ Helpers for unit tests
 :author: Doug Skrypa
 """
 
-from typing import Any, Iterable, Type, Union
+from typing import Any, Iterable, Type, Union, Callable
 from unittest import TestCase
 
 from .actions import help_action
@@ -15,6 +15,7 @@ Argv = list[str]
 Expected = dict[str, Any]
 Case = tuple[Argv, Expected]
 ExceptionCase = Union[tuple[Argv, Type[Exception]], tuple[Argv, Type[Exception], str]]
+CallExceptionCase = Union[tuple[dict[str, Any], Type[Exception]], tuple[dict[str, Any], Type[Exception], str]]
 
 
 class ParserTest(TestCase):
@@ -63,3 +64,29 @@ class ParserTest(TestCase):
 
             with self.subTest(expected='exception', argv=argv):
                 self.assert_parse_fails(cmd_cls, argv, exc, pat, message=message)
+
+    def assert_call_fails(
+        self,
+        func: Callable,
+        kwargs: dict[str, Any],
+        exc: Type[Exception] = Exception,
+        pattern: str = None,
+        message: str = None,
+    ):
+        if pattern:
+            with self.assertRaisesRegex(exc, pattern, msg=message):
+                func(**kwargs)
+        else:
+            with self.assertRaises(exc, msg=message):
+                func(**kwargs)
+
+    def assert_call_fails_cases(self, func: Callable, cases: Iterable[CallExceptionCase], message: str = None):
+        for case in cases:
+            try:
+                kwargs, exc, pat = case
+            except ValueError:
+                kwargs, exc = case
+                pat = None
+
+            with self.subTest(expected='exception', kwargs=kwargs):
+                self.assert_call_fails(func, kwargs, exc, pat, message=message)

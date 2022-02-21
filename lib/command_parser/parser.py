@@ -3,11 +3,7 @@
 """
 
 import logging
-
-# import re
 from collections import deque, defaultdict
-
-# from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Any, Collection
 
 from .actions import help_action
@@ -82,13 +78,6 @@ class CommandParser:
         self.short_combinable = {k: v for k, v in sorted(short_combinable.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
         self.action_flags = self._process_action_flags()
         self.groups = sorted(self.groups)
-
-    # @cached_property
-    # def has_numeric_short_option(self) -> bool:
-    #     if self.parent and self.parent.has_numeric_short_option:
-    #         return True
-    #     is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
-    #     return any(map(is_numeric, self.short_options))
 
     # region Initialization / Parameter Processing
 
@@ -234,22 +223,11 @@ class CommandParser:
             return item.split('=', 1)[0] in self.long_options
         elif item.startswith('-'):
             try:
-                item, value = item.split('=', 1)
-            except ValueError:
-                if item in self.short_options:
-                    return True
-                # else: process further
-            else:
-                return item in self.short_options
-
-            key, value = item[1], item[2:]
-            short_combinable = self.short_combinable
-            if (param := short_combinable.get(key)) is None:
+                _split_short(item, args, self.short_options, self.short_combinable)
+            except NotAShortOption:
                 return False
-            elif not value or param.would_accept(args, value):
-                return True
             else:
-                return all(c in short_combinable for c in item[1:])
+                return True
         else:
             return False
 
@@ -388,7 +366,7 @@ class _Parser:
                 param.take_action(self.args, None)
 
     def handle_short(self, arg: str, arg_deque: deque[str]):
-        param_val_combos = self.split_short(arg)
+        param_val_combos = _split_short(arg, self.args, self.short_options, self.short_combinable)
         # log.debug(f'Split {arg=} into {param_val_combos=}')
         if len(param_val_combos) == 1:
             param, value = param_val_combos[0]
@@ -396,19 +374,17 @@ class _Parser:
         else:
             last = param_val_combos[-1][0]
             for param, _ in param_val_combos[:-1]:
-                param.take_action(self.args, None)
+                param.take_action(self.args, None, short_combo=True)
 
             self._handle_short_value(last, None, arg_deque)
 
     def _handle_short_value(self, param: BaseOption, value: Any, arg_deque: deque[str]):
         # log.debug(f'Handling short {value=} for {param=}')
         if value is not None or (param.accepts_none and not param.accepts_values):
-            param.take_action(self.args, value)
-        elif not self.consume_values(param, arg_deque):
-            if param.accepts_none:
-                param.take_action(self.args, None)
-            else:
-                raise MissingArgument(param)
+            param.take_action(self.args, value, short_combo=True)
+        elif not self.consume_values(param, arg_deque) and param.accepts_none:
+            param.take_action(self.args, None, short_combo=True)
+        # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
     def split_long(self, arg: str) -> tuple[BaseOption, Optional[str]]:
         try:
@@ -420,37 +396,11 @@ class _Parser:
             else:
                 raise
 
-    def split_short(self, arg: str) -> list[tuple[BaseOption, Optional[str]]]:
-        try:
-            key, value = arg.split('=', 1)
-        except ValueError:
-            if (param := self.short_options.get(arg)) is not None:
-                return [(param, None)]
-        else:
-            if (param := self.short_options.get(key)) is not None:
-                return [(param, value)]
-            else:
-                raise NotAShortOption
-
-        key, value = arg[1], arg[2:]
-        short_combinable = self.short_combinable
-        if (param := short_combinable.get(key)) is None:
-            raise NotAShortOption
-        # elif not value:
-        # # Commented out now because this case should be handled by self.short_options.get(arg)
-        #     return [(param, None)]
-        elif param.would_accept(self.args, value):
-            return [(param, value)]
-        else:
-            try:
-                return [(short_combinable[c], None) for c in arg[1:]]
-            except KeyError as e:
-                raise NotAShortOption from e
-
     def consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
+        # TODO: remove extra step OR de-dupe nargs check / re-append / raise or return
         result = self._consume_values(param, arg_deque, found)
         # log.debug(f'_consume_values {result=} for {param=}')
-        param.result(self.args)  # Trigger validation errors, if any
+        # param.result(self.args)  # Trigger validation errors, if any
         return result
 
     def _consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
@@ -494,6 +444,32 @@ class _Parser:
                         return found
                     else:
                         raise
+
+
+def _split_short(
+    option: str, args: 'Args', short_options: dict[str, BaseOption], short_combinable: dict[str, BaseOption]
+) -> list[tuple[BaseOption, Optional[str]]]:
+    try:
+        option, value = option.split('=', 1)
+    except ValueError:
+        value = None
+    try:
+        return [(short_options[option], value)]
+    except KeyError:
+        if value is not None:
+            raise NotAShortOption from None
+
+    key, value = option[1], option[2:]
+    # value will never be empty if key is a valid option because by this point, option is not a short option
+    if (param := short_combinable.get(key)) is None:
+        raise NotAShortOption
+    elif param.would_accept(args, value, short_combo=True):
+        return [(param, value)]
+    else:
+        try:
+            return [(short_combinable[c], None) for c in option[1:]]
+        except KeyError as e:
+            raise NotAShortOption from e
 
 
 class NotAShortOption(Exception):
