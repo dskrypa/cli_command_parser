@@ -97,6 +97,19 @@ class OptionTest(ParserTest):
             with self.subTest(option_str=option_str), self.assertRaises(ParameterDefinitionError):
                 Option(option_str)
 
+    def test_re_assign_rejected(self):
+        class Foo(Command):
+            bar = Option('-b')
+
+        self.assert_parse_fails(Foo, ['-b', 'a', '-b', 'b'], ParamUsageError)
+
+    def test_too_many_rejected(self):
+        class Foo(Command):
+            bar = Option('-b', nargs=2)
+
+        self.assert_parse_results(Foo, ['-b', 'a', 'b'], {'bar': ['a', 'b']})
+        self.assert_parse_fails(Foo, ['-b', 'a', 'b', '-b', 'b'], ParamUsageError)
+
 
 class FlagTest(ParserTest):
     def test_default_consts(self):
@@ -323,44 +336,12 @@ class MiscParameterTest(ParserTest):
     def test_action_is_parameter_action(self):
         self.assertIsInstance(Flag.store_const, parameter_action)
 
-    def test_re_assign_rejected(self):
-        option = Option(action='store')
-        args = Args([])
-        option.take_action(args, 'foo')
-        with self.assertRaises(ParamUsageError):
-            option.take_action(args, 'foo')
-
-    def test_too_many_rejected(self):
-        option = Option(action='append', nargs=1)
-        args = Args([])
-        option.take_action(args, 'foo')
-        with self.assertRaises(ParamUsageError):
-            option.take_action(args, 'foo')
-
-    def test_non_none_rejected(self):
-        flag = Flag()
-        with self.assertRaises(ParamUsageError):
-            flag.take_action(Args([]), 'foo')
-
     def test_explicit_name(self):
         class Foo(Command):
             bar = Option(name='foo')
 
         self.assert_parse_results(Foo, ['--bar', 'a'], {'foo': 'a'})
         self.assert_parse_fails(Foo, ['--foo', 'a'], expected_pattern='unrecognized arguments:')
-
-    def test_sort_mixed_types(self):
-        sort_cases = [
-            (ParamGroup(), Flag(), ActionFlag()),
-            (Flag(), ActionFlag(), ParamGroup()),
-            (ActionFlag(), ParamGroup(), Flag()),
-            ('foo', ParamGroup(), Flag(), ActionFlag()),
-            ('foo', Flag(), ActionFlag(), ParamGroup()),
-            ('foo', ActionFlag(), ParamGroup(), Flag()),
-        ]
-        for group in sort_cases:
-            with self.subTest(group=group), self.assertRaises(TypeError):
-                sorted(group)
 
     def test_late_param_addition(self):
         class Foo(Command):
@@ -379,6 +360,33 @@ class MiscParameterTest(ParserTest):
             bar = Positional(type=Mock(side_effect=OSError))
 
         self.assert_parse_fails(Foo, ['a'], BadArgument, 'unable to cast value=.* to type=')
+
+
+class UnlikelyToBeReachedParameterTest(ParserTest):
+    def test_too_many_rejected(self):
+        option = Option(action='append', nargs=1)
+        args = Args([])
+        option.take_action(args, 'foo')
+        with self.assertRaises(ParamUsageError):
+            option.take_action(args, 'foo')
+
+    def test_non_none_rejected(self):
+        flag = Flag()
+        with self.assertRaises(ParamUsageError):
+            flag.take_action(Args([]), 'foo')
+
+    def test_sort_mixed_types(self):
+        sort_cases = [
+            (ParamGroup(), Flag(), ActionFlag()),
+            (Flag(), ActionFlag(), ParamGroup()),
+            (ActionFlag(), ParamGroup(), Flag()),
+            ('foo', ParamGroup(), Flag(), ActionFlag()),
+            ('foo', Flag(), ActionFlag(), ParamGroup()),
+            ('foo', ActionFlag(), ParamGroup(), Flag()),
+        ]
+        for group in sort_cases:
+            with self.subTest(group=group), self.assertRaises(TypeError):
+                sorted(group)
 
     def test_none_invalid(self):
         with self.assertRaises(MissingArgument):

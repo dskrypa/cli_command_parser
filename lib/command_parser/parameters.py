@@ -91,23 +91,15 @@ class ParamBase(ABC):
     _name: str = None
     group: 'ParamGroup' = None
     command: 'CommandType' = None
-    choices: Optional[Collection[Any]] = None
     required: Bool = False
     help: str = None
+    hide: Bool = False
 
-    def __init__(
-        self,
-        name: str = None,
-        required: Bool = False,
-        help: str = None,  # noqa
-        choices: Collection[Any] = None,
-    ):
-        if not choices and choices is not None:
-            raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
+    def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
         self.required = required
         self.name = name
         self.help = help
-        self.choices = choices
+        self.hide = hide
         if (group := ParamGroup.active_group()) is not None:
             group.register(self)  # noqa  # This sets self.group = group
 
@@ -162,8 +154,9 @@ class ParamGroup(ParamBase):
         mutually_exclusive: Bool = False,
         mutually_dependent: Bool = False,
         required: Bool = False,
+        hide: Bool = False,
     ):
-        super().__init__(name=name, required=required)
+        super().__init__(name=name, required=required, hide=hide)
         self.description = description
         self.members = []
         if mutually_dependent and mutually_exclusive:
@@ -289,7 +282,11 @@ class ParamGroup(ParamBase):
 
     @property
     def show_in_help(self) -> bool:
-        return bool(self.members)
+        if self.hide or not self.members:
+            return False
+        elif (group := self.group) is not None:
+            return group.show_in_help
+        return True
 
     def format_description(self, group_type: 'Bool' = True) -> str:
         description = self.description or f'{self.name} options'
@@ -319,6 +316,9 @@ class ParamGroup(ParamBase):
 
         nested, params = 0, 0
         for member in self.members:
+            if not member.show_in_help:
+                continue
+
             if isinstance(member, (ChoiceMap, ParamGroup)):
                 nested += 1
                 parts.append('')  # Add space for readability
@@ -337,7 +337,7 @@ class Parameter(ParamBase, ABC):
     _actions: frozenset[str] = frozenset()
     accepts_none: bool = False
     accepts_values: bool = True
-    hide: Bool = False
+    choices: Optional[Collection[Any]] = None
     metavar: str = None
     nargs: Nargs = Nargs(1)
     type: Callable = None
@@ -365,13 +365,17 @@ class Parameter(ParamBase, ABC):
         metavar: str = None,
         choices: Collection[Any] = None,
         help: str = None,  # noqa
+        hide: Bool = False,
     ):
         if action not in self._actions:
             raise ParameterDefinitionError(
                 f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
             )
-        super().__init__(name=name, required=required, help=help, choices=choices)
+        if not choices and choices is not None:
+            raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
+        super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = action
+        self.choices = choices
         self.default = None if default is _NotSet and not required else default
         self.metavar = metavar
 
@@ -494,7 +498,11 @@ class Parameter(ParamBase, ABC):
 
     @property
     def show_in_help(self) -> bool:
-        return not self.hide
+        if self.hide:
+            return False
+        elif (group := self.group) is not None:
+            return group.show_in_help
+        return True
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.usage_metavar
@@ -527,6 +535,9 @@ class BasePositional(Parameter, ABC):
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
         super().__init__(action, **kwargs)
+
+    def format_basic_usage(self) -> str:
+        return self.format_usage()
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         metavar = self.usage_metavar
@@ -815,6 +826,9 @@ class BaseOption(Parameter, ABC):
     def short_opts(self) -> list[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
 
+    def format_basic_usage(self) -> str:
+        return '[{}]'.format(self.format_usage(True))
+
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if include_meta:
             metavar = self.usage_metavar
@@ -1034,3 +1048,6 @@ class PassThru(Parameter):
     @parameter_action
     def store_all(self, args: 'Args', values: Collection[str]):
         args[self] = values
+
+    def format_basic_usage(self) -> str:
+        return f'[-- {self.format_usage()}]'

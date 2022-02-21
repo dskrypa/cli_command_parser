@@ -4,7 +4,7 @@
 
 from typing import TYPE_CHECKING
 
-from .parameters import BasePositional, BaseOption, ParamGroup, ParamOrGroup
+from .parameters import BasePositional, ParamGroup, ParamOrGroup
 from .utils import ProgramMetadata, Bool
 
 if TYPE_CHECKING:
@@ -37,11 +37,13 @@ class HelpFormatter:
         meta: ProgramMetadata = self.command._Command__meta
         if usage := meta.usage:
             return usage
+
+        params = self.parser.positionals + self.parser.options  # noqa
+        if (pass_thru := self.parser.pass_thru) is not None:
+            params.append(pass_thru)
+
         parts = ['usage:', meta.prog]
-        for param in self.parser.positionals:  # type: BasePositional
-            parts.append(param.format_usage())
-        for param in self.parser.options:  # type: BaseOption
-            parts.append('[{}]'.format(param.format_usage(True)))
+        parts.extend(param.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
     def format_help(

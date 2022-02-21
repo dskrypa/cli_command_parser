@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 from command_parser import Command, no_exit_handler
 from command_parser.commands import CommandType
-from command_parser.parameters import Positional, SubCommand, Action, Counter, ParamGroup
+from command_parser.parameters import Positional, SubCommand, Action, Counter, ParamGroup, Option, Flag, PassThru
 from command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
@@ -67,6 +67,70 @@ class HelpTextTest(TestCase):
         self.assertNotIn('group foo:', stdout)
         self.assertNotIn('Positional arguments:', stdout)
 
+    def test_empty_groups_hidden(self):
+        class Base(Command):
+            sub_cmd = SubCommand()
+            verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+
+        class Show(Base, choice='show', help='Show the results of an action'):
+            action = Action(help='What to show')
+            action(Mock(__name__='attrs'))
+            action(Mock(__name__='hello'))
+            action(Mock(__name__='log_test'))
+
+        help_text = Base.parser.formatter.format_help()
+        self.assertNotIn('Positional arguments:', help_text)
+        expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
+        self.assertIn(expected_sub_cmd, help_text)
+
+        help_text_lines = help_text.splitlines()
+        optional_header_index = help_text_lines.index('Optional arguments:')
+        help_line = '  --help, -h                  Show this help message and exit (default: False)'
+        self.assertIn(help_line, help_text_lines[optional_header_index:])
+        verbose_line_1 = '  --verbose [VERBOSE], -v [VERBOSE]'
+        verbose_line_2 = (' ' * 30) + 'Increase logging verbosity (can specify multiple times) (default: 0)'
+        verbose_line_1_index = help_text_lines.index(verbose_line_1)
+        self.assertGreater(verbose_line_1_index, optional_header_index)
+        self.assertIn(verbose_line_2, help_text_lines[verbose_line_1_index:])
+
+    def test_hidden_params_not_shown(self):
+        class Foo(Command):
+            bar = Option()
+            baz = Flag(hide=True)
+
+        self.assertFalse(Foo.bar.hide)
+        self.assertTrue(Foo.baz.hide)
+        self.assertTrue(Foo.bar.show_in_help)
+        self.assertFalse(Foo.baz.show_in_help)
+
+        help_text = Foo.parser.formatter.format_help()
+        self.assertIn('--bar', help_text)
+        self.assertNotIn('--baz', help_text)
+
+    def test_hidden_groups_not_shown(self):
+        class Foo(Command):
+            foo = Option()
+            with ParamGroup(hide=True) as outer:
+                bar = Option()
+                with ParamGroup() as inner:
+                    baz = Flag()
+
+        help_text = Foo.parser.formatter.format_help()
+        self.assertIn('--foo', help_text)
+        self.assertNotIn('--bar', help_text)
+        self.assertNotIn('--baz', help_text)
+
+    def test_pass_thru_usage(self):
+        class Foo(Command):
+            foo = Option()
+            bar = PassThru()
+
+        help_text = Foo.parser.formatter.format_help()
+        self.assertIn('--foo', help_text)
+        self.assertIn('[-- BAR]', help_text)
+
+
+class ProgramMetadataTest(TestCase):
     def test_meta_init(self):
         g = {'__author_email__': 'example@fake.com', '__version__': '3.2.1', '__url__': 'https://github.com/foo/bar'}
         with (
@@ -127,32 +191,6 @@ class HelpTextTest(TestCase):
             self.assertIs(meta.url, None)
             self.assertIs(meta.email, None)
             self.assertEqual(meta.version, '')
-
-    def test_empty_groups_hidden(self):
-        class Base(Command):
-            sub_cmd = SubCommand()
-            verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
-
-        class Show(Base, choice='show', help='Show the results of an action'):
-            action = Action(help='What to show')
-            action(Mock(__name__='attrs'))
-            action(Mock(__name__='hello'))
-            action(Mock(__name__='log_test'))
-
-        help_text = Base.parser.formatter.format_help()
-        self.assertNotIn('Positional arguments:', help_text)
-        expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
-        self.assertIn(expected_sub_cmd, help_text)
-
-        help_text_lines = help_text.splitlines()
-        optional_header_index = help_text_lines.index('Optional arguments:')
-        help_line = '  --help, -h                  Show this help message and exit (default: False)'
-        self.assertIn(help_line, help_text_lines[optional_header_index:])
-        verbose_line_1 = '  --verbose [VERBOSE], -v [VERBOSE]'
-        verbose_line_2 = (' ' * 30) + 'Increase logging verbosity (can specify multiple times) (default: 0)'
-        verbose_line_1_index = help_text_lines.index(verbose_line_1)
-        self.assertGreater(verbose_line_1_index, optional_header_index)
-        self.assertIn(verbose_line_2, help_text_lines[verbose_line_1_index:])
 
 
 def _get_output(command: CommandType, args: list[str]) -> tuple[str, str]:
