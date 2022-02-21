@@ -300,61 +300,58 @@ class _Parser:
         self.short_options = cmd_parser.short_options
         self.short_combinable = cmd_parser.short_combinable
         self.deferred = None
+        self.arg_deque = None
         self.args = args
-        positionals = self.cmd_parser.positionals
-        self.pos_available = bool(positionals)
-        self.pos_iter = iter(positionals)
+        self.positionals = self.cmd_parser.positionals.copy()
 
     def parse_args(self):
-        args = self.args
-        arg_deque = self.handle_pass_thru()
-        self.deferred = args.remaining = []
+        self.arg_deque = arg_deque = self.handle_pass_thru()
+        self.deferred = self.args.remaining = []
         while arg_deque:
             arg = arg_deque.popleft()
             if arg == '--' or arg.startswith('---'):
                 raise NoSuchOption(f'invalid argument: {arg}')
             elif arg.startswith('--'):
-                self.handle_long(arg, arg_deque)
+                self.handle_long(arg)
             elif arg.startswith('-') and arg != '-':
                 try:
-                    self.handle_short(arg, arg_deque)
+                    self.handle_short(arg)
                 except NotAShortOption:
-                    if self.pos_available:
+                    if self.positionals:
                         try:
-                            self.handle_positional(arg, arg_deque)
+                            self.handle_positional(arg)
                         except UsageError:
                             self.deferred.append(arg)
                     else:
                         self.deferred.append(arg)
             else:
-                self.handle_positional(arg, arg_deque)
+                self.handle_positional(arg)
 
     def handle_pass_thru(self) -> deque[str]:
         args = self.args
         remaining = args.remaining
         if (pass_thru := self.cmd_parser.pass_thru) is not None:
             try:
-                a = remaining.index('--')
+                separator_pos = remaining.index('--')
             except ValueError as e:
                 if pass_thru.required:
                     raise MissingArgument(pass_thru, "missing pass thru args separated from others with '--'") from e
             else:
-                b = a + 1
-                pass_thru.take_action(args, remaining[b:])
-                return deque(remaining[:a])
+                remainder_start = separator_pos + 1
+                pass_thru.take_action(args, remaining[remainder_start:])
+                return deque(remaining[:separator_pos])
         return deque(remaining)
 
-    def handle_positional(self, arg: str, arg_deque: deque[str]):
+    def handle_positional(self, arg: str):
         try:
-            param = next(self.pos_iter)  # type: BasePositional
-        except StopIteration:
-            self.pos_available = False
+            param = self.positionals.pop(0)  # type: BasePositional
+        except IndexError:
             self.deferred.append(arg)
         else:
             found = param.take_action(self.args, arg)
-            self.consume_values(param, arg_deque, found=found)
+            self.consume_values(param, found=found)
 
-    def handle_long(self, arg: str, arg_deque: deque[str]):
+    def handle_long(self, arg: str):
         try:
             param, value = self.split_long(arg)
         except KeyError:
@@ -362,27 +359,27 @@ class _Parser:
         else:
             if value is not None or (param.accepts_none and not param.accepts_values):
                 param.take_action(self.args, value)
-            elif not self.consume_values(param, arg_deque) and param.accepts_none:
+            elif not self.consume_values(param) and param.accepts_none:
                 param.take_action(self.args, None)
 
-    def handle_short(self, arg: str, arg_deque: deque[str]):
+    def handle_short(self, arg: str):
         param_val_combos = _split_short(arg, self.args, self.short_options, self.short_combinable)
         # log.debug(f'Split {arg=} into {param_val_combos=}')
         if len(param_val_combos) == 1:
             param, value = param_val_combos[0]
-            self._handle_short_value(param, value, arg_deque)
+            self._handle_short_value(param, value)
         else:
             last = param_val_combos[-1][0]
             for param, _ in param_val_combos[:-1]:
                 param.take_action(self.args, None, short_combo=True)
 
-            self._handle_short_value(last, None, arg_deque)
+            self._handle_short_value(last, None)
 
-    def _handle_short_value(self, param: BaseOption, value: Any, arg_deque: deque[str]):
+    def _handle_short_value(self, param: BaseOption, value: Any):
         # log.debug(f'Handling short {value=} for {param=}')
         if value is not None or (param.accepts_none and not param.accepts_values):
             param.take_action(self.args, value, short_combo=True)
-        elif not self.consume_values(param, arg_deque) and param.accepts_none:
+        elif not self.consume_values(param) and param.accepts_none:
             param.take_action(self.args, None, short_combo=True)
         # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
@@ -396,54 +393,44 @@ class _Parser:
             else:
                 raise
 
-    def consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
-        # TODO: remove extra step OR de-dupe nargs check / re-append / raise or return
-        result = self._consume_values(param, arg_deque, found)
-        # log.debug(f'_consume_values {result=} for {param=}')
-        # param.result(self.args)  # Trigger validation errors, if any
-        return result
-
-    def _consume_values(self, param: Parameter, arg_deque: deque[str], found: int = 0) -> int:
-        nargs = param.nargs
+    def consume_values(self, param: Parameter, found: int = 0) -> int:
         while True:
             try:
-                value = arg_deque.popleft()
-            except IndexError as e:
+                value = self.arg_deque.popleft()
+            except IndexError:
                 # log.debug(f'Ran out of values in deque while processing {param=}')
-                if nargs.satisfied(found):
-                    return found
-                raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}') from e
+                return self._finalize_consume(param, None, found)
             else:
                 # log.debug(f'Found {value=} in deque - may use it for {param=}')
                 if value.startswith('--'):
-                    if nargs.satisfied(found):
-                        arg_deque.appendleft(value)
-                        return found
-                    raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}')
+                    return self._finalize_consume(param, value, found)
                 elif value.startswith('-') and value != '-':
                     if self.cmd_parser.contains(self.args, value):
                         # log.debug(f'{value=} will not be used with {param=} - it is also a parameter')
-                        if nargs.satisfied(found):
-                            arg_deque.appendleft(value)
-                            return found
-                        raise MissingArgument(param, f'expected {nargs.min} values, but only found {found}')
+                        return self._finalize_consume(param, value, found)
                     elif not param.would_accept(self.args, value):
                         # log.debug(f'{value=} will not be used with {param=} - it would not be accepted')
-                        if nargs.satisfied(found):
-                            arg_deque.appendleft(value)
-                            return found
-                        raise NoSuchOption(f'invalid argument: {value}')
+                        return self._finalize_consume(param, value, found, NoSuchOption(f'invalid argument: {value}'))
                     # log.debug(f'{value=} may be used with {param=} as a value')
 
                 try:
                     found += param.take_action(self.args, value)
-                except UsageError:
+                except UsageError as e:
                     # log.debug(f'{value=} was rejected by {param=}', exc_info=True)
-                    if nargs.satisfied(found):
-                        arg_deque.appendleft(value)
-                        return found
-                    else:
-                        raise
+                    return self._finalize_consume(param, value, found, e)
+
+    def _finalize_consume(
+        self, param: Parameter, value: Optional[str], found: int, exc: Optional[Exception] = None
+    ) -> int:
+        if param.nargs.satisfied(found):
+            if value is not None:
+                self.arg_deque.appendleft(value)
+            # log.debug(f'consume_values {found=} for {param=}')
+            return found
+        elif exc:
+            raise exc
+        else:
+            raise MissingArgument(param, f'expected {param.nargs.min} values, but only found {found}')
 
 
 def _split_short(
