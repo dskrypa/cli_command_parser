@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parser &mdash; Command Parser 2022.02.20-5 documentation</title>
+  <title>command_parser.parser &mdash; Command Parser 2022.02.21-3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -85,11 +85,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-
-<span class="c1"># import re</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span><span class="p">,</span> <span class="n">defaultdict</span>
-
-<span class="c1"># from functools import cached_property</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span>
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
@@ -102,8 +98,17 @@
     <span class="n">ParamsMissing</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpFormatter</span>
-<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ParameterGroup</span><span class="p">,</span> <span class="n">Action</span>
-<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">BasePositional</span> <span class="k">as</span> <span class="n">_Positional</span>
+<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SubCommand</span><span class="p">,</span>
+    <span class="n">BaseOption</span><span class="p">,</span>
+    <span class="n">ParamBase</span><span class="p">,</span>
+    <span class="n">Parameter</span><span class="p">,</span>
+    <span class="n">PassThru</span><span class="p">,</span>
+    <span class="n">ActionFlag</span><span class="p">,</span>
+    <span class="n">ParameterGroup</span><span class="p">,</span>
+    <span class="n">Action</span><span class="p">,</span>
+    <span class="n">BasePositional</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -124,7 +129,7 @@
     <span class="n">pass_thru</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PassThru</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParameterGroup</span><span class="p">]</span>
     <span class="n">options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]</span>
-    <span class="n">positionals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_Positional</span><span class="p">]</span>
+    <span class="n">positionals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span>
     <span class="n">long_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
     <span class="n">short_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
     <span class="n">short_combinable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
@@ -150,31 +155,45 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">long_options</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">short_combinable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="n">short_combinable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="c1"># Sort flags by reverse key length, but forward alphabetical key for keys with the same length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">short_combinable</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">kv</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">kv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">kv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_action_flags</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
 
-    <span class="c1"># @cached_property</span>
-    <span class="c1"># def has_numeric_short_option(self) -&gt; bool:</span>
-    <span class="c1">#     if self.parent and self.parent.has_numeric_short_option:</span>
-    <span class="c1">#         return True</span>
-    <span class="c1">#     is_numeric = re.compile(r&#39;^-\d+$|^-\d*\.\d+?$&#39;).match</span>
-    <span class="c1">#     return any(map(is_numeric, self.short_options))</span>
-
     <span class="c1"># region Initialization / Parameter Processing</span>
 
-    <span class="k">def</span> <span class="nf">_process_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandParser&#39;</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">_process_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandParser&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register all of the parameters defined in this parser&#39;s Command and handle any conflicts between them.</span>
+
+<span class="sd">        :param parent: The parent command&#39;s CommandParser, if this parser&#39;s command has a parent.</span>
+<span class="sd">        :return: Unsorted short combinable options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This isn&#39;t stored as self.short_combinable yet because it needs to be sorted after initial processing</span>
         <span class="n">short_combinable</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">short_combinable</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">var_nargs_pos_param</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">):</span>
+        <span class="n">name_param_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Allow sub-classes to override names, but not within a given command</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamBase</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">_Positional</span><span class="p">):</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other_attr</span><span class="p">,</span> <span class="n">other_param</span> <span class="o">=</span> <span class="n">name_param_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">name_param_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="s1">&#39;Name conflict - multiple parameters within a Command cannot have the same name - conflicting&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; params: </span><span class="si">{</span><span class="n">other_attr</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">other_param</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">):</span>
                 <span class="n">var_nargs_pos_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_positional</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">var_nargs_pos_param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">short_combinable</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">short_combinable</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParameterGroup</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
@@ -183,10 +202,17 @@
                     <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid PassThru </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> - it cannot follow another PassThru param&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span> <span class="o">=</span> <span class="n">param</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Unexpected type=</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> - custom parameters must extend&#39;</span>
+                    <span class="s1">&#39; BasePositional, BaseOption, or ParameterGroup&#39;</span>
+                <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">short_combinable</span>
 
-    <span class="k">def</span> <span class="nf">_add_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">_Positional</span><span class="p">,</span> <span class="n">var_nargs_param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_Positional</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_Positional</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_add_positional</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">var_nargs_param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Positional </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> may not follow the sub command </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="si">}</span><span class="s1"> - re-order the positionals,&#39;</span>
@@ -217,7 +243,8 @@
 
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">short_combinable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">],</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">short_combinable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]):</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
         <span class="n">_update_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_options</span><span class="p">,</span> <span class="s1">&#39;long_opts&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
@@ -278,22 +305,11 @@
             <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_options</span>
         <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">item</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">True</span>
-                <span class="c1"># else: process further</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span>
-
-            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
-            <span class="n">short_combinable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="n">short_combinable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_split_short</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">NotAShortOption</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-                <span class="k">return</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">short_combinable</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -345,13 +361,13 @@
 
 <div class="viewcode-block" id="CommandParser.arg_dict"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.arg_dict">[docs]</a>    <span class="k">def</span> <span class="nf">arg_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">arg_dict</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">arg_dict</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">arg_dict</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">arg_dict</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">arg_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">,)):</span>
             <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span> <span class="ow">and</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
                     <span class="n">arg_dict</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">result_value</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">arg_dict</span></div></div>
@@ -412,7 +428,7 @@
 
     <span class="k">def</span> <span class="nf">handle_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">param</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_iter</span><span class="p">)</span>  <span class="c1"># type: _Positional</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_iter</span><span class="p">)</span>  <span class="c1"># type: BasePositional</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pos_available</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
@@ -432,7 +448,7 @@
                 <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">handle_short</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-        <span class="n">param_val_combos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_short</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="n">param_val_combos</span> <span class="o">=</span> <span class="n">_split_short</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span><span class="p">)</span>
         <span class="c1"># log.debug(f&#39;Split {arg=} into {param_val_combos=}&#39;)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_val_combos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">param_val_combos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -440,19 +456,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">last</span> <span class="o">=</span> <span class="n">param_val_combos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">param_val_combos</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_handle_short_value</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_handle_short_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="c1"># log.debug(f&#39;Handling short {value=} for {param=}&#39;)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">accepts_none</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">):</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">consume_values</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_none</span><span class="p">:</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">consume_values</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_none</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs</span>
 
     <span class="k">def</span> <span class="nf">split_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -464,37 +478,11 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span>
 
-    <span class="k">def</span> <span class="nf">split_short</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">NotAShortOption</span>
-
-        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">arg</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
-        <span class="n">short_combinable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="n">short_combinable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">NotAShortOption</span>
-        <span class="c1"># elif not value:</span>
-        <span class="c1"># # Commented out now because this case should be handled by self.short_options.get(arg)</span>
-        <span class="c1">#     return [(param, None)]</span>
-        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[(</span><span class="n">short_combinable</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">NotAShortOption</span> <span class="kn">from</span> <span class="nn">e</span>
-
     <span class="k">def</span> <span class="nf">consume_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># TODO: remove extra step OR de-dupe nargs check / re-append / raise or return</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consume_values</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span>
         <span class="c1"># log.debug(f&#39;_consume_values {result=} for {param=}&#39;)</span>
-        <span class="n">param</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># Trigger validation errors, if any</span>
+        <span class="c1"># param.result(self.args)  # Trigger validation errors, if any</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">_consume_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">arg_deque</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -538,6 +526,32 @@
                         <span class="k">return</span> <span class="n">found</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">raise</span>
+
+
+<span class="k">def</span> <span class="nf">_split_short</span><span class="p">(</span>
+    <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">short_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">],</span> <span class="n">short_combinable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">short_options</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="n">value</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotAShortOption</span> <span class="kn">from</span> <span class="bp">None</span>
+
+    <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="c1"># value will never be empty if key is a valid option because by this point, option is not a short option</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="n">short_combinable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NotAShortOption</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">short_combinable</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotAShortOption</span> <span class="kn">from</span> <span class="nn">e</span>
 
 
 <span class="k">class</span> <span class="nc">NotAShortOption</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
