@@ -124,7 +124,11 @@ class OptionTest(ParserTest):
         self.assert_call_fails_cases(Option, fail_cases)
 
     def test_bad_option_strs_rejected(self):
-        fail_cases = ['---foo', '-f-', '-foo--', '--foo-', '--foo=', '-f=', '-foo=', '=', '-', '--', '---', '-=', '--=']
+        # fmt: off
+        fail_cases = [
+            '---foo', '-f-', '-foo--', '--foo-', '--foo=', '-f=', '-foo=', '=', '-', '--', '---', '-=', '--=', '-a-a'
+        ]
+        # fmt: on
         for option_str in fail_cases:
             with self.subTest(option_str=option_str), self.assertRaises(ParameterDefinitionError):
                 Option(option_str)
@@ -141,6 +145,21 @@ class OptionTest(ParserTest):
 
         self.assert_parse_results(Foo, ['-b', 'a', 'b'], {'bar': ['a', 'b']})
         self.assert_parse_fails(Foo, ['-b', 'a', 'b', '-b', 'b'], ParamUsageError)
+
+    def test_explicit_long_opt(self):
+        class Foo(Command):
+            foo = Option('--bar', '-b')
+
+        self.assertNotIn('--foo', Foo.foo.long_opts)
+
+    def test_action_nargs_mismatch_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Option(nargs=2, action='store')
+
+        self.assertEqual(1, Option(action='store').nargs)
+
+    def test_usage(self):
+        self.assertEqual('--foo', Option('--foo').format_usage())
 
 
 class FlagTest(ParserTest):
@@ -289,6 +308,17 @@ class CounterTest(ParserTest):
             self.assertEqual(foo.foo, f)
             self.assertEqual(foo.bar, b)
 
+    def test_bad_default(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Counter(default=1.5)  # noqa
+
+    def test_prepare_value(self):
+        self.assertEqual(1, Counter().prepare_value(None))
+
+    def test_validate(self):
+        self.assertTrue(Counter().is_valid_arg(None, '1'))  # noqa
+        self.assertFalse(Counter().is_valid_arg(None, '1.5'))  # noqa
+
 
 class PassThruTest(ParserTest):
     def test_pass_thru(self):
@@ -348,6 +378,13 @@ class PassThruTest(ParserTest):
 
         with self.assertRaises(CommandDefinitionError):
             Bar.parser  # noqa
+
+    def test_extra_rejected(self):
+        args = Args([])
+        pt = PassThru()
+        pt.take_action(args, ['a'])
+        with self.assertRaises(ParamUsageError):
+            pt.take_action(args, ['a'])
 
 
 class MiscParameterTest(ParserTest):
@@ -606,6 +643,28 @@ class ChoiceMapTest(ParserTest):
         del Foo.action.choices['foo bar']
         with self.assertRaises(BadArgument):
             Foo.action.result(args)
+
+    def test_reassign_sub_command_rejected(self):
+        class Foo(Command):
+            sub = SubCommand()
+
+        Foo.sub.register(Mock(__name__='bar'))
+        with self.assertRaises(CommandDefinitionError):
+            Foo.sub.register(Mock(__name__='bar'))
+
+    def test_redundant_sub_cmd_choice_rejected(self):
+        class Foo(Command):
+            sub = SubCommand()
+
+        with self.assertRaises(CommandDefinitionError):
+            Foo.sub.register('foo', choice='foo')
+
+    def test_custom_action_choice(self):
+        class Foo(Command):
+            action = Action()
+            action(choice='foo')(Mock(__name__='bar'))
+
+        self.assertIn('foo', Foo.action.choices)
 
 
 def _resolved_path(path):

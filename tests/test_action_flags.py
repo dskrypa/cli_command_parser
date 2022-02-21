@@ -8,6 +8,8 @@ from unittest import TestCase, main
 from unittest.mock import Mock
 
 from command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
+from command_parser.actions import help_action
+from command_parser.args import Args
 from command_parser.parameters import before_main, after_main, action_flag
 from command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
 
@@ -195,6 +197,49 @@ class ActionFlagTest(TestCase):
             self.assertLess(foo.call_order['foo'], foo.call_order['main'])
             self.assertNotIn('bar', foo.call_order)
             self.assertEqual(1, foo.args.actions_taken)  # 1 because no non-flag Actions
+
+    def test_bad_action(self):
+        with self.assertRaises(ParameterDefinitionError):
+
+            class Foo(Command):
+                action_flag(action='store')(Mock())
+
+    def test_equals(self):
+        self.assertEqual(help_action, help_action)
+
+    def test_dunder_get(self):
+        mock = Mock()
+
+        class Foo(Command):
+            @action_flag('-f')
+            def foo(self):
+                mock()
+
+        Foo.parse(['-f']).foo()
+        self.assertTrue(mock.called)
+
+    def test_no_result(self):
+        mock = Mock()
+
+        class Foo(Command):
+            @action_flag('-f')
+            def foo(self):
+                mock()
+
+        foo = Foo.parse(['-f'])
+        self.assertFalse(Foo.foo.result(foo.args)(foo))
+
+    def test_no_func(self):
+        flag = ActionFlag()
+        args = Args([])
+        flag.store_const(args)
+        with self.assertRaises(ParameterDefinitionError):
+            flag.result(args)
+
+    def test_not_provided(self):
+        flag = ActionFlag()
+        args = Args([])
+        self.assertFalse(flag.result(args))
 
 
 if __name__ == '__main__':
