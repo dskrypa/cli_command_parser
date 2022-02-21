@@ -91,6 +91,59 @@ class OptionTest(ParserTest):
         self.assert_call_fails_cases(Option, fail_cases)
 
 
+class FlagTest(ParserTest):
+    def test_default_consts(self):
+        cases = [(True, False), (False, True)]
+        for default, expected in cases:
+            with self.subTest(default=default, expected=expected):
+                self.assertEqual(expected, Flag(default=default).const)
+
+        self.assert_call_fails(
+            Flag, {'default': 42}, ParameterDefinitionError, "Missing parameter='const' for Flag with default=42"
+        )
+
+    def test_default_defaults(self):
+        cases = [(True, False), (False, True), (42, None)]
+        for const, expected in cases:
+            with self.subTest(const=const, expected=expected):
+                self.assertEqual(expected, Flag(const=const).default)
+
+    def test_annotation_ignored(self):
+        for annotation in (bool, int, str, None):
+            with self.subTest(annotation=annotation):
+
+                class Foo(Command):
+                    bar: annotation = Flag()
+
+                self.assert_parse_results_cases(Foo, [(['--bar'], {'bar': True}), ([], {'bar': False})])
+
+    def test_store_false(self):
+        class Foo(Command):
+            bar = Flag(default=True)
+
+        self.assert_parse_results_cases(Foo, [(['--bar'], {'bar': False}), ([], {'bar': True})])
+
+    def test_store_const(self):
+        class Foo(Command):
+            bar = Flag('-b', const=42)
+
+        self.assert_parse_results_cases(Foo, [(['--bar'], {'bar': 42}), ([], {'bar': None}), (['-bb'], {'bar': 42})])
+
+    def test_append_default(self):
+        class Foo(Command):
+            bar = Flag('-b', action='append_const')
+
+        success_cases = [(['--bar'], {'bar': [True]}), ([], {'bar': []}), (['-bb'], {'bar': [True, True]})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_append_const(self):
+        class Foo(Command):
+            bar = Flag('-b', const=42, action='append_const')
+
+        success_cases = [(['--bar'], {'bar': [42]}), ([], {'bar': []}), (['-bb'], {'bar': [42, 42]})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+
 class CounterTest(ParserTest):
     def test_counter_default(self):
         class Foo(Command):
@@ -291,8 +344,6 @@ class MiscParameterTest(ParserTest):
 
 
 class TypeCastTest(ParserTest):
-    # TODO: Test combining annotation + explicit type value
-
     def test_type_cast_singles(self):
         cases = [
             (int, '5', 5),
@@ -335,6 +386,15 @@ class TypeCastTest(ParserTest):
                     bar: annotation = Positional(nargs='+')
 
                 self.assertEqual(expected, Foo.parse(argv).bar)
+
+    def test_type_overrules_annotation(self):
+        cases = [(str, int, ['--bar', '5'], 5), (int, str, ['--bar', '5'], '5')]
+        for annotation, type_val, argv, expected in cases:
+
+            class Foo(Command):
+                bar: annotation = Option(type=type_val)
+
+            self.assertEqual(expected, Foo.parse(argv).bar)
 
 
 def _resolved_path(path):

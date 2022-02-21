@@ -856,15 +856,18 @@ class Option(BaseOption):
 
 
 class Flag(BaseOption, accepts_values=False, accepts_none=True):
+    __default_const_map = {True: False, False: True, _NotSet: True}
     nargs = Nargs(0)
 
-    def __init__(self, *args, action: str = 'store_const', default: Any = False, const: Any = _NotSet, **kwargs):
+    def __init__(self, *args, action: str = 'store_const', default: Any = _NotSet, const: Any = _NotSet, **kwargs):
         if const is _NotSet:
             try:
-                const = {True: False, False: True}[default]
+                const = self.__default_const_map[default]
             except KeyError as e:
                 cls = self.__class__.__name__
                 raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with {default=}") from e
+        if default is _NotSet:
+            default = self.__default_const_map.get(const)  # will be True, False, or None
         super().__init__(*args, action=action, default=default, **kwargs)
         self.const = const
 
@@ -881,13 +884,6 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     @parameter_action
     def append_const(self, args: 'Args'):
         args[self].append(self.const)
-
-    def prepare_value(self, value: Optional[str], short_combo: bool = False) -> int:
-        if value is None:
-            return self.const
-        if short_combo and (combinable := self.short_combinable) and all(c in combinable for c in value):  # noqa
-            return self.const
-        raise BadArgument(self, f'bad flag {value=}')
 
     def would_accept(self, args: 'Args', value: Optional[str], short_combo: bool = False) -> bool:
         return value is None
