@@ -667,6 +667,7 @@ class ChoiceMap(BasePositional):
                 raise InvalidChoice(self, prefix[:-1], choices)
         elif value.startswith('-'):
             raise BadArgument(self, f'invalid {value=}')
+        # TODO: Should this raise an error?
 
     def result_value(self, args: 'Args') -> str:
         if not (choices := self.choices):

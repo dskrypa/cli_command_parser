@@ -474,16 +474,6 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         with self.assertRaises(InvalidChoice):
             foo.bar  # noqa
 
-    def test_bad_choice_append_rejected(self):
-        class Foo(Command):
-            action = Action()
-            action('foo bar')(Mock())
-
-        args = Args([])
-        Foo.action.take_action(args, 'foo')
-        with self.assertRaises(InvalidChoice):
-            Foo.action.append(args, 'baz')
-
 
 class TypeCastTest(ParserTest):
     def test_type_cast_singles(self):
@@ -551,6 +541,71 @@ class ChoiceMapTest(ParserTest):
                 action = Action()
                 action('foo')(Mock())
                 action('foo')(Mock())
+
+    def test_bad_choice_append_rejected(self):
+        class Foo(Command):
+            action = Action()
+            action('foo bar')(Mock())
+
+        args = Args([])
+        Foo.action.take_action(args, 'foo')
+        with self.assertRaises(InvalidChoice):
+            Foo.action.append(args, 'baz')
+
+    def test_missing_action_target(self):
+        class Foo(Command):
+            action = Action()
+
+        self.assert_parse_fails(Foo, ['-a'], NoSuchOption)
+
+    def test_missing_action_target_forced(self):
+        class Foo(Command):
+            action = Action()
+
+        args = Args([])
+        with self.assertRaises(BadArgument):
+            Foo.action.validate(args, '-foo')
+        self.assertIs(None, Foo.action.validate(args, 'foo'))
+
+    def test_choice_map_too_many(self):
+        class Foo(Command):
+            action = Action()
+            action('foo')(Mock())
+
+        args = Args([])
+        Foo.action.take_action(args, 'foo')
+        with self.assertRaises(BadArgument):
+            Foo.action.validate(args, 'bar')
+
+    def test_no_choices_result(self):
+        class Foo(Command):
+            action = Action()
+
+        with self.assertRaises(CommandDefinitionError):
+            # TODO: Should this be raised earlier?
+            Foo.parse([]).action  # noqa
+
+    def test_unexpected_nargs(self):
+        class Foo(Command):
+            action = Action()
+            action('foo bar')(Mock())
+
+        args = Args([])
+        Foo.action.take_action(args, 'foo')
+        with self.assertRaises(BadArgument):
+            Foo.action.result(args)
+
+    def test_unexpected_choice(self):
+        class Foo(Command):
+            action = Action()
+            action('foo bar')(Mock())
+            action('foo baz')(Mock())
+
+        args = Args([])
+        Foo.action.take_action(args, 'foo bar')
+        del Foo.action.choices['foo bar']
+        with self.assertRaises(BadArgument):
+            Foo.action.result(args)
 
 
 def _resolved_path(path):
