@@ -44,13 +44,13 @@ __all__ = [
     'before_main',
     'after_main',
     'Param',
-    'ParameterGroup',
+    'ParamGroup',
     'ParamOrGroup',
 ]
 log = logging.getLogger(__name__)
 
 Param = TypeVar('Param', bound='Parameter')
-ParamOrGroup = Union[Param, 'ParameterGroup']
+ParamOrGroup = Union[Param, 'ParamGroup']
 
 
 class parameter_action:
@@ -89,7 +89,7 @@ class parameter_action:
 class ParamBase(ABC):
     __name: str = None
     _name: str = None
-    group: 'ParameterGroup' = None
+    group: 'ParamGroup' = None
     command: 'CommandType' = None
     choices: Optional[Collection[Any]] = None
     required: Bool = False
@@ -108,7 +108,7 @@ class ParamBase(ABC):
         self.name = name
         self.help = help
         self.choices = choices
-        if (group := ParameterGroup.active_group()) is not None:
+        if (group := ParamGroup.active_group()) is not None:
             group.register(self)  # noqa  # This sets self.group = group
 
     @property
@@ -145,7 +145,7 @@ class ParamBase(ABC):
         raise NotImplementedError
 
 
-class ParameterGroup(ParamBase):
+class ParamGroup(ParamBase):
     """A group of parameters."""
 
     _local = local()
@@ -184,7 +184,7 @@ class ParameterGroup(ParamBase):
 
     def register(self, param: ParamOrGroup):
         if self.mutually_exclusive:
-            if isinstance(param, (BasePositional, PassThru)):
+            if (isinstance(param, BasePositional) and 0 not in param.nargs) or isinstance(param, PassThru):
                 cls_name = param.__class__.__name__
                 raise CommandDefinitionError(
                     f'Cannot add {param=} to {self} - {cls_name} parameters cannot be mutually exclusive'
@@ -203,12 +203,12 @@ class ParameterGroup(ParamBase):
             self.register(param)
 
     def __repr__(self) -> str:
-        exclusive, dependent = self.mutually_exclusive, self.mutually_dependent
+        exclusive, dependent = str(self.mutually_exclusive)[0], str(self.mutually_dependent)[0]
         members = len(self.members)
         return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
 
     @classmethod
-    def active_group(cls) -> Optional['ParameterGroup']:
+    def active_group(cls) -> Optional['ParamGroup']:
         try:
             return cls._local.stack[-1]
         except (AttributeError, IndexError):
@@ -217,27 +217,31 @@ class ParameterGroup(ParamBase):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def __eq__(self, other: 'ParameterGroup') -> bool:
-        if isinstance(other, ParameterGroup) and self.group == other.group:
+    def __eq__(self, other: 'ParamGroup') -> bool:
+        if isinstance(other, ParamGroup) and self.group == other.group:
             attrs = ('mutually_exclusive', 'mutually_dependent', 'name', 'description', 'members')
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
         return False
 
-    def __lt__(self, other: 'ParameterGroup') -> bool:
-        if not isinstance(other, ParameterGroup):
+    def __lt__(self, other: 'ParamGroup') -> bool:
+        if not isinstance(other, ParamGroup):
             return NotImplemented
+        elif self in other.members:
+            return True
 
         group = self.group
-        if group == other.group:
-            return self.name < other.name
-        elif group is None:  # Top-level - push to right (process conflicts last)
-            return False
-        elif group in other.members:  # Nested in other - push to left (process conflicts first)
-            return True
-        else:
-            return self.name < other.name
+        other_group = other.group
+        if group != other_group:
+            if group is None:
+                return False
+            elif other_group is None:
+                return True
+            else:
+                return group < other_group
 
-    def __enter__(self) -> 'ParameterGroup':
+        return self.name < other.name
+
+    def __enter__(self) -> 'ParamGroup':
         try:
             stack = self._local.stack
         except AttributeError:
@@ -321,7 +325,7 @@ class ParameterGroup(ParamBase):
 
         nested, params = 0, 0
         for member in self.members:
-            if isinstance(member, (ChoiceMap, ParameterGroup)):
+            if isinstance(member, (ChoiceMap, ParamGroup)):
                 nested += 1
                 parts.append('')  # Add space for readability
             else:
@@ -536,18 +540,30 @@ class BasePositional(Parameter, ABC):
 
 
 class Positional(BasePositional):
-    def __init__(self, nargs: NargsValue = None, action: str = _NotSet, type: Callable = None, **kwargs):  # noqa
+    def __init__(
+        self,
+        nargs: NargsValue = None,
+        action: str = _NotSet,
+        type: Callable = None,  # noqa
+        default: Any = _NotSet,
+        **kwargs,
+    ):
         if nargs is not None:
             self.nargs = Nargs(nargs)
             if self.nargs == 0:
                 cls_name = self.__class__.__name__
                 raise ParameterDefinitionError(f'Invalid nargs={self.nargs} - {cls_name} must allow at least 1 value')
         if action is _NotSet:
-            action = 'store' if self.nargs == 1 else 'append'
+            action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
+        if default is not _NotSet and (action != 'store' or 0 not in self.nargs):
+            raise ParameterDefinitionError(f'Invalid {default=} - only allowed for Positional parameters when nargs=?')
         super().__init__(action=action, **kwargs)
         self.type = type
         if action == 'append':
             self._init_value_factory = list
+        elif action == 'store' and 0 in self.nargs:
+            self.required = False
+            self.default = None if default is _NotSet else default
 
     @parameter_action
     def store(self, args: 'Args', value: Any):

@@ -17,7 +17,7 @@ from command_parser.exceptions import (
     MissingArgument,
     BadArgument,
 )
-from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand
+from command_parser.parameters import parameter_action, PassThru, Positional, SubCommand, ParamGroup, ActionFlag
 from command_parser.testing import ParserTest
 
 
@@ -341,6 +341,19 @@ class MiscParameterTest(ParserTest):
 
         self.assert_parse_results(Foo, ['--bar', 'a'], {'foo': 'a'})
         self.assert_parse_fails(Foo, ['--foo', 'a'], expected_pattern='unrecognized arguments:')
+
+    def test_sort_mixed_types(self):
+        sort_cases = [
+            (ParamGroup(), Flag(), ActionFlag()),
+            (Flag(), ActionFlag(), ParamGroup()),
+            (ActionFlag(), ParamGroup(), Flag()),
+            ('foo', ParamGroup(), Flag(), ActionFlag()),
+            ('foo', Flag(), ActionFlag(), ParamGroup()),
+            ('foo', ActionFlag(), ParamGroup(), Flag()),
+        ]
+        for group in sort_cases:
+            with self.subTest(group=group), self.assertRaises(TypeError):
+                sorted(group)
 
 
 class TypeCastTest(ParserTest):

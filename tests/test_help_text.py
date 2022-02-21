@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 from command_parser import Command, no_exit_handler
 from command_parser.commands import CommandType
-from command_parser.parameters import Positional, SubCommand, Action, Counter, ParameterGroup
+from command_parser.parameters import Positional, SubCommand, Action, Counter, ParamGroup
 from command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
@@ -57,8 +57,8 @@ class HelpTextTest(TestCase):
 
     def test_group_description(self):
         class Foo(Command, error_handler=no_exit_handler):
-            foo = ParameterGroup(description='group foo')
-            with ParameterGroup(description='test group') as group:
+            foo = ParamGroup(description='group foo')
+            with ParamGroup(description='test group') as group:
                 bar = Positional()
                 baz = Positional()
 

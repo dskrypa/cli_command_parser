@@ -14,7 +14,7 @@ from .exceptions import UsageError
 Argv = list[str]
 Expected = dict[str, Any]
 Case = tuple[Argv, Expected]
-ExceptionCase = Union[tuple[Argv, Type[Exception]], tuple[Argv, Type[Exception], str]]
+ExceptionCase = Union[Argv, tuple[Argv, Type[Exception]], tuple[Argv, Type[Exception], str]]
 CallExceptionCase = Union[tuple[dict[str, Any], Type[Exception]], tuple[dict[str, Any], Type[Exception], str]]
 
 
@@ -54,16 +54,24 @@ class ParserTest(TestCase):
             with self.assertRaises(expected_exc, msg=message):
                 cmd_cls.parse(argv)
 
-    def assert_parse_fails_cases(self, cmd_cls: CommandType, cases: Iterable[ExceptionCase], message: str = None):
-        for case in cases:
-            try:
-                argv, exc, pat = case
-            except ValueError:
-                argv, exc = case
-                pat = None
+    def assert_parse_fails_cases(
+        self, cmd_cls: CommandType, cases: Iterable[ExceptionCase], exc: Type[Exception] = None, message: str = None
+    ):
+        if exc is not None:
+            for argv in cases:
+                with self.subTest(expected='exception', argv=argv):
+                    self.assert_parse_fails(cmd_cls, argv, exc, message=message)
+        else:
+            for case in cases:
+                try:
+                    argv, exc = case
+                except ValueError:
+                    argv, exc, pat = case
+                else:
+                    pat = None
 
-            with self.subTest(expected='exception', argv=argv):
-                self.assert_parse_fails(cmd_cls, argv, exc, pat, message=message)
+                with self.subTest(expected='exception', argv=argv):
+                    self.assert_parse_fails(cmd_cls, argv, exc, pat, message=message)
 
     def assert_call_fails(
         self,
@@ -83,9 +91,10 @@ class ParserTest(TestCase):
     def assert_call_fails_cases(self, func: Callable, cases: Iterable[CallExceptionCase], message: str = None):
         for case in cases:
             try:
-                kwargs, exc, pat = case
-            except ValueError:
                 kwargs, exc = case
+            except ValueError:
+                kwargs, exc, pat = case
+            else:
                 pat = None
 
             with self.subTest(expected='exception', kwargs=kwargs):

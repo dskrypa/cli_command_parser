@@ -4,7 +4,7 @@
 
 from typing import TYPE_CHECKING
 
-from .parameters import BasePositional, BaseOption, ParameterGroup, ParamOrGroup
+from .parameters import BasePositional, BaseOption, ParamGroup, ParamOrGroup
 from .utils import ProgramMetadata, Bool
 
 if TYPE_CHECKING:
@@ -16,13 +16,13 @@ class HelpFormatter:
     def __init__(self, command: 'CommandType', parser: 'CommandParser'):
         self.command = command
         self.parser = parser
-        self.pos_group = ParameterGroup(description='Positional arguments')
-        self.opt_group = ParameterGroup(description='Optional arguments')
+        self.pos_group = ParamGroup(description='Positional arguments')
+        self.opt_group = ParamGroup(description='Optional arguments')
         self.groups = [self.pos_group, self.opt_group]
 
     def maybe_add(self, *params: ParamOrGroup):
         for param in params:
-            if isinstance(param, ParameterGroup):
+            if isinstance(param, ParamGroup):
                 if any(isinstance(p, BasePositional) for p in param):
                     self.pos_group.add(param)
                 else:

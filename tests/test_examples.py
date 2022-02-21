@@ -11,7 +11,7 @@ EXAMPLES_DIR = Path(__file__).resolve().parents[1].joinpath('examples')
 
 # region Test Setup
 
-WORKERS = 8
+# WORKERS = 8
 
 try:
     from testtools import ConcurrentTestSuite, iterate_tests
@@ -24,15 +24,15 @@ else:
         Called by unittest both when invoked via main and via ``coverage run -m unittest``, but not via pytest.  Returns a
         testtools.ConcurrentTestSuite to run the above methods in parallel instead of in series.
         """
-        suites = []
-        tests = list(iterate_tests(suite))
-        chunk_size, remaining = divmod(len(tests), WORKERS)
-        i = 0
-        for c in range(WORKERS):
-            j = i + chunk_size + (1 if remaining > 0 else 0)
-            remaining -= 1
-            suites.append(HashableSuite(tests[i:j]))
-            i = j
+        suites = [HashableSuite((test,)) for test in iterate_tests(suite)]
+        # tests = list(iterate_tests(suite))
+        # chunk_size, remaining = divmod(len(tests), WORKERS)
+        # i = 0
+        # for c in range(WORKERS):
+        #     j = i + chunk_size + (1 if remaining > 0 else 0)
+        #     remaining -= 1
+        #     suites.append(HashableSuite(tests[i:j]))
+        #     i = j
 
         return ConcurrentTestSuite(suite, lambda s: suites)
 
@@ -64,12 +64,15 @@ class ExampleScriptTest(TestCase):
 
     def call_script(self, *args) -> tuple[int, str, str]:
         proc = Popen([sys.executable, self._path, *args], text=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = proc.communicate()
+        stdout = proc.stdout.read()
+        proc.stdout.close()
+        stderr = proc.stderr.read()
+        proc.stderr.close()
         return proc.wait(), stdout, stderr
 
     def assertLinesStartWith(self, prefix: str, text: str):
-        first_line = text.splitlines()[0]
-        self.assertEqual(prefix, first_line)
+        new_line = text.index('\n')
+        self.assertEqual(prefix, text[:new_line])
 
 
 class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):

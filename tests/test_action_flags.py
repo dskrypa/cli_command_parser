@@ -7,7 +7,7 @@ from itertools import count
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, no_exit_handler, ActionFlag, ParameterGroup
+from command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
 from command_parser.parameters import before_main, after_main, action_flag
 from command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
 
@@ -47,7 +47,7 @@ class ActionFlagTest(TestCase):
 
     def test_af_non_me_group_conflict(self):
         class Foo(Command):
-            with ParameterGroup() as group:
+            with ParamGroup() as group:
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
@@ -56,7 +56,7 @@ class ActionFlagTest(TestCase):
 
     def test_af_md_group_conflict(self):
         class Foo(Command):
-            with ParameterGroup(mutually_dependent=True) as group:
+            with ParamGroup(mutually_dependent=True) as group:
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
@@ -65,7 +65,7 @@ class ActionFlagTest(TestCase):
 
     def test_af_me_group_ok(self):
         class Foo(Command):
-            with ParameterGroup(mutually_exclusive=True) as group:
+            with ParamGroup(mutually_exclusive=True) as group:
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
@@ -77,7 +77,7 @@ class ActionFlagTest(TestCase):
 
     def test_af_mixed_grouping_rejected(self):
         class Foo(Command):
-            with ParameterGroup(mutually_exclusive=True) as group:
+            with ParamGroup(mutually_exclusive=True) as group:
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
             baz = ActionFlag()(Mock())
@@ -92,7 +92,7 @@ class ActionFlagTest(TestCase):
                 mocks = [Mock(), Mock(), Mock()]
 
                 class Foo(Command):
-                    with ParameterGroup(mutually_exclusive=True) as group:
+                    with ParamGroup(mutually_exclusive=True) as group:
                         foo = ActionFlag()(mocks[0])
                         bar = ActionFlag()(mocks[1])
                     baz = ActionFlag(order=2)(mocks[2])

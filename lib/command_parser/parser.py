@@ -23,7 +23,7 @@ from .parameters import (
     Parameter,
     PassThru,
     ActionFlag,
-    ParameterGroup,
+    ParamGroup,
     Action,
     BasePositional,
 )
@@ -45,7 +45,7 @@ class CommandParser:
     sub_command: Optional[SubCommand] = None
     action: Optional[Action] = None
     pass_thru: Optional[PassThru] = None
-    groups: list[ParameterGroup]
+    groups: list[ParamGroup]
     options: list[BaseOption]
     positionals: list[BasePositional]
     long_options: dict[str, BaseOption]
@@ -112,7 +112,7 @@ class CommandParser:
                 var_nargs_pos_param = self._add_positional(param, var_nargs_pos_param)
             elif isinstance(param, BaseOption):
                 self._add_option(param, short_combinable)
-            elif isinstance(param, ParameterGroup):
+            elif isinstance(param, ParamGroup):
                 self.formatter.maybe_add(param)
                 self.groups.append(param)
             elif isinstance(param, PassThru):
@@ -123,7 +123,7 @@ class CommandParser:
             else:
                 raise CommandDefinitionError(
                     f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
-                    ' BasePositional, BaseOption, or ParameterGroup'
+                    ' BasePositional, BaseOption, or ParamGroup'
                 )
 
         return short_combinable
@@ -190,7 +190,7 @@ class CommandParser:
         if invalid:
             raise CommandDefinitionError(
                 f'ActionFlag parameters with the same before/after main setting must either have different order values'
-                f' or be in a mutually exclusive ParameterGroup - invalid parameters: {invalid}'
+                f' or be in a mutually exclusive ParamGroup - invalid parameters: {invalid}'
             )
 
         return action_flags
