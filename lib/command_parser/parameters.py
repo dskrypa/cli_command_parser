@@ -400,6 +400,7 @@ class Parameter(ParamBase, ABC):
     def __get__(self, command: 'Command', owner: 'CommandType'):
         if command is None:
             return self
+
         value = self.result(command._Command__args)  # noqa
         if (name := self._name) is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
@@ -830,7 +831,8 @@ class BaseOption(Parameter, ABC):
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
 
     def format_basic_usage(self) -> str:
-        return '[{}]'.format(self.format_usage(True))
+        usage = self.format_usage(True)
+        return usage if self.required else f'[{usage}]'
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if include_meta:
@@ -1053,4 +1055,5 @@ class PassThru(Parameter):
         args[self] = values
 
     def format_basic_usage(self) -> str:
-        return f'[-- {self.format_usage()}]'
+        usage = self.format_usage()
+        return f'-- {usage}' if self.required else f'[-- {usage}]'
