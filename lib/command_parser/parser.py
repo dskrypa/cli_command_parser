@@ -14,6 +14,7 @@ from .exceptions import (
     NoSuchOption,
     MissingArgument,
     ParamsMissing,
+    ParamUsageError,
 )
 from .formatting import HelpFormatter
 from .parameters import (
@@ -202,34 +203,39 @@ class CommandParser:
         options = len(self.options)
         return f'<{self.__class__.__name__}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
-    def contains(self, args: 'Args', item: str, recursive: Bool = True) -> bool:
-        if self._contains(args, item):
-            return True
-        elif recursive and (sub_command := self.sub_command) is not None:
+    def get_sub_command_params(self, args: 'Args', item: str) -> Optional[tuple['Parameter', ...]]:
+        if (sub_command := self.sub_command) is not None:
             for choice in sub_command.choices.values():
-                if choice.target.parser.contains(args, item, recursive):
-                    return True
-        return False
+                parser = choice.target.parser
+                if (params := parser.get_sub_command_params(args, item)) is not None:
+                    return params
+                elif (params := parser.get_params(args, item)) is not None:
+                    return params
 
-    def _contains(self, args: 'Args', item: str) -> bool:
+        return None
+
+    def get_params(self, args: 'Args', item: str) -> Optional[tuple['Parameter', ...]]:
         """
         :param args: The raw / partially parsed arguments for this parser
         :param item: An option string
-        :return: True if this parser contains a matching Option parameter, False otherwise
+        :return: The matching parameter(s), if this parser contains any, otherwise None
         """
         if item.startswith('---'):
-            return False
+            return None
         elif item.startswith('--'):
-            return item.split('=', 1)[0] in self.long_options
+            try:
+                return (self.long_options[item.split('=', 1)[0]],)  # noqa
+            except KeyError:
+                return None
         elif item.startswith('-'):
             try:
-                _split_short(item, args, self.short_options, self.short_combinable)
+                param_val_combos = _split_short(item, args, self.short_options, self.short_combinable)
             except NotAShortOption:
-                return False
+                return None
             else:
-                return True
+                return tuple(param for param, value in param_val_combos)
         else:
-            return False
+            return None
 
     def has_pass_thru(self) -> bool:
         if self.pass_thru:
@@ -261,9 +267,9 @@ class CommandParser:
         for group in self.groups:
             group.validate(args)
 
-        if (sub_command := self.sub_command) is not None:
+        if sub_cmd_param is not None:
             try:
-                next_cmd = sub_command.result(args)  # type: CommandType
+                next_cmd = sub_cmd_param.result(args)  # type: CommandType
             except UsageError:
                 if help_action not in args:
                     raise
@@ -325,6 +331,7 @@ class _Parser:
                 try:
                     self.handle_short(arg)
                 except NotAShortOption:
+                    self._check_sub_command_options(arg)
                     if self.positionals:
                         try:
                             self.handle_positional(arg)
@@ -363,6 +370,7 @@ class _Parser:
         try:
             param, value = self.split_long(arg)
         except KeyError:
+            self._check_sub_command_options(arg)
             self.deferred.append(arg)
         else:
             if value is not None or (param.accepts_none and not param.accepts_values):
@@ -391,6 +399,14 @@ class _Parser:
             param.take_action(self.args, None, short_combo=True)
         # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
+    def _check_sub_command_options(self, arg: str):
+        # This check is only needed when subcommand option values may be misinterpreted as positional values
+        if not self.positionals:
+            return
+        sub_params = self.cmd_parser.get_sub_command_params(self.args, arg)
+        if sub_params and (param := next((p for p in sub_params if p.accepts_values), None)) is not None:
+            raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')
+
     def split_long(self, arg: str) -> tuple[BaseOption, Optional[str]]:
         try:
             return self.long_options[arg], None
@@ -413,10 +429,16 @@ class _Parser:
                 if value.startswith('--'):
                     return self._finalize_consume(param, value, found)
                 elif value.startswith('-') and value != '-':
-                    if self.cmd_parser.contains(self.args, value):
+                    if self.cmd_parser.get_params(self.args, value):
                         # log.debug(f'{value=} will not be used with {param=} - it is also a parameter')
                         return self._finalize_consume(param, value, found)
-                    elif not param.would_accept(self.args, value):
+                    else:
+                        try:
+                            self._check_sub_command_options(value)
+                        except ParamUsageError as e:
+                            return self._finalize_consume(param, value, found, e)
+
+                    if not param.would_accept(self.args, value):
                         # log.debug(f'{value=} will not be used with {param=} - it would not be accepted')
                         return self._finalize_consume(param, value, found, NoSuchOption(f'invalid argument: {value}'))
                     # log.debug(f'{value=} may be used with {param=} as a value')

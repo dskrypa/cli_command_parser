@@ -4,9 +4,16 @@ from dataclasses import dataclass
 from unittest import main
 
 from command_parser.commands import Command
-from command_parser.exceptions import NoSuchOption, BadArgument, ParamsMissing, UsageError, MissingArgument
+from command_parser.exceptions import (
+    NoSuchOption,
+    BadArgument,
+    ParamsMissing,
+    UsageError,
+    MissingArgument,
+    ParamUsageError,
+)
 from command_parser.nargs import Nargs
-from command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action
+from command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action, SubCommand
 from command_parser.testing import ParserTest
 
 # TODO: Make sure missing required params in a non-ME/MD group trigger missing arg exception
@@ -149,6 +156,60 @@ class ParamComboTest(ParserTest):
             ['--bar', 'a', 'b', '-baz'],
         ]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_sub_cmd_optional_before_base_positional(self):
+        class Foo(Command):
+            foo = Positional()
+            sub = SubCommand()
+
+        class Bar(Foo):
+            baz = Option('-b')
+
+        expected_pattern = 'subcommand arguments must be provided after the subcommand'
+        fail_cases = [
+            (['a', '-b', 'c', 'bar'], ParamUsageError, expected_pattern),
+            (['a', '--baz', 'c', 'bar'], ParamUsageError, expected_pattern),
+            (['-b', 'a', 'b', 'bar'], ParamUsageError, expected_pattern),
+            (['--baz', 'a', 'b', 'bar'], ParamUsageError, expected_pattern),
+            (['a', 'bar', '-b', 'c', 'd'], NoSuchOption),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+        success_cases = [
+            (['a', 'bar', '-b', 'c'], {'foo': 'a', 'sub': 'bar', 'baz': 'c'}),
+            (['a', 'bar'], {'foo': 'a', 'sub': 'bar', 'baz': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_nested_sub_cmd_optional_before_base_positional(self):
+        class Foo(Command):
+            sub_a = SubCommand()
+
+        class Bar(Foo):
+            sub_b = SubCommand()
+
+        class Baz(Bar):
+            foo = Option('-f')
+            bar = Flag('-b')
+
+        expected_pattern = 'subcommand arguments must be provided after the subcommand'
+        fail_cases = [
+            (['bar', '-f', 'c', 'baz'], ParamUsageError, expected_pattern),
+            (['bar', '--foo', 'c', 'baz'], ParamUsageError, expected_pattern),
+            (['-f', 'c', 'bar', 'baz'], ParamUsageError, expected_pattern),
+            (['--foo', 'c', 'bar', 'baz'], ParamUsageError, expected_pattern),
+            (['a', 'bar', '-f', 'c', 'd'], UsageError),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+        success_cases = [
+            (['bar', 'baz', '-f', 'c'], {'foo': 'c', 'sub_a': 'bar', 'sub_b': 'baz', 'bar': False}),
+            (['bar', 'baz'], {'foo': None, 'sub_a': 'bar', 'sub_b': 'baz', 'bar': False}),
+            (['bar', 'baz', '-f', 'c', '-b'], {'foo': 'c', 'sub_a': 'bar', 'sub_b': 'baz', 'bar': True}),
+            (['bar', 'baz', '-b'], {'foo': None, 'sub_a': 'bar', 'sub_b': 'baz', 'bar': True}),
+            # TODO: The next 2 cases should work, but are raising MissingArgument for the SubCommand instead...
+            # (['-b', 'bar', 'baz', '-f', 'c'], {'foo': 'c', 'sub_a': 'bar', 'sub_b': 'baz', 'bar': True}),
+            # (['bar', '-b', 'baz', '-f', 'c'], {'foo': 'c', 'sub_a': 'bar', 'sub_b': 'baz', 'bar': True}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
 class NumericValueTest(ParserTest):
