@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parameters &mdash; Command Parser 2022.02.21-13 documentation</title>
+  <title>command_parser.parameters &mdash; Command Parser 2022.02.23-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -482,6 +482,7 @@
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">_Command__args</span><span class="p">)</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># Skip __get__ on subsequent accesses</span>
@@ -912,7 +913,8 @@
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_short_opts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">opt</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">opt</span><span class="p">),</span> <span class="n">opt</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="BaseOption.format_basic_usage"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.BaseOption.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
+        <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">usage</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">]&#39;</span></div>
 
 <div class="viewcode-block" id="BaseOption.format_usage"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.BaseOption.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">include_meta</span><span class="p">:</span>
@@ -1135,7 +1137,8 @@
         <span class="n">args</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span></div>
 
 <div class="viewcode-block" id="PassThru.format_basic_usage"><a class="viewcode-back" href="../../command_parser.parameters.html#command_parser.parameters.PassThru.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;[-- </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span><span class="si">}</span><span class="s1">]&#39;</span></div></div>
+        <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;-- </span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;[-- </span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">]&#39;</span></div></div>
 </pre></div>
 
            </div>

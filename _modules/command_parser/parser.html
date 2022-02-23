@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.parser &mdash; Command Parser 2022.02.21-13 documentation</title>
+  <title>command_parser.parser &mdash; Command Parser 2022.02.23-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -96,6 +96,7 @@
     <span class="n">NoSuchOption</span><span class="p">,</span>
     <span class="n">MissingArgument</span><span class="p">,</span>
     <span class="n">ParamsMissing</span><span class="p">,</span>
+    <span class="n">ParamUsageError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpFormatter</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="p">(</span>
@@ -284,34 +285,39 @@
         <span class="n">options</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">positionals</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">options</span><span class="si">=}</span><span class="s1">]&gt;&#39;</span>
 
-<div class="viewcode-block" id="CommandParser.contains"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="n">recursive</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandParser.get_sub_command_params"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.get_sub_command_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_sub_command_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">recursive</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+                <span class="n">parser</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">parser</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">params</span> <span class="o">:=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_sub_command_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">params</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">params</span> <span class="o">:=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">params</span>
 
-    <span class="k">def</span> <span class="nf">_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="CommandParser.get_params"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param args: The raw / partially parsed arguments for this parser</span>
 <span class="sd">        :param item: An option string</span>
-<span class="sd">        :return: True if this parser contains a matching Option parameter, False otherwise</span>
+<span class="sd">        :return: The matching parameter(s), if this parser contains any, otherwise None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;---&#39;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_options</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_options</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]],)</span>  <span class="c1"># noqa</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">_split_short</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span><span class="p">)</span>
+                <span class="n">param_val_combos</span> <span class="o">=</span> <span class="n">_split_short</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">NotAShortOption</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param_val_combos</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="CommandParser.has_pass_thru"><a class="viewcode-back" href="../../command_parser.parser.html#command_parser.parser.CommandParser.has_pass_thru">[docs]</a>    <span class="k">def</span> <span class="nf">has_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">:</span>
@@ -343,9 +349,9 @@
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
             <span class="n">group</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sub_cmd_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">next_cmd</span> <span class="o">=</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># type: CommandType</span>
+                <span class="n">next_cmd</span> <span class="o">=</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>  <span class="c1"># type: CommandType</span>
             <span class="k">except</span> <span class="n">UsageError</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">help_action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
                     <span class="k">raise</span>
@@ -407,6 +413,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">handle_short</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">NotAShortOption</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_check_sub_command_options</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">:</span>
                         <span class="k">try</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">handle_positional</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
@@ -445,6 +452,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_long</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_sub_command_options</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">accepts_none</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">):</span>
@@ -473,6 +481,14 @@
             <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs</span>
 
+    <span class="k">def</span> <span class="nf">_check_sub_command_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># This check is only needed when subcommand option values may be misinterpreted as positional values</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">sub_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_parser</span><span class="o">.</span><span class="n">get_sub_command_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sub_params</span> <span class="ow">and</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sub_params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s1">&#39;subcommand arguments must be provided after the subcommand&#39;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">split_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_options</span><span class="p">[</span><span class="n">arg</span><span class="p">],</span> <span class="kc">None</span>
@@ -495,10 +511,16 @@
                 <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_consume</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_parser</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_parser</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
                         <span class="c1"># log.debug(f&#39;{value=} will not be used with {param=} - it is also a parameter&#39;)</span>
                         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_consume</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_check_sub_command_options</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">ParamUsageError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_consume</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">found</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
                         <span class="c1"># log.debug(f&#39;{value=} will not be used with {param=} - it would not be accepted&#39;)</span>
                         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_consume</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">found</span><span class="p">,</span> <span class="n">NoSuchOption</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid argument: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
                     <span class="c1"># log.debug(f&#39;{value=} may be used with {param=} as a value&#39;)</span>
