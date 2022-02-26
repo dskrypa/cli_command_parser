@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; CLI Command Parser 2022.02.26-8 documentation</title>
+  <title>Index &mdash; CLI Command Parser 2022.02.26-9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -401,6 +401,8 @@
 </li>
       <li><a href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException">CommandParserException</a>
 </li>
+      <li><a href="cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.contains_positional">contains_positional (cli_command_parser.parameters.ParamGroup property)</a>
+</li>
       <li><a href="cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.copy">copy() (cli_command_parser.error_handling.ErrorHandler method)</a>
 </li>
       <li><a href="cli_command_parser.parameters.html#cli_command_parser.parameters.Counter">Counter (class in cli_command_parser.parameters)</a>
@@ -473,8 +475,6 @@
         <li><a href="cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_help">(cli_command_parser.parameters.ParamGroup method)</a>
 </li>
       </ul></li>
-      <li><a href="cli_command_parser.utils.html#cli_command_parser.utils.format_help_entry">format_help_entry() (in module cli_command_parser.utils)</a>
-</li>
       <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.format_usage">format_usage() (cli_command_parser.formatting.HelpFormatter method)</a>
 
       <ul>
@@ -524,6 +524,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cli_command_parser.actions.html#cli_command_parser.actions.help_action">help_action() (in module cli_command_parser.actions)</a>
+</li>
+      <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter">HelpEntryFormatter (class in cli_command_parser.formatting)</a>
 </li>
       <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter">HelpFormatter (class in cli_command_parser.formatting)</a>
 </li>
@@ -579,7 +581,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cli_command_parser.commands.html#cli_command_parser.commands.Command.main">main() (cli_command_parser.commands.Command method)</a>
 </li>
-      <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.maybe_add">maybe_add() (cli_command_parser.formatting.HelpFormatter method)</a>
+      <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.maybe_add_group">maybe_add_group() (cli_command_parser.formatting.HelpFormatter method)</a>
+</li>
+      <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.maybe_add_param">maybe_add_param() (cli_command_parser.formatting.HelpFormatter method)</a>
 </li>
       <li><a href="cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.members">members (cli_command_parser.parameters.ParamGroup attribute)</a>
 </li>
@@ -710,10 +714,10 @@
 </li>
       <li><a href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">parse_args() (cli_command_parser.parser.CommandParser method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cli_command_parser.commands.html#cli_command_parser.commands.Command.parser">parser (cli_command_parser.commands.Command property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">ParserExit</a>
 </li>
       <li><a href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
@@ -732,6 +736,10 @@
         <li><a href="cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.prepare_value">(cli_command_parser.parameters.Parameter method)</a>
 </li>
       </ul></li>
+      <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter.process_description">process_description() (cli_command_parser.formatting.HelpEntryFormatter method)</a>
+</li>
+      <li><a href="cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter.process_usage">process_usage() (cli_command_parser.formatting.HelpEntryFormatter method)</a>
+</li>
       <li><a href="cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.prog">prog (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
 </li>
       <li><a href="cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata">ProgramMetadata (class in cli_command_parser.utils)</a>

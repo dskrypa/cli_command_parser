@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.utils &mdash; CLI Command Parser 2022.02.26-8 documentation</title>
+  <title>cli_command_parser.utils &mdash; CLI Command Parser 2022.02.26-9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -213,20 +213,6 @@
 
 <div class="viewcode-block" id="camel_to_snake_case"><a class="viewcode-back" href="../../cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case">[docs]</a><span class="k">def</span> <span class="nf">camel_to_snake_case</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delim</span><span class="si">}{</span><span class="n">c</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="format_help_entry"><a class="viewcode-back" href="../../cli_command_parser.utils.html#cli_command_parser.utils.format_help_entry">[docs]</a><span class="k">def</span> <span class="nf">format_help_entry</span><span class="p">(</span><span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">left_pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">left_pad</span> <span class="o">+</span> <span class="n">usage</span>
-    <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
-        <span class="n">pad_chars</span> <span class="o">=</span> <span class="n">width</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">pad_chars</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">mid_pad</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">width</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">mid_pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">pad_chars</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="si">}{</span><span class="n">mid_pad</span><span class="si">}{</span><span class="n">description</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">base</span></div>
 
 
 <div class="viewcode-block" id="get_descriptor_value_type"><a class="viewcode-back" href="../../cli_command_parser.utils.html#cli_command_parser.utils.get_descriptor_value_type">[docs]</a><span class="k">def</span> <span class="nf">get_descriptor_value_type</span><span class="p">(</span><span class="n">command_cls</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
