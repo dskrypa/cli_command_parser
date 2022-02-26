@@ -178,7 +178,8 @@ class HelpTextTest(TestCase):
   --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
                               help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example (default: None)"""
 
-        self.assertIn(expected, Base.parse(['find', '-h']).params.formatter.format_help())
+        with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
+            self.assertIn(expected, Base.parse(['find', '-h']).params.formatter.format_help())
         # Base.parse_and_run(['find', '-h'])
 
 
