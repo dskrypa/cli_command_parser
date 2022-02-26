@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 project_root = Path(__file__).resolve().parent
 long_description = project_root.joinpath('readme.rst').read_text('utf-8')
 about = {}
-exec(project_root.joinpath('lib', 'command_parser', '__version__.py').read_text('utf-8'), about)
+exec(project_root.joinpath('lib', 'cli_command_parser', '__version__.py').read_text('utf-8'), about)
 
 
 setup(
