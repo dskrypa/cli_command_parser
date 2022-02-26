@@ -2,8 +2,8 @@
 
 from unittest import TestCase, main
 
-from command_parser.args import Args
-from command_parser.utils import camel_to_snake_case
+from cli_command_parser.args import Args
+from cli_command_parser.utils import camel_to_snake_case
 
 
 class UtilsTest(TestCase):

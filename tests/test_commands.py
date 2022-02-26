@@ -4,10 +4,10 @@ from contextlib import redirect_stdout, redirect_stderr
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, CommandConfig
-from command_parser.error_handling import no_exit_handler, extended_error_handler
-from command_parser.exceptions import CommandDefinitionError, NoSuchOption
-from command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag, Option
+from cli_command_parser import Command, CommandConfig
+from cli_command_parser.error_handling import no_exit_handler, extended_error_handler
+from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
+from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag, Option
 
 
 class TestCommands(TestCase):

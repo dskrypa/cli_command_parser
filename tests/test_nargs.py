@@ -2,7 +2,7 @@
 
 from unittest import TestCase, main
 
-from command_parser.nargs import Nargs
+from cli_command_parser.nargs import Nargs
 
 
 class NargsTest(TestCase):

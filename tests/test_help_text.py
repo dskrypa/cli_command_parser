@@ -5,9 +5,9 @@ from io import StringIO
 from unittest import TestCase, main
 from unittest.mock import Mock, patch, MagicMock
 
-from command_parser import Command, no_exit_handler
-from command_parser.commands import CommandType
-from command_parser.parameters import (
+from cli_command_parser import Command, no_exit_handler
+from cli_command_parser.commands import CommandType
+from cli_command_parser.parameters import (
     Positional,
     SubCommand,
     Action,
@@ -18,7 +18,7 @@ from command_parser.parameters import (
     PassThru,
     ChoiceMap,
 )
-from command_parser.utils import ProgramMetadata
+from cli_command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
 TEST_EPILOG = 'This is a test epilog'
@@ -150,9 +150,9 @@ class ProgramMetadataTest(TestCase):
     def test_meta_init(self):
         g = {'__author_email__': 'example@fake.com', '__version__': '3.2.1', '__url__': 'https://github.com/foo/bar'}
         with (
-            patch('command_parser.utils.getsourcefile', return_value='foo-script.py'),
+            patch('cli_command_parser.utils.getsourcefile', return_value='foo-script.py'),
             patch.object(ProgramMetadata, '_find_dunder_info', return_value=(True, g)),
-            patch('command_parser.utils.sys.argv', ['bar.py']),
+            patch('cli_command_parser.utils.sys.argv', ['bar.py']),
         ):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'bar.py')
@@ -187,9 +187,9 @@ class ProgramMetadataTest(TestCase):
         }
         frame_info = MagicMock(frame=Mock(f_globals=g))
         with (
-            patch('command_parser.utils.getsourcefile', return_value='foo-script.py'),
-            patch('command_parser.utils.stack', return_value=[frame_info, frame_info]),
-            patch('command_parser.utils.sys.argv', []),
+            patch('cli_command_parser.utils.getsourcefile', return_value='foo-script.py'),
+            patch('cli_command_parser.utils.stack', return_value=[frame_info, frame_info]),
+            patch('cli_command_parser.utils.sys.argv', []),
         ):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'foo.py')

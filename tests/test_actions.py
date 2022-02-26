@@ -4,8 +4,13 @@ import logging
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, Positional
-from command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, MissingArgument, InvalidChoice
+from cli_command_parser import Command, Action, Positional
+from cli_command_parser.exceptions import (
+    ParameterDefinitionError,
+    CommandDefinitionError,
+    MissingArgument,
+    InvalidChoice,
+)
 
 log = logging.getLogger(__name__)
 

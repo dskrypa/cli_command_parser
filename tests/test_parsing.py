@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from unittest import main
 
-from command_parser.commands import Command
-from command_parser.exceptions import (
+from cli_command_parser.commands import Command
+from cli_command_parser.exceptions import (
     NoSuchOption,
     BadArgument,
     ParamsMissing,
@@ -12,9 +12,9 @@ from command_parser.exceptions import (
     MissingArgument,
     ParamUsageError,
 )
-from command_parser.nargs import Nargs
-from command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action, SubCommand
-from command_parser.testing import ParserTest
+from cli_command_parser.nargs import Nargs
+from cli_command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action, SubCommand
+from cli_command_parser.testing import ParserTest
 
 # TODO: Make sure missing required params in a non-ME/MD group trigger missing arg exception
 

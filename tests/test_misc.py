@@ -5,12 +5,12 @@ from unittest import TestCase, main
 
 class MiscTest(TestCase):
     def test_version(self):
-        from command_parser import __version__
+        from cli_command_parser import __version__
 
-        self.assertEqual('command_parser', __version__.__title__)
+        self.assertEqual('cli_command_parser', __version__.__title__)
 
     def test_dunder_main(self):
-        from command_parser import __main__
+        from cli_command_parser import __main__
 
         self.assertEqual('this counts for coverage...?  ._.', 'this counts for coverage...?  ._.')
 

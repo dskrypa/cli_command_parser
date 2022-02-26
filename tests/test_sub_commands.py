@@ -4,7 +4,7 @@ from contextlib import redirect_stdout
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
+from cli_command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
 
 
 class SubCommandTest(TestCase):

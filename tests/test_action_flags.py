@@ -7,11 +7,11 @@ from itertools import count
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
-from command_parser.actions import help_action
-from command_parser.args import Args
-from command_parser.parameters import before_main, after_main, action_flag
-from command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
+from cli_command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
+from cli_command_parser.actions import help_action
+from cli_command_parser.args import Args
+from cli_command_parser.parameters import before_main, after_main, action_flag
+from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
 
 log = logging.getLogger(__name__)
 

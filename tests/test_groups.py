@@ -2,9 +2,9 @@
 
 from unittest import main
 
-from command_parser import Command, UsageError, ParameterDefinitionError, CommandDefinitionError
-from command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
-from command_parser.testing import ParserTest
+from cli_command_parser import Command, UsageError, ParameterDefinitionError, CommandDefinitionError
+from cli_command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
+from cli_command_parser.testing import ParserTest
 
 
 class GroupTest(ParserTest):

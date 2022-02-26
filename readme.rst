@@ -1,5 +1,5 @@
-Command Parser
-==============
+CLI Command Parser
+==================
 
 |py_version| |coverage_badge| |build_status| |Black|
 

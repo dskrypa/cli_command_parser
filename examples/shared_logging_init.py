@@ -2,7 +2,7 @@
 
 import logging
 
-from command_parser import Command, Counter, SubCommand, Action
+from cli_command_parser import Command, Counter, SubCommand, Action
 
 log = logging.getLogger(__name__)
 

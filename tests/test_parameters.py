@@ -6,9 +6,9 @@ from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from command_parser import Command, Counter, Option, Flag
-from command_parser.args import Args
-from command_parser.exceptions import (
+from cli_command_parser import Command, Counter, Option, Flag
+from cli_command_parser.args import Args
+from cli_command_parser.exceptions import (
     NoSuchOption,
     UsageError,
     ParameterDefinitionError,
@@ -18,7 +18,7 @@ from command_parser.exceptions import (
     BadArgument,
     InvalidChoice,
 )
-from command_parser.parameters import (
+from cli_command_parser.parameters import (
     parameter_action,
     PassThru,
     Positional,
@@ -28,7 +28,7 @@ from command_parser.parameters import (
     BasePositional,
     Action,
 )
-from command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest
 
 
 class PositionalTest(TestCase):

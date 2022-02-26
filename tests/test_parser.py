@@ -4,12 +4,12 @@ from contextlib import redirect_stdout
 from unittest import main
 from unittest.mock import Mock
 
-from command_parser import Command
-from command_parser.actions import help_action
-from command_parser.args import Args
-from command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
-from command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
-from command_parser.testing import ParserTest as _ParserTest
+from cli_command_parser import Command
+from cli_command_parser.actions import help_action
+from cli_command_parser.args import Args
+from cli_command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
+from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
+from cli_command_parser.testing import ParserTest as _ParserTest
 
 
 class ParserTest(_ParserTest):
