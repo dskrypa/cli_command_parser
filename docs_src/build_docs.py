@@ -7,8 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
 
-from command_parser import Command, Counter, after_main, before_main
-from command_parser.__version__ import __description__
+from cli_command_parser import Command, Counter, after_main, before_main
+from cli_command_parser.__version__ import __description__
 
 log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
