@@ -8,7 +8,7 @@ from pathlib import Path
 from subprocess import check_call
 
 from cli_command_parser import Command, Counter, after_main, before_main
-from cli_command_parser.__version__ import __description__
+from cli_command_parser.__version__ import __description__, __title__
 
 log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +19,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     def __init__(self, args):
         self.title = __description__
-        self.package = 'command_parser'
+        self.package = __title__
         self.package_path = PROJECT_ROOT.joinpath('lib', self.package)
         self.docs_src_path = PROJECT_ROOT.joinpath('docs_src')
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'

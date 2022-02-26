@@ -10,9 +10,9 @@ docs_src_path = project_root.joinpath('docs_src')
 sys.path.append(project_root.as_posix())
 sys.path.append(docs_src_path.joinpath('ext').as_posix())
 
-from command_parser.__version__ import __author__, __version__
+from cli_command_parser.__version__ import __author__, __version__, __description__
 
-project = 'Command Parser'
+project = __description__
 release = __version__
 author = __author__
 copyright = '{}, {}'.format(datetime.now().strftime('%Y'), author)
