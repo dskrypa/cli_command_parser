@@ -88,7 +88,8 @@ class HelpTextTest(TestCase):
             action(Mock(__name__='hello'))
             action(Mock(__name__='log_test'))
 
-        help_text = Base.params.formatter.format_help()
+        with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
+            help_text = Base.params.formatter.format_help()
         self.assertNotIn('Positional arguments:', help_text)
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
         self.assertIn(expected_sub_cmd, help_text)
