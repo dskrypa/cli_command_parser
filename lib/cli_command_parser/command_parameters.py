@@ -96,7 +96,7 @@ class CommandParameters:
                 if self.pass_thru:
                     raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
                 self._pass_thru = param
-                self.formatter.maybe_add(param)
+                self.formatter.maybe_add_param(param)
             else:
                 raise CommandDefinitionError(
                     f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
@@ -108,7 +108,7 @@ class CommandParameters:
         self._process_groups(groups)
 
     def _process_groups(self, groups: list[ParamGroup]):
-        self.formatter.maybe_add(*groups)
+        self.formatter.maybe_add_group(*groups)
         if parent := self.parent:
             groups = parent.groups + groups
         self.groups = sorted(groups)
@@ -142,7 +142,7 @@ class CommandParameters:
                 var_nargs_param = param
 
         self.positionals = params
-        self.formatter.maybe_add(*params)
+        self.formatter.maybe_add_param(*params)
 
     def _process_options(self, params: Collection[BaseOption]):
         if parent := self.parent:
@@ -169,7 +169,7 @@ class CommandParameters:
                             f'{opt_type}={opt!r} conflict for command={self.command!r} between {existing} and {param}'
                         )
 
-        self.formatter.maybe_add(*options)
+        self.formatter.maybe_add_param(*options)
         self.options = options
         self.option_map = option_map
         self._process_action_flags(options)

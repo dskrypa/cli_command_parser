@@ -145,6 +145,42 @@ class HelpTextTest(TestCase):
 
         self.assertTrue(Custom().format_help().startswith('Choices:'))
 
+    def test_option_with_choices(self):
+        obj_types = ('track', 'artist', 'album', 'tracks', 'artists', 'albums')
+        # fmt: off
+        printer_formats = [
+            'json', 'json-pretty', 'json-compact', 'text', 'yaml', 'pprint', 'csv', 'table',
+            'pseudo-yaml', 'json-lines', 'plain', 'pseudo-json',
+        ]
+        # fmt: on
+
+        class Base(Command):
+            sub = SubCommand()
+
+        class Find(Base, help='Find information'):
+            obj_type = Positional(choices=obj_types, help='Object type')
+            title = Positional(nargs='*', help='Object title (optional)')
+            escape = Option('-e', default='()', help='Escape the provided regex special characters')
+            allow_inst = Flag('-I', help='Allow search results that include instrumental versions of songs')
+            full_info = Flag('-F', help='Print all available info about the discovered objects')
+            format = Option('-f', choices=printer_formats, default='yaml', help='Output format to use for --full_info')
+            test = Option('-t', help=','.join(f'{i} extra long help text example' for i in range(10)))
+            xl = Option('-x', choices=printer_formats, help=','.join(f'{i} extra long help text' for i in range(10)))
+
+        expected = """Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+  --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: ())
+  --allow_inst, -I            Allow search results that include instrumental versions of songs (default: False)
+  --full_info, -F             Print all available info about the discovered objects (default: False)
+  --format {json,json-pretty,json-compact,text,yaml,pprint,csv,table,pseudo-yaml,json-lines,plain,pseudo-json}, -f {json,json-pretty,json-compact,text,yaml,pprint,csv,table,pseudo-yaml,json-
+                              lines,plain,pseudo-json}
+                              Output format to use for --full_info (default: yaml)
+  --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
+                              help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example (default: None)"""
+
+        self.assertIn(expected, Base.parse(['find', '-h']).params.formatter.format_help())
+        # Base.parse_and_run(['find', '-h'])
+
 
 class ProgramMetadataTest(TestCase):
     def test_meta_init(self):

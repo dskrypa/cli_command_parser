@@ -132,20 +132,6 @@ def camel_to_snake_case(text: str, delim: str = '_') -> str:
     return ''.join(f'{delim}{c}' if i and c.isupper() else c for i, c in enumerate(text)).lower()
 
 
-def format_help_entry(usage: str, description: Optional[str], width: int = 30, lpad: int = 2) -> str:
-    left_pad = ' ' * lpad
-    base = left_pad + usage
-    if description:
-        pad_chars = width - len(base)
-        if pad_chars < 0:
-            mid_pad = '\n' + ' ' * width
-        else:
-            mid_pad = ' ' * pad_chars
-        return f'{base}{mid_pad}{description}'
-    else:
-        return base
-
-
 def get_descriptor_value_type(command_cls, attr: str):
     try:
         annotation = get_type_hints(command_cls)[attr]

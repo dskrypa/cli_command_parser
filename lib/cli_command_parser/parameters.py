@@ -15,13 +15,13 @@ from types import MethodType
 
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing
+from .formatting import HelpEntryFormatter
 from .nargs import Nargs, NargsValue
 from .utils import (
     _NotSet,
     Bool,
     validate_positional,
     camel_to_snake_case,
-    format_help_entry,
     get_descriptor_value_type,
     is_numeric,
 )
@@ -283,6 +283,10 @@ class ParamGroup(ParamBase):
             raise ParamsMissing(missing)
 
     @property
+    def contains_positional(self) -> bool:
+        return any(isinstance(p, BasePositional) for p in self)
+
+    @property
     def show_in_help(self) -> bool:
         if self.hide or not self.members:
             return False
@@ -337,6 +341,7 @@ class ParamGroup(ParamBase):
 
 class Parameter(ParamBase, ABC):
     _actions: frozenset[str] = frozenset()
+    _positional: bool = False
     accepts_none: bool = False
     accepts_values: bool = True
     choices: Optional[Collection[Any]] = None
@@ -516,7 +521,7 @@ class Parameter(ParamBase, ABC):
         if add_default and (default := self.default) is not _NotSet:
             pad = ' ' if description else ''
             description += f'{pad}(default: {default})'
-        return format_help_entry(usage, description, width=width)
+        return HelpEntryFormatter(usage, description, width)()
 
     @property
     def usage_metavar(self) -> str:
@@ -530,6 +535,8 @@ class Parameter(ParamBase, ABC):
 
 
 class BasePositional(Parameter, ABC):
+    _positional: bool = True
+
     def __init__(self, action: str, **kwargs):
         if not (required := kwargs.setdefault('required', True)):
             cls_name = self.__class__.__name__
@@ -603,7 +610,7 @@ class Choice:
         return f'{self.__class__.__name__}({self.choice!r}{target_str}{help_str})'
 
     def format_help(self, width: int = 30, lpad: int = 4) -> str:
-        return format_help_entry(self.choice, self.help, width=width, lpad=lpad)
+        return HelpEntryFormatter(self.choice, self.help, width, lpad)()
 
 
 class ChoiceMap(BasePositional):
@@ -696,7 +703,8 @@ class ChoiceMap(BasePositional):
 
     def format_help(self, width: int = 30, add_default: 'Bool' = None):
         title = self.title or self._default_title
-        parts = [f'{title}:', format_help_entry(self.format_usage(), self.description, width=width, lpad=2)]
+        help_entry = HelpEntryFormatter(self.format_usage(), self.description, width, lpad=2)()
+        parts = [f'{title}:', help_entry]
         for choice in self.choices.values():
             parts.append(choice.format_help(width, lpad=4))
 
@@ -838,7 +846,7 @@ class BaseOption(Parameter, ABC):
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if include_meta:
-            metavar = self.usage_metavar
+            metavar = self.usage_metavar.replace('{', '{{').replace('}', '}}')
             fmt = '{}' if self.nargs == 0 else f'{{}} [{metavar}]' if 0 in self.nargs else f'{{}} {metavar}'
             if full:
                 return delim.join(fmt.format(opt) for opt in chain(self.long_opts, self.short_opts))
