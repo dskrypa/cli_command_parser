@@ -1,5 +1,6 @@
+******************
 CLI Command Parser
-==================
+******************
 
 |py_version| |coverage_badge| |build_status| |Black|
 
@@ -25,3 +26,21 @@ The primary goals of this project:
 
 
 This project is still a work in progress.
+
+
+Installing CLI Command Parser
+-----------------------------
+
+CLI Command Parser is available on PyPI::
+
+    $ pip install cli-command-parser
+
+
+Documentation & Examples
+------------------------
+
+`API documentation <https://dskrypa.github.io/cli_command_parser/>`_ is currently available.  More detailed usage guides
+are coming soon.
+
+Example scripts using CLI Command Parser can be found in the `examples
+<https://github.com/dskrypa/cli_command_parser/tree/main/examples>`_ directory.
