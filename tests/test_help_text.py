@@ -88,7 +88,7 @@ class HelpTextTest(TestCase):
             action(Mock(__name__='hello'))
             action(Mock(__name__='log_test'))
 
-        help_text = Base.parser.formatter.format_help()
+        help_text = Base.params.formatter.format_help()
         self.assertNotIn('Positional arguments:', help_text)
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
         self.assertIn(expected_sub_cmd, help_text)
@@ -113,7 +113,7 @@ class HelpTextTest(TestCase):
         self.assertTrue(Foo.bar.show_in_help)
         self.assertFalse(Foo.baz.show_in_help)
 
-        help_text = Foo.parser.formatter.format_help()
+        help_text = Foo.params.formatter.format_help()
         self.assertIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
 
@@ -125,7 +125,7 @@ class HelpTextTest(TestCase):
                 with ParamGroup() as inner:
                     baz = Flag()
 
-        help_text = Foo.parser.formatter.format_help()
+        help_text = Foo.params.formatter.format_help()
         self.assertIn('--foo', help_text)
         self.assertNotIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
@@ -135,7 +135,7 @@ class HelpTextTest(TestCase):
             foo = Option()
             bar = PassThru()
 
-        help_text = Foo.parser.formatter.format_help()
+        help_text = Foo.params.formatter.format_help()
         self.assertIn('--foo', help_text)
         self.assertIn('[-- BAR]', help_text)
 

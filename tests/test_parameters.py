@@ -368,7 +368,7 @@ class PassThruTest(ParserTest):
         class Bar(Foo):
             pass
 
-        self.assertTrue((Bar.parser.has_pass_thru()))
+        self.assertTrue(Bar.params.pass_thru)
 
     def test_sub_cmd_multiple_rejected(self):
         class Foo(Command):

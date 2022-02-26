@@ -13,76 +13,61 @@ from command_parser.testing import ParserTest as _ParserTest
 
 
 class ParserTest(_ParserTest):
-    # def setUp(self):
-    #     print()
-    #
-    # def subTest(self, *args, **kwargs):
-    #     print()
-    #     return super().subTest(*args, **kwargs)
-
-    def test_parser_repr(self):
+    def test_reprs(self):
         class Foo(Command):
             bar = Positional()
 
-        rep = repr(Foo.parser)
-        self.assertIn('Foo', rep)
-        self.assertIn('positionals=', rep)
-        self.assertIn('options=', rep)
+        for obj in (Foo.parser, Foo.params):
+            rep = repr(obj)
+            self.assertIn('Foo', rep)
+            self.assertIn('positionals=', rep)
+            self.assertIn('options=', rep)
 
-    # def test_parser_contains_recursive(self):
-    #     class Foo(Command):
-    #         cmd = SubCommand()
-    #
-    #     class Bar(Foo):
-    #         bar = Counter('-b')
-    #
-    #     for cls in (Foo, Bar):
-    #         parser = cls.parser
-    #         self.assertTrue(parser.contains(Args([]), '-h'))
-    #         self.assertFalse(parser.contains(Args([]), '-H'))
-    #         self.assertTrue(parser.contains(Args([]), '-b=1'))
-    #         self.assertFalse(parser.contains(Args([]), '-B=1'))
-    #         self.assertFalse(parser.contains(Args([]), '-ba'))
-    #         self.assertTrue(parser.contains(Args([]), '--bar=1'))
-    #         self.assertFalse(parser.contains(Args([]), '--baz=1'))
-    #         self.assertFalse(parser.contains(Args([]), 'baz'))
-    #         self.assertTrue(parser.contains(Args([]), '-b=1'))
-    #         self.assertFalse(parser.contains(Args([]), '-B=1'))
-    #         self.assertTrue(parser.contains(Args([]), '-bb'))
-    #         self.assertFalse(parser.contains(Args([]), '-ab'))
-    #
+    def test_params_contains_long(self):
+        class Foo(Command):
+            bar = Option()
+
+        self.assertIs(Foo.bar, Foo.params.get_option_param_value_pairs('--bar')[0])
+
+    def test_params_find_option_rejects_non_option(self):
+        class Foo(Command):
+            pass
+
+        with self.assertRaises(ValueError):
+            Foo.params.find_option_that_accepts_values('bar')
+
     def test_parser_does_not_contain_triple_dash(self):
         class Foo(Command):
             pass
 
-        self.assertIs(None, Foo.parser.get_params(Args([]), '---'))
+        self.assertIs(None, Foo.params.get_option_param_value_pairs('---'))
 
     def test_parser_does_not_contain_combined_short(self):
         class Foo(Command):
             test = Flag('-t')
 
-        self.assertIs(None, Foo.parser.get_params(Args([]), '-test'))
+        self.assertIs(None, Foo.params.get_option_param_value_pairs('-test'))
 
     def test_parser_contains_combined_short(self):
         class Foo(Command):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        self.assertIsNot(None, Foo.parser.get_params(Args([]), '-fb'))
+        self.assertIsNot(None, Foo.params.get_option_param_value_pairs('-fb'))
 
     def test_parser_does_not_contain_non_optional(self):
         class Foo(Command):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        self.assertIs(None, Foo.parser.get_params(Args([]), 'f'))
+        self.assertIs(None, Foo.params.get_option_param_value_pairs('f'))
 
     def test_parser_does_not_contain_long(self):
         class Foo(Command):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        self.assertIs(None, Foo.parser.get_params(Args([]), '--baz'))
+        self.assertIs(None, Foo.params.get_option_param_value_pairs('--baz'))
 
     def test_redefined_param_rejected(self):
         class Foo(Command):
@@ -92,7 +77,7 @@ class ParserTest(_ParserTest):
         class Bar(Foo):
             bar = Counter('-b')
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'conflict for command=.* between params'):
+        with self.assertRaisesRegex(CommandDefinitionError, 'conflict for command=.* between'):
             Foo.parse(['bar'])
 
     def test_alt_parent_sub_command_missing_args_1(self):
@@ -138,7 +123,7 @@ class ParserTest(_ParserTest):
             pass
 
         expected = {help_action.name: False}
-        self.assertDictEqual(expected, Bar.parser.arg_dict(Args([])))
+        self.assertDictEqual(expected, Bar.params.args_to_dict(Args([])))
 
     def test_explicit_name_conflict_before(self):
         class Foo(Command):
@@ -164,8 +149,8 @@ class ParserTest(_ParserTest):
         class Baz(Foo):
             bar = Option()
 
-        self.assert_parse_fails(Baz, [], CommandDefinitionError, 'conflict for command=.* between params')
-        self.assert_parse_fails(Foo, ['baz'], CommandDefinitionError, 'conflict for command=.* between params')
+        self.assert_parse_fails(Baz, [], CommandDefinitionError, 'conflict for command=.* between')
+        self.assert_parse_fails(Foo, ['baz'], CommandDefinitionError, 'conflict for command=.* between')
 
     def test_sub_cmd_param_name_override_ok(self):
         class Foo(Command):
@@ -191,6 +176,15 @@ class ParserTest(_ParserTest):
 
         with self.assertRaisesRegex(CommandDefinitionError, 'custom parameters must extend'):
             Foo.parser  # noqa
+
+    def test_params_parent(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class Baz(Foo):
+            pass
+
+        self.assertIs(Baz.params.parent, Foo.params)
 
 
 if __name__ == '__main__':

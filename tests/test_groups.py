@@ -262,7 +262,7 @@ class NestedGroupTest(ParserTest):
             self.assertIn(Foo.inner, Foo.outer)
             self.assertIn(Foo.c, Foo.outer)
             expected = [Foo.inner, Foo.plain, Foo.outer]
-            self.assertListEqual(expected, Foo.parser.groups)
+            self.assertListEqual(expected, Foo.params.groups)
             self.assertListEqual(expected, sorted([Foo.plain, Foo.outer, Foo.inner]))
 
         success_cases = [
@@ -300,7 +300,7 @@ class NestedGroupTest(ParserTest):
                         d = Flag('-d')
 
         expected = [Foo.nested_inner_2, Foo.nested_inner_1, Foo.inner_1, Foo.inner_2, Foo.outer]
-        self.assertListEqual(expected, Foo.parser.groups)
+        self.assertListEqual(expected, Foo.params.groups)
 
     def test_nested_group_sorting_2(self):
         class Foo(Command):
@@ -315,7 +315,7 @@ class NestedGroupTest(ParserTest):
                     d = Flag('-d')
 
         expected = [Foo.inner_2, Foo.inner_1, Foo.outer_1, Foo.outer_2]
-        self.assertListEqual(expected, Foo.parser.groups)
+        self.assertListEqual(expected, Foo.params.groups)
 
     def test_nested_group_sorting_3(self):
         class Foo(Command):
@@ -336,7 +336,7 @@ class NestedGroupTest(ParserTest):
                         g = Flag('-g')
 
         expected = [Foo.nested_inner_1, Foo.inner_2, Foo.inner_3, Foo.inner_1, Foo.inner_4, Foo.outer_1, Foo.outer_2]
-        self.assertListEqual(expected, Foo.parser.groups)
+        self.assertListEqual(expected, Foo.params.groups)
 
 
 if __name__ == '__main__':

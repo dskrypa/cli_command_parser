@@ -9,13 +9,13 @@ from .utils import ProgramMetadata, Bool
 
 if TYPE_CHECKING:
     from .commands import CommandType
-    from .parser import CommandParser
+    from .command_parameters import CommandParameters
 
 
 class HelpFormatter:
-    def __init__(self, command: 'CommandType', parser: 'CommandParser'):
+    def __init__(self, command: 'CommandType', params: 'CommandParameters'):
         self.command = command
-        self.parser = parser
+        self.params = params
         self.pos_group = ParamGroup(description='Positional arguments')
         self.opt_group = ParamGroup(description='Optional arguments')
         self.groups = [self.pos_group, self.opt_group]
@@ -38,8 +38,8 @@ class HelpFormatter:
         if usage := meta.usage:
             return usage
 
-        params = self.parser.positionals + self.parser.options  # noqa
-        if (pass_thru := self.parser.pass_thru) is not None:
+        params = self.params.positionals + self.params.options  # noqa
+        if (pass_thru := self.params.pass_thru) is not None:  # noqa
             params.append(pass_thru)
 
         parts = ['usage:', meta.prog]

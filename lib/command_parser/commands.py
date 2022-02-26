@@ -10,6 +10,7 @@ from warnings import warn
 
 from .actions import help_action
 from .args import Args
+from .command_parameters import CommandParameters
 from .config import CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import CommandDefinitionError, ParamConflict
@@ -32,11 +33,13 @@ class Command:
     # fmt: off
     parser: CommandParser                               # Must declare here for PyCharm's type checker to work properly
     command_config: CommandConfig                       # Must declare here for PyCharm's type checker to work properly
+    params: CommandParameters                           # Must declare here for PyCharm's type checker to work properly
     __args: Args                                        # The raw and parsed arguments passed to this command
     args: Args                                          # Same as __args, but can be overwritten.  Not used internally.
     __command_config: CommandConfig = None              # Configured Command options
     __meta: ProgramMetadata = None                      # Metadata used in help text
     __parser: Optional[CommandParser] = None            # The CommandParser used by this command
+    __params: Optional[CommandParameters] = None
     __abstract: Bool = True                             # False if viable for containing sub commands
     # fmt: on
 
@@ -90,10 +93,11 @@ class Command:
                 cls.__help = help_action
 
         cls.__parser = None
+        cls.__params = None
         cls.__abstract = abstract
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, Command) and not c.__abstract), None):
-            if (sub_cmd := parent.parser.sub_command) is not None:  # noqa
+            if (sub_cmd := parent.params.sub_command) is not None:
                 sub_cmd.register_command(choice, cls, help)
             elif choice:
                 warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
@@ -103,14 +107,20 @@ class Command:
     @classproperty
     def parser(cls: CommandType) -> CommandParser:  # noqa
         if cls.__parser is None:
-            # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
-            parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
-            cls.__parser = CommandParser(cls, parent)
+            cls.__parser = CommandParser(cls)
         return cls.__parser
 
     @classproperty
     def command_config(cls) -> CommandConfig:  # noqa
         return cls.__command_config
+
+    @classproperty
+    def params(cls: CommandType) -> CommandParameters:  # noqa
+        if cls.__params is None:
+            # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
+            parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
+            cls.__params = CommandParameters(cls, parent)
+        return cls.__params
 
     @classmethod
     def __get_error_handler(cls) -> Union[ErrorHandler, NullErrorHandler]:
@@ -237,7 +247,7 @@ class Command:
         :return: The total number of actions that were taken so far
         """
         parsed = self.__args
-        action = self.parser.action
+        action = self.params.action
         if action is not None and (parsed.actions_taken == 0 or self.__command_config.action_after_action_flags):
             # TODO: Error on action when config.action_after_action_flags is False?
             parsed.actions_taken += 1

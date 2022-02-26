@@ -30,7 +30,7 @@ class ParserTest(TestCase):
         self, cmd_cls: CommandType, argv: Argv, expected: Expected, message: str = None
     ) -> Command:
         cmd = cmd_cls.parse_and_run(argv)
-        parsed = cmd.parser.arg_dict(cmd.args, (help_action,))  # noqa
+        parsed = cmd.params.args_to_dict(cmd.args, (help_action,))  # noqa
         self.assertDictEqual(expected, parsed, message)
         return cmd
 

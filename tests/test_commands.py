@@ -157,7 +157,7 @@ class TestCommands(TestCase):
         class Bar(Foo):
             pass
 
-        self.assertEqual(Bar.parser.command_parent, Foo)
+        self.assertEqual(Bar.params.command_parent, Foo)
 
     def test_double_config_rejected(self):
         with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine .* with keyword config'):
