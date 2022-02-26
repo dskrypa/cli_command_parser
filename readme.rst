@@ -8,7 +8,7 @@ Command Parser
 .. |coverage_badge| image:: https://codecov.io/gh/dskrypa/command_parser/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/dskrypa/command_parser
 
-.. |build_status| image:: https://github.com/dskrypa/command_parser/actions/workflows/python-package.yml/badge.svg
+.. |build_status| image:: https://github.com/dskrypa/command_parser/actions/workflows/run-tests.yml/badge.svg
     :target: https://github.com/dskrypa/command_parser/actions/workflows/python-package.yml
 
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
