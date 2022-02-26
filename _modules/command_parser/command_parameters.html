@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>command_parser.command_parameters &mdash; Command Parser 2022.02.26 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.args.html">Args Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.command_parameters.html">Command_Parameters Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.commands.html">Commands Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.config.html">Config Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.error_handling.html">Error_Handling Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.exceptions.html">Exceptions Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.formatting.html">Formatting Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.nargs.html">Nargs Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.parameters.html">Parameters Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.parser.html">Parser Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.testing.html">Testing Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.utils.html">Utils Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>command_parser.command_parameters</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="None" target="_blank" class="fa fa-github"> View on GitHub</a>
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for command_parser.command_parameters</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:author: Doug Skrypa</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">from</span> <span class="nn">.args</span> <span class="kn">import</span> <span class="n">Args</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
+<span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpFormatter</span>
+<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Parameter</span><span class="p">,</span>
+    <span class="n">SubCommand</span><span class="p">,</span>
+    <span class="n">BaseOption</span><span class="p">,</span>
+    <span class="n">ParamBase</span><span class="p">,</span>
+    <span class="n">PassThru</span><span class="p">,</span>
+    <span class="n">ActionFlag</span><span class="p">,</span>
+    <span class="n">ParamGroup</span><span class="p">,</span>
+    <span class="n">Action</span><span class="p">,</span>
+    <span class="n">BasePositional</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">CommandType</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandParameters&#39;</span><span class="p">]</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CommandParameters"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters">[docs]</a><span class="k">class</span> <span class="nc">CommandParameters</span><span class="p">:</span>
+    <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span>
+    <span class="n">command_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandParameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Action</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_pass_thru</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PassThru</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sub_command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]</span>
+    <span class="n">combo_option_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]</span>
+    <span class="n">positionals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span>
+    <span class="n">option_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">command_parent</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command_parent</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="o">=</span> <span class="n">command_parent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">HelpFormatter</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">positionals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">positionals</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">options</span><span class="si">=}</span><span class="s1">]&gt;&#39;</span>
+
+<div class="viewcode-block" id="CommandParameters.pass_thru"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.pass_thru">[docs]</a>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PassThru</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span>
+        <span class="k">elif</span> <span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">pass_thru</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="c1"># region Initialization</span>
+
+    <span class="k">def</span> <span class="nf">_process_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name_param_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Allow sub-classes to override names, but not within a given command</span>
+        <span class="n">positionals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamBase</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other_attr</span><span class="p">,</span> <span class="n">other_param</span> <span class="o">=</span> <span class="n">name_param_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">name_param_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="s1">&#39;Name conflict - multiple parameters within a Command cannot have the same name - conflicting&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; params: </span><span class="si">{</span><span class="n">other_attr</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">other_param</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">):</span>
+                <span class="n">positionals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">):</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">):</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid PassThru </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> - it cannot follow another PassThru param&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span> <span class="o">=</span> <span class="n">param</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Unexpected type=</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> - custom parameters must extend&#39;</span>
+                    <span class="s1">&#39; BasePositional, BaseOption, or ParamGroup&#39;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_positionals</span><span class="p">(</span><span class="n">positionals</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">groups</span> <span class="o">+</span> <span class="n">groups</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>
+        <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Positional </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> may not follow the sub command </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="si">}</span><span class="s1"> - re-order the&#39;</span>
+                    <span class="s1">&#39; positionals, move it into the sub command(s), or convert it to an optional parameter&#39;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">var_nargs_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Additional Positional parameters cannot follow </span><span class="si">{</span><span class="n">var_nargs_param</span><span class="si">}</span><span class="s1"> because it accepts&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; a variable number of arguments with no specific choices defined - </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> is invalid&#39;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">SubCommand</span><span class="p">,</span> <span class="n">Action</span><span class="p">))</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">command</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">:</span>  <span class="c1"># self.sub_command being already defined is handled above</span>
+                    <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Only 1 Action xor SubCommand is allowed in a given Command - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> cannot&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39; contain both </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="o">=</span> <span class="n">param</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">param</span>
+
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
+                <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">param</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+            <span class="n">option_map</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">option_map</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">combo_option_map</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">combo_option_map</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">option_map</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">combo_option_map</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">opt_type</span><span class="p">,</span> <span class="n">opt_strs</span> <span class="ow">in</span> <span class="p">((</span><span class="s1">&#39;long option&#39;</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">long_opts</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;short option&#39;</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">short_opts</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opt_strs</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">existing</span> <span class="o">=</span> <span class="n">option_map</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">option_map</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
+                        <span class="k">if</span> <span class="n">opt_type</span> <span class="o">==</span> <span class="s1">&#39;short option&#39;</span><span class="p">:</span>
+                            <span class="n">combo_option_map</span><span class="p">[</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">param</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">opt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">opt</span><span class="si">!r}</span><span class="s1"> conflict for command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">!r}</span><span class="s1"> between </span><span class="si">{</span><span class="n">existing</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add</span><span class="p">(</span><span class="o">*</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span> <span class="o">=</span> <span class="n">option_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_action_flags</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">combo_option_map</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">kv</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">kv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">kv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))}</span>
+
+    <span class="k">def</span> <span class="nf">_process_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]):</span>
+        <span class="n">action_flags</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">options</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">)))</span>
+        <span class="n">grouped_ordered_flags</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">),</span> <span class="kc">False</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">action_flags</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No function was registered for </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">grouped_ordered_flags</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">before_main</span><span class="p">][</span><span class="n">param</span><span class="o">.</span><span class="n">order</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="n">invalid</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">before_main</span><span class="p">,</span> <span class="n">prio_params</span> <span class="ow">in</span> <span class="n">grouped_ordered_flags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># noqa  # pycharm forgets dict has .items...</span>
+            <span class="k">for</span> <span class="n">prio</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">prio_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># noqa</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">group</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">and</span> <span class="n">group</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="o">==</span> <span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">):</span>
+                            <span class="n">invalid</span><span class="p">[(</span><span class="n">before_main</span><span class="p">,</span> <span class="n">prio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">params</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">invalid</span><span class="p">[(</span><span class="n">before_main</span><span class="p">,</span> <span class="n">prio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">params</span>
+
+        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;ActionFlag parameters with the same before/after main setting must either have different order values&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; or be in a mutually exclusive ParamGroup - invalid parameters: </span><span class="si">{</span><span class="n">invalid</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_flags</span> <span class="o">=</span> <span class="n">action_flags</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Option Processing</span>
+
+<div class="viewcode-block" id="CommandParameters.get_option_param_value_pairs"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">get_option_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;---&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">param</span><span class="p">,)</span>  <span class="c1"># noqa</span>
+        <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">param_value_pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param_value_pairs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="CommandParameters.long_option_to_param_value_pair"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair">[docs]</a>    <span class="k">def</span> <span class="nf">long_option_to_param_value_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;=&#39;</span> <span class="ow">in</span> <span class="n">option</span><span class="p">:</span>
+                <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span></div>
+
+<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="c1"># value will never be empty if key is a valid option because by this point, option is not a short option</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">Args</span><span class="p">([]),</span> <span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># TODO: Refactor would_accept</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">combo_option_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span></div>
+
+<div class="viewcode-block" id="CommandParameters.find_option_that_accepts_values"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
+            <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">param</span>
+        <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">option</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">param</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">option</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="CommandParameters.find_nested_option_that_accepts_values"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">params</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">param</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">find_option_that_accepts_values</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">param</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="n">params</span><span class="o">.</span><span class="n">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="n">option</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">param</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="c1"># endregion</span>
+
+<div class="viewcode-block" id="CommandParameters.args_to_dict"><a class="viewcode-back" href="../../command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.args_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">args_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">arg_dict</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">args_to_dict</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arg_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">,)):</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span> <span class="ow">and</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
+                    <span class="n">arg_dict</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">result_value</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">arg_dict</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

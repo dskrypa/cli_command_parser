@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>command_parser.commands &mdash; Command Parser 2022.02.23-1 documentation</title>
+  <title>command_parser.commands &mdash; Command Parser 2022.02.26 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -41,6 +41,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.actions.html">Actions Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.args.html">Args Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.config.html">Config Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../command_parser.error_handling.html">Error_Handling Module</a></li>
@@ -92,6 +93,7 @@
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.args</span> <span class="kn">import</span> <span class="n">Args</span>
+<span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
@@ -114,11 +116,13 @@
     <span class="c1"># fmt: off</span>
     <span class="n">parser</span><span class="p">:</span> <span class="n">CommandParser</span>                               <span class="c1"># Must declare here for PyCharm&#39;s type checker to work properly</span>
     <span class="n">command_config</span><span class="p">:</span> <span class="n">CommandConfig</span>                       <span class="c1"># Must declare here for PyCharm&#39;s type checker to work properly</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span>                           <span class="c1"># Must declare here for PyCharm&#39;s type checker to work properly</span>
     <span class="n">__args</span><span class="p">:</span> <span class="n">Args</span>                                        <span class="c1"># The raw and parsed arguments passed to this command</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">Args</span>                                          <span class="c1"># Same as __args, but can be overwritten.  Not used internally.</span>
     <span class="n">__command_config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1"># Configured Command options</span>
     <span class="n">__meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="kc">None</span>                      <span class="c1"># Metadata used in help text</span>
     <span class="n">__parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>            <span class="c1"># The CommandParser used by this command</span>
+    <span class="n">__params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandParameters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">__abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>                             <span class="c1"># False if viable for containing sub commands</span>
     <span class="c1"># fmt: on</span>
 
@@ -172,10 +176,11 @@
                 <span class="bp">cls</span><span class="o">.</span><span class="n">__help</span> <span class="o">=</span> <span class="n">help_action</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__abstract</span> <span class="o">=</span> <span class="n">abstract</span>
 
         <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Command</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">__abstract</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">sub_cmd</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
                 <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because its </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> has no SubCommand parameter&#39;</span><span class="p">)</span>
@@ -185,14 +190,20 @@
 <div class="viewcode-block" id="Command.parser"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.parser">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParser</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># The parent here is different than in __init_subclass__ to allow ActionFlag inheritance</span>
-            <span class="n">parent</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Command</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Command</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span></div>
 
 <div class="viewcode-block" id="Command.command_config"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.command_config">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">command_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span></div>
+
+<div class="viewcode-block" id="Command.params"><a class="viewcode-back" href="../../command_parser.commands.html#command_parser.commands.Command.params">[docs]</a>    <span class="nd">@classproperty</span>
+    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>  <span class="c1"># noqa</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># The parent here is different than in __init_subclass__ to allow ActionFlag inheritance</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Command</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Command</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="o">=</span> <span class="n">CommandParameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__get_error_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">]:</span>
@@ -319,7 +330,7 @@
 <span class="sd">        :return: The total number of actions that were taken so far</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">action</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">action</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command_config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">):</span>
             <span class="c1"># TODO: Error on action when config.action_after_action_flags is False?</span>
             <span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>

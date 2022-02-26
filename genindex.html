@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Command Parser 2022.02.23-1 documentation</title>
+  <title>Index &mdash; Command Parser 2022.02.26 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -41,6 +41,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.actions.html">Actions Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.args.html">Args Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.config.html">Config Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_parser.error_handling.html">Error_Handling Module</a></li>
@@ -141,7 +142,7 @@
       </ul></li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.Action">Action (class in command_parser.parameters)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.action">action (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.action">action (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="command_parser.commands.html#command_parser.commands.Command.__init_subclass__.params.action_after_action_flags">action_after_action_flags (command_parser.commands.Command.__init_subclass__ parameter)</a>
 
@@ -152,11 +153,7 @@
       <li><a href="command_parser.parameters.html#command_parser.parameters.action_flag">action_flag (in module command_parser.parameters)</a>
 </li>
       <li><a href="command_parser.args.html#command_parser.args.Args.action_flags">action_flags (command_parser.args.Args property)</a>
-
-      <ul>
-        <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.action_flags">(command_parser.parser.CommandParser attribute)</a>
 </li>
-      </ul></li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.ActionFlag">ActionFlag (class in command_parser.parameters)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.ParamGroup.active_group">active_group() (command_parser.parameters.ParamGroup class method)</a>
@@ -201,8 +198,6 @@
       </ul></li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.Flag.append_const">append_const() (command_parser.parameters.Flag method)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.arg_dict">arg_dict() (command_parser.parser.CommandParser method)</a>
-</li>
       <li><a href="command_parser.args.html#command_parser.args.Args">Args (class in command_parser.args)</a>
 </li>
       <li><a href="command_parser.args.html#command_parser.args.Args.params.args">args (command_parser.args.Args parameter)</a>
@@ -222,9 +217,9 @@
 </li>
         <li><a href="command_parser.commands.html#command_parser.commands.Command.run.params.args">(command_parser.commands.Command.run parameter)</a>
 </li>
-        <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.get_params.params.args">(command_parser.parser.CommandParser.get_params parameter)</a>
-</li>
       </ul></li>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.args_to_dict">args_to_dict() (command_parser.command_parameters.CommandParameters method)</a>
+</li>
       <li><a href="command_parser.commands.html#command_parser.commands.Command.parse_and_run.params.argv">argv (command_parser.commands.Command.parse_and_run parameter)</a>
 </li>
       <li><a href="command_parser.config.html#command_parser.config.CommandConfig.as_dict">as_dict() (command_parser.config.CommandConfig method)</a>
@@ -287,15 +282,21 @@
 </li>
       <li><a href="command_parser.exceptions.html#command_parser.exceptions.CommandParserException.code">code (command_parser.exceptions.CommandParserException attribute)</a>
 </li>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.combo_option_map">combo_option_map (command_parser.command_parameters.CommandParameters attribute)</a>
+</li>
       <li><a href="command_parser.commands.html#command_parser.commands.Command">Command (class in command_parser.commands)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.command">command (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.command">command (command_parser.command_parameters.CommandParameters attribute)</a>
+
+      <ul>
+        <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.command">(command_parser.parser.CommandParser attribute)</a>
 </li>
+      </ul></li>
       <li><a href="command_parser.commands.html#command_parser.commands.Command.command_config">command_config (command_parser.commands.Command property)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.SubCommand.register.params.command_or_choice">command_or_choice (command_parser.parameters.SubCommand.register parameter)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.command_parent">command_parent (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.command_parent">command_parent (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li>
     command_parser.actions
@@ -312,12 +313,21 @@
 </li>
       </ul></li>
       <li>
+    command_parser.command_parameters
+
+      <ul>
+        <li><a href="command_parser.command_parameters.html#module-command_parser.command_parameters">module</a>
+</li>
+      </ul></li>
+      <li>
     command_parser.commands
 
       <ul>
         <li><a href="command_parser.commands.html#module-command_parser.commands">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     command_parser.config
 
@@ -325,8 +335,6 @@
         <li><a href="command_parser.config.html#module-command_parser.config">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     command_parser.error_handling
 
@@ -387,6 +395,8 @@
 </li>
       <li><a href="command_parser.exceptions.html#command_parser.exceptions.CommandDefinitionError">CommandDefinitionError</a>
 </li>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters">CommandParameters (class in command_parser.command_parameters)</a>
+</li>
       <li><a href="command_parser.parser.html#command_parser.parser.CommandParser">CommandParser (class in command_parser.parser)</a>
 </li>
       <li><a href="command_parser.exceptions.html#command_parser.exceptions.CommandParserException">CommandParserException</a>
@@ -435,6 +445,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="command_parser.args.html#command_parser.args.Args.find_all">find_all() (command_parser.args.Args method)</a>
 </li>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values">find_nested_option_that_accepts_values() (command_parser.command_parameters.CommandParameters method)</a>
+</li>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">find_option_that_accepts_values() (command_parser.command_parameters.CommandParameters method)</a>
+</li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.Flag">Flag (class in command_parser.parameters)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.BaseOption.format_basic_usage">format_basic_usage() (command_parser.parameters.BaseOption method)</a>
@@ -449,6 +463,8 @@
 </li>
       <li><a href="command_parser.utils.html#command_parser.utils.ProgramMetadata.format_epilog">format_epilog() (command_parser.utils.ProgramMetadata method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="command_parser.formatting.html#command_parser.formatting.HelpFormatter.format_help">format_help() (command_parser.formatting.HelpFormatter method)</a>
 
       <ul>
@@ -457,8 +473,6 @@
         <li><a href="command_parser.parameters.html#command_parser.parameters.ParamGroup.format_help">(command_parser.parameters.ParamGroup method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="command_parser.utils.html#command_parser.utils.format_help_entry">format_help_entry() (in module command_parser.utils)</a>
 </li>
       <li><a href="command_parser.formatting.html#command_parser.formatting.HelpFormatter.format_usage">format_usage() (command_parser.formatting.HelpFormatter method)</a>
@@ -473,8 +487,6 @@
         <li><a href="command_parser.parameters.html#command_parser.parameters.ParamGroup.format_usage">(command_parser.parameters.ParamGroup method)</a>
 </li>
       </ul></li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.formatter">formatter (command_parser.parser.CommandParser attribute)</a>
-</li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.ActionFlag.func">func (command_parser.parameters.ActionFlag property)</a>
 </li>
   </ul></td>
@@ -487,15 +499,13 @@
 </li>
       <li><a href="command_parser.error_handling.html#command_parser.error_handling.ErrorHandler.get_handler">get_handler() (command_parser.error_handling.ErrorHandler method)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.get_params">get_params() (command_parser.parser.CommandParser method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.get_sub_command_params">get_sub_command_params() (command_parser.parser.CommandParser method)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">get_option_param_value_pairs() (command_parser.command_parameters.CommandParameters method)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.ParamGroup.format_help.params.group_type">group_type (command_parser.parameters.ParamGroup.format_help parameter)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.groups">groups (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.groups">groups (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -503,8 +513,6 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.has_pass_thru">has_pass_thru() (command_parser.parser.CommandParser method)</a>
-</li>
       <li><a href="command_parser.commands.html#command_parser.commands.Command.__init_subclass__.params.help">help (command_parser.commands.Command.__init_subclass__ parameter)</a>
 
       <ul>
@@ -527,13 +535,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="command_parser.exceptions.html#command_parser.exceptions.InvalidChoice">InvalidChoice</a>
 </li>
-      <li><a href="command_parser.utils.html#command_parser.utils.is_numeric">is_numeric() (in module command_parser.utils)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="command_parser.parameters.html#command_parser.parameters.Parameter.is_valid_arg">is_valid_arg() (command_parser.parameters.Parameter method)</a>
+      <li><a href="command_parser.utils.html#command_parser.utils.is_numeric">is_numeric() (in module command_parser.utils)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.get_params.params.item">item (command_parser.parser.CommandParser.get_params parameter)</a>
+      <li><a href="command_parser.parameters.html#command_parser.parameters.Parameter.is_valid_arg">is_valid_arg() (command_parser.parameters.Parameter method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -559,7 +565,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.long_options">long_options (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair">long_option_to_param_value_pair() (command_parser.command_parameters.CommandParameters method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -600,6 +606,8 @@
         <li><a href="command_parser.actions.html#module-command_parser.actions">command_parser.actions</a>
 </li>
         <li><a href="command_parser.args.html#module-command_parser.args">command_parser.args</a>
+</li>
+        <li><a href="command_parser.command_parameters.html#module-command_parser.command_parameters">command_parser.command_parameters</a>
 </li>
         <li><a href="command_parser.commands.html#module-command_parser.commands">command_parser.commands</a>
 </li>
@@ -670,7 +678,9 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.options">options (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.option_map">option_map (command_parser.command_parameters.CommandParameters attribute)</a>
+</li>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.options">options (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -686,11 +696,13 @@
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.ParamGroup">ParamGroup (class in command_parser.parameters)</a>
 </li>
+      <li><a href="command_parser.commands.html#command_parser.commands.Command.params">params (command_parser.commands.Command property)</a>
+</li>
       <li><a href="command_parser.exceptions.html#command_parser.exceptions.ParamsMissing">ParamsMissing</a>
 </li>
       <li><a href="command_parser.exceptions.html#command_parser.exceptions.ParamUsageError">ParamUsageError</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.parent">parent (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.parent">parent (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="command_parser.commands.html#command_parser.commands.Command.parse">parse() (command_parser.commands.Command class method)</a>
 </li>
@@ -706,13 +718,13 @@
 </li>
       <li><a href="command_parser.testing.html#command_parser.testing.ParserTest">ParserTest (class in command_parser.testing)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.pass_thru">pass_thru (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.pass_thru">pass_thru (command_parser.command_parameters.CommandParameters property)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.PassThru">PassThru (class in command_parser.parameters)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.Positional">Positional (class in command_parser.parameters)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.positionals">positionals (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.positionals">positionals (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.Counter.prepare_value">prepare_value() (command_parser.parameters.Counter method)</a>
 
@@ -779,12 +791,8 @@
       <li><a href="command_parser.nargs.html#command_parser.nargs.Nargs.satisfied">satisfied() (command_parser.nargs.Nargs method)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.BaseOption.short_combinable">short_combinable (command_parser.parameters.BaseOption attribute)</a>
-
-      <ul>
-        <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.short_combinable">(command_parser.parser.CommandParser attribute)</a>
 </li>
-      </ul></li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.short_options">short_options (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">short_option_to_param_value_pairs() (command_parser.command_parameters.CommandParameters method)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.BaseOption.short_opts">short_opts (command_parser.parameters.BaseOption property)</a>
 </li>
@@ -808,7 +816,7 @@
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.Flag.store_const">store_const() (command_parser.parameters.Flag method)</a>
 </li>
-      <li><a href="command_parser.parser.html#command_parser.parser.CommandParser.sub_command">sub_command (command_parser.parser.CommandParser attribute)</a>
+      <li><a href="command_parser.command_parameters.html#command_parser.command_parameters.CommandParameters.sub_command">sub_command (command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="command_parser.parameters.html#command_parser.parameters.SubCommand">SubCommand (class in command_parser.parameters)</a>
 </li>
