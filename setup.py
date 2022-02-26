@@ -22,7 +22,10 @@ setup(
     package_dir={'': 'lib'},
     license=about['__license__'],
     classifiers=[
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
@@ -31,7 +34,7 @@ setup(
     install_requires=[],
     tests_require=[],
     extras_require={
-        'dev': ['pre-commit', 'ipython', 'sphinx', 'sphinx_rtd_theme', 'sphinx-paramlinks', 'testtools'],
+        'dev': ['pre-commit', 'ipython', 'sphinx', 'sphinx_rtd_theme', 'sphinx-paramlinks', 'testtools', 'coverage'],
         'docs': ['sphinx', 'sphinx_rtd_theme', 'sphinx-paramlinks'],
     },
 )
