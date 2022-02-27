@@ -2,7 +2,7 @@
 
 from unittest import main
 
-from cli_command_parser import Command, UsageError, ParameterDefinitionError, CommandDefinitionError
+from cli_command_parser import Command, UsageError, ParameterDefinitionError, CommandDefinitionError, ParamsMissing
 from cli_command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
 from cli_command_parser.testing import ParserTest
 
@@ -68,6 +68,14 @@ class GroupTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [([], UsageError)]
         self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_required_param_missing_from_non_required_group(self):
+        class Foo(Command):
+            with ParamGroup() as group:
+                bar = Option('-b', required=True)
+                baz = Flag('-B')
+
+        self.assert_parse_fails(Foo, [], ParamsMissing)
 
 
 class MutuallyExclusiveGroupTest(ParserTest):

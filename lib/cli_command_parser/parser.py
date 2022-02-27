@@ -39,13 +39,11 @@ class CommandParser:
 
     def _get_missing(self, args: 'Args') -> list['Parameter']:
         params = self.params
-        missing_pos: list['Parameter'] = [
-            p
-            for p in params.positionals
-            if p.group is None and args.num_provided(p) == 0 and not isinstance(p, SubCommand)
+        missing: list['Parameter'] = [
+            p for p in params.positionals if p.required and args.num_provided(p) == 0 and not isinstance(p, SubCommand)
         ]
-        missing_opt = [p for p in params.options if p.required and p.group is None and args.num_provided(p) == 0]
-        return missing_pos + missing_opt
+        missing.extend(p for p in params.options if p.required and args.num_provided(p) == 0)
+        return missing
 
     def parse_args(
         self,

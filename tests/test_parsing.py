@@ -16,8 +16,6 @@ from cli_command_parser.nargs import Nargs
 from cli_command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action, SubCommand
 from cli_command_parser.testing import ParserTest
 
-# TODO: Make sure missing required params in a non-ME/MD group trigger missing arg exception
-
 
 class ParamComboTest(ParserTest):
     def test_flag_and_option(self):
@@ -213,6 +211,40 @@ class ParamComboTest(ParserTest):
             (['bar', '-b', 'baz', '-f', 'c'], {'foo': 'c', 'sub_a': 'bar', 'sub_b': 'baz', 'bar': True}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_positional_after_var_nargs(self):
+        class Foo(Command):
+            foo = Positional()
+            bar = Option('-b', nargs=(2, 3), choices=('a', 'b', 'c'))
+
+        success_cases = [
+            (['--bar', 'a', 'b', 'd'], {'foo': 'd', 'bar': ['a', 'b']}),
+            (['--bar', 'b', 'c', 'a', 'd'], {'foo': 'd', 'bar': ['b', 'c', 'a']}),
+            (['d', '--bar', 'a', 'b'], {'foo': 'd', 'bar': ['a', 'b']}),
+            (['d', '--bar', 'b', 'c', 'a'], {'foo': 'd', 'bar': ['b', 'c', 'a']}),
+            (['-b', 'c', 'b', 'z'], {'foo': 'z', 'bar': ['c', 'b']}),
+            (['-b', 'c', 'b', 'a', 'z'], {'foo': 'z', 'bar': ['c', 'b', 'a']}),
+            (['a', '-b', 'c', 'b'], {'foo': 'a', 'bar': ['c', 'b']}),
+            (['a', '-b', 'c', 'b', 'a'], {'foo': 'a', 'bar': ['c', 'b', 'a']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [
+            ['--bar', 'd'],
+            ['--bar', 'a', 'd'],
+            ['--bar', 'b', 'd', 'a'],
+            ['d', '--bar', 'a'],
+            ['d', '--bar', 'b'],
+            ['d', '--bar'],
+            ['d', '-b'],
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    # def test_help_detected_with_unrecognized_args(self):
+    #     pass  # TODO
+
+    # def test_parse_unknown_options(self):
+    #     pass  # TODO
 
 
 class NumericValueTest(ParserTest):
