@@ -364,7 +364,7 @@ class OptionTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', '--baz', 'a'])
 
-        Foo.command_config.allow_unknown = True
+        Foo.command_config.ignore_unknown = True
         self.assertEqual(Foo.parse(['bar', '--baz']).args.remaining, ['--baz'])
         self.assertEqual(Foo.parse(['bar', '--baz', 'a']).args.remaining, ['--baz', 'a'])
 
@@ -375,7 +375,7 @@ class OptionTest(ParserTest):
         fail_cases = [['bar', '-b'], ['bar', '-b', 'a'], ['bar', '-b=a']]
         self.assert_parse_fails_cases(Foo, fail_cases, NoSuchOption)
 
-        Foo.command_config.allow_unknown = True
+        Foo.command_config.ignore_unknown = True
         self.assertEqual(Foo.parse(['bar', '-b']).args.remaining, ['-b'])
         self.assertEqual(Foo.parse(['bar', '-b', 'a']).args.remaining, ['-b', 'a'])
         self.assertEqual(Foo.parse(['bar', '-b=a']).args.remaining, ['-b=a'])
@@ -490,7 +490,7 @@ class PositionalTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', 'baz'])
 
-        Foo.command_config.allow_unknown = True
+        Foo.command_config.ignore_unknown = True
         self.assertEqual(Foo.parse(['bar', 'baz']).args.remaining, ['baz'])
 
     def test_first_rejects_bad_choice(self):

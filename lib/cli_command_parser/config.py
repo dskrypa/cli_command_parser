@@ -7,7 +7,7 @@ Configuration options for Command behavior.
 from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, Optional, Any
 
-from .utils import Bool, _NotSet
+from .utils import Bool, _NotSet, cached_class_property
 
 if TYPE_CHECKING:
     from .error_handling import ErrorHandler
@@ -29,11 +29,15 @@ class CommandConfig:
     #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.run`
     error_handler: Optional['ErrorHandler'] = _NotSet
 
-    #: Whether unknown arguments should be allowed (default: raise an exception when unknown arguments are encountered)
-    allow_unknown: Bool = False
+    #: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)
+    ignore_unknown: Bool = False
 
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
     allow_missing: Bool = False
+
+    @cached_class_property
+    def _field_names(cls) -> frozenset[str]:  # noqa
+        return frozenset(field.name for field in fields(cls))
 
     def as_dict(self) -> dict[str, Any]:
         """
@@ -42,4 +46,5 @@ class CommandConfig:
         This was necessary because :func:`dataclasses.asdict` copies values, which breaks the use of _NotSet as a
         non-None sentinel value.
         """
-        return {name: getattr(self, name) for field in fields(self) if (name := field.name)}
+        d = self.__dict__
+        return {field: d[field] for field in self._field_names}  # noqa

@@ -22,23 +22,19 @@ Bool = Union[bool, Any]
 _NotSet = object()
 
 
-class classproperty(classmethod):
-    """
-    A read-only class property.
-
-    While this could be accomplished by applying ``@classmethod`` after (above) ``@property``, doing so confuses
-    PyCharm's type checker.  This implementation requires the decorated method to declare its type separately for
-    PyCharm to recognize the return type, and again as the return type of the method for Sphinx to include it in
-    documentation.  PyCharm did not properly recognize the return type by any means when stacking classmethod and
-    property.
-    """
-
+class cached_class_property(classmethod):
     def __init__(self, func: Callable):
-        super().__init__(property(func))  # noqa
+        super().__init__(property(func))  # noqa  # makes Sphinx handle it better than if this was not done
+        self.__doc__ = func.__doc__
         self.func = func
+        self.values = {}
 
     def __get__(self, obj: None, cls):  # noqa
-        return self.func(cls)
+        try:
+            return self.values[cls]
+        except KeyError:
+            self.values[cls] = value = self.func(cls)
+            return value
 
 
 def validate_positional(

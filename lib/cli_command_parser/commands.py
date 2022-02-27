@@ -15,7 +15,7 @@ from .config import CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import CommandDefinitionError, ParamConflict
 from .parser import CommandParser
-from .utils import _NotSet, Bool, ProgramMetadata, classproperty
+from .utils import _NotSet, Bool, ProgramMetadata, cached_class_property
 
 __all__ = ['Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -38,8 +38,6 @@ class Command:
     args: Args                                          # Same as __args, but can be overwritten.  Not used internally.
     __command_config: CommandConfig = None              # Configured Command options
     __meta: ProgramMetadata = None                      # Metadata used in help text
-    __parser: Optional[CommandParser] = None            # The CommandParser used by this command
-    __params: Optional[CommandParameters] = None
     __abstract: Bool = True                             # False if viable for containing sub commands
     # fmt: on
 
@@ -69,7 +67,7 @@ class Command:
           Action method in a given CLI invocation
         :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all
           specified
-        :param allow_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
+        :param ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
           arguments are encountered)
         :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when
           required arguments are missing)
@@ -92,8 +90,6 @@ class Command:
             if config.add_help and not hasattr(cls, '_Command__help'):
                 cls.__help = help_action
 
-        cls.__parser = None
-        cls.__params = None
         cls.__abstract = abstract
 
         if parent := next((c for c in cls.mro()[1:] if issubclass(c, Command) and not c.__abstract), None):
@@ -104,23 +100,19 @@ class Command:
         elif choice:
             warn(f'{choice=} was not registered for {cls} because it has no parent Command')
 
-    @classproperty
+    @cached_class_property
     def parser(cls: CommandType) -> CommandParser:  # noqa
-        if cls.__parser is None:
-            cls.__parser = CommandParser(cls)
-        return cls.__parser
+        return CommandParser(cls)
 
-    @classproperty
+    @cached_class_property
     def command_config(cls) -> CommandConfig:  # noqa
         return cls.__command_config
 
-    @classproperty
+    @cached_class_property
     def params(cls: CommandType) -> CommandParameters:  # noqa
-        if cls.__params is None:
-            # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
-            parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
-            cls.__params = CommandParameters(cls, parent)
-        return cls.__params
+        # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
+        parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
+        return CommandParameters(cls, parent)
 
     @classmethod
     def __get_error_handler(cls) -> Union[ErrorHandler, NullErrorHandler]:
@@ -185,7 +177,7 @@ class Command:
         args = Args(args)
         cmd_cls = cls
         config = cmd_cls.command_config
-        while sub_cmd := cmd_cls.parser.parse_args(args, config.allow_unknown, config.allow_missing):
+        while sub_cmd := cmd_cls.parser.parse_args(args, config.ignore_unknown, config.allow_missing):
             cmd_cls = sub_cmd
             config = cmd_cls.command_config
 

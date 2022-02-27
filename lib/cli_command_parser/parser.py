@@ -48,10 +48,10 @@ class CommandParser:
     def parse_args(
         self,
         args: 'Args',
-        allow_unknown: Bool = False,
+        ignore_unknown: Bool = False,
         allow_missing: Bool = False,
     ) -> Optional['CommandType']:
-        # log.debug(f'{self!r}.parse_args({args=}, {allow_unknown=}, {allow_missing=})')
+        # log.debug(f'{self!r}.parse_args({args=}, {ignore_unknown=}, {allow_missing=})')
         params = self.params
         if (sub_cmd_param := params.sub_command) is not None and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{self.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
@@ -81,7 +81,7 @@ class CommandParser:
         ):
             if help_action not in args:
                 raise ParamsMissing(missing)
-        elif args.remaining and not allow_unknown:
+        elif args.remaining and not ignore_unknown:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(args.remaining)))
 
         return None
