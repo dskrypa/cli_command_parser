@@ -126,7 +126,7 @@ class ParserTest(_ParserTest):
             pass
 
         expected = {help_action.name: False}
-        self.assertDictEqual(expected, Bar.parse().ctx.get_parsed())
+        self.assertDictEqual(expected, Bar.parse([]).ctx.get_parsed())
 
     def test_explicit_name_conflict_before(self):
         class Foo(Command):
@@ -178,7 +178,7 @@ class ParserTest(_ParserTest):
             bar = TestParam('test')
 
         with self.assertRaisesRegex(CommandDefinitionError, 'custom parameters must extend'):
-            Foo.parse()
+            Foo.parse([])
 
     def test_params_parent(self):
         class Foo(Command):

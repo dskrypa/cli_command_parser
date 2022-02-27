@@ -82,7 +82,7 @@ class ActionFlagTest(ParserTest):
             baz = ActionFlag()(Mock())
 
         with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
-            Foo.parse()
+            Foo.parse([])
 
     def test_af_mixed_grouping_ordered_ok(self):
         attrs = ('foo', 'bar', 'baz')
@@ -123,7 +123,7 @@ class ActionFlagTest(ParserTest):
             baz = ActionFlag('-b', order=2)(Mock())
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parse()
+            Foo.parse([])
 
     def test_extra_flags_provided_cause_error(self):
         mocks = [Mock(), Mock()]

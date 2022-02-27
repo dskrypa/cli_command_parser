@@ -353,7 +353,7 @@ class PassThruTest(ParserTest):
             baz = PassThru()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parse()
+            Foo.parse([])
 
     def test_double_dash_without_pass_thru_rejected(self):
         class Foo(Command):
@@ -380,7 +380,7 @@ class PassThruTest(ParserTest):
             pt2 = PassThru()
 
         with self.assertRaises(CommandDefinitionError):
-            Bar.parse()
+            Bar.parse([])
 
     def test_extra_rejected(self):
         ctx = Context()

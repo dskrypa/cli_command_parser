@@ -72,7 +72,7 @@ class TestCommands(TestCase):
             b = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parse()
+            Foo.parse([])
 
     def test_multiple_sub_cmds_rejected(self):
         class Foo(Command):
@@ -80,7 +80,7 @@ class TestCommands(TestCase):
             b = SubCommand()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parse()
+            Foo.parse([])
 
     def test_action_with_sub_cmd_rejected(self):
         class Foo(Command):
@@ -88,7 +88,7 @@ class TestCommands(TestCase):
             b = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parse()
+            Foo.parse([])
 
     def test_choice_with_no_parent_warns(self):
         with self.assertWarnsRegex(Warning, 'because it has no parent Command'):
@@ -113,7 +113,7 @@ class TestCommands(TestCase):
             foo(Mock(__name__='baz'))
 
         with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
-            Foo.parse()
+            Foo.parse([])
 
     def test_action_with_sub_command_rejected(self):
         class Foo(Command):
@@ -122,7 +122,7 @@ class TestCommands(TestCase):
             foo(Mock(__name__='baz'))
 
         with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
-            Foo.parse()
+            Foo.parse([])
 
     def test_no_error_handler_run(self):
         class Foo(Command, error_handler=None):
