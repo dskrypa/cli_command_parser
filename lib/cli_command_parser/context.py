@@ -6,9 +6,9 @@ import sys
 from collections import defaultdict
 from functools import cached_property
 from threading import local
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Type, Iterator, Collection
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection
 
-from .parameters import Parameter, ParamOrGroup, Param, ActionFlag, SubCommand, Action
+from .parameters import Parameter, ParamOrGroup, ActionFlag, SubCommand
 from .utils import Bool
 
 if TYPE_CHECKING:

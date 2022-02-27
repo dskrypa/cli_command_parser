@@ -14,7 +14,7 @@ from .command_parameters import CommandParameters
 from .config import CommandConfig
 from .context import Context
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
-from .exceptions import CommandDefinitionError, UsageError, NoSuchOption, ParamsMissing, ParamConflict
+from .exceptions import CommandDefinitionError, ParamConflict
 from .parser import CommandParser
 from .utils import _NotSet, Bool, ProgramMetadata, cached_class_property
 
@@ -224,8 +224,8 @@ class Command:
         Commands that do not have any positional :class:`Actions<.parameters.Action>` can override this method, and do
         **not** need to call ``super().main(*args, **kwargs)``.
 
-        Initialization code that is common for all actions, or that should be run before :meth:`._before_main_` should be
-        placed in ``__init__``.
+        Initialization code that is common for all actions, or that should be run before :meth:`._before_main_` should
+        be placed in ``__init__``.
 
         :param args: Positional arguments to pass to the action method
         :param kwargs: Keyword arguments to pass to the action method
