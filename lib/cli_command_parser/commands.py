@@ -128,7 +128,7 @@ class Command:
     # endregion
 
     @classmethod
-    def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs) -> Optional[CommandObj]:
+    def parse_and_run(cls, argv: Sequence[str] = None, ctx: Context = None, *args, **kwargs) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
         to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
@@ -139,12 +139,13 @@ class Command:
         the above mentioned methods separately.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
+        :param ctx: The :class:`~.context.Context` object to use, which may contain overrides for certain configs.
         :param args: Positional arguments to pass to :meth:`.run`
         :param kwargs: Keyword arguments to pass to :meth:`.run`
         :return: The Command instance with parsed arguments for which :meth:`.run` was already called.
         """
         with cls.__get_error_handler():
-            self = cls.parse(argv)
+            self = cls.parse(argv, ctx)
 
         try:
             run = self.run
@@ -155,17 +156,18 @@ class Command:
             return self
 
     @classmethod
-    def parse(cls, argv: Sequence[str] = None) -> CommandObj:
+    def parse(cls, argv: Sequence[str] = None, ctx: Context = None) -> CommandObj:
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the
         parsed arguments, if necessary.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
+        :param ctx: The :class:`~.context.Context` object to use, which may contain overrides for certain configs.
         :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
         """
         cmd_cls = cls
         with ExitStack() as stack:
-            ctx = Context(argv, cmd_cls)
+            ctx = ctx or Context(argv, cmd_cls)
             stack.enter_context(ctx)
             while sub_cmd := CommandParser.parse_args(ctx):
                 cmd_cls = sub_cmd
