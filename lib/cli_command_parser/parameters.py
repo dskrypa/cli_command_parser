@@ -599,7 +599,7 @@ class Positional(BasePositional):
 class Choice:
     __slots__ = ('choice', 'target', 'help')
 
-    def __init__(self, choice: str, target: Any = _NotSet, help: str = None):  # noqa
+    def __init__(self, choice: Optional[str], target: Any = _NotSet, help: str = None):  # noqa
         self.choice = choice
         self.target = choice if target is _NotSet else target
         self.help = help
@@ -610,7 +610,8 @@ class Choice:
         return f'{self.__class__.__name__}({self.choice!r}{target_str}{help_str})'
 
     def format_help(self, width: int = 30, lpad: int = 4) -> str:
-        return HelpEntryFormatter(self.choice, self.help, width, lpad)()
+        choice = '(default)' if self.choice is None else self.choice
+        return HelpEntryFormatter(choice, self.help, width, lpad)()
 
 
 class ChoiceMap(BasePositional):
@@ -640,17 +641,27 @@ class ChoiceMap(BasePositional):
         self.choices = {}
 
     def _update_nargs(self):
-        self.nargs = Nargs(set(map(len, map(str.split, self.choices))))
+        try:
+            lengths = set(map(len, map(str.split, self.choices)))
+        except TypeError:
+            lengths = set(map(len, map(str.split, filter(None, self.choices))))
+            lengths.add(0)
+
+        self.nargs = Nargs(lengths)
 
     def register_choice(self, choice: str, target: Any = _NotSet, help: str = None):  # noqa
         validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+        self._register_choice(choice, target, help)
+
+    def _register_choice(self, choice: Optional[str], target: Any = _NotSet, help: str = None):  # noqa
         try:
             existing = self.choices[choice]
         except KeyError:
             self.choices[choice] = Choice(choice, target, help)
             self._update_nargs()
         else:
-            raise CommandDefinitionError(f'Invalid {choice=} for {target=} - already assigned to {existing}')
+            prefix = 'Invalid default' if choice is None else f'Invalid {choice=} for'
+            raise CommandDefinitionError(f'{prefix} {target=} - already assigned to {existing}')
 
     @parameter_action
     def append(self, args: 'Args', value: str):
@@ -673,16 +684,18 @@ class ChoiceMap(BasePositional):
             elif len(values) > self.nargs.max:
                 raise BadArgument(self, 'too many values')
             prefix = choice + ' '
-            if not any(c.startswith(prefix) for c in choices):
+            if not any(c.startswith(prefix) for c in choices if c):
                 raise InvalidChoice(self, prefix[:-1], choices)
         elif value.startswith('-'):
             raise BadArgument(self, f'invalid {value=}')
         # TODO: Should this raise an error?
 
-    def result_value(self, args: 'Args') -> str:
+    def result_value(self, args: 'Args') -> Optional[str]:
         if not (choices := self.choices):
             raise CommandDefinitionError(f'No choices were registered for {self}')
         elif not (values := args[self]):
+            if None in choices:
+                return None
             raise MissingArgument(self)
         elif (val_count := len(values)) not in self.nargs:
             raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
@@ -697,6 +710,13 @@ class ChoiceMap(BasePositional):
     @property
     def show_in_help(self) -> bool:
         return bool(self.choices)
+
+    @property
+    def usage_metavar(self) -> str:
+        if choices := self.choices:
+            return '{{{}}}'.format(','.join(map(str, filter(None, choices))))
+        else:
+            return self.metavar or self.name.upper()
 
     def format_usage(self, include_meta: Bool = None, full: Bool = None, delim: str = None) -> str:
         return self.usage_metavar
@@ -760,12 +780,33 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
 
 
 class Action(ChoiceMap, title='Actions'):
-    def register_action(self, choice: Optional[str], method: MethodType, help: str = None) -> MethodType:  # noqa
-        self.register_choice(choice or method.__name__, method, help)
+    def register_action(
+        self, choice: Optional[str], method: MethodType, help: str = None, default: Bool = False  # noqa
+    ) -> MethodType:
+        if help is None:
+            try:
+                help = method.__doc__  # noqa
+            except AttributeError:
+                pass
+
+        if default:
+            if help is None:
+                help = 'Default action if no other action is specified'  # noqa
+            if choice:  # register both the explicit and the default choices
+                self.register_choice(choice, method, help)
+            self._register_choice(None, method, help)
+        else:
+            self.register_choice(choice or method.__name__, method, help)
+
         return method
 
     def register(
-        self, method_or_choice: Union[str, MethodType] = None, /, choice: str = None, help: str = None  # noqa
+        self,
+        method_or_choice: Union[str, MethodType] = None,
+        /,
+        choice: str = None,
+        help: str = None,  # noqa
+        default: Bool = False,
     ) -> Union[MethodType, Callable[[MethodType], MethodType]]:
         """
         Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.
@@ -781,18 +822,22 @@ class Action(ChoiceMap, title='Actions'):
         :param choice: Keyword-only way to provide the ``choice`` value.  May not be combined with a positional
           ``choice`` string value.
         :param help: (Keyword-only) The help text / description to be displayed for this choice
-        :return: The original method, unchanged.  When called explicitly, a :class:`partial<functools.partial>` method
+        :param default: (Keyword-only) If true, this method will be registered as the default action to take when no
+          other choice is specified.  When marking a method as the default, if you want it to also be available as an
+          explicit choice, then a ``choice`` value must be specified.
+        :return: The original method, unchanged.  When called explicitly, a :class:`~functools.partial` method
           will be returned first, which will automatically be called by the interpreter with the method to be decorated,
           and that call will return the original method.
         """
-        if method_or_choice is None:
-            return partial(self.register_action, choice, help=help)
-        elif isinstance(method_or_choice, str):
+        if isinstance(method_or_choice, str):
             if choice is not None:
                 raise CommandDefinitionError(f'Cannot combine a positional {method_or_choice=} choice with {choice=}')
-            return partial(self.register_action, method_or_choice, help=help)
+            method_or_choice, choice = None, method_or_choice
+
+        if method_or_choice is None:
+            return partial(self.register_action, choice, help=help, default=default)
         else:
-            return self.register_action(choice, method_or_choice, help)
+            return self.register_action(choice, method_or_choice, help=help, default=default)
 
     __call__ = register
 
@@ -954,6 +999,11 @@ class ActionFlag(Flag):
     def func(self, func: Optional[Callable]):
         self._func = func
         if func is not None:
+            if self.help is None:
+                try:
+                    self.help = func.__doc__
+                except AttributeError:
+                    pass
             update_wrapper(self, func)
 
     def __hash__(self) -> int:

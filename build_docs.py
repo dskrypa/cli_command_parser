@@ -8,7 +8,7 @@ from pathlib import Path
 from subprocess import check_call
 from typing import Optional
 
-from cli_command_parser import Command, Counter, after_main, before_main
+from cli_command_parser import Command, Counter, after_main, before_main, Action
 from cli_command_parser.__version__ import __description__, __title__
 
 log = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 
 
 class BuildDocs(Command, description='Build documentation using Sphinx'):
+    action = Action()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
     def __init__(self, args):
@@ -23,11 +24,13 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         self.package = __title__
         self.package_path = PROJECT_ROOT.joinpath('lib', self.package)
         self.docs_src_path = PROJECT_ROOT.joinpath('docs', '_src')
+        self._ran_backup = False
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)
 
-    def main(self, *args, **kwargs):
+    @action(default=True, help='Run sphinx-build')
+    def sphinx_build(self):
         cmd = ['sphinx-build', 'docs/_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
         log.info(f'Running: {cmd}')
         check_call(cmd)
@@ -35,8 +38,10 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     # region Actions
 
     @before_main('-c', help='Clean the docs directory before building docs', order=1)
+    @action(help='Clean the docs directory')
     def clean(self):
-        log.info('Cleaning up old generated files before re-building docs')
+        self.backup_rsts()
+        log.info('Cleaning up old generated files')
         docs_path = PROJECT_ROOT.joinpath('docs')
         to_clean = [
             (docs_path.joinpath('_static'), {'rtd_custom.css'}),
@@ -54,7 +59,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     @before_main('-u', help='Update RST files', order=2)
     def update(self):
-        self._backup_rsts()
+        if not self._ran_backup:
+            self.backup_rsts()
         self._generate_api_rsts()
 
     @after_main('-o', help='Open the docs in the default web browser after running sphinx-build')
@@ -64,15 +70,18 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     # endregion
 
-    def _backup_rsts(self):
+    @action('backup', help='Test the RST backup')
+    def backup_rsts(self):
+        self._ran_backup = True
         to_copy = {'index.rst', 'advanced.rst', 'basic.rst'}
-        docs_src_dir = PROJECT_ROOT.joinpath('docs', '_src')
-        if rst_paths := list(docs_src_dir.rglob('*.rst')):
+        if rst_paths := list(self.docs_src_path.rglob('*.rst')):
             backup_dir = PROJECT_ROOT.joinpath('_rst_backup', datetime.now().strftime('%Y-%m-%d_%H.%M.%S'))
             backup_dir.mkdir(parents=True)
-            log.info(f'Moving old RSTs to {backup_dir.as_posix()}')
+            log.info(f'Backing up old RSTs in {backup_dir.as_posix()}')
             for src_path in rst_paths:
-                dst_path = backup_dir.joinpath(src_path.relative_to(docs_src_dir))
+                dst_path = backup_dir.joinpath(src_path.relative_to(self.docs_src_path))
+                if not dst_path.parent.exists():
+                    dst_path.parent.mkdir(parents=True)
                 if src_path.name in to_copy:
                     log.debug(f'Copying {src_path.as_posix()} -> {dst_path.as_posix()}')
                     shutil.copy(src_path, dst_path)

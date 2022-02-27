@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import logging
+from contextlib import redirect_stderr
 from unittest import TestCase, main
-from unittest.mock import Mock
+from unittest.mock import Mock, PropertyMock
 
-from cli_command_parser import Command, Action, Positional
+from cli_command_parser import Command, Action, Positional, action_flag
 from cli_command_parser.exceptions import (
     ParameterDefinitionError,
     CommandDefinitionError,
@@ -100,6 +101,121 @@ class ActionTest(TestCase):
             class Foo(Command):
                 action = Action()
                 action('foo', choice='foo')(Mock(__name__='foo'))
+
+    def test_stacked_action_flag_action_as_action(self):
+        BuildDocs, build_mock, clean_mock = make_build_docs_command()
+        BuildDocs.parse_and_run(['clean'])
+        self.assertFalse(build_mock.called)
+        self.assertTrue(clean_mock.called)
+
+    def test_stacked_action_flag_action_as_flag(self):
+        for option in ('-c', '--clean'):
+            BuildDocs, build_mock, clean_mock = make_build_docs_command()
+            BuildDocs.parse_and_run([option])
+            self.assertTrue(build_mock.called)
+            self.assertTrue(clean_mock.called)
+
+    def test_stacked_action_flag_action_as_both(self):
+        for option in ('-c', '--clean'):
+            BuildDocs, build_mock, clean_mock = make_build_docs_command()
+            BuildDocs.parse_and_run(['clean', option])
+            self.assertFalse(build_mock.called)
+            self.assertEqual(2, clean_mock.call_count)
+
+    def test_no_action_choice_with_default(self):
+        BuildDocs, build_mock, clean_mock = make_build_docs_command()
+        BuildDocs.parse_and_run([])
+        self.assertTrue(build_mock.called)
+        self.assertFalse(clean_mock.called)
+
+    def test_invalid_action_choice_with_default(self):
+        BuildDocs, build_mock, clean_mock = make_build_docs_command()
+        with redirect_stderr(Mock()), self.assertRaises(SystemExit):
+            BuildDocs.parse_and_run(['foo'])
+
+        self.assertFalse(build_mock.called)
+        self.assertFalse(clean_mock.called)
+
+    def test_explicit_choice_of_default(self):
+        BuildDocs, build_mock, clean_mock = make_build_docs_command(True)
+        BuildDocs.parse_and_run(['build'])
+        self.assertTrue(build_mock.called)
+        self.assertFalse(clean_mock.called)
+
+    def test_no_action_choice_with_explicit_default(self):
+        BuildDocs, build_mock, clean_mock = make_build_docs_command(True)
+        BuildDocs.parse_and_run([])
+        self.assertTrue(build_mock.called)
+        self.assertFalse(clean_mock.called)
+
+    def test_action_flags_called_with_explicit_default(self):
+        for option in ('-c', '--clean'):
+            BuildDocs, build_mock, clean_mock = make_build_docs_command(True)
+            BuildDocs.parse_and_run(['build', option])
+            self.assertTrue(build_mock.called)
+            self.assertTrue(clean_mock.called)
+
+    def test_default_default_help_text(self):
+        class Foo(Command):
+            action = Action()
+            action(default=True)(Mock(__name__='main', __doc__=None))
+
+        self.assertEqual('Default action if no other action is specified', Foo.action.choices[None].help)
+
+    def test_default_doc_help_text(self):
+        class Foo(Command):
+            action = Action()
+            action(default=True)(Mock(__name__='main', __doc__='test'))
+
+        self.assertEqual('test', Foo.action.choices[None].help)
+
+    def test_doc_help_text(self):
+        class Foo(Command):
+            action = Action()
+            action(Mock(__name__='main', __doc__='test'))
+
+        self.assertEqual('test', Foo.action.choices['main'].help)
+
+    def test_multiple_defaults_rejected(self):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Invalid default.*already assigned to'):
+
+            class Foo(Command):
+                action = Action()
+                action(default=True)(Mock())
+                action(default=True)(Mock())
+
+    def test_no_doc_attr_help(self):
+        class NoDoc:
+            __doc__ = PropertyMock(side_effect=AttributeError)  # This didn't work as a Mock param/attr
+
+            def __init__(self, name):
+                self.__name__ = name
+
+        class Foo(Command):
+            action = Action()
+            action(NoDoc('foo'))  # noqa
+            bar = action_flag(func=NoDoc('bar'))  # noqa
+
+        self.assertIs(None, Foo.action.choices['foo'].help)
+        self.assertIs(None, Foo.bar.help)
+
+
+def make_build_docs_command(explicit_build: bool = False):
+    build_mock, clean_mock = Mock(__name__='sphinx_build'), Mock()
+
+    class BuildDocs(Command, description='Build documentation using Sphinx'):
+        action = Action()
+        if explicit_build:
+            action('build', default=True, help='Run sphinx-build')(build_mock)
+        else:
+            action(default=True, help='Run sphinx-build')(build_mock)
+
+        @action_flag('-c', help='Clean the docs directory before building docs', order=1)
+        @action(help='Clean the docs directory')
+        def clean(self):
+            clean_mock()
+
+    return BuildDocs, build_mock, clean_mock
 
 
 if __name__ == '__main__':

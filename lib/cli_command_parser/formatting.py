@@ -39,19 +39,6 @@ class HelpFormatter:
                 else:
                     self.opt_group.add(param)
 
-    # def maybe_add(self, *params: ParamOrGroup):
-    #     for param in params:
-    #         if isinstance(param, ParamGroup):
-    #             if any(isinstance(p, BasePositional) for p in param):
-    #                 self.pos_group.add(param)
-    #             else:
-    #                 self.groups.append(param)
-    #         elif not param.group:
-    #             if isinstance(param, BasePositional):
-    #                 self.pos_group.add(param)
-    #             else:
-    #                 self.opt_group.add(param)
-
     def format_usage(self, delim: str = ' ') -> str:
         meta: ProgramMetadata = self.command._Command__meta
         if usage := meta.usage:
@@ -95,18 +82,7 @@ class HelpEntryFormatter:
 
     def process_usage(self, usage: str, lpad: int = 2):
         if len(usage) + lpad > self.term_width:
-            tw = TextWrapper(
-                self.term_width,
-                initial_indent=' ' * lpad,
-                subsequent_indent=' ' * self.width,
-                # drop_whitespace=False,
-                # replace_whitespace=False,
-                # expand_tabs=False,
-            )
-            # prefix = ' ' * self.width
-            # for i, line in enumerate(tw.wrap(usage)):
-            #     self.lines.append(f'{prefix}{line.lstrip()}')
-
+            tw = TextWrapper(self.term_width, initial_indent=' ' * lpad, subsequent_indent=' ' * self.width)
             self.lines.extend(tw.wrap(usage))
         else:
             left_pad = ' ' * lpad
