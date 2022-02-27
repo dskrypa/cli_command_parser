@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.commands &mdash; CLI Command Parser 2022.02.26-12 documentation</title>
+  <title>cli_command_parser.commands &mdash; CLI Command Parser 2022.02.27 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -37,21 +37,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.actions.html">Actions Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.args.html">Args Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.commands.html">Commands Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.config.html">Config Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.error_handling.html">Error_Handling Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.exceptions.html">Exceptions Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.formatting.html">Formatting Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.nargs.html">Nargs Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.parameters.html">Parameters Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.parser.html">Parser Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.testing.html">Testing Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
 </ul>
 
         </div>
@@ -71,7 +64,7 @@
           <li><a href="../index.html">Module code</a> &raquo;</li>
       <li>cli_command_parser.commands</li>
     <li class="wy-breadcrumbs-aside">
-        <a href="None" target="_blank" class="fa fa-github"> View on GitHub</a>
+        
     </li>
 
   </ul>
@@ -107,7 +100,7 @@
 <span class="n">CommandObj</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CommandObj&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;Command&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The main class that other Commands should extend.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -126,7 +119,7 @@
     <span class="n">__abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>                             <span class="c1"># False if viable for containing sub commands</span>
     <span class="c1"># fmt: on</span>
 
-<div class="viewcode-block" id="Command.__init_subclass__"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
+<div class="viewcode-block" id="Command.__init_subclass__"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span>
         <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -187,17 +180,17 @@
         <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because it has no parent Command&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Command.parser"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.parser">[docs]</a>    <span class="nd">@classproperty</span>
+<div class="viewcode-block" id="Command.parser"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parser">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParser</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parser</span></div>
 
-<div class="viewcode-block" id="Command.command_config"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.command_config">[docs]</a>    <span class="nd">@classproperty</span>
+<div class="viewcode-block" id="Command.command_config"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.command_config">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">command_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__command_config</span></div>
 
-<div class="viewcode-block" id="Command.params"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.params">[docs]</a>    <span class="nd">@classproperty</span>
+<div class="viewcode-block" id="Command.params"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.params">[docs]</a>    <span class="nd">@classproperty</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># The parent here is different than in __init_subclass__ to allow ActionFlag inheritance</span>
@@ -229,7 +222,7 @@
 
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="Command.parse_and_run"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Command.parse_and_run"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`</span>
@@ -256,7 +249,7 @@
             <span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="Command.parse"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.parse">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Command.parse"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the</span>
@@ -274,7 +267,7 @@
 
         <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for running a command.  Subclasses generally should not override this method.</span>
 
@@ -295,7 +288,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__args</span><span class="o">.</span><span class="n">actions_taken</span></div>
 
-<div class="viewcode-block" id="Command.before_main"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.before_main">[docs]</a>    <span class="k">def</span> <span class="nf">before_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Command.before_main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.before_main">[docs]</a>    <span class="k">def</span> <span class="nf">before_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called by :meth:`.run` before :meth:`.main` is called.  Validates the number of ActionFlags that were specified,</span>
 <span class="sd">        and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions</span>
@@ -312,7 +305,7 @@
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parsed</span><span class="o">.</span><span class="n">before_main_actions</span><span class="p">:</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Command.main"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="Command.main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary method that is called when running a Command.</span>
 
@@ -338,7 +331,7 @@
 
         <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">actions_taken</span></div>
 
-<div class="viewcode-block" id="Command.after_main"><a class="viewcode-back" href="../../cli_command_parser.commands.html#cli_command_parser.commands.Command.after_main">[docs]</a>    <span class="k">def</span> <span class="nf">after_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Command.after_main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.after_main">[docs]</a>    <span class="k">def</span> <span class="nf">after_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called by :meth:`.run` after :meth:`.main` is called.  Calls all of the specified</span>
 <span class="sd">        :obj:`~.parameters.after_main` / :obj:`~.parameters.action_flag` actions that were defined with</span>

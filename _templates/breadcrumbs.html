@@ -1,0 +1,8 @@
+{% extends "!breadcrumbs.html" %}
+{% block breadcrumbs_aside %}
+    <li class="wy-breadcrumbs-aside">
+        {% if show_on_github_url %}
+            <a href="{{ show_on_github_url }}" target="_blank" class="fa fa-github"> {{ _('View on GitHub') }}</a>
+        {% endif %}
+    </li>
+{% endblock %}

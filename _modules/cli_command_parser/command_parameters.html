@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.02.26-12 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.02.27 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -37,21 +37,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.actions.html">Actions Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.args.html">Args Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.commands.html">Commands Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.config.html">Config Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.error_handling.html">Error_Handling Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.exceptions.html">Exceptions Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.formatting.html">Formatting Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.nargs.html">Nargs Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.parameters.html">Parameters Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.parser.html">Parser Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.testing.html">Testing Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
 </ul>
 
         </div>
@@ -71,7 +64,7 @@
           <li><a href="../index.html">Module code</a> &raquo;</li>
       <li>cli_command_parser.command_parameters</li>
     <li class="wy-breadcrumbs-aside">
-        <a href="None" target="_blank" class="fa fa-github"> View on GitHub</a>
+        
     </li>
 
   </ul>
@@ -111,7 +104,7 @@
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="CommandParameters"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters">[docs]</a><span class="k">class</span> <span class="nc">CommandParameters</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandParameters"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters">[docs]</a><span class="k">class</span> <span class="nc">CommandParameters</span><span class="p">:</span>
     <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span>
     <span class="n">command_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandParameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -138,7 +131,7 @@
         <span class="n">options</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">positionals</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">options</span><span class="si">=}</span><span class="s1">]&gt;&#39;</span>
 
-<div class="viewcode-block" id="CommandParameters.pass_thru"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="CommandParameters.pass_thru"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PassThru</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span>
@@ -288,7 +281,7 @@
 
     <span class="c1"># region Option Processing</span>
 
-<div class="viewcode-block" id="CommandParameters.get_option_param_value_pairs"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">get_option_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParameters.get_option_param_value_pairs"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">get_option_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;---&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
@@ -308,7 +301,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="CommandParameters.long_option_to_param_value_pair"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair">[docs]</a>    <span class="k">def</span> <span class="nf">long_option_to_param_value_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParameters.long_option_to_param_value_pair"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair">[docs]</a>    <span class="k">def</span> <span class="nf">long_option_to_param_value_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -318,7 +311,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span></div>
 
-<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -341,7 +334,7 @@
             <span class="n">combo_option_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span></div>
 
-<div class="viewcode-block" id="CommandParameters.find_option_that_accepts_values"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParameters.find_option_that_accepts_values"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
             <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
@@ -354,7 +347,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">option</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="CommandParameters.find_nested_option_that_accepts_values"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParameters.find_nested_option_that_accepts_values"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">params</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">params</span>
@@ -372,7 +365,7 @@
 
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="CommandParameters.args_to_dict"><a class="viewcode-back" href="../../cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.args_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">args_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="CommandParameters.args_to_dict"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.args_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">args_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="s1">&#39;Args&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">arg_dict</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">args_to_dict</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

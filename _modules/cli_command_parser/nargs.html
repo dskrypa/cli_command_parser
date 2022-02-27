@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.nargs &mdash; CLI Command Parser 2022.02.26-12 documentation</title>
+  <title>cli_command_parser.nargs &mdash; CLI Command Parser 2022.02.27 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -37,21 +37,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.actions.html">Actions Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.args.html">Args Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.commands.html">Commands Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.config.html">Config Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.error_handling.html">Error_Handling Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.exceptions.html">Exceptions Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.formatting.html">Formatting Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.nargs.html">Nargs Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.parameters.html">Parameters Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.parser.html">Parser Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.testing.html">Testing Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_command_parser.utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
 </ul>
 
         </div>
@@ -71,7 +64,7 @@
           <li><a href="../index.html">Module code</a> &raquo;</li>
       <li>cli_command_parser.nargs</li>
     <li class="wy-breadcrumbs-aside">
-        <a href="None" target="_blank" class="fa fa-github"> View on GitHub</a>
+        
     </li>
 
   </ul>
@@ -92,7 +85,7 @@
 <span class="n">NARGS_STR_RANGES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;?&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
 
 
-<div class="viewcode-block" id="Nargs"><a class="viewcode-back" href="../../cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs">[docs]</a><span class="k">class</span> <span class="nc">Nargs</span><span class="p">:</span>
+<div class="viewcode-block" id="Nargs"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs">[docs]</a><span class="k">class</span> <span class="nc">Nargs</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_orig</span> <span class="o">=</span> <span class="n">nargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="kc">None</span>
@@ -190,7 +183,7 @@
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_orig</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Nargs.satisfied"><a class="viewcode-back" href="../../cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied">[docs]</a>    <span class="k">def</span> <span class="nf">satisfied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Nargs.satisfied"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied">[docs]</a>    <span class="k">def</span> <span class="nf">satisfied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span>
         <span class="k">else</span><span class="p">:</span>
