@@ -6,7 +6,7 @@ import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING, Optional, Collection, Any
 
-from .args import Args
+from .context import Context
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
 from .formatting import HelpFormatter
 from .parameters import (
@@ -35,6 +35,7 @@ class CommandParameters:
     action: Optional[Action] = None
     _pass_thru: Optional[PassThru] = None
     sub_command: Optional[SubCommand] = None
+    action_flags: list[ActionFlag]
     options: list[BaseOption]
     combo_option_map: dict[str, BaseOption]
     groups: list[ParamGroup]
@@ -252,7 +253,7 @@ class CommandParameters:
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
         param = self.combo_option_map[key]
-        if param.would_accept(Args([]), value, short_combo=True):  # TODO: Refactor would_accept
+        if param.would_accept(Context.get_current(), value, short_combo=True):
             return [(param, value)]
         else:
             combo_option_map = self.combo_option_map
@@ -288,16 +289,3 @@ class CommandParameters:
         return None
 
     # endregion
-
-    def args_to_dict(self, args: 'Args', exclude: Collection[Parameter] = ()) -> dict[str, Any]:
-        if (parent := self.parent) is not None:
-            arg_dict = parent.args_to_dict(args, exclude)
-        else:
-            arg_dict = {}
-
-        for group in (self.positionals, self.options, (self.pass_thru,)):
-            for param in group:
-                if param and param not in exclude:
-                    arg_dict[param.name] = param.result_value(args)
-
-        return arg_dict

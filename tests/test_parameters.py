@@ -7,7 +7,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Counter, Option, Flag
-from cli_command_parser.args import Args
+from cli_command_parser.context import Context
 from cli_command_parser.exceptions import (
     NoSuchOption,
     UsageError,
@@ -28,6 +28,7 @@ from cli_command_parser.parameters import (
     BasePositional,
     Action,
 )
+from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest
 
 
@@ -352,7 +353,7 @@ class PassThruTest(ParserTest):
             baz = PassThru()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_double_dash_without_pass_thru_rejected(self):
         class Foo(Command):
@@ -379,14 +380,14 @@ class PassThruTest(ParserTest):
             pt2 = PassThru()
 
         with self.assertRaises(CommandDefinitionError):
-            Bar.parser  # noqa
+            Bar.parse()
 
     def test_extra_rejected(self):
-        args = Args([])
+        ctx = Context()
         pt = PassThru()
-        pt.take_action(args, ['a'])
+        pt.take_action(ctx, ['a'])
         with self.assertRaises(ParamUsageError):
-            pt.take_action(args, ['a'])
+            pt.take_action(ctx, ['a'])
 
     def test_usage(self):
         self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).format_basic_usage())
@@ -440,15 +441,15 @@ class MiscParameterTest(ParserTest):
 class UnlikelyToBeReachedParameterTest(ParserTest):
     def test_too_many_rejected(self):
         option = Option(action='append', nargs=1)
-        args = Args([])
-        option.take_action(args, 'foo')
+        ctx = Context()
+        option.take_action(ctx, 'foo')
         with self.assertRaises(ParamUsageError):
-            option.take_action(args, 'foo')
+            option.take_action(ctx, 'foo')
 
     def test_non_none_rejected(self):
         flag = Flag()
         with self.assertRaises(ParamUsageError):
-            flag.take_action(Args([]), 'foo')
+            flag.take_action(Context(), 'foo')
 
     def test_sort_mixed_types(self):
         sort_cases = [
@@ -465,14 +466,14 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
 
     def test_none_invalid(self):
         with self.assertRaises(MissingArgument):
-            Option().validate(Args([]), None)
+            Option().validate(Context(), None)
 
     def test_none_valid(self):
-        self.assertIs(None, Flag().validate(Args([]), None))
+        self.assertIs(None, Flag().validate(Context(), None))
 
     def test_value_invalid(self):
         with self.assertRaises(BadArgument):
-            Flag().validate(Args([]), 1)
+            Flag().validate(Context(), 1)
 
     def test_missing_required_value_single(self):
         class Foo(Command, allow_missing=True):
@@ -492,12 +493,12 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         class Foo(Command):
             bar = Option(nargs=2)
 
-        args = Args(['--bar', 'a'])
-        foo = Foo(args)  # This is NOT the recommended way of initializing a Command
-        with self.assertRaises(BadArgument):
-            foo.parser.parse_args(args)
-        with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
-            foo.bar  # noqa
+        with Context(['--bar', 'a'], Foo) as ctx:
+            foo = Foo(ctx)  # This is NOT the recommended way of initializing a Command
+            with self.assertRaises(BadArgument):
+                CommandParser.parse_args(ctx)
+            with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
+                foo.bar  # noqa
 
     def test_bad_choice(self):
         class Foo(Command):
@@ -590,10 +591,10 @@ class ChoiceMapTest(ParserTest):
             action = Action()
             action('foo bar')(Mock())
 
-        args = Args([])
-        Foo.action.take_action(args, 'foo')
+        ctx = Context()
+        Foo.action.take_action(ctx, 'foo')
         with self.assertRaises(InvalidChoice):
-            Foo.action.append(args, 'baz')
+            Foo.action.append(ctx, 'baz')
 
     def test_missing_action_target(self):
         class Foo(Command):
@@ -605,20 +606,20 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             action = Action()
 
-        args = Args([])
+        ctx = Context()
         with self.assertRaises(BadArgument):
-            Foo.action.validate(args, '-foo')
-        self.assertIs(None, Foo.action.validate(args, 'foo'))
+            Foo.action.validate(ctx, '-foo')
+        self.assertIs(None, Foo.action.validate(ctx, 'foo'))
 
     def test_choice_map_too_many(self):
         class Foo(Command):
             action = Action()
             action('foo')(Mock())
 
-        args = Args([])
-        Foo.action.take_action(args, 'foo')
+        ctx = Context()
+        Foo.action.take_action(ctx, 'foo')
         with self.assertRaises(BadArgument):
-            Foo.action.validate(args, 'bar')
+            Foo.action.validate(ctx, 'bar')
 
     def test_no_choices_result(self):
         class Foo(Command):
@@ -633,10 +634,10 @@ class ChoiceMapTest(ParserTest):
             action = Action()
             action('foo bar')(Mock())
 
-        args = Args([])
-        Foo.action.take_action(args, 'foo')
+        ctx = Context()
+        Foo.action.take_action(ctx, 'foo')
         with self.assertRaises(BadArgument):
-            Foo.action.result(args)
+            Foo.action.result(ctx)
 
     def test_unexpected_choice(self):
         class Foo(Command):
@@ -644,11 +645,11 @@ class ChoiceMapTest(ParserTest):
             action('foo bar')(Mock())
             action('foo baz')(Mock())
 
-        args = Args([])
-        Foo.action.take_action(args, 'foo bar')
+        ctx = Context()
+        Foo.action.take_action(ctx, 'foo bar')
         del Foo.action.choices['foo bar']
         with self.assertRaises(BadArgument):
-            Foo.action.result(args)
+            Foo.action.result(ctx)
 
     def test_reassign_sub_command_rejected(self):
         class Foo(Command):

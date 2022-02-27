@@ -31,9 +31,9 @@ class TestCommands(TestCase):
 
         foo = Foo.parse(['--foo'])
         self.assertFalse(mock.called)
-        self.assertEqual(0, foo.args.actions_taken)
+        self.assertEqual(0, foo.ctx.actions_taken)
         self.assertEqual(1, foo.run())
-        self.assertEqual(1, foo.args.actions_taken)
+        self.assertEqual(1, foo.ctx.actions_taken)
         self.assertTrue(mock.called)
 
     def test_false_on_no_action(self):
@@ -43,8 +43,9 @@ class TestCommands(TestCase):
             foo = ActionFlag()(mock)
 
         foo = Foo.parse([])
-        self.assertFalse(foo.main())
-        self.assertFalse(mock.called)
+        with foo.ctx:
+            self.assertFalse(foo.main())
+            self.assertFalse(mock.called)
 
     def test_parse_and_run(self):
         mock = Mock(__name__='bar')
@@ -71,7 +72,7 @@ class TestCommands(TestCase):
             b = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_multiple_sub_cmds_rejected(self):
         class Foo(Command):
@@ -79,7 +80,7 @@ class TestCommands(TestCase):
             b = SubCommand()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_action_with_sub_cmd_rejected(self):
         class Foo(Command):
@@ -87,7 +88,7 @@ class TestCommands(TestCase):
             b = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_choice_with_no_parent_warns(self):
         with self.assertWarnsRegex(Warning, 'because it has no parent Command'):
@@ -112,7 +113,7 @@ class TestCommands(TestCase):
             foo(Mock(__name__='baz'))
 
         with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_action_with_sub_command_rejected(self):
         class Foo(Command):
@@ -121,7 +122,7 @@ class TestCommands(TestCase):
             foo(Mock(__name__='baz'))
 
         with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_no_error_handler_run(self):
         class Foo(Command, error_handler=None):
@@ -169,7 +170,7 @@ class TestCommands(TestCase):
         class Foo(Command):
             pass
 
-        config = Foo.command_config
+        config = Foo._config_
         self.assertDictEqual(config.as_dict(), CommandConfig().as_dict())
 
     def test_config_from_kwarg(self):
@@ -178,7 +179,7 @@ class TestCommands(TestCase):
         class Foo(Command, multiple_action_flags=not default):
             pass
 
-        self.assertEqual(Foo.command_config.multiple_action_flags, not default)
+        self.assertEqual(Foo._config_.multiple_action_flags, not default)
 
     def test_config_explicit(self):
         default = CommandConfig().multiple_action_flags
@@ -186,7 +187,7 @@ class TestCommands(TestCase):
         class Foo(Command, config=CommandConfig(multiple_action_flags=not default)):
             pass
 
-        self.assertEqual(Foo.command_config.multiple_action_flags, not default)
+        self.assertEqual(Foo._config_.multiple_action_flags, not default)
 
     def test_config_inherited(self):
         default_config = CommandConfig()
@@ -194,17 +195,17 @@ class TestCommands(TestCase):
         class Foo(Command, multiple_action_flags=not default_config.multiple_action_flags):
             pass
 
-        self.assertEqual(Foo.command_config.action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Foo.command_config.multiple_action_flags, default_config.multiple_action_flags)
+        self.assertEqual(Foo._config_.action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Foo._config_.multiple_action_flags, default_config.multiple_action_flags)
 
         class Bar(Foo, action_after_action_flags=not default_config.action_after_action_flags):
             pass
 
-        self.assertNotEqual(Bar.command_config.action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Bar.command_config.multiple_action_flags, default_config.multiple_action_flags)
+        self.assertNotEqual(Bar._config_.action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Bar._config_.multiple_action_flags, default_config.multiple_action_flags)
         # Ensure Foo config has not changed:
-        self.assertEqual(Foo.command_config.action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Foo.command_config.multiple_action_flags, default_config.multiple_action_flags)
+        self.assertEqual(Foo._config_.action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Foo._config_.multiple_action_flags, default_config.multiple_action_flags)
 
     def test_default_error_handler_returned(self):
         self.assertIs(extended_error_handler, Command._Command__get_error_handler())  # noqa

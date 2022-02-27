@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from unittest import main
 
 from cli_command_parser.commands import Command
+from cli_command_parser.context import Context
 from cli_command_parser.exceptions import (
     NoSuchOption,
     BadArgument,
@@ -46,9 +47,9 @@ class ParamComboTest(ParserTest):
             auth = Option('-a', choices=('a', 'b'), help='Auth mode')
 
         foo = self.assert_parse_results(Foo, ['foo', '-a', 'b', 'bar'], {'cmd': 'foo', 'id': 'bar', 'auth': 'b'})
-        self.assertIn('cmd', foo.args)
-        self.assertIn(Foo.cmd, foo.args)
-        self.assertNotIn('bar', foo.args)
+        self.assertIn('cmd', foo.ctx)
+        self.assertIn(Foo.cmd, foo.ctx)
+        self.assertNotIn('bar', foo.ctx)
 
         with self.assertRaises(ParamsMissing):
             Foo.parse_and_run(['foo', '-a', 'b'])
@@ -364,9 +365,9 @@ class OptionTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', '--baz', 'a'])
 
-        Foo.command_config.ignore_unknown = True
-        self.assertEqual(Foo.parse(['bar', '--baz']).args.remaining, ['--baz'])
-        self.assertEqual(Foo.parse(['bar', '--baz', 'a']).args.remaining, ['--baz', 'a'])
+        Foo._config_.ignore_unknown = True
+        self.assertEqual(Foo.parse(['bar', '--baz']).ctx.remaining, ['--baz'])
+        self.assertEqual(Foo.parse(['bar', '--baz', 'a']).ctx.remaining, ['--baz', 'a'])
 
     def test_extra_short_option_deferred(self):
         class Foo(Command):
@@ -375,10 +376,10 @@ class OptionTest(ParserTest):
         fail_cases = [['bar', '-b'], ['bar', '-b', 'a'], ['bar', '-b=a']]
         self.assert_parse_fails_cases(Foo, fail_cases, NoSuchOption)
 
-        Foo.command_config.ignore_unknown = True
-        self.assertEqual(Foo.parse(['bar', '-b']).args.remaining, ['-b'])
-        self.assertEqual(Foo.parse(['bar', '-b', 'a']).args.remaining, ['-b', 'a'])
-        self.assertEqual(Foo.parse(['bar', '-b=a']).args.remaining, ['-b=a'])
+        Foo._config_.ignore_unknown = True
+        self.assertEqual(Foo.parse(['bar', '-b']).ctx.remaining, ['-b'])
+        self.assertEqual(Foo.parse(['bar', '-b', 'a']).ctx.remaining, ['-b', 'a'])
+        self.assertEqual(Foo.parse(['bar', '-b=a']).ctx.remaining, ['-b=a'])
 
     def test_short_value_invalid(self):
         class Foo(Command):
@@ -464,8 +465,8 @@ class OptionTest(ParserTest):
                 self.nargs = Nargs('?')
 
             @parameter_action
-            def store(self, args, value):
-                args[self] = value
+            def store(self, ctx: Context, value):
+                ctx.set_parsing_value(self, value)
 
         class Foo(Command):
             bar = CustomOption('-b')
@@ -490,8 +491,8 @@ class PositionalTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', 'baz'])
 
-        Foo.command_config.ignore_unknown = True
-        self.assertEqual(Foo.parse(['bar', 'baz']).args.remaining, ['baz'])
+        Foo._config_.ignore_unknown = True
+        self.assertEqual(Foo.parse(['bar', 'baz']).ctx.remaining, ['baz'])
 
     def test_first_rejects_bad_choice(self):
         class Foo(Command):

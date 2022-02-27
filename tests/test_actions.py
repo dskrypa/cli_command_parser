@@ -92,7 +92,7 @@ class ActionTest(TestCase):
             action(Mock(__name__='foo'))
 
         foo = Foo.parse(['foo', 'bar'])
-        self.assertTrue(foo.args['action'])
+        self.assertTrue(foo.ctx.get_parsed()['action'])
         self.assertEqual(foo.text, ['bar'])
 
     def test_reject_double_choice(self):

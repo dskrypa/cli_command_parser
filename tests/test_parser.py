@@ -6,10 +6,12 @@ from unittest.mock import Mock
 
 from cli_command_parser import Command
 from cli_command_parser.actions import help_action
-from cli_command_parser.args import Args
+from cli_command_parser.context import Context
 from cli_command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
 from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
 from cli_command_parser.testing import ParserTest as _ParserTest
+
+# TODO: Allow options defined with -/_ in the name to be provided with the other
 
 
 class ParserTest(_ParserTest):
@@ -17,11 +19,10 @@ class ParserTest(_ParserTest):
         class Foo(Command):
             bar = Positional()
 
-        for obj in (Foo.parser, Foo.params):
-            rep = repr(obj)
-            self.assertIn('Foo', rep)
-            self.assertIn('positionals=', rep)
-            self.assertIn('options=', rep)
+        rep = repr(Foo.params)
+        self.assertIn('Foo', rep)
+        self.assertIn('positionals=', rep)
+        self.assertIn('options=', rep)
 
     def test_params_contains_long(self):
         class Foo(Command):
@@ -46,14 +47,16 @@ class ParserTest(_ParserTest):
         class Foo(Command):
             test = Flag('-t')
 
-        self.assertIs(None, Foo.params.get_option_param_value_pairs('-test'))
+        with Context():
+            self.assertIs(None, Foo.params.get_option_param_value_pairs('-test'))
 
     def test_parser_contains_combined_short(self):
         class Foo(Command):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        self.assertIsNot(None, Foo.params.get_option_param_value_pairs('-fb'))
+        with Context():
+            self.assertIsNot(None, Foo.params.get_option_param_value_pairs('-fb'))
 
     def test_parser_does_not_contain_non_optional(self):
         class Foo(Command):
@@ -123,7 +126,7 @@ class ParserTest(_ParserTest):
             pass
 
         expected = {help_action.name: False}
-        self.assertDictEqual(expected, Bar.params.args_to_dict(Args([])))
+        self.assertDictEqual(expected, Bar.parse().ctx.get_parsed())
 
     def test_explicit_name_conflict_before(self):
         class Foo(Command):
@@ -175,7 +178,7 @@ class ParserTest(_ParserTest):
             bar = TestParam('test')
 
         with self.assertRaisesRegex(CommandDefinitionError, 'custom parameters must extend'):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_params_parent(self):
         class Foo(Command):

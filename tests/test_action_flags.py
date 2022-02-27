@@ -4,19 +4,20 @@ import logging
 from contextlib import redirect_stdout
 from io import StringIO
 from itertools import count
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
 from cli_command_parser.actions import help_action
-from cli_command_parser.args import Args
+from cli_command_parser.context import Context
 from cli_command_parser.parameters import before_main, after_main, action_flag
 from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
+from cli_command_parser.testing import ParserTest
 
 log = logging.getLogger(__name__)
 
 
-class ActionFlagTest(TestCase):
+class ActionFlagTest(ParserTest):
     def test_help_action(self):
         mock = Mock(__name__='bar')
 
@@ -71,11 +72,7 @@ class ActionFlagTest(TestCase):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        foo = Foo.parse([])
-        with self.assertRaises(KeyError):
-            self.assertFalse(foo.args['foo'])
-        with self.assertRaises(KeyError):
-            self.assertFalse(foo.args['bar'])
+        self.assert_parse_results(Foo, [], {'foo': False, 'bar': False})
 
     def test_af_mixed_grouping_rejected(self):
         class Foo(Command):
@@ -85,7 +82,7 @@ class ActionFlagTest(TestCase):
             baz = ActionFlag()(Mock())
 
         with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_af_mixed_grouping_ordered_ok(self):
         attrs = ('foo', 'bar', 'baz')
@@ -105,10 +102,10 @@ class ActionFlagTest(TestCase):
                 for j in {0, 1, 2} - {i}:
                     self.assertFalse(mocks[j].called)
 
-                self.assertTrue(foo.args[attr])
+                parsed = foo.ctx.get_parsed()
+                self.assertTrue(parsed[attr])
                 for a in set(attrs) - {attr}:
-                    with self.assertRaises(KeyError):
-                        foo.args[a]  # noqa
+                    self.assertFalse(parsed[a])
 
     def test_no_reassign(self):
         with self.assertRaises(CommandDefinitionError):
@@ -126,7 +123,7 @@ class ActionFlagTest(TestCase):
             baz = ActionFlag('-b', order=2)(Mock())
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parser  # noqa
+            Foo.parse()
 
     def test_extra_flags_provided_cause_error(self):
         mocks = [Mock(), Mock()]
@@ -184,19 +181,19 @@ class ActionFlagTest(TestCase):
                 foo = Foo.parse_and_run(args)
                 self.assertLess(foo.call_order['foo'], foo.call_order['main'])
                 self.assertLess(foo.call_order['main'], foo.call_order['bar'])
-                self.assertEqual(2, foo.args.actions_taken)  # 2 because no non-flag Actions
+                self.assertEqual(2, foo.ctx.actions_taken)  # 2 because no non-flag Actions
 
         with self.subTest(case='only after'):
             foo = Foo.parse_and_run(['-b'])
             self.assertNotIn('foo', foo.call_order)
             self.assertLess(foo.call_order['main'], foo.call_order['bar'])
-            self.assertEqual(1, foo.args.actions_taken)  # 1 because no non-flag Actions
+            self.assertEqual(1, foo.ctx.actions_taken)  # 1 because no non-flag Actions
 
         with self.subTest(case='only before'):
             foo = Foo.parse_and_run(['-f'])
             self.assertLess(foo.call_order['foo'], foo.call_order['main'])
             self.assertNotIn('bar', foo.call_order)
-            self.assertEqual(1, foo.args.actions_taken)  # 1 because no non-flag Actions
+            self.assertEqual(1, foo.ctx.actions_taken)  # 1 because no non-flag Actions
 
     def test_bad_action(self):
         with self.assertRaises(ParameterDefinitionError):
@@ -227,19 +224,19 @@ class ActionFlagTest(TestCase):
                 mock()
 
         foo = Foo.parse(['-f'])
-        self.assertFalse(Foo.foo.result(foo.args)(foo))
+        self.assertFalse(Foo.foo.result(foo.ctx)(foo))
 
     def test_no_func(self):
         flag = ActionFlag()
-        args = Args([])
-        flag.store_const(args)
+        ctx = Context()
+        flag.store_const(ctx)
         with self.assertRaises(ParameterDefinitionError):
-            flag.result(args)
+            flag.result(ctx)
 
     def test_not_provided(self):
         flag = ActionFlag()
-        args = Args([])
-        self.assertFalse(flag.result(args))
+        ctx = Context()
+        self.assertFalse(flag.result(ctx))
 
 
 if __name__ == '__main__':

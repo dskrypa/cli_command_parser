@@ -2,7 +2,6 @@
 
 from unittest import TestCase, main
 
-from cli_command_parser.args import Args
 from cli_command_parser.utils import camel_to_snake_case
 
 
@@ -11,9 +10,6 @@ class UtilsTest(TestCase):
         self.assertEqual('foo_bar', camel_to_snake_case('FooBar'))
         self.assertEqual('foo bar', camel_to_snake_case('FooBar', ' '))
         self.assertEqual('foo', camel_to_snake_case('Foo'))
-
-    def test_args_repr(self):
-        self.assertIn('Args', repr(Args([])))
 
 
 if __name__ == '__main__':
