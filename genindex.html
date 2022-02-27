@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; CLI Command Parser 2022.02.27 documentation</title>
+  <title>Index &mdash; CLI Command Parser 2022.02.27-4 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -142,10 +142,12 @@
       <ul>
         <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.action_after_action_flags">(cli_command_parser.config.CommandConfig attribute)</a>
 </li>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.action_after_action_flags">(cli_command_parser.context.Context attribute)</a>
+</li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.action_flag">action_flag (in module cli_command_parser.parameters)</a>
 </li>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.action_flags">action_flags (cli_command_parser.args.Args property)</a>
+      <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.action_flags">action_flags (cli_command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag">ActionFlag (class in cli_command_parser.parameters)</a>
 </li>
@@ -161,24 +163,18 @@
         <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help">(cli_command_parser.config.CommandConfig attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.after_main">after_main (in module cli_command_parser.parameters)</a>
 </li>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.after_main">after_main() (cli_command_parser.commands.Command method)</a>
-</li>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.after_main_actions">after_main_actions (cli_command_parser.args.Args property)</a>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.after_main_actions">after_main_actions (cli_command_parser.context.Context property)</a>
 </li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.allow_missing">allow_missing (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
 
       <ul>
         <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.allow_missing">(cli_command_parser.config.CommandConfig attribute)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.allow_unknown">allow_unknown (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.allow_unknown">(cli_command_parser.config.CommandConfig attribute)</a>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.allow_missing">(cli_command_parser.context.Context attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter.append">append() (cli_command_parser.parameters.Counter method)</a>
@@ -191,30 +187,20 @@
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Flag.append_const">append_const() (cli_command_parser.parameters.Flag method)</a>
 </li>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args">Args (class in cli_command_parser.args)</a>
-</li>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.params.args">args (cli_command_parser.args.Args parameter)</a>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.args">args (cli_command_parser.commands.Command.main parameter)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.args">(cli_command_parser.commands.Command attribute)</a>
-</li>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.after_main.params.args">(cli_command_parser.commands.Command.after_main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.before_main.params.args">(cli_command_parser.commands.Command.before_main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.args">(cli_command_parser.commands.Command.main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse.params.args">(cli_command_parser.commands.Command.parse parameter)</a>
-</li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.args">(cli_command_parser.commands.Command.parse_and_run parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.run.params.args">(cli_command_parser.commands.Command.run parameter)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.args_to_dict">args_to_dict() (cli_command_parser.command_parameters.CommandParameters method)</a>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse.params.argv">argv (cli_command_parser.commands.Command.parse parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.argv">(cli_command_parser.commands.Command.parse_and_run parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.argv">argv (cli_command_parser.commands.Command.parse_and_run parameter)</a>
-</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict">as_dict() (cli_command_parser.config.CommandConfig method)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_call_fails">assert_call_fails() (cli_command_parser.testing.ParserTest method)</a>
@@ -239,15 +225,13 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.BaseOption">BaseOption (class in cli_command_parser.parameters)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional">BasePositional (class in cli_command_parser.parameters)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional">BasePositional (class in cli_command_parser.parameters)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.before_main">before_main (in module cli_command_parser.parameters)</a>
 </li>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.before_main">before_main() (cli_command_parser.commands.Command method)</a>
-</li>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.before_main_actions">before_main_actions (cli_command_parser.args.Args property)</a>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.before_main_actions">before_main_actions (cli_command_parser.context.Context property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -255,6 +239,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.cached_class_property">cached_class_property (class in cli_command_parser.utils)</a>
+</li>
       <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case">camel_to_snake_case() (in module cli_command_parser.utils)</a>
 </li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.choice">choice (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
@@ -267,8 +253,6 @@
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.choices">choices (cli_command_parser.parameters.Parameter attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.classproperty">classproperty (class in cli_command_parser.utils)</a>
-</li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_help.params.clean">clean (cli_command_parser.parameters.ParamGroup.format_help parameter)</a>
 </li>
       <li>
@@ -276,13 +260,6 @@
 
       <ul>
         <li><a href="api/cli_command_parser.actions.html#module-cli_command_parser.actions">module</a>
-</li>
-      </ul></li>
-      <li>
-    cli_command_parser.args
-
-      <ul>
-        <li><a href="api/cli_command_parser.args.html#module-cli_command_parser.args">module</a>
 </li>
       </ul></li>
       <li>
@@ -304,6 +281,13 @@
 
       <ul>
         <li><a href="api/cli_command_parser.config.html#module-cli_command_parser.config">module</a>
+</li>
+      </ul></li>
+      <li>
+    cli_command_parser.context
+
+      <ul>
+        <li><a href="api/cli_command_parser.context.html#module-cli_command_parser.context">module</a>
 </li>
       </ul></li>
       <li>
@@ -373,12 +357,6 @@
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command">Command (class in cli_command_parser.commands)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.command">command (cli_command_parser.command_parameters.CommandParameters attribute)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.command">(cli_command_parser.parser.CommandParser attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.command_config">command_config (cli_command_parser.commands.Command property)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register.params.command_or_choice">command_or_choice (cli_command_parser.parameters.SubCommand.register parameter)</a>
 </li>
@@ -394,7 +372,11 @@
 </li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException">CommandParserException</a>
 </li>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.consume_values">consume_values() (cli_command_parser.parser.CommandParser method)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.contains_positional">contains_positional (cli_command_parser.parameters.ParamGroup property)</a>
+</li>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context">Context (class in cli_command_parser.context)</a>
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.copy">copy() (cli_command_parser.error_handling.ErrorHandler method)</a>
 </li>
@@ -405,6 +387,10 @@
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action.register.params.default">default (cli_command_parser.parameters.Action.register parameter)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.description">description (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
 
@@ -438,8 +424,6 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.find_all">find_all() (cli_command_parser.args.Args method)</a>
-</li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values">find_nested_option_that_accepts_values() (cli_command_parser.command_parameters.CommandParameters method)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">find_option_that_accepts_values() (cli_command_parser.command_parameters.CommandParameters method)</a>
@@ -488,13 +472,19 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_current">get_current() (cli_command_parser.context.Context class method)</a>
+</li>
       <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.get_descriptor_value_type">get_descriptor_value_type() (in module cli_command_parser.utils)</a>
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.get_handler">get_handler() (cli_command_parser.error_handling.ErrorHandler method)</a>
 </li>
+      <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">get_option_param_value_pairs() (cli_command_parser.command_parameters.CommandParameters method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">get_option_param_value_pairs() (cli_command_parser.command_parameters.CommandParameters method)</a>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed">get_parsed() (cli_command_parser.context.Context method)</a>
+</li>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsing_value">get_parsing_value() (cli_command_parser.context.Context method)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_help.params.group_type">group_type (cli_command_parser.parameters.ParamGroup.format_help parameter)</a>
 </li>
@@ -506,6 +496,14 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_long">handle_long() (cli_command_parser.parser.CommandParser method)</a>
+</li>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_pass_thru">handle_pass_thru() (cli_command_parser.parser.CommandParser method)</a>
+</li>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_positional">handle_positional() (cli_command_parser.parser.CommandParser method)</a>
+</li>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_short">handle_short() (cli_command_parser.parser.CommandParser method)</a>
+</li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.help">help (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
 
       <ul>
@@ -528,10 +526,18 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">InvalidChoice</a>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__.params.ignore_unknown">ignore_unknown (cli_command_parser.commands.Command.__init_subclass__ parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.ignore_unknown">(cli_command_parser.config.CommandConfig attribute)</a>
 </li>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.ignore_unknown">(cli_command_parser.context.Context attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">InvalidChoice</a>
+</li>
       <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.is_numeric">is_numeric() (in module cli_command_parser.utils)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.is_valid_arg">is_valid_arg() (cli_command_parser.parameters.Parameter method)</a>
@@ -542,13 +548,9 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.after_main.params.kwargs">kwargs (cli_command_parser.commands.Command.after_main parameter)</a>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.kwargs">kwargs (cli_command_parser.commands.Command.main parameter)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.before_main.params.kwargs">(cli_command_parser.commands.Command.before_main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.kwargs">(cli_command_parser.commands.Command.main parameter)</a>
-</li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.kwargs">(cli_command_parser.commands.Command.parse_and_run parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.run.params.kwargs">(cli_command_parser.commands.Command.run parameter)</a>
@@ -594,6 +596,8 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action.register.params.method_or_choice">method_or_choice (cli_command_parser.parameters.Action.register parameter)</a>
 </li>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.missing">missing() (cli_command_parser.context.Context method)</a>
+</li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.MissingArgument">MissingArgument</a>
 </li>
       <li>
@@ -602,13 +606,13 @@
       <ul>
         <li><a href="api/cli_command_parser.actions.html#module-cli_command_parser.actions">cli_command_parser.actions</a>
 </li>
-        <li><a href="api/cli_command_parser.args.html#module-cli_command_parser.args">cli_command_parser.args</a>
-</li>
         <li><a href="api/cli_command_parser.command_parameters.html#module-cli_command_parser.command_parameters">cli_command_parser.command_parameters</a>
 </li>
         <li><a href="api/cli_command_parser.commands.html#module-cli_command_parser.commands">cli_command_parser.commands</a>
 </li>
         <li><a href="api/cli_command_parser.config.html#module-cli_command_parser.config">cli_command_parser.config</a>
+</li>
+        <li><a href="api/cli_command_parser.context.html#module-cli_command_parser.context">cli_command_parser.context</a>
 </li>
         <li><a href="api/cli_command_parser.error_handling.html#module-cli_command_parser.error_handling">cli_command_parser.error_handling</a>
 </li>
@@ -633,6 +637,8 @@
 
       <ul>
         <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.multiple_action_flags">(cli_command_parser.config.CommandConfig attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.multiple_action_flags">(cli_command_parser.context.Context attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.mutually_dependent">mutually_dependent (cli_command_parser.parameters.ParamGroup attribute)</a>
@@ -663,7 +669,7 @@
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.NullErrorHandler">NullErrorHandler (class in cli_command_parser.error_handling)</a>
 </li>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.num_provided">num_provided() (cli_command_parser.args.Args method)</a>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.num_provided">num_provided() (cli_command_parser.context.Context method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -694,7 +700,11 @@
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup">ParamGroup (class in cli_command_parser.parameters)</a>
 </li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.params">params (cli_command_parser.commands.Command property)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.params">(cli_command_parser.context.Context property)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParamsMissing">ParamsMissing</a>
 </li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParamUsageError">ParamUsageError</a>
@@ -705,12 +715,12 @@
 </li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">parse_and_run() (cli_command_parser.commands.Command class method)</a>
 </li>
-      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">parse_args() (cli_command_parser.parser.CommandParser method)</a>
-</li>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parser">parser (cli_command_parser.commands.Command property)</a>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">parse_args() (cli_command_parser.parser.CommandParser class method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.parsed_action_flags">parsed_action_flags (cli_command_parser.context.Context property)</a>
+</li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">ParserExit</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
@@ -743,7 +753,7 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.args.html#cli_command_parser.args.Args.record_action">record_action() (cli_command_parser.args.Args method)</a>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.record_action">record_action() (cli_command_parser.context.Context method)</a>
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.register">register() (cli_command_parser.error_handling.ErrorHandler method)</a>
 
@@ -790,6 +800,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied">satisfied() (cli_command_parser.nargs.Nargs method)</a>
+</li>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.set_parsing_value">set_parsing_value() (cli_command_parser.context.Context method)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.BaseOption.short_combinable">short_combinable (cli_command_parser.parameters.BaseOption attribute)</a>
 </li>

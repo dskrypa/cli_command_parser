@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.formatting &mdash; CLI Command Parser 2022.02.27 documentation</title>
+  <title>cli_command_parser.formatting &mdash; CLI Command Parser 2022.02.27-4 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -115,19 +115,6 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
 
-    <span class="c1"># def maybe_add(self, *params: ParamOrGroup):</span>
-    <span class="c1">#     for param in params:</span>
-    <span class="c1">#         if isinstance(param, ParamGroup):</span>
-    <span class="c1">#             if any(isinstance(p, BasePositional) for p in param):</span>
-    <span class="c1">#                 self.pos_group.add(param)</span>
-    <span class="c1">#             else:</span>
-    <span class="c1">#                 self.groups.append(param)</span>
-    <span class="c1">#         elif not param.group:</span>
-    <span class="c1">#             if isinstance(param, BasePositional):</span>
-    <span class="c1">#                 self.pos_group.add(param)</span>
-    <span class="c1">#             else:</span>
-    <span class="c1">#                 self.opt_group.add(param)</span>
-
 <div class="viewcode-block" id="HelpFormatter.format_usage"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">_Command__meta</span>
         <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="n">meta</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>
@@ -171,18 +158,7 @@
 
 <div class="viewcode-block" id="HelpEntryFormatter.process_usage"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter.process_usage">[docs]</a>    <span class="k">def</span> <span class="nf">process_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span> <span class="o">+</span> <span class="n">lpad</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">:</span>
-            <span class="n">tw</span> <span class="o">=</span> <span class="n">TextWrapper</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">,</span>
-                <span class="n">initial_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span><span class="p">,</span>
-                <span class="n">subsequent_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
-                <span class="c1"># drop_whitespace=False,</span>
-                <span class="c1"># replace_whitespace=False,</span>
-                <span class="c1"># expand_tabs=False,</span>
-            <span class="p">)</span>
-            <span class="c1"># prefix = &#39; &#39; * self.width</span>
-            <span class="c1"># for i, line in enumerate(tw.wrap(usage)):</span>
-            <span class="c1">#     self.lines.append(f&#39;{prefix}{line.lstrip()}&#39;)</span>
-
+            <span class="n">tw</span> <span class="o">=</span> <span class="n">TextWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">,</span> <span class="n">initial_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span><span class="p">,</span> <span class="n">subsequent_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tw</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">usage</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">left_pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span>
