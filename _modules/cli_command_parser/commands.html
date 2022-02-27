@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.commands &mdash; CLI Command Parser 2022.02.27-7 documentation</title>
+  <title>cli_command_parser.commands &mdash; CLI Command Parser 2022.02.27-8 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -90,7 +90,7 @@
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">NoSuchOption</span><span class="p">,</span> <span class="n">ParamsMissing</span><span class="p">,</span> <span class="n">ParamConflict</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">cached_class_property</span>
 
@@ -300,8 +300,8 @@
 <span class="sd">        Commands that do not have any positional :class:`Actions&lt;.parameters.Action&gt;` can override this method, and do</span>
 <span class="sd">        **not** need to call ``super().main(*args, **kwargs)``.</span>
 
-<span class="sd">        Initialization code that is common for all actions, or that should be run before :meth:`._before_main_` should be</span>
-<span class="sd">        placed in ``__init__``.</span>
+<span class="sd">        Initialization code that is common for all actions, or that should be run before :meth:`._before_main_` should</span>
+<span class="sd">        be placed in ``__init__``.</span>
 
 <span class="sd">        :param args: Positional arguments to pass to the action method</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the action method</span>

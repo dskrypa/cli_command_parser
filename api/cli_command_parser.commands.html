@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commands Module &mdash; CLI Command Parser 2022.02.27-7 documentation</title>
+  <title>Commands Module &mdash; CLI Command Parser 2022.02.27-8 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -212,8 +212,8 @@ initialization.  To skip error handling, define the class with <code class="docu
 a positional <a class="reference internal" href="cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a>’s target method, then that method is called here.</p>
 <p>Commands that do not have any positional <a class="reference internal" href="cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Actions</span></code></a> can override this method, and do
 <strong>not</strong> need to call <code class="docutils literal notranslate"><span class="pre">super().main(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
-<p>Initialization code that is common for all actions, or that should be run before <code class="xref py py-meth docutils literal notranslate"><span class="pre">_before_main_()</span></code> should be
-placed in <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
+<p>Initialization code that is common for all actions, or that should be run before <code class="xref py py-meth docutils literal notranslate"><span class="pre">_before_main_()</span></code> should
+be placed in <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
