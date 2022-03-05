@@ -24,6 +24,9 @@ log = logging.getLogger(__name__)
 CommandType = TypeVar('CommandType', bound=Type['Command'])
 CommandObj = TypeVar('CommandObj', bound='Command')
 
+# TODO: Move `params` and other properties/methods to be handled in external helper functions to prevent namespace
+#  pollution
+
 
 class Command:
     """
@@ -33,6 +36,7 @@ class Command:
     # region Initialization
     # fmt: off
     params: CommandParameters           # Must declare here for PyCharm's type checker to work properly
+    ctx: Context                        # The parsing Context used for this Command
     _config_: CommandConfig = None      # Configured Command options
     __meta: ProgramMetadata = None      # Metadata used in help text
     __abstract: Bool = True             # False if viable for containing sub commands
@@ -105,6 +109,7 @@ class Command:
 
     @classmethod
     def __get_error_handler(cls) -> Union[ErrorHandler, NullErrorHandler]:
+        # TODO: Move to Context
         if (config := cls._config_) is not None:
             error_handler = config.error_handler
         else:

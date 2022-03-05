@@ -482,6 +482,12 @@ class OptionTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    # def test_underscore_dash_swap_allowed(self):
+    #     pass  # TODO
+    #
+    # def test_underscore_dash_swap_rejected(self):
+    #     pass  # TODO
+
 
 class PositionalTest(ParserTest):
     def test_extra_positional_deferred(self):
@@ -510,6 +516,24 @@ class PositionalTest(ParserTest):
         self.assert_parse_results(Foo, ['a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'})
         fail_cases = [[], ['a', 'b', 'c', 'd'], ['a', 'b']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    # def test_multi_word_action(self):
+    #     pass  # TODO
+    #
+    # def test_alt_sep_multi_word_action(self):
+    #     pass  # TODO
+    #
+    # def test_multi_word_sub_command(self):
+    #     pass  # TODO
+    #
+    # def test_alt_sep_multi_word_sub_command(self):
+    #     pass  # TODO
+    #
+    # def test_ambiguous_multi_word_sub_command_action_combo(self):
+    #     pass  # TODO
+    #
+    # def test_alt_sep_ambiguous_multi_word_sub_command_action_combo(self):
+    #     pass  # TODO
 
 
 if __name__ == '__main__':

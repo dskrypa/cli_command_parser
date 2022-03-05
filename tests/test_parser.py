@@ -11,8 +11,6 @@ from cli_command_parser.exceptions import ParamsMissing, CommandDefinitionError,
 from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
 from cli_command_parser.testing import ParserTest as _ParserTest
 
-# TODO: Allow options defined with -/_ in the name to be provided with the other
-
 
 class ParserTest(_ParserTest):
     def test_reprs(self):
@@ -188,6 +186,9 @@ class ParserTest(_ParserTest):
             pass
 
         self.assertIs(Baz.params.parent, Foo.params)
+
+    # def test_underscore_dash_ambiguous_redefine_rejected(self):
+    #     pass  # TODO
 
 
 if __name__ == '__main__':

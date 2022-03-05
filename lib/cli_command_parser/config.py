@@ -32,8 +32,25 @@ class CommandConfig:
     #: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)
     ignore_unknown: Bool = False
 
+    # #: Whether unknown options should be parsed (default: raise an exception when unknown arguments are encountered)
+    # parse_unknown: Bool = False
+
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
     allow_missing: Bool = False
+
+    # #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict
+    # #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)
+    # strict_option_punctuation: Bool = False
+    #
+    # #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional action
+    # #: names should be strict (``True``) when processing user input, or if they should be allowed to be interchanged
+    # #: (``False``)
+    # strict_action_punctuation: Bool = False
+    #
+    # #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional sub
+    # #: command names should be strict (``True``) when processing user input, or if they should be allowed to be
+    # #: interchanged (``False``)
+    # strict_sub_command_punctuation: Bool = False
 
     @cached_class_property
     def _field_names(cls) -> frozenset[str]:  # noqa

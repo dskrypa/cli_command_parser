@@ -4,6 +4,7 @@
 
 import sys
 from collections import defaultdict
+from contextlib import AbstractContextManager
 from functools import cached_property
 from threading import local
 from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection
@@ -50,13 +51,23 @@ class ConfigOption:
             ctx.__dict__[self.name] = value
 
 
-class Context:
+class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
+    """
+    The parsing context.
+
+    Holds user input while parsing, and holds the parsed values.  Handles config overrides / hierarchy for settings that
+    affect parser behavior.
+    """
+
     _local = local()
     ignore_unknown = ConfigOption()
     # parse_unknown = ConfigOption()
     allow_missing = ConfigOption()
     multiple_action_flags = ConfigOption()
     action_after_action_flags = ConfigOption()
+    # strict_option_punctuation = ConfigOption()
+    # strict_action_punctuation = ConfigOption()
+    # strict_sub_command_punctuation = ConfigOption()
 
     def __init__(
         self,
@@ -69,6 +80,9 @@ class Context:
         allow_missing: Bool = None,
         multiple_action_flags: Bool = None,
         action_after_action_flags: Bool = None,
+        # strict_option_punctuation: Bool = None,
+        # strict_action_punctuation: Bool = None,
+        # strict_sub_command_punctuation: Bool = None,
     ):
         self.argv = sys.argv[1:] if argv is None else argv
         self.remaining = list(self.argv)
@@ -89,6 +103,9 @@ class Context:
         self.allow_missing = allow_missing
         self.multiple_action_flags = multiple_action_flags
         self.action_after_action_flags = action_after_action_flags
+        # self.strict_option_punctuation = strict_option_punctuation
+        # self.strict_action_punctuation = strict_action_punctuation
+        # self.strict_sub_command_punctuation = strict_sub_command_punctuation
 
     @classmethod
     def get_current(cls, silent: bool = False) -> Optional['Context']:
