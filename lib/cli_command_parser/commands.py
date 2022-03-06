@@ -17,7 +17,7 @@ from .context import Context
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import CommandDefinitionError, ParamConflict
 from .parser import CommandParser
-from .utils import _NotSet, Bool, ProgramMetadata, cached_class_property
+from .utils import _NotSet, ProgramMetadata, cached_class_property
 
 __all__ = ['Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -169,7 +169,7 @@ class Command(ABC):
         with ExitStack() as stack:
             ctx = ctx or Context(argv, cmd_cls)
             stack.enter_context(ctx)
-            while sub_cmd := CommandParser.parse_args(ctx):
+            while sub_cmd := CommandParser.parse_args():
                 cmd_cls = sub_cmd
                 ctx = Context(ctx.remaining, cmd_cls, parent=ctx)
                 stack.enter_context(ctx)
@@ -236,7 +236,7 @@ class Command(ABC):
             if action is not None and (ctx.actions_taken == 0 or ctx.action_after_action_flags):
                 # TODO: Error on action when ctx.action_after_action_flags is False?
                 ctx.actions_taken += 1
-                action.result(ctx)(self, *args, **kwargs)
+                action.result()(self, *args, **kwargs)
 
         return ctx.actions_taken
 

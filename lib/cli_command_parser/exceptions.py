@@ -23,6 +23,7 @@ __all__ = [
     'ParserExit',
     'ParamConflict',
     'ParamsMissing',
+    'NoActiveContext',
 ]
 
 
@@ -150,6 +151,10 @@ class MissingArgument(BadArgument):
 
 class NoSuchOption(UsageError):
     """Error raised when an option that was not defined as a Parameter was provided"""
+
+
+class NoActiveContext(CommandParserException, RuntimeError):
+    """Raised when attempting to perform an action that requires an active context while no context is active."""
 
 
 # endregion

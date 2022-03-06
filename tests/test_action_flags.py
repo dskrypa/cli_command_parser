@@ -219,24 +219,26 @@ class ActionFlagTest(ParserTest):
         mock = Mock()
 
         class Foo(Command):
-            @action_flag('-f')
-            def foo(self):
+            @action_flag('-b')
+            def bar(self):
                 mock()
 
-        foo = Foo.parse(['-f'])
-        self.assertFalse(Foo.foo.result(foo.ctx)(foo))
+        foo = Foo.parse(['-b'])
+        self.assertIsInstance(Foo.bar, ActionFlag)
+        with foo.ctx:
+            self.assertFalse(Foo.bar.result()(foo))
 
     def test_no_func(self):
         flag = ActionFlag()
-        ctx = Context()
-        flag.store_const(ctx)
-        with self.assertRaises(ParameterDefinitionError):
-            flag.result(ctx)
+        with Context() as ctx:
+            flag.store_const()
+            with self.assertRaises(ParameterDefinitionError):
+                flag.result()
 
     def test_not_provided(self):
         flag = ActionFlag()
-        ctx = Context()
-        self.assertFalse(flag.result(ctx))
+        with Context() as ctx:
+            self.assertFalse(flag.result())
 
 
 if __name__ == '__main__':

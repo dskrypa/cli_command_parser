@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from cli_command_parser import Command
 from cli_command_parser.config import CommandConfig
-from cli_command_parser.context import Context, ConfigOption
+from cli_command_parser.context import Context, ConfigOption, get_current_context, ctx
 
 
 class ContextTest(TestCase):
@@ -18,8 +18,8 @@ class ContextTest(TestCase):
         class Foo(Command):
             pass
 
-        ctx = Context([], Foo, ignore_unknown=not Foo._config_.ignore_unknown)
-        self.assertNotEqual(Foo._config_.ignore_unknown, ctx.ignore_unknown)
+        c = Context([], Foo, ignore_unknown=not Foo._config_.ignore_unknown)
+        self.assertNotEqual(Foo._config_.ignore_unknown, c.ignore_unknown)
 
     def test_ctx_config_from_command(self):
         default = CommandConfig().ignore_unknown
@@ -27,15 +27,15 @@ class ContextTest(TestCase):
         class Foo(Command, ignore_unknown=not default):
             pass
 
-        ctx = Context([], Foo)
-        self.assertNotEqual(default, ctx.ignore_unknown)
+        c = Context([], Foo)
+        self.assertNotEqual(default, c.ignore_unknown)
 
     def test_silent_no_current_context(self):
-        self.assertIs(None, Context.get_current(True))
+        self.assertIs(None, get_current_context(True))
 
     def test_error_on_no_current_context(self):
         with self.assertRaises(RuntimeError):
-            Context.get_current()
+            get_current_context()
 
     def test_params_none_with_no_cmd(self):
         self.assertIs(None, Context().params)
@@ -46,6 +46,13 @@ class ContextTest(TestCase):
     def test_parsed_action_flags_with_no_cmd(self):
         expected = (0, [], [])
         self.assertEqual(expected, Context().parsed_action_flags)
+
+    def test_entered_context_is_active_context(self):
+        with Context() as c1:
+            self.assertEqual(c1, ctx)
+            with ctx as c2:
+                self.assertEqual(c2, ctx)
+                self.assertEqual(c2, c1)
 
 
 if __name__ == '__main__':

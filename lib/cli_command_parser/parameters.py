@@ -13,8 +13,9 @@ from threading import local
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar, Iterable, Iterator
 from types import MethodType
 
+from .context import ctx
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from .exceptions import ParamUsageError, ParamConflict, ParamsMissing
+from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext
 from .formatting import HelpEntryFormatter
 from .nargs import Nargs, NargsValue
 from .utils import (
@@ -28,7 +29,6 @@ from .utils import (
 
 if TYPE_CHECKING:
     from .commands import Command, CommandType
-    from .context import Context
 
 __all__ = [
     'Parameter',
@@ -248,7 +248,7 @@ class ParamGroup(ParamBase):
     def __iter__(self) -> Iterator[ParamOrGroup]:
         yield from self.members
 
-    def _categorize_params(self, ctx: 'Context') -> tuple[list[Param], list[Param]]:
+    def _categorize_params(self) -> tuple[list[Param], list[Param]]:
         provided = []
         missing = []
         for obj in self.members:
@@ -273,8 +273,8 @@ class ParamGroup(ParamBase):
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
             raise ParamConflict(provided, 'they are mutually exclusive - only one is allowed')
 
-    def validate(self, ctx: 'Context'):
-        provided, missing = self._categorize_params(ctx)
+    def validate(self):
+        provided, missing = self._categorize_params()
         ctx.record_action(self, len(provided))
         self._check_conflicts(provided, missing)
 
@@ -408,22 +408,27 @@ class Parameter(ParamBase, ABC):
         if command is None:
             return self
 
-        value = self.result(command._Command__ctx)  # noqa
+        try:
+            value = self.result()
+        except NoActiveContext:
+            with command._Command__ctx:
+                value = self.result()
+
         if (name := self._name) is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def _nargs_max_reached(self, ctx: 'Context'):
+    def _nargs_max_reached(self):
         try:
             return len(ctx.get_parsing_value(self)) >= self.nargs.max
         except TypeError:
             return False
 
-    def take_action(self, ctx: 'Context', value: Optional[str], short_combo: bool = False):
+    def take_action(self, value: Optional[str], short_combo: bool = False):
         # log.debug(f'{self!r}.take_action({value!r})')
         if (action := self.action) == 'store' and (val := ctx.get_parsing_value(self)) is not _NotSet:
             raise ParamUsageError(self, f'received {value=} but a stored value={val!r} already exists')
-        elif action == 'append' and self._nargs_max_reached(ctx):
+        elif action == 'append' and self._nargs_max_reached():
             val_count = len(ctx.get_parsing_value(self))
             raise ParamUsageError(self, f'cannot accept any additional args with nargs={self.nargs}: {val_count=}')
 
@@ -432,22 +437,22 @@ class Parameter(ParamBase, ABC):
         if action in {'store_const', 'append_const'}:
             if value is not None:
                 raise ParamUsageError(self, f'received {value=} but no values are accepted for {action=}')
-            return action_method(ctx)
+            return action_method()
         else:
             normalized = self.prepare_value(value, short_combo) if value is not None else value
-            self.validate(ctx, normalized)
-            return action_method(ctx, normalized)
+            self.validate(normalized)
+            return action_method(normalized)
 
-    def would_accept(self, ctx: 'Context', value: str, short_combo: bool = False) -> bool:
+    def would_accept(self, value: str, short_combo: bool = False) -> bool:
         if (action := self.action) in {'store', 'store_all'} and ctx.get_parsing_value(self) is not _NotSet:
             return False
-        elif action == 'append' and self._nargs_max_reached(ctx):
+        elif action == 'append' and self._nargs_max_reached():
             return False
         try:
             normalized = self.prepare_value(value, short_combo)
         except BadArgument:
             return False
-        return self.is_valid_arg(ctx, normalized)
+        return self.is_valid_arg(normalized)
 
     def prepare_value(self, value: str, short_combo: bool = False) -> Any:
         if (type_func := self.type) is None:
@@ -459,7 +464,7 @@ class Parameter(ParamBase, ABC):
         except Exception as e:
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
-    def validate(self, ctx: 'Context', value: Any):
+    def validate(self, value: Any):
         if (choices := self.choices) and value not in choices:
             raise InvalidChoice(self, value, choices)
         elif isinstance(value, str) and value.startswith('-'):
@@ -471,15 +476,15 @@ class Parameter(ParamBase, ABC):
         elif not self.accepts_values:
             raise BadArgument(self, f'does not accept values, but {value=} was provided')
 
-    def is_valid_arg(self, ctx: 'Context', value: Any) -> bool:
+    def is_valid_arg(self, value: Any) -> bool:
         try:
-            self.validate(ctx, value)
+            self.validate(value)
         except (InvalidChoice, BadArgument, MissingArgument):
             return False
         else:
             return True
 
-    def result_value(self, ctx: 'Context') -> Any:
+    def result_value(self) -> Any:
         value = ctx.get_parsing_value(self)
         if value is _NotSet:
             if self.required:
@@ -583,11 +588,11 @@ class Positional(BasePositional):
             self.default = None if default is _NotSet else default
 
     @parameter_action
-    def store(self, ctx: 'Context', value: Any):
+    def store(self, value: Any):
         ctx.set_parsing_value(self, value)
 
     @parameter_action
-    def append(self, ctx: 'Context', value: Any):
+    def append(self, value: Any):
         ctx.get_parsing_value(self).append(value)
 
 
@@ -664,9 +669,9 @@ class ChoiceMap(BasePositional):
             raise CommandDefinitionError(f'{prefix} {target=} - already assigned to {existing}')
 
     @parameter_action
-    def append(self, ctx: 'Context', value: str):
+    def append(self, value: str):
         values = value.split()
-        if not self.is_valid_arg(ctx, ' '.join(values)):
+        if not self.is_valid_arg(' '.join(values)):
             raise InvalidChoice(self, value, self.choices)
 
         ctx.get_parsing_value(self).extend(values)
@@ -674,7 +679,7 @@ class ChoiceMap(BasePositional):
         ctx.record_action(self, n_values - 1)  # - 1 because it was already called before dispatching to this method
         return n_values
 
-    def validate(self, ctx: 'Context', value: str):
+    def validate(self, value: str):
         values = ctx.get_parsing_value(self).copy()
         values.append(value)
         if choices := self.choices:
@@ -690,7 +695,7 @@ class ChoiceMap(BasePositional):
             raise BadArgument(self, f'invalid {value=}')
         # TODO: Should this raise an error?
 
-    def result_value(self, ctx: 'Context') -> Optional[str]:
+    def result_value(self) -> Optional[str]:
         if not (choices := self.choices):
             raise CommandDefinitionError(f'No choices were registered for {self}')
         elif not (values := ctx.get_parsing_value(self)):
@@ -703,8 +708,8 @@ class ChoiceMap(BasePositional):
             raise InvalidChoice(self, choice, choices)
         return choice
 
-    def result(self, ctx: 'Context'):
-        choice = self.result_value(ctx)
+    def result(self):
+        choice = self.result_value()
         return self.choices[choice].target
 
     @property
@@ -829,6 +834,7 @@ class Action(ChoiceMap, title='Actions'):
           will be returned first, which will automatically be called by the interpreter with the method to be decorated,
           and that call will return the original method.
         """
+        # TODO: Accept params=Collection[ParamOrGroup] and treat more like a subcommand?
         if isinstance(method_or_choice, str):
             if choice is not None:
                 raise CommandDefinitionError(f'Cannot combine a positional {method_or_choice=} choice with {choice=}')
@@ -931,11 +937,11 @@ class Option(BaseOption):
             self._init_value_factory = list
 
     @parameter_action
-    def store(self, ctx: 'Context', value: Any):
+    def store(self, value: Any):
         ctx.set_parsing_value(self, value)
 
     @parameter_action
-    def append(self, ctx: 'Context', value: Any):
+    def append(self, value: Any):
         ctx.get_parsing_value(self).append(value)
 
 
@@ -962,17 +968,17 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
             return []
 
     @parameter_action
-    def store_const(self, ctx: 'Context'):
+    def store_const(self):
         ctx.set_parsing_value(self, self.const)
 
     @parameter_action
-    def append_const(self, ctx: 'Context'):
+    def append_const(self):
         ctx.get_parsing_value(self).append(self.const)
 
-    def would_accept(self, ctx: 'Context', value: Optional[str], short_combo: bool = False) -> bool:
+    def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:
         return value is None
 
-    def result_value(self, ctx: 'Context') -> Any:
+    def result_value(self) -> Any:
         return ctx.get_parsing_value(self)
 
     result = result_value
@@ -982,6 +988,7 @@ class ActionFlag(Flag):
     def __init__(
         self, *args, order: Union[int, float] = 1, func: Callable = None, before_main: Bool = True, **kwargs  # noqa
     ):
+        # TODO: Test in groups, esp mutually excl/dependent
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
         if bad := {k: v for k, v in found.items() if expected[k] != v}:
@@ -1032,8 +1039,8 @@ class ActionFlag(Flag):
             return self
         return partial(self.func, command)
 
-    def result(self, ctx: 'Context') -> Optional[Callable]:
-        if self.result_value(ctx):
+    def result(self) -> Optional[Callable]:
+        if self.result_value():
             if func := self.func:
                 return func
             raise ParameterDefinitionError(f'No function was registered for {self}')
@@ -1070,13 +1077,13 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
             raise BadArgument(self, f'bad counter {value=}') from e
 
     @parameter_action
-    def append(self, ctx: 'Context', value: Optional[int]):
+    def append(self, value: Optional[int]):
         if value is None:
             value = self.const
         current = ctx.get_parsing_value(self)
         ctx.set_parsing_value(self, current + value)
 
-    def validate(self, ctx: 'Context', value: Any):
+    def validate(self, value: Any):
         if value is None or isinstance(value, self.type):
             return
         try:
@@ -1086,7 +1093,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         else:
             return
 
-    def result_value(self, ctx: 'Context') -> int:
+    def result_value(self) -> int:
         return ctx.get_parsing_value(self)
 
     result = result_value
@@ -1101,7 +1108,7 @@ class PassThru(Parameter):
     def __init__(self, action: str = 'store_all', **kwargs):
         super().__init__(action=action, **kwargs)
 
-    def take_action(self, ctx: 'Context', values: Collection[str], short_combo: bool = False):
+    def take_action(self, values: Collection[str], short_combo: bool = False):
         value = ctx.get_parsing_value(self)
         if value is not _NotSet:
             raise ParamUsageError(self, f'received {values=} but a stored {value=} already exists')
@@ -1109,10 +1116,10 @@ class PassThru(Parameter):
         ctx.record_action(self)
         normalized = list(map(self.prepare_value, values))
         action_method = getattr(self, self.action)
-        return action_method(ctx, normalized)
+        return action_method(normalized)
 
     @parameter_action
-    def store_all(self, ctx: 'Context', values: Collection[str]):
+    def store_all(self, values: Collection[str]):
         ctx.set_parsing_value(self, values)
 
     def format_basic_usage(self) -> str:

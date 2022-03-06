@@ -7,6 +7,7 @@ from collections import deque
 from typing import TYPE_CHECKING, Optional, Any
 
 from .actions import help_action
+from .context import ctx
 from .exceptions import (
     UsageError,
     NoSuchOption,
@@ -19,7 +20,6 @@ from .parameters import BaseOption, Parameter, BasePositional
 
 if TYPE_CHECKING:
     from .commands import CommandType
-    from .context import Context
 
 __all__ = ['CommandParser']
 log = logging.getLogger(__name__)
@@ -28,37 +28,36 @@ log = logging.getLogger(__name__)
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    def __init__(self, ctx: 'Context'):
-        self.ctx = ctx
+    def __init__(self):
         self.params = ctx.params
         self.deferred = None
         self.arg_deque = None
         self.positionals = ctx.params.positionals.copy()
 
     @classmethod
-    def parse_args(cls, ctx: 'Context') -> Optional['CommandType']:
+    def parse_args(cls) -> Optional['CommandType']:
         params = ctx.params
         if (sub_cmd_param := params.sub_command) is not None and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
-        cls(ctx)._parse_args()
+        cls()._parse_args()
         for group in params.groups:
-            group.validate(ctx)
+            group.validate()
 
         if sub_cmd_param is not None:
             try:
-                next_cmd = sub_cmd_param.result(ctx)  # type: CommandType
+                next_cmd = sub_cmd_param.result()  # type: CommandType
             except UsageError:
                 if help_action not in ctx:
                     raise
             else:
-                if (missing := ctx.missing()) and next_cmd.params.command_parent is not ctx.command:
+                if (missing := params.missing()) and next_cmd.params.command_parent is not ctx.command:
                     if help_action in ctx:
                         return None
                     raise ParamsMissing(missing)
                 return next_cmd
 
-        missing = ctx.missing()
+        missing = params.missing()
         if missing and not ctx.allow_missing and (not params.action or params.action not in missing):
             # Action is excluded because it provides a better error message
             if help_action not in ctx:
@@ -70,7 +69,7 @@ class CommandParser:
 
     def _parse_args(self):
         self.arg_deque = arg_deque = self.handle_pass_thru()
-        self.deferred = self.ctx.remaining = []
+        self.deferred = ctx.remaining = []
         while arg_deque:
             arg = arg_deque.popleft()
             if arg == '--' or arg.startswith('---'):
@@ -93,7 +92,6 @@ class CommandParser:
                 self.handle_positional(arg)
 
     def handle_pass_thru(self) -> deque[str]:
-        ctx = self.ctx
         remaining = ctx.remaining
         if (pass_thru := self.params.pass_thru) is not None:
             try:
@@ -103,7 +101,7 @@ class CommandParser:
                     raise MissingArgument(pass_thru, "missing pass thru args separated from others with '--'") from e
             else:
                 remainder_start = separator_pos + 1
-                pass_thru.take_action(ctx, remaining[remainder_start:])
+                pass_thru.take_action(remaining[remainder_start:])
                 return deque(remaining[:separator_pos])
         return deque(remaining)
 
@@ -115,7 +113,7 @@ class CommandParser:
             self.deferred.append(arg)
         else:
             try:
-                found = param.take_action(self.ctx, arg)
+                found = param.take_action(arg)
             except UsageError:
                 self.positionals.insert(0, param)
                 raise
@@ -130,9 +128,9 @@ class CommandParser:
             self.deferred.append(arg)
         else:
             if value is not None or (param.accepts_none and not param.accepts_values):
-                param.take_action(self.ctx, value)
+                param.take_action(value)
             elif not self.consume_values(param) and param.accepts_none:
-                param.take_action(self.ctx, None)
+                param.take_action(None)
 
     def handle_short(self, arg: str):
         # log.debug(f'handle_short({arg=})')
@@ -144,16 +142,16 @@ class CommandParser:
         else:
             last = param_val_combos[-1][0]
             for param, _ in param_val_combos[:-1]:
-                param.take_action(self.ctx, None, short_combo=True)
+                param.take_action(None, short_combo=True)
 
             self._handle_short_value(last, None)
 
     def _handle_short_value(self, param: BaseOption, value: Any):
         # log.debug(f'Handling short {value=} for {param=}')
         if value is not None or (param.accepts_none and not param.accepts_values):
-            param.take_action(self.ctx, value, short_combo=True)
+            param.take_action(value, short_combo=True)
         elif not self.consume_values(param) and param.accepts_none:
-            param.take_action(self.ctx, None, short_combo=True)
+            param.take_action(None, short_combo=True)
         # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
     def _check_sub_command_options(self, arg: str):
@@ -185,13 +183,13 @@ class CommandParser:
                         except ParamUsageError as e:
                             return self._finalize_consume(param, value, found, e)
 
-                    if not param.would_accept(self.ctx, value):
+                    if not param.would_accept(value):
                         # log.debug(f'{value=} will not be used with {param=} - it would not be accepted')
                         return self._finalize_consume(param, value, found, NoSuchOption(f'invalid argument: {value}'))
                     # log.debug(f'{value=} may be used with {param=} as a value')
 
                 try:
-                    found += param.take_action(self.ctx, value)
+                    found += param.take_action(value)
                 except UsageError as e:
                     # log.debug(f'{value=} was rejected by {param=}', exc_info=True)
                     return self._finalize_consume(param, value, found, e)

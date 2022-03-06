@@ -319,8 +319,8 @@ class CounterTest(ParserTest):
         self.assertEqual(1, Counter().prepare_value(None))
 
     def test_validate(self):
-        self.assertTrue(Counter().is_valid_arg(None, '1'))  # noqa
-        self.assertFalse(Counter().is_valid_arg(None, '1.5'))  # noqa
+        self.assertTrue(Counter().is_valid_arg('1'))
+        self.assertFalse(Counter().is_valid_arg('1.5'))
 
 
 class PassThruTest(ParserTest):
@@ -383,11 +383,11 @@ class PassThruTest(ParserTest):
             Bar.parse([])
 
     def test_extra_rejected(self):
-        ctx = Context()
-        pt = PassThru()
-        pt.take_action(ctx, ['a'])
-        with self.assertRaises(ParamUsageError):
-            pt.take_action(ctx, ['a'])
+        with Context():
+            pt = PassThru()
+            pt.take_action(['a'])
+            with self.assertRaises(ParamUsageError):
+                pt.take_action(['a'])
 
     def test_usage(self):
         self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).format_basic_usage())
@@ -441,15 +441,15 @@ class MiscParameterTest(ParserTest):
 class UnlikelyToBeReachedParameterTest(ParserTest):
     def test_too_many_rejected(self):
         option = Option(action='append', nargs=1)
-        ctx = Context()
-        option.take_action(ctx, 'foo')
-        with self.assertRaises(ParamUsageError):
-            option.take_action(ctx, 'foo')
+        with Context():
+            option.take_action('foo')
+            with self.assertRaises(ParamUsageError):
+                option.take_action('foo')
 
     def test_non_none_rejected(self):
         flag = Flag()
-        with self.assertRaises(ParamUsageError):
-            flag.take_action(Context(), 'foo')
+        with self.assertRaises(ParamUsageError), Context():
+            flag.take_action('foo')
 
     def test_sort_mixed_types(self):
         sort_cases = [
@@ -465,15 +465,16 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
                 sorted(group)
 
     def test_none_invalid(self):
-        with self.assertRaises(MissingArgument):
-            Option().validate(Context(), None)
+        with self.assertRaises(MissingArgument), Context():
+            Option().validate(None)
 
     def test_none_valid(self):
-        self.assertIs(None, Flag().validate(Context(), None))
+        with Context():
+            self.assertIs(None, Flag().validate(None))
 
     def test_value_invalid(self):
-        with self.assertRaises(BadArgument):
-            Flag().validate(Context(), 1)
+        with self.assertRaises(BadArgument), Context():
+            Flag().validate(1)
 
     def test_missing_required_value_single(self):
         class Foo(Command, allow_missing=True):
@@ -496,7 +497,7 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         with Context(['--bar', 'a'], Foo) as ctx:
             foo = Foo(ctx)  # This is NOT the recommended way of initializing a Command
             with self.assertRaises(BadArgument):
-                CommandParser.parse_args(ctx)
+                CommandParser.parse_args()
             with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
                 foo.bar  # noqa
 
@@ -591,10 +592,10 @@ class ChoiceMapTest(ParserTest):
             action = Action()
             action('foo bar')(Mock())
 
-        ctx = Context()
-        Foo.action.take_action(ctx, 'foo')
-        with self.assertRaises(InvalidChoice):
-            Foo.action.append(ctx, 'baz')
+        with Context():
+            Foo.action.take_action('foo')
+            with self.assertRaises(InvalidChoice):
+                Foo.action.append('baz')
 
     def test_missing_action_target(self):
         class Foo(Command):
@@ -606,20 +607,20 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             action = Action()
 
-        ctx = Context()
-        with self.assertRaises(BadArgument):
-            Foo.action.validate(ctx, '-foo')
-        self.assertIs(None, Foo.action.validate(ctx, 'foo'))
+        with Context():
+            with self.assertRaises(BadArgument):
+                Foo.action.validate('-foo')
+            self.assertIs(None, Foo.action.validate('foo'))
 
     def test_choice_map_too_many(self):
         class Foo(Command):
             action = Action()
             action('foo')(Mock())
 
-        ctx = Context()
-        Foo.action.take_action(ctx, 'foo')
-        with self.assertRaises(BadArgument):
-            Foo.action.validate(ctx, 'bar')
+        with Context():
+            Foo.action.take_action('foo')
+            with self.assertRaises(BadArgument):
+                Foo.action.validate('bar')
 
     def test_no_choices_result(self):
         class Foo(Command):
@@ -634,10 +635,10 @@ class ChoiceMapTest(ParserTest):
             action = Action()
             action('foo bar')(Mock())
 
-        ctx = Context()
-        Foo.action.take_action(ctx, 'foo')
-        with self.assertRaises(BadArgument):
-            Foo.action.result(ctx)
+        with Context():
+            Foo.action.take_action('foo')
+            with self.assertRaises(BadArgument):
+                Foo.action.result()
 
     def test_unexpected_choice(self):
         class Foo(Command):
@@ -645,11 +646,11 @@ class ChoiceMapTest(ParserTest):
             action('foo bar')(Mock())
             action('foo baz')(Mock())
 
-        ctx = Context()
-        Foo.action.take_action(ctx, 'foo bar')
-        del Foo.action.choices['foo bar']
-        with self.assertRaises(BadArgument):
-            Foo.action.result(ctx)
+        with Context():
+            Foo.action.take_action('foo bar')
+            del Foo.action.choices['foo bar']
+            with self.assertRaises(BadArgument):
+                Foo.action.result()
 
     def test_reassign_sub_command_rejected(self):
         class Foo(Command):

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from unittest import main
 
 from cli_command_parser.commands import Command
-from cli_command_parser.context import Context
+from cli_command_parser.context import ctx
 from cli_command_parser.exceptions import (
     NoSuchOption,
     BadArgument,
@@ -465,7 +465,7 @@ class OptionTest(ParserTest):
                 self.nargs = Nargs('?')
 
             @parameter_action
-            def store(self, ctx: Context, value):
+            def store(self, value):
                 ctx.set_parsing_value(self, value)
 
         class Foo(Command):

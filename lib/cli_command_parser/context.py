@@ -5,18 +5,21 @@
 import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
+from contextvars import ContextVar
 from functools import cached_property
-from threading import local
 from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection
 
-from .parameters import Parameter, ParamOrGroup, ActionFlag, SubCommand
+from .exceptions import NoActiveContext
 from .utils import Bool
 
 if TYPE_CHECKING:
     from .commands import CommandType
     from .command_parameters import CommandParameters
+    from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context']
+__all__ = ['Context', 'ctx', 'get_current_context']
+
+_context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 
 
 class ConfigOption:
@@ -59,7 +62,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     affect parser behavior.
     """
 
-    _local = local()
     ignore_unknown = ConfigOption()
     # parse_unknown = ConfigOption()
     allow_missing = ConfigOption()
@@ -107,21 +109,12 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         # self.strict_action_punctuation = strict_action_punctuation
         # self.strict_sub_command_punctuation = strict_sub_command_punctuation
 
-    @classmethod
-    def get_current(cls, silent: bool = False) -> Optional['Context']:
-        try:
-            return cls._local.stack[-1]
-        except (AttributeError, IndexError) as e:
-            if silent:
-                return None
-            raise RuntimeError('There is no active context') from e
-
     def __enter__(self) -> 'Context':
-        self._local.__dict__.setdefault('stack', []).append(self)
+        _context_stack.get().append(self)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._local.stack.pop()
+        _context_stack.get().pop()
 
     @cached_property
     def params(self) -> Optional['CommandParameters']:
@@ -130,28 +123,29 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         except AttributeError:  # self.command is None
             return None
 
-    def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> dict[str, Any]:
-        if recursive and (parent := self.parent):
-            parsed = parent.get_parsed(exclude, recursive)
-        else:
-            parsed = {}
+    def get_parsed(self, exclude: Collection['Parameter'] = (), recursive: Bool = True) -> dict[str, Any]:
+        with self:
+            if recursive and (parent := self.parent):
+                parsed = parent.get_parsed(exclude, recursive)
+            else:
+                parsed = {}
 
-        if params := self.params:
-            for group in (params.positionals, params.options, (params.pass_thru,)):
-                for param in group:
-                    if param and param not in exclude:
-                        parsed[param.name] = param.result_value(self)
+            if params := self.params:
+                for group in (params.positionals, params.options, (params.pass_thru,)):
+                    for param in group:
+                        if param and param not in exclude:
+                            parsed[param.name] = param.result_value()
 
         return parsed
 
-    def get_parsing_value(self, param: Parameter):
+    def get_parsing_value(self, param: 'Parameter'):
         try:
             return self._parsing[param]
         except KeyError:
             self._parsing[param] = value = param._init_value_factory()
             return value
 
-    def set_parsing_value(self, param: Parameter, value: Any):
+    def set_parsing_value(self, param: 'Parameter', value: Any):
         self._parsing[param] = value
 
     def __contains__(self, param: Union['ParamOrGroup', str, Any]) -> bool:
@@ -174,16 +168,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def num_provided(self, param: 'ParamOrGroup') -> int:
         return self._provided[param]
-
-    def missing(self) -> list[Parameter]:
-        params = self.params
-        # ignore = (SubCommand, Action)
-        ignore = SubCommand
-        missing: list[Parameter] = [
-            p for p in params.positionals if p.required and self.num_provided(p) == 0 and not isinstance(p, ignore)
-        ]
-        missing.extend(p for p in params.options if p.required and self.num_provided(p) == 0)
-        return missing
 
     @cached_property
     def parsed_action_flags(self) -> tuple[int, list['ActionFlag'], list['ActionFlag']]:
@@ -212,3 +196,48 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         for action_flag in self.parsed_action_flags[2]:
             self.actions_taken += 1
             yield action_flag
+
+
+def get_current_context(silent: bool = False) -> Optional[Context]:
+    """
+    Get the currently active parsing context.
+
+    :param silent: If True, allow this function to return ``None`` if there is no active :class:`Context`
+    :return: The active :class:`Context` object
+    :raises: :class:`~.exceptions.NoActiveContext` if there is no active Context and ``silent=False`` (default)
+    """
+    try:
+        return _context_stack.get()[-1]
+    except (AttributeError, IndexError):
+        if silent:
+            return None
+        raise NoActiveContext('There is no active context') from None
+
+
+class ContextProxy:
+    """
+    Proxy for the currently active :class:`Context` object.  Allows usage similar to the ``request`` object in Flask.
+
+    This class should not be instantiated by users - use the common :data:`ctx` instance.
+    """
+
+    def __getattr__(self, attr: str):
+        return getattr(get_current_context(), attr)
+
+    def __setattr__(self, attr: str, value):
+        return setattr(get_current_context(), attr, value)
+
+    def __eq__(self, other) -> bool:
+        return get_current_context() == other
+
+    def __contains__(self, item) -> bool:
+        return item in get_current_context()
+
+    def __enter__(self):
+        return get_current_context().__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return get_current_context().__exit__(exc_type, exc_val, exc_tb)
+
+
+ctx = ContextProxy()

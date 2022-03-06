@@ -4,9 +4,9 @@
 
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional, Collection, Any
+from typing import TYPE_CHECKING, Optional, Collection
 
-from .context import Context
+from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
 from .formatting import HelpFormatter
 from .parameters import (
@@ -253,7 +253,7 @@ class CommandParameters:
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
         param = self.combo_option_map[key]
-        if param.would_accept(Context.get_current(), value, short_combo=True):
+        if param.would_accept(value, short_combo=True):
             return [(param, value)]
         else:
             combo_option_map = self.combo_option_map
@@ -289,3 +289,12 @@ class CommandParameters:
         return None
 
     # endregion
+
+    def missing(self) -> list['Parameter']:
+        # ignore = (SubCommand, Action)
+        ignore = SubCommand
+        missing: list['Parameter'] = [
+            p for p in self.positionals if p.required and ctx.num_provided(p) == 0 and not isinstance(p, ignore)
+        ]
+        missing.extend(p for p in self.options if p.required and ctx.num_provided(p) == 0)
+        return missing
