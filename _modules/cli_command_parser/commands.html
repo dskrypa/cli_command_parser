@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.commands &mdash; CLI Command Parser 2022.02.27-8 documentation</title>
+  <title>cli_command_parser.commands &mdash; CLI Command Parser 2022.03.06-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -81,18 +81,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
-<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span>
-<span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span>
+<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">get_current_context</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">NoActiveContext</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">cached_class_property</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">cached_class_property</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -100,8 +100,11 @@
 <span class="n">CommandType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Type</span><span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">])</span>
 <span class="n">CommandObj</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CommandObj&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;Command&#39;</span><span class="p">)</span>
 
+<span class="c1"># TODO: Move `params` and other properties/methods to be handled in external helper functions to prevent namespace</span>
+<span class="c1">#  pollution</span>
 
-<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The main class that other Commands should extend.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -109,9 +112,9 @@
     <span class="c1"># region Initialization</span>
     <span class="c1"># fmt: off</span>
     <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span>           <span class="c1"># Must declare here for PyCharm&#39;s type checker to work properly</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span>                        <span class="c1"># The parsing Context used for this Command</span>
     <span class="n">_config_</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># Configured Command options</span>
     <span class="n">__meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># Metadata used in help text</span>
-    <span class="n">__abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>             <span class="c1"># False if viable for containing sub commands</span>
     <span class="c1"># fmt: on</span>
 
 <div class="viewcode-block" id="Command.__init_subclass__"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
@@ -122,7 +125,6 @@
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">epilog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-        <span class="n">abstract</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -144,8 +146,6 @@
 <span class="sd">          arguments are encountered)</span>
 <span class="sd">        :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when</span>
 <span class="sd">          required arguments are missing)</span>
-<span class="sd">        :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub</span>
-<span class="sd">          commands</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__meta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">prog</span> <span class="ow">or</span> <span class="n">usage</span> <span class="ow">or</span> <span class="n">description</span> <span class="ow">or</span> <span class="n">epilog</span><span class="p">:</span>  <span class="c1"># Inherit from parent when possible</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__meta</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="n">epilog</span><span class="p">)</span>
@@ -154,7 +154,7 @@
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot combine </span><span class="si">{</span><span class="n">config</span><span class="si">=}</span><span class="s1"> with keyword config arguments=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span> <span class="o">=</span> <span class="n">config</span>
-        <span class="k">elif</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">abstract</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Inherit existing configs and override specified values</span>
                 <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="o">|</span> <span class="n">kwargs</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span> <span class="o">=</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -163,9 +163,7 @@
             <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">add_help</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;_Command__help&#39;</span><span class="p">):</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">__help</span> <span class="o">=</span> <span class="n">help_action</span>
 
-        <span class="bp">cls</span><span class="o">.</span><span class="n">__abstract</span> <span class="o">=</span> <span class="n">abstract</span>
-
-        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Command</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">__abstract</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Command</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">sub_command</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">sub_cmd</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
@@ -179,21 +177,8 @@
         <span class="n">parent</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mro</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Command</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Command</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">CommandParameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span></div>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__get_error_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">config</span> <span class="o">:=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_config_</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">error_handler</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">error_handler</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">error_handler</span> <span class="o">=</span> <span class="n">_NotSet</span>
-
-        <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">extended_error_handler</span>
-        <span class="k">elif</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">NullErrorHandler</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">error_handler</span>
-
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">_get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="c1"># By storing the Context here instead of __init__, every single sub class won&#39;t need to</span>
         <span class="c1"># call super().__init__(...) from their own __init__ for this step</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
@@ -204,7 +189,7 @@
     <span class="c1"># endregion</span>
 
 <div class="viewcode-block" id="Command.parse_and_run"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`</span>
 <span class="sd">        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles</span>
@@ -215,13 +200,13 @@
 <span class="sd">        the above mentioned methods separately.</span>
 
 <span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
-<span class="sd">        :param ctx: The :class:`~.context.Context` object to use, which may contain overrides for certain configs.</span>
 <span class="sd">        :param args: Positional arguments to pass to :meth:`.run`</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.run`</span>
 <span class="sd">        :return: The Command instance with parsed arguments for which :meth:`.run` was already called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__get_error_handler</span><span class="p">():</span>
-            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">_get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_error_handler</span><span class="p">():</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span>
@@ -232,25 +217,23 @@
             <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Command.parse"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the</span>
 <span class="sd">        parsed arguments, if necessary.</span>
 
 <span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
-<span class="sd">        :param ctx: The :class:`~.context.Context` object to use, which may contain overrides for certain configs.</span>
 <span class="sd">        :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">_get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
         <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
-            <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span> <span class="ow">or</span> <span class="n">Context</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">)</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-            <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">():</span>
                 <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
-                <span class="n">ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
-                <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+                <span class="n">ctx</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Command.run"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -266,12 +249,12 @@
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`</span>
 <span class="sd">        :return: The total number of actions that were taken</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_error_handler</span><span class="p">():</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_error_handler</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_before_main_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_after_main_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
 
     <span class="k">def</span> <span class="nf">_before_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -312,7 +295,7 @@
             <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">):</span>
                 <span class="c1"># TODO: Error on action when ctx.action_after_action_flags is False?</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">action</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">ctx</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">action</span><span class="o">.</span><span class="n">result</span><span class="p">()(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
 
@@ -327,6 +310,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">after_main_actions</span><span class="p">:</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_current_context</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Context</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">command</span> <span class="ow">is</span> <span class="bp">cls</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ctx</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">)</span>
 </pre></div>
 
            </div>

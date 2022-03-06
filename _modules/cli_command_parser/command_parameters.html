@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.02.27-8 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.03.06-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -80,9 +80,9 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span>
 
-<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span>
+<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
 <span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpFormatter</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="p">(</span>
@@ -329,7 +329,7 @@
         <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
         <span class="c1"># value will never be empty if key is a valid option because by this point, option is not a short option</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">Context</span><span class="o">.</span><span class="n">get_current</span><span class="p">(),</span> <span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">combo_option_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span>
@@ -362,9 +362,18 @@
                 <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="n">params</span><span class="o">.</span><span class="n">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="n">option</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">param</span>
 
-        <span class="k">return</span> <span class="kc">None</span></div></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
     <span class="c1"># endregion</span>
+
+<div class="viewcode-block" id="CommandParameters.missing"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.missing">[docs]</a>    <span class="k">def</span> <span class="nf">missing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">]:</span>
+        <span class="c1"># ignore = (SubCommand, Action)</span>
+        <span class="n">ignore</span> <span class="o">=</span> <span class="n">SubCommand</span>
+        <span class="n">missing</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ignore</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">missing</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">missing</span></div></div>
 </pre></div>
 
            </div>

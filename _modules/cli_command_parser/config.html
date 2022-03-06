@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.02.27-8 documentation</title>
+  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.03.06-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -108,8 +108,25 @@
     <span class="c1">#: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)</span>
     <span class="n">ignore_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
+    <span class="c1"># #: Whether unknown options should be parsed (default: raise an exception when unknown arguments are encountered)</span>
+    <span class="c1"># parse_unknown: Bool = False</span>
+
     <span class="c1">#: Whether missing required arguments should be allowed (default: raise an exception when they are missing)</span>
     <span class="n">allow_missing</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict</span>
+    <span class="c1"># #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)</span>
+    <span class="c1"># strict_option_punctuation: Bool = False</span>
+    <span class="c1">#</span>
+    <span class="c1"># #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional action</span>
+    <span class="c1"># #: names should be strict (``True``) when processing user input, or if they should be allowed to be interchanged</span>
+    <span class="c1"># #: (``False``)</span>
+    <span class="c1"># strict_action_punctuation: Bool = False</span>
+    <span class="c1">#</span>
+    <span class="c1"># #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional sub</span>
+    <span class="c1"># #: command names should be strict (``True``) when processing user input, or if they should be allowed to be</span>
+    <span class="c1"># #: interchanged (``False``)</span>
+    <span class="c1"># strict_sub_command_punctuation: Bool = False</span>
 
     <span class="nd">@cached_class_property</span>
     <span class="k">def</span> <span class="nf">_field_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>  <span class="c1"># noqa</span>
