@@ -72,7 +72,14 @@ class CommandParser:
         self.deferred = ctx.remaining = []
         while arg_deque:
             arg = arg_deque.popleft()
-            if arg == '--' or arg.startswith('---'):
+            if arg == '--':
+                if ctx.params.find_nested_pass_thru():
+                    self.deferred.append(arg)
+                    self.deferred.extend(arg_deque)
+                    break
+                else:
+                    raise NoSuchOption(f'invalid argument: {arg}')
+            elif arg.startswith('---'):
                 raise NoSuchOption(f'invalid argument: {arg}')
             elif arg.startswith('--'):
                 self.handle_long(arg)

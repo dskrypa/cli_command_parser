@@ -14,7 +14,16 @@ from cli_command_parser.exceptions import (
     ParamUsageError,
 )
 from cli_command_parser.nargs import Nargs
-from cli_command_parser.parameters import Positional, Option, Flag, Counter, BaseOption, parameter_action, SubCommand
+from cli_command_parser.parameters import (
+    Positional,
+    Option,
+    Flag,
+    Counter,
+    BaseOption,
+    parameter_action,
+    SubCommand,
+    PassThru,
+)
 from cli_command_parser.testing import ParserTest
 
 
@@ -246,6 +255,27 @@ class ParamComboTest(ParserTest):
 
     # def test_parse_unknown_options(self):
     #     pass  # TODO
+
+
+class PassThruTest(ParserTest):
+    def test_sub_cmd_pass_thru_accepted(self):
+        class Foo(Command):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            bar = Positional(choices=('a', 'b'))
+            baz = PassThru()
+
+        self.assert_parse_results(Foo, ['bar', 'a', '--', 'x'], {'sub': 'bar', 'bar': 'a', 'baz': ['x']})
+
+    def test_sub_cmd_no_pass_thru_rejected(self):
+        class Foo(Command):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            bar = Positional(choices=('a', 'b'))
+
+        self.assert_parse_fails(Foo, ['bar', 'a', '--', 'x'], NoSuchOption)
 
 
 class NumericValueTest(ParserTest):

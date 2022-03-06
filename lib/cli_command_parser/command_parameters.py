@@ -289,6 +289,16 @@ class CommandParameters:
 
         return None
 
+    def find_nested_pass_thru(self):
+        if sub_command := self.sub_command:
+            for choice in sub_command.choices.values():
+                command = choice.target
+                params = command.__class__.params(command)
+                if params._pass_thru:
+                    return params._pass_thru
+
+        return None
+
     # endregion
 
     def missing(self) -> list['Parameter']:
