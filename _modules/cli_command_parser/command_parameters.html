@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.03.06-3 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.03.06-4 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -362,6 +362,16 @@
                         <span class="k">return</span> <span class="n">param</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">param</span> <span class="o">:=</span> <span class="n">params</span><span class="o">.</span><span class="n">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="n">option</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">param</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="CommandParameters.find_nested_pass_thru"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_nested_pass_thru">[docs]</a>    <span class="k">def</span> <span class="nf">find_nested_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">params</span><span class="o">.</span><span class="n">_pass_thru</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
