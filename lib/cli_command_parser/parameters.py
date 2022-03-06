@@ -28,7 +28,8 @@ from .utils import (
 )
 
 if TYPE_CHECKING:
-    from .commands import Command, CommandType
+    from .core import CommandType
+    from .commands import Command
 
 __all__ = [
     'Parameter',
@@ -749,7 +750,9 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         try:
             self.register_choice(choice, command, help)
         except CommandDefinitionError:
-            parent = command.params.command_parent
+            from .core import get_parent
+
+            parent = get_parent(command)
             raise CommandDefinitionError(
                 f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
             ) from None
@@ -760,7 +763,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         self, command_or_choice: Union[str, 'CommandType'] = None, /, choice: str = None, help: str = None  # noqa
     ) -> Callable[['CommandType'], 'CommandType']:
         """
-        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`Command` as the
+        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`~.commands.Command` as the
         subcommand class to be used for further parsing when the given choice is specified for this parameter.
 
         This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent

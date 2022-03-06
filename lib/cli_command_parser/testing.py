@@ -8,7 +8,8 @@ from typing import Any, Iterable, Type, Union, Callable
 from unittest import TestCase
 
 from .actions import help_action
-from .commands import CommandType, Command
+from .commands import Command
+from .core import CommandType
 from .exceptions import UsageError
 
 Argv = list[str]

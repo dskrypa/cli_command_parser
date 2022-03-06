@@ -19,7 +19,7 @@ from .exceptions import (
 from .parameters import BaseOption, Parameter, BasePositional
 
 if TYPE_CHECKING:
-    from .commands import CommandType
+    from .core import CommandType
 
 __all__ = ['CommandParser']
 log = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class CommandParser:
                 if help_action not in ctx:
                     raise
             else:
-                if (missing := params.missing()) and next_cmd.params.command_parent is not ctx.command:
+                if (missing := params.missing()) and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                     if help_action in ctx:
                         return None
                     raise ParamsMissing(missing)

@@ -6,9 +6,10 @@ from unittest import TestCase, main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, CommandConfig, Context
+from cli_command_parser.core import get_config, get_parent, get_params
 from cli_command_parser.error_handling import no_exit_handler, extended_error_handler
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
-from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag, Option
+from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag
 
 
 class TestCommands(TestCase):
@@ -159,7 +160,7 @@ class TestCommands(TestCase):
         class Bar(Foo):
             pass
 
-        self.assertEqual(Bar.params.command_parent, Foo)
+        self.assertEqual(get_params(Bar).command_parent, Foo)
 
     def test_double_config_rejected(self):
         with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine .* with keyword config'):
@@ -171,7 +172,7 @@ class TestCommands(TestCase):
         class Foo(Command):
             pass
 
-        config = Foo._config_
+        config = Foo.config()
         self.assertDictEqual(config.as_dict(), CommandConfig().as_dict())
 
     def test_config_from_kwarg(self):
@@ -180,7 +181,7 @@ class TestCommands(TestCase):
         class Foo(Command, multiple_action_flags=not default):
             pass
 
-        self.assertEqual(Foo._config_.multiple_action_flags, not default)
+        self.assertEqual(Foo.config().multiple_action_flags, not default)
 
     def test_config_explicit(self):
         default = CommandConfig().multiple_action_flags
@@ -188,7 +189,7 @@ class TestCommands(TestCase):
         class Foo(Command, config=CommandConfig(multiple_action_flags=not default)):
             pass
 
-        self.assertEqual(Foo._config_.multiple_action_flags, not default)
+        self.assertEqual(Foo.config().multiple_action_flags, not default)
 
     def test_config_inherited(self):
         default_config = CommandConfig()
@@ -196,17 +197,17 @@ class TestCommands(TestCase):
         class Foo(Command, multiple_action_flags=not default_config.multiple_action_flags):
             pass
 
-        self.assertEqual(Foo._config_.action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Foo._config_.multiple_action_flags, default_config.multiple_action_flags)
+        self.assertEqual(Foo.config().action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Foo.config().multiple_action_flags, default_config.multiple_action_flags)
 
         class Bar(Foo, action_after_action_flags=not default_config.action_after_action_flags):
             pass
 
-        self.assertNotEqual(Bar._config_.action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Bar._config_.multiple_action_flags, default_config.multiple_action_flags)
+        self.assertNotEqual(Bar.config().action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Bar.config().multiple_action_flags, default_config.multiple_action_flags)
         # Ensure Foo config has not changed:
-        self.assertEqual(Foo._config_.action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Foo._config_.multiple_action_flags, default_config.multiple_action_flags)
+        self.assertEqual(Foo.config().action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(Foo.config().multiple_action_flags, default_config.multiple_action_flags)
 
     def test_default_error_handler_returned(self):
         self.assertIs(extended_error_handler, Context().get_error_handler())
@@ -258,6 +259,22 @@ class TestCommands(TestCase):
             self.assertIs(ctx, foo.ctx.parent)
             self.assertListEqual(['a'], ctx.argv)
             self.assertListEqual(['a'], foo.ctx.argv)
+
+    def test_get_config(self):
+        cfg = CommandConfig()
+
+        class Foo(Command, config=cfg):
+            pass
+
+        self.assertIs(cfg, get_config(Foo))
+        self.assertIs(cfg, get_config(Foo()))
+
+    def test_get_parent(self):
+        class Foo(Command):
+            pass
+
+        self.assertIs(Command, get_parent(Foo))
+        self.assertIs(Command, get_parent(Foo()))
 
 
 if __name__ == '__main__':

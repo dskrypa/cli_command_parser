@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Optional
 from .utils import ProgramMetadata, Bool
 
 if TYPE_CHECKING:
-    from .commands import CommandType
+    from .core import CommandType
     from .command_parameters import CommandParameters
     from .parameters import ParamGroup, Parameter
 
@@ -40,7 +40,7 @@ class HelpFormatter:
                     self.opt_group.add(param)
 
     def format_usage(self, delim: str = ' ') -> str:
-        meta: ProgramMetadata = self.command._Command__meta
+        meta: ProgramMetadata = self.command.__class__.meta(self.command)
         if usage := meta.usage:
             return usage
 
@@ -55,7 +55,7 @@ class HelpFormatter:
     def format_help(
         self, width: int = 30, add_default: Bool = True, group_type: Bool = True, extended_epilog: Bool = True
     ):
-        meta: ProgramMetadata = self.command._Command__meta
+        meta: ProgramMetadata = self.command.__class__.meta(self.command)
         parts = [self.format_usage(), '']
         if description := meta.description:
             parts += [description, '']

@@ -7,14 +7,14 @@ from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast
 
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
 from .utils import Bool, _NotSet
 
 if TYPE_CHECKING:
-    from .commands import CommandType
+    from .core import CommandType
     from .command_parameters import CommandParameters
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
@@ -46,8 +46,10 @@ class ConfigOption:
             return self.get_value(ctx, ctx_cls)
         except KeyError:
             pass
+
+        command = ctx.command
         try:
-            config = ctx.command._config_
+            config = command.__class__.config(command)
         except AttributeError:
             return self.default
         else:
@@ -126,7 +128,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     @cached_property
     def params(self) -> Optional['CommandParameters']:
         try:
-            return self.command.params
+            return self.command.__class__.params(self.command)
         except AttributeError:  # self.command is None
             return None
 
@@ -261,4 +263,4 @@ class ContextProxy:
         return get_current_context().__exit__(exc_type, exc_val, exc_tb)
 
 
-ctx = ContextProxy()
+ctx: Context = cast(Context, ContextProxy())

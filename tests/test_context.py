@@ -18,8 +18,8 @@ class ContextTest(TestCase):
         class Foo(Command):
             pass
 
-        c = Context([], Foo, ignore_unknown=not Foo._config_.ignore_unknown)
-        self.assertNotEqual(Foo._config_.ignore_unknown, c.ignore_unknown)
+        c = Context([], Foo, ignore_unknown=not Foo.config().ignore_unknown)
+        self.assertNotEqual(Foo.config().ignore_unknown, c.ignore_unknown)
 
     def test_ctx_config_from_command(self):
         default = CommandConfig().ignore_unknown

@@ -7,6 +7,7 @@ from unittest.mock import Mock
 from cli_command_parser import Command
 from cli_command_parser.actions import help_action
 from cli_command_parser.context import Context
+from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
 from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
 from cli_command_parser.testing import ParserTest as _ParserTest
@@ -17,7 +18,7 @@ class ParserTest(_ParserTest):
         class Foo(Command):
             bar = Positional()
 
-        rep = repr(Foo.params)
+        rep = repr(get_params(Foo))
         self.assertIn('Foo', rep)
         self.assertIn('positionals=', rep)
         self.assertIn('options=', rep)
@@ -26,27 +27,27 @@ class ParserTest(_ParserTest):
         class Foo(Command):
             bar = Option()
 
-        self.assertIs(Foo.bar, Foo.params.get_option_param_value_pairs('--bar')[0])
+        self.assertIs(Foo.bar, get_params(Foo).get_option_param_value_pairs('--bar')[0])
 
     def test_params_find_option_rejects_non_option(self):
         class Foo(Command):
             pass
 
         with self.assertRaises(ValueError):
-            Foo.params.find_option_that_accepts_values('bar')
+            get_params(Foo).find_option_that_accepts_values('bar')
 
     def test_parser_does_not_contain_triple_dash(self):
         class Foo(Command):
             pass
 
-        self.assertIs(None, Foo.params.get_option_param_value_pairs('---'))
+        self.assertIs(None, get_params(Foo).get_option_param_value_pairs('---'))
 
     def test_parser_does_not_contain_combined_short(self):
         class Foo(Command):
             test = Flag('-t')
 
         with Context():
-            self.assertIs(None, Foo.params.get_option_param_value_pairs('-test'))
+            self.assertIs(None, get_params(Foo).get_option_param_value_pairs('-test'))
 
     def test_parser_contains_combined_short(self):
         class Foo(Command):
@@ -54,21 +55,21 @@ class ParserTest(_ParserTest):
             bar = Flag('-b')
 
         with Context():
-            self.assertIsNot(None, Foo.params.get_option_param_value_pairs('-fb'))
+            self.assertIsNot(None, get_params(Foo).get_option_param_value_pairs('-fb'))
 
     def test_parser_does_not_contain_non_optional(self):
         class Foo(Command):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        self.assertIs(None, Foo.params.get_option_param_value_pairs('f'))
+        self.assertIs(None, get_params(Foo).get_option_param_value_pairs('f'))
 
     def test_parser_does_not_contain_long(self):
         class Foo(Command):
             foo = Flag('-f')
             bar = Flag('-b')
 
-        self.assertIs(None, Foo.params.get_option_param_value_pairs('--baz'))
+        self.assertIs(None, get_params(Foo).get_option_param_value_pairs('--baz'))
 
     def test_redefined_param_rejected(self):
         class Foo(Command):
@@ -185,7 +186,7 @@ class ParserTest(_ParserTest):
         class Baz(Foo):
             pass
 
-        self.assertIs(Baz.params.parent, Foo.params)
+        self.assertIs(get_params(Baz).parent, get_params(Foo))
 
     # def test_underscore_dash_ambiguous_redefine_rejected(self):
     #     pass  # TODO

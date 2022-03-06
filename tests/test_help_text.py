@@ -6,7 +6,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch, MagicMock
 
 from cli_command_parser import Command, no_exit_handler
-from cli_command_parser.commands import CommandType
+from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.parameters import (
     Positional,
     SubCommand,
@@ -70,7 +70,7 @@ class HelpTextTest(TestCase):
             foo = Option()
             bar = PassThru()
 
-        help_text = Foo.params.formatter.format_help()
+        help_text = get_params(Foo).formatter.format_help()
         self.assertIn('--foo', help_text)
         self.assertIn('[-- BAR]', help_text)
 
@@ -114,8 +114,8 @@ class HelpTextTest(TestCase):
                               help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example (default: None)"""
 
         with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
-            self.assertIn(expected, Base.parse(['find', '-h']).params.formatter.format_help())
-        # Base.parse_and_run(['find', '-h'])
+            params = get_params(Base.parse(['find', '-h']))
+            self.assertIn(expected, params.formatter.format_help())
 
     def test_common_base_options_shown_for_subcommand(self):
         pass  # TODO
@@ -146,7 +146,7 @@ class GroupHelpTextTest(TestCase):
             action(Mock(__name__='log_test'))
 
         with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
-            help_text = Base.params.formatter.format_help()
+            help_text = get_params(Base).formatter.format_help()
         self.assertNotIn('Positional arguments:', help_text)
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
         self.assertIn(expected_sub_cmd, help_text)
@@ -171,7 +171,7 @@ class GroupHelpTextTest(TestCase):
         self.assertTrue(Foo.bar.show_in_help)
         self.assertFalse(Foo.baz.show_in_help)
 
-        help_text = Foo.params.formatter.format_help()
+        help_text = get_params(Foo).formatter.format_help()
         self.assertIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
 
@@ -183,7 +183,7 @@ class GroupHelpTextTest(TestCase):
                 with ParamGroup() as inner:
                     baz = Flag()
 
-        help_text = Foo.params.formatter.format_help()
+        help_text = get_params(Foo).formatter.format_help()
         self.assertIn('--foo', help_text)
         self.assertNotIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)

@@ -7,99 +7,24 @@ The core Command classes that are intended as the entry point for a given progra
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import Type, TypeVar, Sequence, Optional
-from warnings import warn
+from typing import TypeVar, Sequence, Optional
 
-from .actions import help_action
-from .command_parameters import CommandParameters
-from .config import CommandConfig
+from .core import CommandMeta, CommandType, get_params
 from .context import Context, get_current_context
-from .exceptions import CommandDefinitionError, ParamConflict, NoActiveContext
-from .parser import CommandParser
-from .utils import ProgramMetadata, cached_class_property
+from .exceptions import ParamConflict, NoActiveContext
 
 __all__ = ['Command', 'CommandType']
 log = logging.getLogger(__name__)
 
-CommandType = TypeVar('CommandType', bound=Type['Command'])
 CommandObj = TypeVar('CommandObj', bound='Command')
 
-# TODO: Move `params` and other properties/methods to be handled in external helper functions to prevent namespace
-#  pollution
 
-
-class Command(ABC):
+class Command(ABC, metaclass=CommandMeta):
     """
     The main class that other Commands should extend.
     """
 
-    # region Initialization
-    # fmt: off
-    params: CommandParameters           # Must declare here for PyCharm's type checker to work properly
-    ctx: Context                        # The parsing Context used for this Command
-    _config_: CommandConfig = None      # Configured Command options
-    __meta: ProgramMetadata = None      # Metadata used in help text
-    # fmt: on
-
-    def __init_subclass__(
-        cls: CommandType,
-        choice: str = None,
-        prog: str = None,
-        usage: str = None,
-        description: str = None,
-        epilog: str = None,
-        help: str = None,  # noqa
-        config: CommandConfig = None,
-        **kwargs,
-    ):
-        """
-        :param choice: SubCommand value that maps to this command
-        :param prog: The name of the program (default: ``sys.argv[0]``)
-        :param usage: Usage message (default: auto-generated)
-        :param description: Description of what the program does
-        :param epilog: Text to follow parameter descriptions
-        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
-        :param error_handler: The :class:`ErrorHandler<command_parser.error_handling.ErrorHandler>` to be used by
-          :meth:`.run` to wrap :meth:`.main`
-        :param bool add_help: Whether the --help / -h action_flag should be added
-        :param bool action_after_action_flags: Whether action_flag methods are allowed to be combined with a positional
-          Action method in a given CLI invocation
-        :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all
-          specified
-        :param ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
-          arguments are encountered)
-        :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when
-          required arguments are missing)
-        """
-        if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
-            cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
-
-        if config is not None:
-            if kwargs:
-                raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
-            cls._config_ = config
-        elif kwargs or (cls._config_ is None and ABC not in cls.__bases__):
-            if cls._config_ is not None:  # Inherit existing configs and override specified values
-                kwargs = cls._config_.as_dict() | kwargs
-            cls._config_ = CommandConfig(**kwargs)
-
-        if (config := cls._config_) is not None:
-            if config.add_help and not hasattr(cls, '_Command__help'):
-                cls.__help = help_action
-
-        if parent := next((c for c in cls.mro()[1:] if issubclass(c, Command) and ABC not in c.__bases__), None):
-            if (sub_cmd := parent.params.sub_command) is not None:
-                sub_cmd.register_command(choice, cls, help)
-            elif choice:
-                warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
-        elif choice:
-            warn(f'{choice=} was not registered for {cls} because it has no parent Command')
-
-    @cached_class_property
-    def params(cls: CommandType) -> CommandParameters:  # noqa
-        # The parent here is different than in __init_subclass__ to allow ActionFlag inheritance
-        parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
-        return CommandParameters(cls, parent)
+    ctx: Context  # The parsing Context used for this Command
 
     def __new__(cls):
         ctx = _get_or_create_context(cls)
@@ -109,8 +34,6 @@ class Command(ABC):
         self.__ctx = ctx
         self.__dict__.setdefault('ctx', ctx)
         return self
-
-    # endregion
 
     @classmethod
     def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs) -> Optional[CommandObj]:
@@ -149,6 +72,8 @@ class Command(ABC):
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
         """
+        from .parser import CommandParser
+
         ctx = _get_or_create_context(cls, argv)
         cmd_cls = cls
         with ExitStack() as stack:
@@ -191,7 +116,7 @@ class Command(ABC):
         """
         ctx = self.__ctx
         n_flags, before, after = ctx.parsed_action_flags
-        if n_flags and not self._config_.multiple_action_flags and n_flags > 1:
+        if n_flags and not ctx.multiple_action_flags and n_flags > 1:
             raise ParamConflict(before + after, 'combining multiple action flags is disabled')
 
         for param in ctx.before_main_actions:
@@ -215,7 +140,8 @@ class Command(ABC):
         :return: The total number of actions that were taken so far
         """
         with self.__ctx as ctx:
-            action = self.params.action
+            cls = self.__class__
+            action = cls.__class__.params(cls).action  # noqa
             if action is not None and (ctx.actions_taken == 0 or ctx.action_after_action_flags):
                 # TODO: Error on action when ctx.action_after_action_flags is False?
                 ctx.actions_taken += 1

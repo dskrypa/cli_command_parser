@@ -8,6 +8,7 @@ from unittest.mock import Mock
 
 from cli_command_parser import Command, Counter, Option, Flag
 from cli_command_parser.context import Context
+from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import (
     NoSuchOption,
     UsageError,
@@ -369,7 +370,7 @@ class PassThruTest(ParserTest):
         class Bar(Foo):
             pass
 
-        self.assertTrue(Bar.params.pass_thru)
+        self.assertTrue(get_params(Bar).pass_thru)
 
     def test_sub_cmd_multiple_rejected(self):
         class Foo(Command):

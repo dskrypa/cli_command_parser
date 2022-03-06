@@ -22,7 +22,7 @@ from .parameters import (
 )
 
 if TYPE_CHECKING:
-    from .commands import CommandType
+    from .core import CommandType
 
 __all__ = ['CommandParameters']
 log = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ class CommandParameters:
         self.command = command
         if command_parent:
             self.command_parent = command_parent
-            self.parent = command_parent.params
+            self.parent = command_parent.__class__.params(command_parent)
 
         self.formatter = HelpFormatter(command, self)
         self._process_parameters()
@@ -275,7 +275,8 @@ class CommandParameters:
     def find_nested_option_that_accepts_values(self, option: str):
         if sub_command := self.sub_command:
             for choice in sub_command.choices.values():
-                params = choice.target.params
+                command = choice.target
+                params = command.__class__.params(command)
                 try:
                     param = params.find_option_that_accepts_values(option)
                 except KeyError:
