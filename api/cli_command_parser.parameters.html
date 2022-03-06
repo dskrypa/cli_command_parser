@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parameters Module &mdash; CLI Command Parser 2022.03.06-4 documentation</title>
+  <title>Parameters Module &mdash; CLI Command Parser 2022.03.06-5 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -332,6 +332,36 @@ and that call will return the original method.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.Action.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_or_choice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">method</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><span class="pre">method</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">method</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">method</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cli_command_parser.parameters.Action.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.
+Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so
+calls this method.</p>
+<p>This decorator may be used with or without arguments.  When no arguments are needed, it does not need to be
+explicitly called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parameters.Action.__call__.params.method_or_choice"></span><strong>method_or_choice</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.Action.__call__.params.method_or_choice">¶</a> – When not called explicitly, this will be the method that will be wrapped.  When called
+to provide arguments, the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value may be provided as a positional argument here.  Defaults to the
+name of the decorated method.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.Action.__call__.params.choice"></span><strong>choice</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.Action.__call__.params.choice">¶</a> – Keyword-only way to provide the <code class="docutils literal notranslate"><span class="pre">choice</span></code> value.  May not be combined with a positional
+<code class="docutils literal notranslate"><span class="pre">choice</span></code> string value.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.Action.__call__.params.help"></span><strong>help</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.Action.__call__.params.help">¶</a> – (Keyword-only) The help text / description to be displayed for this choice</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.Action.__call__.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.Action.__call__.params.default">¶</a> – (Keyword-only) If true, this method will be registered as the default action to take when no
+other choice is specified.  When marking a method as the default, if you want it to also be available as an
+explicit choice, then a <code class="docutils literal notranslate"><span class="pre">choice</span></code> value must be specified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The original method, unchanged.  When called explicitly, a <code class="xref py py-class docutils literal notranslate"><span class="pre">partial</span></code> method
+will be returned first, which will automatically be called by the interpreter with the method to be decorated,
+and that call will return the original method.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -487,6 +517,12 @@ and that call will return the original method.</p>
 <dt class="sig sig-object py" id="cli_command_parser.parameters.ActionFlag.func">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">func</span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters.html#ActionFlag.func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.ActionFlag.func" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.ActionFlag.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters.html#ActionFlag.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.ActionFlag.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.ActionFlag.result">

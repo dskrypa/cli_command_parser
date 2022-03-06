@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.error_handling &mdash; CLI Command Parser 2022.03.06-4 documentation</title>
+  <title>cli_command_parser.error_handling &mdash; CLI Command Parser 2022.03.06-5 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -109,12 +109,12 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]):</span>
+<div class="viewcode-block" id="ErrorHandler.__call__"><a class="viewcode-back" href="../../api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]):</span>
         <span class="k">def</span> <span class="nf">_handler</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
 
-        <span class="k">return</span> <span class="n">_handler</span>
+        <span class="k">return</span> <span class="n">_handler</span></div>
 
 <div class="viewcode-block" id="ErrorHandler.cls_handler"><a class="viewcode-back" href="../../api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.cls_handler">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">cls_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]):</span>
