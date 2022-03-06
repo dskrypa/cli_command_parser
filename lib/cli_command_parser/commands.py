@@ -5,6 +5,7 @@ The core Command classes that are intended as the entry point for a given progra
 """
 
 import logging
+from abc import ABC
 from contextlib import ExitStack
 from typing import Type, TypeVar, Sequence, Optional, Union
 from warnings import warn
@@ -28,7 +29,7 @@ CommandObj = TypeVar('CommandObj', bound='Command')
 #  pollution
 
 
-class Command:
+class Command(ABC):
     """
     The main class that other Commands should extend.
     """
@@ -39,7 +40,6 @@ class Command:
     ctx: Context                        # The parsing Context used for this Command
     _config_: CommandConfig = None      # Configured Command options
     __meta: ProgramMetadata = None      # Metadata used in help text
-    __abstract: Bool = True             # False if viable for containing sub commands
     # fmt: on
 
     def __init_subclass__(
@@ -50,7 +50,6 @@ class Command:
         description: str = None,
         epilog: str = None,
         help: str = None,  # noqa
-        abstract: Bool = False,
         config: CommandConfig = None,
         **kwargs,
     ):
@@ -72,8 +71,6 @@ class Command:
           arguments are encountered)
         :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when
           required arguments are missing)
-        :param abstract: Set to True to prevent a command from being considered to be a parent that may contain sub
-          commands
         """
         if cls.__meta is None or prog or usage or description or epilog:  # Inherit from parent when possible
             cls.__meta = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
@@ -82,7 +79,7 @@ class Command:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
             cls._config_ = config
-        elif kwargs or (cls._config_ is None and not abstract):
+        elif kwargs or (cls._config_ is None and ABC not in cls.__bases__):
             if cls._config_ is not None:  # Inherit existing configs and override specified values
                 kwargs = cls._config_.as_dict() | kwargs
             cls._config_ = CommandConfig(**kwargs)
@@ -91,9 +88,7 @@ class Command:
             if config.add_help and not hasattr(cls, '_Command__help'):
                 cls.__help = help_action
 
-        cls.__abstract = abstract
-
-        if parent := next((c for c in cls.mro()[1:] if issubclass(c, Command) and not c.__abstract), None):
+        if parent := next((c for c in cls.mro()[1:] if issubclass(c, Command) and ABC not in c.__bases__), None):
             if (sub_cmd := parent.params.sub_command) is not None:
                 sub_cmd.register_command(choice, cls, help)
             elif choice:

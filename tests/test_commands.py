@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from abc import ABC
 from contextlib import redirect_stdout, redirect_stderr
 from unittest import TestCase, main
 from unittest.mock import Mock
@@ -218,7 +219,7 @@ class TestCommands(TestCase):
             Foo.parse_and_run(['-h'])
 
     def test_sub_command_adds_help(self):
-        class Foo(Command, abstract=True):
+        class Foo(Command, ABC):
             pass
 
         class Bar(Foo):
