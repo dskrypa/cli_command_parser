@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters &mdash; CLI Command Parser 2022.03.06-2 documentation</title>
+  <title>cli_command_parser.parameters &mdash; CLI Command Parser 2022.03.06-3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -104,7 +104,8 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">CommandType</span>
+    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
+    <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span>
@@ -825,7 +826,9 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">CommandDefinitionError</span><span class="p">:</span>
-            <span class="n">parent</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">command_parent</span>
+            <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">get_parent</span>
+
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">get_parent</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> for </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
@@ -836,7 +839,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">command_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">],</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`Command` as the</span>
+<span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`~.commands.Command` as the</span>
 <span class="sd">        subcommand class to be used for further parsing when the given choice is specified for this parameter.</span>
 
 <span class="sd">        This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent</span>

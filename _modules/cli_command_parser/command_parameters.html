@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.03.06-2 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.03.06-3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -98,7 +98,7 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">CommandType</span>
+    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandParameters&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -122,7 +122,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">if</span> <span class="n">command_parent</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="o">=</span> <span class="n">command_parent</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="n">params</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command_parent</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">HelpFormatter</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">()</span>
@@ -351,7 +351,8 @@
 <div class="viewcode-block" id="CommandParameters.find_nested_option_that_accepts_values"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_nested_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="n">params</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">params</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">param</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">find_option_that_accepts_values</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>

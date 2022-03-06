@@ -10,6 +10,7 @@ API Documentation
    api/cli_command_parser.commands
    api/cli_command_parser.config
    api/cli_command_parser.context
+   api/cli_command_parser.core
    api/cli_command_parser.error_handling
    api/cli_command_parser.exceptions
    api/cli_command_parser.formatting
