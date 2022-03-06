@@ -29,7 +29,7 @@ class ActionTest(TestCase):
                 nonlocal call_count
                 call_count += 1
 
-        Foo.parse(['bar']).run()
+        Foo.parse(['bar'])()
         self.assertEqual(call_count, 1)
 
     def test_action_called_mock(self):
@@ -40,7 +40,7 @@ class ActionTest(TestCase):
             action.register(mock)
 
         foo = Foo.parse(['bar'])
-        foo.run()
+        foo()
         self.assertEqual(mock.call_count, 1)
         self.assertEqual(mock.call_args.args[0], foo)
 
@@ -72,9 +72,9 @@ class ActionTest(TestCase):
                 call_count += 1
 
         with self.assertRaises(InvalidChoice):
-            Foo.parse(['bar']).run()
+            Foo.parse(['bar'])()
 
-        Foo.parse(['bar-baz']).run()
+        Foo.parse(['bar-baz'])()
         self.assertEqual(call_count, 1)
 
     def test_invalid_names(self):

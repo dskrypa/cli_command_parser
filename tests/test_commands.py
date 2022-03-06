@@ -34,7 +34,7 @@ class TestCommands(TestCase):
         foo = Foo.parse(['--foo'])
         self.assertFalse(mock.called)
         self.assertEqual(0, foo.ctx.actions_taken)
-        self.assertEqual(1, foo.run())
+        self.assertEqual(1, foo())
         self.assertEqual(1, foo.ctx.actions_taken)
         self.assertTrue(mock.called)
 
@@ -129,10 +129,10 @@ class TestCommands(TestCase):
     def test_no_error_handler_run(self):
         class Foo(Command, error_handler=None):
             bar = Flag()
-            run = Mock()
+            __call__ = Mock()
 
         Foo.parse_and_run([])
-        self.assertTrue(Foo.run.called)
+        self.assertTrue(Foo.__call__.called)
 
     def test_no_error_handler_main(self):
         class Foo(Command, error_handler=None):
@@ -145,13 +145,13 @@ class TestCommands(TestCase):
     def test_no_run_after_parse_error(self):
         class Foo(Command, error_handler=no_exit_handler):
             bar = Flag()
-            run = Mock()
+            __call__ = Mock()
 
         mock = Mock(close=Mock())
         with redirect_stdout(mock), redirect_stderr(mock):
             Foo.parse_and_run(['-B'])
 
-        self.assertFalse(Foo.run.called)
+        self.assertFalse(Foo.__call__.called)
 
     def test_no_warn_on_parent_without_choice(self):
         class Foo(Command):

@@ -28,7 +28,7 @@ class ActionFlagTest(ParserTest):
         sio = StringIO()
         with redirect_stdout(sio):
             foo = Foo.parse(['bar', '-h'])
-            foo.run()
+            foo()
 
         self.assertTrue(sio.getvalue().startswith('usage: '))
         self.assertEqual(mock.call_count, 0)
@@ -97,7 +97,7 @@ class ActionFlagTest(ParserTest):
                     baz = ActionFlag(order=2)(mocks[2])
 
                 foo = Foo.parse([f'--{attr}'])
-                foo.run()
+                foo()
                 self.assertTrue(mocks[i].called)
                 for j in {0, 1, 2} - {i}:
                     self.assertFalse(mocks[j].called)

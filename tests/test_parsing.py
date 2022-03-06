@@ -520,6 +520,8 @@ class OptionTest(ParserTest):
 
 
 class PositionalTest(ParserTest):
+    # TODO: Fix handling of nargs=* positional between nargs=1 positional and PassThru
+
     def test_extra_positional_deferred(self):
         class Foo(Command):
             bar = Positional()

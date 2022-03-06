@@ -37,5 +37,4 @@ class Show(Base, choice='show', help='Show the results of an action'):
 
 
 if __name__ == '__main__':
-    # Base.parse().run()
     Base.parse_and_run()

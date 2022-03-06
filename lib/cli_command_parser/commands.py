@@ -56,11 +56,11 @@ class Command(ABC, metaclass=CommandMeta):
             self = cls.parse(argv)
 
         try:
-            run = self.run
+            self
         except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
             return None
         else:
-            run(*args, **kwargs)
+            self(*args, **kwargs)
             return self
 
     @classmethod
@@ -84,12 +84,12 @@ class Command(ABC, metaclass=CommandMeta):
 
             return cmd_cls()
 
-    def run(self, *args, **kwargs) -> int:
+    def __call__(self, *args, **kwargs) -> int:
         """
         Primary entry point for running a command.  Subclasses generally should not override this method.
 
         Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can
-        be specified via the :paramref:`~Command.__init_subclass__.error_handler` parameter during Command class
+        be specified via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class
         initialization.  To skip error handling, define the class with ``error_handler=None``.
 
         Calls 3 methods in order: :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`.
