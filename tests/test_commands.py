@@ -5,7 +5,7 @@ from contextlib import redirect_stdout, redirect_stderr
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, CommandConfig
+from cli_command_parser import Command, CommandConfig, Context
 from cli_command_parser.error_handling import no_exit_handler, extended_error_handler
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
 from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag, Option
@@ -209,7 +209,7 @@ class TestCommands(TestCase):
         self.assertNotEqual(Foo._config_.multiple_action_flags, default_config.multiple_action_flags)
 
     def test_default_error_handler_returned(self):
-        self.assertIs(extended_error_handler, Command._Command__get_error_handler())  # noqa
+        self.assertIs(extended_error_handler, Context().get_error_handler())
 
     def test_no_help(self):
         class Foo(Command, add_help=False, error_handler=None):
@@ -227,6 +227,37 @@ class TestCommands(TestCase):
 
         with redirect_stdout(Mock()), self.assertRaises(SystemExit):
             Bar.parse_and_run(['-h'])
+
+    def test_argv_results_in_sub_context(self):
+        class Foo(Command):
+            pass
+
+        for context in (Context(['a'], Foo, ignore_unknown=True), Context(['a'], ignore_unknown=True)):
+            with context as ctx:
+                foo = Foo.parse_and_run(['b'])
+                self.assertIs(ctx, foo.ctx.parent)
+                self.assertListEqual(['a'], ctx.argv)
+                self.assertListEqual(['b'], foo.ctx.argv)
+
+    def test_no_argv_results_in_keeping_context(self):
+        class Foo(Command):
+            pass
+
+        with Context(['a'], Foo, ignore_unknown=True) as ctx:
+            foo = Foo.parse_and_run()
+            self.assertIs(ctx, foo.ctx)
+            self.assertListEqual(['a'], ctx.argv)
+            self.assertListEqual(['a'], foo.ctx.argv)
+
+    def test_no_argv_no_cmd_resuls_in_sub_context(self):
+        class Foo(Command):
+            pass
+
+        with Context(['a'], ignore_unknown=True) as ctx:
+            foo = Foo.parse_and_run()
+            self.assertIs(ctx, foo.ctx.parent)
+            self.assertListEqual(['a'], ctx.argv)
+            self.assertListEqual(['a'], foo.ctx.argv)
 
 
 if __name__ == '__main__':

@@ -9,8 +9,9 @@ from contextvars import ContextVar
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection
 
+from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
-from .utils import Bool
+from .utils import Bool, _NotSet
 
 if TYPE_CHECKING:
     from .commands import CommandType
@@ -23,6 +24,9 @@ _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 
 
 class ConfigOption:
+    def __init__(self, default: Any = None):
+        self.default = default
+
     def __set_name__(self, owner, name: str):
         self.name = name
 
@@ -45,12 +49,12 @@ class ConfigOption:
         try:
             config = ctx.command._config_
         except AttributeError:
-            return None
+            return self.default
         else:
             return getattr(config, self.name)
 
     def __set__(self, ctx: 'Context', value: Optional[Bool]):
-        if value is not None:
+        if value is not self.default:
             ctx.__dict__[self.name] = value
 
 
@@ -62,6 +66,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     affect parser behavior.
     """
 
+    error_handler = ConfigOption(_NotSet)
     ignore_unknown = ConfigOption()
     # parse_unknown = ConfigOption()
     allow_missing = ConfigOption()
@@ -77,6 +82,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         command: Optional['CommandType'] = None,
         parent: Optional['Context'] = None,
         *,
+        error_handler: Optional[ErrorHandler] = _NotSet,
         ignore_unknown: Bool = None,
         # parse_unknown: Bool = None,
         allow_missing: Bool = None,
@@ -100,6 +106,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             self._provided = defaultdict(int)
         self.actions_taken = 0
         # Command config overrides
+        self.error_handler = error_handler
         self.ignore_unknown = ignore_unknown
         # self.parse_unknown = parse_unknown
         self.allow_missing = allow_missing
@@ -122,6 +129,20 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return self.command.params
         except AttributeError:  # self.command is None
             return None
+
+    def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
+        error_handler = self.error_handler
+        if error_handler is _NotSet:
+            return extended_error_handler
+        elif error_handler is None:
+            return NullErrorHandler()
+        else:
+            return error_handler
+
+    def _sub_context(self, command: 'CommandType', argv: Optional[Sequence[str]] = None) -> 'Context':
+        if argv is None:
+            argv = self.remaining
+        return self.__class__(argv, command, parent=self)
 
     def get_parsed(self, exclude: Collection['Parameter'] = (), recursive: Bool = True) -> dict[str, Any]:
         with self:

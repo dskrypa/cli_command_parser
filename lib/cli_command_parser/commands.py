@@ -7,17 +7,16 @@ The core Command classes that are intended as the entry point for a given progra
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import Type, TypeVar, Sequence, Optional, Union
+from typing import Type, TypeVar, Sequence, Optional
 from warnings import warn
 
 from .actions import help_action
 from .command_parameters import CommandParameters
 from .config import CommandConfig
-from .context import Context
-from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
-from .exceptions import CommandDefinitionError, ParamConflict
+from .context import Context, get_current_context
+from .exceptions import CommandDefinitionError, ParamConflict, NoActiveContext
 from .parser import CommandParser
-from .utils import _NotSet, ProgramMetadata, cached_class_property
+from .utils import ProgramMetadata, cached_class_property
 
 __all__ = ['Command', 'CommandType']
 log = logging.getLogger(__name__)
@@ -102,22 +101,8 @@ class Command(ABC):
         parent = next((c for c in cls.mro()[1:] if issubclass(c, Command) and c is not Command), None)
         return CommandParameters(cls, parent)
 
-    @classmethod
-    def __get_error_handler(cls) -> Union[ErrorHandler, NullErrorHandler]:
-        # TODO: Move to Context
-        if (config := cls._config_) is not None:
-            error_handler = config.error_handler
-        else:
-            error_handler = _NotSet
-
-        if error_handler is _NotSet:
-            return extended_error_handler
-        elif error_handler is None:
-            return NullErrorHandler()
-        else:
-            return error_handler
-
-    def __new__(cls, ctx: Context):
+    def __new__(cls):
+        ctx = _get_or_create_context(cls)
         # By storing the Context here instead of __init__, every single sub class won't need to
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
@@ -128,7 +113,7 @@ class Command(ABC):
     # endregion
 
     @classmethod
-    def parse_and_run(cls, argv: Sequence[str] = None, ctx: Context = None, *args, **kwargs) -> Optional[CommandObj]:
+    def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
         to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
@@ -139,13 +124,13 @@ class Command(ABC):
         the above mentioned methods separately.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
-        :param ctx: The :class:`~.context.Context` object to use, which may contain overrides for certain configs.
         :param args: Positional arguments to pass to :meth:`.run`
         :param kwargs: Keyword arguments to pass to :meth:`.run`
         :return: The Command instance with parsed arguments for which :meth:`.run` was already called.
         """
-        with cls.__get_error_handler():
-            self = cls.parse(argv, ctx)
+        ctx = _get_or_create_context(cls, argv)
+        with ctx.get_error_handler():
+            self = cls.parse(argv)
 
         try:
             run = self.run
@@ -156,25 +141,23 @@ class Command(ABC):
             return self
 
     @classmethod
-    def parse(cls, argv: Sequence[str] = None, ctx: Context = None) -> CommandObj:
+    def parse(cls, argv: Sequence[str] = None) -> CommandObj:
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the
         parsed arguments, if necessary.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
-        :param ctx: The :class:`~.context.Context` object to use, which may contain overrides for certain configs.
         :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
         """
+        ctx = _get_or_create_context(cls, argv)
         cmd_cls = cls
         with ExitStack() as stack:
-            ctx = ctx or Context(argv, cmd_cls)
             stack.enter_context(ctx)
             while sub_cmd := CommandParser.parse_args():
                 cmd_cls = sub_cmd
-                ctx = Context(ctx.remaining, cmd_cls, parent=ctx)
-                stack.enter_context(ctx)
+                ctx = stack.enter_context(ctx._sub_context(cmd_cls))
 
-        return cmd_cls(ctx)
+            return cmd_cls()
 
     def run(self, *args, **kwargs) -> int:
         """
@@ -190,12 +173,12 @@ class Command(ABC):
         :param kwargs: Keyword arguments to pass to :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`
         :return: The total number of actions that were taken
         """
-        with self.__ctx, self.__get_error_handler():
+        with self.__ctx as ctx, ctx.get_error_handler():
             self._before_main_(*args, **kwargs)
             self.main(*args, **kwargs)
             self._after_main_(*args, **kwargs)
 
-        return self.__ctx.actions_taken
+        return ctx.actions_taken
 
     def _before_main_(self, *args, **kwargs):
         """
@@ -251,3 +234,15 @@ class Command(ABC):
         """
         for param in self.__ctx.after_main_actions:
             param.func(self, *args, **kwargs)
+
+
+def _get_or_create_context(cls: CommandType, argv: Sequence[str] = None) -> Context:
+    try:
+        ctx = get_current_context()
+    except NoActiveContext:
+        return Context(argv, cls)
+    else:
+        if argv is None and ctx.command is cls:
+            return ctx
+        else:
+            return ctx._sub_context(cls, argv=argv)

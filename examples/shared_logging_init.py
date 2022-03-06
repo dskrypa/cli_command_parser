@@ -11,7 +11,7 @@ class Base(Command):
     sub_cmd = SubCommand()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
-    def __init__(self, args):
+    def __init__(self):
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)

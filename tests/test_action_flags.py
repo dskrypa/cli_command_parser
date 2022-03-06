@@ -141,7 +141,7 @@ class ActionFlagTest(ParserTest):
 
     def test_multi_flag_order_followed(self):
         class Foo(Command, multiple_action_flags=True):
-            def __init__(self, args):
+            def __init__(self):
                 self.call_order = {}
                 self.counter = count()
 
@@ -160,7 +160,7 @@ class ActionFlagTest(ParserTest):
 
     def test_before_and_after_flags(self):
         class Foo(Command, multiple_action_flags=True):
-            def __init__(self, args):
+            def __init__(self):
                 self.call_order = {}
                 self.counter = count()
 

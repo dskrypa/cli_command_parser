@@ -19,7 +19,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     action = Action()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
-    def __init__(self, args):
+    def __init__(self):
         self.title = __description__
         self.package = __title__
         self.package_path = PROJECT_ROOT.joinpath('lib', self.package)
