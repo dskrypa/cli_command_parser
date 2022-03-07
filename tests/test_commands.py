@@ -276,6 +276,17 @@ class TestCommands(TestCase):
         self.assertIs(Command, get_parent(Foo))
         self.assertIs(Command, get_parent(Foo()))
 
+    def test_multiple_non_required_positionals_rejected(self):
+        for a, b in (('?', '?'), ('?', '*'), ('*', '?'), ('*', '*')):
+            with self.subTest(a=a, b=b):
+
+                class Foo(Command):
+                    foo = Positional(nargs=a)
+                    bar = Positional(nargs=b)
+
+                with self.assertRaises(CommandDefinitionError):
+                    Foo.params()
+
 
 if __name__ == '__main__':
     try:

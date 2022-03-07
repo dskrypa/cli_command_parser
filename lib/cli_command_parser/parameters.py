@@ -584,9 +584,10 @@ class Positional(BasePositional):
         self.type = type
         if action == 'append':
             self._init_value_factory = list
-        elif action == 'store' and 0 in self.nargs:
+        if 0 in self.nargs:
             self.required = False
-            self.default = None if default is _NotSet else default
+            if action == 'store':
+                self.default = None if default is _NotSet else default
 
     @parameter_action
     def store(self, value: Any):

@@ -515,13 +515,11 @@ class OptionTest(ParserTest):
     # def test_underscore_dash_swap_allowed(self):
     #     pass  # TODO
     #
-    # def test_underscore_dash_swap_rejected(self):
+    # def test_underscore_dash_swap_rejected(self):  # TODO: Also add CamelCase support
     #     pass  # TODO
 
 
 class PositionalTest(ParserTest):
-    # TODO: Fix handling of nargs=* positional between nargs=1 positional and PassThru
-
     def test_extra_positional_deferred(self):
         class Foo(Command):
             bar = Positional()
@@ -547,6 +545,48 @@ class PositionalTest(ParserTest):
         self.assertEqual('append', Foo.bar.action)
         self.assert_parse_results(Foo, ['a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'})
         fail_cases = [[], ['a', 'b', 'c', 'd'], ['a', 'b']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_nargs_question_between_nargs_1_and_pass_thru(self):
+        class Foo(Command):
+            foo = Positional()
+            bar = Positional(nargs='?')
+            baz = PassThru()
+
+        success_cases = [
+            (['a', 'b'], {'foo': 'a', 'bar': 'b', 'baz': None}),
+            (['a', 'b', '--', 'x'], {'foo': 'a', 'bar': 'b', 'baz': ['x']}),
+            (['a', 'b', '--', 'x', 'y'], {'foo': 'a', 'bar': 'b', 'baz': ['x', 'y']}),
+            (['a'], {'foo': 'a', 'bar': None, 'baz': None}),
+            (['a', '--', 'x'], {'foo': 'a', 'bar': None, 'baz': ['x']}),
+            (['a', '--'], {'foo': 'a', 'bar': None, 'baz': []}),
+            (['a', '--', 'x', 'y'], {'foo': 'a', 'bar': None, 'baz': ['x', 'y']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [[], ['--', 'x'], ['a', 'b', 'c', '--', 'x']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_nargs_star_between_nargs_1_and_pass_thru(self):
+        class Foo(Command):
+            foo = Positional()
+            bar = Positional(nargs='*')
+            baz = PassThru()
+
+        success_cases = [
+            (['a', 'b'], {'foo': 'a', 'bar': ['b'], 'baz': None}),
+            (['a', 'b', '--', 'x'], {'foo': 'a', 'bar': ['b'], 'baz': ['x']}),
+            (['a', 'b', '--', 'x', 'y'], {'foo': 'a', 'bar': ['b'], 'baz': ['x', 'y']}),
+            (['a', 'b', 'c', '--', 'x'], {'foo': 'a', 'bar': ['b', 'c'], 'baz': ['x']}),
+            (['a', 'b', 'c', 'd', '--', 'x'], {'foo': 'a', 'bar': ['b', 'c', 'd'], 'baz': ['x']}),
+            (['a'], {'foo': 'a', 'bar': [], 'baz': None}),
+            (['a', '--', 'x'], {'foo': 'a', 'bar': [], 'baz': ['x']}),
+            (['a', '--'], {'foo': 'a', 'bar': [], 'baz': []}),
+            (['a', '--', 'x', 'y'], {'foo': 'a', 'bar': [], 'baz': ['x', 'y']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [[], ['--', 'x']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
     # def test_multi_word_action(self):
