@@ -11,3 +11,6 @@ publish:
 	setup.py sdist bdist_wheel
 	twine upload dist/*
 	rm -rf build dist lib/cli_command_parser.egg-info
+
+tag:
+	tag.py
