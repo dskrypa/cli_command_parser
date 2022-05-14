@@ -9,11 +9,11 @@ from abc import ABC
 from contextlib import ExitStack
 from typing import TypeVar, Sequence, Optional
 
-from .core import CommandMeta, CommandType, get_params
+from .core import CommandMeta, CommandType, get_top_level_commands
 from .context import Context, get_current_context
 from .exceptions import ParamConflict, NoActiveContext
 
-__all__ = ['Command', 'CommandType']
+__all__ = ['Command', 'CommandType', 'main']
 log = logging.getLogger(__name__)
 
 CommandObj = TypeVar('CommandObj', bound='Command')
@@ -172,3 +172,37 @@ def _get_or_create_context(cls: CommandType, argv: Sequence[str] = None) -> Cont
             return ctx
         else:
             return ctx._sub_context(cls, argv=argv)
+
+
+def main(argv: Sequence[str] = None, *args, **kwargs):
+    """
+    Convenience function that can be used as the main entry point for a program.
+
+    As long as only one :class:`Command` subclass is present, this function will detect it and call its
+    :meth:`~Command.parse_and_run` method.  Sub-commands do not count as direct subclasses of Command, so this function
+    will continue to work even if sub-commands are present (as long as they extend their parent command).
+
+    If multiple direct subclasses of Command are detected, or if no direct subclasses can be found, then a RuntimeError
+    will be raised.  In such cases, you must explicitly call :meth:`~Command.parse_and_run` on the command that is
+    intended to be the primary entry point.
+
+    All arguments are passed through to :meth:`~Command.parse_and_run`
+
+    :raises: :class:`RuntimeError` if multiple subclasses are detected, or if no subclasses could be found.
+    """
+    commands = get_top_level_commands()
+    if len(commands) != 1:
+        error_base = 'Unable to automatically pick a Command subclass to use as the main program entry point -'
+        if commands:
+            cmds_str = ', '.join(c.__qualname__ for c in commands)
+            raise RuntimeError(
+                f'{error_base} found {len(commands)} commands: {cmds_str}\n'
+                'You need to call <MyCommand>.parse_and_run() explicitly for the intended command.'
+            )
+        else:
+            raise RuntimeError(
+                f'{error_base} no commands were found.\n'
+                'Verify that the intended command has been imported, or call <MyCommand>.parse_and_run() explicitly.'
+            )
+
+    return commands[0].parse_and_run(argv, *args, **kwargs)  # noqa

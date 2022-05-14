@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from cli_command_parser import Command, Action, Positional
+from cli_command_parser import Command, Action, Positional, main
 
 
 class Example(Command):
@@ -17,4 +17,4 @@ class Example(Command):
 
 
 if __name__ == '__main__':
-    Example.parse_and_run()
+    main()

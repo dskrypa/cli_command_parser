@@ -3,9 +3,9 @@
 """
 
 from abc import ABC, ABCMeta
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, Type, Any
 from warnings import warn
-from weakref import WeakKeyDictionary
+from weakref import WeakKeyDictionary, WeakSet
 
 from .actions import help_action
 from .command_parameters import CommandParameters
@@ -18,12 +18,13 @@ class CommandMeta(ABCMeta, type):
     _configs = WeakKeyDictionary()
     _params = WeakKeyDictionary()
     _metadata = WeakKeyDictionary()
+    _commands = WeakSet()
 
     def __new__(  # noqa
-        mcls,
-        name,
-        bases,
-        namespace,
+        mcls,  # noqa
+        name: str,
+        bases: tuple[Type, ...],
+        namespace: dict[str, Any],
         /,
         choice: str = None,
         prog: str = None,
@@ -54,6 +55,7 @@ class CommandMeta(ABCMeta, type):
           required arguments are missing)
         """
         cls = super().__new__(mcls, name, bases, namespace)
+        mcls._commands.add(cls)
         if mcls.meta(cls) is None or prog or usage or description or epilog:  # Inherit from parent when possible
             mcls._metadata[cls] = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
 
@@ -133,6 +135,16 @@ def get_params(command: CommandMeta) -> 'CommandParameters':
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.params(command)
+
+
+def get_top_level_commands() -> list[CommandMeta]:
+    """
+    Returns a list of Command subclasses that are inferred to be direct subclasses of :class:`~commands.Command`.
+
+    This was implemented because ``Command.__subclasses__()`` does not release dead references to subclasses quickly
+    enough for tests.
+    """
+    return [cmd for cmd in CommandMeta._commands if sum(isinstance(cls, CommandMeta) for cls in cmd.mro()) == 2]
 
 
 CommandType = TypeVar('CommandType', bound=CommandMeta)
