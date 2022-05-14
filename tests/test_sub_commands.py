@@ -118,6 +118,17 @@ class SubCommandTest(TestCase):
 
         self.assertIn('--help, -h', mock.write.call_args_list[0].args[0])
 
+    def test_optional_sub_cmd_runs_base_main(self):
+        class Foo(Command):
+            sub_cmd = SubCommand(required=False)
+            main = Mock()
+
+        class Bar(Foo):
+            pass
+
+        Foo.parse_and_run([])
+        self.assertTrue(Foo.main.called)
+
 
 if __name__ == '__main__':
     try:

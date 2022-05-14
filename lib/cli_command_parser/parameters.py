@@ -412,7 +412,7 @@ class Parameter(ParamBase, ABC):
         try:
             value = self.result()
         except NoActiveContext:
-            with command._Command__ctx:
+            with command._Command__ctx:  # noqa
                 value = self.result()
 
         if (name := self._name) is not None:
@@ -740,6 +740,12 @@ class ChoiceMap(BasePositional):
 
 
 class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):
+    def __init__(self, *args, required: bool = True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.required = required
+        if not required:
+            self._register_choice(None, None)  # Results in next_cmd=None in parse_args, so the base cmd will run
+
     def register_command(
         self, choice: Optional[str], command: 'CommandType', help: Optional[str]  # noqa
     ) -> 'CommandType':
