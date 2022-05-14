@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters &mdash; CLI Command Parser 2022.03.07-1 documentation</title>
+  <title>cli_command_parser.parameters &mdash; CLI Command Parser 2022.05.14 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -488,7 +488,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">command</span><span class="o">.</span><span class="n">_Command__ctx</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">command</span><span class="o">.</span><span class="n">_Command__ctx</span><span class="p">:</span>  <span class="c1"># noqa</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -816,6 +816,12 @@
 
 
 <div class="viewcode-block" id="SubCommand"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand">[docs]</a><span class="k">class</span> <span class="nc">SubCommand</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="o">=</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_register_choice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Results in next_cmd=None in parse_args, so the base cmd will run</span>
+
 <div class="viewcode-block" id="SubCommand.register_command"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register_command">[docs]</a>    <span class="k">def</span> <span class="nf">register_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">:</span>
