@@ -10,6 +10,14 @@ NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None)}
 
 
 class Nargs:
+    """
+    Helper class for validating the number of values provided for a given :class:`~.parameters.Parameter`.  Unifies the
+    handling of different ways of specifying the required number of values.
+
+    Acceptable values include ``?``, ``*``, and ``+``, and they have the same meaning that they have in argparse.
+    Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.
+    """
+
     def __init__(self, nargs: NargsValue):
         self._orig = nargs
         self.range = None
@@ -72,6 +80,7 @@ class Nargs:
             return f'{self.min} ~ {self.max}'
 
     def __contains__(self, num: int) -> bool:
+        """See :meth:`.satisfied`"""
         return self.satisfied(num)
 
     def __eq__(self, other: Union['Nargs', int]) -> bool:
@@ -97,6 +106,10 @@ class Nargs:
             return NotImplemented
 
     def _compare_allowed_set(self, other: 'Nargs') -> bool:
+        """
+        Used internally to determine whether 2 Nargs instances are equivalent when they were initialized with different
+        types of arguments.
+        """
         allowed = self.allowed
         if other.range is not None:
             try_all = other.min in allowed and other.max in allowed
@@ -108,6 +121,14 @@ class Nargs:
         return hash(self.__class__) ^ hash(self._orig)
 
     def satisfied(self, count: int) -> bool:
+        """
+        Returns True if the minimum number of values have been provided to satisfy the requirements, and if the number
+        of values has not exceeded the maximum allowed.  Returns False if the count is below the minimum or above the
+        maximum.
+
+        For more advanced use cases, such as range or a set of counts, the count must also match one of the specific
+        numbers provided for this to return True.
+        """
         if self.max is None:
             return count >= self.min
         else:
