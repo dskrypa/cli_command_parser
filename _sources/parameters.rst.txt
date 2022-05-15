@@ -362,7 +362,7 @@ Example command::
             shutil.copy(self.install_dir, self.backup_dir)
 
         def main(self):
-            subprocess.check_call(['make', 'build', self.build_dir])
+            subprocess.check_call(['make', 'build', self.build_dir.as_posix()])
             shutil.copy(self.build_dir, self.install_dir)
 
         @after_main('-c', help='Cleanup the build directory after installing')
