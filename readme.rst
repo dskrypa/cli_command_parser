@@ -39,8 +39,8 @@ CLI Command Parser is available on PyPI::
 Documentation & Examples
 ------------------------
 
-`API documentation <https://dskrypa.github.io/cli_command_parser/>`_ is currently available.  More detailed usage guides
-are coming soon.
+`Documentation <https://dskrypa.github.io/cli_command_parser/basic.html>`_ is available, though it is still a work in
+progress.
 
 Example scripts using CLI Command Parser can be found in the `examples
 <https://github.com/dskrypa/cli_command_parser/tree/main/examples>`_ directory.
