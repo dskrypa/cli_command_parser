@@ -198,7 +198,7 @@ the order in which they must be provided; i.e., the top-most positional paramete
 <span id="id6"></span><h3>Positional<a class="headerlink" href="#positional" title="Permalink to this headline"></a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional" title="cli_command_parser.parameters.Positional"><code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code></a> parameter, that accepts arbitrary values or lists of
 values.</p>
-<p>Example command:</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py">Example command</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
 
@@ -217,7 +217,7 @@ Hello World
 <p>The <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the Command that contains the
 SubCommand parameter.</p>
-<p>Explicit registration is not necessary for Commands that extend their parent Command - given the following example:</p>
+<p>Explicit registration is not necessary for Commands that extend their parent Command - given the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">following example</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
 
@@ -268,7 +268,8 @@ choice instead of separate sub Commands.</p>
 cases where all of those functions share the same parameters.  If the target functions require different / additional
 parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
-<p>Example command that uses actions:</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses
+actions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The action to take&#39;</span><span class="p">)</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
@@ -311,9 +312,9 @@ two
 </section>
 </section>
 <section id="others">
-<span id="id9"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
+<span id="id10"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
 <section id="paramgroup">
-<span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
+<span id="id11"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
 <p>A group of parameters.  <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> is intended to be used as a context manager,
 where group members are defined inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.  Supports mutually exclusive and mutually dependent groups.</p>
 <p>Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive groups, and vice
@@ -332,11 +333,11 @@ raised.  The <code class="docutils literal notranslate"><span class="pre">tasks<
 </div>
 </section>
 <section id="passthru">
-<span id="id11"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
+<span id="id12"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru" title="cli_command_parser.parameters.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected,
 without processing them.  Only one PassThru parameter may exist in a given
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  When provided, it must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a space.</p>
-<p>Example command:</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py">Example command</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Wrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">hosts</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The hosts on which the given command should be run&#39;</span><span class="p">)</span>
     <span class="n">command</span> <span class="o">=</span> <span class="n">PassThru</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
@@ -366,7 +367,7 @@ Would run on two: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
 </div>
 </section>
 <section id="actionflag">
-<span id="id12"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
+<span id="id14"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
 parameters.  Like Flags, they are not required, and they can be combined with other <a class="reference internal" href="#options"><span class="std std-ref">Options</span></a>.  Like Actions, they
 allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as execution targets.</p>
