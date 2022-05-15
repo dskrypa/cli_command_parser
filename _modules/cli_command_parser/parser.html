@@ -41,6 +41,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -104,11 +107,11 @@
 <div class="viewcode-block" id="CommandParser"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser">[docs]</a><span class="k">class</span> <span class="nc">CommandParser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Stateful parser used for a single pass of argument parsing&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParser.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arg_deque</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">positionals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">positionals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>

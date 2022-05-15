@@ -41,6 +41,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -94,7 +97,7 @@
 <span class="sd">    Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span><span class="p">):</span>
+<div class="viewcode-block" id="Nargs.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_orig</span> <span class="o">=</span> <span class="n">nargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nargs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
@@ -138,7 +141,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected type=</span><span class="si">{</span><span class="n">nargs</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">nargs</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_orig</span><span class="si">!r}</span><span class="s1">)&#39;</span>

@@ -41,6 +41,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -91,14 +94,14 @@
 
 
 <div class="viewcode-block" id="HelpFormatter"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">HelpFormatter</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="s1">&#39;CommandParameters&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="HelpFormatter.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="s1">&#39;CommandParameters&#39;</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ParamGroup</span>  <span class="c1"># here due to circular dependency</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span> <span class="o">=</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Positional arguments&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span> <span class="o">=</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Optional arguments&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="HelpFormatter.maybe_add_group"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpFormatter.maybe_add_group">[docs]</a>    <span class="k">def</span> <span class="nf">maybe_add_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">groups</span><span class="p">:</span> <span class="s1">&#39;ParamGroup&#39;</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
@@ -147,14 +150,14 @@
 
 
 <div class="viewcode-block" id="HelpEntryFormatter"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter">[docs]</a><span class="k">class</span> <span class="nc">HelpEntryFormatter</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+<div class="viewcode-block" id="HelpEntryFormatter.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">usage</span> <span class="o">=</span> <span class="n">usage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span> <span class="o">=</span> <span class="n">get_terminal_size</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_usage</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">lpad</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">process_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HelpEntryFormatter.process_usage"><a class="viewcode-back" href="../../api/cli_command_parser.formatting.html#cli_command_parser.formatting.HelpEntryFormatter.process_usage">[docs]</a>    <span class="k">def</span> <span class="nf">process_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span> <span class="o">+</span> <span class="n">lpad</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">:</span>

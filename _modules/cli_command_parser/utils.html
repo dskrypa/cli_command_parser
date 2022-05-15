@@ -41,6 +41,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -99,11 +102,11 @@
 
 
 <div class="viewcode-block" id="cached_class_property"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.cached_class_property">[docs]</a><span class="k">class</span> <span class="nc">cached_class_property</span><span class="p">(</span><span class="nb">classmethod</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<div class="viewcode-block" id="cached_class_property.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.cached_class_property.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">property</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>  <span class="c1"># noqa  # makes Sphinx handle it better than if this was not done</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">{}</span></div>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="k">try</span><span class="p">:</span>
@@ -123,7 +126,7 @@
 
 
 <div class="viewcode-block" id="ProgramMetadata"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata">[docs]</a><span class="k">class</span> <span class="nc">ProgramMetadata</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="ProgramMetadata.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -150,7 +153,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span> <span class="ow">or</span> <span class="n">found_version</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">usage</span> <span class="o">=</span> <span class="n">usage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="o">=</span> <span class="n">epilog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="o">=</span> <span class="n">epilog</span></div>
 
     <span class="k">def</span> <span class="nf">_find_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">_stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">()</span>

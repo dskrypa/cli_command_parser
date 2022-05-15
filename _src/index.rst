@@ -23,6 +23,12 @@ This project is still a work in progress.
    :maxdepth: 2
    :hidden:
 
+   parameters
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
    advanced
 
 .. toctree::

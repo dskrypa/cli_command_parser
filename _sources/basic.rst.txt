@@ -50,6 +50,5 @@ We can run it with multiple variations of arguments::
     Hello John!
 
 
-Even without explicitly specifying the long form for the ``name`` `Option`_, it was automatically added based on the
-name of the attribute in which that Parameter was stored.
-
+Even without explicitly specifying the long form for the ``name`` :ref:`Option`, it was automatically added
+based on the name of the attribute in which that Parameter was stored.

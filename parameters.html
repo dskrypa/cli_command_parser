@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parameters &mdash; CLI Command Parser 2022.05.14-3 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Usage" href="advanced.html" />
+    <link rel="prev" title="Getting Started" href="basic.html" />
+    <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#options">Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#option">Option</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flag">Flag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#counter">Counter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#positionals">Positionals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#positional">Positional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subcommand">SubCommand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#action">Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#others">Others</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#paramgroup">ParamGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#passthru">PassThru</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actionflag">ActionFlag</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Parameters</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parameters">
+<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h1>
+<p>Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
+say, argparse) to differentiate between parameter types.  The two major categories are <a class="reference internal" href="#options">Options</a> and <a class="reference internal" href="#positionals">Positionals</a>,
+but there are <a class="reference internal" href="#others">Others</a> as well.  The base class for all Parameters is extensible, and user-defined
+<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> types are technically possible as well.</p>
+<p>Many parameters support a <code class="docutils literal notranslate"><span class="pre">type</span></code> argument, which will result in the user-provided value being cast to that type before
+being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
+type will be inferred automatically from any type annotations (see <span class="target" id="index-0"></span><a class="pep reference external" href="https://peps.python.org/pep-0484/"><strong>PEP 484</strong></a>) that are present.</p>
+<section id="options">
+<span id="id1"></span><h2>Options<a class="headerlink" href="#options" title="Permalink to this headline"></a></h2>
+<p>Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
+They are typically not required by default, and often have both long and short forms, where long forms typically have
+a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.  The long form is automatically added, if not explicitly
+specified, based on the name of the Parameter attribute.</p>
+<section id="option">
+<span id="id2"></span><h3>Option<a class="headerlink" href="#option" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option" title="cli_command_parser.parameters.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameters accept arbitrary values or lists of values.</p>
+<p>Given the following example Command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All of the following are valid arguments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ prog.py --foo bar baz
+$ prog.py --foo bar
+$ prog.py --foo=bar
+$ prog.py -f bar baz
+$ prog.py -f bar
+$ prog.py -f=bar
+$ prog.py -fbar
+</pre></div>
+</div>
+<p>Inside <code class="docutils literal notranslate"><span class="pre">MyCommand</span></code>, the resulting value of <code class="docutils literal notranslate"><span class="pre">self.foo</span></code> would be <code class="docutils literal notranslate"><span class="pre">['bar']</span></code> or <code class="docutils literal notranslate"><span class="pre">['bar',</span> <span class="pre">'baz']</span></code> for each of those
+inputs, respectively.</p>
+</section>
+<section id="flag">
+<span id="id3"></span><h3>Flag<a class="headerlink" href="#flag" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Flag" title="cli_command_parser.parameters.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> parameters typically represent boolean values, and do not accept any
+values.  By default, Flag parameters have a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>, and will change to <code class="docutils literal notranslate"><span class="pre">True</span></code> if provided by a
+user.  By specifying <code class="docutils literal notranslate"><span class="pre">default=True</span></code>, then that behavior is reversed.  It is also possible to specify any default value
+with a different <code class="docutils literal notranslate"><span class="pre">const</span></code> value to use if the flag is provided.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RiskyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[DRY RUN] Would execute risky command&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Executing risky command!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ risky_command.py --dry_run
+[DRY RUN] Would execute risky command
+
+$ risky_command.py
+Executing risky command!
+</pre></div>
+</div>
+</section>
+<section id="counter">
+<span id="id4"></span><h3>Counter<a class="headerlink" href="#counter" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter" title="cli_command_parser.parameters.Counter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Counter</span></code></a> parameters are similar to Flags, but they may be specified multiple
+times, and they support an optional integer value to explicitly increase their stored value by that amount.  One common
+use case for Counters is for verbosity levels, where logging verbosity would increase with the number of <code class="docutils literal notranslate"><span class="pre">-v</span></code>
+arguments that are provided.</p>
+<p>Given the following example Command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NoisyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All of the following would result in <code class="docutils literal notranslate"><span class="pre">self.verbose</span></code> being <code class="docutils literal notranslate"><span class="pre">2</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ prog.py -v -v
+$ prog.py -vv
+$ prog.py --verbose -v
+$ prog.py -v2
+$ prog.py -v=2
+$ prog.py -v 2
+</pre></div>
+</div>
+<p>When provided, the short forms of Option*, Flag, and Counter parameters can be chained together without a space or
+additional <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix character.</p>
+<p>*: Options are less flexible when combining since they require a value.  Only one may be combined with other short
+forms, and it must be the last parameter in the combo so that it immediately precedes its value.</p>
+</section>
+</section>
+<section id="positionals">
+<span id="id5"></span><h2>Positionals<a class="headerlink" href="#positionals" title="Permalink to this headline"></a></h2>
+<p>TODO - This is still a work in progress.  The remainder of this document will be filled in soon.</p>
+<section id="positional">
+<span id="id6"></span><h3>Positional<a class="headerlink" href="#positional" title="Permalink to this headline"></a></h3>
+</section>
+<section id="subcommand">
+<span id="id7"></span><h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this headline"></a></h3>
+</section>
+<section id="action">
+<span id="id8"></span><h3>Action<a class="headerlink" href="#action" title="Permalink to this headline"></a></h3>
+</section>
+</section>
+<section id="others">
+<span id="id9"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
+<section id="paramgroup">
+<span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
+</section>
+<section id="passthru">
+<span id="id11"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
+</section>
+<section id="actionflag">
+<span id="id12"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basic.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

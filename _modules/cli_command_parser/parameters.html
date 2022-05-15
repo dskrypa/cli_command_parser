@@ -41,6 +41,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -246,7 +249,7 @@
     <span class="n">mutually_exclusive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">mutually_dependent</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="ParamGroup.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -278,7 +281,7 @@
             <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;Options&#39;</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;group=</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> cannot be both mutually_exclusive and mutually_dependent&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="o">=</span> <span class="n">mutually_exclusive</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="o">=</span> <span class="n">mutually_dependent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="o">=</span> <span class="n">mutually_dependent</span></div>
 
 <div class="viewcode-block" id="ParamGroup.add"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add the given parameter without storing a back-reference.  Primary use case is for help text only groups.&quot;&quot;&quot;</span>
@@ -489,7 +492,7 @@
         <span class="k">if</span> <span class="n">accepts_none</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">accepts_none</span> <span class="o">=</span> <span class="n">accepts_none</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="Parameter.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -524,7 +527,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">required</span> <span class="k">else</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metavar</span> <span class="o">=</span> <span class="n">metavar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metavar</span> <span class="o">=</span> <span class="n">metavar</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">():</span>
@@ -692,7 +695,7 @@
 
     <span class="n">_positional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BasePositional.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
 <span class="sd">          that extend Parameter, and must be registered via :class:`parameter_action`.</span>
@@ -704,7 +707,7 @@
         <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">cls_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The &#39;default&#39; arg is not supported for </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s2"> parameters&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BasePositional.format_basic_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span></div>
@@ -717,7 +720,7 @@
 <div class="viewcode-block" id="Positional"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional">[docs]</a><span class="k">class</span> <span class="nc">Positional</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A parameter that must be provided positionally.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="Positional.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
@@ -761,7 +764,7 @@
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="n">default</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="n">default</span></div>
 
 <div class="viewcode-block" id="Positional.store"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional.store">[docs]</a>    <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
@@ -953,7 +956,7 @@
 <span class="sd">    :meth:`.register` sub commands explicitly to specify a different choice value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="SubCommand.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param args: Additional positional arguments to pass to :class:`ChoiceMap`.</span>
 <span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
@@ -965,7 +968,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_register_choice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Results in next_cmd=None in parse_args, so the base cmd will run</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_register_choice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Results in next_cmd=None in parse_args, so the base cmd will run</span></div>
 
 <div class="viewcode-block" id="SubCommand.register_command"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register_command">[docs]</a>    <span class="k">def</span> <span class="nf">register_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># noqa</span>
@@ -1110,7 +1113,7 @@
     <span class="n">short_combinable</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># short options without the leading dash (for combined flags)</span>
     <span class="c1"># fmt: on</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseOption.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BaseOption.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,</span>
 <span class="sd">          then one will automatically be added based on the name assigned to this parameter.</span>
@@ -1129,7 +1132,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_short_opts</span> <span class="o">=</span> <span class="n">short_opts</span> <span class="o">=</span> <span class="p">{</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">option_strs</span> <span class="k">if</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">opt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span> <span class="o">=</span> <span class="p">{</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">short_opts</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">bad_opts</span> <span class="o">:=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">short_opts</span> <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bad short option(s) - may not contain &#39;-&#39;: </span><span class="si">{</span><span class="n">bad_opts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bad short option(s) - may not contain &#39;-&#39;: </span><span class="si">{</span><span class="n">bad_opts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
@@ -1170,7 +1173,7 @@
 <div class="viewcode-block" id="Option"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option">[docs]</a><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A generic option that can be specified as ``--foo bar`` or by using other similar forms.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="Option.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1212,7 +1215,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span> <span class="o">=</span> <span class="nb">list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span> <span class="o">=</span> <span class="nb">list</span></div>
 
 <div class="viewcode-block" id="Option.store"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option.store">[docs]</a>    <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
@@ -1229,7 +1232,7 @@
     <span class="n">__default_const_map</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="Flag.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Flag.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1253,7 +1256,7 @@
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_const_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>  <span class="c1"># will be True, False, or None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="o">=</span> <span class="n">const</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="o">=</span> <span class="n">const</span></div>
 
     <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store_const&#39;</span><span class="p">:</span>
@@ -1281,7 +1284,7 @@
 <div class="viewcode-block" id="ActionFlag"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag">[docs]</a><span class="k">class</span> <span class="nc">ActionFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A :class:`Flag` that triggers the execution of a function / method / other callable when specified.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="ActionFlag.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -1310,7 +1313,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">before_main</span> <span class="o">=</span> <span class="n">before_main</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">before_main</span> <span class="o">=</span> <span class="n">before_main</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1375,7 +1378,7 @@
     <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span>
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Counter.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,</span>
 <span class="sd">          then one will automatically be added based on the name assigned to this parameter.</span>
@@ -1392,7 +1395,7 @@
         <span class="k">if</span> <span class="n">bad_types</span> <span class="o">:=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid type for parameters (expected int): </span><span class="si">{</span><span class="n">bad_types</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="o">=</span> <span class="n">const</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="o">=</span> <span class="n">const</span></div>
 
     <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
@@ -1438,13 +1441,13 @@
 
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;store_all&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PassThru.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;store_all&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param action: The action to take on individual parsed values.  Only ``store_all`` (the default) is supported</span>
 <span class="sd">          for this parameter type.</span>
 <span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PassThru.take_action"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru.take_action">[docs]</a>    <span class="k">def</span> <span class="nf">take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">short_combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
