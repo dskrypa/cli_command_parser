@@ -137,7 +137,7 @@ Positional
 The generic :class:`~cli_command_parser.parameters.Positional` parameter, that accepts arbitrary values or lists of
 values.
 
-Example command::
+`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py>`_::
 
     class Echo(Command):
         text = Positional(nargs='*', help='The text to print')
@@ -161,7 +161,8 @@ The :class:`~cli_command_parser.parameters.SubCommand` parameter allows addition
 :class:`~cli_command_parser.commands.Command` classes to be registered as subcommands of the Command that contains the
 SubCommand parameter.
 
-Explicit registration is not necessary for Commands that extend their parent Command - given the following example::
+Explicit registration is not necessary for Commands that extend their parent Command - given the `following example
+<https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py>`_::
 
     class Base(Command):
         sub_cmd = SubCommand()
@@ -221,7 +222,8 @@ cases where all of those functions share the same parameters.  If the target fun
 parameters, then using a :class:`~cli_command_parser.parameters.SubCommand` with separate sub
 :class:`~cli_command_parser.commands.Command` classes may make more sense.
 
-Example command that uses actions::
+`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py>`_ that uses
+actions::
 
     class Example(Command):
         action = Action(help='The action to take')
@@ -302,7 +304,7 @@ PassThru
 without processing them.  Only one PassThru parameter may exist in a given
 :class:`~cli_command_parser.commands.Command`.  When provided, it must be preceded by ``--`` and a space.
 
-Example command::
+`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py>`_::
 
     class Wrapper(Command):
         hosts = Positional(nargs='+', help='The hosts on which the given command should be run')
