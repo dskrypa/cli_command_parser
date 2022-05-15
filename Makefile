@@ -4,7 +4,7 @@ init:
 
 .PHONY: docs
 docs:
-	build_docs.py -uco
+	bin/build_docs.py -uco
 
 publish:
 	pip install twine
@@ -13,4 +13,4 @@ publish:
 	rm -rf build dist lib/cli_command_parser.egg-info
 
 tag:
-	tag.py
+	bin/tag.py

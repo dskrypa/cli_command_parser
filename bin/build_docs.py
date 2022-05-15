@@ -12,7 +12,7 @@ from cli_command_parser import Command, Counter, after_main, before_main, Action
 from cli_command_parser.__version__ import __description__, __title__
 
 log = logging.getLogger(__name__)
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MANUALLY_MAINTAINED = {'index.rst', 'advanced.rst', 'basic.rst', 'parameters.rst'}
 
 

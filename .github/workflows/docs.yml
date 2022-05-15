@@ -22,7 +22,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[docs]
     - name: Generate docs
-      run: python build_docs.py -cu
+      run: python bin/build_docs.py -cu
     - name: GitHub Pages action
       uses: peaceiris/actions-gh-pages@v3
       with:
