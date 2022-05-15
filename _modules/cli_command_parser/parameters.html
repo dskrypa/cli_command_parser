@@ -133,7 +133,15 @@
 
 
 <span class="k">class</span> <span class="nc">parameter_action</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator that is used to register :paramref:`Parameter.__init__.action` handler methods to store values that are</span>
+<span class="sd">    provided for that type of :class:`Parameter`.  The name of the decorated method is used as the ``action`` name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">MethodType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param method: The method that should be used to handle storing values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
         <span class="n">update_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
 
@@ -166,6 +174,8 @@
 
 
 <span class="k">class</span> <span class="nc">ParamBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for :class:`Parameter` and :class:`ParamGroup`.&quot;&quot;&quot;</span>
+
     <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">group</span><span class="p">:</span> <span class="s1">&#39;ParamGroup&#39;</span> <span class="o">=</span> <span class="kc">None</span>
@@ -175,6 +185,13 @@
     <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.</span>
+<span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
+<span class="sd">          raised if the user did not provide a value for this parameter.  Defaults to ``False``.</span>
+<span class="sd">        :param help: A brief description of this parameter that will appear in ``--help`` text.</span>
+<span class="sd">        :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="n">help</span>
@@ -217,7 +234,11 @@
 
 
 <div class="viewcode-block" id="ParamGroup"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup">[docs]</a><span class="k">class</span> <span class="nc">ParamGroup</span><span class="p">(</span><span class="n">ParamBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A group of parameters.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A group of parameters.  Intended to be used as a context manager, where group members are defined inside the</span>
+<span class="sd">    ``with`` block.  Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive</span>
+<span class="sd">    groups, and vice versa.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_local</span> <span class="o">=</span> <span class="n">local</span><span class="p">()</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -235,6 +256,21 @@
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param name: The name of this group, to appear in help messages.</span>
+<span class="sd">        :param description: A brief description for this group, to appear in help messages.</span>
+<span class="sd">        :param mutually_exclusive: ``True`` if parameters in this group are mutually exclusive, ``False`` otherwise.</span>
+<span class="sd">          I.e., if one parameter in this group is provided, then no other parameter in this group will be allowed.</span>
+<span class="sd">          Cannot be specified with ``mutually_dependent``.</span>
+<span class="sd">        :param mutually_dependent: ``True`` if parameters in this group are mutually dependent, ``False`` otherwise.</span>
+<span class="sd">          I.e., if one parameter in this group is provided, then all other parameters in this group must also be</span>
+<span class="sd">          provided.  Cannot be specified with ``mutually_exclusive``.</span>
+<span class="sd">        :param required: Whether at least one parameter in this group is required or not.  If it is required, then an</span>
+<span class="sd">          exception will be raised if the user did not provide a value for any parameters in this group.  Defaults to</span>
+<span class="sd">          ``False``.</span>
+<span class="sd">        :param hide: If ``True``, this group of parameters will not be included in usage / help messages.  Defaults to</span>
+<span class="sd">          ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">hide</span><span class="o">=</span><span class="n">hide</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="p">[]</span>
@@ -417,6 +453,13 @@
 
 
 <div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">ParamBase</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all other parameters.  It is not meant to be used directly.</span>
+
+<span class="sd">    Custom parameter classes should generally extend :class:`BasePositional` or :class:`BaseOption` instead of this,</span>
+<span class="sd">    otherwise additional handling may be necessary in the parser.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_actions</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
     <span class="n">_positional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">accepts_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -427,6 +470,12 @@
     <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Parameter.__init_subclass__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">accepts_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`Flag`</span>
+<span class="sd">          is an example of a class that does not accept values.</span>
+<span class="sd">        :param accepts_none: Indicates whether a given subclass of Parameter accepts being specified without a value,</span>
+<span class="sd">          like :class:`Flag` and :class:`Counter`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_actions</span><span class="p">)</span>  <span class="c1"># Inherit actions from parent</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">actions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">__actions&#39;</span><span class="p">))</span>
@@ -451,6 +500,20 @@
         <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
+<span class="sd">          that extend Parameter, and must be registered via :class:`parameter_action`.</span>
+<span class="sd">        :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.</span>
+<span class="sd">        :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this</span>
+<span class="sd">          parameter is not required; not used if it is required.</span>
+<span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
+<span class="sd">          raised if the user did not provide a value for this parameter.  Defaults to ``False``.</span>
+<span class="sd">        :param metavar: The name to use as a placeholder for values in usage / help messages.</span>
+<span class="sd">        :param choices: A container that holds the specific values that users must pick from.  By default, any value is</span>
+<span class="sd">          allowed.</span>
+<span class="sd">        :param help: A brief description of this parameter that will appear in ``--help`` text.</span>
+<span class="sd">        :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">action</span><span class="si">=}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> - valid actions: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -617,9 +680,24 @@
 
 
 <div class="viewcode-block" id="BasePositional"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional">[docs]</a><span class="k">class</span> <span class="nc">BasePositional</span><span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for :class:`Positional`, :class:`SubCommand`, :class:`Action`, and any other parameters that are</span>
+<span class="sd">    provided positionally, without prefixes.  It is not meant to be used directly.</span>
+
+<span class="sd">    All positional parameters are required by default.</span>
+
+<span class="sd">    Custom positional parameter classes should extend this class to be treated the same as other positionals by the</span>
+<span class="sd">    parser.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_positional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
+<span class="sd">          that extend Parameter, and must be registered via :class:`parameter_action`.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">required</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)):</span>
             <span class="n">cls_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;All </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s1"> parameters must be required - invalid </span><span class="si">{</span><span class="n">required</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -637,6 +715,8 @@
 
 
 <div class="viewcode-block" id="Positional"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional">[docs]</a><span class="k">class</span> <span class="nc">Positional</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A parameter that must be provided positionally.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -645,6 +725,24 @@
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param nargs: The number of values that are expected/required for this parameter.  Defaults to 1.  Use a value</span>
+<span class="sd">          that allows 0 values to have the same effect as making this parameter not required (the ``required`` option</span>
+<span class="sd">          is not supported for Positional parameters).  Only the last Positional parameter in a given</span>
+<span class="sd">          :class:`~.commands.Command` may allow a variable / unbound number of arguments.  See :class:`~.nargs.Nargs`</span>
+<span class="sd">          for more info.</span>
+<span class="sd">        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
+<span class="sd">          that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when</span>
+<span class="sd">          ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action=&#39;store&#39;``, and a list</span>
+<span class="sd">          of values will be stored when ``action=&#39;append&#39;``.</span>
+<span class="sd">        :param type: A callable (function, class, etc.) that accepts a single string argument, which should be called</span>
+<span class="sd">          on every value for this parameter to transform the value.  By default, no transformation is performed, and</span>
+<span class="sd">          values will be strings.  If not specified, but a type annotation is detected, then that annotation will be</span>
+<span class="sd">          used as if it was provided here.  When both are present, this argument takes precedence.</span>
+<span class="sd">        :param default: Only supported when ``action=&#39;store&#39;`` and 0 values are allowed by the specified ``nargs``.</span>
+<span class="sd">          Defaults to ``None`` under those conditions.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">nargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -680,6 +778,11 @@
 
 
 <span class="k">class</span> <span class="nc">Choice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used internally to store a value that can be provided as a choice for a parameter, and the target value / callable</span>
+<span class="sd">    associated with that choice.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">target</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
@@ -698,6 +801,14 @@
 
 
 <span class="k">class</span> <span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.</span>
+
+<span class="sd">    Allows choices to be defined and provided as a string that may contain spaces, without requiring users to escape or</span>
+<span class="sd">    quote the string (i.e., as technically separate arguments).  This allows for a more natural way to provide</span>
+<span class="sd">    multi-word commands, without needing to jump through hoops to handle them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_choice_validation_exc</span> <span class="o">=</span> <span class="n">ParameterDefinitionError</span>
     <span class="n">_default_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Choices&#39;</span>
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
@@ -706,6 +817,11 @@
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param title: Default title to use for help text sections containing the choices for this parameter.</span>
+<span class="sd">        :param choice_validation_exc: The type of exception to raise when validating defined choices.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :meth:`Parameter.__init_subclass__`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_default_title</span> <span class="o">=</span> <span class="n">title</span>
@@ -713,6 +829,17 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">_choice_validation_exc</span> <span class="o">=</span> <span class="n">choice_validation_exc</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
+<span class="sd">          that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to (and only supports)</span>
+<span class="sd">          ``append``.  The ``nargs`` value is automatically calculated / maintained, based on the number of distinct</span>
+<span class="sd">          words in the defined choices.  While most parameters that use ``action=&#39;append&#39;`` will return a list, the</span>
+<span class="sd">          final value for ChoiceMap parameters will instead be a string of space-separated provided values.</span>
+<span class="sd">        :param title: The title to use for help text sections containing the choices for this parameter.  Default value</span>
+<span class="sd">          depends on what is provided by subclasses.</span>
+<span class="sd">        :param description: The description to be used in help text for this parameter.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">choices</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;choices&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">choices</span><span class="si">=}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> choices must be added via register&#39;</span>
@@ -816,7 +943,25 @@
 
 
 <div class="viewcode-block" id="SubCommand"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand">[docs]</a><span class="k">class</span> <span class="nc">SubCommand</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="o">=</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used to indicate the position where a choice that results in delegating execution of the program to a sub-command</span>
+<span class="sd">    should be provided.</span>
+
+<span class="sd">    Sub :class:`~.commands.Command` classes are automatically registered as choices for a SubCommand parameter</span>
+<span class="sd">    if they extend the Command that contains a SubCommand parameter instead of extending Command directly.  When</span>
+<span class="sd">    automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to</span>
+<span class="sd">    :meth:`.register` sub commands explicitly to specify a different choice value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param args: Additional positional arguments to pass to :class:`ChoiceMap`.</span>
+<span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
+<span class="sd">          raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and</span>
+<span class="sd">          not provided, the :meth:`~.commands.Command.main` method for the base :class:`~.commands.Command` that</span>
+<span class="sd">          contains this SubCommand will be executed by default.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="p">:</span>
@@ -871,6 +1016,15 @@
 
 
 <div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action">[docs]</a><span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Actions are similar to :class:`SubCommand` parameters, but allow methods in :class:`~.commands.Command` classes to</span>
+<span class="sd">    be registered as a callable to be executed based on a user&#39;s choice instead of separate sub Commands.</span>
+
+<span class="sd">    Actions are better suited for use cases where all of the target functions accept the same arguments.  If target</span>
+<span class="sd">    functions require different / additional parameters, then using a :class:`SubCommand` with separate sub</span>
+<span class="sd">    :class:`~.commands.Command` classes may make more sense.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Action.register_action"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action.register_action">[docs]</a>    <span class="k">def</span> <span class="nf">register_action</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">method</span><span class="p">:</span> <span class="n">MethodType</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MethodType</span><span class="p">:</span>
@@ -1037,8 +1191,8 @@
 <span class="sd">          of values will be stored when ``action=&#39;append&#39;``.</span>
 <span class="sd">        :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if</span>
 <span class="sd">          this parameter is not required; not used if it is required.</span>
-<span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be raised</span>
-<span class="sd">          if the user did not provide a value for this parameter.  Defaults to ``False``.</span>
+<span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
+<span class="sd">          raised if the user did not provide a value for this parameter.  Defaults to ``False``.</span>
 <span class="sd">        :param type: A callable (function, class, etc.) that accepts a single string argument, which should be called</span>
 <span class="sd">          on every value for this parameter to transform the value.  By default, no transformation is performed, and</span>
 <span class="sd">          values will be strings.  If not specified, but a type annotation is detected, then that annotation will be</span>

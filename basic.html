@@ -44,27 +44,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-cli-command-parser">Installing CLI Command Parser</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#option">Option</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#flag">Flag</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#counter">Counter</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#positionals">Positionals</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#positional">Positional</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#subcommand">SubCommand</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#action">Action</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#others">Others</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#paramgroup">ParamGroup</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#passthru">PassThru</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#actionflag">ActionFlag</a></li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -146,92 +125,8 @@ $ hello_world.py --name John
 Hello John!
 </pre></div>
 </div>
-<p>Even without explicitly specifying the long form for the <code class="docutils literal notranslate"><span class="pre">name</span></code> <a class="reference internal" href="#option">Option</a>, it was automatically added based on the
+<p>Even without explicitly specifying the long form for the <code class="docutils literal notranslate"><span class="pre">name</span></code> <a href="#id1"><span class="problematic" id="id2">`Option`_</span></a>, it was automatically added based on the
 name of the attribute in which that Parameter was stored.</p>
-</section>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h2>
-<p>Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
-say, argparse) to differentiate between parameter types.  The two major categories are <a class="reference internal" href="#options">Options</a> and <a class="reference internal" href="#positionals">Positionals</a>,
-but there are <a class="reference internal" href="#others">Others</a> as well.  The base class for all Parameters is extensible, and user-defined
-<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> types are technically possible as well.</p>
-<p>Many parameters support a <code class="docutils literal notranslate"><span class="pre">type</span></code> argument, which will result in the user-provided value being cast to that type before
-being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
-type will be inferred automatically from any <a class="reference external" href="https://peps.python.org/pep-0484/">type annotations</a> that are present.</p>
-<section id="options">
-<h3>Options<a class="headerlink" href="#options" title="Permalink to this headline"></a></h3>
-<p>Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
-They are typically not required by default, and often have both long and short forms, where long forms typically have
-a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.  The long form is automatically added, if not explicitly
-specified, based on the name of the Parameter attribute.</p>
-<section id="option">
-<h4>Option<a class="headerlink" href="#option" title="Permalink to this headline"></a></h4>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option" title="cli_command_parser.parameters.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameters accept arbitrary values or lists of values.</p>
-<p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ prog.py --foo bar baz
-$ prog.py --foo bar
-$ prog.py --foo=bar
-$ prog.py -f bar baz
-$ prog.py -f bar
-$ prog.py -f=bar
-$ prog.py -fbar
-</pre></div>
-</div>
-</section>
-<section id="flag">
-<h4>Flag<a class="headerlink" href="#flag" title="Permalink to this headline"></a></h4>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Flag" title="cli_command_parser.parameters.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> parameters typically represent boolean values, and do not accept any
-values.  By default, Flag parameters have a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>, and will change to <code class="docutils literal notranslate"><span class="pre">True</span></code> if provided by a
-user.  By specifying <code class="docutils literal notranslate"><span class="pre">default=True</span></code>, then that behavior is reversed.  It is also possible to specify any default value
-with a different <code class="docutils literal notranslate"><span class="pre">const</span></code> value to use if the flag is provided.</p>
-</section>
-<section id="counter">
-<h4>Counter<a class="headerlink" href="#counter" title="Permalink to this headline"></a></h4>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter" title="cli_command_parser.parameters.Counter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Counter</span></code></a> parameters are similar to Flags, but they may be specified multiple
-times, and they support an optional integer value to explicitly increase their stored value by that amount.  One common
-use case for Counters is for verbosity levels, where logging verbosity would increase with the number of <code class="docutils literal notranslate"><span class="pre">-v</span></code>
-arguments that are provided.</p>
-<p>Given the following example Command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>All of the following would result in a count of <code class="docutils literal notranslate"><span class="pre">2</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ prog.py -v -v
-$ prog.py -vv
-$ prog.py --verbose -v
-$ prog.py -v2
-$ prog.py -v=2
-$ prog.py -v 2
-</pre></div>
-</div>
-</section>
-</section>
-<section id="positionals">
-<h3>Positionals<a class="headerlink" href="#positionals" title="Permalink to this headline"></a></h3>
-<p>TODO - This is still a work in progress.  The remainder of this document will be filled in soon.</p>
-<section id="positional">
-<h4>Positional<a class="headerlink" href="#positional" title="Permalink to this headline"></a></h4>
-</section>
-<section id="subcommand">
-<h4>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this headline"></a></h4>
-</section>
-<section id="action">
-<h4>Action<a class="headerlink" href="#action" title="Permalink to this headline"></a></h4>
-</section>
-</section>
-<section id="others">
-<h3>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h3>
-<section id="paramgroup">
-<h4>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h4>
-</section>
-<section id="passthru">
-<h4>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h4>
-</section>
-<section id="actionflag">
-<h4>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h4>
-</section>
-</section>
 </section>
 </section>
 
