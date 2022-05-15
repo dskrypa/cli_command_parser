@@ -269,8 +269,6 @@ Example usage::
 Others
 ------
 
-TODO - This is still a work in progress.  The remainder of this document will be filled in soon.
-
 .. _ParamGroup:
 
 ParamGroup
