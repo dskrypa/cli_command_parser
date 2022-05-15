@@ -386,6 +386,7 @@ class Parameter(ParamBase, ABC):
 
     _actions: frozenset[str] = frozenset()
     _positional: bool = False
+    _repr_attrs: Optional[Collection[str]] = None
     accepts_none: bool = False
     accepts_values: bool = True
     choices: Optional[Collection[Any]] = None
@@ -393,12 +394,15 @@ class Parameter(ParamBase, ABC):
     nargs: Nargs = Nargs(1)
     type: Callable[[str], Any] = None
 
-    def __init_subclass__(cls, accepts_values: bool = None, accepts_none: bool = None):
+    def __init_subclass__(
+        cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None
+    ):
         """
         :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`Flag`
           is an example of a class that does not accept values.
         :param accepts_none: Indicates whether a given subclass of Parameter accepts being specified without a value,
           like :class:`Flag` and :class:`Counter`.
+        :param repr_attrs: Additional attributes to include in the repr.
         """
         actions = set(cls._actions)  # Inherit actions from parent
         try:
@@ -412,6 +416,8 @@ class Parameter(ParamBase, ABC):
             cls.accepts_values = accepts_values
         if accepts_none is not None:
             cls.accepts_none = accepts_none
+        if repr_attrs is not None:
+            cls._repr_attrs = repr_attrs
 
     def __init__(
         self,
@@ -456,6 +462,8 @@ class Parameter(ParamBase, ABC):
 
     def __repr__(self) -> str:
         attrs = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
+        if extra_attrs := self._repr_attrs:
+            attrs = chain(attrs, extra_attrs)
         kwargs = ', '.join(
             f'{a}={v!r}'
             for a in attrs
@@ -1202,7 +1210,7 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     result = result_value
 
 
-class ActionFlag(Flag):
+class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
     """A :class:`Flag` that triggers the execution of a function / method / other callable when specified."""
 
     def __init__(
@@ -1263,7 +1271,7 @@ class ActionFlag(Flag):
     def __lt__(self, other: 'ActionFlag') -> bool:
         if not isinstance(other, ActionFlag):
             return NotImplemented
-        return (not self.before_main, self.order, self.name) < (not self.before_main, other.order, other.name)
+        return (not self.before_main, self.order, self.name) < (not other.before_main, other.order, other.name)
 
     def __call__(self, func: Callable):
         if self.func is not None:

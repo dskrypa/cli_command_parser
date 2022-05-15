@@ -195,6 +195,31 @@ class ActionFlagTest(ParserTest):
             self.assertNotIn('bar', foo.call_order)
             self.assertEqual(1, foo.ctx.actions_taken)  # 1 because no non-flag Actions
 
+    def test_af_before_and_after_with_action(self):
+        class Foo(Command):
+            action = Action()
+
+            def __init__(self):
+                self.call_order = {}
+                self.counter = count()
+
+            @action(default=True)
+            def default_action(self):
+                self.call_order['default_action'] = next(self.counter)
+
+            @before_main('-f')
+            def foo(self):
+                self.call_order['foo'] = next(self.counter)
+
+            @after_main('-b')
+            def bar(self):
+                self.call_order['bar'] = next(self.counter)
+
+        foo = Foo.parse_and_run(['-fb'])
+        self.assertLess(foo.call_order['foo'], foo.call_order['default_action'])
+        self.assertLess(foo.call_order['default_action'], foo.call_order['bar'])
+        self.assertEqual(3, foo.ctx.actions_taken)
+
     def test_bad_action(self):
         with self.assertRaises(ParameterDefinitionError):
 
@@ -239,6 +264,11 @@ class ActionFlagTest(ParserTest):
         flag = ActionFlag()
         with Context() as ctx:
             self.assertFalse(flag.result())
+
+    def test_before_main_sorts_before_after_main(self):
+        a, b = ActionFlag(before_main=False), ActionFlag(before_main=True)
+        expected = [b, a]
+        self.assertListEqual(expected, sorted([a, b]))
 
 
 if __name__ == '__main__':
