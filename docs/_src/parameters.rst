@@ -8,8 +8,10 @@ but there are `Others`_ as well.  The base class for all Parameters is extensibl
 
 Many parameters support a ``type`` argument, which will result in the user-provided value being cast to that type before
 being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
-type will be inferred automatically from any `type annotations <https://peps.python.org/pep-0484/>`_ that are present.
+type will be inferred automatically from any type annotations (see :pep:`484`) that are present.
 
+
+.. _Options:
 
 Options
 -------
@@ -19,6 +21,8 @@ They are typically not required by default, and often have both long and short f
 a ``--`` prefix, and short forms have a ``-`` prefix.  The long form is automatically added, if not explicitly
 specified, based on the name of the Parameter attribute.
 
+
+.. _Option:
 
 Option
 ^^^^^^
@@ -46,6 +50,8 @@ Inside ``MyCommand``, the resulting value of ``self.foo`` would be ``['bar']`` o
 inputs, respectively.
 
 
+.. _Flag:
+
 Flag
 ^^^^
 
@@ -59,6 +65,12 @@ Example::
     class RiskyCommand(Command):
         dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
 
+        def main(self):
+            if self.dry_run:
+                print('[DRY RUN] Would execute risky command')
+            else:
+                print('Executing risky command!')
+
 
 Example usage::
 
@@ -68,6 +80,8 @@ Example usage::
     $ risky_command.py
     Executing risky command!
 
+
+.. _Counter:
 
 Counter
 ^^^^^^^
@@ -96,33 +110,55 @@ All of the following would result in ``self.verbose`` being ``2``::
 When provided, the short forms of Option*, Flag, and Counter parameters can be chained together without a space or
 additional ``-`` prefix character.
 
-*: Options are less flexible when combining since they require a value.  Only one may be combined with other short
+\*: Options are less flexible when combining since they require a value.  Only one may be combined with other short
 forms, and it must be the last parameter in the combo so that it immediately precedes its value.
 
+
+.. _Positionals:
 
 Positionals
 -----------
 
 TODO - This is still a work in progress.  The remainder of this document will be filled in soon.
 
+
+.. _Positional:
+
 Positional
 ^^^^^^^^^^
 
+
+.. _SubCommand:
+
 SubCommand
 ^^^^^^^^^^
+
+
+.. _Action:
 
 Action
 ^^^^^^
 
 
+.. _Others:
+
 Others
 ------
+
+
+.. _ParamGroup:
 
 ParamGroup
 ^^^^^^^^^^
 
+
+.. _PassThru:
+
 PassThru
 ^^^^^^^^
+
+
+.. _ActionFlag:
 
 ActionFlag
 ^^^^^^^^^^

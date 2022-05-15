@@ -13,6 +13,7 @@ from cli_command_parser.__version__ import __description__, __title__
 
 log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent
+MANUALLY_MAINTAINED = {'index.rst', 'advanced.rst', 'basic.rst', 'parameters.rst'}
 
 
 class BuildDocs(Command, description='Build documentation using Sphinx'):
@@ -73,7 +74,6 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     @action('backup', help='Test the RST backup')
     def backup_rsts(self):
         self._ran_backup = True
-        to_copy = {'index.rst', 'advanced.rst', 'basic.rst'}
         if rst_paths := list(self.docs_src_path.rglob('*.rst')):
             backup_dir = PROJECT_ROOT.joinpath('_rst_backup', datetime.now().strftime('%Y-%m-%d_%H.%M.%S'))
             backup_dir.mkdir(parents=True)
@@ -82,7 +82,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
                 dst_path = backup_dir.joinpath(src_path.relative_to(self.docs_src_path))
                 if not dst_path.parent.exists():
                     dst_path.parent.mkdir(parents=True)
-                if src_path.name in to_copy:
+                if src_path.name in MANUALLY_MAINTAINED:
                     log.debug(f'Copying {src_path.as_posix()} -> {dst_path.as_posix()}')
                     shutil.copy(src_path, dst_path)
                 else:
