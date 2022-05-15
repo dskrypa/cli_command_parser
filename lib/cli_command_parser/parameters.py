@@ -57,7 +57,15 @@ ParamOrGroup = Union[Param, 'ParamGroup']
 
 
 class parameter_action:
+    """
+    Decorator that is used to register :paramref:`Parameter.__init__.action` handler methods to store values that are
+    provided for that type of :class:`Parameter`.  The name of the decorated method is used as the ``action`` name.
+    """
+
     def __init__(self, method: MethodType):
+        """
+        :param method: The method that should be used to handle storing values
+        """
         self.method = method
         update_wrapper(self, method)
 
@@ -90,6 +98,8 @@ class parameter_action:
 
 
 class ParamBase(ABC):
+    """Base class for :class:`Parameter` and :class:`ParamGroup`."""
+
     __name: str = None
     _name: str = None
     group: 'ParamGroup' = None
@@ -99,6 +109,13 @@ class ParamBase(ABC):
     hide: Bool = False
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
+        """
+        :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.
+        :param required: Whether this parameter is required or not.  If it is required, then an exception will be
+          raised if the user did not provide a value for this parameter.  Defaults to ``False``.
+        :param help: A brief description of this parameter that will appear in ``--help`` text.
+        :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
+        """
         self.required = required
         self.name = name
         self.help = help
@@ -141,7 +158,11 @@ class ParamBase(ABC):
 
 
 class ParamGroup(ParamBase):
-    """A group of parameters."""
+    """
+    A group of parameters.  Intended to be used as a context manager, where group members are defined inside the
+    ``with`` block.  Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive
+    groups, and vice versa.
+    """
 
     _local = local()
     description: Optional[str]
@@ -159,6 +180,21 @@ class ParamGroup(ParamBase):
         required: Bool = False,
         hide: Bool = False,
     ):
+        """
+        :param name: The name of this group, to appear in help messages.
+        :param description: A brief description for this group, to appear in help messages.
+        :param mutually_exclusive: ``True`` if parameters in this group are mutually exclusive, ``False`` otherwise.
+          I.e., if one parameter in this group is provided, then no other parameter in this group will be allowed.
+          Cannot be specified with ``mutually_dependent``.
+        :param mutually_dependent: ``True`` if parameters in this group are mutually dependent, ``False`` otherwise.
+          I.e., if one parameter in this group is provided, then all other parameters in this group must also be
+          provided.  Cannot be specified with ``mutually_exclusive``.
+        :param required: Whether at least one parameter in this group is required or not.  If it is required, then an
+          exception will be raised if the user did not provide a value for any parameters in this group.  Defaults to
+          ``False``.
+        :param hide: If ``True``, this group of parameters will not be included in usage / help messages.  Defaults to
+          ``False``.
+        """
         super().__init__(name=name, required=required, hide=hide)
         self.description = description
         self.members = []
@@ -341,6 +377,13 @@ class ParamGroup(ParamBase):
 
 
 class Parameter(ParamBase, ABC):
+    """
+    Base class for all other parameters.  It is not meant to be used directly.
+
+    Custom parameter classes should generally extend :class:`BasePositional` or :class:`BaseOption` instead of this,
+    otherwise additional handling may be necessary in the parser.
+    """
+
     _actions: frozenset[str] = frozenset()
     _positional: bool = False
     accepts_none: bool = False
@@ -351,6 +394,12 @@ class Parameter(ParamBase, ABC):
     type: Callable[[str], Any] = None
 
     def __init_subclass__(cls, accepts_values: bool = None, accepts_none: bool = None):
+        """
+        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`Flag`
+          is an example of a class that does not accept values.
+        :param accepts_none: Indicates whether a given subclass of Parameter accepts being specified without a value,
+          like :class:`Flag` and :class:`Counter`.
+        """
         actions = set(cls._actions)  # Inherit actions from parent
         try:
             actions.update(getattr(cls, f'_{cls.__name__}__actions'))
@@ -375,6 +424,20 @@ class Parameter(ParamBase, ABC):
         help: str = None,  # noqa
         hide: Bool = False,
     ):
+        """
+        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
+          that extend Parameter, and must be registered via :class:`parameter_action`.
+        :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.
+        :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this
+          parameter is not required; not used if it is required.
+        :param required: Whether this parameter is required or not.  If it is required, then an exception will be
+          raised if the user did not provide a value for this parameter.  Defaults to ``False``.
+        :param metavar: The name to use as a placeholder for values in usage / help messages.
+        :param choices: A container that holds the specific values that users must pick from.  By default, any value is
+          allowed.
+        :param help: A brief description of this parameter that will appear in ``--help`` text.
+        :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
+        """
         if action not in self._actions:
             raise ParameterDefinitionError(
                 f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
@@ -541,9 +604,24 @@ class Parameter(ParamBase, ABC):
 
 
 class BasePositional(Parameter, ABC):
+    """
+    Base class for :class:`Positional`, :class:`SubCommand`, :class:`Action`, and any other parameters that are
+    provided positionally, without prefixes.  It is not meant to be used directly.
+
+    All positional parameters are required by default.
+
+    Custom positional parameter classes should extend this class to be treated the same as other positionals by the
+    parser.
+    """
+
     _positional: bool = True
 
     def __init__(self, action: str, **kwargs):
+        """
+        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
+          that extend Parameter, and must be registered via :class:`parameter_action`.
+        :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
+        """
         if not (required := kwargs.setdefault('required', True)):
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
@@ -561,6 +639,8 @@ class BasePositional(Parameter, ABC):
 
 
 class Positional(BasePositional):
+    """A parameter that must be provided positionally."""
+
     def __init__(
         self,
         nargs: NargsValue = None,
@@ -569,6 +649,24 @@ class Positional(BasePositional):
         default: Any = _NotSet,
         **kwargs,
     ):
+        """
+        :param nargs: The number of values that are expected/required for this parameter.  Defaults to 1.  Use a value
+          that allows 0 values to have the same effect as making this parameter not required (the ``required`` option
+          is not supported for Positional parameters).  Only the last Positional parameter in a given
+          :class:`~.commands.Command` may allow a variable / unbound number of arguments.  See :class:`~.nargs.Nargs`
+          for more info.
+        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
+          that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when
+          ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list
+          of values will be stored when ``action='append'``.
+        :param type: A callable (function, class, etc.) that accepts a single string argument, which should be called
+          on every value for this parameter to transform the value.  By default, no transformation is performed, and
+          values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
+          used as if it was provided here.  When both are present, this argument takes precedence.
+        :param default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.
+          Defaults to ``None`` under those conditions.
+        :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.
+        """
         if nargs is not None:
             self.nargs = Nargs(nargs)
             if self.nargs == 0:
@@ -604,6 +702,11 @@ class Positional(BasePositional):
 
 
 class Choice:
+    """
+    Used internally to store a value that can be provided as a choice for a parameter, and the target value / callable
+    associated with that choice.
+    """
+
     __slots__ = ('choice', 'target', 'help')
 
     def __init__(self, choice: Optional[str], target: Any = _NotSet, help: str = None):  # noqa
@@ -622,6 +725,14 @@ class Choice:
 
 
 class ChoiceMap(BasePositional):
+    """
+    Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.
+
+    Allows choices to be defined and provided as a string that may contain spaces, without requiring users to escape or
+    quote the string (i.e., as technically separate arguments).  This allows for a more natural way to provide
+    multi-word commands, without needing to jump through hoops to handle them.
+    """
+
     _choice_validation_exc = ParameterDefinitionError
     _default_title: str = 'Choices'
     nargs = Nargs('+')
@@ -630,6 +741,11 @@ class ChoiceMap(BasePositional):
     description: Optional[str]
 
     def __init_subclass__(cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs):
+        """
+        :param title: Default title to use for help text sections containing the choices for this parameter.
+        :param choice_validation_exc: The type of exception to raise when validating defined choices.
+        :param kwargs: Additional keyword arguments to pass to :meth:`Parameter.__init_subclass__`.
+        """
         super().__init_subclass__(**kwargs)
         if title is not None:
             cls._default_title = title
@@ -637,6 +753,17 @@ class ChoiceMap(BasePositional):
             cls._choice_validation_exc = choice_validation_exc
 
     def __init__(self, action: str = 'append', title: str = None, description: str = None, **kwargs):
+        """
+        :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
+          that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to (and only supports)
+          ``append``.  The ``nargs`` value is automatically calculated / maintained, based on the number of distinct
+          words in the defined choices.  While most parameters that use ``action='append'`` will return a list, the
+          final value for ChoiceMap parameters will instead be a string of space-separated provided values.
+        :param title: The title to use for help text sections containing the choices for this parameter.  Default value
+          depends on what is provided by subclasses.
+        :param description: The description to be used in help text for this parameter.
+        :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.
+        """
         if (choices := kwargs.setdefault('choices', None)) is not None:
             raise ParameterDefinitionError(
                 f'Invalid {choices=} - {self.__class__.__name__} choices must be added via register'
@@ -740,7 +867,25 @@ class ChoiceMap(BasePositional):
 
 
 class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):
+    """
+    Used to indicate the position where a choice that results in delegating execution of the program to a sub-command
+    should be provided.
+
+    Sub :class:`~.commands.Command` classes are automatically registered as choices for a SubCommand parameter
+    if they extend the Command that contains a SubCommand parameter instead of extending Command directly.  When
+    automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
+    :meth:`.register` sub commands explicitly to specify a different choice value.
+    """
+
     def __init__(self, *args, required: bool = True, **kwargs):
+        """
+        :param args: Additional positional arguments to pass to :class:`ChoiceMap`.
+        :param required: Whether this parameter is required or not.  If it is required, then an exception will be
+          raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and
+          not provided, the :meth:`~.commands.Command.main` method for the base :class:`~.commands.Command` that
+          contains this SubCommand will be executed by default.
+        :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.
+        """
         super().__init__(*args, **kwargs)
         self.required = required
         if not required:
@@ -795,6 +940,15 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
 
 
 class Action(ChoiceMap, title='Actions'):
+    """
+    Actions are similar to :class:`SubCommand` parameters, but allow methods in :class:`~.commands.Command` classes to
+    be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
+
+    Actions are better suited for use cases where all of the target functions accept the same arguments.  If target
+    functions require different / additional parameters, then using a :class:`SubCommand` with separate sub
+    :class:`~.commands.Command` classes may make more sense.
+    """
+
     def register_action(
         self, choice: Optional[str], method: MethodType, help: str = None, default: Bool = False  # noqa
     ) -> MethodType:
@@ -961,8 +1115,8 @@ class Option(BaseOption):
           of values will be stored when ``action='append'``.
         :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if
           this parameter is not required; not used if it is required.
-        :param required: Whether this parameter is required or not.  If it is required, then an exception will be raised
-          if the user did not provide a value for this parameter.  Defaults to ``False``.
+        :param required: Whether this parameter is required or not.  If it is required, then an exception will be
+          raised if the user did not provide a value for this parameter.  Defaults to ``False``.
         :param type: A callable (function, class, etc.) that accepts a single string argument, which should be called
           on every value for this parameter to transform the value.  By default, no transformation is performed, and
           values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
