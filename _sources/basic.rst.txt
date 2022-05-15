@@ -75,9 +75,6 @@ They are typically not required by default, and often have both long and short f
 a ``--`` prefix, and short forms have a ``-`` prefix.  The long form is automatically added, if not explicitly
 specified, based on the name of the Parameter attribute.
 
-All options in CLI Command Parser extend :class:`~cli_command_parser.parameters.BaseOption`, which provides the basic
-handling for long and short forms.
-
 
 Option
 ^^^^^^

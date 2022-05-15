@@ -86,6 +86,14 @@
 
 
 <div class="viewcode-block" id="Nargs"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs">[docs]</a><span class="k">class</span> <span class="nc">Nargs</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper class for validating the number of values provided for a given :class:`~.parameters.Parameter`.  Unifies the</span>
+<span class="sd">    handling of different ways of specifying the required number of values.</span>
+
+<span class="sd">    Acceptable values include ``?``, ``*``, and ``+``, and they have the same meaning that they have in argparse.</span>
+<span class="sd">    Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_orig</span> <span class="o">=</span> <span class="n">nargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="kc">None</span>
@@ -148,6 +156,7 @@
             <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="si">}</span><span class="s1"> ~ </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="si">}</span><span class="s1">&#39;</span>
 
     <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;See :meth:`.satisfied`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">satisfied</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Nargs&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -173,6 +182,10 @@
             <span class="k">return</span> <span class="bp">NotImplemented</span>
 
     <span class="k">def</span> <span class="nf">_compare_allowed_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;Nargs&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used internally to determine whether 2 Nargs instances are equivalent when they were initialized with different</span>
+<span class="sd">        types of arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">allowed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed</span>
         <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">try_all</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">min</span> <span class="ow">in</span> <span class="n">allowed</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">max</span> <span class="ow">in</span> <span class="n">allowed</span>
@@ -184,6 +197,14 @@
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_orig</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Nargs.satisfied"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied">[docs]</a>    <span class="k">def</span> <span class="nf">satisfied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if the minimum number of values have been provided to satisfy the requirements, and if the number</span>
+<span class="sd">        of values has not exceeded the maximum allowed.  Returns False if the count is below the minimum or above the</span>
+<span class="sd">        maximum.</span>
+
+<span class="sd">        For more advanced use cases, such as range or a set of counts, the count must also match one of the specific</span>
+<span class="sd">        numbers provided for this to return True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span>
         <span class="k">else</span><span class="p">:</span>
