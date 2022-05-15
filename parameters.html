@@ -315,12 +315,86 @@ two
 <p>TODO - This is still a work in progress.  The remainder of this document will be filled in soon.</p>
 <section id="paramgroup">
 <span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
+<p>A group of parameters.  <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> is intended to be used as a context manager,
+where group members are defined inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.  Supports mutually exclusive and mutually dependent groups.</p>
+<p>Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive groups, and vice
+versa.  Grouping may also be used to simply organize parameters as they appear in help text.</p>
+<p>In the following example, <code class="docutils literal notranslate"><span class="pre">wait</span></code> and <code class="docutils literal notranslate"><span class="pre">no_wait</span></code> are mutually exclusive - if both are provided, then an exception is
+raised.  The <code class="docutils literal notranslate"><span class="pre">tasks</span></code> and <code class="docutils literal notranslate"><span class="pre">verbose</span></code> parameters are not in the group:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TaskRunner</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The tasks to run&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="s1">&#39;Wait Options&#39;</span><span class="p">,</span> <span class="n">mutually_exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">wait</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Seconds to wait (0 or below to wait indefinitely)&#39;</span><span class="p">)</span>
+        <span class="n">no_wait</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-W&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Do not wait&#39;</span><span class="p">)</span>
+
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="passthru">
 <span id="id11"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru" title="cli_command_parser.parameters.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected,
+without processing them.  Only one PassThru parameter may exist in a given
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  When provided, it must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a space.</p>
+<p>Example command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Wrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">hosts</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The hosts on which the given command should be run&#39;</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">PassThru</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Would run on </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example help text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ command_wrapper.py -h
+usage: command_wrapper.py HOSTS [--help] [-- COMMAND]
+
+Positional arguments:
+  HOSTS [HOSTS ...]           The hosts on which the given command should be run
+
+Optional arguments:
+  COMMAND                     The command to run (default: None)
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ command_wrapper.py one two -- service foo restart
+Would run on one: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
+Would run on two: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
+</pre></div>
+</div>
 </section>
 <section id="actionflag">
 <span id="id12"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
+parameters.  Like Flags, they are not required, and they can be combined with other <a class="reference internal" href="#options"><span class="std std-ref">Options</span></a>.  Like Actions, they
+allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as execution targets.</p>
+<p>When ActionFlag arguments are provided, the associated methods are called in the order that was specified when marking
+those methods as ActionFlags.  Execution order is also customizable relative to when the
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a> method is called, so each ActionFlag must indicate whether it should
+run before or after main.  Helper decorators are provided to simplify this distinction:
+<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.before_main" title="cli_command_parser.parameters.before_main"><code class="xref py py-data docutils literal notranslate"><span class="pre">before_main</span></code></a> and <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.after_main" title="cli_command_parser.parameters.after_main"><code class="xref py py-data docutils literal notranslate"><span class="pre">after_main</span></code></a>.</p>
+<p>Example command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Build</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">build_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target build directory&#39;</span><span class="p">)</span>
+    <span class="n">install_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target install directory&#39;</span><span class="p">)</span>
+    <span class="n">backup_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Directory in which backups should be stored&#39;</span><span class="p">)</span>
+
+    <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Backup the install directory before building&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">backup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backup_dir</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;make&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">])</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)</span>
+
+    <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Cleanup the build directory after installing&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>

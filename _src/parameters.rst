@@ -276,14 +276,95 @@ TODO - This is still a work in progress.  The remainder of this document will be
 ParamGroup
 ^^^^^^^^^^
 
+A group of parameters.  :class:`~cli_command_parser.parameters.ParamGroup` is intended to be used as a context manager,
+where group members are defined inside the ``with`` block.  Supports mutually exclusive and mutually dependent groups.
+
+Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive groups, and vice
+versa.  Grouping may also be used to simply organize parameters as they appear in help text.
+
+In the following example, ``wait`` and ``no_wait`` are mutually exclusive - if both are provided, then an exception is
+raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
+
+    class TaskRunner(Command):
+        tasks = Positional(nargs='+', help='The tasks to run')
+
+        with ParamGroup('Wait Options', mutually_exclusive=True):
+            wait: int = Option('-w', default=1, help='Seconds to wait (0 or below to wait indefinitely)')
+            no_wait = Flag('-W', help='Do not wait')
+
+        verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+
 
 .. _PassThru:
 
 PassThru
 ^^^^^^^^
 
+:class:`~cli_command_parser.parameters.PassThru` is a parameter that allows all remaining arguments to be collected,
+without processing them.  Only one PassThru parameter may exist in a given
+:class:`~cli_command_parser.commands.Command`.  When provided, it must be preceded by ``--`` and a space.
+
+Example command::
+
+    class Wrapper(Command):
+        hosts = Positional(nargs='+', help='The hosts on which the given command should be run')
+        command = PassThru(help='The command to run')
+
+        def main(self):
+            for host in self.hosts:
+                print(f'Would run on {host}: {self.command}')
+
+
+Example help text::
+
+    $ command_wrapper.py -h
+    usage: command_wrapper.py HOSTS [--help] [-- COMMAND]
+
+    Positional arguments:
+      HOSTS [HOSTS ...]           The hosts on which the given command should be run
+
+    Optional arguments:
+      COMMAND                     The command to run (default: None)
+      --help, -h                  Show this help message and exit (default: False)
+
+
+Example usage::
+
+    $ command_wrapper.py one two -- service foo restart
+    Would run on one: ['service', 'foo', 'restart']
+    Would run on two: ['service', 'foo', 'restart']
+
 
 .. _ActionFlag:
 
 ActionFlag
 ^^^^^^^^^^
+
+:class:`~cli_command_parser.parameters.ActionFlag` parameters act like a combination of :ref:`Flag` and :ref:`Action`
+parameters.  Like Flags, they are not required, and they can be combined with other :ref:`Options`.  Like Actions, they
+allow methods in :class:`~cli_command_parser.commands.Command` classes to be registered as execution targets.
+
+When ActionFlag arguments are provided, the associated methods are called in the order that was specified when marking
+those methods as ActionFlags.  Execution order is also customizable relative to when the
+:meth:`~cli_command_parser.commands.Command.main` method is called, so each ActionFlag must indicate whether it should
+run before or after main.  Helper decorators are provided to simplify this distinction:
+:data:`~cli_command_parser.parameters.before_main` and :data:`~cli_command_parser.parameters.after_main`.
+
+Example command::
+
+    class Build(Command):
+        build_dir: Path = Option(required=True, help='The target build directory')
+        install_dir: Path = Option(required=True, help='The target install directory')
+        backup_dir: Path = Option(required=True, help='Directory in which backups should be stored')
+
+        @before_main('-b', help='Backup the install directory before building')
+        def backup(self):
+            shutil.copy(self.install_dir, self.backup_dir)
+
+        def main(self):
+            subprocess.check_call(['make', 'build', self.build_dir])
+            shutil.copy(self.build_dir, self.install_dir)
+
+        @after_main('-c', help='Cleanup the build directory after installing')
+        def cleanup(self):
+            shutil.rmtree(self.build_dir)
