@@ -27,7 +27,7 @@ specified, based on the name of the Parameter attribute.
 Option
 ^^^^^^
 
-:class:`~cli_command_parser.parameters.Option` parameters accept arbitrary values or lists of values.
+The generic :class:`~cli_command_parser.parameters.Option` parameter, that accepts arbitrary values or lists of values.
 
 Given the following example Command::
 
@@ -119,7 +119,14 @@ forms, and it must be the last parameter in the combo so that it immediately pre
 Positionals
 -----------
 
-TODO - This is still a work in progress.  The remainder of this document will be filled in soon.
+Positionals are parameters that must be provided in a specific order.  They are typically required by default, and they
+do not have any prefix before values.
+
+Arguments for Positional parameters may be provided before, after, and between `Options`_, as long as the immediately
+preceding optional parameter accepts a bounded number of arguments and those values were provided.
+
+The order that positional parameters are defined in a given :class:`~cli_command_parser.commands.Command` determines
+the order in which they must be provided; i.e., the top-most positional parameters must be provided first.
 
 
 .. _Positional:
@@ -127,11 +134,76 @@ TODO - This is still a work in progress.  The remainder of this document will be
 Positional
 ^^^^^^^^^^
 
+The generic :class:`~cli_command_parser.parameters.Positional` parameter, that accepts arbitrary values or lists of
+values.
+
+Example command::
+
+    class Echo(Command):
+        text = Positional(nargs='*', help='The text to print')
+
+        def main(self):
+            print(' '.join(self.text))
+
+
+Example usage::
+
+    $ echo.py Hello World
+    Hello World
+
 
 .. _SubCommand:
 
 SubCommand
 ^^^^^^^^^^
+
+The :class:`~cli_command_parser.parameters.SubCommand` parameter allows additional
+:class:`~cli_command_parser.commands.Command` classes to be registered as subcommands of the Command that contains the
+SubCommand parameter.
+
+Explicit registration is not necessary for Commands that extend their parent Command - given the following example::
+
+    class Base(Command):
+        sub_cmd = SubCommand()
+
+    class Foo(Base, help='Print foo'):
+        def main(self):
+            print('foo')
+
+    class Bar(Base, help='Print bar'):
+        def main(self):
+            print('bar')
+
+
+It produces the following help text::
+
+    $ basic_subcommand.py -h
+    usage: basic_subcommand.py {foo,bar} [--help]
+
+    Subcommands:
+      {foo,bar}
+        foo                       Print foo
+        bar                       Print bar
+
+
+    Optional arguments:
+      --help, -h                  Show this help message and exit (default: False)
+
+
+Usage examples::
+
+    $ basic_subcommand.py foo
+    foo
+
+    $ basic_subcommand.py bar
+    bar
+
+
+When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
+:meth:`~cli_command_parser.parameters.SubCommand.register` sub commands explicitly to specify a different choice value,
+including names that may include spaces.  Such names can be provided without requiring users to escape or quote the
+string (i.e., as technically separate arguments).  This allows for a more natural way to provide multi-word commands,
+without needing to jump through hoops to handle them.
 
 
 .. _Action:
@@ -139,12 +211,65 @@ SubCommand
 Action
 ^^^^^^
 
+:class:`~cli_command_parser.parameters.Action` parameters are similar to
+:class:`~cli_command_parser.parameters.SubCommand` parameters, but allow methods in
+:class:`~cli_command_parser.commands.Command` classes to be registered as a callable to be executed based on a user's
+choice instead of separate sub Commands.
+
+When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
+cases where all of those functions share the same parameters.  If the target functions require different / additional
+parameters, then using a :class:`~cli_command_parser.parameters.SubCommand` with separate sub
+:class:`~cli_command_parser.commands.Command` classes may make more sense.
+
+Example command that uses actions::
+
+    class Example(Command):
+        action = Action(help='The action to take')
+        text = Positional(nargs='+', help='The text to print')
+
+        @action(help='Echo the provided text')
+        def echo(self):
+            print(' '.join(self.text))
+
+        @action(help='Split the provided text so that each word is on a new line')
+        def split(self):
+            print('\n'.join(self.text))
+
+
+The resulting help text::
+
+    $ action_with_args.py -h
+    usage: action_with_args.py {echo,split} TEXT [--help]
+
+    Positional arguments:
+
+    Actions:
+      {echo,split}
+        echo                      Echo the provided text
+        split                     Split the provided text so that each word is on a new line
+
+      TEXT [TEXT ...]             The text to print
+
+    Optional arguments:
+      --help, -h                  Show this help message and exit (default: False)
+
+
+Example usage::
+
+    $ action_with_args.py echo one two
+    one two
+
+    $ action_with_args.py split one two
+    one
+    two
+
 
 .. _Others:
 
 Others
 ------
 
+TODO - This is still a work in progress.  The remainder of this document will be filled in soon.
 
 .. _ParamGroup:
 

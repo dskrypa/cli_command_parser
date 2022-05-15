@@ -115,7 +115,7 @@ a <code class="docutils literal notranslate"><span class="pre">--</span></code> 
 specified, based on the name of the Parameter attribute.</p>
 <section id="option">
 <span id="id2"></span><h3>Option<a class="headerlink" href="#option" title="Permalink to this headline"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option" title="cli_command_parser.parameters.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameters accept arbitrary values or lists of values.</p>
+<p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option" title="cli_command_parser.parameters.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter, that accepts arbitrary values or lists of values.</p>
 <p>Given the following example Command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
@@ -188,19 +188,131 @@ forms, and it must be the last parameter in the combo so that it immediately pre
 </section>
 <section id="positionals">
 <span id="id5"></span><h2>Positionals<a class="headerlink" href="#positionals" title="Permalink to this headline"></a></h2>
-<p>TODO - This is still a work in progress.  The remainder of this document will be filled in soon.</p>
+<p>Positionals are parameters that must be provided in a specific order.  They are typically required by default, and they
+do not have any prefix before values.</p>
+<p>Arguments for Positional parameters may be provided before, after, and between <a class="reference internal" href="#options">Options</a>, as long as the immediately
+preceding optional parameter accepts a bounded number of arguments and those values were provided.</p>
+<p>The order that positional parameters are defined in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> determines
+the order in which they must be provided; i.e., the top-most positional parameters must be provided first.</p>
 <section id="positional">
 <span id="id6"></span><h3>Positional<a class="headerlink" href="#positional" title="Permalink to this headline"></a></h3>
+<p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional" title="cli_command_parser.parameters.Positional"><code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code></a> parameter, that accepts arbitrary values or lists of
+values.</p>
+<p>Example command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo.py Hello World
+Hello World
+</pre></div>
+</div>
 </section>
 <section id="subcommand">
 <span id="id7"></span><h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this headline"></a></h3>
+<p>The <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the Command that contains the
+SubCommand parameter.</p>
+<p>Explicit registration is not necessary for Commands that extend their parent Command - given the following example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It produces the following help text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ basic_subcommand.py -h
+usage: basic_subcommand.py {foo,bar} [--help]
+
+Subcommands:
+  {foo,bar}
+    foo                       Print foo
+    bar                       Print bar
+
+
+Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>Usage examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ basic_subcommand.py foo
+foo
+
+$ basic_subcommand.py bar
+bar
+</pre></div>
+</div>
+<p>When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
+<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register" title="cli_command_parser.parameters.SubCommand.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> sub commands explicitly to specify a different choice value,
+including names that may include spaces.  Such names can be provided without requiring users to escape or quote the
+string (i.e., as technically separate arguments).  This allows for a more natural way to provide multi-word commands,
+without needing to jump through hoops to handle them.</p>
 </section>
 <section id="action">
 <span id="id8"></span><h3>Action<a class="headerlink" href="#action" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to
+<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as a callable to be executed based on a user’s
+choice instead of separate sub Commands.</p>
+<p>When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
+cases where all of those functions share the same parameters.  If the target functions require different / additional
+parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
+<p>Example command that uses actions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The action to take&#39;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
+
+    <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Echo the provided text&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+    <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Split the provided text so that each word is on a new line&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The resulting help text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ action_with_args.py -h
+usage: action_with_args.py {echo,split} TEXT [--help]
+
+Positional arguments:
+
+Actions:
+  {echo,split}
+    echo                      Echo the provided text
+    split                     Split the provided text so that each word is on a new line
+
+  TEXT [TEXT ...]             The text to print
+
+Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ action_with_args.py echo one two
+one two
+
+$ action_with_args.py split one two
+one
+two
+</pre></div>
+</div>
 </section>
 </section>
 <section id="others">
 <span id="id9"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
+<p>TODO - This is still a work in progress.  The remainder of this document will be filled in soon.</p>
 <section id="paramgroup">
 <span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
 </section>
