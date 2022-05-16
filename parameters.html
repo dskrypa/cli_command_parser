@@ -312,9 +312,9 @@ two
 </section>
 </section>
 <section id="others">
-<span id="id10"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
+<span id="id9"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
 <section id="paramgroup">
-<span id="id11"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
+<span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
 <p>A group of parameters.  <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> is intended to be used as a context manager,
 where group members are defined inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.  Supports mutually exclusive and mutually dependent groups.</p>
 <p>Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive groups, and vice
@@ -333,7 +333,7 @@ raised.  The <code class="docutils literal notranslate"><span class="pre">tasks<
 </div>
 </section>
 <section id="passthru">
-<span id="id12"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
+<span id="id11"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru" title="cli_command_parser.parameters.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected,
 without processing them.  Only one PassThru parameter may exist in a given
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  When provided, it must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a space.</p>
@@ -367,7 +367,7 @@ Would run on two: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
 </div>
 </section>
 <section id="actionflag">
-<span id="id14"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
+<span id="id12"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
 parameters.  Like Flags, they are not required, and they can be combined with other <a class="reference internal" href="#options"><span class="std std-ref">Options</span></a>.  Like Actions, they
 allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as execution targets.</p>
