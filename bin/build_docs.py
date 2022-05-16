@@ -6,19 +6,59 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
-from typing import Optional
 
-from cli_command_parser import Command, Counter, after_main, before_main, Action
+from cli_command_parser import Command, Counter, after_main, before_main, Action, Flag
 from cli_command_parser.__version__ import __description__, __title__
 
 log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MANUALLY_MAINTAINED = {'index.rst', 'advanced.rst', 'basic.rst', 'parameters.rst'}
+DOCS_AUTO = {
+    '_build': True,
+    '_modules': True,
+    '_sources': True,
+    '_src': (True, {'api', 'api.rst'}),
+    '_static': (False, {'rtd_custom.css'}),
+}
+
+# region Templates
+
+INDEX_TEMPLATE = """
+API Documentation
+*****************
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
+
+{mod_list}
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+""".lstrip()
+
+MODULE_TEMPLATE = """
+{name} Module
+{bar}
+
+.. currentmodule:: {module}
+
+.. automodule:: {module}
+   :members:
+   :undoc-members:
+   :show-inheritance:
+""".lstrip()
+
+# endregion
 
 
 class BuildDocs(Command, description='Build documentation using Sphinx'):
     action = Action()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+    dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
 
     def __init__(self):
         self.title = __description__
@@ -33,8 +73,10 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     @action(default=True, help='Run sphinx-build')
     def sphinx_build(self):
         cmd = ['sphinx-build', 'docs/_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
-        log.info(f'Running: {cmd}')
-        check_call(cmd)
+        prefix = '[DRY RUN] Would run' if self.dry_run else 'Running'
+        log.info(f'{prefix}: {cmd}')
+        if not self.dry_run:
+            check_call(cmd)
 
     # region Actions
 
@@ -42,21 +84,30 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     @action(help='Clean the docs directory')
     def clean(self):
         self.backup_rsts()
+        docs_dir = PROJECT_ROOT.joinpath('docs')
+        prefix = '[DRY RUN] Would delete' if self.dry_run else 'Deleting'
         log.info('Cleaning up old generated files')
-        docs_path = PROJECT_ROOT.joinpath('docs')
-        to_clean = [
-            (docs_path.joinpath('_static'), {'rtd_custom.css'}),
-            (docs_path.joinpath('_src', 'api'), None),
-            (docs_path.joinpath('_src', 'api.rst'), None),
-            (docs_path, {'_src', '_static', '_templates', '_ext', '.nojekyll'}),
-        ]
-        for path, exclude in to_clean:
-            if not path.exists():
-                continue
+        for path in docs_dir.iterdir():
+            if path.is_file():
+                log.debug(f'{prefix} {path.as_posix()}')
+                if not self.dry_run:
+                    path.unlink()
+            elif is_auto := DOCS_AUTO.get(path.name):
+                try:
+                    content_is_auto, content = is_auto
+                except TypeError:
+                    log.debug(f'{prefix} {path.as_posix()}')
+                    if not self.dry_run:
+                        shutil.rmtree(path)
+                else:
+                    for p in path.iterdir():
+                        if content_is_auto == (p.name in content):
+                            log.debug(f'{prefix} {p.as_posix()}')
+                            if not self.dry_run:
+                                delete(p)
 
-            clean_path(path, exclude)
-
-        docs_path.joinpath('.nojekyll').touch()  # Force GitHub to use the RTD theme instead of their Jekyll theme
+        if not self.dry_run:
+            docs_dir.joinpath('.nojekyll').touch()  # Force GitHub to use the RTD theme instead of their Jekyll theme
 
     @before_main('-u', help='Update RST files', order=2)
     def update(self):
@@ -67,27 +118,41 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     @after_main('-o', help='Open the docs in the default web browser after running sphinx-build')
     def open(self):
         index_path = PROJECT_ROOT.joinpath('docs', 'index.html').as_posix()
-        webbrowser.open(f'file://{index_path}')
+        if not self.dry_run:
+            webbrowser.open(f'file://{index_path}')
 
     # endregion
 
     @action('backup', help='Test the RST backup')
     def backup_rsts(self):
         self._ran_backup = True
-        if rst_paths := list(self.docs_src_path.rglob('*.rst')):
-            backup_dir = PROJECT_ROOT.joinpath('_rst_backup', datetime.now().strftime('%Y-%m-%d_%H.%M.%S'))
+        if not (rst_paths := list(self.docs_src_path.rglob('*.rst'))):
+            return
+
+        auto_generated = DOCS_AUTO['_src'][1]
+        backup_dir = PROJECT_ROOT.joinpath('_rst_backup', datetime.now().strftime('%Y-%m-%d_%H.%M.%S'))
+
+        if self.dry_run:
+            mv_pre, cp_pre, bk_pre = '[DRY RUN] Would move', '[DRY RUN] Would copy', '[DRY RUN] Would back up'
+        else:
             backup_dir.mkdir(parents=True)
-            log.info(f'Backing up old RSTs in {backup_dir.as_posix()}')
-            for src_path in rst_paths:
-                dst_path = backup_dir.joinpath(src_path.relative_to(self.docs_src_path))
-                if not dst_path.parent.exists():
-                    dst_path.parent.mkdir(parents=True)
-                if src_path.name in MANUALLY_MAINTAINED:
-                    log.debug(f'Copying {src_path.as_posix()} -> {dst_path.as_posix()}')
-                    shutil.copy(src_path, dst_path)
-                else:
-                    log.debug(f'Moving {src_path.as_posix()} -> {dst_path.as_posix()}')
+            mv_pre, cp_pre, bk_pre = 'Moving', 'Copying', 'Backing up'
+
+        log.info(f'{bk_pre} old RSTs in {backup_dir.as_posix()}')
+        for src_path in rst_paths:
+            rel_path = src_path.relative_to(self.docs_src_path)
+            dst_path = backup_dir.joinpath(rel_path)
+            if not dst_path.parent.exists() and not self.dry_run:
+                dst_path.parent.mkdir(parents=True)
+
+            if rel_path.parts[0] in auto_generated:
+                log.debug(f'{mv_pre} {src_path.as_posix()} -> {dst_path.as_posix()}')
+                if not self.dry_run:
                     src_path.rename(dst_path)
+            else:
+                log.debug(f'{cp_pre} {src_path.as_posix()} -> {dst_path.as_posix()}')
+                if not self.dry_run:
+                    shutil.copy(src_path, dst_path)
 
     # region RST Generation
 
@@ -102,37 +167,26 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     def _write_rst(self, name: str, content: str, subdir: str = None):
         target_dir = self.docs_src_path.joinpath(subdir) if subdir else self.docs_src_path
-        if not target_dir.exists():
+        if not target_dir.exists() and not self.dry_run:
             target_dir.mkdir(parents=True)
+
+        prefix = '[DRY RUN] Would write' if self.dry_run else 'Writing'
         path = target_dir.joinpath(name + '.rst')
-        with path.open('w', encoding='utf-8', newline='\n') as f:
-            log.debug(f'Writing {path.as_posix()}')
-            f.write(content)
+        log.debug(f'{prefix} {path.as_posix()}')
+        if not self.dry_run:
+            with path.open('w', encoding='utf-8', newline='\n') as f:
+                f.write(content)
 
     def _write_api_index(self, modules: list[str]):
-        bar = '*' * 17
-        head = f'API Documentation\n{bar}\n\n.. toctree::\n   :maxdepth: 2\n   :caption: Modules\n\n'
-        foot = '\n\nIndices and tables\n==================\n\n* :ref:`genindex`\n* :ref:`modindex`\n* :ref:`search`\n'
         mod_list = '\n'.join(map('   api/{}'.format, sorted(modules)))
-        self._write_rst('api', head + mod_list + foot)
+        self._write_rst('api', INDEX_TEMPLATE.format(mod_list=mod_list))
 
     def _make_module_rst(self, module: str):
-        title = '{} Module'.format(module.split('.')[-1].title())
-        bar = '*' * len(title)
-        attrs = '   :members:\n   :undoc-members:\n   :show-inheritance:\n'
-        content = f'{title}\n{bar}\n\n.. currentmodule:: {module}\n\n.. automodule:: {module}\n{attrs}'
-        self._write_rst(module, content, 'api')
+        name = module.split('.')[-1].title()
+        bar = '*' * (len(name) + 7)
+        self._write_rst(module, MODULE_TEMPLATE.format(name=name, bar=bar, module=module), 'api')
 
     # endregion
-
-
-def clean_path(path: Path, exclude: Optional[set[str]]):
-    if exclude is None:
-        delete(path)
-    else:
-        for p in path.iterdir():
-            if p.name not in exclude:
-                delete(p)
 
 
 def delete(path: Path):
