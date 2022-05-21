@@ -157,9 +157,11 @@
         <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-            <span class="k">while</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">():</span>
+            <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+            <span class="k">while</span> <span class="n">sub_cmd</span><span class="p">:</span>
                 <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
                 <span class="n">ctx</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">))</span>
+                <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
             <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">()</span></div>
 
