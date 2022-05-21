@@ -377,3 +377,9 @@ Example command::
         @after_main('-c', help='Cleanup the build directory after installing')
         def cleanup(self):
             shutil.rmtree(self.build_dir)
+
+
+By default, the ActionFlags configured to run after :meth:`.Command.main` will not run if an exception was raised in
+:meth:`.Command.main`.  It is possible to specify :attr:`.CommandConfig.always_run_after_main` to allow
+:meth:`.Command._after_main_` (and therefore ActionFlags registered to run after main) to be called even if an
+exception was raised.

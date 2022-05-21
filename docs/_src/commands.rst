@@ -204,6 +204,13 @@ that argument::
     unrecognized arguments: -x
 
 
+This set of commands also contains an example of using a subcommand name that contains a space.  It can be provided
+without needing to escape the space or put it in quotes::
+
+    $ advanced_subcommand.py run bar
+    bar
+
+
 .. _parse_and_run:
 
 Parse & Run

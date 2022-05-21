@@ -62,6 +62,8 @@ Param = TypeVar('Param', bound='Parameter')
 ParamList = List[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
 
+# TODO: Parameter.validator method that can be used as a decorator?
+
 
 class parameter_action:
     """
