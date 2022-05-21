@@ -42,17 +42,20 @@ class CommandMeta(ABCMeta, type):
         :param description: Description of what the program does
         :param epilog: Text to follow parameter descriptions
         :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
-        :param error_handler: The :class:`ErrorHandler<command_parser.error_handling.ErrorHandler>` to be used by
-          :meth:`.run` to wrap :meth:`.main`
+        :param error_handler: The :class:`~.error_handling.ErrorHandler` to be used by
+          :meth:`Command.__call__<.commands.Command.__call__>` to wrap :meth:`~.commands.Command.main`, or None to
+          disable error handling.
         :param bool add_help: Whether the --help / -h action_flag should be added
         :param bool action_after_action_flags: Whether action_flag methods are allowed to be combined with a positional
           Action method in a given CLI invocation
         :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all
           specified
-        :param ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown
-          arguments are encountered)
-        :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when
-          required arguments are missing)
+        :param bool ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when
+          unknown arguments are encountered)
+        :param bool allow_missing: Whether missing required arguments should be allowed (default: raise an exception
+          when required arguments are missing)
+        :param bool always_run_after_main: Whether :meth:`Command._after_main_` should always be called, even if an
+          exception was raised in :meth:`Command.main`
         """
         cls = super().__new__(mcls, name, bases, namespace)
         mcls._commands.add(cls)

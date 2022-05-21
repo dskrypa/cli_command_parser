@@ -287,6 +287,30 @@ class TestCommands(TestCase):
                 with self.assertRaises(CommandDefinitionError):
                     Foo.params()
 
+    def test_after_main_not_called_after_exc(self):
+        class Foo(Command):
+            _after_main_ = Mock()
+
+            def main(self):
+                raise RuntimeError('test')
+
+        with self.assertRaisesRegex(RuntimeError, 'test'):
+            Foo.parse_and_run([])
+
+        self.assertFalse(Foo._after_main_.called)
+
+    def test_after_main_called_after_exc(self):
+        class Foo(Command, always_run_after_main=True):
+            _after_main_ = Mock()
+
+            def main(self):
+                raise RuntimeError('test')
+
+        with self.assertRaisesRegex(RuntimeError, 'test'):
+            Foo.parse_and_run([])
+
+        self.assertTrue(Foo._after_main_.called)
+
 
 if __name__ == '__main__':
     try:

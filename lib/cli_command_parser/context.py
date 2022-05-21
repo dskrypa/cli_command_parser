@@ -79,6 +79,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     allow_missing = ConfigOption()
     multiple_action_flags = ConfigOption()
     action_after_action_flags = ConfigOption()
+    always_run_after_main = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -95,6 +96,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         allow_missing: Bool = None,
         multiple_action_flags: Bool = None,
         action_after_action_flags: Bool = None,
+        always_run_after_main: Bool = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -119,6 +121,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.allow_missing = allow_missing
         self.multiple_action_flags = multiple_action_flags
         self.action_after_action_flags = action_after_action_flags
+        self.always_run_after_main = always_run_after_main
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation
         # self.strict_sub_command_punctuation = strict_sub_command_punctuation

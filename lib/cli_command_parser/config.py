@@ -26,7 +26,7 @@ class CommandConfig:
     #: Whether the --help / -h action_flag should be added
     add_help: Bool = True
 
-    #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.run`
+    #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.__call__`
     error_handler: Optional['ErrorHandler'] = _NotSet
 
     #: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)
@@ -37,6 +37,10 @@ class CommandConfig:
 
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
     allow_missing: Bool = False
+
+    #: Whether :meth:`Command._after_main_` should always be called, even if an exception was raised in
+    #: :meth:`Command.main`
+    always_run_after_main: Bool = False
 
     # #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict
     # #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)

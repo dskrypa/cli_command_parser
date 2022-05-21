@@ -28,7 +28,7 @@ class Command(ABC, metaclass=CommandMeta):
 
     def __new__(cls):
         ctx = _get_or_create_context(cls)
-        # By storing the Context here instead of __init__, every single sub class won't need to
+        # By storing the Context here instead of __init__, every single subclass won't need to
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
         self.__ctx = ctx
@@ -44,7 +44,7 @@ class Command(ABC, metaclass=CommandMeta):
         <command_parser.error_handling.ErrorHandler>`.
 
         To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use
-        the above mentioned methods separately.
+        the above-mentioned methods separately.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :param args: Positional arguments to pass to :meth:`.run`
@@ -102,8 +102,15 @@ class Command(ABC, metaclass=CommandMeta):
         """
         with self.__ctx as ctx, ctx.get_error_handler():
             self._before_main_(*args, **kwargs)
-            self.main(*args, **kwargs)
-            self._after_main_(*args, **kwargs)
+            try:
+                self.main(*args, **kwargs)
+            except BaseException:
+                if ctx.always_run_after_main:
+                    log.debug('Caught exception - running _after_main_ before propagating', exc_info=True)
+                    self._after_main_(*args, **kwargs)
+                raise
+            else:
+                self._after_main_(*args, **kwargs)
 
         return ctx.actions_taken
 
