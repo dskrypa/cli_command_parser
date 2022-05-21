@@ -4,7 +4,7 @@
 
 import platform
 import sys
-from typing import Type, Callable, Union, Optional
+from typing import Type, Callable, Union, Optional, Dict
 
 from .exceptions import CommandParserException
 
@@ -14,10 +14,10 @@ WINDOWS = platform.system().lower() == 'windows'
 
 
 class ErrorHandler:
-    _exc_handler_map: dict[Type[BaseException], Callable] = {}
+    _exc_handler_map: Dict[Type[BaseException], Callable] = {}
 
     def __init__(self):
-        self.exc_handler_map: dict[Type[BaseException], Callable] = {}
+        self.exc_handler_map: Dict[Type[BaseException], Callable] = {}
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}[handlers={len(self.exc_handler_map)}]>'

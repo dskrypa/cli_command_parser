@@ -6,6 +6,7 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
+from typing import Collection
 
 from cli_command_parser import Command, Counter, after_main, before_main, Action, Flag
 from cli_command_parser.__version__ import __description__, __title__
@@ -177,7 +178,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
             with path.open('w', encoding='utf-8', newline='\n') as f:
                 f.write(content)
 
-    def _write_api_index(self, modules: list[str]):
+    def _write_api_index(self, modules: Collection[str]):
         mod_list = '\n'.join(map('   api/{}'.format, sorted(modules)))
         self._write_rst('api', INDEX_TEMPLATE.format(mod_list=mod_list))
 

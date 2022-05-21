@@ -2,6 +2,7 @@
 
 from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
+from typing import Sequence, Tuple
 from unittest import TestCase, main
 from unittest.mock import Mock, patch, MagicMock
 
@@ -193,13 +194,11 @@ class GroupHelpTextTest(TestCase):
 
 
 class ProgramMetadataTest(TestCase):
-    def test_meta_init(self):
+    @patch('cli_command_parser.utils.getsourcefile', return_value='foo-script.py')
+    @patch('cli_command_parser.utils.sys.argv', ['bar.py'])
+    def test_meta_init(self, *mocks):
         g = {'__author_email__': 'example@fake.com', '__version__': '3.2.1', '__url__': 'https://github.com/foo/bar'}
-        with (
-            patch('cli_command_parser.utils.getsourcefile', return_value='foo-script.py'),
-            patch.object(ProgramMetadata, '_find_dunder_info', return_value=(True, g)),
-            patch('cli_command_parser.utils.sys.argv', ['bar.py']),
-        ):
+        with patch.object(ProgramMetadata, '_find_dunder_info', return_value=(True, g)):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'bar.py')
             self.assertEqual(meta.prog, 'bar.py')
@@ -224,7 +223,9 @@ class ProgramMetadataTest(TestCase):
         meta = ProgramMetadata(url='https://github.com/foo')
         self.assertIs(meta.docs_url, None)
 
-    def test_find_dunder_info(self):
+    @patch('cli_command_parser.utils.getsourcefile', return_value='foo-script.py')
+    @patch('cli_command_parser.utils.sys.argv', [])
+    def test_find_dunder_info(self, *mocks):
         g = {
             '__author_email__': 'example@fake.com',
             '__version__': '3.2.1',
@@ -232,11 +233,7 @@ class ProgramMetadataTest(TestCase):
             'load_entry_point': Mock(),
         }
         frame_info = MagicMock(frame=Mock(f_globals=g))
-        with (
-            patch('cli_command_parser.utils.getsourcefile', return_value='foo-script.py'),
-            patch('cli_command_parser.utils.stack', return_value=[frame_info, frame_info]),
-            patch('cli_command_parser.utils.sys.argv', []),
-        ):
+        with patch('cli_command_parser.utils.stack', return_value=[frame_info, frame_info]):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'foo.py')
             self.assertEqual(meta.prog, 'foo.py')
@@ -255,7 +252,7 @@ class ProgramMetadataTest(TestCase):
             self.assertEqual(meta.version, '')
 
 
-def _get_output(command: CommandType, args: list[str]) -> tuple[str, str]:
+def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:
     stdout, stderr = StringIO(), StringIO()
     with redirect_stdout(stdout), redirect_stderr(stderr):
         command.parse_and_run(args)

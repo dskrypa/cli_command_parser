@@ -7,7 +7,7 @@ from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast, Dict, Tuple, List
 
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
@@ -146,7 +146,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             argv = self.remaining
         return self.__class__(argv, command, parent=self)
 
-    def get_parsed(self, exclude: Collection['Parameter'] = (), recursive: Bool = True) -> dict[str, Any]:
+    def get_parsed(self, exclude: Collection['Parameter'] = (), recursive: Bool = True) -> Dict[str, Any]:
         with self:
             if recursive and (parent := self.parent):
                 parsed = parent.get_parsed(exclude, recursive)
@@ -193,7 +193,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self._provided[param]
 
     @cached_property
-    def parsed_action_flags(self) -> tuple[int, list['ActionFlag'], list['ActionFlag']]:
+    def parsed_action_flags(self) -> Tuple[int, List['ActionFlag'], List['ActionFlag']]:
         parsing = self._parsing
         try:
             action_flags = sorted(p for p in self.params.action_flags if p in parsing)

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
-from unittest import TestCase, main
+from unittest import TestCase, main, skipIf
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Counter, Option, Flag
@@ -542,7 +543,8 @@ class TypeCastTest(ParserTest):
 
                 self.assertEqual(expected, Foo.parse([arg]).bar)
 
-    def test_type_cast_multiples(self):
+    @skipIf(sys.version_info < (3, 9), 'stdlib collections are not subscriptable for annotations before 3.9')
+    def test_type_cast_multiples_39(self):
         cases = [
             (list[int], ['1', '2'], [1, 2]),
             (list[Optional[int]], ['1', '2'], [1, 2]),
@@ -556,6 +558,31 @@ class TypeCastTest(ParserTest):
             (list[Union[int, str, None]], ['12', '3'], ['12', '3']),
             (tuple[int, str, None], ['12', '3'], ['12', '3']),
             (list[_resolved_path], ['test_parser.py', 'test_commands.py'], ['test_parser.py', 'test_commands.py']),
+        ]
+        for annotation, argv, expected in cases:
+            with self.subTest(annotation=annotation):
+
+                class Foo(Command):
+                    bar: annotation = Positional(nargs='+')
+
+                self.assertEqual(expected, Foo.parse(argv).bar)
+
+    def test_type_cast_multiples(self):
+        from typing import List, Tuple
+
+        cases = [
+            (List[int], ['1', '2'], [1, 2]),
+            (List[Optional[int]], ['1', '2'], [1, 2]),
+            (Optional[List[int]], ['1', '2'], [1, 2]),
+            (Tuple[int, ...], ['1', '2'], [1, 2]),
+            (Sequence[int], ['1', '2'], [1, 2]),
+            (Collection[int], ['1', '2'], [1, 2]),
+            (Iterable[int], ['1', '2'], [1, 2]),
+            (List[_C], ['1', '2'], [_C('1'), _C('2')]),
+            (List, ['12', '3'], [['1', '2'], ['3']]),
+            (List[Union[int, str, None]], ['12', '3'], ['12', '3']),
+            (Tuple[int, str, None], ['12', '3'], ['12', '3']),
+            (List[_resolved_path], ['test_parser.py', 'test_commands.py'], ['test_parser.py', 'test_commands.py']),
         ]
         for annotation, argv, expected in cases:
             with self.subTest(annotation=annotation):

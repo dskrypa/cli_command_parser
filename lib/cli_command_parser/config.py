@@ -5,7 +5,7 @@ Configuration options for Command behavior.
 """
 
 from dataclasses import dataclass, fields
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, Dict, FrozenSet
 
 from .utils import Bool, _NotSet, cached_class_property
 
@@ -53,10 +53,10 @@ class CommandConfig:
     # strict_sub_command_punctuation: Bool = False
 
     @cached_class_property
-    def _field_names(cls) -> frozenset[str]:  # noqa
+    def _field_names(cls) -> FrozenSet[str]:  # noqa
         return frozenset(field.name for field in fields(cls))
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self) -> Dict[str, Any]:
         """
         Return a dict representing the configured options.
 

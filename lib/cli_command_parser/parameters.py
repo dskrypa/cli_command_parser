@@ -11,6 +11,7 @@ from itertools import chain
 from operator import xor
 from threading import local
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar, Iterable, Iterator
+from typing import Tuple, List, Dict, Set, FrozenSet
 from types import MethodType
 
 from .context import ctx
@@ -53,6 +54,7 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 Param = TypeVar('Param', bound='Parameter')
+ParamList = List[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
 
 
@@ -166,7 +168,7 @@ class ParamGroup(ParamBase):
 
     _local = local()
     description: Optional[str]
-    members: list[ParamOrGroup]
+    members: List[ParamOrGroup]
     mutually_exclusive: Bool = False
     mutually_dependent: Bool = False
 
@@ -285,7 +287,7 @@ class ParamGroup(ParamBase):
     def __iter__(self) -> Iterator[ParamOrGroup]:
         yield from self.members
 
-    def _categorize_params(self) -> tuple[list[Param], list[Param]]:
+    def _categorize_params(self) -> Tuple[ParamList, ParamList]:
         provided = []
         missing = []
         for obj in self.members:
@@ -296,7 +298,7 @@ class ParamGroup(ParamBase):
 
         return provided, missing
 
-    def _check_conflicts(self, provided: list[Param], missing: list[Param]):
+    def _check_conflicts(self, provided: ParamList, missing: ParamList):
         # log.debug(f'{self}: Checking group conflicts in {args=}')
         if not (self.mutually_dependent or self.mutually_exclusive):
             return
@@ -331,7 +333,7 @@ class ParamGroup(ParamBase):
             return group.show_in_help
         return True
 
-    def format_description(self, group_type: 'Bool' = True) -> str:
+    def format_description(self, group_type: Bool = True) -> str:
         description = self.description or f'{self.name} options'
         if group_type and (self.mutually_exclusive or self.mutually_dependent):
             description += ' (mutually {})'.format('exclusive' if self.mutually_exclusive else 'dependent')
@@ -342,7 +344,7 @@ class ParamGroup(ParamBase):
         return f'{{{choices}}}'
 
     def format_help(
-        self, width: int = 30, add_default: 'Bool' = True, group_type: 'Bool' = True, clean: Bool = True
+        self, width: int = 30, add_default: Bool = True, group_type: Bool = True, clean: Bool = True
     ) -> str:
         """
         Prepare the help text for this group.
@@ -384,7 +386,7 @@ class Parameter(ParamBase, ABC):
     otherwise additional handling may be necessary in the parser.
     """
 
-    _actions: frozenset[str] = frozenset()
+    _actions: FrozenSet[str] = frozenset()
     _positional: bool = False
     _repr_attrs: Optional[Collection[str]] = None
     accepts_none: bool = False
@@ -744,7 +746,7 @@ class ChoiceMap(BasePositional):
     _choice_validation_exc = ParameterDefinitionError
     _default_title: str = 'Choices'
     nargs = Nargs('+')
-    choices: dict[str, Choice]
+    choices: Dict[str, Choice]
     title: Optional[str]
     description: Optional[str]
 
@@ -863,7 +865,7 @@ class ChoiceMap(BasePositional):
     def format_usage(self, include_meta: Bool = None, full: Bool = None, delim: str = None) -> str:
         return self.usage_metavar
 
-    def format_help(self, width: int = 30, add_default: 'Bool' = None):
+    def format_help(self, width: int = 30, add_default: Bool = None):
         title = self.title or self._default_title
         help_entry = HelpEntryFormatter(self.format_usage(), self.description, width, lpad=2)()
         parts = [f'{title}:', help_entry]
@@ -885,7 +887,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
     :meth:`.register` sub commands explicitly to specify a different choice value.
     """
 
-    def __init__(self, *args, required: bool = True, **kwargs):
+    def __init__(self, *args, required: Bool = True, **kwargs):
         """
         :param args: Additional positional arguments to pass to :class:`ChoiceMap`.
         :param required: Whether this parameter is required or not.  If it is required, then an exception will be
@@ -1037,9 +1039,9 @@ class BaseOption(Parameter, ABC):
     """
 
     # fmt: off
-    _long_opts: set[str]        # --long options
-    _short_opts: set[str]       # -short options
-    short_combinable: set[str]  # short options without the leading dash (for combined flags)
+    _long_opts: Set[str]        # --long options
+    _short_opts: Set[str]       # -short options
+    short_combinable: Set[str]  # short options without the leading dash (for combined flags)
     # fmt: on
 
     def __init__(self, *option_strs: str, action: str, **kwargs):
@@ -1073,11 +1075,11 @@ class BaseOption(Parameter, ABC):
                 pass
 
     @cached_property
-    def long_opts(self) -> list[str]:
+    def long_opts(self) -> List[str]:
         return sorted(self._long_opts, key=lambda opt: (-len(opt), opt))
 
     @cached_property
-    def short_opts(self) -> list[str]:
+    def short_opts(self) -> List[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
 
     def format_basic_usage(self) -> str:

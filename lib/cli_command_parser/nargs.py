@@ -2,9 +2,9 @@
 :author: Doug Skrypa
 """
 
-from typing import Union, Sequence
+from typing import Union, Sequence, Tuple, Set
 
-NargsValue = Union[str, int, tuple[int, int], Sequence[int], set[int], range]
+NargsValue = Union[str, int, Tuple[int, int], Sequence[int], Set[int], range]
 
 NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None)}
 

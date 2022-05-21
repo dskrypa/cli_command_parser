@@ -7,7 +7,7 @@ import sys
 from collections.abc import Collection, Iterable
 from inspect import stack, getsourcefile, isclass
 from pathlib import Path
-from typing import Any, Union, Optional, Type, Callable, get_type_hints, get_origin, get_args
+from typing import Any, Union, Optional, Type, Callable, get_type_hints, get_origin, get_args as _get_args
 from string import whitespace, printable
 
 try:
@@ -18,7 +18,6 @@ except ImportError:  # Added in 3.10
 from .exceptions import ParameterDefinitionError
 
 Bool = Union[bool, Any]
-
 _NotSet = object()
 
 
@@ -128,14 +127,25 @@ def camel_to_snake_case(text: str, delim: str = '_') -> str:
     return ''.join(f'{delim}{c}' if i and c.isupper() else c for i, c in enumerate(text)).lower()
 
 
-def get_descriptor_value_type(command_cls, attr: str):
+def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
     try:
         annotation = get_type_hints(command_cls)[attr]
     except KeyError:
         return None
 
-    # TODO: Also return container type, if specified?
-    if (origin := get_origin(annotation)) is None and isinstance(annotation, type):
+    return get_annotation_value_type(annotation)
+
+
+def get_annotation_value_type(annotation) -> Optional[type]:
+    origin = get_origin(annotation)
+    """
+    Note on get_origin return values:
+    get_origin(List[str]) -> list
+    get_origin(List) -> list
+    get_origin(list[str]) -> list
+    get_origin(list) -> None
+    """
+    if origin is None and isinstance(annotation, type):
         return annotation
     elif isclass(origin) and issubclass(origin, (Collection, Iterable)):
         return _type_from_collection(origin, annotation)
@@ -144,7 +154,16 @@ def get_descriptor_value_type(command_cls, attr: str):
     return None
 
 
-def _type_from_union(annotation):
+def get_args(annotation) -> tuple:
+    """
+    Wrapper around :func:`python:typing.get_args` for 3.7~8 compatibility, to make it behave more like it does in 3.9+
+    """
+    if getattr(annotation, '_special', False):  # 3.7-3.8 generic collection alias with no content types
+        return ()
+    return _get_args(annotation)
+
+
+def _type_from_union(annotation) -> Optional[type]:
     args = get_args(annotation)
     # Note: Unions of a single argument return the argument; i.e., Union[T] returns T, so the len can never be 1
     if len(args) == 2 and NoneType in args:
@@ -160,13 +179,19 @@ def _type_from_union(annotation):
         return None
 
 
-def _type_from_collection(origin, annotation):
+def _type_from_collection(origin, annotation) -> Optional[type]:
     args = get_args(annotation)
-    if not (len(args) == 2 and origin is tuple and args[1] is Ellipsis) and len(args) != 1:
+    try:
+        annotation = args[0]
+    except IndexError:  # The annotation was a collection with no content types specified
+        return origin
+
+    n_args = len(args)
+    if n_args > 2 or (n_args > 1 and (origin is not tuple or args[1] is not Ellipsis)):
         return None
 
-    annotation = args[0]
-    if (origin := get_origin(annotation)) is None and isinstance(annotation, type):
+    origin = get_origin(annotation)
+    if origin is None and isinstance(annotation, type):
         return annotation
     elif origin is Union:
         return _type_from_union(annotation)

@@ -3,7 +3,7 @@
 """
 
 from abc import ABC, ABCMeta
-from typing import Optional, TypeVar, Type, Any
+from typing import Optional, TypeVar, Type, Any, Dict, Tuple, List
 from warnings import warn
 from weakref import WeakKeyDictionary, WeakSet
 
@@ -23,8 +23,8 @@ class CommandMeta(ABCMeta, type):
     def __new__(  # noqa
         mcls,  # noqa
         name: str,
-        bases: tuple[Type, ...],
-        namespace: dict[str, Any],
+        bases: Tuple[Type, ...],
+        namespace: Dict[str, Any],
         /,
         choice: str = None,
         prog: str = None,
@@ -67,7 +67,10 @@ class CommandMeta(ABCMeta, type):
             config = mcls.config(cls)
             if kwargs or (config is None and ABC not in bases):
                 if config is not None:
-                    kwargs = config.as_dict() | kwargs
+                    # kwargs = config.as_dict() | kwargs
+                    for key, val in config.as_dict().items():  # py < 3.9 compatibility
+                        kwargs.setdefault(key, val)
+
                 mcls._configs[cls] = CommandConfig(**kwargs)
 
         if (config := mcls.config(cls)) is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
@@ -137,7 +140,7 @@ def get_params(command: CommandMeta) -> 'CommandParameters':
     return CommandMeta.params(command)
 
 
-def get_top_level_commands() -> list[CommandMeta]:
+def get_top_level_commands() -> List[CommandMeta]:
     """
     Returns a list of Command subclasses that are inferred to be direct subclasses of :class:`~commands.Command`.
 

@@ -4,7 +4,7 @@
 
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional, Collection
+from typing import TYPE_CHECKING, Optional, Collection, List, Dict
 
 from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
@@ -35,12 +35,12 @@ class CommandParameters:
     action: Optional[Action] = None
     _pass_thru: Optional[PassThru] = None
     sub_command: Optional[SubCommand] = None
-    action_flags: list[ActionFlag]
-    options: list[BaseOption]
-    combo_option_map: dict[str, BaseOption]
-    groups: list[ParamGroup]
-    positionals: list[BasePositional]
-    option_map: dict[str, BaseOption]
+    action_flags: List[ActionFlag]
+    options: List[BaseOption]
+    combo_option_map: Dict[str, BaseOption]
+    groups: List[ParamGroup]
+    positionals: List[BasePositional]
+    option_map: Dict[str, BaseOption]
 
     def __init__(self, command: 'CommandType', command_parent: 'CommandType' = None):
         self.command = command
@@ -108,13 +108,13 @@ class CommandParameters:
         self._process_options(options)
         self._process_groups(groups)
 
-    def _process_groups(self, groups: list[ParamGroup]):
+    def _process_groups(self, groups: List[ParamGroup]):
         self.formatter.maybe_add_group(*groups)
         if parent := self.parent:
             groups = parent.groups + groups
         self.groups = sorted(groups)
 
-    def _process_positionals(self, params: list[BasePositional]):
+    def _process_positionals(self, params: List[BasePositional]):
         var_nargs_param = None
         for param in params:
             if self.sub_command is not None:
@@ -176,7 +176,7 @@ class CommandParameters:
         self._process_action_flags(options)
         self.combo_option_map = {k: v for k, v in sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
 
-    def _process_action_flags(self, options: list[BaseOption]):
+    def _process_action_flags(self, options: List[BaseOption]):
         action_flags = sorted((p for p in options if isinstance(p, ActionFlag)))
         grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
         for param in action_flags:
@@ -301,10 +301,10 @@ class CommandParameters:
 
     # endregion
 
-    def missing(self) -> list['Parameter']:
+    def missing(self) -> List['Parameter']:
         # ignore = (SubCommand, Action)
         ignore = SubCommand
-        missing: list['Parameter'] = [
+        missing: List['Parameter'] = [
             p for p in self.positionals if p.required and ctx.num_provided(p) == 0 and not isinstance(p, ignore)
         ]
         missing.extend(p for p in self.options if p.required and ctx.num_provided(p) == 0)

@@ -4,7 +4,7 @@
 
 import logging
 from collections import deque
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, Deque
 
 from .actions import help_action
 from .context import ctx
@@ -98,7 +98,7 @@ class CommandParser:
             else:
                 self.handle_positional(arg)
 
-    def handle_pass_thru(self) -> deque[str]:
+    def handle_pass_thru(self) -> Deque[str]:
         remaining = ctx.remaining
         if (pass_thru := self.params.pass_thru) is not None:
             try:

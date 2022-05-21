@@ -4,7 +4,7 @@ Helpers for unit tests
 :author: Doug Skrypa
 """
 
-from typing import Any, Iterable, Type, Union, Callable
+from typing import Any, Iterable, Type, Union, Callable, Dict, List, Tuple
 from unittest import TestCase
 
 from .actions import help_action
@@ -12,11 +12,12 @@ from .commands import Command
 from .core import CommandType
 from .exceptions import UsageError
 
-Argv = list[str]
-Expected = dict[str, Any]
-Case = tuple[Argv, Expected]
-ExceptionCase = Union[Argv, tuple[Argv, Type[Exception]], tuple[Argv, Type[Exception], str]]
-CallExceptionCase = Union[tuple[dict[str, Any], Type[Exception]], tuple[dict[str, Any], Type[Exception], str]]
+Argv = List[str]
+Expected = Dict[str, Any]
+Kwargs = Dict[str, Any]
+Case = Tuple[Argv, Expected]
+ExceptionCase = Union[Argv, Tuple[Argv, Type[Exception]], Tuple[Argv, Type[Exception], str]]
+CallExceptionCase = Union[Tuple[Kwargs, Type[Exception]], Tuple[Kwargs, Type[Exception], str]]
 
 
 class ParserTest(TestCase):
@@ -77,7 +78,7 @@ class ParserTest(TestCase):
     def assert_call_fails(
         self,
         func: Callable,
-        kwargs: dict[str, Any],
+        kwargs: Kwargs,
         exc: Type[Exception] = Exception,
         pattern: str = None,
         message: str = None,
