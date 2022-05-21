@@ -9,6 +9,7 @@ from inspect import stack, getsourcefile, isclass
 from pathlib import Path
 from typing import Any, Union, Optional, Type, get_type_hints
 from string import whitespace, printable
+from urllib.parse import urlparse
 
 try:
     from typing import get_origin, get_args as _get_args
@@ -106,15 +107,13 @@ class ProgramMetadata:
         return installed_via_setup, g
 
     def _docs_url_from_repo_url(self, repo_url: Optional[str]):  # noqa
-        if repo_url and repo_url.startswith('https://github.com'):
-            from urllib.parse import urlparse
-
-            try:
-                user, repo = urlparse(repo_url).path[1:].split('/')
-            except Exception:
-                return None
-            else:
+        try:  # Note: This is only done this way to address a false positive on a GitHub security scan
+            parsed = urlparse(repo_url)
+            if parsed.scheme == 'https' and parsed.hostname == 'github.com':
+                user, repo = parsed.path[1:].split('/')
                 return f'https://{user}.github.io/{repo}/'
+        except Exception:  # noqa
+            pass
         return None
 
     def format_epilog(self, extended: Bool = True) -> str:
