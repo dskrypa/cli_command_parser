@@ -85,6 +85,7 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">get_type_hints</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">whitespace</span><span class="p">,</span> <span class="n">printable</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">get_origin</span><span class="p">,</span> <span class="n">get_args</span> <span class="k">as</span> <span class="n">_get_args</span>
@@ -182,15 +183,13 @@
         <span class="k">return</span> <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span>
 
     <span class="k">def</span> <span class="nf">_docs_url_from_repo_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>  <span class="c1"># noqa</span>
-        <span class="k">if</span> <span class="n">repo_url</span> <span class="ow">and</span> <span class="n">repo_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;https://github.com&#39;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">user</span><span class="p">,</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">repo_url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># Note: This is only done this way to address a false positive on a GitHub security scan</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">repo_url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s1">&#39;https&#39;</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span> <span class="o">==</span> <span class="s1">&#39;github.com&#39;</span><span class="p">:</span>
+                <span class="n">user</span><span class="p">,</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;https://</span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s1">.github.io/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s1">/&#39;</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="k">pass</span>
         <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ProgramMetadata.format_epilog"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata.format_epilog">[docs]</a>    <span class="k">def</span> <span class="nf">format_epilog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
