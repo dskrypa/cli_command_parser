@@ -124,7 +124,8 @@ with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', cr
             with redirect_stdout(mock), extended_error_handler:
                 raise KeyboardInterrupt
 
-            self.assertEqual(mock.write.call_args.args[0], '\n')
+            # self.assertEqual(mock.write.call_args.args[0], '\n')  # 3.8+
+            self.assertEqual(mock.write.call_args[0][0], '\n')
 
         def test_broken_pipe_caught(self):
             mock = Mock(write=Mock())

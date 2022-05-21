@@ -6,13 +6,18 @@ Parameters and Groups
 
 import logging
 from abc import ABC, abstractmethod
-from functools import cached_property, partial, update_wrapper, reduce
+from functools import partial, update_wrapper, reduce
 from itertools import chain
 from operator import xor
 from threading import local
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar, Iterable, Iterator
 from typing import Tuple, List, Dict, Set, FrozenSet
 from types import MethodType
+
+try:
+    from functools import cached_property
+except ImportError:
+    from .compat import cached_property
 
 from .context import ctx
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
@@ -122,12 +127,14 @@ class ParamBase(ABC):
         self.name = name
         self.help = help
         self.hide = hide
-        if (group := ParamGroup.active_group()) is not None:
+        group = ParamGroup.active_group()
+        if group is not None:
             group.register(self)  # noqa  # This sets self.group = group
 
     @property
     def name(self) -> str:
-        if (name := self._name) is not None:
+        name = self._name
+        if name is not None:
             return name
         return f'{self.__class__.__name__}#{id(self)}'
 
@@ -215,12 +222,12 @@ class ParamGroup(ParamBase):
             if (isinstance(param, BasePositional) and 0 not in param.nargs) or isinstance(param, PassThru):
                 cls_name = param.__class__.__name__
                 raise CommandDefinitionError(
-                    f'Cannot add {param=} to {self} - {cls_name} parameters cannot be mutually exclusive'
+                    f'Cannot add param={param!r} to {self} - {cls_name} parameters cannot be mutually exclusive'
                 )
             elif isinstance(param, BaseOption) and param.required:
                 raise CommandDefinitionError(
-                    f'Cannot add {param=} to {self} - required parameters cannot be mutually exclusive (but the group'
-                    f' can be required)'
+                    f'Cannot add param={param!r} to {self} - required parameters cannot be mutually exclusive'
+                    ' (but the group can be required)'
                 )
 
         self.members.append(param)
@@ -233,7 +240,10 @@ class ParamGroup(ParamBase):
     def __repr__(self) -> str:
         exclusive, dependent = str(self.mutually_exclusive)[0], str(self.mutually_dependent)[0]
         members = len(self.members)
-        return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
+        return (
+            f'<{self.__class__.__name__}[{self.name!r},'
+            f' members={members!r}, m.exclusive={exclusive}, m.dependent={dependent}]>'
+        )
 
     @classmethod
     def active_group(cls) -> Optional['ParamGroup']:
@@ -329,8 +339,8 @@ class ParamGroup(ParamBase):
     def show_in_help(self) -> bool:
         if self.hide or not self.members:
             return False
-        elif (group := self.group) is not None:
-            return group.show_in_help
+        elif self.group is not None:
+            return self.group.show_in_help
         return True
 
     def format_description(self, group_type: Bool = True) -> str:
@@ -448,10 +458,10 @@ class Parameter(ParamBase, ABC):
         """
         if action not in self._actions:
             raise ParameterDefinitionError(
-                f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
+                f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
             )
         if not choices and choices is not None:
-            raise ParameterDefinitionError(f'Invalid {choices=} - when specified, choices cannot be empty')
+            raise ParameterDefinitionError(f'Invalid choices={choices!r} - when specified, choices cannot be empty')
         super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = action
         self.choices = choices
@@ -463,20 +473,21 @@ class Parameter(ParamBase, ABC):
         return _NotSet
 
     def __repr__(self) -> str:
-        attrs = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
-        if extra_attrs := self._repr_attrs:
-            attrs = chain(attrs, extra_attrs)
-        kwargs = ', '.join(
-            f'{a}={v!r}'
-            for a in attrs
-            if (v := getattr(self, a, None)) not in (None, _NotSet) and not (a == 'hide' and not v)
-        )
+        attr_names = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
+        extra_attrs = self._repr_attrs
+        if extra_attrs:
+            attr_names = chain(attr_names, extra_attrs)
+
+        attrs = ((a, getattr(self, a, None)) for a in attr_names)
+        kwargs = ', '.join(f'{a}={v!r}' for a, v in attrs if v not in (None, _NotSet) and not (a == 'hide' and not v))
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
     def __set_name__(self, command: 'CommandType', name: str):
         super().__set_name__(command, name)
-        if self.type is None and (annotated_type := get_descriptor_value_type(command, name)) is not None:
-            self.type = annotated_type
+        if self.type is None:
+            annotated_type = get_descriptor_value_type(command, name)
+            if annotated_type is not None:
+                self.type = annotated_type
 
     def __get__(self, command: 'Command', owner: 'CommandType'):
         if command is None:
@@ -488,7 +499,8 @@ class Parameter(ParamBase, ABC):
             with command._Command__ctx:  # noqa
                 value = self.result()
 
-        if (name := self._name) is not None:
+        name = self._name
+        if name is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
@@ -500,17 +512,24 @@ class Parameter(ParamBase, ABC):
 
     def take_action(self, value: Optional[str], short_combo: bool = False):
         # log.debug(f'{self!r}.take_action({value!r})')
-        if (action := self.action) == 'store' and (val := ctx.get_parsing_value(self)) is not _NotSet:
-            raise ParamUsageError(self, f'received {value=} but a stored value={val!r} already exists')
-        elif action == 'append' and self._nargs_max_reached():
+        action = self.action
+        if action == 'append' and self._nargs_max_reached():
             val_count = len(ctx.get_parsing_value(self))
-            raise ParamUsageError(self, f'cannot accept any additional args with nargs={self.nargs}: {val_count=}')
+            raise ParamUsageError(
+                self, f'cannot accept any additional args with nargs={self.nargs}: val_count={val_count!r}'
+            )
+        elif action == 'store':
+            val = ctx.get_parsing_value(self)
+            if val is not _NotSet:
+                raise ParamUsageError(self, f'received value={value!r} but a stored value={val!r} already exists')
 
         ctx.record_action(self)
         action_method = getattr(self, self.action)
         if action in {'store_const', 'append_const'}:
             if value is not None:
-                raise ParamUsageError(self, f'received {value=} but no values are accepted for {action=}')
+                raise ParamUsageError(
+                    self, f'received value={value!r} but no values are accepted for action={action!r}'
+                )
             return action_method()
         else:
             normalized = self.prepare_value(value, short_combo) if value is not None else value
@@ -518,7 +537,8 @@ class Parameter(ParamBase, ABC):
             return action_method(normalized)
 
     def would_accept(self, value: str, short_combo: bool = False) -> bool:
-        if (action := self.action) in {'store', 'store_all'} and ctx.get_parsing_value(self) is not _NotSet:
+        action = self.action
+        if action in {'store', 'store_all'} and ctx.get_parsing_value(self) is not _NotSet:
             return False
         elif action == 'append' and self._nargs_max_reached():
             return False
@@ -529,26 +549,28 @@ class Parameter(ParamBase, ABC):
         return self.is_valid_arg(normalized)
 
     def prepare_value(self, value: str, short_combo: bool = False) -> Any:
-        if (type_func := self.type) is None:
+        type_func = self.type
+        if type_func is None:
             return value
         try:
             return type_func(value)
         except (TypeError, ValueError) as e:
-            raise BadArgument(self, f'bad {value=} for type={type_func!r}') from e
+            raise BadArgument(self, f'bad value={value!r} for type={type_func!r}') from e
         except Exception as e:
-            raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
+            raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e
 
     def validate(self, value: Any):
-        if (choices := self.choices) and value not in choices:
+        choices = self.choices
+        if choices and value not in choices:
             raise InvalidChoice(self, value, choices)
         elif isinstance(value, str) and value.startswith('-'):
             if not is_numeric(value):
-                raise BadArgument(self, f'invalid {value=}')
+                raise BadArgument(self, f'invalid value={value!r}')
         elif value is None:
             if not self.accepts_none:
                 raise MissingArgument(self)
         elif not self.accepts_values:
-            raise BadArgument(self, f'does not accept values, but {value=} was provided')
+            raise BadArgument(self, f'does not accept values, but value={value!r} was provided')
 
     def is_valid_arg(self, value: Any) -> bool:
         try:
@@ -565,21 +587,26 @@ class Parameter(ParamBase, ABC):
                 raise MissingArgument(self)
             else:
                 return self.default
-        elif self.action == 'store':
-            if (choices := self.choices) and value not in choices:
+
+        choices = self.choices
+        if self.action == 'store':
+            if choices and value not in choices:
                 raise InvalidChoice(self, value, choices)
             else:
                 return value
         else:  # action == 'append' or 'store_all'
             nargs = self.nargs
-            if (val_count := len(value)) == 0 and 0 not in nargs:
+            val_count = len(value)
+            if val_count == 0 and 0 not in nargs:
                 raise MissingArgument(self)
             elif val_count not in nargs:
-                raise BadArgument(self, f'expected {nargs=} values but found {val_count}')
-            elif (choices := self.choices) and (bad_values := tuple(v for v in value if v not in choices)):
-                raise InvalidChoice(self, bad_values, choices)
-            else:
-                return value
+                raise BadArgument(self, f'expected nargs={nargs!r} values but found {val_count}')
+            elif choices:
+                bad_values = tuple(v for v in value if v not in choices)
+                if bad_values:
+                    raise InvalidChoice(self, bad_values, choices)
+
+            return value
 
     result = result_value
 
@@ -587,8 +614,8 @@ class Parameter(ParamBase, ABC):
     def show_in_help(self) -> bool:
         if self.hide:
             return False
-        elif (group := self.group) is not None:
-            return group.show_in_help
+        elif self.group is not None:
+            return self.group.show_in_help
         return True
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
@@ -597,15 +624,15 @@ class Parameter(ParamBase, ABC):
     def format_help(self, width: int = 30, add_default: Bool = True) -> str:
         usage = self.format_usage(include_meta=True, full=True)
         description = self.help or ''
-        if add_default and (default := self.default) is not _NotSet:
+        if add_default and self.default is not _NotSet:
             pad = ' ' if description else ''
-            description += f'{pad}(default: {default})'
+            description += f'{pad}(default: {self.default})'
         return HelpEntryFormatter(usage, description, width)()
 
     @property
     def usage_metavar(self) -> str:
-        if choices := self.choices:
-            return '{{{}}}'.format(','.join(map(str, choices)))
+        if self.choices:
+            return '{{{}}}'.format(','.join(map(str, self.choices)))
         else:
             return self.metavar or self.name.upper()
 
@@ -632,9 +659,12 @@ class BasePositional(Parameter, ABC):
           that extend Parameter, and must be registered via :class:`parameter_action`.
         :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
         """
-        if not (required := kwargs.setdefault('required', True)):
+        required = kwargs.setdefault('required', True)
+        if not required:
             cls_name = self.__class__.__name__
-            raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
+            raise ParameterDefinitionError(
+                f'All {cls_name} parameters must be required - invalid required={required!r}'
+            )
         elif kwargs.setdefault('default', _NotSet) is not _NotSet:
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
@@ -685,9 +715,11 @@ class Positional(BasePositional):
         if action is _NotSet:
             action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
         elif action == 'store' and self.nargs.max != 1:
-            raise ParameterDefinitionError(f'Invalid {action=} for nargs={self.nargs}')
+            raise ParameterDefinitionError(f'Invalid action={action!r} for nargs={self.nargs}')
         if default is not _NotSet and (action != 'store' or 0 not in self.nargs):
-            raise ParameterDefinitionError(f'Invalid {default=} - only allowed for Positional parameters when nargs=?')
+            raise ParameterDefinitionError(
+                f'Invalid default={default!r} - only allowed for Positional parameters when nargs=?'
+            )
         super().__init__(action=action, **kwargs)
         self.type = type
         if action == 'append':
@@ -774,9 +806,10 @@ class ChoiceMap(BasePositional):
         :param description: The description to be used in help text for this parameter.
         :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.
         """
-        if (choices := kwargs.setdefault('choices', None)) is not None:
+        choices = kwargs.setdefault('choices', None)
+        if choices is not None:
             raise ParameterDefinitionError(
-                f'Invalid {choices=} - {self.__class__.__name__} choices must be added via register'
+                f'Invalid choices={choices!r} - {self.__class__.__name__} choices must be added via register'
             )
         super().__init__(action=action, **kwargs)
         self._init_value_factory = list
@@ -804,8 +837,8 @@ class ChoiceMap(BasePositional):
             self.choices[choice] = Choice(choice, target, help)
             self._update_nargs()
         else:
-            prefix = 'Invalid default' if choice is None else f'Invalid {choice=} for'
-            raise CommandDefinitionError(f'{prefix} {target=} - already assigned to {existing}')
+            prefix = 'Invalid default' if choice is None else f'Invalid choice={choice!r} for'
+            raise CommandDefinitionError(f'{prefix} target={target!r} - already assigned to {existing}')
 
     @parameter_action
     def append(self, value: str):
@@ -821,7 +854,8 @@ class ChoiceMap(BasePositional):
     def validate(self, value: str):
         values = ctx.get_parsing_value(self).copy()
         values.append(value)
-        if choices := self.choices:
+        choices = self.choices
+        if choices:
             choice = ' '.join(values)
             if choice in choices:
                 return
@@ -831,19 +865,24 @@ class ChoiceMap(BasePositional):
             if not any(c.startswith(prefix) for c in choices if c):
                 raise InvalidChoice(self, prefix[:-1], choices)
         elif value.startswith('-'):
-            raise BadArgument(self, f'invalid {value=}')
+            raise BadArgument(self, f'invalid value={value!r}')
         # TODO: Should this raise an error?
 
     def result_value(self) -> Optional[str]:
-        if not (choices := self.choices):
+        choices = self.choices
+        if not choices:
             raise CommandDefinitionError(f'No choices were registered for {self}')
-        elif not (values := ctx.get_parsing_value(self)):
+
+        values = ctx.get_parsing_value(self)
+        if not values:
             if None in choices:
                 return None
             raise MissingArgument(self)
-        elif (val_count := len(values)) not in self.nargs:
+        val_count = len(values)
+        if val_count not in self.nargs:
             raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
-        elif (choice := ' '.join(values)) not in choices:
+        choice = ' '.join(values)
+        if choice not in choices:
             raise InvalidChoice(self, choice, choices)
         return choice
 
@@ -857,8 +896,8 @@ class ChoiceMap(BasePositional):
 
     @property
     def usage_metavar(self) -> str:
-        if choices := self.choices:
-            return '{{{}}}'.format(','.join(map(str, filter(None, choices))))
+        if self.choices:
+            return '{{{}}}'.format(','.join(map(str, filter(None, self.choices))))
         else:
             return self.metavar or self.name.upper()
 
@@ -916,13 +955,14 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
 
             parent = get_parent(command)
             raise CommandDefinitionError(
-                f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
+                f'Invalid choice={choice!r} for {command} with parent={parent!r}'
+                f' - already assigned to {self.choices[choice].target}'
             ) from None
 
         return command
 
     def register(
-        self, command_or_choice: Union[str, 'CommandType'] = None, /, choice: str = None, help: str = None  # noqa
+        self, command_or_choice: Union[str, 'CommandType'] = None, *, choice: str = None, help: str = None  # noqa
     ) -> Callable[['CommandType'], 'CommandType']:
         """
         Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`~.commands.Command` as the
@@ -943,7 +983,9 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
             return partial(self.register_command, choice, help=help)
         elif isinstance(command_or_choice, str):
             if choice is not None:
-                raise CommandDefinitionError(f'Cannot combine a positional {command_or_choice=} choice with {choice=}')
+                raise CommandDefinitionError(
+                    f'Cannot combine a positional command_or_choice={command_or_choice!r} choice with choice={choice!r}'
+                )
             return partial(self.register_command, command_or_choice, help=help)
         else:
             return self.register_command(choice, command_or_choice, help=help)  # noqa
@@ -982,7 +1024,7 @@ class Action(ChoiceMap, title='Actions'):
     def register(
         self,
         method_or_choice: Union[str, MethodType] = None,
-        /,
+        *,
         choice: str = None,
         help: str = None,  # noqa
         default: Bool = False,
@@ -1011,7 +1053,9 @@ class Action(ChoiceMap, title='Actions'):
         # TODO: Accept params=Collection[ParamOrGroup] and treat more like a subcommand?
         if isinstance(method_or_choice, str):
             if choice is not None:
-                raise CommandDefinitionError(f'Cannot combine a positional {method_or_choice=} choice with {choice=}')
+                raise CommandDefinitionError(
+                    f'Cannot combine a positional method_or_choice={method_or_choice!r} choice with choice={choice!r}'
+                )
             method_or_choice, choice = None, method_or_choice
 
         if method_or_choice is None:
@@ -1052,17 +1096,21 @@ class BaseOption(Parameter, ABC):
           that extend Parameter, and must be registered via :class:`parameter_action`.
         :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
         """
-        if bad_opts := ', '.join(opt for opt in option_strs if not 0 < opt.count('-', 0, 3) < 3):
+        bad_opts = ', '.join(opt for opt in option_strs if not 0 < opt.count('-', 0, 3) < 3)
+        if bad_opts:
             raise ParameterDefinitionError(f"Bad option(s) - must start with '--' or '-': {bad_opts}")
-        elif bad_opts := ', '.join(opt for opt in option_strs if opt.endswith('-')):
+        bad_opts = ', '.join(opt for opt in option_strs if opt.endswith('-'))
+        if bad_opts:
             raise ParameterDefinitionError(f"Bad option(s) - may not end with '-': {bad_opts}")
-        elif bad_opts := ', '.join(opt for opt in option_strs if '=' in opt):
+        bad_opts = ', '.join(opt for opt in option_strs if '=' in opt)
+        if bad_opts:
             raise ParameterDefinitionError(f"Bad option(s) - may not contain '=': {bad_opts}")
         super().__init__(action, **kwargs)
         self._long_opts = {opt for opt in option_strs if opt.startswith('--')}
         self._short_opts = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
         self.short_combinable = {opt[1:] for opt in short_opts if len(opt) == 2}
-        if bad_opts := ', '.join(opt for opt in short_opts if '-' in opt[1:]):
+        bad_opts = ', '.join(opt for opt in short_opts if '-' in opt[1:])
+        if bad_opts:
             raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
 
     def __set_name__(self, command: 'CommandType', name: str):
@@ -1142,7 +1190,7 @@ class Option(BaseOption):
         if action is _NotSet:
             action = 'store' if self.nargs == 1 else 'append'
         elif action == 'store' and self.nargs != 1:
-            raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for {action=}')
+            raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = type
         if action == 'append':
@@ -1183,7 +1231,7 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
                 const = self.__default_const_map[default]
             except KeyError as e:
                 cls = self.__class__.__name__
-                raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with {default=}") from e
+                raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with default={default!r}") from e
         if default is _NotSet:
             default = self.__default_const_map.get(const)  # will be True, False, or None
         super().__init__(*option_strs, action=action, default=default, **kwargs)
@@ -1239,7 +1287,8 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         # TODO: Test in groups, esp mutually excl/dependent
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
-        if bad := {k: v for k, v in found.items() if expected[k] != v}:
+        bad = {k: v for k, v in found.items() if expected[k] != v}
+        if bad:
             raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
         super().__init__(*option_strs, **kwargs)
         self.func = func
@@ -1289,8 +1338,8 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
 
     def result(self) -> Optional[Callable]:
         if self.result_value():
-            if func := self.func:
-                return func
+            if self.func:
+                return self.func
             raise ParameterDefinitionError(f'No function was registered for {self}')
         return None
 
@@ -1323,7 +1372,8 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.
         """
         vals = {'const': const, 'default': default}
-        if bad_types := ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type)):
+        bad_types = ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type))
+        if bad_types:
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
@@ -1337,9 +1387,10 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
-            if short_combo and (combinable := self.short_combinable) and all(c in combinable for c in value):  # noqa
+            combinable = self.short_combinable
+            if short_combo and combinable and all(c in combinable for c in value):
                 return len(value) + 1  # +1 for the -short that preceded this value
-            raise BadArgument(self, f'bad counter {value=}') from e
+            raise BadArgument(self, f'bad counter value={value!r}') from e
 
     @parameter_action
     def append(self, value: Optional[int]):
@@ -1354,7 +1405,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         try:
             value = self.type(value)
         except (ValueError, TypeError) as e:
-            raise BadArgument(self, f'invalid {value=}') from e
+            raise BadArgument(self, f'invalid value={value!r}') from e
         else:
             return
 
@@ -1383,7 +1434,7 @@ class PassThru(Parameter):
     def take_action(self, values: Collection[str], short_combo: bool = False):
         value = ctx.get_parsing_value(self)
         if value is not _NotSet:
-            raise ParamUsageError(self, f'received {values=} but a stored {value=} already exists')
+            raise ParamUsageError(self, f'received values={values!r} but a stored value={value!r} already exists')
 
         ctx.record_action(self)
         normalized = list(map(self.prepare_value, values))

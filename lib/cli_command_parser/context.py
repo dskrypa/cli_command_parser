@@ -6,8 +6,12 @@ import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
-from functools import cached_property
 from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast, Dict, Tuple, List
+
+try:
+    from functools import cached_property
+except ImportError:
+    from .compat import cached_property
 
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
@@ -34,7 +38,8 @@ class ConfigOption:
         try:
             return ctx.__dict__[self.name]
         except KeyError:
-            if parent := ctx.parent:
+            parent = ctx.parent
+            if parent:
                 option = ctx_cls.__dict__[self.name]  # type: ConfigOption
                 return option.get_value(parent, ctx_cls)
             raise
@@ -148,12 +153,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def get_parsed(self, exclude: Collection['Parameter'] = (), recursive: Bool = True) -> Dict[str, Any]:
         with self:
-            if recursive and (parent := self.parent):
-                parsed = parent.get_parsed(exclude, recursive)
+            if recursive and self.parent:
+                parsed = self.parent.get_parsed(exclude, recursive)
             else:
                 parsed = {}
 
-            if params := self.params:
+            params = self.params
+            if params:
                 for group in (params.positionals, params.options, (params.pass_thru,)):
                     for param in group:
                         if param and param not in exclude:
@@ -200,9 +206,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         except AttributeError:  # self.command is None
             return 0, [], []
 
-        if (num_flags := len(action_flags)) == 0:
+        if not action_flags:
             return 0, [], []
 
+        num_flags = len(action_flags)
         for i, flag in enumerate(action_flags):
             if not flag.before_main:
                 return num_flags, action_flags[:i], action_flags[i:]

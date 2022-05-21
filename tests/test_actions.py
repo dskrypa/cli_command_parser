@@ -42,7 +42,8 @@ class ActionTest(TestCase):
         foo = Foo.parse(['bar'])
         foo()
         self.assertEqual(mock.call_count, 1)
-        self.assertEqual(mock.call_args.args[0], foo)
+        # self.assertEqual(mock.call_args.args[0], foo)  # 3.8+
+        self.assertEqual(mock.call_args[0][0], foo)
 
     def test_action_wrong(self):
         class Foo(Command):

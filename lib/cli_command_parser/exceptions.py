@@ -33,7 +33,8 @@ class CommandParserException(Exception):
     code: int = 2
 
     def show(self):
-        if message := str(self):
+        message = str(self)
+        if message:
             print(message, file=sys.stderr)
 
     def exit(self):
@@ -84,10 +85,10 @@ class ParamUsageError(UsageError):
 
     def __str__(self) -> str:
         message = self.message or 'usage error'
-        if (param := self.param) is None:
+        if self.param is None:
             return message
         else:
-            usage_str = param.format_usage(full=True, delim=' / ')
+            usage_str = self.param.format_usage(full=True, delim=' / ')
             return f'argument {usage_str}: {message}'
 
 

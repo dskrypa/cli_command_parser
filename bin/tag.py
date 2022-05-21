@@ -57,12 +57,14 @@ class TagUpdater(Command):
                 for line in f_in:
                     if found:
                         f_out.write(line)
-                    elif m := version_pat.match(line):
-                        found = True
-                        new_ver, new_line = self._updated_version_line(m.groups())
-                        f_out.write(new_line)
                     else:
-                        f_out.write(line)
+                        m = version_pat.match(line)
+                        if m:
+                            found = True
+                            new_ver, new_line = self._updated_version_line(m.groups())
+                            f_out.write(new_line)
+                        else:
+                            f_out.write(line)
 
             if found:
                 if self.dry_run:

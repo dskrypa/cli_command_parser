@@ -13,6 +13,7 @@ from cli_command_parser.__version__ import __description__, __title__
 
 log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SKIP_MODULES = {'cli_command_parser.compat'}
 DOCS_AUTO = {
     '_build': True,
     '_modules': True,
@@ -93,7 +94,10 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
                 log.debug(f'{prefix} {path.as_posix()}')
                 if not self.dry_run:
                     path.unlink()
-            elif is_auto := DOCS_AUTO.get(path.name):
+                continue
+
+            is_auto = DOCS_AUTO.get(path.name)
+            if is_auto:
                 try:
                     content_is_auto, content = is_auto
                 except TypeError:
@@ -127,7 +131,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     @action('backup', help='Test the RST backup')
     def backup_rsts(self):
         self._ran_backup = True
-        if not (rst_paths := list(self.docs_src_path.rglob('*.rst'))):
+        rst_paths = list(self.docs_src_path.rglob('*.rst'))
+        if not rst_paths:
             return
 
         auto_generated = DOCS_AUTO['_src'][1]
@@ -161,6 +166,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         modules = []
         for path in self.package_path.glob('[a-zA-Z]*.py'):
             name = f'{path.parent.name}.{path.stem}'
+            if name in SKIP_MODULES:
+                continue
             modules.append(name)
             self._make_module_rst(name)
 

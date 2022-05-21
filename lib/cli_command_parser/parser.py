@@ -37,7 +37,8 @@ class CommandParser:
     @classmethod
     def parse_args(cls) -> Optional['CommandType']:
         params = ctx.params
-        if (sub_cmd_param := params.sub_command) is not None and not sub_cmd_param.choices:
+        sub_cmd_param = params.sub_command
+        if sub_cmd_param is not None and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls()._parse_args()
@@ -51,7 +52,8 @@ class CommandParser:
                 if help_action not in ctx:
                     raise
             else:
-                if (missing := params.missing()) and next_cmd.__class__.parent(next_cmd) is not ctx.command:
+                missing = params.missing()
+                if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                     if help_action in ctx:
                         return None
                     raise ParamsMissing(missing)
@@ -100,7 +102,8 @@ class CommandParser:
 
     def handle_pass_thru(self) -> Deque[str]:
         remaining = ctx.remaining
-        if (pass_thru := self.params.pass_thru) is not None:
+        pass_thru = self.params.pass_thru
+        if pass_thru is not None:
             try:
                 separator_pos = remaining.index('--')
             except ValueError as e:
@@ -166,7 +169,8 @@ class CommandParser:
         # This check is only needed when subcommand option values may be misinterpreted as positional values
         if not self.positionals:
             return
-        elif (param := self.params.find_nested_option_that_accepts_values(arg)) is not None:
+        param = self.params.find_nested_option_that_accepts_values(arg)
+        if param is not None:
             raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')
 
     def consume_values(self, param: Parameter, found: int = 0) -> int:

@@ -116,7 +116,8 @@ class SubCommandTest(TestCase):
         with redirect_stdout(mock), self.assertRaises(SystemExit):
             Foo.parse_and_run(['-h'])
 
-        self.assertIn('--help, -h', mock.write.call_args_list[0].args[0])
+        # self.assertIn('--help, -h', mock.write.call_args_list[0].args[0])  # 3.8+
+        self.assertIn('--help, -h', mock.write.call_args_list[0][0][0])
 
     def test_optional_sub_cmd_runs_base_main(self):
         class Foo(Command):

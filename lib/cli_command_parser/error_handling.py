@@ -57,15 +57,19 @@ class ErrorHandler:
             except KeyError:
                 pass
         for exc_handler_map in exc_handler_maps:
-            if handler := next((f for ec, f in exc_handler_map.items() if isinstance(exc, ec)), None):
-                return handler
+            try:
+                return next((f for ec, f in exc_handler_map.items() if isinstance(exc, ec)))
+            except StopIteration:
+                pass
+
         return None
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb) -> bool:
-        if handler := self.get_handler(exc_type, exc_val):
+        handler = self.get_handler(exc_type, exc_val)
+        if handler:
             result = handler(exc_val)
             if result in (True, None):
                 return True

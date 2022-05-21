@@ -7,6 +7,8 @@ from typing import Union, Sequence, Tuple, Set
 NargsValue = Union[str, int, Tuple[int, int], Sequence[int], Set[int], range]
 
 NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None)}
+SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
+SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
 
 
 class Nargs:
@@ -23,17 +25,17 @@ class Nargs:
         self.range = None
         if isinstance(nargs, int):
             if nargs < 0:
-                raise ValueError(f'Invalid {nargs=} integer - must be >= 0')
+                raise ValueError(f'Invalid nargs={nargs!r} integer - must be >= 0')
             self.min = self.max = nargs
             self.allowed = (nargs,)
         elif isinstance(nargs, str):
             try:
                 self.min, self.max = self.allowed = NARGS_STR_RANGES[nargs]
             except KeyError as e:
-                raise ValueError(f'Invalid {nargs=} string - expected one of ?, *, or +') from e
+                raise ValueError(f'Invalid nargs={nargs!r} string - expected one of ?, *, or +') from e
         elif isinstance(nargs, range):
             if not 0 <= nargs.start < nargs.stop or nargs.step < 0:
-                raise ValueError(f'Invalid {nargs=} range - expected positive step and 0 <= start < stop')
+                raise ValueError(f'Invalid nargs={nargs!r} range - expected positive step and 0 <= start < stop')
             self.range = nargs
             self.allowed = nargs
             self.min = nargs.start
@@ -41,26 +43,27 @@ class Nargs:
             self.max = next(reversed(nargs))  # simpler than calculating, especially for step!=1
         elif isinstance(nargs, set):
             if not nargs:
-                raise ValueError(f'Invalid {nargs=} set - expected non-empty set where all values are integers >= 0')
+                raise ValueError(SET_ERROR_FMT.format(nargs))
             elif not all(isinstance(v, int) for v in nargs):
-                raise TypeError(f'Invalid {nargs=} set - expected non-empty set where all values are integers >= 0')
+                raise TypeError(SET_ERROR_FMT.format(nargs))
+
             self.allowed = self._orig = frozenset(nargs)  # Prevent modification after init
             self.min = min(nargs)
             if self.min < 0:
-                raise ValueError(f'Invalid {nargs=} set - expected non-empty set where all values are integers >= 0')
+                raise ValueError(SET_ERROR_FMT.format(nargs))
             self.max = max(nargs)
         elif isinstance(nargs, Sequence):
             try:
                 self.min, self.max = self.allowed = a, b = nargs
             except (ValueError, TypeError) as e:
-                raise e.__class__(f'Invalid {nargs=} sequence - expected 2 ints where 0 <= a <= b or b is None') from e
+                raise e.__class__(SEQ_ERROR_FMT.format(nargs)) from e
 
             if not (isinstance(a, int) and (b is None or isinstance(b, int))):
-                raise TypeError(f'Invalid {nargs=} sequence - expected 2 ints where 0 <= a <= b or b is None')
+                raise TypeError(SEQ_ERROR_FMT.format(nargs))
             elif 0 > a or (b is not None and a > b):
-                raise ValueError(f'Invalid {nargs=} sequence - expected 2 ints where 0 <= a <= b or b is None')
+                raise ValueError(SEQ_ERROR_FMT.format(nargs))
         else:
-            raise TypeError(f'Unexpected type={nargs.__class__.__name__} for {nargs=}')
+            raise TypeError(f'Unexpected type={nargs.__class__.__name__} for nargs={nargs!r}')
 
         self.variable = self.min != self.max
 
@@ -68,7 +71,8 @@ class Nargs:
         return f'{self.__class__.__name__}({self._orig!r})'
 
     def __str__(self) -> str:
-        if (rng := self.range) is not None:
+        rng = self.range
+        if rng is not None:
             return f'{rng.start} ~ {rng.stop}' if rng.step == 1 else f'{rng.start} ~ {rng.stop} (step={rng.step})'
         elif self.max is None:
             return f'{self.min} or more'
@@ -96,7 +100,8 @@ class Nargs:
                 return self._compare_allowed_set(other)
             elif isinstance(other.allowed, frozenset):
                 return other._compare_allowed_set(self)
-            elif rng := self.range or other.range:
+            rng = self.range or other.range
+            if rng:
                 return self.min == other.min and self.max == other.max and rng.step == 1
             else:
                 return self.min == other.min and self.max == other.max

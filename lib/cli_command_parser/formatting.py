@@ -41,11 +41,12 @@ class HelpFormatter:
 
     def format_usage(self, delim: str = ' ') -> str:
         meta: ProgramMetadata = self.command.__class__.meta(self.command)
-        if usage := meta.usage:
-            return usage
+        if meta.usage:
+            return meta.usage
 
         params = self.params.positionals + self.params.options  # noqa
-        if (pass_thru := self.params.pass_thru) is not None:  # noqa
+        pass_thru = self.params.pass_thru
+        if pass_thru is not None:
             params.append(pass_thru)
 
         parts = ['usage:', meta.prog]
@@ -57,14 +58,15 @@ class HelpFormatter:
     ):
         meta: ProgramMetadata = self.command.__class__.meta(self.command)
         parts = [self.format_usage(), '']
-        if description := meta.description:
-            parts += [description, '']
+        if meta.description:
+            parts += [meta.description, '']
 
         for group in self.groups:
             if group.show_in_help:
                 parts.append(group.format_help(width=width, add_default=add_default, group_type=group_type))
 
-        if epilog := meta.format_epilog(extended_epilog):
+        epilog = meta.format_epilog(extended_epilog)
+        if epilog:
             parts.append(epilog)
 
         return '\n'.join(parts)
@@ -91,7 +93,8 @@ class HelpEntryFormatter:
     def process_description(self, description: str):
         full_indent = ' ' * self.width
         line = self.lines[0]
-        if (pad_chars := self.width - len(line)) < 0 or len(self.lines) != 1:
+        pad_chars = self.width - len(line)
+        if pad_chars < 0 or len(self.lines) != 1:
             if len(description) + self.width < self.term_width:
                 self.lines.append(full_indent + description)
             else:

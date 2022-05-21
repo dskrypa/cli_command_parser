@@ -25,7 +25,7 @@ class CommandMeta(ABCMeta, type):
         name: str,
         bases: Tuple[Type, ...],
         namespace: Dict[str, Any],
-        /,
+        *,
         choice: str = None,
         prog: str = None,
         usage: str = None,
@@ -61,7 +61,7 @@ class CommandMeta(ABCMeta, type):
 
         if config is not None:
             if kwargs:
-                raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
+                raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
             mcls._configs[cls] = config
         else:
             config = mcls.config(cls)
@@ -73,16 +73,22 @@ class CommandMeta(ABCMeta, type):
 
                 mcls._configs[cls] = CommandConfig(**kwargs)
 
-        if (config := mcls.config(cls)) is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
+        config = mcls.config(cls)
+        if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
             cls.__help = help_action
 
-        if parent := mcls.parent(cls, False):
-            if (sub_cmd := mcls.params(parent).sub_command) is not None:
+        parent = mcls.parent(cls, False)
+        if parent:
+            sub_cmd = mcls.params(parent).sub_command
+            if sub_cmd is not None:
                 sub_cmd.register_command(choice, cls, help)
             elif choice:
-                warn(f'{choice=} was not registered for {cls} because its {parent=} has no SubCommand parameter')
+                warn(
+                    f'choice={choice!r} was not registered for {cls} because'
+                    f' its parent={parent!r} has no SubCommand parameter'
+                )
         elif choice:
-            warn(f'{choice=} was not registered for {cls} because it has no parent Command')
+            warn(f'choice={choice!r} was not registered for {cls} because it has no parent Command')
 
         return cls
 

@@ -4,11 +4,16 @@
 
 import re
 import sys
-from collections.abc import Collection, Iterable
+from collections.abc import Collection, Iterable, Callable
 from inspect import stack, getsourcefile, isclass
 from pathlib import Path
-from typing import Any, Union, Optional, Type, Callable, get_type_hints, get_origin, get_args as _get_args
+from typing import Any, Union, Optional, Type, get_type_hints
 from string import whitespace, printable
+
+try:
+    from typing import get_origin, get_args as _get_args
+except ImportError:  # Added in 3.8; the versions from 3.8 are copied here
+    from .compat import get_origin, _get_args
 
 try:
     from types import NoneType
@@ -41,7 +46,9 @@ def validate_positional(
 ):
     if not value or value.startswith('-'):
         raise exc(f"Invalid {param_cls} {prefix}={value!r} - may not be empty or start with '-'")
-    elif bad := {c for c in value if (c in whitespace and c != ' ') or c not in printable}:
+
+    bad = {c for c in value if (c in whitespace and c != ' ') or c not in printable}
+    if bad:
         raise exc(f'Invalid {param_cls} {prefix}={value!r} - invalid characters: {bad}')
 
 
@@ -114,11 +121,14 @@ class ProgramMetadata:
         parts = [self.epilog] if self.epilog else []
         if parts and not extended:
             return parts[0]
-        if version := self.version:
+
+        version = self.version
+        if version:
             version = f' [ver. {version}]'
-        if email := self.email:
-            parts.append(f'Report {self.prog}{version} bugs to {email}')
-        if url := self.docs_url or self.url:
+        if self.email:
+            parts.append(f'Report {self.prog}{version} bugs to {self.email}')
+        url = self.docs_url or self.url
+        if url:
             parts.append(f'Online documentation: {url}')
         return '\n\n'.join(parts)
 
@@ -171,7 +181,8 @@ def _type_from_union(annotation) -> Optional[type]:
     else:
         return None
 
-    if (origin := get_origin(arg)) is None and isinstance(arg, type):
+    origin = get_origin(arg)
+    if origin is None and isinstance(arg, type):
         return arg
     elif isclass(origin) and issubclass(origin, (Collection, Iterable)):
         return _type_from_collection(origin, arg)

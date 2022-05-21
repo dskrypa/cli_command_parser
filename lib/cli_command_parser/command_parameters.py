@@ -54,14 +54,17 @@ class CommandParameters:
     def __repr__(self) -> str:
         positionals = len(self.positionals)
         options = len(self.options)
-        return f'<{self.__class__.__name__}[command={self.command.__name__}, {positionals=}, {options=}]>'
+        return (
+            f'<{self.__class__.__name__}[command={self.command.__name__},'
+            f' positionals={positionals!r}, options={options!r}]>'
+        )
 
     @property
     def pass_thru(self) -> Optional[PassThru]:
         if self._pass_thru:
             return self._pass_thru
-        elif parent := self.parent:
-            return parent.pass_thru
+        elif self.parent:
+            return self.parent.pass_thru
         return None
 
     # region Initialization
@@ -95,12 +98,14 @@ class CommandParameters:
                 groups.append(param)
             elif isinstance(param, PassThru):
                 if self.pass_thru:
-                    raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
+                    raise CommandDefinitionError(
+                        f'Invalid PassThru param={param!r} - it cannot follow another PassThru param'
+                    )
                 self._pass_thru = param
                 self.formatter.maybe_add_param(param)
             else:
                 raise CommandDefinitionError(
-                    f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
+                    f'Unexpected type={param.__class__} for param={param!r} - custom parameters must extend'
                     ' BasePositional, BaseOption, or ParamGroup'
                 )
 
@@ -110,8 +115,8 @@ class CommandParameters:
 
     def _process_groups(self, groups: List[ParamGroup]):
         self.formatter.maybe_add_group(*groups)
-        if parent := self.parent:
-            groups = parent.groups + groups
+        if self.parent:
+            groups = self.parent.groups + groups
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):
@@ -119,20 +124,20 @@ class CommandParameters:
         for param in params:
             if self.sub_command is not None:
                 raise CommandDefinitionError(
-                    f'Positional {param=} may not follow the sub command {self.sub_command} - re-order the'
+                    f'Positional param={param!r} may not follow the sub command {self.sub_command} - re-order the'
                     ' positionals, move it into the sub command(s), or convert it to an optional parameter'
                 )
             elif var_nargs_param is not None:
                 raise CommandDefinitionError(
                     f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
-                    f' a variable number of arguments with no specific choices defined - {param=} is invalid'
+                    f' a variable number of arguments with no specific choices defined - param={param!r} is invalid'
                 )
 
             if isinstance(param, (SubCommand, Action)) and param.command is self.command:
-                if action := self.action:  # self.sub_command being already defined is handled above
+                if self.action:  # self.sub_command being already defined is handled above
                     raise CommandDefinitionError(
                         f'Only 1 Action xor SubCommand is allowed in a given Command - {self.command.__name__} cannot'
-                        f' contain both {action} and {param}'
+                        f' contain both {self.action} and {param}'
                     )
                 elif isinstance(param, SubCommand):
                     self.sub_command = param
@@ -146,7 +151,8 @@ class CommandParameters:
         self.formatter.maybe_add_param(*params)
 
     def _process_options(self, params: Collection[BaseOption]):
-        if parent := self.parent:
+        parent = self.parent
+        if parent:
             option_map = parent.option_map.copy()
             combo_option_map = parent.combo_option_map.copy()
             options = parent.options.copy()
@@ -181,14 +187,15 @@ class CommandParameters:
         grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
         for param in action_flags:
             if param.func is None:
-                raise ParameterDefinitionError(f'No function was registered for {param=}')
+                raise ParameterDefinitionError(f'No function was registered for param={param!r}')
             grouped_ordered_flags[param.before_main][param.order].append(param)
 
         invalid = {}
         for before_main, prio_params in grouped_ordered_flags.items():  # noqa  # pycharm forgets dict has .items...
             for prio, params in prio_params.items():  # noqa
                 if len(params) > 1:
-                    if (group := next((p.group for p in params if p.group), None)) and group.mutually_exclusive:
+                    group = next((p.group for p in params if p.group), None)
+                    if group and group.mutually_exclusive:
                         if not all(p.group == group for p in params):
                             invalid[(before_main, prio)] = params
                     else:
@@ -269,33 +276,39 @@ class CommandParameters:
                 if param.accepts_values:
                     return param
         else:
-            raise ValueError(f'Invalid {option=}')
+            raise ValueError(f'Invalid option={option!r}')
         return None
 
     def find_nested_option_that_accepts_values(self, option: str):
-        if sub_command := self.sub_command:
-            for choice in sub_command.choices.values():
-                command = choice.target
-                params = command.__class__.params(command)
-                try:
-                    param = params.find_option_that_accepts_values(option)
-                except KeyError:
-                    pass
-                else:
-                    if param is not None:
-                        return param
-                if (param := params.find_nested_option_that_accepts_values(option)) is not None:
+        if not self.sub_command:
+            return None
+
+        for choice in self.sub_command.choices.values():
+            command = choice.target
+            params = command.__class__.params(command)
+            try:
+                param = params.find_option_that_accepts_values(option)
+            except KeyError:
+                pass
+            else:
+                if param is not None:
                     return param
+
+            param = params.find_nested_option_that_accepts_values(option)
+            if param is not None:
+                return param
 
         return None
 
     def find_nested_pass_thru(self):
-        if sub_command := self.sub_command:
-            for choice in sub_command.choices.values():
-                command = choice.target
-                params = command.__class__.params(command)
-                if params._pass_thru:
-                    return params._pass_thru
+        if not self.sub_command:
+            return None
+
+        for choice in self.sub_command.choices.values():
+            command = choice.target
+            params = command.__class__.params(command)
+            if params._pass_thru:
+                return params._pass_thru
 
         return None
 
