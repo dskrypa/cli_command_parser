@@ -44,7 +44,11 @@
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
+</ul>
+</li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
@@ -77,7 +81,147 @@
              
   <section id="advanced-usage">
 <h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline"></a></h1>
-<p>This page is still a work in progress.</p>
+<section id="post-run-context">
+<h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Permalink to this headline"></a></h2>
+<p>While Commands are intended to be self-contained, it is possible to interact with them after calling
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a>, which returns the instance of the executed Command.  Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">baz</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">baz</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">])</span>
+<span class="go">self.bar=False, self.baz=[&#39;test&#39;, &#39;one&#39;]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span>
+<span class="go">&lt;__main__.Foo at 0x26dfcad6e00&gt;</span>
+</pre></div>
+</div>
+<p>Parameter values are still accessible, as they were from inside the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>While it is also accessible while running, it’s easier to inspect the parsing <a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.Context" title="cli_command_parser.context.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> in an
+interactive terminal after parsing and running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span>
+<span class="go">&lt;lib.cli_command_parser.context.Context at 0x26dfa94fbb0&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span>
+<span class="go">&lt;CommandParameters[command=Foo, positionals=1, options=2]&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">()</span>
+<span class="go">{</span>
+<span class="go">    &#39;baz&#39;: [&#39;test&#39;, &#39;one&#39;],</span>
+<span class="go">    &#39;bar&#39;: False,</span>
+<span class="go">    &#39;ActionFlag#2671379799232&#39;: False</span>
+<span class="go">}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">argv</span>
+<span class="go">[&#39;test&#39;, &#39;one&#39;, &#39;-B&#39;]</span>
+</pre></div>
+</div>
+<p>The Context object stores information about the Command’s configuration, the parameters defined in that Command
+(organized in a <a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object), the input, and a dictionary containing the parsed values.  The
+<code class="docutils literal notranslate"><span class="pre">ActionFlag#2671379799232</span></code> entry in the above example is the automatically added <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> that represents
+the <code class="docutils literal notranslate"><span class="pre">--help</span></code> action:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">action_flags</span>
+<span class="go">[ActionFlag(&#39;ActionFlag#2671379799232&#39;, action=&#39;store_const&#39;, const=True, default=False, required=False, help=&#39;Show this help message and exit&#39;, order=-inf, before_main=True)]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">action_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">func</span>
+<span class="go">&lt;function lib.cli_command_parser.actions.help_action(self)&gt;</span>
+</pre></div>
+</div>
+<p>The name is automatically generated to avoid potential name conflicts with other parameters / methods in Commands.  It
+will not always have the same number in the name.</p>
+<p>Since its <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag.params.order" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">ActionFlag.order</span></code></a> is negative infinity, the <a class="reference internal" href="api/cli_command_parser.actions.html#cli_command_parser.actions.help_action" title="cli_command_parser.actions.help_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">help_action()</span></code></a> will always
+take precedence over any other ActionFlag.  There is special handling in the parser for specifically allowing that
+action to be processed when parsing would otherwise fail.</p>
+</section>
+<section id="mixing-actions-actionflags">
+<h2>Mixing Actions &amp; ActionFlags<a class="headerlink" href="#mixing-actions-actionflags" title="Permalink to this headline"></a></h2>
+<p>The <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py">build_docs.py</a> script that is used
+to build the documentation for this project is an example of a Command that includes both <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods and
+ActionFlags.  Additionally, some of the methods even have the two decorators stacked so that they can be called either
+way.</p>
+<p>Example snippet:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BuildDocs</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Build documentation using Sphinx&#39;</span><span class="p">):</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">()</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+    <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Initialize logging, etc</span>
+        <span class="o">...</span>
+
+    <span class="nd">@action</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Run sphinx-build&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sphinx_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Call sphinx-build in a subprocess</span>
+        <span class="o">...</span>
+
+    <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Clean the docs directory before building docs&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Clean the docs directory&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Clean up the build dir to remove old generated RST files / HTML</span>
+        <span class="o">...</span>
+
+    <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Update RST files&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Re-generate RST files for API docs</span>
+        <span class="o">...</span>
+
+    <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Open the docs in the default web browser after running sphinx-build&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="nd">@action</span><span class="p">(</span><span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Test the RST backup&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">backup_rsts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Backup the existing auto-generated RST files</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>The help text (note that <code class="docutils literal notranslate"><span class="pre">clean</span></code> appears in both the <code class="docutils literal notranslate"><span class="pre">Actions</span></code> section and the optional args section):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ build_docs.py -h
+usage: build_docs.py {clean,backup} [--verbose [VERBOSE]] [--dry_run] [--clean] [--update] [--open] [--help]
+
+Build documentation using Sphinx
+
+Actions:
+  {clean,backup}
+    (default)                 Run sphinx-build
+    clean                     Clean the docs directory
+    backup                    Test the RST backup
+
+Optional arguments:
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)
+  --dry_run, -D               Print the actions that would be taken instead of taking them (default: False)
+  --clean, -c                 Clean the docs directory before building docs (default: False)
+  --update, -u                Update RST files (default: False)
+  --open, -o                  Open the docs in the default web browser after running sphinx-build (default: False)
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>If the script is called with <code class="docutils literal notranslate"><span class="pre">build_docs.py</span> <span class="pre">clean</span></code> or <code class="docutils literal notranslate"><span class="pre">build_docs.py</span> <span class="pre">backup</span></code>, then only the <code class="docutils literal notranslate"><span class="pre">clean</span></code> or <code class="docutils literal notranslate"><span class="pre">backup</span></code>
+method would be called, respectively.  If neither action was specified, then the <code class="docutils literal notranslate"><span class="pre">sphinx_build</span></code> method would be
+called because it is marked as the default action (<code class="docutils literal notranslate"><span class="pre">&#64;action(default=True,</span> <span class="pre">...</span></code>).</p>
+<p>When called without a positional action, but with action flags specified, then each of the methods enabled via
+specified flags and <code class="docutils literal notranslate"><span class="pre">sphinx_build</span></code> will be called.  For example, running <code class="docutils literal notranslate"><span class="pre">build_docs.py</span> <span class="pre">-uco</span></code> would result in
+the following methods being called in the following order:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">clean</span></code> (before main, order=1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update</span></code> (before main, order=2)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sphinx_build</span></code> (main, default action)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">open</span></code> (after main)</p></li>
+</ul>
+<p>Higher order values result in being called later, when specified.</p>
+<p>It is technically possible to call the same method both via action and flag, such as <code class="docutils literal notranslate"><span class="pre">build_docs.py</span> <span class="pre">clean</span> <span class="pre">-c</span></code>.
+Nothing in this library will prevent that.  If this is problematic, but you want to stack decorators like this, then
+you should include a check in your application to prevent it from being run twice.</p>
+</section>
 </section>
 
 

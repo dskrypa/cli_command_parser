@@ -401,6 +401,10 @@ run before or after main.  Helper decorators are provided to simplify this disti
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>By default, the ActionFlags configured to run after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> will not run if an exception was raised in
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>.  It is possible to specify <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.always_run_after_main" title="cli_command_parser.config.CommandConfig.always_run_after_main"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CommandConfig.always_run_after_main</span></code></a> to allow
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a> (and therefore ActionFlags registered to run after main) to be called even if an
+exception was raised.</p>
 </section>
 </section>
 </section>
