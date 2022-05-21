@@ -39,17 +39,16 @@ class Command(ABC, metaclass=CommandMeta):
     def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
-        to parse arguments and resolve sub-commands, then calls :meth:`.run` on the resulting Command instance.  Handles
-        exceptions during parsing using the configured :class:`ErrorHandler
-        <command_parser.error_handling.ErrorHandler>`.
+        to parse arguments and resolve sub-commands, then calls :meth:`.__call__` on the resulting Command instance.
+        Handles exceptions during parsing using the configured :class:`.ErrorHandler`.
 
         To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use
         the above-mentioned methods separately.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
-        :param args: Positional arguments to pass to :meth:`.run`
-        :param kwargs: Keyword arguments to pass to :meth:`.run`
-        :return: The Command instance with parsed arguments for which :meth:`.run` was already called.
+        :param args: Positional arguments to pass to :meth:`.__call__`
+        :param kwargs: Keyword arguments to pass to :meth:`.__call__`
+        :return: The Command instance with parsed arguments for which :meth:`.__call__` was already called.
         """
         ctx = _get_or_create_context(cls, argv)
         with ctx.get_error_handler():
@@ -70,7 +69,7 @@ class Command(ABC, metaclass=CommandMeta):
         parsed arguments, if necessary.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
-        :return: A Command instance with parsed arguments that is ready for :meth:`.run` or :meth:`.main`
+        :return: A Command instance with parsed arguments that is ready for :meth:`.__call__` or :meth:`.main`
         """
         from .parser import CommandParser
 
