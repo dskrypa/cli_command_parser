@@ -240,9 +240,9 @@ The primary alternative is to use :meth:`~.Command.parse_and_run` - using the sa
 When using :func:`~.commands.main`, it looks for all known Command subclasses, and calls :meth:`~.Command.parse_and_run`
 on the discovered subclass, passing along any arguments that were provided.
 
-By default, :meth:`~.Command.parse_and_run` will use ``sys.argv`` as the source of arguments to parse.  If desired for
-testing purposes, or if there is a need to modify arguments before letting them be parsed, a list of strings may also
-be provided::
+By default, :meth:`~.Command.parse_and_run` will use :data:`sys.argv` as the source of arguments to parse.  If desired
+for testing purposes, or if there is a need to modify arguments before letting them be parsed, a list of strings may
+also be provided::
 
     >>> class Foo(Command):
     ...     bar = Flag('--no-bar', '-B', default=True)
