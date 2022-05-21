@@ -35,13 +35,14 @@ show_on_github_options = {
     'rm_prefix': 'api/',
     'lib_relative_path': 'lib',
     'use_root': {'index', 'api'},
-    'skip': {'advanced', 'basic', 'parameters'},
+    'skip': {'advanced.rst', 'basic.rst', 'parameters.rst', 'commands.rst'},
 }
 
 autodoc_default_options = {
     'exclude-members': '_abc_impl',
     'member-order': 'bysource',
-    'special-members': '__init_subclass__,__call__,__new__,__init__,_before_main_,_after_main_',
+    'special-members': '__init_subclass__,__call__,__new__,__init__',
+    'private-members': '_before_main_,_after_main_',
 }
 autodoc_typehints_format = 'short'
 

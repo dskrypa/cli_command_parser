@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commands &mdash; CLI Command Parser 2022.05.21 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Usage" href="advanced.html" />
+    <link rel="prev" title="Parameters" href="parameters.html" />
+    <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initializing-commands">Initializing Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#command-metadata">Command Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#command-methods">Command Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subcommands">Subcommands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parse-run">Parse &amp; Run</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Commands</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="commands">
+<h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline"></a></h1>
+<p>Commands provide a way to organize CLI applications intuitively.</p>
+<p>Having parameters defined as attributes in the class results in a better developer experience when writing code that
+references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
+Changing the name of a parameter can take advantage of builtin renaming tools, instead of needing to hunt for
+references to <code class="docutils literal notranslate"><span class="pre">args.foo</span></code> to be updated.  There’s no need to keep function signatures up to date with parameters
+defined in decorators.</p>
+<p>A minimal set of pre-defined methods provide the basic functionality for parsing arguments and running code based on
+the parsed input.  Any other attribute or method can be defined and used without affecting functionality.</p>
+<p>Since subcommands can extend their parent command, they can take advantage of standard class inheritance to share
+common parameters, methods, and initialization steps with minimal extra work or code.</p>
+<section id="initializing-commands">
+<h2>Initializing Commands<a class="headerlink" href="#initializing-commands" title="Permalink to this headline"></a></h2>
+<p>All commands must extend the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class.</p>
+<p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof)</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of
+the following options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span>
+    <span class="n">Command</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span>
+    <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Contact &lt;example@fake.org&gt; with any issues&#39;</span>
+<span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="command-metadata">
+<h3>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this headline"></a></h3>
+<p>Keyword arguments supported when defining a Command subclass:</p>
+<ul class="simple">
+<li><p><strong>choice</strong>: SubCommand value that should be mapped to this command, if different than this class’s (lower case)
+name.</p></li>
+<li><p><strong>prog</strong>: The name of the program (default: <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code>)</p></li>
+<li><p><strong>usage</strong>: Usage message to be printed with help text or when incorrect arguments are provided (default:
+auto-generated)</p></li>
+<li><p><strong>description</strong>: Description of what the program does</p></li>
+<li><p><strong>epilog</strong>: Text to follow parameter descriptions</p></li>
+<li><p><strong>help</strong>: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</p></li>
+<li><p><strong>config</strong>: A <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a> object containing the config options to use.  May not be combined
+with separate kwargs that would be stored in a CommandConfig object.</p></li>
+</ul>
+</section>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h3>
+<p>Configuration options supported by <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.  For convenience, they may also be specified as
+keyword arguments when defining a Command subclass:</p>
+<ul class="simple">
+<li><p><strong>multiple_action_flags</strong>: Whether multiple action_flag methods are allowed to run if they are all specified
+(default: True)</p></li>
+<li><p><strong>action_after_action_flags</strong>: Whether action_flag methods are allowed to be combined with a positional Action
+method in a given CLI invocation (default: True)</p></li>
+<li><p><strong>add_help</strong>: Whether the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action_flag should be added (default: True)</p></li>
+<li><p><strong>error_handler</strong>: The <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> to be used by <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.__call__()</span></code></a> to wrap
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, or None to disable error handling.  (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code>)</p></li>
+<li><p><strong>ignore_unknown</strong>: Whether unknown arguments should be ignored (default: raise an exception when unknown
+arguments are encountered) (default: False)</p></li>
+<li><p><strong>allow_missing</strong>: Whether missing required arguments should be allowed (default: raise an exception when they
+are missing) (default: False)</p></li>
+<li><p><strong>always_run_after_main</strong>: Whether <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a> should always be called, even if an exception was
+raised in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> (similar to a <code class="docutils literal notranslate"><span class="pre">finally</span></code> block) (default: False)</p></li>
+</ul>
+</section>
+</section>
+<section id="command-methods">
+<h2>Command Methods<a class="headerlink" href="#command-methods" title="Permalink to this headline"></a></h2>
+<p>Simple commands can define <code class="docutils literal notranslate"><span class="pre">main</span></code> as the primary method for that command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Hello World!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If, however, a command uses <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods, then <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> should not be overridden (or it should
+include a call of <code class="docutils literal notranslate"><span class="pre">super().main()</span></code>) to maintain the expected behavior.</p>
+<p>To run code before / after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._before_main_()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a>
+methods may be overridden, respectively.  Similar to the relationship between <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> and <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a>
+methods, if <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlag</span></a> methods are used, the corresponding before / after main method must either not be
+overridden, or it must call the overridden method via <code class="docutils literal notranslate"><span class="pre">super()...</span></code> to maintain the expected behavior.</p>
+</section>
+<section id="subcommands">
+<h2>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this headline"></a></h2>
+<p>While subcommands will be automatically registered with their parent class as long as the parent class has a
+<a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a> parameter, it is also possible to have more control over that process.</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
+
+<span class="nd">@Base</span><span class="o">.</span><span class="n">sub_cmd</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;run foo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Run foo&#39;</span><span class="p">)</span>  <span class="c1"># Aliases can have their own help text</span>
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
+    <span class="c1"># This is registered with both ``run foo`` and ``foo`` as names for this command - both can be used</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;[foo] this is a debug log&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;run bar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
+    <span class="c1"># This is registered with ``run bar`` as the name for this command instead of ``bar``</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;[bar] this is a debug log&#39;</span><span class="p">)</span>
+
+<span class="nd">@Base</span><span class="o">.</span><span class="n">sub_cmd</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print baz&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Baz</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="c1"># This is registered as a subcommand of Base, named ``baz``, but it does not share parameters with Base</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">)</span>
+        <span class="c1"># The next line will never appear in output because Base.__init__ will not be called for this subcommand</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;[baz] this is a debug log&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">Base</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>When multiple top-level Commands exist, as they do in this example, then the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> convenience
+function can no longer be used as the main entry point for the program.  Instead, the
+<a class="reference internal" href="#parse-and-run"><span class="std std-ref">parse_and_run()</span></a> method needs to be called on the primary Command subclass.</p>
+<p>Top level <code class="docutils literal notranslate"><span class="pre">--help</span></code> text for the above example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ advanced_subcommand.py -h
+usage: advanced_subcommand.py {foo,run foo,run bar,baz} [--help]
+
+Subcommands:
+  {foo,run foo,run bar,baz}
+    foo                       Print foo
+    run foo                   Run foo
+    run bar                   Print bar
+    baz                       Print baz
+
+Optional arguments:
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>Each subcommand has its own command-specific help text as well:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ advanced_subcommand.py foo -h
+usage: advanced_subcommand.py foo [--verbose [VERBOSE]] [--help]
+
+Optional arguments:
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)
+  --help, -h                  Show this help message and exit (default: False)
+
+$ advanced_subcommand.py baz -h
+usage: advanced_subcommand.py baz [--help]
+
+Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">baz</span></code> subcommand, which does not extend <code class="docutils literal notranslate"><span class="pre">Base</span></code>, does not include <code class="docutils literal notranslate"><span class="pre">verbose</span></code> because it does not
+extend <code class="docutils literal notranslate"><span class="pre">Base</span></code>.  Additionally, while <code class="docutils literal notranslate"><span class="pre">Base.__init__</span></code> will be called to initialize logging for both the <code class="docutils literal notranslate"><span class="pre">Foo</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Bar</span></code> subcommands, it will not be called for <code class="docutils literal notranslate"><span class="pre">Baz</span></code>.  Regardless of where <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> / <code class="docutils literal notranslate"><span class="pre">-v</span></code> is specified,
+however, it will not cause a parsing error for <code class="docutils literal notranslate"><span class="pre">Baz</span></code> since it is registered as a subcommand of a Command that expects
+that argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ advanced_subcommand.py foo -v
+foo
+[foo] this is a debug log
+
+$ advanced_subcommand.py -v foo
+foo
+[foo] this is a debug log
+
+$ advanced_subcommand.py baz -v
+baz
+
+$ advanced_subcommand.py -v baz
+baz
+
+$ advanced_subcommand.py foo -x
+unrecognized arguments: -x
+</pre></div>
+</div>
+</section>
+<section id="parse-run">
+<span id="parse-and-run"></span><h2>Parse &amp; Run<a class="headerlink" href="#parse-run" title="Permalink to this headline"></a></h2>
+<p>When only one <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> direct subclass is present, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> convenience function
+can be used as the primary entry point for the program:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Positional</span><span class="p">,</span> <span class="n">main</span>
+
+<span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The primary alternative is to use <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> - using the same Echo command as in the above example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">Echo</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>When using <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a>, it looks for all known Command subclasses, and calls <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a>
+on the discovered subclass, passing along any arguments that were provided.</p>
+<p>By default, <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> will use <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> as the source of arguments to parse.  If desired for
+testing purposes, or if there is a need to modify arguments before letting them be parsed, a list of strings may also
+be provided:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">baz</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">baz</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">])</span>
+<span class="go">self.bar=False, self.baz=[&#39;test&#39;, &#39;one&#39;]</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="parameters.html" class="btn btn-neutral float-left" title="Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

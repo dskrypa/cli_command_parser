@@ -39,11 +39,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
-</ul>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -105,7 +102,7 @@
     <span class="c1">#: Whether the --help / -h action_flag should be added</span>
     <span class="n">add_help</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="c1">#: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.run`</span>
+    <span class="c1">#: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.__call__`</span>
     <span class="n">error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;ErrorHandler&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>
 
     <span class="c1">#: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)</span>
@@ -116,6 +113,10 @@
 
     <span class="c1">#: Whether missing required arguments should be allowed (default: raise an exception when they are missing)</span>
     <span class="n">allow_missing</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Whether :meth:`Command._after_main_` should always be called, even if an exception was raised in</span>
+    <span class="c1">#: :meth:`Command.main` (similar to a ``finally`` block)</span>
+    <span class="n">always_run_after_main</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="c1"># #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict</span>
     <span class="c1"># #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)</span>

@@ -42,11 +42,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
-</ul>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul class="current">
@@ -121,17 +118,20 @@
 <li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.description"></span><strong>description</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.description">¶</a> – Description of what the program does</p></li>
 <li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.epilog"></span><strong>epilog</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.epilog">¶</a> – Text to follow parameter descriptions</p></li>
 <li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.help"></span><strong>help</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.help">¶</a> – Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</p></li>
-<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.error_handler"></span><strong>error_handler</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.error_handler">¶</a> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code> to be used by
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code> to wrap <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a></p></li>
+<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.error_handler"></span><strong>error_handler</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.error_handler">¶</a> – The <a class="reference internal" href="cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> to be used by
+<a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.__call__</span></code></a> to wrap <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">main()</span></code></a>, or None to
+disable error handling.</p></li>
 <li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.add_help"></span><strong>add_help</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.add_help">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the –help / -h action_flag should be added</p></li>
 <li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.action_after_action_flags"></span><strong>action_after_action_flags</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.action_after_action_flags">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether action_flag methods are allowed to be combined with a positional
 Action method in a given CLI invocation</p></li>
 <li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.multiple_action_flags"></span><strong>multiple_action_flags</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.multiple_action_flags">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether multiple action_flag methods are allowed to run if they are all
 specified</p></li>
-<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.ignore_unknown"></span><strong>ignore_unknown</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.ignore_unknown">¶</a> – Whether unknown arguments should be allowed (default: raise an exception when unknown
-arguments are encountered)</p></li>
-<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.allow_missing"></span><strong>allow_missing</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.allow_missing">¶</a> – Whether missing required arguments should be allowed (default: raise an exception when
-required arguments are missing)</p></li>
+<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.ignore_unknown"></span><strong>ignore_unknown</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.ignore_unknown">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether unknown arguments should be allowed (default: raise an exception when
+unknown arguments are encountered)</p></li>
+<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.allow_missing"></span><strong>allow_missing</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.allow_missing">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether missing required arguments should be allowed (default: raise an exception
+when required arguments are missing)</p></li>
+<li><p><span class="target" id="cli_command_parser.core.CommandMeta.__new__.params.always_run_after_main"></span><strong>always_run_after_main</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.core.CommandMeta.__new__.params.always_run_after_main">¶</a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether <code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code> should always be called, even if an
+exception was raised in <code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></p></li>
 </ul>
 </dd>
 </dl>

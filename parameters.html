@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Advanced Usage" href="advanced.html" />
+    <link rel="next" title="Commands" href="commands.html" />
     <link rel="prev" title="Getting Started" href="basic.html" />
     <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
@@ -40,10 +40,8 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
-</ul>
-<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parameters</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#option">Option</a></li>
@@ -65,8 +63,7 @@
 </li>
 </ul>
 </li>
-</ul>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -140,23 +137,32 @@ inputs, respectively.</p>
 values.  By default, Flag parameters have a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>, and will change to <code class="docutils literal notranslate"><span class="pre">True</span></code> if provided by a
 user.  By specifying <code class="docutils literal notranslate"><span class="pre">default=True</span></code>, then that behavior is reversed.  It is also possible to specify any default value
 with a different <code class="docutils literal notranslate"><span class="pre">const</span></code> value to use if the flag is provided.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RiskyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py">Example command</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>  <span class="c1"># the default ``default`` value is False</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[DRY RUN] Would execute risky command&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Executing risky command!&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;self.foo = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">foo</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;self.bar = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Example usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ risky_command.py --dry_run
-[DRY RUN] Would execute risky command
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ simple_flags.py
+self.foo = False
+self.bar = True
 
-$ risky_command.py
-Executing risky command!
+$ simple_flags.py -f --no-bar
+self.foo = True
+self.bar = False
+
+$ simple_flags.py -h
+usage: simple_flags.py [--foo] [--no-bar] [--help]
+
+Optional arguments:
+  --foo, -f                   (default: False)
+  --no-bar, -B                (default: True)
+  --help, -h                  Show this help message and exit (default: False)
 </pre></div>
 </div>
 </section>
@@ -404,7 +410,7 @@ run before or after main.  Helper decorators are provided to simplify this disti
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="basic.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="commands.html" class="btn btn-neutral float-right" title="Commands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

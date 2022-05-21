@@ -39,11 +39,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../basic.html">Getting Started</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
-</ul>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -121,17 +118,20 @@
 <span class="sd">        :param description: Description of what the program does</span>
 <span class="sd">        :param epilog: Text to follow parameter descriptions</span>
 <span class="sd">        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</span>
-<span class="sd">        :param error_handler: The :class:`ErrorHandler&lt;command_parser.error_handling.ErrorHandler&gt;` to be used by</span>
-<span class="sd">          :meth:`.run` to wrap :meth:`.main`</span>
+<span class="sd">        :param error_handler: The :class:`~.error_handling.ErrorHandler` to be used by</span>
+<span class="sd">          :meth:`Command.__call__&lt;.commands.Command.__call__&gt;` to wrap :meth:`~.commands.Command.main`, or None to</span>
+<span class="sd">          disable error handling.</span>
 <span class="sd">        :param bool add_help: Whether the --help / -h action_flag should be added</span>
 <span class="sd">        :param bool action_after_action_flags: Whether action_flag methods are allowed to be combined with a positional</span>
 <span class="sd">          Action method in a given CLI invocation</span>
 <span class="sd">        :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all</span>
 <span class="sd">          specified</span>
-<span class="sd">        :param ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when unknown</span>
-<span class="sd">          arguments are encountered)</span>
-<span class="sd">        :param allow_missing: Whether missing required arguments should be allowed (default: raise an exception when</span>
-<span class="sd">          required arguments are missing)</span>
+<span class="sd">        :param bool ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when</span>
+<span class="sd">          unknown arguments are encountered)</span>
+<span class="sd">        :param bool allow_missing: Whether missing required arguments should be allowed (default: raise an exception</span>
+<span class="sd">          when required arguments are missing)</span>
+<span class="sd">        :param bool always_run_after_main: Whether :meth:`Command._after_main_` should always be called, even if an</span>
+<span class="sd">          exception was raised in :meth:`Command.main`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
         <span class="n">mcls</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>

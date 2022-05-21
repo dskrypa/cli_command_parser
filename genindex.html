@@ -39,11 +39,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
-</ul>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -182,6 +179,10 @@
         <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.__new__">(cli_command_parser.core.CommandMeta static method)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_">_after_main_() (cli_command_parser.commands.Command method)</a>
+</li>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_">_before_main_() (cli_command_parser.commands.Command method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -246,8 +247,6 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.active_group">active_group() (cli_command_parser.parameters.ParamGroup class method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.add">add() (cli_command_parser.parameters.ParamGroup method)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_help.params.add_default">add_default (cli_command_parser.parameters.ParamGroup.format_help parameter)</a>
@@ -258,6 +257,8 @@
         <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.__new__.params.add_help">(cli_command_parser.core.CommandMeta.__new__ parameter)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.after_main">after_main (in module cli_command_parser.parameters)</a>
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.after_main_actions">after_main_actions (cli_command_parser.context.Context property)</a>
@@ -268,6 +269,14 @@
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.allow_missing">(cli_command_parser.context.Context attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.__new__.params.allow_missing">(cli_command_parser.core.CommandMeta.__new__ parameter)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.always_run_after_main">always_run_after_main (cli_command_parser.config.CommandConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.always_run_after_main">(cli_command_parser.context.Context attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.__new__.params.always_run_after_main">(cli_command_parser.core.CommandMeta.__new__ parameter)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter.append">append() (cli_command_parser.parameters.Counter method)</a>
@@ -283,6 +292,10 @@
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__.params.args">args (cli_command_parser.commands.Command.__call__ parameter)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_.params.args">(cli_command_parser.commands.Command._after_main_ parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_.params.args">(cli_command_parser.commands.Command._before_main_ parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.args">(cli_command_parser.commands.Command.main parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.args">(cli_command_parser.commands.Command.parse_and_run parameter)</a>
@@ -723,6 +736,10 @@
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__.params.kwargs">kwargs (cli_command_parser.commands.Command.__call__ parameter)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_.params.kwargs">(cli_command_parser.commands.Command._after_main_ parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_.params.kwargs">(cli_command_parser.commands.Command._before_main_ parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.kwargs">(cli_command_parser.commands.Command.main parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.kwargs">(cli_command_parser.commands.Command.parse_and_run parameter)</a>
