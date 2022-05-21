@@ -60,25 +60,34 @@ values.  By default, Flag parameters have a default value of ``False``, and will
 user.  By specifying ``default=True``, then that behavior is reversed.  It is also possible to specify any default value
 with a different ``const`` value to use if the flag is provided.
 
-Example::
+`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py>`__::
 
-    class RiskyCommand(Command):
-        dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
+    class Example(Command):
+        foo = Flag('-f')  # the default ``default`` value is False
+        bar = Flag('--no-bar', '-B', default=True)
 
         def main(self):
-            if self.dry_run:
-                print('[DRY RUN] Would execute risky command')
-            else:
-                print('Executing risky command!')
+            print(f'self.foo = {self.foo!r}')
+            print(f'self.bar = {self.bar!r}')
 
 
 Example usage::
 
-    $ risky_command.py --dry_run
-    [DRY RUN] Would execute risky command
+    $ simple_flags.py
+    self.foo = False
+    self.bar = True
 
-    $ risky_command.py
-    Executing risky command!
+    $ simple_flags.py -f --no-bar
+    self.foo = True
+    self.bar = False
+
+    $ simple_flags.py -h
+    usage: simple_flags.py [--foo] [--no-bar] [--help]
+
+    Optional arguments:
+      --foo, -f                   (default: False)
+      --no-bar, -B                (default: True)
+      --help, -h                  Show this help message and exit (default: False)
 
 
 .. _Counter:

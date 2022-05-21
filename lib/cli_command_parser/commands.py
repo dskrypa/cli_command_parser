@@ -116,9 +116,9 @@ class Command(ABC, metaclass=CommandMeta):
 
     def _before_main_(self, *args, **kwargs):
         """
-        Called by :meth:`.run` before :meth:`.main` is called.  Validates the number of ActionFlags that were specified,
-        and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions
-        that were defined with ``before_main=True`` in their configured order.
+        Called by :meth:`.__call__` before :meth:`.main` is called.  Validates the number of ActionFlags that were
+        specified, and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag`
+        actions that were defined with ``before_main=True`` in their configured order.
 
         :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
         :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
@@ -160,7 +160,7 @@ class Command(ABC, metaclass=CommandMeta):
 
     def _after_main_(self, *args, **kwargs):
         """
-        Called by :meth:`.run` after :meth:`.main` is called.  Calls all of the specified
+        Called by :meth:`.__call__` after :meth:`.main` is called.  Calls all of the specified
         :obj:`~.parameters.after_main` / :obj:`~.parameters.action_flag` actions that were defined with
         ``before_main=False`` in their configured order.
 

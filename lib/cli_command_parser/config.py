@@ -39,7 +39,7 @@ class CommandConfig:
     allow_missing: Bool = False
 
     #: Whether :meth:`Command._after_main_` should always be called, even if an exception was raised in
-    #: :meth:`Command.main`
+    #: :meth:`Command.main` (similar to a ``finally`` block)
     always_run_after_main: Bool = False
 
     # #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict

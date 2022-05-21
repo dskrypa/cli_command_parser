@@ -4,7 +4,7 @@ CLI Command Parser
 
 |py_version| |coverage_badge| |build_status| |Black|
 
-.. |py_version| image:: https://img.shields.io/badge/python-3.9%20%7C%203.10%20-blue
+.. |py_version| image:: https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20-blue
 
 .. |coverage_badge| image:: https://codecov.io/gh/dskrypa/cli_command_parser/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/dskrypa/cli_command_parser
@@ -25,9 +25,6 @@ The primary goals of this project:
   - Reduce the amount of boilerplate code that is necessary for setting up parsing and handling argument values
 
 
-This project is still a work in progress.
-
-
 Installing CLI Command Parser
 -----------------------------
 
@@ -39,7 +36,7 @@ CLI Command Parser is available on PyPI::
 Documentation & Examples
 ------------------------
 
-`Documentation <https://dskrypa.github.io/cli_command_parser/basic.html>`_ is available, though it is still a work in
+`Documentation <https://dskrypa.github.io/cli_command_parser/index.html>`_ is available, though it is still a work in
 progress.
 
 Example scripts using CLI Command Parser can be found in the `examples

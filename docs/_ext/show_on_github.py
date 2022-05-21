@@ -36,32 +36,46 @@ def html_page_context(app, page_name, template_name, context, doc_tree):
     options = app.config.show_on_github_options
     if not options['ok']:
         return
-    elif page_name in options['use_root']:
-        context['show_on_github_url'] = ROOT_URL_FMT.format(**options)
-    elif page_name in options['skip']:
-        log.debug(f'Skipping page_name={page_name!r}')
+
+    try:
+        url = get_show_on_github_url(options, app, page_name, doc_tree)
+    except Skip:
         return
-    else:
-        rst_path = Path(doc_tree.get('source'))
-        rel_path = rst_path.relative_to(options['rst_src_dir']).with_suffix('')
-        rel_path = rel_path.as_posix().replace('.', '/')
-        rm_prefix = options.get('rm_prefix')
-        if rm_prefix and rel_path.startswith(rm_prefix):
-            rel_path = rel_path.replace(rm_prefix, '', 1)
 
-        src_lib_dir = options['src_lib_dir']
+    context['show_on_github_url'] = url
+    log.debug(f'Github URL for {page_name!r} => {url}')
+
+
+class Skip(Exception):
+    pass
+
+
+def get_show_on_github_url(options, app, page_name, doc_tree):
+    if page_name in options['use_root']:
+        return ROOT_URL_FMT.format(**options)
+
+    rst_path = Path(doc_tree.get('source'))
+    if rst_path.name in options['skip']:
+        log.debug(f'Skipping page_name={rst_path.name!r}')
+        raise Skip
+
+    rel_path = rst_path.relative_to(options['rst_src_dir']).with_suffix('')
+    rel_path = rel_path.as_posix().replace('.', '/')
+    rm_prefix = options.get('rm_prefix')
+    if rm_prefix and rel_path.startswith(rm_prefix):
+        rel_path = rel_path.replace(rm_prefix, '', 1)
+
+    src_lib_dir = options['src_lib_dir']
+    code_path = src_lib_dir.joinpath(rel_path)
+    if not code_path.exists():
+        rel_path += '.py'
         code_path = src_lib_dir.joinpath(rel_path)
-        if not code_path.exists():
-            rel_path += '.py'
-            code_path = src_lib_dir.joinpath(rel_path)
-        if not code_path.exists():
-            log.warning(f'Skipping GitHub link for non-existent rel_path={rel_path!r}')
-            # log.warning(f'Skipping GitHub link for non-existent {rel_path=} @ {code_path=}')
-            return
+    if not code_path.exists():
+        log.warning(f'Skipping GitHub link for non-existent rel_path={rel_path!r}')
+        # log.warning(f'Skipping GitHub link for non-existent {rel_path=} @ {code_path=}')
+        raise Skip
 
-        context['show_on_github_url'] = get_github_url(app, rel_path)
-
-    log.debug('Github URL for {!r} => {}'.format(page_name, context['show_on_github_url']))
+    return get_github_url(app, rel_path)
 
 
 def process_config(app):
