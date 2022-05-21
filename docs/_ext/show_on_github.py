@@ -39,13 +39,14 @@ def html_page_context(app, page_name, template_name, context, doc_tree):
     elif page_name in options['use_root']:
         context['show_on_github_url'] = ROOT_URL_FMT.format(**options)
     elif page_name in options['skip']:
-        log.debug(f'Skipping {page_name=}')
+        log.debug(f'Skipping page_name={page_name!r}')
         return
     else:
         rst_path = Path(doc_tree.get('source'))
         rel_path = rst_path.relative_to(options['rst_src_dir']).with_suffix('')
         rel_path = rel_path.as_posix().replace('.', '/')
-        if (rm_prefix := options.get('rm_prefix')) and rel_path.startswith(rm_prefix):
+        rm_prefix = options.get('rm_prefix')
+        if rm_prefix and rel_path.startswith(rm_prefix):
             rel_path = rel_path.replace(rm_prefix, '', 1)
 
         src_lib_dir = options['src_lib_dir']
@@ -54,7 +55,7 @@ def html_page_context(app, page_name, template_name, context, doc_tree):
             rel_path += '.py'
             code_path = src_lib_dir.joinpath(rel_path)
         if not code_path.exists():
-            log.warning(f'Skipping GitHub link for non-existent {rel_path=}')
+            log.warning(f'Skipping GitHub link for non-existent rel_path={rel_path!r}')
             # log.warning(f'Skipping GitHub link for non-existent {rel_path=} @ {code_path=}')
             return
 
@@ -76,7 +77,8 @@ def process_config(app):
     if lib_relative_path != options['lib_relative_path']:
         options['lib_relative_path'] = lib_relative_path
 
-    if missing := ', '.join(key for key in ('user', 'repo', 'branch') if not options.get(key)):
+    missing = ', '.join(key for key in ('user', 'repo', 'branch') if not options.get(key))
+    if missing:
         warnings.warn(f'show_on_github required conf.py settings missing: {missing}')
         options['ok'] = False
     else:
