@@ -30,6 +30,7 @@ log = logging.getLogger(__name__)
 
 class CommandParameters:
     command: 'CommandType'
+    formatter: HelpFormatter
     command_parent: Optional['CommandType'] = None
     parent: Optional['CommandParameters'] = None
     action: Optional[Action] = None

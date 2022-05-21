@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 from cli_command_parser import Command, no_exit_handler
 from cli_command_parser.core import get_params, CommandType
+from cli_command_parser.formatting import get_usage_sub_cmds
 from cli_command_parser.parameters import (
     Positional,
     SubCommand,
@@ -118,8 +119,21 @@ class HelpTextTest(TestCase):
             params = get_params(Base.parse(['find', '-h']))
             self.assertIn(expected, params.formatter.format_help())
 
-    def test_common_base_options_shown_for_subcommand(self):
-        pass  # TODO
+    # def test_common_base_options_shown_for_subcommand(self):
+    #     pass  # TODO
+
+    def test_subcommand_is_in_usage(self):
+        class Foo(Command, prog='foo.py'):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo):
+            pass
+
+        class Baz(Foo):
+            pass
+
+        usage = get_params(Baz).formatter.format_usage()
+        self.assertEqual('usage: foo.py baz [--help]', usage)
 
 
 class GroupHelpTextTest(TestCase):
@@ -250,6 +264,20 @@ class ProgramMetadataTest(TestCase):
             self.assertIs(meta.url, None)
             self.assertIs(meta.email, None)
             self.assertEqual(meta.version, '')
+
+
+class FormatterTest(TestCase):
+    def test_get_usage_sub_cmds_impossible(self):
+        # This an impossible case that is purely for coverage
+
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class Bar(Command):
+            pass
+
+        with patch('cli_command_parser.core.CommandMeta.parent', lambda c, x=None: Foo if c is Bar else None):
+            self.assertEqual([], get_usage_sub_cmds(Bar))
 
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:

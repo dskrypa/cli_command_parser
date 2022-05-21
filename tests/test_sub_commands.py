@@ -6,8 +6,6 @@ from unittest.mock import Mock
 
 from cli_command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
 
-# TODO: Subcommands should include their positional argument in usage
-
 
 class SubCommandTest(TestCase):
     def test_auto_register(self):

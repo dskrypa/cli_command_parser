@@ -123,7 +123,7 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_show_help(self):
         code, stdout, stderr = self.call_script('show', '--help')
         self.assertEqual(0, code)
-        expected = 'usage: shared_logging_init.py {attrs,hello,log_test} [--verbose [VERBOSE]] [--help]'
+        expected = 'usage: shared_logging_init.py show {attrs,hello,log_test} [--verbose [VERBOSE]] [--help]'
         self.assertLinesStartWith(expected, stdout)
 
     def test_show_attrs(self):

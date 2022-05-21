@@ -146,7 +146,7 @@ class ParamBase(ABC):
             self._name = value
 
     def __set_name__(self, command: 'CommandType', name: str):
-        self.command = command  # TODO: Is it really necessary to store a reference to the command?
+        self.command = command
         if self._name is None:
             self.name = name
         self.__name = name
@@ -1052,7 +1052,6 @@ class Action(ChoiceMap, title='Actions'):
           will be returned first, which will automatically be called by the interpreter with the method to be decorated,
           and that call will return the original method.
         """
-        # TODO: Accept params=Collection[ParamOrGroup] and treat more like a subcommand?
         if isinstance(method_or_choice, str):
             if choice is not None:
                 raise CommandDefinitionError(

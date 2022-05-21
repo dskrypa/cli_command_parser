@@ -4,14 +4,14 @@
 
 from shutil import get_terminal_size
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Type
 
 from .utils import ProgramMetadata, Bool
 
 if TYPE_CHECKING:
-    from .core import CommandType
+    from .core import CommandType, CommandMeta
     from .command_parameters import CommandParameters
-    from .parameters import ParamGroup, Parameter
+    from .parameters import ParamGroup, Parameter, SubCommand
 
 
 class HelpFormatter:
@@ -40,7 +40,8 @@ class HelpFormatter:
                     self.opt_group.add(param)
 
     def format_usage(self, delim: str = ' ') -> str:
-        meta: ProgramMetadata = self.command.__class__.meta(self.command)
+        cmd_mcls: Type['CommandMeta'] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
+        meta: ProgramMetadata = cmd_mcls.meta(self.command)
         if meta.usage:
             return meta.usage
 
@@ -49,7 +50,7 @@ class HelpFormatter:
         if pass_thru is not None:
             params.append(pass_thru)
 
-        parts = ['usage:', meta.prog]
+        parts = ['usage:', meta.prog, *get_usage_sub_cmds(self.command)]
         parts.extend(param.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
@@ -70,6 +71,26 @@ class HelpFormatter:
             parts.append(epilog)
 
         return '\n'.join(parts)
+
+
+def get_usage_sub_cmds(command: 'CommandType'):
+    cmd_mcls: Type['CommandMeta'] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
+    parent: 'CommandType' = cmd_mcls.parent(command)
+    if not parent:
+        return []
+
+    cmd_chain = get_usage_sub_cmds(parent)
+
+    sub_cmd_param: 'SubCommand' = cmd_mcls.params(parent).sub_command
+    if not sub_cmd_param:
+        return cmd_chain
+
+    for name, choice in sub_cmd_param.choices.items():
+        if choice.target is command:
+            cmd_chain.append(name)
+            break
+
+    return cmd_chain
 
 
 class HelpEntryFormatter:
