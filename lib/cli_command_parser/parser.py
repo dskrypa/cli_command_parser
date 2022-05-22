@@ -22,6 +22,7 @@ from .parameters import BaseOption, Parameter, BasePositional
 
 if TYPE_CHECKING:
     from .core import CommandType
+    from .command_parameters import CommandParameters
 
 __all__ = ['CommandParser']
 log = logging.getLogger(__name__)
@@ -44,8 +45,7 @@ class CommandParser:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls()._parse_args()
-        for group in params.groups:
-            group.validate()
+        cls._validate_groups(params)
 
         if sub_cmd_param is not None:
             try:
@@ -70,6 +70,19 @@ class CommandParser:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))
 
         return None
+
+    @classmethod
+    def _validate_groups(cls, params: 'CommandParameters'):
+        exc = None
+        for group in params.groups:
+            try:
+                group.validate()
+            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
+                if exc is None:
+                    exc = e
+
+        if exc is not None:
+            raise exc
 
     def _parse_args(self):
         self.arg_deque = arg_deque = self.handle_pass_thru()

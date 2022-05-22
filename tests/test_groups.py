@@ -5,7 +5,13 @@ from typing import Type
 
 from cli_command_parser import Command
 from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import UsageError, ParameterDefinitionError, CommandDefinitionError, ParamsMissing
+from cli_command_parser.exceptions import (
+    UsageError,
+    ParameterDefinitionError,
+    CommandDefinitionError,
+    ParamsMissing,
+    ParamConflict,
+)
 from cli_command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
 from cli_command_parser.testing import ParserTest
 
@@ -430,6 +436,28 @@ class NestedGroupTest(_GroupTest):
 
         expected = [Foo.nested_inner_1, Foo.inner_2, Foo.inner_3, Foo.inner_1, Foo.inner_4, Foo.outer_1, Foo.outer_2]
         self.assertListEqual(expected, get_params(Foo).groups)
+
+    def test_me_precedence_over_md(self):
+        class TestDE(Command, error_handler=None):
+            with ParamGroup(mutually_dependent=True):
+                a = Flag()
+                b = Flag()
+                with ParamGroup(mutually_exclusive=True):
+                    c = Flag()
+                    d = Flag()
+
+        class TestED(Command, error_handler=None):
+            with ParamGroup(mutually_exclusive=True):
+                a = Flag()
+                b = Flag()
+                with ParamGroup(mutually_dependent=True):
+                    c = Flag()
+                    d = Flag()
+
+        cases = [(TestDE, ['--b', '--c', '--d']), (TestED, ['--b', '--c'])]
+        for cmd, args in cases:
+            with self.subTest(cmd=cmd), self.assertRaises(ParamConflict):
+                cmd.parse_and_run(args)
 
 
 if __name__ == '__main__':
