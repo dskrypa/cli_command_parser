@@ -80,7 +80,7 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
@@ -150,7 +150,7 @@
         <span class="n">name_param_map</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Allow sub-classes to override names, but not within a given command</span>
         <span class="n">positionals</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamBase</span><span class="p">):</span>
@@ -172,7 +172,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">):</span>
                 <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">):</span>
-                <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
@@ -186,14 +186,19 @@
                     <span class="s1">&#39; BasePositional, BaseOption, or ParamGroup&#39;</span>
                 <span class="p">)</span>
 
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_groups</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_positionals</span><span class="p">(</span><span class="n">positionals</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_process_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">_process_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_group</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-            <span class="n">groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">groups</span> <span class="o">+</span> <span class="n">groups</span>
+            <span class="n">_groups</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">groups</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_groups</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>
@@ -399,6 +404,15 @@
         <span class="p">]</span>
         <span class="n">missing</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">missing</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_groups</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">ParamBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]:</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span>
+    <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
+        <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_groups</span><span class="p">(</span><span class="n">group</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">groups</span>
 </pre></div>
 
            </div>
