@@ -96,6 +96,21 @@ class MutuallyExclusiveGroupTest(ParserTest):
         fail_cases = [(['-bB'], UsageError), (['-B', '-b'], UsageError, 'mutually exclusive - only one is allowed')]
         self.assert_parse_fails_cases(Foo, fail_cases)
 
+    def test_mutually_exclusive_without_name(self):
+        class Foo(Command):
+            with ParamGroup(mutually_exclusive=True):
+                bar = Flag('-b', name='bar')
+                baz = Flag('-B', name='baz')
+
+        success_cases = [
+            ([], {'bar': False, 'baz': False}),
+            (['-b'], {'bar': True, 'baz': False}),
+            (['-B'], {'bar': False, 'baz': True}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [(['-bB'], UsageError), (['-B', '-b'], UsageError, 'mutually exclusive - only one is allowed')]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
     def test_positional_nargs_qm(self):
         class Foo(Command):
             with ParamGroup(mutually_exclusive=True) as group:
@@ -163,36 +178,67 @@ class MutuallyDependentGroupTest(ParserTest):
         fail_cases = [(['-b'], UsageError), (['-B'], UsageError)]
         self.assert_parse_fails_cases(Foo, fail_cases)
 
+    def test_mutually_dependent_without_name(self):
+        class Foo(Command):
+            with ParamGroup(mutually_dependent=True):
+                bar = Flag('-b')
+                baz = Flag('-B')
+
+        success_cases = [
+            ([], {'bar': False, 'baz': False}),
+            (['-bB'], {'bar': True, 'baz': True}),
+            (['-b', '-B'], {'bar': True, 'baz': True}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [(['-b'], UsageError), (['-B'], UsageError)]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
 
 class NestedGroupTest(ParserTest):
     def test_nested_me_in_md(self):
-        class Foo(Command):
+        class Foo1(Command):
             with ParamGroup(mutually_dependent=True) as outer:
                 with ParamGroup(mutually_exclusive=True) as inner:
                     foo = Flag()
                     bar = Flag()
                 baz = Flag()
 
-        self.assertIn(Foo.foo, Foo.inner)
-        self.assertIn(Foo.bar, Foo.inner)
-        self.assertIn(Foo.baz, Foo.outer)
-        self.assertNotIn(Foo.foo, Foo.outer)
-        self.assertNotIn(Foo.bar, Foo.outer)
-        self.assertNotIn(Foo.baz, Foo.inner)
-        self.assertIn(Foo.inner, Foo.outer)
+        class Foo2(Command):
+            with ParamGroup(mutually_dependent=True):
+                with ParamGroup(mutually_exclusive=True):
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        self.assertIn(Foo1.foo, Foo1.inner)
+        self.assertIn(Foo1.bar, Foo1.inner)
+        self.assertIn(Foo1.baz, Foo1.outer)
+        self.assertNotIn(Foo1.foo, Foo1.outer)
+        self.assertNotIn(Foo1.bar, Foo1.outer)
+        self.assertNotIn(Foo1.baz, Foo1.inner)
+        self.assertIn(Foo1.inner, Foo1.outer)
 
         success_cases = [
             (['--foo', '--baz'], {'foo': True, 'bar': False, 'baz': True}),
             (['--bar', '--baz'], {'foo': False, 'bar': True, 'baz': True}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['--foo', '--bar', '--baz'], ['--foo', '--bar'], ['--foo'], ['--bar'], ['--baz']]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        for cmd in (Foo1, Foo2):
+            with self.subTest(cmd=cmd):
+                self.assert_parse_results_cases(cmd, success_cases)
+                self.assert_parse_fails_cases(cmd, fail_cases, UsageError)
 
     def test_nested_me_in_me(self):
-        class Foo(Command):
+        class Foo1(Command):
             with ParamGroup(mutually_exclusive=True) as outer:
                 with ParamGroup(mutually_exclusive=True) as inner:
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        class Foo2(Command):
+            with ParamGroup(mutually_exclusive=True):
+                with ParamGroup(mutually_exclusive=True):
                     foo = Flag()
                     bar = Flag()
                 baz = Flag()
@@ -202,14 +248,23 @@ class NestedGroupTest(ParserTest):
             (['--bar'], {'foo': False, 'bar': True, 'baz': False}),
             (['--baz'], {'foo': False, 'bar': False, 'baz': True}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['--foo', '--bar', '--baz'], ['--foo', '--bar'], ['--foo', '--baz'], ['--bar', '--baz']]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        for cmd in (Foo1, Foo2):
+            with self.subTest(cmd=cmd):
+                self.assert_parse_results_cases(cmd, success_cases)
+                self.assert_parse_fails_cases(cmd, fail_cases, UsageError)
 
     def test_nested_md_in_me(self):
-        class Foo(Command):
+        class Foo1(Command):
             with ParamGroup(mutually_exclusive=True) as outer:
                 with ParamGroup(mutually_dependent=True) as inner:
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
+        class Foo2(Command):
+            with ParamGroup(mutually_exclusive=True):
+                with ParamGroup(mutually_dependent=True):
                     foo = Flag()
                     bar = Flag()
                 baz = Flag()
@@ -218,30 +273,50 @@ class NestedGroupTest(ParserTest):
             (['--foo', '--bar'], {'foo': True, 'bar': True, 'baz': False}),
             (['--baz'], {'foo': False, 'bar': False, 'baz': True}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['--foo', '--bar', '--baz'], ['--foo', '--baz'], ['--bar', '--baz']]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        for cmd in (Foo1, Foo2):
+            with self.subTest(cmd=cmd):
+                self.assert_parse_results_cases(cmd, success_cases)
+                self.assert_parse_fails_cases(cmd, fail_cases, UsageError)
 
     def test_nested_md_in_md(self):
-        class Foo(Command):
+        class Foo1(Command):
             with ParamGroup(mutually_dependent=True) as outer:
                 with ParamGroup(mutually_dependent=True) as inner:
                     foo = Flag()
                     bar = Flag()
                 baz = Flag()
 
-        self.assert_parse_results(Foo, ['--foo', '--bar', '--baz'], {'foo': True, 'bar': True, 'baz': True})
+        class Foo2(Command):
+            with ParamGroup(mutually_dependent=True):
+                with ParamGroup(mutually_dependent=True):
+                    foo = Flag()
+                    bar = Flag()
+                baz = Flag()
+
         fail_cases = [['--foo', '--bar'], ['--foo', '--baz'], ['--bar', '--baz'], ['--foo'], ['--bar'], ['--baz']]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        for cmd in (Foo1, Foo2):
+            with self.subTest(cmd=cmd):
+                self.assert_parse_results(cmd, ['--foo', '--bar', '--baz'], {'foo': True, 'bar': True, 'baz': True})
+                self.assert_parse_fails_cases(cmd, fail_cases, UsageError)
 
     def test_nested_me_in_me_with_plain(self):
-        class Foo(Command):
+        class Foo1(Command):
             with ParamGroup(mutually_exclusive=True) as outer:
                 with ParamGroup(mutually_exclusive=True) as inner:
                     a = Flag('-a')
                     b = Flag('-b')
                 c = Flag('-c')
             with ParamGroup() as plain:
+                d = Flag('-d')
+
+        class Foo2(Command):
+            with ParamGroup(mutually_exclusive=True):
+                with ParamGroup(mutually_exclusive=True):
+                    a = Flag('-a')
+                    b = Flag('-b')
+                c = Flag('-c')
+            with ParamGroup():
                 d = Flag('-d')
 
         success_cases = [
@@ -252,12 +327,14 @@ class NestedGroupTest(ParserTest):
             (['-bd'], {'a': False, 'b': True, 'c': False, 'd': True}),
             (['-cd'], {'a': False, 'b': False, 'c': True, 'd': True}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['-abc'], ['-ab'], ['-ac'], ['-bc'], ['-abcd'], ['-abd'], ['-acd'], ['-bcd']]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        for cmd in (Foo1, Foo2):
+            with self.subTest(cmd=cmd):
+                self.assert_parse_results_cases(cmd, success_cases)
+                self.assert_parse_fails_cases(cmd, fail_cases, UsageError)
 
     def test_non_me_nested_in_me_with_me(self):
-        class Foo(Command):
+        class Foo1(Command):
             with ParamGroup(mutually_exclusive=True) as outer:
                 with ParamGroup(mutually_exclusive=True) as inner:
                     a = Flag('-a')
@@ -267,13 +344,23 @@ class NestedGroupTest(ParserTest):
                     d = Flag('-d')
                     e = Flag('-e')
 
+        class Foo2(Command):
+            with ParamGroup(mutually_exclusive=True):
+                with ParamGroup(mutually_exclusive=True):
+                    a = Flag('-a')
+                    b = Flag('-b')
+                c = Flag('-c')
+                with ParamGroup():
+                    d = Flag('-d')
+                    e = Flag('-e')
+
         with self.subTest('group sort test'):
-            self.assertIn(Foo.plain, Foo.outer)
-            self.assertIn(Foo.inner, Foo.outer)
-            self.assertIn(Foo.c, Foo.outer)
-            expected = [Foo.inner, Foo.plain, Foo.outer]
-            self.assertListEqual(expected, get_params(Foo).groups)
-            self.assertListEqual(expected, sorted([Foo.plain, Foo.outer, Foo.inner]))
+            self.assertIn(Foo1.plain, Foo1.outer)
+            self.assertIn(Foo1.inner, Foo1.outer)
+            self.assertIn(Foo1.c, Foo1.outer)
+            expected = [Foo1.inner, Foo1.plain, Foo1.outer]
+            self.assertListEqual(expected, get_params(Foo1).groups)
+            self.assertListEqual(expected, sorted([Foo1.plain, Foo1.outer, Foo1.inner]))
 
         success_cases = [
             (['-a'], {'a': True, 'b': False, 'c': False, 'd': False, 'e': False}),
@@ -283,7 +370,6 @@ class NestedGroupTest(ParserTest):
             (['-e'], {'a': False, 'b': False, 'c': False, 'd': False, 'e': True}),
             (['-de'], {'a': False, 'b': False, 'c': False, 'd': True, 'e': True}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
         # fmt: off
         fail_cases = [
             ['-abc'], ['-ab'], ['-ac'], ['-bc'],
@@ -295,7 +381,10 @@ class NestedGroupTest(ParserTest):
             ['-cd'], ['-ce'], ['-cde'],
         ]
         # fmt: on
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        for cmd in (Foo1, Foo2):
+            with self.subTest(cmd=cmd):
+                self.assert_parse_results_cases(cmd, success_cases)
+                self.assert_parse_fails_cases(cmd, fail_cases, UsageError)
 
     def test_nested_group_sorting_1(self):
         class Foo(Command):

@@ -4,7 +4,7 @@
 
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional, Collection, List, Dict
+from typing import TYPE_CHECKING, Optional, Collection, List, Dict, Set
 
 from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
@@ -74,7 +74,7 @@ class CommandParameters:
         name_param_map = {}  # Allow sub-classes to override names, but not within a given command
         positionals = []
         options = []
-        groups = []
+        groups = set()
 
         for attr, param in self.command.__dict__.items():
             if attr.startswith('__') or not isinstance(param, ParamBase):
@@ -96,7 +96,7 @@ class CommandParameters:
             elif isinstance(param, BaseOption):
                 options.append(param)
             elif isinstance(param, ParamGroup):
-                groups.append(param)
+                groups.add(param)
             elif isinstance(param, PassThru):
                 if self.pass_thru:
                     raise CommandDefinitionError(
@@ -110,14 +110,19 @@ class CommandParameters:
                     ' BasePositional, BaseOption, or ParamGroup'
                 )
 
+            if param.group:
+                groups.update(_get_groups(param))
+
         self._process_positionals(positionals)
         self._process_options(options)
         self._process_groups(groups)
 
-    def _process_groups(self, groups: List[ParamGroup]):
+    def _process_groups(self, groups: Set[ParamGroup]):
         self.formatter.maybe_add_group(*groups)
         if self.parent:
-            groups = self.parent.groups + groups
+            _groups, groups = groups, self.parent.groups.copy()
+            groups.extend(_groups)
+
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):
@@ -323,3 +328,12 @@ class CommandParameters:
         ]
         missing.extend(p for p in self.options if p.required and ctx.num_provided(p) == 0)
         return missing
+
+
+def _get_groups(param: ParamBase) -> Set[ParamGroup]:
+    groups = set()
+    group = param.group
+    if group:
+        groups.add(group)
+        groups.update(_get_groups(group))
+    return groups
