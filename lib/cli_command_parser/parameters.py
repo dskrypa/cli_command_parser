@@ -655,8 +655,23 @@ class Parameter(ParamBase, ABC):
     def usage_metavar(self) -> str:
         if self.choices:
             return '{{{}}}'.format(','.join(map(str, self.choices)))
-        else:
-            return self.metavar or self.name.upper()
+        elif self.metavar:
+            return self.metavar
+        try:
+            use_type_metavar = ctx.use_type_metavar
+        except NoActiveContext:
+            use_type_metavar = False
+        if use_type_metavar and self.type is not None:
+            t = self.type
+            try:
+                name = t.__name__
+            except AttributeError:
+                pass
+            else:
+                if name != '<lambda>':
+                    return name.upper()
+
+        return self.name.upper()
 
 
 # region Positional Parameters

@@ -3,7 +3,7 @@
 from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
 from textwrap import dedent
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Type, Union
 from unittest import TestCase, main
 from unittest.mock import Mock, patch, MagicMock
 
@@ -73,7 +73,7 @@ class HelpTextTest(TestCase):
             foo = Option()
             bar = PassThru()
 
-        help_text = get_params(Foo).formatter.format_help()
+        help_text = _get_help_text(Foo)
         self.assertIn('--foo', help_text)
         self.assertIn('[-- BAR]', help_text)
 
@@ -116,9 +116,8 @@ class HelpTextTest(TestCase):
   --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
                               help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example (default: None)"""
 
-        with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
-            params = get_params(Base.parse(['find', '-h']))
-            self.assertIn(expected, params.formatter.format_help())
+        help_text = _get_help_text(Base.parse(['find', '-h']))
+        self.assertIn(expected, help_text)
 
     def test_subcommand_is_in_usage(self):
         class Foo(Command, prog='foo.py'):
@@ -130,7 +129,7 @@ class HelpTextTest(TestCase):
         class Baz(Foo):
             pass
 
-        usage = get_params(Baz).formatter.format_usage()
+        usage = _get_usage_text(Baz)
         self.assertEqual('usage: foo.py baz [--help]', usage)
 
     def test_subcommands_with_common_base_options_spacing(self):
@@ -158,8 +157,31 @@ class HelpTextTest(TestCase):
               --help, -h                  Show this help message and exit (default: False)
             """
         ).lstrip()
-        help_text = get_params(Foo).formatter.format_help()
+        help_text = _get_help_text(Foo)
         self.assertEqual(expected, help_text)
+
+    def test_usage_lambda_type(self):
+        class Foo(Command, use_type_metavar=True):
+            bar = Option(type=lambda v: v * 2)
+            baz = Option(type=int)
+
+        usage_text = _get_usage_text(Foo)
+        self.assertIn('--bar BAR', usage_text)
+        self.assertIn('--baz INT', usage_text)
+
+    def test_usage_no_name(self):
+        class NoName:  # Note: PropertyMock does not work with side_effect=AttributeError
+            @property
+            def __name__(self):
+                raise AttributeError
+
+        class Foo(Command, use_type_metavar=True):
+            bar = Option(type=NoName())  # noqa
+            baz = Option(type=int)
+
+        usage_text = _get_usage_text(Foo)
+        self.assertIn('--bar BAR', usage_text)
+        self.assertIn('--baz INT', usage_text)
 
 
 class GroupHelpTextTest(TestCase):
@@ -186,21 +208,28 @@ class GroupHelpTextTest(TestCase):
             action(Mock(__name__='hello'))
             action(Mock(__name__='log_test'))
 
-        with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
-            help_text = get_params(Base).formatter.format_help()
-        self.assertNotIn('Positional arguments:', help_text)
-        expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
-        self.assertIn(expected_sub_cmd, help_text)
-
-        help_text_lines = help_text.splitlines()
-        optional_header_index = help_text_lines.index('Optional arguments:')
         help_line = '  --help, -h                  Show this help message and exit (default: False)'
-        self.assertIn(help_line, help_text_lines[optional_header_index:])
-        verbose_line_1 = '  --verbose [VERBOSE], -v [VERBOSE]'
-        verbose_line_2 = (' ' * 30) + 'Increase logging verbosity (can specify multiple times) (default: 0)'
-        verbose_line_1_index = help_text_lines.index(verbose_line_1)
-        self.assertGreater(verbose_line_1_index, optional_header_index)
-        self.assertIn(verbose_line_2, help_text_lines[verbose_line_1_index:])
+        expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
+        verbose_desc = 'Increase logging verbosity (can specify multiple times) (default: 0)'
+
+        for use_type_metavar in (False, True):
+            with self.subTest(use_type_metavar=use_type_metavar):
+                Base.config().use_type_metavar = use_type_metavar
+
+                help_text = _get_help_text(Base)
+                self.assertNotIn('Positional arguments:', help_text)
+                self.assertIn(expected_sub_cmd, help_text)
+
+                help_lines = help_text.splitlines()
+                opt_header_idx = help_lines.index('Optional arguments:')
+                self.assertIn(help_line, help_lines[opt_header_idx:])
+
+                if use_type_metavar:
+                    self.assertIn(f'  --verbose [INT], -v [INT]   {verbose_desc}', help_lines[opt_header_idx:])
+                else:
+                    verbose_line_1_index = help_lines.index('  --verbose [VERBOSE], -v [VERBOSE]')
+                    self.assertGreater(verbose_line_1_index, opt_header_idx)
+                    self.assertIn((' ' * 30) + verbose_desc, help_lines[verbose_line_1_index:])
 
     def test_hidden_params_not_shown(self):
         class Foo(Command):
@@ -212,7 +241,7 @@ class GroupHelpTextTest(TestCase):
         self.assertTrue(Foo.bar.show_in_help)
         self.assertFalse(Foo.baz.show_in_help)
 
-        help_text = get_params(Foo).formatter.format_help()
+        help_text = _get_help_text(Foo)
         self.assertIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
 
@@ -224,13 +253,26 @@ class GroupHelpTextTest(TestCase):
                 with ParamGroup() as inner:
                     baz = Flag()
 
-        help_text = get_params(Foo).formatter.format_help()
+        help_text = _get_help_text(Foo)
         self.assertIn('--foo', help_text)
         self.assertNotIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
 
     # def test_nested_groups_shown(self):
     #     pass  # TODO
+
+
+def _get_usage_text(cmd: Type[Command]) -> str:
+    with cmd().ctx:
+        return get_params(cmd).formatter.format_usage()
+
+
+def _get_help_text(cmd: Union[Type[Command], Command]) -> str:
+    if not isinstance(cmd, Command):
+        cmd = cmd()
+    with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
+        with cmd.ctx:
+            return get_params(cmd).formatter.format_help()
 
 
 class ProgramMetadataTest(TestCase):

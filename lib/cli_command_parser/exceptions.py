@@ -80,6 +80,7 @@ class ParamUsageError(UsageError):
 
     def __init__(self, param: 'ParamOrGroup', message: str = None):
         self.param = param
+        self.usage_str = param.format_usage(full=True, delim=' / ') if param else ''
         if message:
             self.message = message
 
@@ -88,8 +89,7 @@ class ParamUsageError(UsageError):
         if self.param is None:
             return message
         else:
-            usage_str = self.param.format_usage(full=True, delim=' / ')
-            return f'argument {usage_str}: {message}'
+            return f'argument {self.usage_str}: {message}'
 
 
 class ParamConflict(UsageError):
@@ -99,13 +99,13 @@ class ParamConflict(UsageError):
 
     def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
         self.params = params
+        self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
         if message:
             self.message = message
 
     def __str__(self) -> str:
-        params_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in self.params)
         message = f' ({self.message})' if self.message else ''
-        return f'argument conflict - the following arguments cannot be combined: {params_str}{message}'
+        return f'argument conflict - the following arguments cannot be combined: {self.usage_str}{message}'
 
 
 class ParamsMissing(UsageError):
@@ -115,17 +115,17 @@ class ParamsMissing(UsageError):
 
     def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
         self.params = params
+        self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
         if message:
             self.message = message
 
     def __str__(self) -> str:
-        params_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in self.params)
         message = f' ({self.message})' if self.message else ''
         if len(self.params) > 1:
             prefix = 'arguments missing - the following arguments are required'
         else:
             prefix = 'argument missing - the following argument is required'
-        return f'{prefix}: {params_str}{message}'
+        return f'{prefix}: {self.usage_str}{message}'
 
 
 class BadArgument(ParamUsageError):

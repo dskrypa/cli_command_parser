@@ -80,6 +80,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     multiple_action_flags = ConfigOption()
     action_after_action_flags = ConfigOption()
     always_run_after_main = ConfigOption()
+    use_type_metavar = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -97,6 +98,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         multiple_action_flags: Bool = None,
         action_after_action_flags: Bool = None,
         always_run_after_main: Bool = None,
+        use_type_metavar: Bool = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -122,6 +124,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.multiple_action_flags = multiple_action_flags
         self.action_after_action_flags = action_after_action_flags
         self.always_run_after_main = always_run_after_main
+        self.use_type_metavar = use_type_metavar
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation
         # self.strict_sub_command_punctuation = strict_sub_command_punctuation

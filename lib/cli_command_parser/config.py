@@ -42,6 +42,10 @@ class CommandConfig:
     #: :meth:`Command.main` (similar to a ``finally`` block)
     always_run_after_main: Bool = False
 
+    #: Whether the metavar for Parameters that accept values should default to the name of the specified type
+    #: (default: the name of the parameter)
+    use_type_metavar: Bool = False
+
     # #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict
     # #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)
     # strict_option_punctuation: Bool = False
