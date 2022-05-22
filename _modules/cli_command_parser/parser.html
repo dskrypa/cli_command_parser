@@ -75,6 +75,8 @@
              
   <h1>Source code for cli_command_parser.parser</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The class that handles parsing input.</span>
+
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -125,7 +127,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">next_cmd</span> <span class="o">=</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>  <span class="c1"># type: CommandType</span>
             <span class="k">except</span> <span class="n">UsageError</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">help_action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">help_action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ctx</span><span class="p">:</span>  <span class="c1"># TODO: Arg for before_main ActionFlags to support custom actions here</span>
                     <span class="k">raise</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">missing</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">missing</span><span class="p">()</span>

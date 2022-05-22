@@ -185,13 +185,15 @@
 <span class="k">class</span> <span class="nc">ParamBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for :class:`Parameter` and :class:`ParamGroup`.&quot;&quot;&quot;</span>
 
-    <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">group</span><span class="p">:</span> <span class="s1">&#39;ParamGroup&#39;</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># fmt: off</span>
+    <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1">#: Always the name of the attr that points to this object</span>
+    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>               <span class="c1">#: An explicitly provided name, or the name of the attr that points to this object</span>
+    <span class="n">group</span><span class="p">:</span> <span class="s1">&#39;ParamGroup&#39;</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1">#: The group this object is a member of, if any</span>
+    <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1">#: The :class:`.Command` this object is a member of</span>
+    <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>          <span class="c1">#: Whether this param/group is required</span>
+    <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>                <span class="c1">#: The description for this param/group that will appear in ``--help`` text</span>
+    <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>              <span class="c1">#: Whether this param/group should be hidden in ``--help`` text</span>
+    <span class="c1"># fmt: on</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -358,6 +360,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ParamGroup&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the</span>
+<span class="sd">        ``with`` block will be registered as members of that group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local</span><span class="o">.</span><span class="n">stack</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -370,12 +376,16 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if the given :class:`Parameter` or :class:`ParamGroup` is a member of this group, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]:</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
 
     <span class="k">def</span> <span class="nf">_categorize_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ParamList</span><span class="p">,</span> <span class="n">ParamList</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Called after parsing to group this group&#39;s members by whether they were provided or not.&quot;&quot;&quot;</span>
         <span class="n">provided</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
@@ -387,12 +397,20 @@
         <span class="k">return</span> <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span>
 
     <span class="k">def</span> <span class="nf">_check_conflicts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provided</span><span class="p">:</span> <span class="n">ParamList</span><span class="p">,</span> <span class="n">missing</span><span class="p">:</span> <span class="n">ParamList</span><span class="p">):</span>
-        <span class="c1"># log.debug(f&#39;{self}: Checking group conflicts in {args=}&#39;)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates that the provided / missing parameters are acceptable based on the mutual exclusivity / dependency</span>
+<span class="sd">        configured for this group.</span>
+
+<span class="sd">        :raises: :class:`.ParamsMissing` if this is a :paramref:`.ParamGroup.mutually_dependent` group and some but not</span>
+<span class="sd">          all members were provided.</span>
+<span class="sd">        :raises: :class:`.ParamConflict` if this is a :paramref:`.ParamGroup.mutually_exclusive` group and multiple</span>
+<span class="sd">          members were provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">):</span>
             <span class="k">return</span>
 
-        <span class="c1"># log.debug(f&#39;{provided=}, {missing=}&#39;)</span>
-        <span class="c1"># log.debug(f&#39;provided={len(provided)}, missing={len(missing)}&#39;)</span>
+        <span class="c1"># log.debug(f&#39;{self}: Checking group conflicts in {provided=}, {missing=}&#39;)</span>
+        <span class="c1"># log.debug(f&#39;{self}: Checking group conflicts in provided={len(provided)}, missing={len(missing)}&#39;)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="n">provided</span> <span class="ow">and</span> <span class="n">missing</span><span class="p">:</span>
             <span class="n">p_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">provided</span><span class="p">)</span>
             <span class="n">be</span> <span class="o">=</span> <span class="s1">&#39;was&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;were&#39;</span>
@@ -567,7 +585,7 @@
             <span class="k">if</span> <span class="n">annotated_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">annotated_type</span>
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
 
@@ -582,7 +600,7 @@
             <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># Skip __get__ on subsequent accesses</span>
         <span class="k">return</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">_nargs_max_reached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_nargs_max_reached</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">max</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
@@ -1357,8 +1375,8 @@
 <span class="sd">          executed before those with higher values.  The ``--help`` action is implemented as an ActionFlag with</span>
 <span class="sd">          ``order=float(&#39;-inf&#39;)``.</span>
 <span class="sd">        :param func: The function to execute when this parameter is specified.</span>
-<span class="sd">        :param before_main: Whether this ActionFlag should be executed before the :meth:`~.commands.Command.main`</span>
-<span class="sd">          method or after it.</span>
+<span class="sd">        :param before_main: Whether this ActionFlag should be executed before the :meth:`.Command.main` method or</span>
+<span class="sd">          after it.</span>
 <span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`Flag`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: Test in groups, esp mutually excl/dependent</span>
@@ -1401,17 +1419,23 @@
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="k">return</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">before_main</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">before_main</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ActionFlag.__call__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<div class="viewcode-block" id="ActionFlag.__call__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ActionFlag&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.</span>
+
+<span class="sd">        If stacking :class:`Action` and :class:`ActionFlag` decorators, the Action decorator must be first (i.e., the</span>
+<span class="sd">        ActionFlag decorator must be above the Action decorator).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot re-assign the func to call for </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ActionFlag&#39;</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
         <span class="c1"># Allow the method to be called, regardless of whether it was specified</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
-        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>  <span class="c1"># imitates a bound method</span>
 
 <div class="viewcode-block" id="ActionFlag.result"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag.result">[docs]</a>    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_value</span><span class="p">():</span>
@@ -1421,9 +1445,17 @@
         <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
-<span class="n">action_flag</span> <span class="o">=</span> <span class="n">ActionFlag</span>
-<span class="n">before_main</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ActionFlag</span><span class="p">,</span> <span class="n">before_main</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1">#: An ActionFlag that will be executed before main()</span>
-<span class="n">after_main</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ActionFlag</span><span class="p">,</span> <span class="n">before_main</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1">#: An ActionFlag that will be executed after main()</span>
+<span class="n">action_flag</span> <span class="o">=</span> <span class="n">ActionFlag</span>  <span class="c1">#: Alias for :class:`ActionFlag`</span>
+
+
+<div class="viewcode-block" id="before_main"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.before_main">[docs]</a><span class="k">def</span> <span class="nf">before_main</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;An ActionFlag that will be executed before :meth:`.Command.main`&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ActionFlag</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">before_main</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="after_main"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.after_main">[docs]</a><span class="k">def</span> <span class="nf">after_main</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;An ActionFlag that will be executed after :meth:`.Command.main`&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ActionFlag</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">before_main</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Counter"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter">[docs]</a><span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">accepts_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accepts_none</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
