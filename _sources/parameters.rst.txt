@@ -166,9 +166,11 @@ Example usage::
 SubCommand
 ^^^^^^^^^^
 
-The :class:`~cli_command_parser.parameters.SubCommand` parameter allows additional
-:class:`~cli_command_parser.commands.Command` classes to be registered as subcommands of the Command that contains the
-SubCommand parameter.
+The :class:`.SubCommand` parameter allows additional :class:`.Command` classes to be registered as subcommands of the
+Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.
+
+SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
+should be provided relative to other positional parameters, if any.
 
 Explicit registration is not necessary for Commands that extend their parent Command - given the `following example
 <https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py>`_::
@@ -210,10 +212,10 @@ Usage examples::
 
 
 When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
-:meth:`~cli_command_parser.parameters.SubCommand.register` sub commands explicitly to specify a different choice value,
-including names that may include spaces.  Such names can be provided without requiring users to escape or quote the
-string (i.e., as technically separate arguments).  This allows for a more natural way to provide multi-word commands,
-without needing to jump through hoops to handle them.
+:meth:`~.SubCommand.register` sub commands explicitly to specify a different choice value, including names that may
+include spaces.  Such names can be provided without requiring users to escape or quote the string (i.e., as
+technically separate arguments).  This allows for a more natural way to provide multi-word commands, without needing
+to jump through hoops to handle them.
 
 
 .. _Action:
@@ -221,15 +223,12 @@ without needing to jump through hoops to handle them.
 Action
 ^^^^^^
 
-:class:`~cli_command_parser.parameters.Action` parameters are similar to
-:class:`~cli_command_parser.parameters.SubCommand` parameters, but allow methods in
-:class:`~cli_command_parser.commands.Command` classes to be registered as a callable to be executed based on a user's
-choice instead of separate sub Commands.
+:class:`.Action` parameters are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command`
+classes to be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
 
 When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
 cases where all of those functions share the same parameters.  If the target functions require different / additional
-parameters, then using a :class:`~cli_command_parser.parameters.SubCommand` with separate sub
-:class:`~cli_command_parser.commands.Command` classes may make more sense.
+parameters, then using a :class:`.SubCommand` with separate sub :class:`.Command` classes may make more sense.
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py>`__ that uses
 actions::

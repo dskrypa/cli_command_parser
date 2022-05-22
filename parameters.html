@@ -220,9 +220,10 @@ Hello World
 </section>
 <section id="subcommand">
 <span id="id7"></span><h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this headline"></a></h3>
-<p>The <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional
-<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the Command that contains the
-SubCommand parameter.</p>
+<p>The <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the
+Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.</p>
+<p>SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
+should be provided relative to other positional parameters, if any.</p>
 <p>Explicit registration is not necessary for Commands that extend their parent Command - given the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">following example</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
@@ -259,21 +260,18 @@ bar
 </pre></div>
 </div>
 <p>When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
-<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register" title="cli_command_parser.parameters.SubCommand.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> sub commands explicitly to specify a different choice value,
-including names that may include spaces.  Such names can be provided without requiring users to escape or quote the
-string (i.e., as technically separate arguments).  This allows for a more natural way to provide multi-word commands,
-without needing to jump through hoops to handle them.</p>
+<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register" title="cli_command_parser.parameters.SubCommand.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> sub commands explicitly to specify a different choice value, including names that may
+include spaces.  Such names can be provided without requiring users to escape or quote the string (i.e., as
+technically separate arguments).  This allows for a more natural way to provide multi-word commands, without needing
+to jump through hoops to handle them.</p>
 </section>
 <section id="action">
 <span id="id8"></span><h3>Action<a class="headerlink" href="#action" title="Permalink to this headline"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to
-<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in
-<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as a callable to be executed based on a user’s
-choice instead of separate sub Commands.</p>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>
+classes to be registered as a callable to be executed based on a user’s choice instead of separate sub Commands.</p>
 <p>When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
 cases where all of those functions share the same parameters.  If the target functions require different / additional
-parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub
-<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
+parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses
 actions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>

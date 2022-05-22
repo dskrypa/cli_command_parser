@@ -86,6 +86,7 @@
 
 <div class="viewcode-block" id="help_action"><a class="viewcode-back" href="../../api/cli_command_parser.actions.html#cli_command_parser.actions.help_action">[docs]</a><span class="nd">@action_flag</span><span class="p">(</span><span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-inf&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show this help message and exit&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">help_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The ``--help`` / ``-h`` action.  Prints help text, then exits.&quot;&quot;&quot;</span>
     <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
     <span class="nb">print</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">())</span>
     <span class="k">raise</span> <span class="n">ParserExit</span></div>
