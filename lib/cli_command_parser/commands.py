@@ -127,6 +127,12 @@ class Command(ABC, metaclass=CommandMeta):
         if n_flags and not ctx.multiple_action_flags and n_flags > 1:
             raise ParamConflict(before + after, 'combining multiple action flags is disabled')
 
+        if before:
+            cls = self.__class__
+            action = cls.__class__.params(cls).action  # noqa
+            if action is not None and not ctx.action_after_action_flags:
+                raise ParamConflict([action, *before], 'combining an action with action flags is disabled')
+
         for param in ctx.before_main_actions:
             param.func(self, *args, **kwargs)
 
@@ -151,7 +157,6 @@ class Command(ABC, metaclass=CommandMeta):
             cls = self.__class__
             action = cls.__class__.params(cls).action  # noqa
             if action is not None and (ctx.actions_taken == 0 or ctx.action_after_action_flags):
-                # TODO: Error on action when ctx.action_after_action_flags is False?
                 ctx.actions_taken += 1
                 action.result()(self, *args, **kwargs)
 

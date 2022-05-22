@@ -3,7 +3,7 @@
 """
 
 from abc import ABC, ABCMeta
-from typing import Optional, TypeVar, Type, Any, Dict, Tuple, List
+from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Any, Dict, Tuple, List
 from warnings import warn
 from weakref import WeakKeyDictionary, WeakSet
 
@@ -12,6 +12,9 @@ from .command_parameters import CommandParameters
 from .config import CommandConfig
 from .exceptions import CommandDefinitionError
 from .utils import ProgramMetadata
+
+if TYPE_CHECKING:
+    from .commands import Command
 
 
 class CommandMeta(ABCMeta, type):
@@ -131,19 +134,19 @@ class CommandMeta(ABCMeta, type):
             return None
 
 
-def get_parent(command: CommandMeta, include_abc: bool = True) -> Optional[CommandMeta]:
+def get_parent(command: Union[CommandMeta, 'Command'], include_abc: bool = True) -> Optional[CommandMeta]:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.parent(command, include_abc)
 
 
-def get_config(command: CommandMeta) -> CommandConfig:
+def get_config(command: Union[CommandMeta, 'Command']) -> CommandConfig:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.config(command)
 
 
-def get_params(command: CommandMeta) -> 'CommandParameters':
+def get_params(command: Union[CommandMeta, 'Command']) -> 'CommandParameters':
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.params(command)

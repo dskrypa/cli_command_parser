@@ -8,7 +8,7 @@ from unittest.mock import Mock
 from cli_command_parser import Command, CommandConfig, Context
 from cli_command_parser.core import get_config, get_parent, get_params
 from cli_command_parser.error_handling import no_exit_handler, extended_error_handler
-from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
+from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption, ParamConflict
 from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag
 
 
@@ -310,6 +310,34 @@ class TestCommands(TestCase):
             Foo.parse_and_run([])
 
         self.assertTrue(Foo._after_main_.called)
+
+    def test_action_after_action_flags_exc(self):
+        act_flag_mock = Mock()
+        action_mock = Mock(__name__='b')
+
+        class Foo(Command, action_after_action_flags=False, error_handler=None):
+            a = ActionFlag('-a')(act_flag_mock)
+            c = Action()
+            c(action_mock)
+
+        with self.assertRaisesRegex(ParamConflict, 'combining an action with action flags is disabled'):
+            Foo.parse_and_run(['b', '-a'])
+
+        self.assertFalse(act_flag_mock.called)
+        self.assertFalse(action_mock.called)
+
+    def test_action_after_action_flags_ok(self):
+        act_flag_mock = Mock()
+        action_mock = Mock(__name__='b')
+
+        class Foo(Command):
+            a = ActionFlag('-a')(act_flag_mock)
+            c = Action()
+            c(action_mock)
+
+        Foo.parse_and_run(['b', '-a'])
+        self.assertTrue(act_flag_mock.called)
+        self.assertTrue(action_mock.called)
 
 
 if __name__ == '__main__':
