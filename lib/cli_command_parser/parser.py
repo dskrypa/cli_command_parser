@@ -1,4 +1,6 @@
 """
+The class that handles parsing input.
+
 :author: Doug Skrypa
 """
 
@@ -49,7 +51,7 @@ class CommandParser:
             try:
                 next_cmd = sub_cmd_param.result()  # type: CommandType
             except UsageError:
-                if help_action not in ctx:
+                if help_action not in ctx:  # TODO: Arg for before_main ActionFlags to support custom actions here
                     raise
             else:
                 missing = params.missing()

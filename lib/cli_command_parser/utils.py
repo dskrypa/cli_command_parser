@@ -1,4 +1,6 @@
 """
+Utilities for extracting types from annotations, finding / storing program metadata, and other misc utilities.
+
 :author: Doug Skrypa
 """
 
@@ -136,6 +138,9 @@ def camel_to_snake_case(text: str, delim: str = '_') -> str:
     return ''.join(f'{delim}{c}' if i and c.isupper() else c for i, c in enumerate(text)).lower()
 
 
+# region Annotation Inspection
+
+
 def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
     try:
         annotation = get_type_hints(command_cls)[attr]
@@ -207,6 +212,9 @@ def _type_from_collection(origin, annotation) -> Optional[type]:
         return _type_from_union(annotation)
     else:
         return None
+
+
+# endregion
 
 
 def is_numeric(text: str) -> Bool:

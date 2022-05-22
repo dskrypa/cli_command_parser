@@ -109,13 +109,15 @@ class parameter_action:
 class ParamBase(ABC):
     """Base class for :class:`Parameter` and :class:`ParamGroup`."""
 
-    __name: str = None
-    _name: str = None
-    group: 'ParamGroup' = None
-    command: 'CommandType' = None
-    required: Bool = False
-    help: str = None
-    hide: Bool = False
+    # fmt: off
+    __name: str = None              #: Always the name of the attr that points to this object
+    _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
+    group: 'ParamGroup' = None      #: The group this object is a member of, if any
+    command: 'CommandType' = None   #: The :class:`.Command` this object is a member of
+    required: Bool = False          #: Whether this param/group is required
+    help: str = None                #: The description for this param/group that will appear in ``--help`` text
+    hide: Bool = False              #: Whether this param/group should be hidden in ``--help`` text
+    # fmt: on
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
         """
@@ -282,6 +284,10 @@ class ParamGroup(ParamBase):
         return self.name < other.name
 
     def __enter__(self) -> 'ParamGroup':
+        """
+        A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the
+        ``with`` block will be registered as members of that group.
+        """
         try:
             stack = self._local.stack
         except AttributeError:
@@ -294,12 +300,16 @@ class ParamGroup(ParamBase):
         return None
 
     def __contains__(self, param: ParamOrGroup) -> bool:
+        """
+        Returns True if the given :class:`Parameter` or :class:`ParamGroup` is a member of this group, False otherwise.
+        """
         return param in self.members
 
     def __iter__(self) -> Iterator[ParamOrGroup]:
         yield from self.members
 
     def _categorize_params(self) -> Tuple[ParamList, ParamList]:
+        """Called after parsing to group this group's members by whether they were provided or not."""
         provided = []
         missing = []
         for obj in self.members:
@@ -311,12 +321,20 @@ class ParamGroup(ParamBase):
         return provided, missing
 
     def _check_conflicts(self, provided: ParamList, missing: ParamList):
-        # log.debug(f'{self}: Checking group conflicts in {args=}')
+        """
+        Validates that the provided / missing parameters are acceptable based on the mutual exclusivity / dependency
+        configured for this group.
+
+        :raises: :class:`.ParamsMissing` if this is a :paramref:`.ParamGroup.mutually_dependent` group and some but not
+          all members were provided.
+        :raises: :class:`.ParamConflict` if this is a :paramref:`.ParamGroup.mutually_exclusive` group and multiple
+          members were provided.
+        """
         if not (self.mutually_dependent or self.mutually_exclusive):
             return
 
-        # log.debug(f'{provided=}, {missing=}')
-        # log.debug(f'provided={len(provided)}, missing={len(missing)}')
+        # log.debug(f'{self}: Checking group conflicts in {provided=}, {missing=}')
+        # log.debug(f'{self}: Checking group conflicts in provided={len(provided)}, missing={len(missing)}')
         if self.mutually_dependent and provided and missing:
             p_str = ', '.join(p.format_usage(full=True, delim='/') for p in provided)
             be = 'was' if len(provided) == 1 else 'were'
@@ -491,7 +509,7 @@ class Parameter(ParamBase, ABC):
             if annotated_type is not None:
                 self.type = annotated_type
 
-    def __get__(self, command: 'Command', owner: 'CommandType'):
+    def __get__(self, command: Optional['Command'], owner: 'CommandType'):
         if command is None:
             return self
 
@@ -506,7 +524,7 @@ class Parameter(ParamBase, ABC):
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def _nargs_max_reached(self):
+    def _nargs_max_reached(self) -> bool:
         try:
             return len(ctx.get_parsing_value(self)) >= self.nargs.max
         except TypeError:
@@ -1281,8 +1299,8 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
           executed before those with higher values.  The ``--help`` action is implemented as an ActionFlag with
           ``order=float('-inf')``.
         :param func: The function to execute when this parameter is specified.
-        :param before_main: Whether this ActionFlag should be executed before the :meth:`~.commands.Command.main`
-          method or after it.
+        :param before_main: Whether this ActionFlag should be executed before the :meth:`.Command.main` method or
+          after it.
         :param kwargs: Additional keyword arguments to pass to :class:`Flag`.
         """
         # TODO: Test in groups, esp mutually excl/dependent
@@ -1325,17 +1343,23 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
             return NotImplemented
         return (not self.before_main, self.order, self.name) < (not other.before_main, other.order, other.name)
 
-    def __call__(self, func: Callable):
+    def __call__(self, func: Callable) -> 'ActionFlag':
+        """
+        Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.
+
+        If stacking :class:`Action` and :class:`ActionFlag` decorators, the Action decorator must be first (i.e., the
+        ActionFlag decorator must be above the Action decorator).
+        """
         if self.func is not None:
             raise CommandDefinitionError(f'Cannot re-assign the func to call for {self}')
         self.func = func
         return self
 
-    def __get__(self, command: 'Command', owner: 'CommandType'):
+    def __get__(self, command: Optional['Command'], owner: 'CommandType') -> Union['ActionFlag', Callable]:
         # Allow the method to be called, regardless of whether it was specified
         if command is None:
             return self
-        return partial(self.func, command)
+        return partial(self.func, command)  # imitates a bound method
 
     def result(self) -> Optional[Callable]:
         if self.result_value():
@@ -1345,9 +1369,17 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         return None
 
 
-action_flag = ActionFlag
-before_main = partial(ActionFlag, before_main=True)  #: An ActionFlag that will be executed before main()
-after_main = partial(ActionFlag, before_main=False)  #: An ActionFlag that will be executed after main()
+action_flag = ActionFlag  #: Alias for :class:`ActionFlag`
+
+
+def before_main(*option_strs: str, order: Union[int, float] = 1, func: Callable = None, **kwargs) -> ActionFlag:
+    """An ActionFlag that will be executed before :meth:`.Command.main`"""
+    return ActionFlag(*option_strs, order=order, func=func, before_main=True, **kwargs)
+
+
+def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable = None, **kwargs) -> ActionFlag:
+    """An ActionFlag that will be executed after :meth:`.Command.main`"""
+    return ActionFlag(*option_strs, order=order, func=func, before_main=False, **kwargs)
 
 
 class Counter(BaseOption, accepts_values=True, accepts_none=True):
