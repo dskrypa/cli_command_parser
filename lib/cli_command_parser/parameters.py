@@ -903,7 +903,6 @@ class ChoiceMap(BasePositional):
                 raise InvalidChoice(self, prefix[:-1], choices)
         elif value.startswith('-'):
             raise BadArgument(self, f'invalid value={value!r}')
-        # TODO: Should this raise an error?
 
     def result_value(self) -> Optional[str]:
         choices = self.choices
@@ -1320,7 +1319,6 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
           after it.
         :param kwargs: Additional keyword arguments to pass to :class:`Flag`.
         """
-        # TODO: Test in groups, esp mutually excl/dependent
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
         bad = {k: v for k, v in found.items() if expected[k] != v}
