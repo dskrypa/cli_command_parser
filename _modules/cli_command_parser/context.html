@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.context &mdash; CLI Command Parser 2022.05.22 documentation</title>
+  <title>cli_command_parser.context &mdash; CLI Command Parser 2022.05.22-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -183,6 +183,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parsing</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_parsing</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unknown</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">unknown</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -299,7 +300,8 @@
 
 <div class="viewcode-block" id="Context.before_main_actions"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.before_main_actions">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">before_main_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="s1">&#39;ActionFlag&#39;</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">action_flag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_action_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_always_available_action_flags</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">failed</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_action_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">action_flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">yield</span> <span class="n">action_flag</span></div>
 
@@ -307,7 +309,15 @@
     <span class="k">def</span> <span class="nf">after_main_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="s1">&#39;ActionFlag&#39;</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">action_flag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_action_flags</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">yield</span> <span class="n">action_flag</span></div></div>
+            <span class="k">yield</span> <span class="n">action_flag</span></div>
+
+<div class="viewcode-block" id="Context.parsed_always_available_action_flags"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.parsed_always_available_action_flags">[docs]</a>    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">parsed_always_available_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s1">&#39;ActionFlag&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="n">parsing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsing</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">always_available_action_flags</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parsing</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># self.command is None</span>
+            <span class="k">return</span> <span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="get_current_context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_current_context">[docs]</a><span class="k">def</span> <span class="nf">get_current_context</span><span class="p">(</span><span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Context</span><span class="p">]:</span>
