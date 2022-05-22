@@ -404,7 +404,9 @@ class ParamGroup(ParamBase):
         if clean and nested and not params:
             parts = parts[2:]  # remove description and the first spacer
 
-        parts.append('')
+        if not parts[-1].endswith('\n'):  # ensure a new line separates sections, but avoid extra lines
+            parts.append('')
+
         return '\n'.join(parts)
 
 

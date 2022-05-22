@@ -2,6 +2,7 @@
 
 from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
+from textwrap import dedent
 from typing import Sequence, Tuple
 from unittest import TestCase, main
 from unittest.mock import Mock, patch, MagicMock
@@ -119,9 +120,6 @@ class HelpTextTest(TestCase):
             params = get_params(Base.parse(['find', '-h']))
             self.assertIn(expected, params.formatter.format_help())
 
-    # def test_common_base_options_shown_for_subcommand(self):
-    #     pass  # TODO
-
     def test_subcommand_is_in_usage(self):
         class Foo(Command, prog='foo.py'):
             sub_cmd = SubCommand()
@@ -134,6 +132,34 @@ class HelpTextTest(TestCase):
 
         usage = get_params(Baz).formatter.format_usage()
         self.assertEqual('usage: foo.py baz [--help]', usage)
+
+    def test_subcommands_with_common_base_options_spacing(self):
+        class Foo(Command, prog='foo.py'):
+            sub_cmd = SubCommand()
+            abc = Flag()
+
+        class Bar(Foo):
+            pass
+
+        class Baz(Foo):
+            pass
+
+        expected = dedent(
+            """
+            usage: foo.py {bar,baz} [--abc] [--help]
+
+            Subcommands:
+              {bar,baz}
+                bar
+                baz
+
+            Optional arguments:
+              --abc                       (default: False)
+              --help, -h                  Show this help message and exit (default: False)
+            """
+        ).lstrip()
+        help_text = get_params(Foo).formatter.format_help()
+        self.assertEqual(expected, help_text)
 
 
 class GroupHelpTextTest(TestCase):
