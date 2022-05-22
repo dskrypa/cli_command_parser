@@ -1304,6 +1304,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         order: Union[int, float] = 1,
         func: Callable = None,
         before_main: Bool = True,  # noqa
+        always_available: Bool = False,
         **kwargs,
     ):
         """
@@ -1317,6 +1318,8 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         :param func: The function to execute when this parameter is specified.
         :param before_main: Whether this ActionFlag should be executed before the :meth:`.Command.main` method or
           after it.
+        :param always_available: Whether this ActionFlag should always be available to be called, even if parsing
+          failed.  Only allowed when ``before_main=True``.  The intended use case is for actions like ``--help`` text.
         :param kwargs: Additional keyword arguments to pass to :class:`Flag`.
         """
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
@@ -1324,10 +1327,13 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         bad = {k: v for k, v in found.items() if expected[k] != v}
         if bad:
             raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
+        elif always_available and not before_main:
+            raise ParameterDefinitionError('always_available=True cannot be combined with before_main=False')
         super().__init__(*option_strs, **kwargs)
         self.func = func
         self.order = order
         self.before_main = before_main
+        self.always_available = always_available
 
     @property
     def func(self):

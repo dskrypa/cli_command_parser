@@ -5,6 +5,7 @@ from unittest import TestCase, main
 from cli_command_parser import Command
 from cli_command_parser.config import CommandConfig
 from cli_command_parser.context import Context, ConfigOption, get_current_context, ctx
+from cli_command_parser.parameters import Flag
 
 
 class ContextTest(TestCase):
@@ -53,6 +54,15 @@ class ContextTest(TestCase):
             with ctx as c2:
                 self.assertEqual(c2, ctx)
                 self.assertEqual(c2, c1)
+
+    def test_param_not_in_ctx(self):
+        f = Flag()
+        with Context():
+            self.assertNotIn(f, ctx)
+
+    def test_empty_parsed_always_available_action_flags(self):
+        with Context() as c:
+            self.assertEqual((), c.parsed_always_available_action_flags)
 
 
 if __name__ == '__main__':

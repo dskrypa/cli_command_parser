@@ -4,7 +4,12 @@
 
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional, Collection, List, Dict, Set
+from typing import TYPE_CHECKING, Optional, Collection, List, Dict, Set, Tuple
+
+try:
+    from functools import cached_property
+except ImportError:
+    from .compat import cached_property
 
 from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
@@ -67,6 +72,10 @@ class CommandParameters:
         elif self.parent:
             return self.parent.pass_thru
         return None
+
+    @cached_property
+    def always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
+        return tuple(af for af in self.action_flags if af.always_available)
 
     # region Initialization
 

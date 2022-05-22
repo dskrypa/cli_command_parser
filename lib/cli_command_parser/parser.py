@@ -8,7 +8,6 @@ import logging
 from collections import deque
 from typing import TYPE_CHECKING, Optional, Any, Deque
 
-from .actions import help_action
 from .context import ctx
 from .exceptions import (
     UsageError,
@@ -42,6 +41,7 @@ class CommandParser:
         params = ctx.params
         sub_cmd_param = params.sub_command
         if sub_cmd_param is not None and not sub_cmd_param.choices:
+            ctx.failed = True
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls()._parse_args()
@@ -51,22 +51,26 @@ class CommandParser:
             try:
                 next_cmd = sub_cmd_param.result()  # type: CommandType
             except UsageError:
-                if help_action not in ctx:  # TODO: Arg for before_main ActionFlags to support custom actions here
+                ctx.failed = True
+                if not ctx.parsed_always_available_action_flags:
                     raise
             else:
                 missing = params.missing()
                 if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
-                    if help_action in ctx:
+                    ctx.failed = True
+                    if ctx.parsed_always_available_action_flags:
                         return None
                     raise ParamsMissing(missing)
                 return next_cmd
 
         missing = params.missing()
         if missing and not ctx.allow_missing and (not params.action or params.action not in missing):
+            ctx.failed = True
             # Action is excluded because it provides a better error message
-            if help_action not in ctx:
+            if not ctx.parsed_always_available_action_flags:
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.ignore_unknown:
+            ctx.failed = True
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))
 
         return None

@@ -107,6 +107,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.remaining = list(self.argv)
         self.command = command
         self.parent = parent
+        self.failed = False
         if parent is not None:
             self._parsing = parent._parsing.copy()
             self.unknown = parent.unknown.copy()
@@ -223,7 +224,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     @property
     def before_main_actions(self) -> Iterator['ActionFlag']:
-        for action_flag in self.parsed_action_flags[1]:
+        flags = self.parsed_always_available_action_flags if self.failed else self.parsed_action_flags[1]
+        for action_flag in flags:
             self.actions_taken += 1
             yield action_flag
 
@@ -232,6 +234,14 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         for action_flag in self.parsed_action_flags[2]:
             self.actions_taken += 1
             yield action_flag
+
+    @cached_property
+    def parsed_always_available_action_flags(self) -> Tuple['ActionFlag', ...]:
+        parsing = self._parsing
+        try:
+            return tuple(p for p in self.params.always_available_action_flags if p in parsing)
+        except AttributeError:  # self.command is None
+            return ()
 
 
 def get_current_context(silent: bool = False) -> Optional[Context]:

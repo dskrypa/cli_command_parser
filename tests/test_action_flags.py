@@ -270,6 +270,10 @@ class ActionFlagTest(ParserTest):
         expected = [b, a]
         self.assertListEqual(expected, sorted([a, b]))
 
+    def test_after_main_always_available(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'cannot be combined with'):
+            ActionFlag(before_main=False, always_available=True)
+
 
 if __name__ == '__main__':
     try:
