@@ -154,3 +154,100 @@ Higher order values result in being called later, when specified.
 It is technically possible to call the same method both via action and flag, such as ``build_docs.py clean -c``.
 Nothing in this library will prevent that.  If this is problematic, but you want to stack decorators like this, then
 you should include a check in your application to prevent it from being run twice.
+
+
+Nested ParamGroups
+------------------
+
+It is possible to nest :ref:`ParamGroups<ParamGroup>` so that a mutually exclusive group contains a mutually
+dependent group, and vice versa.  This applies to any nesting depth.
+
+Given a mutually exclusive group ``A`` that contains a mutually dependent group ``B``, if any member of ``B`` is
+provided, then all members of ``B`` must be provided, but no other members of ``A`` (that are not members of ``B``) may
+be provided.
+
+Given a mutually dependent group ``C`` that contains a mutually exclusive group ``D``, if any member of ``C`` is
+provided, then all members of ``C`` (that are not members of ``D``) must be provided, and one and only one member of
+``D`` must be provided.
+
+The following `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py>`__
+will demonstrate this with :ref:`ActionFlags<ActionFlag>` that simply print their corresponding letter::
+
+    class GroupedFlags(Command):
+        with ParamGroup(mutually_exclusive=True):
+            @before_main('-a', order=1)
+            def action_a(self):
+                print('a')
+
+            @before_main('-b', order=2)
+            def action_b(self):
+                print('b')
+
+            with ParamGroup(mutually_dependent=True):
+                @before_main('-c', order=3)
+                def action_c(self):
+                    print('c')
+
+                @before_main('-d', order=4)
+                def action_d(self):
+                    print('d')
+
+        with ParamGroup(mutually_dependent=True):
+            @after_main('-w', order=1)
+            def action_w(self):
+                print('w')
+
+            @after_main('-x', order=2)
+            def action_x(self):
+                print('x')
+
+            with ParamGroup(mutually_exclusive=True):
+                @after_main('-y', order=3)
+                def action_y(self):
+                    print('y')
+
+                @after_main('-z', order=4)
+                def action_z(self):
+                    print('z')
+
+        def main(self):
+            print('main')
+
+
+Example output for the mutually dependent group nested inside the mutually exclusive group::
+
+    $ grouped_action_flags.py -a
+    a
+    main
+
+    $ grouped_action_flags.py -ab
+    argument conflict - the following arguments cannot be combined: --action_a / -a, --action_b / -b (they are mutually exclusive - only one is allowed)
+
+    $ grouped_action_flags.py -abc
+    argument conflict - the following arguments cannot be combined: --action_a / -a, --action_b / -b, {--action_c / -c,--action_d / -d} (they are mutually exclusive - only one is allowed)
+
+    $ grouped_action_flags.py -c
+    argument missing - the following argument is required: --action_d / -d (because --action_c/-c was provided)
+
+    $ grouped_action_flags.py -cd
+    c
+    d
+    main
+
+
+Example output for the mutually exclusive group nested inside the mutually dependent group::
+
+    $ grouped_action_flags.py -w
+    arguments missing - the following arguments are required: --action_x / -x, {--action_y / -y,--action_z / -z} (because --action_w/-w was provided)
+
+    $ grouped_action_flags.py -wx
+    argument missing - the following argument is required: {--action_y / -y,--action_z / -z} (because --action_w/-w, --action_x/-x were provided)
+
+    $ grouped_action_flags.py -wxy
+    main
+    w
+    x
+    y
+
+    $ grouped_action_flags.py -wxyz
+    argument conflict - the following arguments cannot be combined: --action_y / -y, --action_z / -z (they are mutually exclusive - only one is allowed)
