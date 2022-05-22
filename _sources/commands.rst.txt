@@ -73,6 +73,8 @@ keyword arguments when defining a Command subclass:
   are missing) (default: False)
 - **always_run_after_main**: Whether :meth:`.Command._after_main_` should always be called, even if an exception was
   raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
+- **use_type_metavar**: Whether the metavar for Parameters that accept values should default to the name of the
+  specified type (default: False / the name of the parameter)
 
 
 Command Methods
