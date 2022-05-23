@@ -253,9 +253,6 @@ class ParamComboTest(ParserTest):
     # def test_help_detected_with_unrecognized_args(self):
     #     pass  # TODO
 
-    # def test_parse_unknown_options(self):
-    #     pass  # TODO
-
 
 class PassThruTest(ParserTest):
     def test_sub_cmd_pass_thru_accepted(self):

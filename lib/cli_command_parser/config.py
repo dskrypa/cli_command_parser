@@ -17,34 +17,49 @@ __all__ = ['CommandConfig']
 
 @dataclass
 class CommandConfig:
+    # region Error Handling Options
+
+    #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.__call__`
+    error_handler: Optional['ErrorHandler'] = _NotSet
+
+    #: Whether :meth:`Command._after_main_` should always be called, even if an exception was raised in
+    #: :meth:`Command.main` (similar to a ``finally`` block)
+    always_run_after_main: Bool = False
+
+    # endregion
+
+    # region ActionFlag Options
+
     #: Whether multiple action_flag methods are allowed to run if they are all specified
     multiple_action_flags: Bool = True
 
     #: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation
     action_after_action_flags: Bool = True
 
-    #: Whether the --help / -h action_flag should be added
-    add_help: Bool = True
+    # endregion
 
-    #: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.__call__`
-    error_handler: Optional['ErrorHandler'] = _NotSet
+    # region Parsing Options
 
     #: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)
     ignore_unknown: Bool = False
 
-    # #: Whether unknown options should be parsed (default: raise an exception when unknown arguments are encountered)
-    # parse_unknown: Bool = False
-
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
     allow_missing: Bool = False
 
-    #: Whether :meth:`Command._after_main_` should always be called, even if an exception was raised in
-    #: :meth:`Command.main` (similar to a ``finally`` block)
-    always_run_after_main: Bool = False
+    # endregion
+
+    # region Usage & Help Text Options
+
+    #: Whether the --help / -h action_flag should be added
+    add_help: Bool = True
 
     #: Whether the metavar for Parameters that accept values should default to the name of the specified type
     #: (default: the name of the parameter)
     use_type_metavar: Bool = False
+
+    # endregion
+
+    # region Planned Options
 
     # #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict
     # #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)
@@ -59,6 +74,8 @@ class CommandConfig:
     # #: command names should be strict (``True``) when processing user input, or if they should be allowed to be
     # #: interchanged (``False``)
     # strict_sub_command_punctuation: Bool = False
+
+    # endregion
 
     @cached_class_property
     def _field_names(cls) -> FrozenSet[str]:  # noqa

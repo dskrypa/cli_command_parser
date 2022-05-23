@@ -75,7 +75,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     error_handler = ConfigOption(_NotSet)
     ignore_unknown = ConfigOption()
-    # parse_unknown = ConfigOption()
     allow_missing = ConfigOption()
     multiple_action_flags = ConfigOption()
     action_after_action_flags = ConfigOption()
@@ -93,7 +92,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         *,
         error_handler: Optional[ErrorHandler] = _NotSet,
         ignore_unknown: Bool = None,
-        # parse_unknown: Bool = None,
         allow_missing: Bool = None,
         multiple_action_flags: Bool = None,
         action_after_action_flags: Bool = None,
@@ -120,7 +118,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         # Command config overrides
         self.error_handler = error_handler
         self.ignore_unknown = ignore_unknown
-        # self.parse_unknown = parse_unknown
         self.allow_missing = allow_missing
         self.multiple_action_flags = multiple_action_flags
         self.action_after_action_flags = action_after_action_flags
