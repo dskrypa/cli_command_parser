@@ -54,9 +54,7 @@ class HelpFormatter:
         parts.extend(param.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
-    def format_help(
-        self, width: int = 30, add_default: Bool = True, group_type: Bool = True, extended_epilog: Bool = True
-    ):
+    def format_help(self, width: int = 30, group_type: Bool = True, extended_epilog: Bool = True) -> str:
         meta: ProgramMetadata = self.command.__class__.meta(self.command)
         parts = [self.format_usage(), '']
         if meta.description:
@@ -64,7 +62,7 @@ class HelpFormatter:
 
         for group in self.groups:
             if group.show_in_help:
-                parts.append(group.format_help(width=width, add_default=add_default, group_type=group_type))
+                parts.append(group.format_help(width=width, group_type=group_type))
 
         epilog = meta.format_epilog(extended_epilog)
         if epilog:

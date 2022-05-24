@@ -7,7 +7,7 @@ from typing import Sequence, Tuple, Type, Union
 from unittest import TestCase, main
 from unittest.mock import Mock, patch, MagicMock
 
-from cli_command_parser import Command, no_exit_handler
+from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.formatting import get_usage_sub_cmds
 from cli_command_parser.parameters import (
@@ -114,7 +114,7 @@ class HelpTextTest(TestCase):
                               lines,plain,pseudo-json}
                               Output format to use for --full_info (default: yaml)
   --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
-                              help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example (default: None)"""
+                              help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example"""
 
         help_text = _get_help_text(Base.parse(['find', '-h']))
         self.assertIn(expected, help_text)
@@ -182,6 +182,68 @@ class HelpTextTest(TestCase):
         usage_text = _get_usage_text(Foo)
         self.assertIn('--bar BAR', usage_text)
         self.assertIn('--baz INT', usage_text)
+
+    def test_sd_any_shows_all_defaults(self):
+        with Context(show_defaults='any'):
+            self.assertNotIn('default:', Option(required=True).format_help())
+            self.assertIn('(default: 0)', Option(default=0).format_help())
+            self.assertIn('(default: 1)', Option(default=1).format_help())
+            self.assertIn('(default: test)', Option(default='test').format_help())
+            self.assertIn('(default: False)', Option(default=False).format_help())
+            self.assertIn('(default: True)', Option(default=True).format_help())
+            self.assertIn('(default: ())', Option(default=()).format_help())
+            self.assertIn('(default: [])', Option(default=[]).format_help())
+            self.assertIn("(default: )", Option(default='').format_help())
+            self.assertIn('(default: None)', Option(default=None).format_help())
+
+    def test_sd_any_missing_adds_no_defaults(self):
+        with Context(show_defaults=ShowDefaults.ANY | ShowDefaults.MISSING):
+            self.assertNotIn('default:', Option(required=True).format_help())
+            self.assertIn('(default: 0)', Option(default=0).format_help())
+            self.assertIn('(default: 1)', Option(default=1).format_help())
+            self.assertIn('(default: test)', Option(default='test').format_help())
+            self.assertIn('(default: False)', Option(default=False).format_help())
+            self.assertIn('(default: True)', Option(default=True).format_help())
+            self.assertIn('(default: ())', Option(default=()).format_help())
+            self.assertIn('(default: [])', Option(default=[]).format_help())
+            self.assertIn("(default: )", Option(default='').format_help())
+            self.assertIn('(default: None)', Option(default=None).format_help())
+
+            self.assertNotIn('(default: 0)', Option(default=0, help='default: fake').format_help())
+            self.assertNotIn('(default: 1)', Option(default=1, help='default: fake').format_help())
+            self.assertNotIn('(default: test)', Option(default='test', help='default: fake').format_help())
+            self.assertNotIn('(default: False)', Option(default=False, help='default: fake').format_help())
+            self.assertNotIn('(default: True)', Option(default=True, help='default: fake').format_help())
+            self.assertNotIn('(default: ())', Option(default=(), help='default: fake').format_help())
+            self.assertNotIn('(default: [])', Option(default=[], help='default: fake').format_help())
+            self.assertNotIn("(default: )", Option(default='', help='default: fake').format_help())
+            self.assertNotIn('(default: None)', Option(default=None, help='default: fake').format_help())
+
+    def test_sd_non_empty_shows_falsey_non_empty_defaults(self):
+        with Context(show_defaults='non-empty'):
+            self.assertNotIn('default:', Option(required=True).format_help())
+            self.assertIn('(default: 0)', Option(default=0).format_help())
+            self.assertIn('(default: 1)', Option(default=1).format_help())
+            self.assertIn('(default: test)', Option(default='test').format_help())
+            self.assertIn('(default: False)', Option(default=False).format_help())
+            self.assertIn('(default: True)', Option(default=True).format_help())
+            self.assertNotIn('default:', Option(default=()).format_help())
+            self.assertNotIn('default:', Option(default=[]).format_help())
+            self.assertNotIn('default:', Option(default='').format_help())
+            self.assertNotIn('default:', Option(default=None).format_help())
+
+    def test_sd_truthy_shows_only_truthy_defaults(self):
+        with Context(show_defaults='truthy'):
+            self.assertNotIn('default:', Option(required=True).format_help())
+            self.assertIn('(default: 1)', Option(default=1).format_help())
+            self.assertIn('(default: test)', Option(default='test').format_help())
+            self.assertIn('(default: True)', Option(default=True).format_help())
+            self.assertNotIn('default:', Option(default=False).format_help())
+            self.assertNotIn('default:', Option(default=0).format_help())
+            self.assertNotIn('default:', Option(default=()).format_help())
+            self.assertNotIn('default:', Option(default=[]).format_help())
+            self.assertNotIn('default:', Option(default='').format_help())
+            self.assertNotIn('default:', Option(default=None).format_help())
 
 
 class GroupHelpTextTest(TestCase):
@@ -260,6 +322,24 @@ class GroupHelpTextTest(TestCase):
 
     # def test_nested_groups_shown(self):
     #     pass  # TODO
+
+    def test_anon_group_auto_names_not_used(self):
+        class Foo(Command):
+            text = Option('-t', help='Text to be displayed (default: the number of the color being shown)')
+            attr = Option('-a', choices=('bold', 'dim'), help='Background color to use (default: None)')
+            limit: int = Option('-L', default=256, help='Range limit')
+
+            with ParamGroup(mutually_exclusive=True):
+                all = Flag(
+                    '-A', help='Show all foreground and background colors (only when no color/background is specified)'
+                )
+                with ParamGroup():  # Both of these can be provided, but neither can be combined with --all / -A
+                    color = Option('-c', help='Text color to use (default: cycle through 0-256)')
+                    background = Option('-b', help='Background color to use (default: None)')
+
+            with ParamGroup(mutually_exclusive=True):
+                basic = Flag('-B', help='Display colors without the 38;5; prefix (cannot be combined with other args)')
+                hex = Flag('-H', help='Display colors by hex value (cannot be combined with other args)')
 
 
 def _get_usage_text(cmd: Type[Command]) -> str:

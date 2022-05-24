@@ -19,6 +19,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
+from .config import ShowDefaults
 from .context import ctx
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext
@@ -166,7 +167,7 @@ class ParamBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def format_help(self, width: int = 30, add_default: Bool = True) -> str:
+    def format_help(self, width: int = 30) -> str:
         raise NotImplementedError
 
 
@@ -373,14 +374,11 @@ class ParamGroup(ParamBase):
         choices = ','.join(mem.format_usage(include_meta, full, delim) for mem in self.members)
         return f'{{{choices}}}'
 
-    def format_help(
-        self, width: int = 30, add_default: Bool = True, group_type: Bool = True, clean: Bool = True
-    ) -> str:
+    def format_help(self, width: int = 30, group_type: Bool = True, clean: Bool = True) -> str:
         """
         Prepare the help text for this group.
 
         :param width: The width of the option/action/command column.
-        :param add_default: Whether default values should be included in the help text for parameters.
         :param group_type: Whether the group type should be included in the description if this is a mutually
           exclusive / dependent group
         :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
@@ -399,7 +397,7 @@ class ParamGroup(ParamBase):
                 parts.append('')  # Add space for readability
             else:
                 params += 1
-            parts.append(member.format_help(width=width, add_default=add_default))
+            parts.append(member.format_help(width=width))
 
         if clean and nested and not params:
             parts = parts[2:]  # remove description and the first spacer
@@ -643,10 +641,10 @@ class Parameter(ParamBase, ABC):
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.usage_metavar
 
-    def format_help(self, width: int = 30, add_default: Bool = True) -> str:
+    def format_help(self, width: int = 30) -> str:
         usage = self.format_usage(include_meta=True, full=True)
         description = self.help or ''
-        if add_default and self.default is not _NotSet:
+        if _should_add_default(self.default, self.help):
             pad = ' ' if description else ''
             description += f'{pad}(default: {self.default})'
         return HelpEntryFormatter(usage, description, width)()
@@ -940,7 +938,7 @@ class ChoiceMap(BasePositional):
     def format_usage(self, include_meta: Bool = None, full: Bool = None, delim: str = None) -> str:
         return self.usage_metavar
 
-    def format_help(self, width: int = 30, add_default: Bool = None):
+    def format_help(self, width: int = 30):
         title = self.title or self._default_title
         help_entry = HelpEntryFormatter(self.format_usage(), self.description, width, lpad=2)()
         parts = [f'{title}:', help_entry]
@@ -1502,3 +1500,23 @@ class PassThru(Parameter):
     def format_basic_usage(self) -> str:
         usage = self.format_usage()
         return f'-- {usage}' if self.required else f'[-- {usage}]'
+
+
+# region Helper Functions
+
+
+def _should_add_default(default: Any, help_text: Optional[str]) -> bool:
+    if default is _NotSet:
+        return False
+    sd = ctx.show_defaults
+    if sd.value < 2 or (sd & ShowDefaults.MISSING and help_text and 'default:' in help_text):
+        return False
+    elif sd & ShowDefaults.ANY:
+        return True
+    elif sd & ShowDefaults.NON_EMPTY:
+        return bool(default) or not (default is None or isinstance(default, Collection))
+    else:
+        return bool(default)
+
+
+# endregion

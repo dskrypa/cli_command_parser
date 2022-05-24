@@ -13,6 +13,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
+from .config import ShowDefaults
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
 from .utils import Bool, _NotSet
@@ -74,12 +75,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     """
 
     error_handler = ConfigOption(_NotSet)
-    ignore_unknown = ConfigOption()
-    allow_missing = ConfigOption()
+    always_run_after_main = ConfigOption()
     multiple_action_flags = ConfigOption()
     action_after_action_flags = ConfigOption()
-    always_run_after_main = ConfigOption()
+    ignore_unknown = ConfigOption()
+    allow_missing = ConfigOption()
     use_type_metavar = ConfigOption()
+    show_defaults = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -91,12 +93,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         parent: Optional['Context'] = None,
         *,
         error_handler: Optional[ErrorHandler] = _NotSet,
-        ignore_unknown: Bool = None,
-        allow_missing: Bool = None,
+        always_run_after_main: Bool = None,
         multiple_action_flags: Bool = None,
         action_after_action_flags: Bool = None,
-        always_run_after_main: Bool = None,
+        ignore_unknown: Bool = None,
+        allow_missing: Bool = None,
         use_type_metavar: Bool = None,
+        show_defaults: Union[ShowDefaults, str, int] = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -115,14 +118,21 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             self.unknown = {}
             self._provided = defaultdict(int)
         self.actions_taken = 0
+
         # Command config overrides
         self.error_handler = error_handler
-        self.ignore_unknown = ignore_unknown
-        self.allow_missing = allow_missing
+        self.always_run_after_main = always_run_after_main
+
         self.multiple_action_flags = multiple_action_flags
         self.action_after_action_flags = action_after_action_flags
-        self.always_run_after_main = always_run_after_main
+
+        self.ignore_unknown = ignore_unknown
+        self.allow_missing = allow_missing
+
         self.use_type_metavar = use_type_metavar
+        if show_defaults is not None:
+            self.show_defaults = ShowDefaults(show_defaults)
+
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation
         # self.strict_sub_command_punctuation = strict_sub_command_punctuation
