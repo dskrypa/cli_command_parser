@@ -80,47 +80,115 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">cached_class_property</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ShowDefaults"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults">[docs]</a><span class="k">class</span> <span class="nc">ShowDefaults</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Options for showing ``(default: &lt;default&gt;)`` in ``--help`` text.  Options can be combined, but</span>
+<span class="sd">    :attr:`ShowDefaults.NEVER` will override all other options.</span>
+
+<span class="sd">    If ``TRUTHY`` / ``NON_EMPTY`` / ``ANY`` are combined, then the most permissive (rightmost / highest value)</span>
+<span class="sd">    option will be used.</span>
+
+<span class="sd">    The ``MISSING`` option must be combined with one of ``TRUTHY`` / ``NON_EMPTY`` / ``ANY`` - using ``MISSING`` alone</span>
+<span class="sd">    is equivalent to ``ShowDefaults.MISSING | ShowDefaults.NEVER``, which will result in no default values being shown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># fmt: off</span>
+    <span class="n">NEVER</span> <span class="o">=</span> <span class="mi">0</span>       <span class="c1">#: Never include the default value in help text</span>
+    <span class="n">MISSING</span> <span class="o">=</span> <span class="mi">1</span>     <span class="c1">#: Only include the default value if ``default:`` is not already present</span>
+    <span class="n">TRUTHY</span> <span class="o">=</span> <span class="mi">2</span>      <span class="c1">#: Only include the default value if it is treated as True in a boolean context</span>
+    <span class="n">NON_EMPTY</span> <span class="o">=</span> <span class="mi">4</span>   <span class="c1">#: Only include the default value if it is not ``None`` or an empty container</span>
+    <span class="n">ANY</span> <span class="o">=</span> <span class="mi">8</span>         <span class="c1">#: Any default value, regardless of truthiness, will be included</span>
+    <span class="c1"># fmt: on</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span>  <span class="c1"># noqa</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected one of </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NEVER</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NEVER</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__or__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
 <div class="viewcode-block" id="CommandConfig"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>
+    <span class="c1"># region Error Handling Options</span>
+
+    <span class="c1">#: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`</span>
+    <span class="n">error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;ErrorHandler&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>
+
+    <span class="c1">#: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in</span>
+    <span class="c1">#: :meth:`.Command.main` (similar to a ``finally`` block)</span>
+    <span class="n">always_run_after_main</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region ActionFlag Options</span>
+
     <span class="c1">#: Whether multiple action_flag methods are allowed to run if they are all specified</span>
     <span class="n">multiple_action_flags</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1">#: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation</span>
     <span class="n">action_after_action_flags</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="c1">#: Whether the --help / -h action_flag should be added</span>
-    <span class="n">add_help</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># endregion</span>
 
-    <span class="c1">#: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`~Command.__call__`</span>
-    <span class="n">error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;ErrorHandler&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>
+    <span class="c1"># region Parsing Options</span>
 
     <span class="c1">#: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)</span>
     <span class="n">ignore_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="c1"># #: Whether unknown options should be parsed (default: raise an exception when unknown arguments are encountered)</span>
-    <span class="c1"># parse_unknown: Bool = False</span>
-
     <span class="c1">#: Whether missing required arguments should be allowed (default: raise an exception when they are missing)</span>
     <span class="n">allow_missing</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="c1">#: Whether :meth:`Command._after_main_` should always be called, even if an exception was raised in</span>
-    <span class="c1">#: :meth:`Command.main` (similar to a ``finally`` block)</span>
-    <span class="n">always_run_after_main</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Usage &amp; Help Text Options</span>
+
+    <span class="c1">#: Whether the ``--help`` / ``-h`` action_flag should be added</span>
+    <span class="n">add_help</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1">#: Whether the metavar for Parameters that accept values should default to the name of the specified type</span>
     <span class="c1">#: (default: the name of the parameter)</span>
     <span class="n">use_type_metavar</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Whether the default value for Parameters should be shown in help text, and related behavior</span>
+    <span class="n">show_defaults</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ShowDefaults</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span>
+
+    <span class="c1">#: Workaround for property.setter to normalize/validate values</span>
+    <span class="n">_show_defaults</span><span class="p">:</span> <span class="n">ShowDefaults</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">show_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_show_defaults</span>
+
+<div class="viewcode-block" id="CommandConfig.show_defaults"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults">[docs]</a>    <span class="nd">@show_defaults</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">show_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ShowDefaults</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>  <span class="c1"># Workaround for initial value setting</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_show_defaults</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_defaults</span> <span class="o">=</span> <span class="n">ShowDefaults</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Planned Options</span>
 
     <span class="c1"># #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict</span>
     <span class="c1"># #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)</span>
@@ -136,9 +204,14 @@
     <span class="c1"># #: interchanged (``False``)</span>
     <span class="c1"># strict_sub_command_punctuation: Bool = False</span>
 
+    <span class="c1"># endregion</span>
+
     <span class="nd">@cached_class_property</span>
     <span class="k">def</span> <span class="nf">_field_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>  <span class="c1"># noqa</span>
-        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
+        <span class="sd">&quot;&quot;&quot;Cache the names of the config options for use in :meth:`.as_dict`&quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">)}</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;show_defaults&#39;</span><span class="p">)</span>  <span class="c1"># not in __dict__ since it&#39;s overwritten by a property</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandConfig.as_dict"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -148,7 +221,9 @@
 <span class="sd">        non-None sentinel value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="p">}</span>  <span class="c1"># noqa</span></div></div>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="p">}</span>  <span class="c1"># noqa</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;show_defaults&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_show_defaults&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div></div>
 </pre></div>
 
            </div>

@@ -75,6 +75,9 @@ keyword arguments when defining a Command subclass:
   raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
 - **use_type_metavar**: Whether the metavar for Parameters that accept values should default to the name of the
   specified type (default: False / the name of the parameter)
+- **show_defaults**: Whether default values for Parameters should be automatically included in help text or not, and
+  related settings.  Acceptable values are defined as `enum flags <https://docs.python.org/3/library/enum.html#flag>`__
+  that can be combined.  See :class:`.ShowDefaults` for more info.
 
 
 Command Methods
