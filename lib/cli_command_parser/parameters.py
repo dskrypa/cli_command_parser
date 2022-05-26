@@ -167,6 +167,10 @@ class ParamBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def format_description(self) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
     def format_help(self, width: int = 30) -> str:
         raise NotImplementedError
 
@@ -386,6 +390,9 @@ class ParamGroup(ParamBase):
         :return: The formatted help text.
         """
         parts = [self.format_description(group_type) + ':']
+
+        # TODO: Indent members and use |- tree for nesting?
+        #  Different trunk/branch char for mutually dependent/exclusive/not?
 
         nested, params = 0, 0
         for member in self.members:
@@ -641,12 +648,16 @@ class Parameter(ParamBase, ABC):
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.usage_metavar
 
-    def format_help(self, width: int = 30) -> str:
-        usage = self.format_usage(include_meta=True, full=True)
+    def format_description(self) -> str:
         description = self.help or ''
         if _should_add_default(self.default, self.help):
             pad = ' ' if description else ''
             description += f'{pad}(default: {self.default})'
+        return description
+
+    def format_help(self, width: int = 30) -> str:
+        usage = self.format_usage(include_meta=True, full=True)
+        description = self.format_description()
         return HelpEntryFormatter(usage, description, width)()
 
     @property
@@ -796,9 +807,11 @@ class Choice:
         target_str = f', target={self.target}' if self.choice != self.target else ''
         return f'{self.__class__.__name__}({self.choice!r}{target_str}{help_str})'
 
+    def format_usage(self) -> str:
+        return '(default)' if self.choice is None else self.choice
+
     def format_help(self, width: int = 30, lpad: int = 4) -> str:
-        choice = '(default)' if self.choice is None else self.choice
-        return HelpEntryFormatter(choice, self.help, width, lpad)()
+        return HelpEntryFormatter(self.format_usage(), self.help, width, lpad)()
 
 
 class ChoiceMap(BasePositional):
