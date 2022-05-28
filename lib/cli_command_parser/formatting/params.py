@@ -27,7 +27,7 @@ class ParamHelpFormatter:
         except KeyError:
             pass
 
-        for p_cls, f_cls in reversed(cls._param_cls_fmt_cls_map.items()):
+        for p_cls, f_cls in reversed(tuple(cls._param_cls_fmt_cls_map.items())):  # tuple() only for 3.7 compatibility
             if issubclass(param_cls, p_cls):
                 return f_cls
 
