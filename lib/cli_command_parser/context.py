@@ -80,6 +80,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     action_after_action_flags = ConfigOption()
     ignore_unknown = ConfigOption()
     allow_missing = ConfigOption()
+    allow_backtrack = ConfigOption()
     use_type_metavar = ConfigOption()
     show_defaults = ConfigOption()
     # strict_option_punctuation = ConfigOption()
@@ -98,6 +99,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         action_after_action_flags: Bool = None,
         ignore_unknown: Bool = None,
         allow_missing: Bool = None,
+        allow_backtrack: Bool = None,
         use_type_metavar: Bool = None,
         show_defaults: Union[ShowDefaults, str, int] = None,
         # strict_option_punctuation: Bool = None,
@@ -128,6 +130,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
         self.ignore_unknown = ignore_unknown
         self.allow_missing = allow_missing
+        self.allow_backtrack = allow_backtrack
 
         self.use_type_metavar = use_type_metavar
         if show_defaults is not None:

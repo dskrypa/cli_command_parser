@@ -205,7 +205,7 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if not self.positionals or found < 2:
+        if not ctx.allow_backtrack or not self.positionals or found < 2:
             return found
 
         can_pop = param.can_pop_counts()
@@ -220,6 +220,9 @@ class CommandParser:
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
+        if not ctx.allow_backtrack:
+            return
+
         can_pop = self._last.can_pop_counts()
         to_pop = _to_pop([param, *self.positionals], can_pop, max(can_pop, default=0) + found, found)
         if to_pop is None:

@@ -654,6 +654,27 @@ class NargsTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    def test_pos_1_with_even_range_option_no_backtrack(self):
+        class Foo(Command, allow_backtrack=False):
+            foo = Positional(nargs=1)
+            bar = Option(nargs=range(2, 6, 2))  # 2 or 4
+
+        success_cases = [
+            (['z', '--bar', 'a', 'b'], {'foo': 'z', 'bar': ['a', 'b']}),
+            (['z', '--bar', 'a', 'b', 'c', 'd'], {'foo': 'z', 'bar': ['a', 'b', 'c', 'd']}),
+            (['--bar', 'a', 'b', 'c', 'd', 'z'], {'foo': 'z', 'bar': ['a', 'b', 'c', 'd']}),
+        ]
+        fail_cases = [
+            [],
+            ['z', '--bar', 'a'],
+            ['z', '--bar', 'a', 'b', 'c'],
+            ['--bar', 'a', 'b'],
+            ['--bar', 'a', 'b', 'c', 'd'],
+            ['--bar', 'a', 'b', 'z'],
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
     def test_pos_2_with_even_range_option(self):
         class Foo(Command):
             foo = Positional(nargs=2)
@@ -676,6 +697,32 @@ class NargsTest(ParserTest):
             ['--bar', 'a', 'b'],
             ['--bar', 'a', 'b', 'c'],
             ['--bar', 'a', 'b', 'c', 'd', 'e'],
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_pos_2_with_even_range_option_no_backtrack(self):
+        class Foo(Command, allow_backtrack=False):
+            foo = Positional(nargs=2)
+            bar = Option(nargs=range(2, 6, 2))  # 2 or 4
+
+        success_cases = [
+            (['y', 'z', '--bar', 'a', 'b'], {'foo': ['y', 'z'], 'bar': ['a', 'b']}),
+            (['y', 'z', '--bar', 'a', 'b', 'c', 'd'], {'foo': ['y', 'z'], 'bar': ['a', 'b', 'c', 'd']}),
+            (['--bar', 'a', 'b', 'c', 'd', 'y', 'z'], {'foo': ['y', 'z'], 'bar': ['a', 'b', 'c', 'd']}),
+        ]
+        fail_cases = [
+            [],
+            ['z', '--bar', 'a'],
+            ['y', 'z', '--bar', 'a'],
+            ['z', '--bar', 'a', 'b'],
+            ['y', 'z', '--bar', 'a', 'b', 'c'],
+            ['z', '--bar', 'a', 'b', 'c'],
+            ['--bar', 'a'],
+            ['--bar', 'a', 'b'],
+            ['--bar', 'a', 'b', 'c'],
+            ['--bar', 'a', 'b', 'c', 'd', 'e'],
+            ['--bar', 'a', 'b', 'y', 'z'],
         ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)

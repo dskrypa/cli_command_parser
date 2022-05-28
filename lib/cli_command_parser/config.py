@@ -83,6 +83,9 @@ class CommandConfig:
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
     allow_missing: Bool = False
 
+    #: Whether backtracking is enabled for positionals following params with variable nargs
+    allow_backtrack: Bool = True
+
     # endregion
 
     # region Usage & Help Text Options
