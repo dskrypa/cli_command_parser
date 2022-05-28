@@ -108,6 +108,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parser.</span></span><span class="sig-name descname"><span class="pre">CommandParser</span></span><a class="reference internal" href="../_modules/cli_command_parser/parser.html#CommandParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parser.CommandParser" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Stateful parser used for a single pass of argument parsing</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.arg_deque">
+<span class="sig-name descname"><span class="pre">arg_deque</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Deque</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.arg_deque" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.deferred">
+<span class="sig-name descname"><span class="pre">deferred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.deferred" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parser.html#CommandParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parser.CommandParser.__init__" title="Permalink to this definition"></a></dt>
@@ -141,7 +151,19 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.consume_values">
 <span class="sig-name descname"><span class="pre">consume_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">found</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parser.html#CommandParser.consume_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parser.CommandParser.consume_values" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Consume values for the given Parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parser.CommandParser.consume_values.params.param"></span><strong>param</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parser.CommandParser.consume_values.params.param">¶</a> – The active <a class="reference internal" href="cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that should receive the discovered values</p></li>
+<li><p><span class="target" id="cli_command_parser.parser.CommandParser.consume_values.params.found"></span><strong>found</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parser.CommandParser.consume_values.params.found">¶</a> – The number of already discovered values for that Parameter (only specified for positional params)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The total number of values that were found for the given Parameter.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

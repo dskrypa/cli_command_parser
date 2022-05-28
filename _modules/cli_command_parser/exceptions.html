@@ -235,6 +235,19 @@
 
 
 <span class="c1"># endregion</span>
+
+<span class="c1"># region Internal Exceptions</span>
+
+
+<span class="k">class</span> <span class="nc">UnsupportedAction</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that an attempted action cannot be completed.  Only used internally.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">Backtrack</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when backtracking took place&quot;&quot;&quot;</span>
+
+
+<span class="c1"># endregion</span>
 </pre></div>
 
            </div>

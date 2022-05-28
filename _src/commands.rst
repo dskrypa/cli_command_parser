@@ -67,10 +67,13 @@ keyword arguments when defining a Command subclass:
 - **add_help**: Whether the ``--help`` / ``-h`` action_flag should be added (default: True)
 - **error_handler**: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`.Command.__call__` to wrap
   :meth:`.Command.main`, or None to disable error handling.  (default: :obj:`~.error_handling.extended_error_handler`)
-- **ignore_unknown**: Whether unknown arguments should be ignored (default: raise an exception when unknown
-  arguments are encountered) (default: False)
-- **allow_missing**: Whether missing required arguments should be allowed (default: raise an exception when they
-  are missing) (default: False)
+- **ignore_unknown**: Whether unknown arguments should be ignored (default: False / raise an exception when unknown
+  arguments are encountered)
+- **allow_missing**: Whether missing required arguments should be allowed (default: False / raise an exception when
+  they are missing)
+- **allow_backtrack**: Whether the parser is allowed to backtrack or not when a Positional parameter follows a
+  parameter with variable :class:`.Nargs`, and not enough arguments are available to fulfil that Positional's
+  requirements (default: True)
 - **always_run_after_main**: Whether :meth:`.Command._after_main_` should always be called, even if an exception was
   raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
 - **use_type_metavar**: Whether the metavar for Parameters that accept values should default to the name of the

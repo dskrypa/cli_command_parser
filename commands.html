@@ -142,10 +142,13 @@ method in a given CLI invocation (default: True)</p></li>
 <li><p><strong>add_help</strong>: Whether the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action_flag should be added (default: True)</p></li>
 <li><p><strong>error_handler</strong>: The <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> to be used by <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.__call__()</span></code></a> to wrap
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, or None to disable error handling.  (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code>)</p></li>
-<li><p><strong>ignore_unknown</strong>: Whether unknown arguments should be ignored (default: raise an exception when unknown
-arguments are encountered) (default: False)</p></li>
-<li><p><strong>allow_missing</strong>: Whether missing required arguments should be allowed (default: raise an exception when they
-are missing) (default: False)</p></li>
+<li><p><strong>ignore_unknown</strong>: Whether unknown arguments should be ignored (default: False / raise an exception when unknown
+arguments are encountered)</p></li>
+<li><p><strong>allow_missing</strong>: Whether missing required arguments should be allowed (default: False / raise an exception when
+they are missing)</p></li>
+<li><p><strong>allow_backtrack</strong>: Whether the parser is allowed to backtrack or not when a Positional parameter follows a
+parameter with variable <a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nargs</span></code></a>, and not enough arguments are available to fulfil that Positional’s
+requirements (default: True)</p></li>
 <li><p><strong>always_run_after_main</strong>: Whether <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a> should always be called, even if an exception was
 raised in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> (similar to a <code class="docutils literal notranslate"><span class="pre">finally</span></code> block) (default: False)</p></li>
 <li><p><strong>use_type_metavar</strong>: Whether the metavar for Parameters that accept values should default to the name of the
