@@ -19,6 +19,7 @@ from cli_command_parser.exceptions import (
     MissingArgument,
     BadArgument,
     InvalidChoice,
+    UnsupportedAction,
 )
 from cli_command_parser.parameters import (
     parameter_action,
@@ -520,6 +521,24 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         Foo.bar.choices = ('a', 'b')
         with self.assertRaises(InvalidChoice):
             foo.bar  # noqa
+
+    def test_flag_pop_last(self):
+        with self.assertRaises(UnsupportedAction):
+            Flag().pop_last()
+
+    def test_empty_reset(self):
+        class Foo(Command):
+            bar = Positional(nargs='+')
+
+        with Context():
+            self.assertEqual([], Foo.bar._reset())
+
+    def test_unsupported_pop(self):
+        class Foo(Command):
+            bar = Positional()
+
+        with Context(), self.assertRaises(UnsupportedAction):
+            Foo.bar.pop_last()
 
 
 class TypeCastTest(ParserTest):

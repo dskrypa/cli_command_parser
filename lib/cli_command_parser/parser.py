@@ -6,18 +6,12 @@ The class that handles parsing input.
 
 import logging
 from collections import deque
-from typing import TYPE_CHECKING, Optional, Any, Deque
+from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ctx
-from .exceptions import (
-    UsageError,
-    NoSuchOption,
-    MissingArgument,
-    ParamUsageError,
-    CommandDefinitionError,
-    ParamsMissing,
-)
-from .parameters import BaseOption, Parameter, BasePositional
+from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
+from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
+from .parameters import BaseOption, Parameter, BasePositional, BasicActionMixin
 
 if TYPE_CHECKING:
     from .core import CommandType
@@ -30,10 +24,12 @@ log = logging.getLogger(__name__)
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
+    arg_deque: Optional[Deque[str]] = None
+    deferred: Optional[List[str]] = None
+    _last: Optional[Parameter] = None
+
     def __init__(self):
         self.params = ctx.params
-        self.deferred = None
-        self.arg_deque = None
         self.positionals = ctx.params.positionals.copy()
 
     @classmethod
@@ -146,7 +142,12 @@ class CommandParser:
             except UsageError:
                 self.positionals.insert(0, param)
                 raise
-            self.consume_values(param, found=found)
+            try:
+                self.consume_values(param, found=found)
+            except Backtrack:
+                self.positionals.insert(0, param)
+            else:
+                self._last = param
 
     def handle_long(self, arg: str):
         # log.debug(f'handle_long({arg=})')
@@ -160,6 +161,7 @@ class CommandParser:
                 param.take_action(value)
             elif not self.consume_values(param) and param.accepts_none:
                 param.take_action(None)
+            self._last = param
 
     def handle_short(self, arg: str):
         # log.debug(f'handle_short({arg=})')
@@ -181,6 +183,7 @@ class CommandParser:
             param.take_action(value, short_combo=True)
         elif not self.consume_values(param) and param.accepts_none:
             param.take_action(None, short_combo=True)
+        self._last = param
         # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
     def _check_sub_command_options(self, arg: str):
@@ -192,12 +195,59 @@ class CommandParser:
         if param is not None:
             raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')
 
+    def _maybe_backtrack(self, param: Parameter, found: int) -> int:
+        """
+        If we hit the end of the list of provided argument values, unfulfilled Positional parameters remain, and the
+        Parameter being processed accepts a variable number of arguments, then check to see if it's possible to
+        backtrack to move some of those values to the remaining positionals.
+
+        :param param: The :class:`.Parameter` that was consuming values when the arg_deque became empty
+        :param found: The number of values that were consumed by the given Parameter
+        :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
+        """
+        if not self.positionals or found < 2:
+            return found
+
+        can_pop = param.can_pop_counts()
+        to_pop = _to_pop(self.positionals, can_pop, found - 1)
+        if to_pop is None:
+            return found
+
+        self.arg_deque.extendleft(reversed(param.pop_last(to_pop)))
+        return found - to_pop
+
+    def _maybe_backtrack_last(self, param: Union[BasePositional, BasicActionMixin], found: int):
+        """
+        Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
+        """
+        can_pop = self._last.can_pop_counts()
+        to_pop = _to_pop([param, *self.positionals], can_pop, max(can_pop, default=0) + found, found)
+        if to_pop is None:
+            return
+
+        try:
+            reset = param._reset()
+        except UnsupportedAction:
+            return
+
+        self.arg_deque.extendleft(reversed(reset))
+        self.arg_deque.extendleft(reversed(self._last.pop_last(to_pop)))
+        raise Backtrack
+
     def consume_values(self, param: Parameter, found: int = 0) -> int:
+        """
+        Consume values for the given Parameter.
+
+        :param param: The active :class:`.Parameter` that should receive the discovered values
+        :param found: The number of already discovered values for that Parameter (only specified for positional params)
+        :return: The total number of values that were found for the given Parameter.
+        """
         while True:
             try:
                 value = self.arg_deque.popleft()
             except IndexError:
                 # log.debug(f'Ran out of values in deque while processing {param=}')
+                found = self._maybe_backtrack(param, found)
                 return self._finalize_consume(param, None, found)
             else:
                 # log.debug(f'Found {value=} in deque - may use it for {param=}')
@@ -228,11 +278,33 @@ class CommandParser:
         self, param: Parameter, value: Optional[str], found: int, exc: Optional[Exception] = None
     ) -> int:
         if param.nargs.satisfied(found):
+            # Even if an exception was passed to this method, if the found number of values is acceptable, then it
+            # doesn't need to be raised.  The value that (would have) caused the exception is added back to the deque.
             if value is not None:
                 self.arg_deque.appendleft(value)
             # log.debug(f'consume_values {found=} for {param=}')
             return found
         elif exc:
             raise exc
-        else:
-            raise MissingArgument(param, f'expected {param.nargs.min} values, but only found {found}')
+        elif self._last and isinstance(param, BasePositional) and hasattr(param, '_reset'):
+            self._maybe_backtrack_last(param, found)
+
+        raise MissingArgument(param, f'expected {param.nargs.min} values, but only found {found}')
+
+
+def _to_pop(positionals: List[BasePositional], can_pop: List[int], available: int, req_mod: int = 0) -> Optional[int]:
+    if not can_pop:
+        return None
+
+    required = sum(p.nargs.min for p in positionals)
+    if available < required:
+        return None
+
+    required -= req_mod
+    nargs_max_vals = [p.nargs.max for p in positionals]
+    acceptable = float('inf') if None in nargs_max_vals else sum(nargs_max_vals)
+    for n in can_pop:
+        if required <= n <= acceptable:
+            return n
+
+    return None

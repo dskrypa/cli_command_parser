@@ -22,17 +22,10 @@ except ImportError:
 from .config import ShowDefaults
 from .context import ctx
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext
+from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
 from .formatting import HelpEntryFormatter
 from .nargs import Nargs, NargsValue
-from .utils import (
-    _NotSet,
-    Bool,
-    validate_positional,
-    camel_to_snake_case,
-    get_descriptor_value_type,
-    is_numeric,
-)
+from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 
 if TYPE_CHECKING:
     from .core import CommandType
@@ -157,6 +150,8 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
+    # region Usage / Help Text
+
     @property
     @abstractmethod
     def show_in_help(self) -> bool:
@@ -173,6 +168,8 @@ class ParamBase(ABC):
     @abstractmethod
     def format_help(self, width: int = 30) -> str:
         raise NotImplementedError
+
+    # endregion
 
 
 class ParamGroup(ParamBase):
@@ -222,29 +219,7 @@ class ParamGroup(ParamBase):
         self.mutually_exclusive = mutually_exclusive
         self.mutually_dependent = mutually_dependent
 
-    def add(self, param: ParamOrGroup):
-        """Add the given parameter without storing a back-reference.  Primary use case is for help text only groups."""
-        self.members.append(param)
-
-    def register(self, param: ParamOrGroup):
-        if self.mutually_exclusive:
-            if (isinstance(param, BasePositional) and 0 not in param.nargs) or isinstance(param, PassThru):
-                cls_name = param.__class__.__name__
-                raise CommandDefinitionError(
-                    f'Cannot add param={param!r} to {self} - {cls_name} parameters cannot be mutually exclusive'
-                )
-            elif isinstance(param, BaseOption) and param.required:
-                raise CommandDefinitionError(
-                    f'Cannot add param={param!r} to {self} - required parameters cannot be mutually exclusive'
-                    ' (but the group can be required)'
-                )
-
-        self.members.append(param)
-        param.group = self
-
-    def register_all(self, params: Iterable[ParamOrGroup]):
-        for param in params:
-            self.register(param)
+    # region Boilerplate Methods
 
     def __repr__(self) -> str:
         exclusive, dependent = str(self.mutually_exclusive)[0], str(self.mutually_dependent)[0]
@@ -253,13 +228,6 @@ class ParamGroup(ParamBase):
             f'<{self.__class__.__name__}[{self.name!r},'
             f' members={members!r}, m.exclusive={exclusive}, m.dependent={dependent}]>'
         )
-
-    @classmethod
-    def active_group(cls) -> Optional['ParamGroup']:
-        try:
-            return cls._local.stack[-1]
-        except (AttributeError, IndexError):
-            return None
 
     def __hash__(self) -> int:
         return super().__hash__()
@@ -288,6 +256,19 @@ class ParamGroup(ParamBase):
 
         return self.name < other.name
 
+    def __contains__(self, param: ParamOrGroup) -> bool:
+        """
+        Returns True if the given :class:`Parameter` or :class:`ParamGroup` is a member of this group, False otherwise.
+        """
+        return param in self.members
+
+    def __iter__(self) -> Iterator[ParamOrGroup]:
+        yield from self.members
+
+    # endregion
+
+    # region Active Group Methods
+
     def __enter__(self) -> 'ParamGroup':
         """
         A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the
@@ -304,14 +285,44 @@ class ParamGroup(ParamBase):
         self._local.stack.pop()
         return None
 
-    def __contains__(self, param: ParamOrGroup) -> bool:
-        """
-        Returns True if the given :class:`Parameter` or :class:`ParamGroup` is a member of this group, False otherwise.
-        """
-        return param in self.members
+    @classmethod
+    def active_group(cls) -> Optional['ParamGroup']:
+        try:
+            return cls._local.stack[-1]
+        except (AttributeError, IndexError):
+            return None
 
-    def __iter__(self) -> Iterator[ParamOrGroup]:
-        yield from self.members
+    # endregion
+
+    # region Membership Methods
+
+    def add(self, param: ParamOrGroup):
+        """Add the given parameter without storing a back-reference.  Primary use case is for help text only groups."""
+        self.members.append(param)
+
+    def register(self, param: ParamOrGroup):
+        if self.mutually_exclusive:
+            if (isinstance(param, BasePositional) and 0 not in param.nargs) or isinstance(param, PassThru):
+                cls_name = param.__class__.__name__
+                raise CommandDefinitionError(
+                    f'Cannot add param={param!r} to {self} - {cls_name} parameters cannot be mutually exclusive'
+                )
+            elif isinstance(param, BaseOption) and param.required:
+                raise CommandDefinitionError(
+                    f'Cannot add param={param!r} to {self} - required parameters cannot be mutually exclusive'
+                    ' (but the group can be required)'
+                )
+
+        self.members.append(param)
+        param.group = self
+
+    def register_all(self, params: Iterable[ParamOrGroup]):
+        for param in params:
+            self.register(param)
+
+    # endregion
+
+    # region Argument Handling
 
     def _categorize_params(self) -> Tuple[ParamList, ParamList]:
         """Called after parsing to group this group's members by whether they were provided or not."""
@@ -356,8 +367,13 @@ class ParamGroup(ParamBase):
         if required and not ctx.num_provided(self):
             raise ParamsMissing(missing)
 
+    # endregion
+
+    # region Usage / Help Text
+
     @property
     def contains_positional(self) -> bool:
+        # Used by the help text formatter when grouping parameters / groups
         return any(isinstance(p, BasePositional) for p in self)
 
     @property
@@ -414,6 +430,8 @@ class ParamGroup(ParamBase):
 
         return '\n'.join(parts)
 
+    # endregion
+
 
 class Parameter(ParamBase, ABC):
     """
@@ -444,6 +462,7 @@ class Parameter(ParamBase, ABC):
         :param repr_attrs: Additional attributes to include in the repr.
         """
         actions = set(cls._actions)  # Inherit actions from parent
+        actions.update(getattr(cls, '_BasicActionMixin__actions', ()))  # Inherit from mixin, if present
         try:
             actions.update(getattr(cls, f'_{cls.__name__}__actions'))
         except AttributeError:
@@ -530,6 +549,8 @@ class Parameter(ParamBase, ABC):
         if name is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
+
+    # region Argument Handling
 
     def _nargs_max_reached(self) -> bool:
         try:
@@ -637,6 +658,16 @@ class Parameter(ParamBase, ABC):
 
     result = result_value
 
+    def can_pop_counts(self) -> List[int]:  # noqa
+        return []
+
+    def pop_last(self, count: int = 1) -> List[str]:
+        raise UnsupportedAction
+
+    # endregion
+
+    # region Usage / Help Text
+
     @property
     def show_in_help(self) -> bool:
         if self.hide:
@@ -682,6 +713,56 @@ class Parameter(ParamBase, ABC):
 
         return self.name.upper()
 
+    # endregion
+
+
+class BasicActionMixin:
+    action: str
+    nargs: Nargs
+
+    @parameter_action
+    def store(self: Parameter, value: Any):
+        ctx.set_parsing_value(self, value)
+
+    @parameter_action
+    def append(self: Parameter, value: Any):
+        ctx.get_parsing_value(self).append(value)
+
+    def _pre_pop_values(self: Parameter):
+        if self.action != 'append' or not self.nargs.variable or self.type not in (None, str):
+            return []
+
+        return ctx.get_parsing_value(self)
+
+    def can_pop_counts(self) -> List[int]:
+        values = self._pre_pop_values()
+        if not values:
+            return []
+
+        n_values = len(values)
+        return [i for i in range(1, n_values) if self.nargs.satisfied(n_values - i)]
+
+    def _reset(self: Union[Parameter, 'BasicActionMixin']) -> List[str]:
+        if self.action != 'append' or self.type not in (None, str):
+            raise UnsupportedAction
+
+        values = ctx.get_parsing_value(self)
+        if not values:
+            return values
+
+        ctx.set_parsing_value(self, self._init_value_factory())
+        ctx._provided[self] = 0
+        return values
+
+    def pop_last(self: Union[Parameter, 'BasicActionMixin'], count: int = 1) -> List[str]:
+        values = self._pre_pop_values()
+        if not values or count >= len(values) or not self.nargs.satisfied(len(values) - count):
+            raise UnsupportedAction
+
+        ctx.set_parsing_value(self, values[:-count])
+        ctx.record_action(self, -count)
+        return values[-count:]
+
 
 # region Positional Parameters
 
@@ -724,7 +805,7 @@ class BasePositional(Parameter, ABC):
         return metavar if not full or self.nargs == 1 else f'{metavar} [{metavar} ...]'
 
 
-class Positional(BasePositional):
+class Positional(BasicActionMixin, BasePositional):
     """A parameter that must be provided positionally."""
 
     def __init__(
@@ -774,14 +855,6 @@ class Positional(BasePositional):
             self.required = False
             if action == 'store':
                 self.default = None if default is _NotSet else default
-
-    @parameter_action
-    def store(self, value: Any):
-        ctx.set_parsing_value(self, value)
-
-    @parameter_action
-    def append(self, value: Any):
-        ctx.get_parsing_value(self).append(value)
 
 
 # endregion
@@ -1195,7 +1268,7 @@ class BaseOption(Parameter, ABC):
                 return self.long_opts[0]
 
 
-class Option(BaseOption):
+class Option(BasicActionMixin, BaseOption):
     """A generic option that can be specified as ``--foo bar`` or by using other similar forms."""
 
     def __init__(
@@ -1241,14 +1314,6 @@ class Option(BaseOption):
         self.type = type
         if action == 'append':
             self._init_value_factory = list
-
-    @parameter_action
-    def store(self, value: Any):
-        ctx.set_parsing_value(self, value)
-
-    @parameter_action
-    def append(self, value: Any):
-        ctx.get_parsing_value(self).append(value)
 
 
 class Flag(BaseOption, accepts_values=False, accepts_none=True):
