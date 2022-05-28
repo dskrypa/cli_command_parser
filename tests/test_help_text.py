@@ -22,6 +22,7 @@ from cli_command_parser.parameters import (
     PassThru,
     ChoiceMap,
 )
+from cli_command_parser.testing import ParserTest
 from cli_command_parser.utils import ProgramMetadata
 
 TEST_DESCRIPTION = 'This is a test description'
@@ -248,7 +249,7 @@ class HelpTextTest(TestCase):
             self.assertNotIn('default:', Option(default=None).formatter.format_help())
 
 
-class GroupHelpTextTest(TestCase):
+class GroupHelpTextTest(ParserTest):
     def test_group_description(self):
         class Foo(Command, error_handler=no_exit_handler):
             foo = ParamGroup(description='group foo')
@@ -322,26 +323,45 @@ class GroupHelpTextTest(TestCase):
         self.assertNotIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
 
-    # def test_nested_groups_shown(self):
-    #     pass  # TODO
+    def test_anon_group_auto_names_not_used(self):
+        expected = """
+        usage: ansi_color_test.py [--text TEXT] [--attr {bold,dim}] [--limit LIMIT] [--basic] [--hex] [--all] [--color COLOR] [--background BACKGROUND] [--help]
 
-    # def test_anon_group_auto_names_not_used(self):  # TODO
-    #     class Foo(Command):
-    #         text = Option('-t', help='Text to be displayed (default: the number of the color being shown)')
-    #         attr = Option('-a', choices=('bold', 'dim'), help='Background color to use (default: None)')
-    #         limit: int = Option('-L', default=256, help='Range limit')
-    #
-    #         with ParamGroup(mutually_exclusive=True):
-    #             all = Flag(
-    #                 '-A', help='Show all foreground and background colors (only when no color/background is specified)'
-    #             )
-    #             with ParamGroup():  # Both of these can be provided, but neither can be combined with --all / -A
-    #                 color = Option('-c', help='Text color to use (default: cycle through 0-256)')
-    #                 background = Option('-b', help='Background color to use (default: None)')
-    #
-    #         with ParamGroup(mutually_exclusive=True):
-    #             basic = Flag('-B', help='Display colors without the 38;5; prefix (cannot be combined with other args)')
-    #             hex = Flag('-H', help='Display colors by hex value (cannot be combined with other args)')
+        Tool for testing ANSI colors
+
+        Optional arguments:
+          --text TEXT, -t TEXT        Text to be displayed (default: the number of the color being shown)
+          --attr {bold,dim}, -a {bold,dim}
+                                      Background color to use (default: None)
+          --limit LIMIT, -L LIMIT     Range limit (default: 256)
+          --help, -h                  Show this help message and exit (default: False)
+
+        Mutually exclusive options:
+          --basic, -B                 Display colors without the 38;5; prefix (cannot be combined with other args) (default: False)
+          --hex, -H                   Display colors by hex value (cannot be combined with other args) (default: False)
+          --all, -A                   Show all foreground and background colors (only when no color/bg is specified) (default: False)
+
+        Optional arguments:
+          --color COLOR, -c COLOR     Text color to use (default: cycle through 0-256)
+          --background BACKGROUND, -b BACKGROUND
+                                      Background color to use (default: None)
+        """
+        expected = dedent(expected).lstrip()
+
+        class AnsiColorTest(Command, description='Tool for testing ANSI colors', prog='ansi_color_test.py'):
+            text = Option('-t', help='Text to be displayed (default: the number of the color being shown)')
+            attr = Option('-a', choices=('bold', 'dim'), help='Background color to use (default: None)')
+            limit: int = Option('-L', default=256, help='Range limit')
+
+            with ParamGroup(mutually_exclusive=True):
+                basic = Flag('-B', help='Display colors without the 38;5; prefix (cannot be combined with other args)')
+                hex = Flag('-H', help='Display colors by hex value (cannot be combined with other args)')
+                all = Flag('-A', help='Show all foreground and background colors (only when no color/bg is specified)')
+                with ParamGroup():  # Both of these can be provided, but neither can be combined with --all / -A
+                    color = Option('-c', help='Text color to use (default: cycle through 0-256)')
+                    background = Option('-b', help='Background color to use (default: None)')
+
+        self.assert_strings_equal(expected, _get_help_text(AnsiColorTest), diff_lines=7)
 
 
 def _get_usage_text(cmd: Type[Command]) -> str:

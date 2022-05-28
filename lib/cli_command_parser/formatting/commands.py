@@ -25,6 +25,8 @@ class CommandHelpFormatter:
 
     def maybe_add_group(self, *groups: 'ParamGroup'):
         for group in groups:
+            if group.group:  # prevent duplicates
+                continue
             if group.contains_positional:
                 self.pos_group.add(group)
             else:

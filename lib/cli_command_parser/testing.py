@@ -4,6 +4,8 @@ Helpers for unit tests
 :author: Doug Skrypa
 """
 
+from difflib import unified_diff
+from io import StringIO
 from typing import Any, Iterable, Type, Union, Callable, Dict, List, Tuple
 from unittest import TestCase
 
@@ -101,3 +103,30 @@ class ParserTest(TestCase):
 
             with self.subTest(expected='exception', kwargs=kwargs):
                 self.assert_call_fails(func, kwargs, exc, pat, message=message)
+
+    def assert_strings_equal(self, expected: str, actual: str, message: str = None, diff_lines: int = 3):
+        if message:
+            self.assertEqual(expected, actual, message)
+        elif expected != actual:
+            self.fail('Strings did not match:\n' + format_diff(expected, actual, n=diff_lines))
+
+
+def _colored(text: str, color: int, end: str = '\n'):
+    return f'\x1b[38;5;{color}m{text}\x1b[0m{end}'
+
+
+def format_diff(a: str, b: str, name_a: str = 'expected', name_b: str = '  actual', n: int = 3) -> str:
+    sio = StringIO()
+    a = a.splitlines()
+    b = b.splitlines()
+    for i, line in enumerate(unified_diff(a, b, name_a, name_b, n=n, lineterm='')):
+        if line.startswith('+') and i > 1:
+            sio.write(_colored(line, 2))
+        elif line.startswith('-') and i > 1:
+            sio.write(_colored(line, 1))
+        elif line.startswith('@@ '):
+            sio.write(_colored(line, 6, '\n\n'))
+        else:
+            sio.write(line + '\n')
+
+    return sio.getvalue()

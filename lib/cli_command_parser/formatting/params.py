@@ -144,17 +144,23 @@ class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
         return f'-- {usage}' if self.param.required else f'[-- {usage}]'
 
 
-class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):
+class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         choices = ','.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
         return f'{{{choices}}}'
 
     def format_description(self, group_type: Bool = True) -> str:
         group = self.param
-        description = group.description or f'{group.name} options'
-        if group_type and (group.mutually_exclusive or group.mutually_dependent):
-            description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
-        return description
+        if not group.description and not group._name:
+            if group_type and (group.mutually_exclusive or group.mutually_dependent):
+                return 'Mutually {} options'.format('exclusive' if group.mutually_exclusive else 'dependent')
+            else:
+                return 'Optional arguments'
+        else:
+            description = group.description or f'{group.name} options'
+            if group_type and (group.mutually_exclusive or group.mutually_dependent):
+                description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
+            return description
 
     def format_help(self, width: int = 30, group_type: Bool = True, clean: Bool = True) -> str:
         """
@@ -167,7 +173,8 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):
           description.
         :return: The formatted help text.
         """
-        parts = [self.format_description(group_type) + ':']
+        description = self.format_description(group_type)
+        parts = [f'{description}:']
 
         # TODO: Indent members and use |- tree for nesting?
         #  Different trunk/branch char for mutually dependent/exclusive/not?

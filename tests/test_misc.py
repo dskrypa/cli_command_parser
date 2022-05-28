@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-from unittest import TestCase, main
+from unittest import main
+
+from cli_command_parser.testing import ParserTest
 
 
-class MiscTest(TestCase):
+class MiscTest(ParserTest):
     def test_version(self):
         from cli_command_parser import __version__
 
@@ -13,6 +15,12 @@ class MiscTest(TestCase):
         from cli_command_parser import __main__
 
         self.assertEqual('this counts for coverage...?  ._.', 'this counts for coverage...?  ._.')
+
+    def test_assert_strings_equal(self):
+        with self.assertRaises(AssertionError):
+            self.assert_strings_equal('foo', 'bar')
+        with self.assertRaises(AssertionError):
+            self.assert_strings_equal('foo', 'bar', 'baz')
 
 
 if __name__ == '__main__':
