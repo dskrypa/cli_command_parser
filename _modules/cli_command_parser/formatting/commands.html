@@ -101,6 +101,8 @@
 
 <div class="viewcode-block" id="CommandHelpFormatter.maybe_add_group"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.maybe_add_group">[docs]</a>    <span class="k">def</span> <span class="nf">maybe_add_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">groups</span><span class="p">:</span> <span class="s1">&#39;ParamGroup&#39;</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>  <span class="c1"># prevent duplicates</span>
+                <span class="k">continue</span>
             <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">contains_positional</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
