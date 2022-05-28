@@ -60,27 +60,35 @@ Configuration
 Configuration options supported by :class:`~.config.CommandConfig`.  For convenience, they may also be specified as
 keyword arguments when defining a Command subclass:
 
-- **multiple_action_flags**: Whether multiple action_flag methods are allowed to run if they are all specified
-  (default: True)
-- **action_after_action_flags**: Whether action_flag methods are allowed to be combined with a positional Action
-  method in a given CLI invocation (default: True)
-- **add_help**: Whether the ``--help`` / ``-h`` action_flag should be added (default: True)
-- **error_handler**: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`.Command.__call__` to wrap
-  :meth:`.Command.main`, or None to disable error handling.  (default: :obj:`~.error_handling.extended_error_handler`)
-- **ignore_unknown**: Whether unknown arguments should be ignored (default: False / raise an exception when unknown
-  arguments are encountered)
-- **allow_missing**: Whether missing required arguments should be allowed (default: False / raise an exception when
-  they are missing)
-- **allow_backtrack**: Whether the parser is allowed to backtrack or not when a Positional parameter follows a
-  parameter with variable :class:`.Nargs`, and not enough arguments are available to fulfil that Positional's
-  requirements (default: True)
-- **always_run_after_main**: Whether :meth:`.Command._after_main_` should always be called, even if an exception was
-  raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
-- **use_type_metavar**: Whether the metavar for Parameters that accept values should default to the name of the
-  specified type (default: False / the name of the parameter)
-- **show_defaults**: Whether default values for Parameters should be automatically included in help text or not, and
-  related settings.  Acceptable values are defined as `enum flags <https://docs.python.org/3/library/enum.html#flag>`__
-  that can be combined.  See :class:`.ShowDefaults` for more info.
+- Error Handling Options:
+    - **error_handler**: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`.Command.__call__` to wrap
+      :meth:`.Command.main`, or None to disable error handling.  (default:
+      :obj:`~.error_handling.extended_error_handler`)
+    - **always_run_after_main**: Whether :meth:`.Command._after_main_` should always be called, even if an exception
+      was raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
+- ActionFlag Options:
+    - **multiple_action_flags**: Whether multiple action_flag methods are allowed to run if they are all specified
+      (default: True)
+    - **action_after_action_flags**: Whether action_flag methods are allowed to be combined with a positional Action
+      method in a given CLI invocation (default: True)
+- Parsing Options:
+    - **ignore_unknown**: Whether unknown arguments should be ignored (default: False / raise an exception when unknown
+      arguments are encountered)
+    - **allow_missing**: Whether missing required arguments should be allowed (default: False / raise an exception when
+      they are missing)
+    - **allow_backtrack**: Whether the parser is allowed to backtrack or not when a Positional parameter follows a
+      parameter with variable :class:`.Nargs`, and not enough arguments are available to fulfil that Positional's
+      requirements (default: True)
+- Usage & Help Text Options:
+    - **add_help**: Whether the ``--help`` / ``-h`` action_flag should be added (default: True)
+    - **use_type_metavar**: Whether the metavar for Parameters that accept values should default to the name of the
+      specified type (default: False / the name of the parameter)
+    - **show_defaults**: Whether default values for Parameters should be automatically included in help text or not,
+      and related settings.  Acceptable values are defined as
+      `enum flags <https://docs.python.org/3/library/enum.html#flag>`__ that can be combined.  See
+      :class:`.ShowDefaults` for more info.
+    - **show_group_tree**: Whether there should be a visual indicator in help text for the parameters that are members
+      of a given group.  See :ref:`help_text_formatting` for more info.
 
 
 Command Methods
@@ -262,3 +270,19 @@ also be provided::
 
     >>> Foo.parse_and_run(['test', 'one', '-B'])
     self.bar=False, self.baz=['test', 'one']
+
+
+.. _help_text_formatting:
+
+Help Text Formatting
+--------------------
+
+To add a visual indicator for groups of parameters, specify ``show_group_tree=True``.  Example::
+
+    class Foo(Command, show_group_tree=True):
+        ...
+
+Using the `grouped_action_flags example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py>`__,
+we can see an example of the resulting help text:
+
+.. image:: images/show_group_tree_example.png

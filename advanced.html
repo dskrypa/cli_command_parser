@@ -313,6 +313,10 @@ $ grouped_action_flags.py -wxyz
 argument conflict - the following arguments cannot be combined: --action_y / -y, --action_z / -z (they are mutually exclusive - only one is allowed)
 </pre></div>
 </div>
+<p>Similar to how mutually exclusive / dependent groups can be nested within each other, normal groups can also be nested
+inside mutually exclusive / dependent groups.  Given a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">A</span></code> that contains parameters <code class="docutils literal notranslate"><span class="pre">x</span></code>
+and <code class="docutils literal notranslate"><span class="pre">y</span></code> and a normal group <code class="docutils literal notranslate"><span class="pre">B</span></code>, which contains parameters <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span></code>, then similar rules apply.  It is
+possible to provide any one of <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, or <code class="docutils literal notranslate"><span class="pre">d</span></code>, but only <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span></code> can be combined.</p>
 </section>
 </section>
 

@@ -251,3 +251,9 @@ Example output for the mutually exclusive group nested inside the mutually depen
 
     $ grouped_action_flags.py -wxyz
     argument conflict - the following arguments cannot be combined: --action_y / -y, --action_z / -z (they are mutually exclusive - only one is allowed)
+
+
+Similar to how mutually exclusive / dependent groups can be nested within each other, normal groups can also be nested
+inside mutually exclusive / dependent groups.  Given a mutually exclusive group ``A`` that contains parameters ``x``
+and ``y`` and a normal group ``B``, which contains parameters ``c`` and ``d``, then similar rules apply.  It is
+possible to provide any one of ``x``, ``y``, ``c``, or ``d``, but only ``c`` and ``d`` can be combined.
