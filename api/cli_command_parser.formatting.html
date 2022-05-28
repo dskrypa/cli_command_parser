@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Actions Module &mdash; CLI Command Parser 2022.05.24 documentation</title>
+  <title>Formatting Package &mdash; CLI Command Parser 2022.05.24 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Command_Parameters Module" href="cli_command_parser.command_parameters.html" />
-    <link rel="prev" title="API Documentation" href="../api.html" />
+    <link rel="next" title="Commands Module" href="cli_command_parser.formatting.commands.html" />
+    <link rel="prev" title="Exceptions Module" href="cli_command_parser.exceptions.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -48,7 +48,7 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
@@ -56,7 +56,12 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.core.html">Core Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.error_handling.html">Error_Handling Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.exceptions.html">Exceptions Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Formatting Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.formatting.commands.html">Commands Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.formatting.params.html">Params Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.formatting.utils.html">Utils Module</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
@@ -82,10 +87,10 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
-      <li>Actions Module</li>
+      <li>Formatting Package</li>
     <li class="wy-breadcrumbs-aside">
         
-            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/actions.py" target="_blank" class="fa fa-github"> View on GitHub</a>
+            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/formatting" target="_blank" class="fa fa-github"> View on GitHub</a>
         
     </li>
 
@@ -95,28 +100,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-cli_command_parser.actions">
-<span id="actions-module"></span><h1>Actions Module<a class="headerlink" href="#module-cli_command_parser.actions" title="Permalink to this headline"></a></h1>
-<p>Common actions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">author</dt>
-<dd class="field-odd"><p>Doug Skrypa</p>
-</dd>
-</dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="cli_command_parser.actions.help_action">
-<span class="sig-prename descclassname"><span class="pre">cli_command_parser.actions.</span></span><span class="sig-name descname"><span class="pre">help_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/actions.html#help_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.actions.help_action" title="Permalink to this definition"></a></dt>
-<dd><p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action.  Prints help text, then exits.</p>
-</dd></dl>
-
+  <section id="formatting-package">
+<h1>Formatting Package<a class="headerlink" href="#formatting-package" title="Permalink to this headline"></a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_command_parser.formatting.commands.html">Commands Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_command_parser.formatting.params.html">Params Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_command_parser.formatting.utils.html">Utils Module</a></li>
+</ul>
+</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../api.html" class="btn btn-neutral float-left" title="API Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cli_command_parser.command_parameters.html" class="btn btn-neutral float-right" title="Command_Parameters Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cli_command_parser.exceptions.html" class="btn btn-neutral float-left" title="Exceptions Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.formatting.commands.html" class="btn btn-neutral float-right" title="Commands Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -2,8 +2,7 @@ API Documentation
 *****************
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Modules
+   :maxdepth: 4
 
    api/cli_command_parser.actions
    api/cli_command_parser.command_parameters
@@ -13,6 +12,7 @@ API Documentation
    api/cli_command_parser.core
    api/cli_command_parser.error_handling
    api/cli_command_parser.exceptions
+   api/cli_command_parser.formatting
    api/cli_command_parser.nargs
    api/cli_command_parser.parameters
    api/cli_command_parser.parser

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cli_command_parser.formatting.utils &mdash; CLI Command Parser 2022.05.24 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>cli_command_parser.formatting.utils</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cli_command_parser.formatting.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utils for usage / help text formatters</span>
+
+<span class="sd">:author: Doug Skrypa</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">get_terminal_size</span>
+<span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">TextWrapper</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span>
+<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span>
+    <span class="kn">from</span> <span class="nn">..parameters</span> <span class="kn">import</span> <span class="n">SubCommand</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;HelpEntryFormatter&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="HelpEntryFormatter"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.HelpEntryFormatter">[docs]</a><span class="k">class</span> <span class="nc">HelpEntryFormatter</span><span class="p">:</span>
+<div class="viewcode-block" id="HelpEntryFormatter.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.HelpEntryFormatter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usage</span> <span class="o">=</span> <span class="n">usage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span> <span class="o">=</span> <span class="n">get_terminal_size</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_usage</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">lpad</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HelpEntryFormatter.process_usage"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.HelpEntryFormatter.process_usage">[docs]</a>    <span class="k">def</span> <span class="nf">process_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span> <span class="o">+</span> <span class="n">lpad</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">:</span>
+            <span class="n">tw</span> <span class="o">=</span> <span class="n">TextWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">,</span> <span class="n">initial_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span><span class="p">,</span> <span class="n">subsequent_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tw</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">usage</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left_pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">lpad</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left_pad</span> <span class="o">+</span> <span class="n">usage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HelpEntryFormatter.process_description"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.HelpEntryFormatter.process_description">[docs]</a>    <span class="k">def</span> <span class="nf">process_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">full_indent</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pad_chars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pad_chars</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">full_indent</span> <span class="o">+</span> <span class="n">description</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tw</span> <span class="o">=</span> <span class="n">TextWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">,</span> <span class="n">initial_indent</span><span class="o">=</span><span class="n">full_indent</span><span class="p">,</span> <span class="n">subsequent_indent</span><span class="o">=</span><span class="n">full_indent</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tw</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">description</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mid</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">pad_chars</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="n">mid</span> <span class="o">+</span> <span class="n">description</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">:</span>
+                <span class="n">tw</span> <span class="o">=</span> <span class="n">TextWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">term_width</span><span class="p">,</span> <span class="n">initial_indent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">subsequent_indent</span><span class="o">=</span><span class="n">full_indent</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="n">tw</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HelpEntryFormatter.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.HelpEntryFormatter.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_should_add_default</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">help_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">sd</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">show_defaults</span>
+    <span class="k">if</span> <span class="n">sd</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sd</span> <span class="o">&amp;</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="ow">and</span> <span class="n">help_text</span> <span class="ow">and</span> <span class="s1">&#39;default:&#39;</span> <span class="ow">in</span> <span class="n">help_text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="n">sd</span> <span class="o">&amp;</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">ANY</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">sd</span> <span class="o">&amp;</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">default</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Collection</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_usage_sub_cmds</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
+    <span class="n">cmd_mcls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;CommandMeta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>  <span class="c1"># Using metaclass to avoid potentially overwritten attrs</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span> <span class="o">=</span> <span class="n">cmd_mcls</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">cmd_chain</span> <span class="o">=</span> <span class="n">get_usage_sub_cmds</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+    <span class="n">sub_cmd_param</span><span class="p">:</span> <span class="s1">&#39;SubCommand&#39;</span> <span class="o">=</span> <span class="n">cmd_mcls</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_cmd_param</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cmd_chain</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="n">command</span><span class="p">:</span>
+            <span class="n">cmd_chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">cmd_chain</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
