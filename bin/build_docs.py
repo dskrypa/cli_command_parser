@@ -6,7 +6,7 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
-from typing import Collection
+from typing import Collection, List
 
 from cli_command_parser import Command, Counter, after_main, before_main, Action, Flag
 from cli_command_parser.__version__ import __description__, __title__
@@ -29,10 +29,9 @@ API Documentation
 *****************
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Modules
+   :maxdepth: 4
 
-{mod_list}
+{contents}
 
 Indices and tables
 ==================
@@ -41,6 +40,18 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 """.lstrip()
+
+PACKAGE_TEMPLATE = """
+{name} Package
+{bar}
+
+.. toctree::
+   :maxdepth: 4
+   :caption: Modules
+
+{contents}
+""".lstrip()
+
 
 MODULE_TEMPLATE = """
 {name} Module
@@ -118,7 +129,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     def update(self):
         if not self._ran_backup:
             self.backup_rsts()
-        self._generate_api_rsts()
+        contents = self._generate_api_rsts(self.package_path.name, self.package_path)
+        self._write_api_index(contents)
 
     @after_main('-o', help='Open the docs in the default web browser after running sphinx-build')
     def open(self):
@@ -162,16 +174,32 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     # region RST Generation
 
-    def _generate_api_rsts(self):
-        modules = []
-        for path in self.package_path.glob('[a-zA-Z]*.py'):
-            name = f'{path.parent.name}.{path.stem}'
-            if name in SKIP_MODULES:
-                continue
-            modules.append(name)
-            self._make_module_rst(name)
+    def _generate_api_rsts(self, pkg_name: str, pkg_path: Path) -> List[str]:
+        contents = []
+        for path in pkg_path.iterdir():
+            if path.is_dir():
+                sub_pkg_name = f'{pkg_name}.{path.name}'
+                pkg_modules = self._write_package(sub_pkg_name, path)
+                if pkg_modules:
+                    contents.append(sub_pkg_name)
+            elif path.is_file() and path.suffix == '.py' and not path.name.startswith('__'):
+                name = f'{pkg_name}.{path.stem}'
+                if name in SKIP_MODULES:
+                    continue
+                contents.append(name)
+                self._make_module_rst(name)
 
-        self._write_api_index(modules)
+        return contents
+
+    def _write_package(self, pkg_name: str, pkg_path: Path) -> List[str]:
+        name = pkg_name.split('.')[-1].title()
+        bar = '*' * (len(name) + 8)
+        contents = self._generate_api_rsts(pkg_name, pkg_path)
+        if not contents:
+            return contents
+        contents_str = '\n'.join(map('   {}'.format, sorted(contents)))
+        self._write_rst(pkg_name, PACKAGE_TEMPLATE.format(name=name, bar=bar, contents=contents_str), 'api')
+        return contents
 
     def _write_rst(self, name: str, content: str, subdir: str = None):
         target_dir = self.docs_src_path.joinpath(subdir) if subdir else self.docs_src_path
@@ -185,9 +213,9 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
             with path.open('w', encoding='utf-8', newline='\n') as f:
                 f.write(content)
 
-    def _write_api_index(self, modules: Collection[str]):
-        mod_list = '\n'.join(map('   api/{}'.format, sorted(modules)))
-        self._write_rst('api', INDEX_TEMPLATE.format(mod_list=mod_list))
+    def _write_api_index(self, contents: Collection[str]):
+        contents = '\n'.join(map('   api/{}'.format, sorted(contents)))
+        self._write_rst('api', INDEX_TEMPLATE.format(contents=contents))
 
     def _make_module_rst(self, module: str):
         name = module.split('.')[-1].title()
