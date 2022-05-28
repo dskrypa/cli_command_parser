@@ -83,6 +83,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     allow_backtrack = ConfigOption()
     use_type_metavar = ConfigOption()
     show_defaults = ConfigOption()
+    show_group_tree = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -102,6 +103,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         allow_backtrack: Bool = None,
         use_type_metavar: Bool = None,
         show_defaults: Union[ShowDefaults, str, int] = None,
+        show_group_tree: Bool = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -135,6 +137,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.use_type_metavar = use_type_metavar
         if show_defaults is not None:
             self.show_defaults = ShowDefaults(show_defaults)
+        self.show_group_tree = show_group_tree
 
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation

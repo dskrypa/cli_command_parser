@@ -363,6 +363,47 @@ class GroupHelpTextTest(ParserTest):
 
         self.assert_strings_equal(expected, _get_help_text(AnsiColorTest), diff_lines=7)
 
+    def test_nested_show_tree(self):
+        expected = """
+        usage: foo.py [--foo FOO] [--arg_a ARG_A] [--arg_b ARG_B] [--arg_y ARG_Y] [--arg_z ARG_Z] [--bar] [--baz] [--help]
+
+        Optional arguments:
+        │   --foo FOO, -f FOO         Do foo
+        │   --help, -h                Show this help message and exit (default: False)
+        │
+        Mutually exclusive options:
+        ¦   --arg_a ARG_A, -a ARG_A   A
+        ¦   --arg_b ARG_B, -b ARG_B   B
+        ¦
+        ¦ Mutually dependent options:
+        ¦ ║   --arg_y ARG_Y, -y ARG_Y Y
+        ¦ ║   --arg_z ARG_Z, -z ARG_Z Z
+        ¦ ║
+        ¦
+        ¦ Optional arguments:
+        ¦ │   --bar                   (default: False)
+        ¦ │   --baz                   (default: False)
+        ¦ │
+        ¦
+        """
+        expected = dedent(expected).strip()
+
+        class Foo(Command, show_group_tree=True, prog='foo.py'):
+            foo = Option('-f', help='Do foo')
+            with ParamGroup(mutually_exclusive=True):
+                arg_a = Option('-a', help='A')
+                arg_b = Option('-b', help='B')
+                with ParamGroup(mutually_dependent=True):
+                    arg_y = Option('-y', help='Y')
+                    arg_z = Option('-z', help='Z')
+                with ParamGroup():
+                    bar = Flag()
+                    baz = Flag()
+
+        help_text = _get_help_text(Foo).rstrip()
+        help_text = '\n'.join(line.rstrip() for line in help_text.splitlines())
+        self.assert_strings_equal(expected, help_text, diff_lines=7)
+
 
 def _get_usage_text(cmd: Type[Command]) -> str:
     with cmd().ctx:

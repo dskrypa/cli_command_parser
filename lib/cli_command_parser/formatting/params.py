@@ -5,6 +5,7 @@ Parameter usage / help text formatters
 """
 
 from itertools import chain
+from textwrap import indent
 from typing import Type
 
 from ..context import ctx
@@ -77,10 +78,12 @@ class ParamHelpFormatter:
             description += f'{pad}(default: {param.default})'
         return description
 
-    def format_help(self, width: int = 30) -> str:
+    def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
         usage = self.format_usage(include_meta=True, full=True)
         description = self.format_description()
-        return HelpEntryFormatter(usage, description, width)()
+        entry_width = max(20, width - tw_offset)
+        text = HelpEntryFormatter(usage, description, entry_width, tw_offset=tw_offset)()
+        return indent(text, prefix) if prefix else text
 
 
 class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
@@ -124,18 +127,19 @@ class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.format_metavar()
 
-    def format_help(self, width: int = 30) -> str:
+    def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
         param = self.param
-        title = param.title or param._default_title
+        usage = self.format_usage()
+        entry_width = max(20, width - tw_offset)
+        help_entry = HelpEntryFormatter(usage, param.description, entry_width, lpad=2, tw_offset=tw_offset)()
 
-        help_entry = HelpEntryFormatter(self.format_usage(), param.description, width, lpad=2)()
-        parts = [f'{title}:', help_entry]
-
+        parts = [f'{param.title or param._default_title}:', help_entry]
         for choice in param.choices.values():
-            parts.append(choice.format_help(width, lpad=4))
+            parts.append(choice.format_help(entry_width, lpad=4))
 
         parts.append('')
-        return '\n'.join(parts)
+        text = '\n'.join(parts)
+        return indent(text, prefix) if prefix else text
 
 
 class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
@@ -162,7 +166,18 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
                 description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
             return description
 
-    def format_help(self, width: int = 30, group_type: Bool = True, clean: Bool = True) -> str:
+    def _get_spacer(self) -> str:
+        group = self.param
+        if group.mutually_exclusive:
+            return '\u00A6 '  # BROKEN BAR
+        elif group.mutually_dependent:
+            return '\u2551 '  # BOX DRAWINGS DOUBLE VERTICAL
+        else:
+            return '\u2502 '  # BOX DRAWINGS LIGHT VERTICAL
+
+    def format_help(
+        self, width: int = 30, group_type: Bool = True, clean: Bool = True, prefix: str = '', tw_offset: int = 0
+    ) -> str:
         """
         Prepare the help text for this group.
 
@@ -171,13 +186,18 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
           exclusive / dependent group
         :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
           description.
+        :param prefix: Prefix to add to every line (primarily intended for use with nested groups)
+        :param tw_offset: Terminal width offset for text width calculations
         :return: The formatted help text.
         """
         description = self.format_description(group_type)
         parts = [f'{description}:']
 
-        # TODO: Indent members and use |- tree for nesting?
-        #  Different trunk/branch char for mutually dependent/exclusive/not?
+        if ctx.show_group_tree:
+            spacer = self._get_spacer()
+            tw_offset += 2
+        else:
+            spacer = ''
 
         nested, params = 0, 0
         for member in self.param.members:
@@ -186,15 +206,16 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
 
             if isinstance(member, (ChoiceMap, ParamGroup)):
                 nested += 1
-                parts.append('')  # Add space for readability
+                parts.append(spacer)  # Add space for readability
             else:
                 params += 1
-            parts.append(member.formatter.format_help(width=width))
+            parts.append(member.formatter.format_help(width=width, prefix=spacer, tw_offset=tw_offset))
 
         if clean and nested and not params:
             parts = parts[2:]  # remove description and the first spacer
 
         if not parts[-1].endswith('\n'):  # ensure a new line separates sections, but avoid extra lines
-            parts.append('')
+            parts.append(spacer)
 
-        return '\n'.join(parts)
+        text = '\n'.join(parts)
+        return indent(text, prefix) if prefix else text

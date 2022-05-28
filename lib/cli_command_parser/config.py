@@ -113,6 +113,9 @@ class CommandConfig:
             value = self._show_defaults
         self._show_defaults = ShowDefaults(value)
 
+    #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
+    show_group_tree: Bool = False
+
     # endregion
 
     # region Planned Options

@@ -20,11 +20,11 @@ __all__ = ['HelpEntryFormatter']
 
 
 class HelpEntryFormatter:
-    def __init__(self, usage: str, description: Optional[str], width: int = 30, lpad: int = 2):
+    def __init__(self, usage: str, description: Optional[str], width: int = 30, lpad: int = 2, tw_offset: int = 0):
         self.usage = usage
         self.width = width
         self.lines = []
-        self.term_width = get_terminal_size()[0]
+        self.term_width = get_terminal_size()[0] - tw_offset
         self.process_usage(usage, lpad)
         if description:
             self.process_description(description)

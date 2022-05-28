@@ -3,7 +3,7 @@
 from cli_command_parser import Command, main, ParamGroup, before_main, after_main
 
 
-class GroupedFlags(Command):
+class GroupedFlags(Command, show_group_tree=True):
     with ParamGroup(mutually_exclusive=True):
 
         @before_main('-a', order=1)
