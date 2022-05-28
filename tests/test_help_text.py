@@ -9,7 +9,8 @@ from unittest.mock import Mock, patch, MagicMock
 
 from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
-from cli_command_parser.formatting import get_usage_sub_cmds
+from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
+from cli_command_parser.formatting.utils import get_usage_sub_cmds
 from cli_command_parser.parameters import (
     Positional,
     SubCommand,
@@ -81,6 +82,7 @@ class HelpTextTest(TestCase):
         class Custom(ChoiceMap):
             pass
 
+        self.assertTrue(Custom().formatter.format_help().startswith('Choices:'))
         self.assertTrue(Custom().format_help().startswith('Choices:'))
 
     def test_option_with_choices(self):
@@ -185,65 +187,65 @@ class HelpTextTest(TestCase):
 
     def test_sd_any_shows_all_defaults(self):
         with Context(show_defaults='any'):
-            self.assertNotIn('default:', Option(required=True).format_help())
-            self.assertIn('(default: 0)', Option(default=0).format_help())
-            self.assertIn('(default: 1)', Option(default=1).format_help())
-            self.assertIn('(default: test)', Option(default='test').format_help())
-            self.assertIn('(default: False)', Option(default=False).format_help())
-            self.assertIn('(default: True)', Option(default=True).format_help())
-            self.assertIn('(default: ())', Option(default=()).format_help())
-            self.assertIn('(default: [])', Option(default=[]).format_help())
-            self.assertIn("(default: )", Option(default='').format_help())
-            self.assertIn('(default: None)', Option(default=None).format_help())
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
+            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
+            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn('(default: False)', Option(default=False).formatter.format_help())
+            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
+            self.assertIn('(default: ())', Option(default=()).formatter.format_help())
+            self.assertIn('(default: [])', Option(default=[]).formatter.format_help())
+            self.assertIn("(default: )", Option(default='').formatter.format_help())
+            self.assertIn('(default: None)', Option(default=None).formatter.format_help())
 
     def test_sd_any_missing_adds_no_defaults(self):
         with Context(show_defaults=ShowDefaults.ANY | ShowDefaults.MISSING):
-            self.assertNotIn('default:', Option(required=True).format_help())
-            self.assertIn('(default: 0)', Option(default=0).format_help())
-            self.assertIn('(default: 1)', Option(default=1).format_help())
-            self.assertIn('(default: test)', Option(default='test').format_help())
-            self.assertIn('(default: False)', Option(default=False).format_help())
-            self.assertIn('(default: True)', Option(default=True).format_help())
-            self.assertIn('(default: ())', Option(default=()).format_help())
-            self.assertIn('(default: [])', Option(default=[]).format_help())
-            self.assertIn("(default: )", Option(default='').format_help())
-            self.assertIn('(default: None)', Option(default=None).format_help())
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
+            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
+            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn('(default: False)', Option(default=False).formatter.format_help())
+            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
+            self.assertIn('(default: ())', Option(default=()).formatter.format_help())
+            self.assertIn('(default: [])', Option(default=[]).formatter.format_help())
+            self.assertIn("(default: )", Option(default='').formatter.format_help())
+            self.assertIn('(default: None)', Option(default=None).formatter.format_help())
 
-            self.assertNotIn('(default: 0)', Option(default=0, help='default: fake').format_help())
-            self.assertNotIn('(default: 1)', Option(default=1, help='default: fake').format_help())
-            self.assertNotIn('(default: test)', Option(default='test', help='default: fake').format_help())
-            self.assertNotIn('(default: False)', Option(default=False, help='default: fake').format_help())
-            self.assertNotIn('(default: True)', Option(default=True, help='default: fake').format_help())
-            self.assertNotIn('(default: ())', Option(default=(), help='default: fake').format_help())
-            self.assertNotIn('(default: [])', Option(default=[], help='default: fake').format_help())
-            self.assertNotIn("(default: )", Option(default='', help='default: fake').format_help())
-            self.assertNotIn('(default: None)', Option(default=None, help='default: fake').format_help())
+            self.assertNotIn('(default: 0)', Option(default=0, help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: 1)', Option(default=1, help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: test)', Option(default='test', help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: False)', Option(default=False, help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: True)', Option(default=True, help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: ())', Option(default=(), help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: [])', Option(default=[], help='default: fake').formatter.format_help())
+            self.assertNotIn("(default: )", Option(default='', help='default: fake').formatter.format_help())
+            self.assertNotIn('(default: None)', Option(default=None, help='default: fake').formatter.format_help())
 
     def test_sd_non_empty_shows_falsey_non_empty_defaults(self):
         with Context(show_defaults='non-empty'):
-            self.assertNotIn('default:', Option(required=True).format_help())
-            self.assertIn('(default: 0)', Option(default=0).format_help())
-            self.assertIn('(default: 1)', Option(default=1).format_help())
-            self.assertIn('(default: test)', Option(default='test').format_help())
-            self.assertIn('(default: False)', Option(default=False).format_help())
-            self.assertIn('(default: True)', Option(default=True).format_help())
-            self.assertNotIn('default:', Option(default=()).format_help())
-            self.assertNotIn('default:', Option(default=[]).format_help())
-            self.assertNotIn('default:', Option(default='').format_help())
-            self.assertNotIn('default:', Option(default=None).format_help())
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
+            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
+            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn('(default: False)', Option(default=False).formatter.format_help())
+            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
+            self.assertNotIn('default:', Option(default=()).formatter.format_help())
+            self.assertNotIn('default:', Option(default=[]).formatter.format_help())
+            self.assertNotIn('default:', Option(default='').formatter.format_help())
+            self.assertNotIn('default:', Option(default=None).formatter.format_help())
 
     def test_sd_truthy_shows_only_truthy_defaults(self):
         with Context(show_defaults='truthy'):
-            self.assertNotIn('default:', Option(required=True).format_help())
-            self.assertIn('(default: 1)', Option(default=1).format_help())
-            self.assertIn('(default: test)', Option(default='test').format_help())
-            self.assertIn('(default: True)', Option(default=True).format_help())
-            self.assertNotIn('default:', Option(default=False).format_help())
-            self.assertNotIn('default:', Option(default=0).format_help())
-            self.assertNotIn('default:', Option(default=()).format_help())
-            self.assertNotIn('default:', Option(default=[]).format_help())
-            self.assertNotIn('default:', Option(default='').format_help())
-            self.assertNotIn('default:', Option(default=None).format_help())
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
+            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
+            self.assertNotIn('default:', Option(default=False).formatter.format_help())
+            self.assertNotIn('default:', Option(default=0).formatter.format_help())
+            self.assertNotIn('default:', Option(default=()).formatter.format_help())
+            self.assertNotIn('default:', Option(default=[]).formatter.format_help())
+            self.assertNotIn('default:', Option(default='').formatter.format_help())
+            self.assertNotIn('default:', Option(default=None).formatter.format_help())
 
 
 class GroupHelpTextTest(TestCase):
@@ -323,23 +325,23 @@ class GroupHelpTextTest(TestCase):
     # def test_nested_groups_shown(self):
     #     pass  # TODO
 
-    def test_anon_group_auto_names_not_used(self):
-        class Foo(Command):
-            text = Option('-t', help='Text to be displayed (default: the number of the color being shown)')
-            attr = Option('-a', choices=('bold', 'dim'), help='Background color to use (default: None)')
-            limit: int = Option('-L', default=256, help='Range limit')
-
-            with ParamGroup(mutually_exclusive=True):
-                all = Flag(
-                    '-A', help='Show all foreground and background colors (only when no color/background is specified)'
-                )
-                with ParamGroup():  # Both of these can be provided, but neither can be combined with --all / -A
-                    color = Option('-c', help='Text color to use (default: cycle through 0-256)')
-                    background = Option('-b', help='Background color to use (default: None)')
-
-            with ParamGroup(mutually_exclusive=True):
-                basic = Flag('-B', help='Display colors without the 38;5; prefix (cannot be combined with other args)')
-                hex = Flag('-H', help='Display colors by hex value (cannot be combined with other args)')
+    # def test_anon_group_auto_names_not_used(self):  # TODO
+    #     class Foo(Command):
+    #         text = Option('-t', help='Text to be displayed (default: the number of the color being shown)')
+    #         attr = Option('-a', choices=('bold', 'dim'), help='Background color to use (default: None)')
+    #         limit: int = Option('-L', default=256, help='Range limit')
+    #
+    #         with ParamGroup(mutually_exclusive=True):
+    #             all = Flag(
+    #                 '-A', help='Show all foreground and background colors (only when no color/background is specified)'
+    #             )
+    #             with ParamGroup():  # Both of these can be provided, but neither can be combined with --all / -A
+    #                 color = Option('-c', help='Text color to use (default: cycle through 0-256)')
+    #                 background = Option('-b', help='Background color to use (default: None)')
+    #
+    #         with ParamGroup(mutually_exclusive=True):
+    #             basic = Flag('-B', help='Display colors without the 38;5; prefix (cannot be combined with other args)')
+    #             hex = Flag('-H', help='Display colors by hex value (cannot be combined with other args)')
 
 
 def _get_usage_text(cmd: Type[Command]) -> str:
@@ -350,7 +352,7 @@ def _get_usage_text(cmd: Type[Command]) -> str:
 def _get_help_text(cmd: Union[Type[Command], Command]) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
-    with patch('cli_command_parser.formatting.get_terminal_size', return_value=(199, 1)):
+    with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)):
         with cmd.ctx:
             return get_params(cmd).formatter.format_help()
 
@@ -426,6 +428,15 @@ class FormatterTest(TestCase):
 
         with patch('cli_command_parser.core.CommandMeta.parent', lambda c, x=None: Foo if c is Bar else None):
             self.assertEqual([], get_usage_sub_cmds(Bar))
+
+    def test_non_base_formatter_cls_does_not_lookup_subclass(self):
+        formatter = PositionalHelpFormatter(SubCommand())
+        # Would be ChoiceMapHelpFormatter if it looked up the subclass
+        self.assertIs(formatter.__class__, PositionalHelpFormatter)
+
+    def test_default_formatter_class_returned(self):
+        formatter = ParamHelpFormatter.for_param_cls(int)  # noqa
+        self.assertIs(formatter, ParamHelpFormatter)
 
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:

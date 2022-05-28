@@ -19,17 +19,17 @@ try:
 except ImportError:
     from .compat import cached_property
 
-from .config import ShowDefaults
 from .context import ctx
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
-from .formatting import HelpEntryFormatter
+from .formatting.utils import HelpEntryFormatter
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 
 if TYPE_CHECKING:
     from .core import CommandType
     from .commands import Command
+    from .formatting.params import ParamHelpFormatter
 
 __all__ = [
     'Parameter',
@@ -152,22 +152,24 @@ class ParamBase(ABC):
 
     # region Usage / Help Text
 
+    @cached_property
+    def formatter(self) -> 'ParamHelpFormatter':
+        from .formatting.params import ParamHelpFormatter  # Here due to circular dependency
+
+        return ParamHelpFormatter(self)  # noqa
+
     @property
     @abstractmethod
     def show_in_help(self) -> bool:
         raise NotImplementedError
 
-    @abstractmethod
-    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        raise NotImplementedError
+    def format_usage(self, *args, **kwargs) -> str:
+        """Convenience method for calling :meth:`.ParamHelpFormatter.format_usage`"""
+        return self.formatter.format_usage(*args, **kwargs)
 
-    @abstractmethod
-    def format_description(self) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    def format_help(self, width: int = 30) -> str:
-        raise NotImplementedError
+    def format_help(self, *args, **kwargs) -> str:
+        """Convenience method for calling :meth:`.ParamHelpFormatter.format_help`"""
+        return self.formatter.format_help(*args, **kwargs)
 
     # endregion
 
@@ -384,52 +386,6 @@ class ParamGroup(ParamBase):
             return self.group.show_in_help
         return True
 
-    def format_description(self, group_type: Bool = True) -> str:
-        description = self.description or f'{self.name} options'
-        if group_type and (self.mutually_exclusive or self.mutually_dependent):
-            description += ' (mutually {})'.format('exclusive' if self.mutually_exclusive else 'dependent')
-        return description
-
-    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        choices = ','.join(mem.format_usage(include_meta, full, delim) for mem in self.members)
-        return f'{{{choices}}}'
-
-    def format_help(self, width: int = 30, group_type: Bool = True, clean: Bool = True) -> str:
-        """
-        Prepare the help text for this group.
-
-        :param width: The width of the option/action/command column.
-        :param group_type: Whether the group type should be included in the description if this is a mutually
-          exclusive / dependent group
-        :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
-          description.
-        :return: The formatted help text.
-        """
-        parts = [self.format_description(group_type) + ':']
-
-        # TODO: Indent members and use |- tree for nesting?
-        #  Different trunk/branch char for mutually dependent/exclusive/not?
-
-        nested, params = 0, 0
-        for member in self.members:
-            if not member.show_in_help:
-                continue
-
-            if isinstance(member, (ChoiceMap, ParamGroup)):
-                nested += 1
-                parts.append('')  # Add space for readability
-            else:
-                params += 1
-            parts.append(member.format_help(width=width))
-
-        if clean and nested and not params:
-            parts = parts[2:]  # remove description and the first spacer
-
-        if not parts[-1].endswith('\n'):  # ensure a new line separates sections, but avoid extra lines
-            parts.append('')
-
-        return '\n'.join(parts)
-
     # endregion
 
 
@@ -440,6 +396,8 @@ class Parameter(ParamBase, ABC):
     Custom parameter classes should generally extend :class:`BasePositional` or :class:`BaseOption` instead of this,
     otherwise additional handling may be necessary in the parser.
     """
+
+    # region Attributes & Initialization
 
     _actions: FrozenSet[str] = frozenset()
     _positional: bool = False
@@ -518,6 +476,15 @@ class Parameter(ParamBase, ABC):
     def _init_value_factory():
         return _NotSet
 
+    def __set_name__(self, command: 'CommandType', name: str):
+        super().__set_name__(command, name)
+        if self.type is None:
+            annotated_type = get_descriptor_value_type(command, name)
+            if annotated_type is not None:
+                self.type = annotated_type
+
+    # endregion
+
     def __repr__(self) -> str:
         attr_names = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
         extra_attrs = self._repr_attrs
@@ -528,12 +495,7 @@ class Parameter(ParamBase, ABC):
         kwargs = ', '.join(f'{a}={v!r}' for a, v in attrs if v not in (None, _NotSet) and not (a == 'hide' and not v))
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
-    def __set_name__(self, command: 'CommandType', name: str):
-        super().__set_name__(command, name)
-        if self.type is None:
-            annotated_type = get_descriptor_value_type(command, name)
-            if annotated_type is not None:
-                self.type = annotated_type
+    # region Argument Handling
 
     def __get__(self, command: Optional['Command'], owner: 'CommandType'):
         if command is None:
@@ -549,8 +511,6 @@ class Parameter(ParamBase, ABC):
         if name is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
-
-    # region Argument Handling
 
     def _nargs_max_reached(self) -> bool:
         try:
@@ -676,43 +636,6 @@ class Parameter(ParamBase, ABC):
             return self.group.show_in_help
         return True
 
-    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        return self.usage_metavar
-
-    def format_description(self) -> str:
-        description = self.help or ''
-        if _should_add_default(self.default, self.help):
-            pad = ' ' if description else ''
-            description += f'{pad}(default: {self.default})'
-        return description
-
-    def format_help(self, width: int = 30) -> str:
-        usage = self.format_usage(include_meta=True, full=True)
-        description = self.format_description()
-        return HelpEntryFormatter(usage, description, width)()
-
-    @property
-    def usage_metavar(self) -> str:
-        if self.choices:
-            return '{{{}}}'.format(','.join(map(str, self.choices)))
-        elif self.metavar:
-            return self.metavar
-        try:
-            use_type_metavar = ctx.use_type_metavar
-        except NoActiveContext:
-            use_type_metavar = False
-        if use_type_metavar and self.type is not None:
-            t = self.type
-            try:
-                name = t.__name__
-            except AttributeError:
-                pass
-            else:
-                if name != '<lambda>':
-                    return name.upper()
-
-        return self.name.upper()
-
     # endregion
 
 
@@ -796,13 +719,6 @@ class BasePositional(Parameter, ABC):
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
         super().__init__(action, **kwargs)
-
-    def format_basic_usage(self) -> str:
-        return self.format_usage()
-
-    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        metavar = self.usage_metavar
-        return metavar if not full or self.nargs == 1 else f'{metavar} [{metavar} ...]'
 
 
 class Positional(BasicActionMixin, BasePositional):
@@ -938,6 +854,8 @@ class ChoiceMap(BasePositional):
         self.description = description
         self.choices = {}
 
+    # region Choice Registration
+
     def _update_nargs(self):
         try:
             lengths = set(map(len, map(str.split, self.choices)))
@@ -960,6 +878,10 @@ class ChoiceMap(BasePositional):
         else:
             prefix = 'Invalid default' if choice is None else f'Invalid choice={choice!r} for'
             raise CommandDefinitionError(f'{prefix} target={target!r} - already assigned to {existing}')
+
+    # endregion
+
+    # region Argument Handling
 
     @parameter_action
     def append(self, value: str):
@@ -1010,29 +932,15 @@ class ChoiceMap(BasePositional):
         choice = self.result_value()
         return self.choices[choice].target
 
+    # endregion
+
+    # region Usage / Help Text
+
     @property
     def show_in_help(self) -> bool:
         return bool(self.choices)
 
-    @property
-    def usage_metavar(self) -> str:
-        if self.choices:
-            return '{{{}}}'.format(','.join(map(str, filter(None, self.choices))))
-        else:
-            return self.metavar or self.name.upper()
-
-    def format_usage(self, include_meta: Bool = None, full: Bool = None, delim: str = None) -> str:
-        return self.usage_metavar
-
-    def format_help(self, width: int = 30):
-        title = self.title or self._default_title
-        help_entry = HelpEntryFormatter(self.format_usage(), self.description, width, lpad=2)()
-        parts = [f'{title}:', help_entry]
-        for choice in self.choices.values():
-            parts.append(choice.format_help(width, lpad=4))
-
-        parts.append('')
-        return '\n'.join(parts)
+    # endregion
 
 
 class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):
@@ -1248,24 +1156,6 @@ class BaseOption(Parameter, ABC):
     @cached_property
     def short_opts(self) -> List[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
-
-    def format_basic_usage(self) -> str:
-        usage = self.format_usage(True)
-        return usage if self.required else f'[{usage}]'
-
-    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        if include_meta:
-            metavar = self.usage_metavar.replace('{', '{{').replace('}', '}}')
-            fmt = '{}' if self.nargs == 0 else f'{{}} [{metavar}]' if 0 in self.nargs else f'{{}} {metavar}'
-            if full:
-                return delim.join(fmt.format(opt) for opt in chain(self.long_opts, self.short_opts))
-            else:
-                return fmt.format(self.long_opts[0])
-        else:
-            if full:
-                return delim.join(chain(self.long_opts, self.short_opts))
-            else:
-                return self.long_opts[0]
 
 
 class Option(BasicActionMixin, BaseOption):
@@ -1574,27 +1464,3 @@ class PassThru(Parameter):
     @parameter_action
     def store_all(self, values: Collection[str]):
         ctx.set_parsing_value(self, values)
-
-    def format_basic_usage(self) -> str:
-        usage = self.format_usage()
-        return f'-- {usage}' if self.required else f'[-- {usage}]'
-
-
-# region Helper Functions
-
-
-def _should_add_default(default: Any, help_text: Optional[str]) -> bool:
-    if default is _NotSet:
-        return False
-    sd = ctx.show_defaults
-    if sd.value < 2 or (sd & ShowDefaults.MISSING and help_text and 'default:' in help_text):
-        return False
-    elif sd & ShowDefaults.ANY:
-        return True
-    elif sd & ShowDefaults.NON_EMPTY:
-        return bool(default) or not (default is None or isinstance(default, Collection))
-    else:
-        return bool(default)
-
-
-# endregion

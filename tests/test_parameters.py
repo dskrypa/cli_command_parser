@@ -164,8 +164,8 @@ class OptionTest(ParserTest):
 
     def test_usage(self):
         self.assertEqual('--foo', Option('--foo').format_usage())
-        self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).format_basic_usage())
-        self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).format_basic_usage())
+        self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
+        self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
 
 
 class FlagTest(ParserTest):
@@ -393,8 +393,8 @@ class PassThruTest(ParserTest):
                 pt.take_action(['a'])
 
     def test_usage(self):
-        self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).format_basic_usage())
-        self.assertEqual('-- FOO', PassThru(name='foo', required=True).format_basic_usage())
+        self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).formatter.format_basic_usage())
+        self.assertEqual('-- FOO', PassThru(name='foo', required=True).formatter.format_basic_usage())
 
 
 class MiscParameterTest(ParserTest):

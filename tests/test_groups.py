@@ -69,7 +69,7 @@ class GroupTest(_GroupTest):
         self.assertIn('m.exclusive=T', repr(group))
 
     def test_description(self):
-        self.assertIn('exclusive', ParamGroup('foo', mutually_exclusive=True).format_description())
+        self.assertIn('exclusive', ParamGroup('foo', mutually_exclusive=True).formatter.format_description())
 
     def test_required_group(self):
         class Foo1(Command):

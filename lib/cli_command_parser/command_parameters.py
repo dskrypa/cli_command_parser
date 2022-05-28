@@ -13,7 +13,7 @@ except ImportError:
 
 from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
-from .formatting import HelpFormatter
+from .formatting.commands import CommandHelpFormatter
 from .parameters import (
     Parameter,
     SubCommand,
@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 
 class CommandParameters:
     command: 'CommandType'
-    formatter: HelpFormatter
+    formatter: CommandHelpFormatter
     command_parent: Optional['CommandType'] = None
     parent: Optional['CommandParameters'] = None
     action: Optional[Action] = None
@@ -54,7 +54,7 @@ class CommandParameters:
             self.command_parent = command_parent
             self.parent = command_parent.__class__.params(command_parent)
 
-        self.formatter = HelpFormatter(command, self)
+        self.formatter = CommandHelpFormatter(command, self)
         self._process_parameters()
 
     def __repr__(self) -> str:
