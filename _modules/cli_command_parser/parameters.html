@@ -95,17 +95,17 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span>
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">CommandDefinitionError</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParamsMissing</span><span class="p">,</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
-<span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpEntryFormatter</span>
+<span class="kn">from</span> <span class="nn">.formatting.utils</span> <span class="kn">import</span> <span class="n">HelpEntryFormatter</span>
 <span class="kn">from</span> <span class="nn">.nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">validate_positional</span><span class="p">,</span> <span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">get_descriptor_value_type</span><span class="p">,</span> <span class="n">is_numeric</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
     <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
+    <span class="kn">from</span> <span class="nn">.formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span>
@@ -228,22 +228,24 @@
 
     <span class="c1"># region Usage / Help Text</span>
 
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ParamHelpFormatter&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>  <span class="c1"># Here due to circular dependency</span>
+
+        <span class="k">return</span> <span class="n">ParamHelpFormatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># noqa</span>
+
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convenience method for calling :meth:`.ParamHelpFormatter.format_usage`&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convenience method for calling :meth:`.ParamHelpFormatter.format_help`&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
@@ -458,53 +460,7 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
-
-<div class="viewcode-block" id="ParamGroup.format_description"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_description">[docs]</a>    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> options&#39;</span>
-        <span class="k">if</span> <span class="n">group_type</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span><span class="p">):</span>
-            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39; (mutually </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;exclusive&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="k">else</span> <span class="s1">&#39;dependent&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">description</span></div>
-
-<div class="viewcode-block" id="ParamGroup.format_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">choices</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mem</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">include_meta</span><span class="p">,</span> <span class="n">full</span><span class="p">,</span> <span class="n">delim</span><span class="p">)</span> <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="n">choices</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div>
-
-<div class="viewcode-block" id="ParamGroup.format_help"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">clean</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prepare the help text for this group.</span>
-
-<span class="sd">        :param width: The width of the option/action/command column.</span>
-<span class="sd">        :param group_type: Whether the group type should be included in the description if this is a mutually</span>
-<span class="sd">          exclusive / dependent group</span>
-<span class="sd">        :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the</span>
-<span class="sd">          description.</span>
-<span class="sd">        :return: The formatted help text.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">group_type</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="p">]</span>
-
-        <span class="c1"># TODO: Indent members and use |- tree for nesting?</span>
-        <span class="c1">#  Different trunk/branch char for mutually dependent/exclusive/not?</span>
-
-        <span class="n">nested</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">member</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">)):</span>
-                <span class="n">nested</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># Add space for readability</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">params</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">format_help</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">clean</span> <span class="ow">and</span> <span class="n">nested</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>  <span class="c1"># remove description and the first spacer</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>  <span class="c1"># ensure a new line separates sections, but avoid extra lines</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 
     <span class="c1"># endregion</span>
 
@@ -516,6 +472,8 @@
 <span class="sd">    Custom parameter classes should generally extend :class:`BasePositional` or :class:`BaseOption` instead of this,</span>
 <span class="sd">    otherwise additional handling may be necessary in the parser.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># region Attributes &amp; Initialization</span>
 
     <span class="n">_actions</span><span class="p">:</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
     <span class="n">_positional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -594,6 +552,15 @@
     <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">_NotSet</span>
 
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">annotated_type</span> <span class="o">=</span> <span class="n">get_descriptor_value_type</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">annotated_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">annotated_type</span>
+
+    <span class="c1"># endregion</span>
+
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">attr_names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;choices&#39;</span><span class="p">,</span> <span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="s1">&#39;hide&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">)</span>
         <span class="n">extra_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repr_attrs</span>
@@ -604,12 +571,7 @@
         <span class="n">kwargs</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">attrs</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="s1">&#39;hide&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="p">))</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1">, </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">)&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">annotated_type</span> <span class="o">=</span> <span class="n">get_descriptor_value_type</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">annotated_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">annotated_type</span>
+    <span class="c1"># region Argument Handling</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -625,8 +587,6 @@
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># Skip __get__ on subsequent accesses</span>
         <span class="k">return</span> <span class="n">value</span>
-
-    <span class="c1"># region Argument Handling</span>
 
     <span class="k">def</span> <span class="nf">_nargs_max_reached</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -750,44 +710,7 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
-
-<div class="viewcode-block" id="Parameter.format_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">usage_metavar</span></div>
-
-<div class="viewcode-block" id="Parameter.format_description"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.format_description">[docs]</a>    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">_should_add_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">help</span><span class="p">):</span>
-            <span class="n">pad</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="k">if</span> <span class="n">description</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-            <span class="n">description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pad</span><span class="si">}</span><span class="s1">(default: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s1">)&#39;</span>
-        <span class="k">return</span> <span class="n">description</span></div>
-
-<div class="viewcode-block" id="Parameter.format_help"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">include_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">HelpEntryFormatter</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">width</span><span class="p">)()</span></div>
-
-<div class="viewcode-block" id="Parameter.usage_metavar"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter.usage_metavar">[docs]</a>    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">usage_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;{{</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)))</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">metavar</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metavar</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">use_type_metavar</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">use_type_metavar</span>
-        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
-            <span class="n">use_type_metavar</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">use_type_metavar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;&lt;lambda&gt;&#39;</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 
     <span class="c1"># endregion</span>
 
@@ -871,14 +794,7 @@
         <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">cls_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The &#39;default&#39; arg is not supported for </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s2"> parameters&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="BasePositional.format_basic_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="BasePositional.format_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BasePositional.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">metavar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">usage_metavar</span>
-        <span class="k">return</span> <span class="n">metavar</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">full</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1"> ...]&#39;</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Positional"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional">[docs]</a><span class="k">class</span> <span class="nc">Positional</span><span class="p">(</span><span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">):</span>
@@ -1014,6 +930,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">{}</span>
 
+    <span class="c1"># region Choice Registration</span>
+
     <span class="k">def</span> <span class="nf">_update_nargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">lengths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)))</span>
@@ -1036,6 +954,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;Invalid default&#39;</span> <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;Invalid choice=</span><span class="si">{</span><span class="n">choice</span><span class="si">!r}</span><span class="s1"> for&#39;</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> target=</span><span class="si">{</span><span class="n">target</span><span class="si">!r}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="n">existing</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Argument Handling</span>
 
     <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -1086,29 +1008,15 @@
         <span class="n">choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_value</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span><span class="o">.</span><span class="n">target</span>
 
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Usage / Help Text</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">usage_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;{{</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">))))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metavar</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">usage_metavar</span>
-
-    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">):</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_title</span>
-        <span class="n">help_entry</span> <span class="o">=</span> <span class="n">HelpEntryFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">2</span><span class="p">)()</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">,</span> <span class="n">help_entry</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">format_help</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
-
-        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+    <span class="c1"># endregion</span>
 
 
 <div class="viewcode-block" id="SubCommand"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand">[docs]</a><span class="k">class</span> <span class="nc">SubCommand</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="o">=</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
@@ -1323,25 +1231,7 @@
 
 <div class="viewcode-block" id="BaseOption.short_opts"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BaseOption.short_opts">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">short_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_short_opts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">opt</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">opt</span><span class="p">),</span> <span class="n">opt</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="BaseOption.format_basic_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BaseOption.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">usage</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">]&#39;</span></div>
-
-<div class="viewcode-block" id="BaseOption.format_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.BaseOption.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">include_meta</span><span class="p">:</span>
-            <span class="n">metavar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">usage_metavar</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">,</span> <span class="s1">&#39;{{&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">,</span> <span class="s1">&#39;}}&#39;</span><span class="p">)</span>
-            <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{}}</span><span class="s1"> [</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1">]&#39;</span> <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{}}</span><span class="s1"> </span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_opts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_opts</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_opts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_opts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_opts</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_opts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_short_opts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">opt</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">opt</span><span class="p">),</span> <span class="n">opt</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="Option"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option">[docs]</a><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">):</span>
@@ -1649,31 +1539,7 @@
 
 <div class="viewcode-block" id="PassThru.store_all"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru.store_all">[docs]</a>    <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PassThru.format_basic_usage"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;-- </span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;[-- </span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">]&#39;</span></div></div>
-
-
-<span class="c1"># region Helper Functions</span>
-
-
-<span class="k">def</span> <span class="nf">_should_add_default</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">help_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="n">sd</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">show_defaults</span>
-    <span class="k">if</span> <span class="n">sd</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sd</span> <span class="o">&amp;</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="ow">and</span> <span class="n">help_text</span> <span class="ow">and</span> <span class="s1">&#39;default:&#39;</span> <span class="ow">in</span> <span class="n">help_text</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">elif</span> <span class="n">sd</span> <span class="o">&amp;</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">ANY</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">elif</span> <span class="n">sd</span> <span class="o">&amp;</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">default</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Collection</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
-
-
-<span class="c1"># endregion</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

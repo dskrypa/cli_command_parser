@@ -89,7 +89,7 @@
 
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
-<span class="kn">from</span> <span class="nn">.formatting</span> <span class="kn">import</span> <span class="n">HelpFormatter</span>
+<span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Parameter</span><span class="p">,</span>
     <span class="n">SubCommand</span><span class="p">,</span>
@@ -111,7 +111,7 @@
 
 <div class="viewcode-block" id="CommandParameters"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters">[docs]</a><span class="k">class</span> <span class="nc">CommandParameters</span><span class="p">:</span>
     <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span>
-    <span class="n">formatter</span><span class="p">:</span> <span class="n">HelpFormatter</span>
+    <span class="n">formatter</span><span class="p">:</span> <span class="n">CommandHelpFormatter</span>
     <span class="n">command_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandParameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Action</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -130,7 +130,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="o">=</span> <span class="n">command_parent</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command_parent</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">HelpFormatter</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">CommandHelpFormatter</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
