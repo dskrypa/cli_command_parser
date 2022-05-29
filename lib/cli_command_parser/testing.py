@@ -114,10 +114,10 @@ class ParserTest(TestCase):
             self.assertEqual(expected, actual, message)
         elif expected != actual:
             diff = format_diff(expected, actual, n=diff_lines)
-            if not diff.strip():
-                self.assertEqual(expected, actual)
-            else:
-                self.fail('Strings did not match:\n' + diff)
+            # if not diff.strip():
+            #     self.assertEqual(expected, actual)
+            # else:
+            self.fail('Strings did not match:\n' + diff)
 
 
 def _colored(text: str, color: int, end: str = '\n'):

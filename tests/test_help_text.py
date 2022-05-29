@@ -311,8 +311,10 @@ class GroupHelpTextTest(ParserTest):
         self.assertFalse(Foo.baz.show_in_help)
 
         help_text = _get_help_text(Foo)
+        rst_test = _get_rst_text(Foo)
         self.assertIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
+        self.assertNotIn('--baz', rst_test)
 
     def test_hidden_groups_not_shown(self):
         class Foo(Command):
@@ -419,6 +421,14 @@ def _get_help_text(cmd: Union[Type[Command], Command]) -> str:
     with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)):
         with cmd.ctx:
             return get_params(cmd).formatter.format_help()
+
+
+def _get_rst_text(cmd: Union[Type[Command], Command]) -> str:
+    if not isinstance(cmd, Command):
+        cmd = cmd()
+    with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)):
+        with cmd.ctx:
+            return get_params(cmd).formatter.format_rst()
 
 
 class ProgramMetadataTest(TestCase):
