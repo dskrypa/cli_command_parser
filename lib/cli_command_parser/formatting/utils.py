@@ -6,7 +6,7 @@ Utils for usage / help text formatters
 
 from shutil import get_terminal_size
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Union, Optional, Any, Collection, Type
+from typing import TYPE_CHECKING, Union, Optional, Any, Collection, Type, Dict
 
 from ..config import ShowDefaults
 from ..context import ctx
@@ -17,8 +17,6 @@ if TYPE_CHECKING:
     from ..parameters import SubCommand
 
 __all__ = ['HelpEntryFormatter', 'get_usage_sub_cmds', 'rst_bar']
-
-RST_BAR_CHAR_ORDER = ('*', '=', '-', '^')
 
 
 class HelpEntryFormatter:
@@ -96,7 +94,32 @@ def get_usage_sub_cmds(command: 'CommandType'):
     return cmd_chain
 
 
+# region RST Formatting
+
+RST_BAR_CHAR_ORDER = ('*', '=', '-', '^')
+
+
 def rst_bar(text: Union[str, int], level: int = 0) -> str:
     bar_len = text if isinstance(text, int) else len(text)
     c = RST_BAR_CHAR_ORDER[level]
     return c * bar_len
+
+
+RST_TABLE_TMPL = """
+.. list-table::
+   :widths: {widths}
+
+{entries}
+"""
+RST_TABLE_ENTRY_TMPL = '   * - | {key}\n     - | {value}'
+
+
+def rst_table(data: Dict[str, str], value_pad: int = 20) -> str:
+    max_key = max(map(len, data))
+    max_val = max(map(len, data.values()))
+    widths = f'{max_key} {max_val + value_pad}'
+    entries = '\n'.join(RST_TABLE_ENTRY_TMPL.format(key=key, value=value) for key, value in data.items())
+    return RST_TABLE_TMPL.format(widths=widths, entries=entries)
+
+
+# endregion

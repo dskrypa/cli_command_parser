@@ -13,7 +13,7 @@ from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
-from cli_command_parser.formatting.utils import get_usage_sub_cmds, rst_bar
+from cli_command_parser.formatting.utils import get_usage_sub_cmds, rst_bar, rst_table
 from cli_command_parser.parameters import (
     Positional,
     SubCommand,
@@ -490,7 +490,8 @@ class ProgramMetadataTest(TestCase):
             self.assertEqual(meta.path.name, 'UNKNOWN')
             self.assertEqual(meta.prog, 'UNKNOWN')
 
-    def test_find_info_error(self):
+    @patch('cli_command_parser.utils.sys.argv', ['fake\n\nfile!'])
+    def test_find_info_error(self, *mocks):
         with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'UNKNOWN')
@@ -538,7 +539,7 @@ def _mock_stack(g: dict, file_name: str = 'foo.py', setup: bool = True, main_fn:
     ]
 
 
-class FormatterTest(TestCase):
+class FormatterTest(ParserTest):
     def test_get_usage_sub_cmds_impossible(self):
         # This an impossible case that is purely for coverage
 
@@ -584,6 +585,23 @@ class FormatterTest(TestCase):
         bars = {rst_bar(text, i) for i in range(4)}
         self.assertEqual(4, len(bars))
         self.assertTrue(all(12 == len(bar) for bar in bars))
+
+    def test_rst_table(self):
+        expected = """
+        .. list-table::
+           :widths: 21 75
+
+           * - | ``--help``, ``-h``
+             - | Show this help message and exit
+           * - | ``--verbose``, ``-v``
+             - | Increase logging verbosity (can specify multiple times)
+        """
+        expected = dedent(expected)
+        data = {
+            '``--help``, ``-h``': 'Show this help message and exit',
+            '``--verbose``, ``-v``': 'Increase logging verbosity (can specify multiple times)',
+        }
+        self.assert_strings_equal(expected, rst_table(data))
 
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:
