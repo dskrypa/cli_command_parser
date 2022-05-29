@@ -6,12 +6,17 @@ Configuration options for Command behavior.
 
 from dataclasses import dataclass, fields, field
 from enum import Flag
-from typing import TYPE_CHECKING, Optional, Any, Union, Dict, FrozenSet
+from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Dict, FrozenSet
 
 from .utils import Bool, _NotSet, cached_class_property
 
 if TYPE_CHECKING:
+    from .command_parameters import CommandParameters
+    from .core import CommandType
     from .error_handling import ErrorHandler
+    from .formatting.commands import CommandHelpFormatter
+    from .formatting.params import ParamHelpFormatter
+    from .parameters import ParamOrGroup
 
 __all__ = ['CommandConfig', 'ShowDefaults']
 
@@ -115,6 +120,13 @@ class CommandConfig:
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = False
+
+    #: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`
+    #: object, and returns a :class:`.CommandHelpFormatter`
+    command_formatter: Callable[['CommandType', 'CommandParameters'], 'CommandHelpFormatter'] = None
+
+    #: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`
+    param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None
 
     # endregion
 

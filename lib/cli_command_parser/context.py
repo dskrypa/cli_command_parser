@@ -6,7 +6,8 @@ import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast, Dict, Tuple, List
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, Callable, cast
+from typing import Dict, Tuple, List
 
 try:
     from functools import cached_property
@@ -21,6 +22,7 @@ from .utils import Bool, _NotSet
 if TYPE_CHECKING:
     from .core import CommandType
     from .command_parameters import CommandParameters
+    from .formatting.params import ParamHelpFormatter
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
 __all__ = ['Context', 'ctx', 'get_current_context']
@@ -84,6 +86,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     use_type_metavar = ConfigOption()
     show_defaults = ConfigOption()
     show_group_tree = ConfigOption()
+    param_formatter = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -104,6 +107,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         use_type_metavar: Bool = None,
         show_defaults: Union[ShowDefaults, str, int] = None,
         show_group_tree: Bool = None,
+        param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -138,6 +142,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         if show_defaults is not None:
             self.show_defaults = ShowDefaults(show_defaults)
         self.show_group_tree = show_group_tree
+        self.param_formatter = param_formatter
 
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation

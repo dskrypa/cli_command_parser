@@ -19,7 +19,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
-from .context import ctx
+from .context import Context, ctx, get_current_context
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
 from .formatting.utils import HelpEntryFormatter
@@ -56,7 +56,7 @@ Param = TypeVar('Param', bound='Parameter')
 ParamList = List[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
 
-# TODO: Parameter.validator method that can be used as a decorator?
+# TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?
 
 
 class parameter_action:
@@ -150,13 +150,31 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
+    def _ctx(self, command: 'Command' = None) -> Context:
+        try:
+            return get_current_context()
+        except NoActiveContext:
+            pass
+        command = command or self.command
+        try:
+            return command._Command__ctx
+        except AttributeError:
+            pass
+        raise NoActiveContext('There is no active context')
+
     # region Usage / Help Text
 
     @cached_property
     def formatter(self) -> 'ParamHelpFormatter':
         from .formatting.params import ParamHelpFormatter  # Here due to circular dependency
 
-        return ParamHelpFormatter(self)  # noqa
+        try:
+            with self._ctx() as context:
+                formatter_factory = context.param_formatter or ParamHelpFormatter
+        except NoActiveContext:
+            formatter_factory = ParamHelpFormatter
+
+        return formatter_factory(self)  # noqa
 
     @property
     @abstractmethod
@@ -501,11 +519,8 @@ class Parameter(ParamBase, ABC):
         if command is None:
             return self
 
-        try:
+        with self._ctx(command):
             value = self.result()
-        except NoActiveContext:
-            with command._Command__ctx:  # noqa
-                value = self.result()
 
         name = self._name
         if name is not None:

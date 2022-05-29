@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
+from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
 from cli_command_parser.parameters import (
@@ -498,6 +499,25 @@ class FormatterTest(TestCase):
     def test_default_formatter_class_returned(self):
         formatter = ParamHelpFormatter.for_param_cls(int)  # noqa
         self.assertIs(formatter, ParamHelpFormatter)
+
+    def test_formatter_uses_cmd_ctx(self):
+        class Foo(Command):
+            bar = Option(required=True)
+
+        foo = Foo()
+        with self.assertRaises(MissingArgument):  # Accesses the formatter outside of parsing context
+            foo.bar  # noqa
+
+    def test_custom_formatter(self):
+        class CustomFormatter(ParamHelpFormatter):
+            def format_help(self, *args, **kwargs):
+                return 'test help'
+
+        class Foo(Command, param_formatter=CustomFormatter):
+            bar = Flag()
+
+        with Foo().ctx:
+            self.assertEqual('test help', Foo.bar.format_help())
 
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:

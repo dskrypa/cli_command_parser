@@ -63,7 +63,7 @@ class CommandHelpFormatter:
 
         for group in self.groups:
             if group.show_in_help:
-                parts.append(group.formatter.format_help(width=width, group_type=group_type))
+                parts.append(group.formatter.format_help(width=width, group_type=group_type))  # noqa
 
         epilog = meta.format_epilog(extended_epilog)
         if epilog:

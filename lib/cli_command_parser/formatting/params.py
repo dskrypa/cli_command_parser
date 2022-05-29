@@ -18,8 +18,9 @@ from .utils import HelpEntryFormatter, _should_add_default
 class ParamHelpFormatter:
     _param_cls_fmt_cls_map = {}
 
-    def __init_subclass__(cls, param_cls: Type[ParamBase]):  # noqa
-        cls._param_cls_fmt_cls_map[param_cls] = cls
+    def __init_subclass__(cls, param_cls: Type[ParamBase] = None):  # noqa
+        if param_cls is not None:
+            cls._param_cls_fmt_cls_map[param_cls] = cls
 
     @classmethod
     def for_param_cls(cls, param_cls: Type['ParamBase']) -> Type['ParamHelpFormatter']:

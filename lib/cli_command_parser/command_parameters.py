@@ -1,4 +1,10 @@
 """
+The CommandParameters class in this module is used to process all of the attributes of a given :class:`.Command` when
+it is defined to collect its :class:`.Parameter` / :class:`.ParamGroup` members.  It also checks for conflicts between
+parameter definitions.
+
+It has some involvement in the parsing process for :class:`.BaseOption` parameters.
+
 :author: Doug Skrypa
 """
 
@@ -27,6 +33,7 @@ from .parameters import (
 )
 
 if TYPE_CHECKING:
+    from .config import CommandConfig
     from .core import CommandType
 
 __all__ = ['CommandParameters']
@@ -54,7 +61,13 @@ class CommandParameters:
             self.command_parent = command_parent
             self.parent = command_parent.__class__.params(command_parent)
 
-        self.formatter = CommandHelpFormatter(command, self)
+        config: 'CommandConfig' = command.__class__.config(command)
+        if config is None:
+            formatter_factory = CommandHelpFormatter
+        else:
+            formatter_factory = config.command_formatter or CommandHelpFormatter
+
+        self.formatter = formatter_factory(command, self)
         self._process_parameters()
 
     def __repr__(self) -> str:
@@ -75,12 +88,19 @@ class CommandParameters:
 
     @cached_property
     def always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
+        """
+        The :paramref:`.ActionFlag.before_main` :class:`.ActionFlag` actions that are always available, even if parsing
+        failed (such as the one for ``--help``).
+        """
         return tuple(af for af in self.action_flags if af.always_available)
 
     # region Initialization
 
     def _process_parameters(self):
-        name_param_map = {}  # Allow sub-classes to override names, but not within a given command
+        """
+        Process all of the :class:`.Parameter` / :class:`.ParamGroup` members in the associated :class:`.Command` class.
+        """
+        name_param_map = {}  # Allow subclasses to override names, but not within a given command
         positionals = []
         options = []
         groups = set()
@@ -228,7 +248,9 @@ class CommandParameters:
 
     # region Option Processing
 
-    def get_option_param_value_pairs(self, option: str):
+    # TODO: Move this section to the parsing module?
+
+    def get_option_param_value_pairs(self, option: str) -> Optional[Tuple[BaseOption, ...]]:
         if option.startswith('---'):
             return None
         elif option.startswith('--'):
@@ -248,7 +270,7 @@ class CommandParameters:
         else:
             return None
 
-    def long_option_to_param_value_pair(self, option: str):
+    def long_option_to_param_value_pair(self, option: str) -> Tuple[BaseOption, Optional[str]]:
         try:
             return self.option_map[option], None
         except KeyError:
@@ -258,7 +280,7 @@ class CommandParameters:
             else:
                 raise
 
-    def short_option_to_param_value_pairs(self, option: str):
+    def short_option_to_param_value_pairs(self, option: str) -> List[Tuple[BaseOption, Optional[str]]]:
         try:
             option, value = option.split('=', 1)
         except ValueError:
@@ -281,7 +303,7 @@ class CommandParameters:
             combo_option_map = self.combo_option_map
             return [(combo_option_map[c], None) for c in option[1:]]
 
-    def find_option_that_accepts_values(self, option: str):
+    def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if option.startswith('--'):
             param, value = self.long_option_to_param_value_pair(option)
             if param.accepts_values:
@@ -294,7 +316,7 @@ class CommandParameters:
             raise ValueError(f'Invalid option={option!r}')
         return None
 
-    def find_nested_option_that_accepts_values(self, option: str):
+    def find_nested_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if not self.sub_command:
             return None
 
@@ -315,7 +337,7 @@ class CommandParameters:
 
         return None
 
-    def find_nested_pass_thru(self):
+    def find_nested_pass_thru(self) -> Optional[PassThru]:
         if not self.sub_command:
             return None
 
@@ -330,7 +352,6 @@ class CommandParameters:
     # endregion
 
     def missing(self) -> List['Parameter']:
-        # ignore = (SubCommand, Action)
         ignore = SubCommand
         missing: List['Parameter'] = [
             p for p in self.positionals if p.required and ctx.num_provided(p) == 0 and not isinstance(p, ignore)
