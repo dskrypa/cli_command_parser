@@ -405,8 +405,7 @@ class GroupHelpTextTest(ParserTest):
                     baz = Flag()
 
         help_text = _get_help_text(Foo).rstrip()
-        help_text = '\n'.join(line.rstrip() for line in help_text.splitlines())
-        self.assert_strings_equal(expected, help_text, diff_lines=7)
+        self.assert_strings_equal(expected, help_text, diff_lines=7, trim=True)
 
 
 def _get_usage_text(cmd: Type[Command]) -> str:

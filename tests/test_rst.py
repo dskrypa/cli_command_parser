@@ -18,7 +18,16 @@ class RstFormatTest(ParserTest):
         commands = load_commands(script_path)
         self.assertIn('Base', commands)
         self.assertIn('Show', commands)
+        self.assertEqual(2, len(commands))
         self.assert_strings_equal(expected, get_rst(commands['Base']))
+
+    def test_examples_hello_world(self):
+        expected = TEST_DATA_DIR.joinpath('hello_world.rst').read_text('utf-8')
+        script_path = EXAMPLES_DIR.joinpath('hello_world.py')
+        commands = load_commands(script_path)
+        self.assertIn('HelloWorld', commands)
+        self.assertEqual(1, len(commands))
+        self.assert_strings_equal(expected, get_rst(commands['HelloWorld']), trim=True)
 
 
 if __name__ == '__main__':

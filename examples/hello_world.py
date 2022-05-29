@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Example ``Hello World`` implementation using CLI Command Parser.
+"""
 
 from cli_command_parser import Command, Option, main
 

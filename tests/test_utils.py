@@ -36,6 +36,9 @@ class UtilsTest(TestCase):
                 meta = ProgramMetadata()
                 self.assertEqual(meta.path.name, 'UNKNOWN')
 
+    def test_prog_info_repr(self):
+        self.assertIsNotNone(repr(ProgInfo()))
+
 
 if __name__ == '__main__':
     try:

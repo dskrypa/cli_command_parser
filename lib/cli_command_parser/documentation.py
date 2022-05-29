@@ -59,7 +59,4 @@ def load_module(path: Union[str, Path]):
 
 
 def is_command(obj) -> bool:
-    try:
-        return isinstance(obj, CommandMeta) and obj is not Command
-    except TypeError:
-        return False
+    return isinstance(obj, CommandMeta) and obj is not Command

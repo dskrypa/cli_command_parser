@@ -104,11 +104,20 @@ class ParserTest(TestCase):
             with self.subTest(expected='exception', kwargs=kwargs):
                 self.assert_call_fails(func, kwargs, exc, pat, message=message)
 
-    def assert_strings_equal(self, expected: str, actual: str, message: str = None, diff_lines: int = 3):
+    def assert_strings_equal(
+        self, expected: str, actual: str, message: str = None, diff_lines: int = 3, trim: bool = False
+    ):
+        if trim:
+            expected = expected.rstrip()
+            actual = '\n'.join(line.rstrip() for line in actual.splitlines())
         if message:
             self.assertEqual(expected, actual, message)
         elif expected != actual:
-            self.fail('Strings did not match:\n' + format_diff(expected, actual, n=diff_lines))
+            diff = format_diff(expected, actual, n=diff_lines)
+            if not diff.strip():
+                self.assertEqual(expected, actual)
+            else:
+                self.fail('Strings did not match:\n' + diff)
 
 
 def _colored(text: str, color: int, end: str = '\n'):

@@ -70,7 +70,14 @@ class ProgramMetadata:
         epilog: str = None,
         name: str = None,
     ):
-        self._cmd_args = {'prog': prog, 'url': url, 'docs_url': docs_url, 'email': email, 'version': version}
+        self._cmd_args = {
+            'prog': prog,
+            'url': url,
+            'docs_url': docs_url,
+            'email': email,
+            'version': version,
+            'name': name,
+        }
         self._init(ProgInfo())
         self.name = name
         self.usage = usage
@@ -87,6 +94,7 @@ class ProgramMetadata:
         self.email = a['email'] or info.email
         self.version = a['version'] or info.version or ''
         self.doc_str = info.doc_str
+        self.name = a['name']
 
     @property
     def name(self) -> str:
@@ -143,6 +151,12 @@ class ProgInfo:
         self.version = g.get('__version__')
         self.repo_url = g.get('__url__')
         self.doc_str = g.get('__doc__')
+
+    def __repr__(self) -> str:
+        return (
+            f'<ProgInfo[path={self.path.as_posix()}, email={self.email!r}, version={self.version},'
+            f' url={self.repo_url!r}, doc_str={self.doc_str!r}]>'
+        )
 
     @classmethod
     def _print_stack_info(cls):
