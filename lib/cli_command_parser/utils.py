@@ -108,7 +108,7 @@ class ProgramMetadata:
 
 
 class ProgInfo:
-    default_file_name: str = 'UNKNOWN'
+    default_file_name: str = 'UNKNOWN'  #: Default name used when it cannot be determined from the stack or sys.argv
     installed_via_setup: bool = False
     email: Optional[str] = None
     version: Optional[str] = None

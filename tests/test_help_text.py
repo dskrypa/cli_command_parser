@@ -13,7 +13,7 @@ from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
-from cli_command_parser.formatting.utils import get_usage_sub_cmds
+from cli_command_parser.formatting.utils import get_usage_sub_cmds, rst_bar
 from cli_command_parser.parameters import (
     Positional,
     SubCommand,
@@ -578,6 +578,12 @@ class FormatterTest(TestCase):
 
         with Foo().ctx:
             self.assertEqual('test help', Foo.bar.format_help())
+
+    def test_rst_bar(self):
+        text = 'example_text'
+        bars = {rst_bar(text, i) for i in range(4)}
+        self.assertEqual(4, len(bars))
+        self.assertTrue(all(12 == len(bar) for bar in bars))
 
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:

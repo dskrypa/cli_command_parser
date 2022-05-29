@@ -6,7 +6,7 @@ Utils for usage / help text formatters
 
 from shutil import get_terminal_size
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Optional, Any, Collection, Type
+from typing import TYPE_CHECKING, Union, Optional, Any, Collection, Type
 
 from ..config import ShowDefaults
 from ..context import ctx
@@ -16,7 +16,9 @@ if TYPE_CHECKING:
     from ..core import CommandMeta, CommandType
     from ..parameters import SubCommand
 
-__all__ = ['HelpEntryFormatter']
+__all__ = ['HelpEntryFormatter', 'get_usage_sub_cmds', 'rst_bar']
+
+RST_BAR_CHAR_ORDER = ('*', '=', '-', '^')
 
 
 class HelpEntryFormatter:
@@ -92,3 +94,9 @@ def get_usage_sub_cmds(command: 'CommandType'):
             break
 
     return cmd_chain
+
+
+def rst_bar(text: Union[str, int], level: int = 0) -> str:
+    bar_len = text if isinstance(text, int) else len(text)
+    c = RST_BAR_CHAR_ORDER[level]
+    return c * bar_len
