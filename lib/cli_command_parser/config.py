@@ -121,12 +121,19 @@ class CommandConfig:
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = False
 
+    #: Whether mutually exclusive / dependent groups should include that fact in their descriptions
+    show_group_type: Bool = True
+
     #: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`
     #: object, and returns a :class:`.CommandHelpFormatter`
     command_formatter: Callable[['CommandType', 'CommandParameters'], 'CommandHelpFormatter'] = None
 
     #: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`
     param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None
+
+    #: Whether the program version, author email, and documentation URL should be included in the help text epilog, if
+    #: they were successfully detected
+    extended_epilog: Bool = True
 
     # endregion
 

@@ -3,7 +3,7 @@
 from unittest import main
 from typing import Type
 
-from cli_command_parser import Command
+from cli_command_parser import Command, Context
 from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import (
     UsageError,
@@ -69,7 +69,8 @@ class GroupTest(_GroupTest):
         self.assertIn('m.exclusive=T', repr(group))
 
     def test_description(self):
-        self.assertIn('exclusive', ParamGroup('foo', mutually_exclusive=True).formatter.format_description())
+        with Context():
+            self.assertIn('exclusive', ParamGroup('foo', mutually_exclusive=True).formatter.format_description())
 
     def test_required_group(self):
         class Foo1(Command):

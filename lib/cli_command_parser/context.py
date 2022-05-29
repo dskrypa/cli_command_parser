@@ -14,7 +14,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
-from .config import ShowDefaults
+from .config import ShowDefaults, CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
 from .utils import Bool, _NotSet
@@ -59,7 +59,9 @@ class ConfigOption:
         try:
             config = command.__class__.config(command)
         except AttributeError:
-            return self.default
+            if self.default is not None:
+                return self.default
+            return getattr(CommandConfig(), self.name)
         else:
             return getattr(config, self.name)
 
@@ -86,7 +88,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     use_type_metavar = ConfigOption()
     show_defaults = ConfigOption()
     show_group_tree = ConfigOption()
+    show_group_type = ConfigOption()
     param_formatter = ConfigOption()
+    extended_epilog = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -107,7 +111,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         use_type_metavar: Bool = None,
         show_defaults: Union[ShowDefaults, str, int] = None,
         show_group_tree: Bool = None,
+        show_group_type: Bool = None,
         param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None,
+        extended_epilog: Bool = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -142,7 +148,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         if show_defaults is not None:
             self.show_defaults = ShowDefaults(show_defaults)
         self.show_group_tree = show_group_tree
+        self.show_group_type = show_group_type
         self.param_formatter = param_formatter
+        self.extended_epilog = extended_epilog
 
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation

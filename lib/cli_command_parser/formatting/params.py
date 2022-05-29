@@ -154,16 +154,16 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
         choices = ','.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
         return f'{{{choices}}}'
 
-    def format_description(self, group_type: Bool = True) -> str:
+    def format_description(self) -> str:
         group = self.param
         if not group.description and not group._name:
-            if group_type and (group.mutually_exclusive or group.mutually_dependent):
+            if ctx.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
                 return 'Mutually {} options'.format('exclusive' if group.mutually_exclusive else 'dependent')
             else:
                 return 'Optional arguments'
         else:
             description = group.description or f'{group.name} options'
-            if group_type and (group.mutually_exclusive or group.mutually_dependent):
+            if ctx.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
                 description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
             return description
 
@@ -176,22 +176,18 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
         else:
             return '\u2502 '  # BOX DRAWINGS LIGHT VERTICAL
 
-    def format_help(
-        self, width: int = 30, group_type: Bool = True, clean: Bool = True, prefix: str = '', tw_offset: int = 0
-    ) -> str:
+    def format_help(self, width: int = 30, clean: Bool = True, prefix: str = '', tw_offset: int = 0) -> str:
         """
         Prepare the help text for this group.
 
         :param width: The width of the option/action/command column.
-        :param group_type: Whether the group type should be included in the description if this is a mutually
-          exclusive / dependent group
         :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
           description.
         :param prefix: Prefix to add to every line (primarily intended for use with nested groups)
         :param tw_offset: Terminal width offset for text width calculations
         :return: The formatted help text.
         """
-        description = self.format_description(group_type)
+        description = self.format_description()
         parts = [f'{description}:']
 
         if ctx.show_group_tree:

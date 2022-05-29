@@ -1,10 +1,13 @@
 """
+Command usage / help text formatters
+
 :author: Doug Skrypa
 """
 
 from typing import TYPE_CHECKING, Type
 
-from ..utils import ProgramMetadata, Bool
+from ..context import ctx
+from ..utils import ProgramMetadata
 from .utils import get_usage_sub_cmds
 
 if TYPE_CHECKING:
@@ -40,9 +43,12 @@ class CommandHelpFormatter:
                 else:
                     self.opt_group.add(param)
 
-    def format_usage(self, delim: str = ' ') -> str:
+    def _get_meta(self) -> ProgramMetadata:
         cmd_mcls: Type['CommandMeta'] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
-        meta: ProgramMetadata = cmd_mcls.meta(self.command)
+        return cmd_mcls.meta(self.command)
+
+    def format_usage(self, delim: str = ' ') -> str:
+        meta = self._get_meta()
         if meta.usage:
             return meta.usage
 
@@ -55,17 +61,17 @@ class CommandHelpFormatter:
         parts.extend(param.formatter.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
-    def format_help(self, width: int = 30, group_type: Bool = True, extended_epilog: Bool = True) -> str:
-        meta: ProgramMetadata = self.command.__class__.meta(self.command)
+    def format_help(self, width: int = 30) -> str:
+        meta = self._get_meta()
         parts = [self.format_usage(), '']
         if meta.description:
             parts += [meta.description, '']
 
         for group in self.groups:
             if group.show_in_help:
-                parts.append(group.formatter.format_help(width=width, group_type=group_type))  # noqa
+                parts.append(group.formatter.format_help(width=width))  # noqa
 
-        epilog = meta.format_epilog(extended_epilog)
+        epilog = meta.format_epilog(ctx.extended_epilog)
         if epilog:
             parts.append(epilog)
 

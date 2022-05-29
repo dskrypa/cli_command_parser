@@ -12,8 +12,8 @@ class ContextTest(TestCase):
     def test_config_option_returns_self(self):
         self.assertIsInstance(Context.ignore_unknown, ConfigOption)
 
-    def test_no_command_results_in_none(self):
-        self.assertIs(None, Context().ignore_unknown)
+    def test_no_command_results_in_config_default(self):
+        self.assertIs(CommandConfig().ignore_unknown, Context().ignore_unknown)
 
     def test_ctx_config_overrides_command(self):
         class Foo(Command):
