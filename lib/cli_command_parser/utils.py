@@ -7,9 +7,9 @@ Utilities for extracting types from annotations, finding / storing program metad
 import re
 import sys
 from collections.abc import Collection, Iterable, Callable
-from inspect import stack, getsourcefile, isclass
+from inspect import stack, isclass, FrameInfo
 from pathlib import Path
-from typing import Any, Union, Optional, Type, get_type_hints
+from typing import Any, Union, Optional, Type, Sequence, get_type_hints, Tuple, Dict
 from string import whitespace, printable
 from urllib.parse import urlparse
 
@@ -68,45 +68,18 @@ class ProgramMetadata:
         description: str = None,
         epilog: str = None,
     ):
-        try:
-            found_email, found_version, found_url, path = self._find_info()
-        except Exception:  # noqa
-            path = Path(__file__)
-            found_email, found_version, found_url = None, None, None
-
-        self.path = path
-        self.prog = prog or path.name
+        info = ProgInfo()
+        self.path = info.path
+        self.prog = prog or info.path.name
         docs_url_from_repo_url = self._docs_url_from_repo_url
-        self.docs_url = docs_url or docs_url_from_repo_url(url) or docs_url_from_repo_url(found_url)
-        self.url = url or found_url
-        self.email = email or found_email
-        self.version = version or found_version or ''
+        self.docs_url = docs_url or docs_url_from_repo_url(url) or docs_url_from_repo_url(info.repo_url)
+        self.url = url or info.repo_url
+        self.email = email or info.email
+        self.version = version or info.version or ''
+        self.doc_str = info.doc_str
         self.usage = usage
         self.description = description
         self.epilog = epilog
-
-    def _find_info(self):
-        _stack = stack()
-        top_level_frame_info = _stack[-1]
-        installed_via_setup, g = self._find_dunder_info(top_level_frame_info)
-        email, version, repo_url = g.get('__author_email__'), g.get('__version__'), g.get('__url__')
-
-        path = Path(getsourcefile(top_level_frame_info[0]))
-        if installed_via_setup and path.name.endswith('-script.py'):
-            try:
-                path = path.with_name(Path(sys.argv[0]).name)
-            except IndexError:
-                path = path.with_name(path.stem[:-7] + '.py')
-        return email, version, repo_url, path
-
-    def _find_dunder_info(self, top_level_frame_info):  # noqa
-        g = top_level_frame_info.frame.f_globals
-        installed_via_setup = 'load_entry_point' in g and 'main' not in g  # TODO: This may need to be tweaked
-        for level in reversed(stack()[:-1]):
-            g = level.frame.f_globals
-            if any(k in g for k in ('__author_email__', '__version__', '__url__')):
-                return installed_via_setup, g
-        return installed_via_setup, g
 
     def _docs_url_from_repo_url(self, repo_url: Optional[str]):  # noqa
         try:  # Note: This is only done this way to address a false positive on a GitHub security scan
@@ -132,6 +105,85 @@ class ProgramMetadata:
         if url:
             parts.append(f'Online documentation: {url}')
         return '\n\n'.join(parts)
+
+
+class ProgInfo:
+    default_file_name: str = 'UNKNOWN'
+    installed_via_setup: bool = False
+    email: Optional[str] = None
+    version: Optional[str] = None
+    repo_url: Optional[str] = None
+    path: Optional[Path] = None
+    doc_str: Optional[str] = None
+
+    def __init__(self):
+        try:
+            top_level, g = self._find_top_frame_and_globals()
+            path = self._resolve_path(top_level.filename)
+        except Exception as e:  # noqa
+            g = {}
+            path = self._resolve_path()
+
+        self.email = g.get('__author_email__')
+        self.version = g.get('__version__')
+        self.repo_url = g.get('__url__')
+        self.doc_str = g.get('__doc__')
+        self.path = path
+
+    @classmethod
+    def _print_stack_info(cls):
+        for i, level in reversed(tuple(enumerate(stack()))):
+            g = level.frame.f_globals
+            print(
+                f'\n[{i:02d}] {level.filename}:{level.lineno} fn={level.function}:'
+                f'\n    __package__={g["__package__"]!r}'
+                f'\n    {", ".join(sorted(g))}'
+            )
+
+    def _resolve_path(self, path: str = None) -> Path:
+        from_setup = path and self.installed_via_setup and path.endswith('-script.py')
+        if path and not from_setup:
+            return Path(path)
+
+        try:
+            name = sys.argv[0]
+        except IndexError:
+            if from_setup:
+                path = Path(path)
+                return path.with_name(path.stem[:-7] + '.py')
+            else:
+                return Path.cwd().joinpath(self.default_file_name)
+
+        argv_path = Path(name)
+        if argv_path.is_file():
+            return argv_path
+
+        return Path.cwd().joinpath(self.default_file_name)
+
+    def _find_cmd_frame_info(self, fi_stack: Sequence[FrameInfo]) -> FrameInfo:
+        if not self.installed_via_setup:
+            return fi_stack[-1]
+
+        this_pkg = __package__.split('.', 1)[0]
+        # ignore_pkgs = {this_pkg, '', 'IPython', 'IPython.core', 'IPython.terminal', 'traitlets.config'}
+        this_pkg_dot = this_pkg + '.'
+        for level in reversed(fi_stack[:-1]):
+            pkg = level.frame.f_globals.get('__package__') or ''
+            if pkg != this_pkg and not pkg.startswith(this_pkg_dot):  # Exclude intermediate frames in this package
+                return level
+
+        return fi_stack[-1]
+
+    def _detect_install_type(self, fi_stack: Sequence[FrameInfo]):
+        top_level = fi_stack[-1]
+        g = top_level.frame.f_globals
+        self.installed_via_setup = 'load_entry_point' in g and 'main' not in g
+
+    def _find_top_frame_and_globals(self) -> Tuple[FrameInfo, Dict[str, Any]]:
+        fi_stack = stack()
+        self._detect_install_type(fi_stack)
+        cmd_frame_info = self._find_cmd_frame_info(fi_stack)
+        return fi_stack[-1], cmd_frame_info.frame.f_globals
 
 
 def camel_to_snake_case(text: str, delim: str = '_') -> str:
