@@ -13,7 +13,8 @@ from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
-from cli_command_parser.formatting.utils import get_usage_sub_cmds, rst_bar, rst_table
+from cli_command_parser.formatting.rst import rst_bar, rst_table, rst_header
+from cli_command_parser.formatting.utils import get_usage_sub_cmds
 from cli_command_parser.parameters import (
     Positional,
     SubCommand,
@@ -582,9 +583,14 @@ class FormatterTest(ParserTest):
 
     def test_rst_bar(self):
         text = 'example_text'
-        bars = {rst_bar(text, i) for i in range(4)}
-        self.assertEqual(4, len(bars))
+        bars = {rst_bar(text, i) for i in range(6)}
+        self.assertEqual(6, len(bars))
         self.assertTrue(all(12 == len(bar) for bar in bars))
+
+    def test_rst_header(self):
+        text = 'example text'
+        self.assertEqual('############\nexample text\n############', rst_header(text, 0, True))
+        self.assertEqual('example text\n^^^^^^^^^^^^', rst_header(text, 4))
 
     def test_rst_table(self):
         expected = """
