@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase, main
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
-from cli_command_parser.utils import camel_to_snake_case, get_args, ProgramMetadata
+from cli_command_parser.utils import camel_to_snake_case, get_args, ProgramMetadata, ProgInfo
 
 
 class UtilsTest(TestCase):
@@ -19,6 +21,20 @@ class UtilsTest(TestCase):
     def test_meta_name(self):
         meta = ProgramMetadata(name='foo')
         self.assertEqual('foo', meta.name)
+
+    def test_real_bad_path(self):
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir).joinpath('foo.py')
+            with patch('cli_command_parser.utils.sys.argv', [tmp_path.as_posix()]):
+                with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
+                    meta = ProgramMetadata()
+                    self.assertEqual(meta.path.name, 'UNKNOWN')
+
+    def test_fake_bad_path(self):
+        with patch('pathlib.Path.is_file', side_effect=OSError):
+            with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
+                meta = ProgramMetadata()
+                self.assertEqual(meta.path.name, 'UNKNOWN')
 
 
 if __name__ == '__main__':
