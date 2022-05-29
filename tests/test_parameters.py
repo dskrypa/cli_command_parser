@@ -7,7 +7,7 @@ from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import TestCase, main, skipIf
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Counter, Option, Flag
+from cli_command_parser import Command
 from cli_command_parser.context import Context
 from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import (
@@ -21,15 +21,29 @@ from cli_command_parser.exceptions import (
     InvalidChoice,
     UnsupportedAction,
 )
+from cli_command_parser.formatting.params import (
+    ParamHelpFormatter,
+    PositionalHelpFormatter,
+    OptionHelpFormatter,
+    ChoiceMapHelpFormatter,
+    PassThruHelpFormatter,
+    GroupHelpFormatter,
+)
 from cli_command_parser.parameters import (
     parameter_action,
+    Parameter,
     PassThru,
     Positional,
     SubCommand,
     ParamGroup,
     ActionFlag,
     BasePositional,
+    BaseOption,
     Action,
+    Counter,
+    ChoiceMap,
+    Flag,
+    Option,
 )
 from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest
@@ -439,6 +453,26 @@ class MiscParameterTest(ParserTest):
             bar = Positional(type=Mock(side_effect=OSError))
 
         self.assert_parse_fails(Foo, ['a'], BadArgument, 'unable to cast value=.* to type=')
+
+    def test_formatter_class(self):
+        param_fmt_cls_map = {
+            Parameter: ParamHelpFormatter,
+            PassThru: PassThruHelpFormatter,
+            BasePositional: PositionalHelpFormatter,
+            Positional: PositionalHelpFormatter,
+            ChoiceMap: ChoiceMapHelpFormatter,
+            SubCommand: ChoiceMapHelpFormatter,
+            Action: ChoiceMapHelpFormatter,
+            BaseOption: OptionHelpFormatter,
+            Option: OptionHelpFormatter,
+            Flag: OptionHelpFormatter,
+            Counter: OptionHelpFormatter,
+            ActionFlag: OptionHelpFormatter,
+            ParamGroup: GroupHelpFormatter,
+        }
+        for param_cls, expected_cls in param_fmt_cls_map.items():
+            with self.subTest(param_cls=param_cls):
+                self.assertIs(expected_cls, ParamHelpFormatter.for_param_cls(param_cls))
 
 
 class UnlikelyToBeReachedParameterTest(ParserTest):

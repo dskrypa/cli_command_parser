@@ -4,16 +4,19 @@ Command usage / help text formatters
 :author: Doug Skrypa
 """
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Type, Callable, Iterator
 
 from ..context import ctx
-from ..utils import ProgramMetadata
+from ..utils import ProgramMetadata, camel_to_snake_case
+from .rst import rst_header
 from .utils import get_usage_sub_cmds
 
 if TYPE_CHECKING:
     from ..core import CommandType, CommandMeta
     from ..command_parameters import CommandParameters
     from ..parameters import ParamGroup, Parameter
+
+__all__ = ['CommandHelpFormatter', 'get_formatter']
 
 
 class CommandHelpFormatter:
@@ -76,3 +79,62 @@ class CommandHelpFormatter:
             parts.append(epilog)
 
         return '\n'.join(parts)
+
+    def _format_rst(self, include_epilog: bool = False) -> Iterator[str]:
+        """Generate the RST content for the specific Command associated with this formatter"""
+        meta = self._get_meta()
+        yield from ('::', '', '    ' + self.format_usage(), '', '')  # noqa
+        if meta.description:
+            yield meta.description
+            yield ''
+
+        for group in self.groups:
+            if group.show_in_help:
+                yield from group.formatter.rst_table().iter_build()  # noqa
+
+        if include_epilog:
+            epilog = meta.format_epilog(ctx.extended_epilog)
+            if epilog:
+                yield epilog
+
+    def format_rst(self, fix_name: bool = True, fix_name_func: Callable[[str], str] = None) -> str:
+        """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
+        meta = self._get_meta()
+        name = meta.name
+        if fix_name:
+            name = fix_name_func(name) if fix_name_func else _fix_name(name)
+
+        parts = [rst_header(name, 1), '']
+        doc_str = meta.doc_str.strip() if meta.doc_str else None
+        if doc_str:
+            parts += [doc_str, '']
+
+        parts.append('')
+        parts.extend(self._format_rst(True))
+
+        sub_command = _get_params(self.command).sub_command
+        if sub_command and sub_command.show_in_help:
+            parts += ['', rst_header('Subcommands', 2), '']
+            for cmd_name, choice in sub_command.choices.items():
+                parts += ['', rst_header(f'Subcommand: {cmd_name}', 3), '']
+                if choice.help:
+                    parts += [choice.help, '']
+                parts.extend(get_formatter(choice.target)._format_rst())
+
+        return '\n'.join(parts)
+
+
+def _fix_name(name: str) -> str:
+    return camel_to_snake_case(name).replace('_', ' ').title()
+
+
+def _get_params(command: 'CommandType') -> 'CommandParameters':
+    cmd_mcls: Type['CommandMeta'] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
+    if not issubclass(cmd_mcls, type):
+        command, cmd_mcls = cmd_mcls, cmd_mcls.__class__
+    return cmd_mcls.params(command)
+
+
+def get_formatter(command: 'CommandType') -> CommandHelpFormatter:
+    """Get the :class:`CommandHelpFormatter` for the given Command"""
+    return _get_params(command).formatter

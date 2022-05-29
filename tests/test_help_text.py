@@ -13,7 +13,7 @@ from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
-from cli_command_parser.formatting.rst import rst_bar, rst_table, rst_header
+from cli_command_parser.formatting.rst import rst_bar, rst_list_table, rst_header
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
 from cli_command_parser.parameters import (
     Positional,
@@ -595,19 +595,19 @@ class FormatterTest(ParserTest):
     def test_rst_table(self):
         expected = """
         .. list-table::
-           :widths: 21 75
+            :widths: 21 75
 
-           * - | ``--help``, ``-h``
-             - | Show this help message and exit
-           * - | ``--verbose``, ``-v``
-             - | Increase logging verbosity (can specify multiple times)
+            * - | ``--help``, ``-h``
+              - | Show this help message and exit
+            * - | ``--verbose``, ``-v``
+              - | Increase logging verbosity (can specify multiple times)
         """
         expected = dedent(expected)
         data = {
             '``--help``, ``-h``': 'Show this help message and exit',
             '``--verbose``, ``-v``': 'Increase logging verbosity (can specify multiple times)',
         }
-        self.assert_strings_equal(expected, rst_table(data))
+        self.assert_strings_equal(expected, rst_list_table(data))
 
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:

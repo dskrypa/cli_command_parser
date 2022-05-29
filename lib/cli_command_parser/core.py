@@ -114,7 +114,7 @@ class CommandMeta(ABCMeta, type):
                 return mcls.config(parent)
             return None
 
-    def params(cls) -> 'CommandParameters':
+    def params(cls) -> CommandParameters:
         mcls = cls.__class__
         try:
             return mcls._params[cls]

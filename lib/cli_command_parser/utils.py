@@ -7,6 +7,7 @@ Utilities for extracting types from annotations, finding / storing program metad
 import re
 import sys
 from collections.abc import Collection, Iterable, Callable
+from contextlib import contextmanager
 from inspect import stack, isclass, FrameInfo
 from pathlib import Path
 from typing import Any, Union, Optional, Type, Sequence, get_type_hints, Tuple, Dict
@@ -67,19 +68,38 @@ class ProgramMetadata:
         usage: str = None,
         description: str = None,
         epilog: str = None,
+        name: str = None,
     ):
-        info = ProgInfo()
-        self.path = info.path
-        self.prog = prog or info.path.name
-        docs_url_from_repo_url = self._docs_url_from_repo_url
-        self.docs_url = docs_url or docs_url_from_repo_url(url) or docs_url_from_repo_url(info.repo_url)
-        self.url = url or info.repo_url
-        self.email = email or info.email
-        self.version = version or info.version or ''
-        self.doc_str = info.doc_str
+        self._cmd_args = {'prog': prog, 'url': url, 'docs_url': docs_url, 'email': email, 'version': version}
+        self._init(ProgInfo())
+        self.name = name
         self.usage = usage
         self.description = description
         self.epilog = epilog
+
+    def _init(self, info: 'ProgInfo'):
+        a = self._cmd_args
+        self.path = info.path
+        self.prog = a['prog'] or info.path.name
+        docs_url_from_repo_url = self._docs_url_from_repo_url
+        self.docs_url = a['docs_url'] or docs_url_from_repo_url(a['url']) or docs_url_from_repo_url(info.repo_url)
+        self.url = a['url'] or info.repo_url
+        self.email = a['email'] or info.email
+        self.version = a['version'] or info.version or ''
+        self.doc_str = info.doc_str
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: Optional[str]):
+        if value:
+            self._name = value
+        elif self.path.name != ProgInfo.default_file_name:
+            self._name = self.path.stem
+        else:
+            self._name = self.prog
 
     def _docs_url_from_repo_url(self, repo_url: Optional[str]):  # noqa
         try:  # Note: This is only done this way to address a false positive on a GitHub security scan
@@ -108,6 +128,7 @@ class ProgramMetadata:
 
 
 class ProgInfo:
+    __dynamic_import: Optional[Tuple[Path, Dict[str, Any]]] = None
     default_file_name: str = 'UNKNOWN'  #: Default name used when it cannot be determined from the stack or sys.argv
     installed_via_setup: bool = False
     email: Optional[str] = None
@@ -117,18 +138,11 @@ class ProgInfo:
     doc_str: Optional[str] = None
 
     def __init__(self):
-        try:
-            top_level, g = self._find_top_frame_and_globals()
-            path = self._resolve_path(top_level.filename)
-        except Exception as e:  # noqa
-            g = {}
-            path = self._resolve_path()
-
+        self.path, g = self._path_and_globals()
         self.email = g.get('__author_email__')
         self.version = g.get('__version__')
         self.repo_url = g.get('__url__')
         self.doc_str = g.get('__doc__')
-        self.path = path
 
     @classmethod
     def _print_stack_info(cls):
@@ -139,6 +153,24 @@ class ProgInfo:
                 f'\n    __package__={g["__package__"]!r}'
                 f'\n    {", ".join(sorted(g))}'
             )
+
+    @classmethod
+    @contextmanager
+    def _dynamic_import(cls, path: Path, module_globals: Dict[str, Any]):
+        cls.__dynamic_import = path, module_globals
+        try:
+            yield
+        finally:
+            cls.__dynamic_import = None
+
+    def _path_and_globals(self) -> Tuple[Path, Dict[str, Any]]:
+        if self.__dynamic_import:
+            return self.__dynamic_import
+        try:
+            top_level, g = self._find_top_frame_and_globals()
+            return self._resolve_path(top_level.filename), g
+        except Exception as e:  # noqa
+            return self._resolve_path(), {}
 
     def _resolve_path(self, path: str = None) -> Path:
         from_setup = path and self.installed_via_setup and path.endswith('-script.py')
@@ -155,8 +187,11 @@ class ProgInfo:
                 return Path.cwd().joinpath(self.default_file_name)
 
         argv_path = Path(name)
-        if argv_path.is_file():
-            return argv_path
+        try:
+            if argv_path.is_file():
+                return argv_path
+        except OSError:
+            pass
 
         return Path.cwd().joinpath(self.default_file_name)
 

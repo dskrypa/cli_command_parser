@@ -6,12 +6,13 @@ Parameter usage / help text formatters
 
 from itertools import chain
 from textwrap import indent
-from typing import Type
+from typing import Type, Tuple
 
 from ..context import ctx
 from ..exceptions import NoActiveContext
 from ..utils import Bool
 from ..parameters import ParamBase, ParamGroup, ParamOrGroup, ChoiceMap, PassThru, BasePositional, BaseOption
+from .rst import RstTable
 from .utils import HelpEntryFormatter, _should_add_default
 
 
@@ -74,7 +75,7 @@ class ParamHelpFormatter:
     def format_description(self) -> str:
         param = self.param
         description = param.help or ''
-        if _should_add_default(param.default, param.help):
+        if _should_add_default(param.default, description):
             pad = ' ' if description else ''
             description += f'{pad}(default: {param.default})'
         return description
@@ -85,6 +86,9 @@ class ParamHelpFormatter:
         entry_width = max(20, width - tw_offset)
         text = HelpEntryFormatter(usage, description, entry_width, tw_offset=tw_offset)()
         return indent(text, prefix) if prefix else text
+
+    def rst_row(self) -> Tuple[str, str]:
+        return self.format_usage(include_meta=True, full=True), self.format_description()
 
 
 class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
@@ -129,7 +133,7 @@ class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
         return self.format_metavar()
 
     def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
-        param = self.param
+        param: ChoiceMap = self.param
         usage = self.format_usage()
         entry_width = max(20, width - tw_offset)
         help_entry = HelpEntryFormatter(usage, param.description, entry_width, lpad=2, tw_offset=tw_offset)()
@@ -141,6 +145,14 @@ class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
         parts.append('')
         text = '\n'.join(parts)
         return indent(text, prefix) if prefix else text
+
+    def rst_table(self) -> RstTable:
+        param = self.param
+        table = RstTable(True, param.title or param._default_title, param.description)
+        # table = RstTable(True, param.title or param._default_title)
+        for choice in param.choices.values():
+            table.add_row(choice.format_usage(), choice.help)
+        return table
 
 
 class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
@@ -216,3 +228,17 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
 
         text = '\n'.join(parts)
         return indent(text, prefix) if prefix else text
+
+    def rst_table(self) -> RstTable:
+        table = RstTable(True, self.format_description())
+        for member in self.param.members:
+            if member.show_in_help:
+                try:
+                    sub_table: RstTable = member.formatter.rst_table()  # noqa
+                except AttributeError:
+                    table.add_row(*member.formatter.rst_row())
+                else:
+                    sub_table.header = False
+                    table.add_row(sub_table.title, str(sub_table))
+
+        return table

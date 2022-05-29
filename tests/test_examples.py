@@ -118,12 +118,12 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_show_no_args(self):
         code, stdout, stderr = self.call_script('show')
         self.assertEqual(2, code)
-        self.assertEqual(stderr, 'argument {attrs,hello,log_test}: missing required argument value\n')
+        self.assertEqual(stderr, 'argument {attrs,hello,log_test,rst}: missing required argument value\n')
 
     def test_show_help(self):
         code, stdout, stderr = self.call_script('show', '--help')
         self.assertEqual(0, code)
-        expected = 'usage: shared_logging_init.py show {attrs,hello,log_test} [--verbose [VERBOSE]] [--help]'
+        expected = 'usage: shared_logging_init.py show {attrs,hello,log_test,rst} [--verbose [VERBOSE]] [--help]'
         self.assertLinesStartWith(expected, stdout)
 
     def test_show_attrs(self):
@@ -156,10 +156,11 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_show_oops(self):
         code, stdout, stderr = self.call_script('show', 'oops')
         self.assertEqual(2, code)
-        self.assertEqual(
-            "argument {attrs,hello,log_test}: invalid choice: 'oops' (choose from: 'attrs', 'hello', 'log_test')\n",
-            stderr,
+        expected = (
+            "argument {attrs,hello,log_test,rst}: invalid choice: 'oops'"
+            " (choose from: 'attrs', 'hello', 'log_test', 'rst')\n"
         )
+        self.assertEqual(expected, stderr)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from cli_command_parser.utils import camel_to_snake_case, get_args
+from cli_command_parser.utils import camel_to_snake_case, get_args, ProgramMetadata
 
 
 class UtilsTest(TestCase):
@@ -15,6 +15,10 @@ class UtilsTest(TestCase):
     def test_get_args(self):
         # This is for coverage in 3.9+ for the get_args compatibility wrapper, to mock the attr present in 3.8 & below
         self.assertEqual((), get_args(Mock(_special=True)))
+
+    def test_meta_name(self):
+        meta = ProgramMetadata(name='foo')
+        self.assertEqual('foo', meta.name)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 
 import logging
 
-from cli_command_parser import Command, Counter, SubCommand, Action
+from cli_command_parser import Command, Counter, SubCommand, Action, get_formatter
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +34,10 @@ class Show(Base, choice='show', help='Show the results of an action'):
         log.debug('This is a debug log')
         log.info('This is an info log')
         log.warning('This is a warning log')
+
+    @action
+    def rst(self):
+        print(get_formatter(Base).format_rst())
 
 
 if __name__ == '__main__':
