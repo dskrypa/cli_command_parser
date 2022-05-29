@@ -14,6 +14,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -83,9 +84,10 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span>
-<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">getsourcefile</span><span class="p">,</span> <span class="n">isclass</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">isclass</span><span class="p">,</span> <span class="n">FrameInfo</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">get_type_hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">get_type_hints</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">whitespace</span><span class="p">,</span> <span class="n">printable</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
@@ -143,46 +145,46 @@
         <span class="n">usage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">epilog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">found_email</span><span class="p">,</span> <span class="n">found_version</span><span class="p">,</span> <span class="n">found_url</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_info</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-            <span class="n">found_email</span><span class="p">,</span> <span class="n">found_version</span><span class="p">,</span> <span class="n">found_url</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prog</span> <span class="o">=</span> <span class="n">prog</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">docs_url_from_repo_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_url_from_repo_url</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">docs_url</span> <span class="o">=</span> <span class="n">docs_url</span> <span class="ow">or</span> <span class="n">docs_url_from_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">or</span> <span class="n">docs_url_from_repo_url</span><span class="p">(</span><span class="n">found_url</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="ow">or</span> <span class="n">found_url</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span> <span class="ow">or</span> <span class="n">found_email</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span> <span class="ow">or</span> <span class="n">found_version</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;prog&#39;</span><span class="p">:</span> <span class="n">prog</span><span class="p">,</span>
+            <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+            <span class="s1">&#39;docs_url&#39;</span><span class="p">:</span> <span class="n">docs_url</span><span class="p">,</span>
+            <span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
+            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init</span><span class="p">(</span><span class="n">ProgInfo</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">usage</span> <span class="o">=</span> <span class="n">usage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="o">=</span> <span class="n">epilog</span></div>
 
-    <span class="k">def</span> <span class="nf">_find_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">_stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">()</span>
-        <span class="n">top_level_frame_info</span> <span class="o">=</span> <span class="n">_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_dunder_info</span><span class="p">(</span><span class="n">top_level_frame_info</span><span class="p">)</span>
-        <span class="n">email</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">repo_url</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__author_email__&#39;</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__version__&#39;</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__url__&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="s1">&#39;ProgInfo&#39;</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prog</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;prog&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">info</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">docs_url_from_repo_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_docs_url_from_repo_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docs_url</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;docs_url&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">docs_url_from_repo_url</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span> <span class="ow">or</span> <span class="n">docs_url_from_repo_url</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">repo_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">info</span><span class="o">.</span><span class="n">repo_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">info</span><span class="o">.</span><span class="n">email</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">info</span><span class="o">.</span><span class="n">version</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doc_str</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">doc_str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
 
-        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">getsourcefile</span><span class="p">(</span><span class="n">top_level_frame_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="n">installed_via_setup</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;-script.py&#39;</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.py&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">email</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">repo_url</span><span class="p">,</span> <span class="n">path</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
-    <span class="k">def</span> <span class="nf">_find_dunder_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_level_frame_info</span><span class="p">):</span>  <span class="c1"># noqa</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="n">top_level_frame_info</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
-        <span class="n">installed_via_setup</span> <span class="o">=</span> <span class="s1">&#39;load_entry_point&#39;</span> <span class="ow">in</span> <span class="n">g</span> <span class="ow">and</span> <span class="s1">&#39;main&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span>  <span class="c1"># TODO: This may need to be tweaked</span>
-        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">stack</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">g</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">g</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;__author_email__&#39;</span><span class="p">,</span> <span class="s1">&#39;__version__&#39;</span><span class="p">,</span> <span class="s1">&#39;__url__&#39;</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span>
-        <span class="k">return</span> <span class="n">installed_via_setup</span><span class="p">,</span> <span class="n">g</span>
+<div class="viewcode-block" id="ProgramMetadata.name"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata.name">[docs]</a>    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">ProgInfo</span><span class="o">.</span><span class="n">default_file_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prog</span></div>
 
     <span class="k">def</span> <span class="nf">_docs_url_from_repo_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>  <span class="c1"># noqa</span>
         <span class="k">try</span><span class="p">:</span>  <span class="c1"># Note: This is only done this way to address a false positive on a GitHub security scan</span>
@@ -208,6 +210,106 @@
         <span class="k">if</span> <span class="n">url</span><span class="p">:</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Online documentation: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ProgInfo"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo">[docs]</a><span class="k">class</span> <span class="nc">ProgInfo</span><span class="p">:</span>
+    <span class="n">__dynamic_import</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">default_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;UNKNOWN&#39;</span>  <span class="c1">#: Default name used when it cannot be determined from the stack or sys.argv</span>
+    <span class="n">installed_via_setup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">repo_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">doc_str</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProgInfo.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_and_globals</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__author_email__&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__version__&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_url</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__url__&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doc_str</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;&lt;ProgInfo[path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s1">, email=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="si">!r}</span><span class="s1">, version=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">,&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39; url=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_url</span><span class="si">!r}</span><span class="s1">, doc_str=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_str</span><span class="si">!r}</span><span class="s1">]&gt;&#39;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_print_stack_info</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">stack</span><span class="p">()))):</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">] </span><span class="si">{</span><span class="n">level</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">level</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s1"> fn=</span><span class="si">{</span><span class="n">level</span><span class="o">.</span><span class="n">function</span><span class="si">}</span><span class="s1">:&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    __package__=</span><span class="si">{</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;__package__&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">g</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">_dynamic_import</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_globals</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__dynamic_import</span> <span class="o">=</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_globals</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__dynamic_import</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_path_and_globals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dynamic_import</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dynamic_import</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">top_level</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_top_frame_and_globals</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_path</span><span class="p">(</span><span class="n">top_level</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span> <span class="n">g</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_path</span><span class="p">(),</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_resolve_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="n">from_setup</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">installed_via_setup</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;-script.py&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">from_setup</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">from_setup</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.py&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_file_name</span><span class="p">)</span>
+
+        <span class="n">argv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">argv_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">argv_path</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_file_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_find_cmd_frame_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fi_stack</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FrameInfo</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrameInfo</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">installed_via_setup</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fi_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">this_pkg</span> <span class="o">=</span> <span class="n">__package__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># ignore_pkgs = {this_pkg, &#39;&#39;, &#39;IPython&#39;, &#39;IPython.core&#39;, &#39;IPython.terminal&#39;, &#39;traitlets.config&#39;}</span>
+        <span class="n">this_pkg_dot</span> <span class="o">=</span> <span class="n">this_pkg</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">fi_stack</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">pkg</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__package__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="n">pkg</span> <span class="o">!=</span> <span class="n">this_pkg</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pkg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">this_pkg_dot</span><span class="p">):</span>  <span class="c1"># Exclude intermediate frames in this package</span>
+                <span class="k">return</span> <span class="n">level</span>
+
+        <span class="k">return</span> <span class="n">fi_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_detect_install_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fi_stack</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FrameInfo</span><span class="p">]):</span>
+        <span class="n">top_level</span> <span class="o">=</span> <span class="n">fi_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">top_level</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">installed_via_setup</span> <span class="o">=</span> <span class="s1">&#39;load_entry_point&#39;</span> <span class="ow">in</span> <span class="n">g</span> <span class="ow">and</span> <span class="s1">&#39;main&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span>
+
+    <span class="k">def</span> <span class="nf">_find_top_frame_and_globals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">FrameInfo</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="n">fi_stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_detect_install_type</span><span class="p">(</span><span class="n">fi_stack</span><span class="p">)</span>
+        <span class="n">cmd_frame_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_cmd_frame_info</span><span class="p">(</span><span class="n">fi_stack</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fi_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cmd_frame_info</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span></div>
 
 
 <div class="viewcode-block" id="camel_to_snake_case"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case">[docs]</a><span class="k">def</span> <span class="nf">camel_to_snake_case</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

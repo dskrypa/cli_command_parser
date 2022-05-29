@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -96,7 +97,7 @@
            <div itemprop="articleBody">
              
   <section id="parameters">
-<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h1>
+<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h1>
 <p>Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
 say, argparse) to differentiate between parameter types.  The two major categories are <a class="reference internal" href="#options">Options</a> and <a class="reference internal" href="#positionals">Positionals</a>,
 but there are <a class="reference internal" href="#others">Others</a> as well.  The base class for all Parameters is extensible, and user-defined
@@ -105,13 +106,13 @@ but there are <a class="reference internal" href="#others">Others</a> as well.  
 being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
 type will be inferred automatically from any type annotations (see <span class="target" id="index-0"></span><a class="pep reference external" href="https://peps.python.org/pep-0484/"><strong>PEP 484</strong></a>) that are present.</p>
 <section id="options">
-<span id="id1"></span><h2>Options<a class="headerlink" href="#options" title="Permalink to this headline"></a></h2>
+<span id="id1"></span><h2>Options<a class="headerlink" href="#options" title="Permalink to this heading"></a></h2>
 <p>Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
 They are typically not required by default, and often have both long and short forms, where long forms typically have
 a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.  The long form is automatically added, if not explicitly
 specified, based on the name of the Parameter attribute.</p>
 <section id="option">
-<span id="id2"></span><h3>Option<a class="headerlink" href="#option" title="Permalink to this headline"></a></h3>
+<span id="id2"></span><h3>Option<a class="headerlink" href="#option" title="Permalink to this heading"></a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option" title="cli_command_parser.parameters.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter, that accepts arbitrary values or lists of values.</p>
 <p>Given the following example Command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -132,7 +133,7 @@ $ prog.py -fbar
 inputs, respectively.</p>
 </section>
 <section id="flag">
-<span id="id3"></span><h3>Flag<a class="headerlink" href="#flag" title="Permalink to this headline"></a></h3>
+<span id="id3"></span><h3>Flag<a class="headerlink" href="#flag" title="Permalink to this heading"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Flag" title="cli_command_parser.parameters.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> parameters typically represent boolean values, and do not accept any
 values.  By default, Flag parameters have a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>, and will change to <code class="docutils literal notranslate"><span class="pre">True</span></code> if provided by a
 user.  By specifying <code class="docutils literal notranslate"><span class="pre">default=True</span></code>, then that behavior is reversed.  It is also possible to specify any default value
@@ -167,7 +168,7 @@ Optional arguments:
 </div>
 </section>
 <section id="counter">
-<span id="id4"></span><h3>Counter<a class="headerlink" href="#counter" title="Permalink to this headline"></a></h3>
+<span id="id4"></span><h3>Counter<a class="headerlink" href="#counter" title="Permalink to this heading"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter" title="cli_command_parser.parameters.Counter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Counter</span></code></a> parameters are similar to Flags, but they may be specified multiple
 times, and they support an optional integer value to explicitly increase their stored value by that amount.  One common
 use case for Counters is for verbosity levels, where logging verbosity would increase with the number of <code class="docutils literal notranslate"><span class="pre">-v</span></code>
@@ -193,7 +194,7 @@ forms, and it must be the last parameter in the combo so that it immediately pre
 </section>
 </section>
 <section id="positionals">
-<span id="id5"></span><h2>Positionals<a class="headerlink" href="#positionals" title="Permalink to this headline"></a></h2>
+<span id="id5"></span><h2>Positionals<a class="headerlink" href="#positionals" title="Permalink to this heading"></a></h2>
 <p>Positionals are parameters that must be provided in a specific order.  They are typically required by default, and they
 do not have any prefix before values.</p>
 <p>Arguments for Positional parameters may be provided before, after, and between <a class="reference internal" href="#options">Options</a>, as long as the immediately
@@ -201,7 +202,7 @@ preceding optional parameter accepts a bounded number of arguments and those val
 <p>The order that positional parameters are defined in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> determines
 the order in which they must be provided; i.e., the top-most positional parameters must be provided first.</p>
 <section id="positional">
-<span id="id6"></span><h3>Positional<a class="headerlink" href="#positional" title="Permalink to this headline"></a></h3>
+<span id="id6"></span><h3>Positional<a class="headerlink" href="#positional" title="Permalink to this heading"></a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional" title="cli_command_parser.parameters.Positional"><code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code></a> parameter, that accepts arbitrary values or lists of
 values.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py">Example command</a>:</p>
@@ -219,7 +220,7 @@ Hello World
 </div>
 </section>
 <section id="subcommand">
-<span id="id7"></span><h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this headline"></a></h3>
+<span id="id7"></span><h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this heading"></a></h3>
 <p>The <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.</p>
 <p>SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
@@ -266,7 +267,7 @@ technically separate arguments).  This allows for a more natural way to provide 
 to jump through hoops to handle them.</p>
 </section>
 <section id="action">
-<span id="id8"></span><h3>Action<a class="headerlink" href="#action" title="Permalink to this headline"></a></h3>
+<span id="id8"></span><h3>Action<a class="headerlink" href="#action" title="Permalink to this heading"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>
 classes to be registered as a callable to be executed based on a user’s choice instead of separate sub Commands.</p>
 <p>When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
@@ -316,9 +317,9 @@ two
 </section>
 </section>
 <section id="others">
-<span id="id9"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this headline"></a></h2>
+<span id="id9"></span><h2>Others<a class="headerlink" href="#others" title="Permalink to this heading"></a></h2>
 <section id="paramgroup">
-<span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this headline"></a></h3>
+<span id="id10"></span><h3>ParamGroup<a class="headerlink" href="#paramgroup" title="Permalink to this heading"></a></h3>
 <p>A group of parameters.  <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> is intended to be used as a context manager,
 where group members are defined inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.  Supports mutually exclusive and mutually dependent groups.</p>
 <p>Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive groups, and vice
@@ -337,7 +338,7 @@ raised.  The <code class="docutils literal notranslate"><span class="pre">tasks<
 </div>
 </section>
 <section id="passthru">
-<span id="id11"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this headline"></a></h3>
+<span id="id11"></span><h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this heading"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru" title="cli_command_parser.parameters.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected,
 without processing them.  Only one PassThru parameter may exist in a given
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  When provided, it must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a space.</p>
@@ -371,7 +372,7 @@ Would run on two: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
 </div>
 </section>
 <section id="actionflag">
-<span id="id12"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this headline"></a></h3>
+<span id="id12"></span><h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this heading"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
 parameters.  Like Flags, they are not required, and they can be combined with other <a class="reference internal" href="#options"><span class="std std-ref">Options</span></a>.  Like Actions, they
 allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as execution targets.</p>

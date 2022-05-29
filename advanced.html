@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -81,9 +82,9 @@
            <div itemprop="articleBody">
              
   <section id="advanced-usage">
-<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline"></a></h1>
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading"></a></h1>
 <section id="post-run-context">
-<h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Permalink to this headline"></a></h2>
+<h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Permalink to this heading"></a></h2>
 <p>While Commands are intended to be self-contained, it is possible to interact with them after calling
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a>, which returns the instance of the executed Command.  Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -143,7 +144,7 @@ take precedence over any other ActionFlag.  There is special handling in the par
 action to be processed when parsing would otherwise fail.</p>
 </section>
 <section id="mixing-actions-actionflags">
-<h2>Mixing Actions &amp; ActionFlags<a class="headerlink" href="#mixing-actions-actionflags" title="Permalink to this headline"></a></h2>
+<h2>Mixing Actions &amp; ActionFlags<a class="headerlink" href="#mixing-actions-actionflags" title="Permalink to this heading"></a></h2>
 <p>The <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py">build_docs.py</a> script that is used
 to build the documentation for this project is an example of a Command that includes both <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods and
 ActionFlags.  Additionally, some of the methods even have the two decorators stacked so that they can be called either
@@ -224,7 +225,7 @@ Nothing in this library will prevent that.  If this is problematic, but you want
 you should include a check in your application to prevent it from being run twice.</p>
 </section>
 <section id="nested-paramgroups">
-<h2>Nested ParamGroups<a class="headerlink" href="#nested-paramgroups" title="Permalink to this headline"></a></h2>
+<h2>Nested ParamGroups<a class="headerlink" href="#nested-paramgroups" title="Permalink to this heading"></a></h2>
 <p>It is possible to nest <a class="reference internal" href="parameters.html#paramgroup"><span class="std std-ref">ParamGroups</span></a> so that a mutually exclusive group contains a mutually
 dependent group, and vice versa.  This applies to any nesting depth.</p>
 <p>Given a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">A</span></code> that contains a mutually dependent group <code class="docutils literal notranslate"><span class="pre">B</span></code>, if any member of <code class="docutils literal notranslate"><span class="pre">B</span></code> is

@@ -14,6 +14,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -82,14 +83,15 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">AbstractContextManager</span>
 <span class="kn">from</span> <span class="nn">contextvars</span> <span class="kn">import</span> <span class="n">ContextVar</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span><span class="p">,</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NoActiveContext</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span>
@@ -97,6 +99,7 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
     <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
+    <span class="kn">from</span> <span class="nn">.formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
     <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">ActionFlag</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">]</span>
@@ -133,7 +136,9 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">CommandConfig</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
@@ -160,6 +165,9 @@
     <span class="n">use_type_metavar</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">show_defaults</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">show_group_tree</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
+    <span class="n">show_group_type</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
+    <span class="n">param_formatter</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
+    <span class="n">extended_epilog</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="c1"># strict_option_punctuation = ConfigOption()</span>
     <span class="c1"># strict_action_punctuation = ConfigOption()</span>
     <span class="c1"># strict_sub_command_punctuation = ConfigOption()</span>
@@ -180,6 +188,9 @@
         <span class="n">use_type_metavar</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_defaults</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ShowDefaults</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">param_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">],</span> <span class="s1">&#39;ParamHelpFormatter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># strict_option_punctuation: Bool = None,</span>
         <span class="c1"># strict_action_punctuation: Bool = None,</span>
         <span class="c1"># strict_sub_command_punctuation: Bool = None,</span>
@@ -213,7 +224,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">use_type_metavar</span> <span class="o">=</span> <span class="n">use_type_metavar</span>
         <span class="k">if</span> <span class="n">show_defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">show_defaults</span> <span class="o">=</span> <span class="n">ShowDefaults</span><span class="p">(</span><span class="n">show_defaults</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">show_group_tree</span> <span class="o">=</span> <span class="n">show_group_tree</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_group_tree</span> <span class="o">=</span> <span class="n">show_group_tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_group_type</span> <span class="o">=</span> <span class="n">show_group_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_formatter</span> <span class="o">=</span> <span class="n">param_formatter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended_epilog</span> <span class="o">=</span> <span class="n">extended_epilog</span></div>
 
         <span class="c1"># self.strict_option_punctuation = strict_option_punctuation</span>
         <span class="c1"># self.strict_action_punctuation = strict_action_punctuation</span>

@@ -14,6 +14,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -82,12 +83,17 @@
 
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">cached_class_property</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
+    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
     <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span>
+    <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
+    <span class="kn">from</span> <span class="nn">.formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
+    <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ParamOrGroup</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">]</span>
 
@@ -191,6 +197,20 @@
 
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
     <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Whether mutually exclusive / dependent groups should include that fact in their descriptions</span>
+    <span class="n">show_group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1">#: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`</span>
+    <span class="c1">#: object, and returns a :class:`.CommandHelpFormatter`</span>
+    <span class="n">command_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandParameters&#39;</span><span class="p">],</span> <span class="s1">&#39;CommandHelpFormatter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`</span>
+    <span class="n">param_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">],</span> <span class="s1">&#39;ParamHelpFormatter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Whether the program version, author email, and documentation URL should be included in the help text epilog, if</span>
+    <span class="c1">#: they were successfully detected</span>
+    <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># endregion</span>
 

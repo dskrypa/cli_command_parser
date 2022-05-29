@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -87,7 +88,7 @@
            <div itemprop="articleBody">
              
   <section id="commands">
-<h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline"></a></h1>
+<h1>Commands<a class="headerlink" href="#commands" title="Permalink to this heading"></a></h1>
 <p>Commands provide a way to organize CLI applications intuitively.</p>
 <p>Having parameters defined as attributes in the class results in a better developer experience when writing code that
 references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
@@ -99,7 +100,7 @@ the parsed input.  Any other attribute or method can be defined and used without
 <p>Since subcommands can extend their parent command, they can take advantage of standard class inheritance to share
 common parameters, methods, and initialization steps with minimal extra work or code.</p>
 <section id="initializing-commands">
-<h2>Initializing Commands<a class="headerlink" href="#initializing-commands" title="Permalink to this headline"></a></h2>
+<h2>Initializing Commands<a class="headerlink" href="#initializing-commands" title="Permalink to this heading"></a></h2>
 <p>All commands must extend the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class.</p>
 <p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof)</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of
@@ -116,7 +117,7 @@ the following options:</p>
 </pre></div>
 </div>
 <section id="command-metadata">
-<h3>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this headline"></a></h3>
+<h3>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this heading"></a></h3>
 <p>Keyword arguments supported when defining a Command subclass:</p>
 <ul class="simple">
 <li><p><strong>choice</strong>: SubCommand value that should be mapped to this command, if different than this class’s (lower case)
@@ -132,7 +133,7 @@ with separate kwargs that would be stored in a CommandConfig object.</p></li>
 </ul>
 </section>
 <section id="configuration">
-<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h3>
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h3>
 <p>Configuration options supported by <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.  For convenience, they may also be specified as
 keyword arguments when defining a Command subclass:</p>
 <ul class="simple">
@@ -181,6 +182,14 @@ and related settings.  Acceptable values are defined as
 <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a> for more info.</p></li>
 <li><p><strong>show_group_tree</strong>: Whether there should be a visual indicator in help text for the parameters that are members
 of a given group.  See <a class="reference internal" href="#help-text-formatting"><span class="std std-ref">Help Text Formatting</span></a> for more info.</p></li>
+<li><p><strong>show_group_type</strong>: Whether mutually exclusive / dependent groups should include that fact in their descriptions</p></li>
+<li><p><strong>command_formatter</strong>: A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
+<a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
+same methods).</p></li>
+<li><p><strong>param_formatter</strong>: A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
+<a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p></li>
+<li><p><strong>extended_epilog</strong>: Whether the program version, author email, and documentation URL should be included in the
+help text epilog, if they were successfully detected.</p></li>
 </ul>
 </dd>
 </dl>
@@ -189,7 +198,7 @@ of a given group.  See <a class="reference internal" href="#help-text-formatting
 </section>
 </section>
 <section id="command-methods">
-<h2>Command Methods<a class="headerlink" href="#command-methods" title="Permalink to this headline"></a></h2>
+<h2>Command Methods<a class="headerlink" href="#command-methods" title="Permalink to this heading"></a></h2>
 <p>Simple commands can define <code class="docutils literal notranslate"><span class="pre">main</span></code> as the primary method for that command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -204,7 +213,7 @@ methods, if <a class="reference internal" href="parameters.html#actionflag"><spa
 overridden, or it must call the overridden method via <code class="docutils literal notranslate"><span class="pre">super()...</span></code> to maintain the expected behavior.</p>
 </section>
 <section id="subcommands">
-<h2>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this headline"></a></h2>
+<h2>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h2>
 <p>While subcommands will be automatically registered with their parent class as long as the parent class has a
 <a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a> parameter, it is also possible to have more control over that process.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
@@ -313,7 +322,7 @@ bar
 </div>
 </section>
 <section id="parse-run">
-<span id="parse-and-run"></span><h2>Parse &amp; Run<a class="headerlink" href="#parse-run" title="Permalink to this headline"></a></h2>
+<span id="parse-and-run"></span><h2>Parse &amp; Run<a class="headerlink" href="#parse-run" title="Permalink to this heading"></a></h2>
 <p>When only one <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> direct subclass is present, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> convenience function
 can be used as the primary entry point for the program:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Positional</span><span class="p">,</span> <span class="n">main</span>
@@ -352,7 +361,7 @@ also be provided:</p>
 </div>
 </section>
 <section id="help-text-formatting">
-<span id="id1"></span><h2>Help Text Formatting<a class="headerlink" href="#help-text-formatting" title="Permalink to this headline"></a></h2>
+<span id="id1"></span><h2>Help Text Formatting<a class="headerlink" href="#help-text-formatting" title="Permalink to this heading"></a></h2>
 <p>To add a visual indicator for groups of parameters, specify <code class="docutils literal notranslate"><span class="pre">show_group_tree=True</span></code>.  Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">show_group_tree</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="o">...</span>

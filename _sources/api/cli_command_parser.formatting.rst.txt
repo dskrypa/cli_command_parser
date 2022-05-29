@@ -7,4 +7,5 @@ Formatting Package
 
    cli_command_parser.formatting.commands
    cli_command_parser.formatting.params
+   cli_command_parser.formatting.rst
    cli_command_parser.formatting.utils
