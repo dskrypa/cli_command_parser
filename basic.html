@@ -43,12 +43,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basics">Basics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entry-points">Entry Points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#help-text">Help Text</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#entry-points">Entry Points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#help-text">Help Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
@@ -92,8 +89,6 @@
              
   <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
-<section id="basics">
-<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this heading"></a></h2>
 <p>Simple scripts usually contain a single Command and implement a <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(self):</span></code> method in that Command to be
 called after arguments are parsed.</p>
 <p>Multiple Parameters can be specified as attributes inside the Command to define how CLI arguments will be parsed.</p>
@@ -124,7 +119,7 @@ Hello John!
 </pre></div>
 </div>
 <section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
 <p>Even without explicitly specifying the long form for the <code class="docutils literal notranslate"><span class="pre">name</span></code> <a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a> in the example above, it
 was automatically added based on the name of the attribute in which that Parameter was stored.  Short forms are not
 automatically generated to avoid conflicts.</p>
@@ -138,7 +133,7 @@ between Parameter types, they are defined as separate classes.  The basics are <
 <a class="reference internal" href="parameters.html#paramgroup"><span class="std std-ref">groups</span></a> that can be mutually exclusive or dependent.</p>
 </section>
 <section id="entry-points">
-<h3>Entry Points<a class="headerlink" href="#entry-points" title="Permalink to this heading"></a></h3>
+<h2>Entry Points<a class="headerlink" href="#entry-points" title="Permalink to this heading"></a></h2>
 <p>The example above contains only one Command and uses the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function to handle parsing arguments and running
 the Command.  By default, arguments will be parsed from <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a>, but it is also possible to pass a list
 of strings as the first argument to parse arguments from that instead.</p>
@@ -146,7 +141,7 @@ of strings as the first argument to parse arguments from that instead.</p>
 <a class="reference internal" href="commands.html#parse-run"><span class="std std-ref">also supported</span></a>.</p>
 </section>
 <section id="help-text">
-<h3>Help Text<a class="headerlink" href="#help-text" title="Permalink to this heading"></a></h3>
+<h2>Help Text<a class="headerlink" href="#help-text" title="Permalink to this heading"></a></h2>
 <p>Using the Hello World example again, we can see the automatically generated help text:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ hello_world.py -h
 usage: hello_world.py [--name NAME] [--help]
@@ -162,7 +157,6 @@ Optional arguments:
 based on the Command, the file it is in, and the Parameters in the Command.</p>
 <p>More information about help text and other ways to document programs (such as generating RST) can be found in
 <a class="reference internal" href="documentation.html"><span class="doc">Documentation</span></a>.</p>
-</section>
 </section>
 </section>
 

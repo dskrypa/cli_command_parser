@@ -1,9 +1,6 @@
 Getting Started
 ***************
 
-Basics
-======
-
 Simple scripts usually contain a single Command and implement a ``def main(self):`` method in that Command to be
 called after arguments are parsed.
 
@@ -39,7 +36,7 @@ After saving the example above as ``hello_world.py``, we can run it with multipl
 
 
 Parameters
-----------
+==========
 
 Even without explicitly specifying the long form for the ``name`` :ref:`parameters:Option` in the example above, it
 was automatically added based on the name of the attribute in which that Parameter was stored.  Short forms are not
@@ -57,7 +54,7 @@ between Parameter types, they are defined as separate classes.  The basics are :
 
 
 Entry Points
-------------
+============
 
 The example above contains only one Command and uses the ``main()`` function to handle parsing arguments and running
 the Command.  By default, arguments will be parsed from :data:`python:sys.argv`, but it is also possible to pass a list
@@ -68,7 +65,7 @@ More advanced programs may contain multiple Commands, and more complex entry poi
 
 
 Help Text
----------
+=========
 
 Using the Hello World example again, we can see the automatically generated help text::
 
