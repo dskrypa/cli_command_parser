@@ -47,6 +47,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
+</ul>
 
         </div>
       </div>
@@ -84,8 +87,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span>
 
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
-<span class="kn">from</span> <span class="nn">.rst</span> <span class="kn">import</span> <span class="n">rst_header</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
+<span class="kn">from</span> <span class="nn">.restructured_text</span> <span class="kn">import</span> <span class="n">rst_header</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_usage_sub_cmds</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -94,6 +97,8 @@
     <span class="kn">from</span> <span class="nn">..parameters</span> <span class="kn">import</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">Parameter</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandHelpFormatter&#39;</span><span class="p">,</span> <span class="s1">&#39;get_formatter&#39;</span><span class="p">]</span>
+
+<span class="n">NameFunc</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="CommandHelpFormatter"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">CommandHelpFormatter</span><span class="p">:</span>
@@ -162,7 +167,7 @@
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_epilog</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Generate the RST content for the specific Command associated with this formatter&quot;&quot;&quot;</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta</span><span class="p">()</span>
         <span class="k">yield from</span> <span class="p">(</span><span class="s1">&#39;::&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">sub_cmd_choice</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># noqa</span>
@@ -179,7 +184,7 @@
             <span class="k">if</span> <span class="n">epilog</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">epilog</span>
 
-<div class="viewcode-block" id="CommandHelpFormatter.format_rst"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_rst">[docs]</a>    <span class="k">def</span> <span class="nf">format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandHelpFormatter.format_rst"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_rst">[docs]</a>    <span class="k">def</span> <span class="nf">format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Generate the RST content for the Command associated with this formatter and all of its subcommands&quot;&quot;&quot;</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta</span><span class="p">()</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">doc_name</span>

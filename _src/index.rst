@@ -43,3 +43,20 @@ API Documentation
    :maxdepth: 3
 
    api
+
+
+Documentation from Example Scripts
+----------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   examples
+
+
+Indices and Tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

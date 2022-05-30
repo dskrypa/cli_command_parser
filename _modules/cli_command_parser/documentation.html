@@ -47,6 +47,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Example Scripts</a></li>
+</ul>
 
         </div>
       </div>
@@ -81,40 +84,32 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">importlib.util</span> <span class="kn">import</span> <span class="n">module_from_spec</span><span class="p">,</span> <span class="n">spec_from_file_location</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">get_current_context</span>
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span>
-<span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">get_formatter</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">ProgInfo</span><span class="p">,</span> <span class="n">ProgramMetadata</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_params</span><span class="p">,</span> <span class="n">get_parent</span>
+<span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">get_formatter</span><span class="p">,</span> <span class="n">NameFunc</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgInfo</span><span class="p">,</span> <span class="n">ProgramMetadata</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load_commands&#39;</span><span class="p">,</span> <span class="s1">&#39;get_rst&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;render_script_rst&#39;</span><span class="p">,</span> <span class="s1">&#39;render_command_rst&#39;</span><span class="p">,</span> <span class="s1">&#39;load_commands&#39;</span><span class="p">]</span>
 
-
-<div class="viewcode-block" id="load_commands"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands">[docs]</a><span class="k">def</span> <span class="nf">load_commands</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param path: The path to a file containing one or more :class:`.Command` classes</span>
-<span class="sd">    :return: List of Commands loaded from the given file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_command</span><span class="p">(</span><span class="n">val</span><span class="p">)}</span>
-    <span class="c1"># Fix provenance metadata</span>
-    <span class="k">with</span> <span class="n">ProgInfo</span><span class="o">.</span><span class="n">_dynamic_import</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cmd_cls</span> <span class="ow">in</span> <span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">cmd_cls</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">cmd_cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">meta</span><span class="o">.</span><span class="n">_init</span><span class="p">(</span><span class="n">ProgInfo</span><span class="p">())</span>
-
-    <span class="k">return</span> <span class="n">commands</span></div>
+<span class="n">Commands</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">]]</span>
+<span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="get_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.get_rst">[docs]</a><span class="k">def</span> <span class="nf">get_rst</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="render_script_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">[docs]</a><span class="k">def</span> <span class="nf">render_script_rst</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Load all Commands from the file with the given path, and generate a single RST string based on those Commands&quot;&quot;&quot;</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="n">load_commands</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">top_only</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_render_commands_rst</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="render_command_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst">[docs]</a><span class="k">def</span> <span class="nf">render_command_rst</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param command: The :class:`.Command` to document</span>
 <span class="sd">    :param fix_name: Whether the file name should be re-formatted from CamelCase / snake_case to separate Title Case</span>
@@ -127,15 +122,77 @@
         <span class="k">return</span> <span class="n">get_formatter</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">format_rst</span><span class="p">(</span><span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]):</span>
+<div class="viewcode-block" id="load_commands"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands">[docs]</a><span class="k">def</span> <span class="nf">load_commands</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all of the commands from the file with the given path and return them as a dict of ``{name: Command}``.</span>
+
+<span class="sd">    :param path: The path to a file containing one or more :class:`.Command` classes</span>
+<span class="sd">    :param top_only: If True, then only top-level commands are returned (default: all)</span>
+<span class="sd">    :return: Dict containing the Commands loaded from the given file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">_load_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_is_command</span><span class="p">(</span><span class="n">val</span><span class="p">)}</span>
+    <span class="c1"># Fix provenance metadata</span>
+    <span class="k">with</span> <span class="n">ProgInfo</span><span class="o">.</span><span class="n">_dynamic_import</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cmd_cls</span> <span class="ow">in</span> <span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">cmd_cls</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">cmd_cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">meta</span><span class="o">.</span><span class="n">_init</span><span class="p">(</span><span class="n">ProgInfo</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">if</span> <span class="n">top_only</span> <span class="k">else</span> <span class="n">commands</span></div>
+
+
+<span class="k">def</span> <span class="nf">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Filter the given commands to only the ones that do not have a parent present in the provided dict of commands&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">commands</span>
+
+    <span class="n">indirect_parents</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">sub_command</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span>
+        <span class="k">if</span> <span class="n">sub_command</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">indirect_parents</span><span class="p">[</span><span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+    <span class="n">all_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">filtered</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">get_parent</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">parent</span> <span class="ow">and</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">all_commands</span><span class="p">)</span> <span class="ow">or</span> <span class="n">indirect_parents</span><span class="p">[</span><span class="n">command</span><span class="p">]):</span>
+            <span class="n">filtered</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
+
+    <span class="k">return</span> <span class="n">filtered</span>
+
+
+<span class="k">def</span> <span class="nf">_render_commands_rst</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># This could be better, but it&#39;s relatively unlikely to have multiple top level commands in a script...</span>
+    <span class="c1"># For the same reason that main() does not try to pick one, this will just combine all of them.</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">())):</span>
+        <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">render_command_rst</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="c1"># TODO: Error handling for not file / cannot load / etc</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
     <span class="n">module</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">module</span>
 
 
-<span class="k">def</span> <span class="nf">is_command</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_is_command</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Command</span>
 </pre></div>
 
