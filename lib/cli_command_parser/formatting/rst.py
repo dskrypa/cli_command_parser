@@ -5,7 +5,7 @@ Utilities for formatting data using RST markup
 """
 
 from itertools import starmap
-from typing import Union, Sequence, Iterator, Iterable, Dict, Tuple, List
+from typing import Union, Sequence, Iterator, Iterable, Any, Dict, Tuple, List
 
 __all__ = ['rst_bar', 'rst_list_table', 'RstTable']
 
@@ -22,6 +22,23 @@ def rst_bar(text: Union[str, int], level: int = 1) -> str:
 def rst_header(text: str, level: int = 1, overline: bool = False) -> str:
     bar = rst_bar(text, level)
     return f'{bar}\n{text}\n{bar}' if overline else f'{text}\n{bar}'
+
+
+def _rst_directive(
+    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: bool = False
+) -> Iterator[str]:
+    yield f'.. {directive}:: {args}' if args else f'.. {directive}::'
+    if options:
+        pre = ' ' * indent
+        for key, val in options.items():
+            if not check or val is not None:
+                yield f'{pre}:{key}: {val}'
+
+
+def rst_directive(
+    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: bool = False
+) -> str:
+    return '\n'.join(_rst_directive(directive, args, options, indent, check))
 
 
 TABLE_TMPL = """
@@ -70,16 +87,12 @@ class RstTable:
         return '|'.join([pre, *(f' {{:<{w}s}} ' for w in self.widths), ''])
 
     def __repr__(self) -> str:
-        return f'<Table[header={self.header}, rows={len(self.rows)}, title={self.title!r}, widths={self.widths}]>'
+        return f'<RstTable[header={self.header}, rows={len(self.rows)}, title={self.title!r}, widths={self.widths}]>'
 
     def iter_build(self) -> Iterator[str]:
         if self.header:
-            yield f'.. table:: {self.title}' if self.title else '.. table::'
-            if self.subtitle:
-                yield f'    :subtitle: {self.subtitle}'
-            if self.widths:
-                yield '   :widths: {}'.format(' '.join(map(str, self.widths)))
-
+            settings = {'subtitle': self.subtitle, 'widths': ' '.join(map(str, self.widths))}
+            yield from _rst_directive('table', self.title, settings, check=True)
             yield ''
 
         bar = self.bar()
@@ -97,12 +110,6 @@ class RstTable:
 
     def __str__(self) -> str:
         return '\n'.join(self.iter_build())
-
-
-def _width(text: str) -> int:
-    if '\n' in text:
-        return max(map(len, text.splitlines()))
-    return len(text)
 
 
 def _widths(columns: Iterable[str]) -> Tuple[bool, List[int]]:

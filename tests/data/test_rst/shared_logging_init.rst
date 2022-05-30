@@ -8,7 +8,7 @@ Shared Logging Init
 
 
 .. table:: Positional arguments
-   :widths: 11 40
+    :widths: 11 40
 
     +-------------+------------------------------------------+
     | Subcommands | +------+-------------------------------+ |
@@ -17,7 +17,7 @@ Shared Logging Init
     +-------------+------------------------------------------+
 
 .. table:: Optional arguments
-   :widths: 33 68
+    :widths: 33 68
 
     +-----------------------------------+----------------------------------------------------------------------+
     | --verbose [VERBOSE], -v [VERBOSE] | Increase logging verbosity (can specify multiple times) (default: 0) |
@@ -41,7 +41,7 @@ Show the results of an action
 
 
 .. table:: Positional arguments
-   :widths: 7 15
+    :widths: 7 15
 
     +---------+-----------------+
     | Actions | +----------+--+ |
@@ -56,7 +56,7 @@ Show the results of an action
     +---------+-----------------+
 
 .. table:: Optional arguments
-   :widths: 33 68
+    :widths: 33 68
 
     +-----------------------------------+----------------------------------------------------------------------+
     | --verbose [VERBOSE], -v [VERBOSE] | Increase logging verbosity (can specify multiple times) (default: 0) |
