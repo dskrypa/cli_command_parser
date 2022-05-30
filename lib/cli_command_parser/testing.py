@@ -14,6 +14,8 @@ from .commands import Command
 from .core import CommandType
 from .exceptions import UsageError
 
+__all__ = ['ParserTest']
+
 Argv = List[str]
 Expected = Dict[str, Any]
 Kwargs = Dict[str, Any]
@@ -118,6 +120,10 @@ class ParserTest(TestCase):
             #     self.assertEqual(expected, actual)
             # else:
             self.fail('Strings did not match:\n' + diff)
+
+    def assert_str_starts_with_line(self, prefix: str, text: str):
+        new_line = text.index('\n')
+        self.assertEqual(prefix, text[:new_line])
 
 
 def _colored(text: str, color: int, end: str = '\n'):

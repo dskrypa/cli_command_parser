@@ -19,8 +19,8 @@ class UtilsTest(TestCase):
         self.assertEqual((), get_args(Mock(_special=True)))
 
     def test_meta_name(self):
-        meta = ProgramMetadata(name='foo')
-        self.assertEqual('foo', meta.name)
+        meta = ProgramMetadata(doc_name='foo')
+        self.assertEqual('foo', meta.doc_name)
 
     def test_real_bad_path(self):
         with TemporaryDirectory() as tmp_dir:

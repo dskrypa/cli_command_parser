@@ -35,7 +35,8 @@ class CommandMeta(ABCMeta, type):
         description: str = None,
         epilog: str = None,
         help: str = None,  # noqa
-        config: CommandConfig = None,
+        doc_name: str = None,
+        config: Union[CommandConfig, Dict[str, Any]] = None,
         **kwargs,
     ):
         """
@@ -45,6 +46,8 @@ class CommandMeta(ABCMeta, type):
         :param description: Description of what the program does
         :param epilog: Text to follow parameter descriptions
         :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
+        :param doc_name: Name to use in documentation (default: the stem of the file name containing the Command, or
+          the specified ``prog`` value)
         :param error_handler: The :class:`~.error_handling.ErrorHandler` to be used by
           :meth:`Command.__call__<.commands.Command.__call__>` to wrap :meth:`~.commands.Command.main`, or None to
           disable error handling.
@@ -62,12 +65,17 @@ class CommandMeta(ABCMeta, type):
         """
         cls = super().__new__(mcls, name, bases, namespace)
         mcls._commands.add(cls)
-        if mcls.meta(cls) is None or prog or usage or description or epilog:  # Inherit from parent when possible
-            mcls._metadata[cls] = ProgramMetadata(prog=prog, usage=usage, description=description, epilog=epilog)
+        meta = mcls.meta(cls)
+        if meta is None or prog or usage or description or epilog or doc_name:  # Inherit from parent when possible
+            mcls._metadata[cls] = ProgramMetadata(
+                prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name
+            )
 
         if config is not None:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+            if not isinstance(config, CommandConfig):
+                config = CommandConfig(**config)
             mcls._configs[cls] = config
         else:
             config = mcls.config(cls)

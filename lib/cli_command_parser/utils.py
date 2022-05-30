@@ -68,7 +68,7 @@ class ProgramMetadata:
         usage: str = None,
         description: str = None,
         epilog: str = None,
-        name: str = None,
+        doc_name: str = None,
     ):
         self._cmd_args = {
             'prog': prog,
@@ -76,10 +76,10 @@ class ProgramMetadata:
             'docs_url': docs_url,
             'email': email,
             'version': version,
-            'name': name,
+            'doc_name': doc_name,
         }
         self._init(ProgInfo())
-        self.name = name
+        self.doc_name = doc_name
         self.usage = usage
         self.description = description
         self.epilog = epilog
@@ -94,20 +94,20 @@ class ProgramMetadata:
         self.email = a['email'] or info.email
         self.version = a['version'] or info.version or ''
         self.doc_str = info.doc_str
-        self.name = a['name']
+        self.doc_name = a['doc_name']
 
     @property
-    def name(self) -> str:
-        return self._name
+    def doc_name(self) -> str:
+        return self._doc_name
 
-    @name.setter
-    def name(self, value: Optional[str]):
+    @doc_name.setter
+    def doc_name(self, value: Optional[str]):
         if value:
-            self._name = value
+            self._doc_name = value
         elif self.path.name != ProgInfo.default_file_name:
-            self._name = self.path.stem
+            self._doc_name = self.path.stem
         else:
-            self._name = self.prog
+            self._doc_name = self.prog
 
     def _docs_url_from_repo_url(self, repo_url: Optional[str]):  # noqa
         try:  # Note: This is only done this way to address a false positive on a GitHub security scan

@@ -163,6 +163,20 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
         self.assertEqual(expected, stderr)
 
 
+class AdvancedSubcommandTest(ExampleScriptTest, file='advanced_subcommand.py'):
+    def test_foo_help(self):
+        code, stdout, stderr = self.call_script('foo', '--help')
+        self.assertEqual(0, code)
+        expected = 'usage: advanced_subcommand.py foo [--verbose [VERBOSE]] [--help]'
+        self.assertLinesStartWith(expected, stdout)
+
+    def test_run_foo_help(self):
+        code, stdout, stderr = self.call_script('run', 'foo', '--help')
+        self.assertEqual(0, code)
+        expected = 'usage: advanced_subcommand.py run foo [--verbose [VERBOSE]] [--help]'
+        self.assertLinesStartWith(expected, stdout)
+
+
 if __name__ == '__main__':
     # import logging
     # logging.basicConfig(level=logging.DEBUG, format='%(message)s')

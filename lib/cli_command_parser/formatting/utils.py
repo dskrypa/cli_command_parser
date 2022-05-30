@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Optional, Any, Collection, Type
 
 from ..config import ShowDefaults
 from ..context import ctx
+from ..exceptions import NoActiveContext
 from ..utils import _NotSet
 
 if TYPE_CHECKING:
@@ -84,6 +85,15 @@ def get_usage_sub_cmds(command: 'CommandType'):
 
     sub_cmd_param: 'SubCommand' = cmd_mcls.params(parent).sub_command
     if not sub_cmd_param:
+        return cmd_chain
+
+    try:
+        parsed = ctx.get_parsing_value(sub_cmd_param)
+    except NoActiveContext:
+        parsed = []
+
+    if parsed:  # May have been called directly on the subcommand without parsing
+        cmd_chain.extend(parsed)
         return cmd_chain
 
     for name, choice in sub_cmd_param.choices.items():

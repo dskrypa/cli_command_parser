@@ -50,7 +50,7 @@ class CommandHelpFormatter:
         cmd_mcls: Type['CommandMeta'] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
         return cmd_mcls.meta(self.command)
 
-    def format_usage(self, delim: str = ' ') -> str:
+    def format_usage(self, delim: str = ' ', sub_cmd_choice: str = None) -> str:
         meta = self._get_meta()
         if meta.usage:
             return meta.usage
@@ -60,7 +60,12 @@ class CommandHelpFormatter:
         if pass_thru is not None:
             params.append(pass_thru)
 
-        parts = ['usage:', meta.prog, *get_usage_sub_cmds(self.command)]
+        parts = ['usage:', meta.prog]
+        if sub_cmd_choice:
+            parts.append(sub_cmd_choice)
+        else:
+            parts.extend(get_usage_sub_cmds(self.command))
+
         parts.extend(param.formatter.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
@@ -80,10 +85,10 @@ class CommandHelpFormatter:
 
         return '\n'.join(parts)
 
-    def _format_rst(self, include_epilog: bool = False) -> Iterator[str]:
+    def _format_rst(self, include_epilog: bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         meta = self._get_meta()
-        yield from ('::', '', '    ' + self.format_usage(), '', '')  # noqa
+        yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')  # noqa
         if meta.description:
             yield meta.description
             yield ''
@@ -100,14 +105,15 @@ class CommandHelpFormatter:
     def format_rst(self, fix_name: bool = True, fix_name_func: Callable[[str], str] = None) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         meta = self._get_meta()
-        name = meta.name
+        name = meta.doc_name
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)
 
         parts = [rst_header(name, 1), '']
-        doc_str = meta.doc_str.strip() if meta.doc_str else None
-        if doc_str:
-            parts += [doc_str, '']
+        if ctx.show_docstring:
+            doc_str = meta.doc_str.strip() if meta.doc_str else None
+            if doc_str:
+                parts += [doc_str, '']
 
         parts.append('')
         parts.extend(self._format_rst(True))
@@ -119,7 +125,7 @@ class CommandHelpFormatter:
                 parts += ['', rst_header(f'Subcommand: {cmd_name}', 3), '']
                 if choice.help:
                     parts += [choice.help, '']
-                parts.extend(get_formatter(choice.target)._format_rst())
+                parts.extend(get_formatter(choice.target)._format_rst(sub_cmd_choice=cmd_name))
 
         return '\n'.join(parts)
 

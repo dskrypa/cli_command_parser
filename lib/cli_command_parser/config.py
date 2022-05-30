@@ -135,6 +135,9 @@ class CommandConfig:
     #: they were successfully detected
     extended_epilog: Bool = True
 
+    #: Whether the top level script's docstring should be included in generated documentation
+    show_docstring: Bool = True
+
     # endregion
 
     # region Planned Options

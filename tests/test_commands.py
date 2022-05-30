@@ -183,6 +183,14 @@ class TestCommands(TestCase):
 
         self.assertEqual(Foo.config().multiple_action_flags, not default)
 
+    def test_config_from_dict(self):
+        default = CommandConfig().multiple_action_flags
+
+        class Foo(Command, config={'multiple_action_flags': not default}):
+            pass
+
+        self.assertEqual(Foo.config().multiple_action_flags, not default)
+
     def test_config_explicit(self):
         default = CommandConfig().multiple_action_flags
 

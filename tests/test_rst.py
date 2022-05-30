@@ -4,6 +4,7 @@ from pathlib import Path
 from textwrap import dedent
 from unittest import main
 
+from cli_command_parser import Command, SubCommand
 from cli_command_parser.formatting.rst import rst_bar, rst_header, rst_list_table, rst_directive, RstTable
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.documentation import load_commands, get_rst
@@ -62,24 +63,44 @@ class RstFormatTest(ParserTest):
         expected = dedent(expected).lstrip()
         self.assert_strings_equal(expected, str(table))
 
+    def test_basic_subcommand_no_help(self):
+        expected = TEST_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
+
+        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', show_docstring=False):
+            sub_cmd = SubCommand()
+
+        class Foo(Base):
+            pass
+
+        self.assert_strings_equal(expected, get_rst(Base, fix_name=False))
+
 
 class ExampleRstFormatTest(ParserTest):
     def test_examples_shared_logging_init(self):
         expected = TEST_DATA_DIR.joinpath('shared_logging_init.rst').read_text('utf-8')
         script_path = EXAMPLES_DIR.joinpath('shared_logging_init.py')
         commands = load_commands(script_path)
-        self.assertIn('Base', commands)
-        self.assertIn('Show', commands)
-        self.assertEqual(2, len(commands))
-        self.assert_strings_equal(expected, get_rst(commands['Base']))
+        self.assertSetEqual({'Base', 'Show'}, set(commands))
+        with self.subTest(fix_name=True):
+            self.assert_strings_equal(expected, get_rst(commands['Base']))
+
+        with self.subTest(fix_name=False):
+            rendered = get_rst(commands['Base'], fix_name=False)
+            self.assertTrue(rendered.startswith('shared_logging_init\n*******************\n'))
 
     def test_examples_hello_world(self):
         expected = TEST_DATA_DIR.joinpath('hello_world.rst').read_text('utf-8')
         script_path = EXAMPLES_DIR.joinpath('hello_world.py')
         commands = load_commands(script_path)
-        self.assertIn('HelloWorld', commands)
-        self.assertEqual(1, len(commands))
+        self.assertSetEqual({'HelloWorld'}, set(commands))
         self.assert_strings_equal(expected, get_rst(commands['HelloWorld']), trim=True)
+
+    def test_examples_advanced_subcommand(self):
+        expected = TEST_DATA_DIR.joinpath('advanced_subcommand.rst').read_text('utf-8')
+        script_path = EXAMPLES_DIR.joinpath('advanced_subcommand.py')
+        commands = load_commands(script_path)
+        self.assertSetEqual({'Base', 'Foo', 'Bar', 'Baz'}, set(commands))
+        self.assert_strings_equal(expected, get_rst(commands['Base']), trim=True)
 
 
 if __name__ == '__main__':

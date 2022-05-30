@@ -91,6 +91,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     show_group_type = ConfigOption()
     param_formatter = ConfigOption()
     extended_epilog = ConfigOption()
+    show_docstring = ConfigOption()
     # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
@@ -114,6 +115,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         show_group_type: Bool = None,
         param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None,
         extended_epilog: Bool = None,
+        show_docstring: Bool = None,
         # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
@@ -151,6 +153,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.show_group_type = show_group_type
         self.param_formatter = param_formatter
         self.extended_epilog = extended_epilog
+        self.show_docstring = show_docstring
 
         # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation
