@@ -88,15 +88,18 @@ keyword arguments when defining a Command subclass:
       `enum flags <https://docs.python.org/3/library/enum.html#flag>`__ that can be combined.  See
       :class:`.ShowDefaults` for more info.
     - **show_group_tree**: Whether there should be a visual indicator in help text for the parameters that are members
-      of a given group.  See :ref:`help_text_formatting` for more info.
-    - **show_group_type**: Whether mutually exclusive / dependent groups should include that fact in their descriptions
+      of a given group.  See :ref:`help_text_formatting` for more info.  (default: False)
+    - **show_group_type**: Whether mutually exclusive / dependent groups should include that fact in their
+      descriptions (default: True)
     - **command_formatter**: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a
       :class:`.CommandParameters` object, and returns a :class:`.CommandHelpFormatter` (or a class that implements the
       same methods).
     - **param_formatter**: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a
       :class:`.ParamHelpFormatter` (or a class that implements the same methods).
     - **extended_epilog**: Whether the program version, author email, and documentation URL should be included in the
-      help text epilog, if they were successfully detected.
+      help text epilog, if they were successfully detected (default: True)
+    - **show_docstring**: Whether the top level script's docstring should be included in generated documentation
+      (default: True)
 
 
 Command Methods

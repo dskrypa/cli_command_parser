@@ -181,15 +181,18 @@ and related settings.  Acceptable values are defined as
 <a class="reference external" href="https://docs.python.org/3/library/enum.html#flag">enum flags</a> that can be combined.  See
 <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a> for more info.</p></li>
 <li><p><strong>show_group_tree</strong>: Whether there should be a visual indicator in help text for the parameters that are members
-of a given group.  See <a class="reference internal" href="#help-text-formatting"><span class="std std-ref">Help Text Formatting</span></a> for more info.</p></li>
-<li><p><strong>show_group_type</strong>: Whether mutually exclusive / dependent groups should include that fact in their descriptions</p></li>
+of a given group.  See <a class="reference internal" href="#help-text-formatting"><span class="std std-ref">Help Text Formatting</span></a> for more info.  (default: False)</p></li>
+<li><p><strong>show_group_type</strong>: Whether mutually exclusive / dependent groups should include that fact in their
+descriptions (default: True)</p></li>
 <li><p><strong>command_formatter</strong>: A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
 <a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
 same methods).</p></li>
 <li><p><strong>param_formatter</strong>: A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
 <a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p></li>
 <li><p><strong>extended_epilog</strong>: Whether the program version, author email, and documentation URL should be included in the
-help text epilog, if they were successfully detected.</p></li>
+help text epilog, if they were successfully detected (default: True)</p></li>
+<li><p><strong>show_docstring</strong>: Whether the top level script’s docstring should be included in generated documentation
+(default: True)</p></li>
 </ul>
 </dd>
 </dl>

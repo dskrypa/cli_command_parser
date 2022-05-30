@@ -112,7 +112,8 @@
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">epilog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">doc_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -122,6 +123,8 @@
 <span class="sd">        :param description: Description of what the program does</span>
 <span class="sd">        :param epilog: Text to follow parameter descriptions</span>
 <span class="sd">        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</span>
+<span class="sd">        :param doc_name: Name to use in documentation (default: the stem of the file name containing the Command, or</span>
+<span class="sd">          the specified ``prog`` value)</span>
 <span class="sd">        :param error_handler: The :class:`~.error_handling.ErrorHandler` to be used by</span>
 <span class="sd">          :meth:`Command.__call__&lt;.commands.Command.__call__&gt;` to wrap :meth:`~.commands.Command.main`, or None to</span>
 <span class="sd">          disable error handling.</span>
@@ -139,12 +142,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
         <span class="n">mcls</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">mcls</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">prog</span> <span class="ow">or</span> <span class="n">usage</span> <span class="ow">or</span> <span class="n">description</span> <span class="ow">or</span> <span class="n">epilog</span><span class="p">:</span>  <span class="c1"># Inherit from parent when possible</span>
-            <span class="n">mcls</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="n">epilog</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">mcls</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">meta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">prog</span> <span class="ow">or</span> <span class="n">usage</span> <span class="ow">or</span> <span class="n">description</span> <span class="ow">or</span> <span class="n">epilog</span> <span class="ow">or</span> <span class="n">doc_name</span><span class="p">:</span>  <span class="c1"># Inherit from parent when possible</span>
+            <span class="n">mcls</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="p">(</span>
+                <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="n">epilog</span><span class="p">,</span> <span class="n">doc_name</span><span class="o">=</span><span class="n">doc_name</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot combine config=</span><span class="si">{</span><span class="n">config</span><span class="si">!r}</span><span class="s1"> with keyword config arguments=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">CommandConfig</span><span class="p">):</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
             <span class="n">mcls</span><span class="o">.</span><span class="n">_configs</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">mcls</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
