@@ -73,7 +73,7 @@ Usage & Help Text Options
   `enum flags <https://docs.python.org/3/library/enum.html#flag>`__ that can be combined.  See
   :class:`.ShowDefaults` for more info.
 - **show_group_tree**: Whether there should be a visual indicator in help text for the parameters that are members
-  of a given group.  See :ref:`commands:Help Text Formatting` for more info.  (default: False)
+  of a given group.  See :ref:`documentation:Group Formatting` for more info.  (default: False)
 - **show_group_type**: Whether mutually exclusive / dependent groups should include that fact in their
   descriptions (default: True)
 - **command_formatter**: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a

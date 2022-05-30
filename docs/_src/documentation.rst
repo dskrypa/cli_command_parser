@@ -38,11 +38,30 @@ Command or file containing one or more Commands.  The generated RST content can 
 in HTML and many other formats by using `Sphinx <https://www.sphinx-doc.org/en/master/>`__ or any other tool that
 supports RST.
 
-All of the `examples <https://github.com/dskrypa/cli_command_parser/tree/main/examples>`__ in this project have been
-:doc:`documented <examples>` using this process so you can see the generated results.  It's even possible to integrate
-with your tooling to add additional content or customize it before saving / passing the RST content to Sphinx.
+Some of the :ref:`configuration:Usage & Help Text Options` also apply to RST generation.
 
 
+Generating RST Documentation
+----------------------------
+
+All you need to generate documentation for a given script that contains one or more Commands is something like
+the following::
+
+    from cli_command_parser.documentation import render_script_rst
+
+    def save_command_rst(script_path, rst_path):
+        rst = render_script_rst(script_path)
+        with open(rst_path, 'w') as f:
+            f.write(rst)
 
 
+If you want more fine-grained control over RST generation than :func:`.render_script_rst` provides, you can use
+:func:`.render_command_rst` for a single command.  In the same module, a helper for
+:func:`loading all Commands<.load_commands>` from a given file is also provided.
 
+The `build_docs.py <https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py>`__ script used to
+generate this documentation uses :func:`.render_script_rst` to generate the :doc:`examples` documentation based on the
+`examples <https://github.com/dskrypa/cli_command_parser/tree/main/examples>`__ in this project.
+
+Building HTML documentation from the output is possible with ``sphinx-build`` and other tools, but that is out of scope
+for this guide.

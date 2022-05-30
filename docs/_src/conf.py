@@ -37,7 +37,15 @@ show_on_github_options = {
     'rm_prefix': 'api/',
     'lib_relative_path': 'lib',
     'use_root': {'index', 'api'},
-    'skip': {'advanced.rst', 'basic.rst', 'parameters.rst', 'commands.rst', 'configuration.rst', 'documentation.rst'},
+    'skip': {
+        'advanced.rst',
+        'basic.rst',
+        'parameters.rst',
+        'commands.rst',
+        'configuration.rst',
+        'documentation.rst',
+        'subcommands.rst',
+    },
 }
 
 autodoc_default_options = {
