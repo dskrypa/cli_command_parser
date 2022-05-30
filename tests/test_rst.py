@@ -5,7 +5,7 @@ from textwrap import dedent
 from unittest import main
 
 from cli_command_parser import Command, SubCommand
-from cli_command_parser.formatting.rst import rst_bar, rst_header, rst_list_table, rst_directive, RstTable
+from cli_command_parser.formatting.restructured_text import rst_bar, rst_header, rst_list_table, rst_directive, RstTable
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.documentation import (
     load_commands,

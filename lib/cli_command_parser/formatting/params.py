@@ -12,7 +12,7 @@ from ..context import ctx
 from ..exceptions import NoActiveContext
 from ..utils import Bool
 from ..parameters import ParamBase, ParamGroup, ParamOrGroup, ChoiceMap, PassThru, BasePositional, BaseOption
-from .rst import RstTable
+from .restructured_text import RstTable
 from .utils import HelpEntryFormatter, _should_add_default
 
 

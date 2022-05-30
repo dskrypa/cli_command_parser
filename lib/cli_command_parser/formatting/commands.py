@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Type, Callable, Iterator
 
 from ..context import ctx
 from ..utils import Bool, ProgramMetadata, camel_to_snake_case
-from .rst import rst_header
+from .restructured_text import rst_header
 from .utils import get_usage_sub_cmds
 
 if TYPE_CHECKING:
