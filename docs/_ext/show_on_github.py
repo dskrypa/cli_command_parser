@@ -23,9 +23,11 @@ OPTION_DEFAULTS = {
 }
 
 
-def get_github_url(app, path):
+def get_github_url(app, path, is_lib: bool = True):
     options = app.config.show_on_github_options
-    return URL_FMT.format(path=path, **options)
+    kwargs = {k: options[k] for k in ('user', 'repo', 'branch')}
+    kwargs['lib_relative_path'] = options['lib_relative_path'] if is_lib else ''
+    return URL_FMT.format(path=path, **kwargs)
 
 
 def html_page_context(app, page_name, template_name, context, doc_tree):
@@ -60,22 +62,26 @@ def get_show_on_github_url(options, app, page_name, doc_tree):
         raise Skip
 
     rel_path = rst_path.relative_to(options['rst_src_dir']).with_suffix('')
+
     rel_path = rel_path.as_posix().replace('.', '/')
+
     rm_prefix = options.get('rm_prefix')
     if rm_prefix and rel_path.startswith(rm_prefix):
         rel_path = rel_path.replace(rm_prefix, '', 1)
 
     src_lib_dir = options['src_lib_dir']
-    code_path = src_lib_dir.joinpath(rel_path)
-    if not code_path.exists():
-        rel_path += '.py'
-        code_path = src_lib_dir.joinpath(rel_path)
-    if not code_path.exists():
-        log.warning(f'Skipping GitHub link for non-existent rel_path={rel_path!r}')
-        # log.warning(f'Skipping GitHub link for non-existent {rel_path=} @ {code_path=}')
-        raise Skip
-
-    return get_github_url(app, rel_path)
+    is_lib_path_map = {True: src_lib_dir, False: src_lib_dir.parent}
+    for is_lib, parent in is_lib_path_map.items():
+        code_path = parent.joinpath(rel_path)  # type: Path
+        if code_path.exists():
+            return get_github_url(app, rel_path, is_lib)
+        elif code_path.with_name(f'{code_path.name}.py').exists():
+            rel_path += '.py'
+            return get_github_url(app, rel_path, is_lib)
+    # else:
+    log.warning(f'Skipping GitHub link for non-existent rel_path={rel_path!r}')
+    # log.warning(f'Skipping GitHub link for non-existent {rel_path=} @ {code_path=}')
+    raise Skip
 
 
 def process_config(app):
