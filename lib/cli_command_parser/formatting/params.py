@@ -72,12 +72,14 @@ class ParamHelpFormatter:
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.format_metavar()
 
-    def format_description(self) -> str:
+    def format_description(self, rst: Bool = False) -> str:
         param = self.param
         description = param.help or ''
         if _should_add_default(param.default, description):
             pad = ' ' if description else ''
-            description += f'{pad}(default: {param.default})'
+            quote = '``' if rst else ''
+            description += f'{pad}(default: {quote}{param.default!r}{quote})'
+
         return description
 
     def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
@@ -88,7 +90,8 @@ class ParamHelpFormatter:
         return indent(text, prefix) if prefix else text
 
     def rst_row(self) -> Tuple[str, str]:
-        return self.format_usage(include_meta=True, full=True), self.format_description()
+        usage = self.format_usage(include_meta=True, full=True)
+        return f'``{usage}``', self.format_description(rst=True)
 
 
 class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
@@ -148,10 +151,10 @@ class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
 
     def rst_table(self) -> RstTable:
         param = self.param
-        table = RstTable(True, param.title or param._default_title, param.description)
-        # table = RstTable(True, param.title or param._default_title)
+        table = RstTable(param.title or param._default_title, param.description)
         for choice in param.choices.values():
-            table.add_row(choice.format_usage(), choice.help)
+            usage = choice.format_usage()
+            table.add_row(f'``{usage}``', choice.help)
         return table
 
 
@@ -166,7 +169,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
         choices = ','.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
         return f'{{{choices}}}'
 
-    def format_description(self) -> str:
+    def format_description(self, rst: Bool = False) -> str:
         group = self.param
         if not group.description and not group._name:
             if ctx.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
@@ -230,7 +233,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
         return indent(text, prefix) if prefix else text
 
     def rst_table(self) -> RstTable:
-        table = RstTable(True, self.format_description())
+        table = RstTable(self.format_description())
         for member in self.param.members:
             if member.show_in_help:
                 try:
@@ -238,7 +241,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
                 except AttributeError:
                     table.add_row(*member.formatter.rst_row())
                 else:
-                    sub_table.header = False
+                    sub_table.show_title = False
                     table.add_row(sub_table.title, str(sub_table))
 
         return table

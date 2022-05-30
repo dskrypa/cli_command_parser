@@ -192,7 +192,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     def _document_module(self, module: str):
         name = module.split('.')[-1].title()
-        rendered = MODULE_TEMPLATE.format(header=rst_header(f'{name} Module', 1), module=module)
+        rendered = MODULE_TEMPLATE.format(header=rst_header(f'{name} Module', 2), module=module)
         self._write_rst(module, rendered, 'api')
 
     def _write_index(self, name: str, header: str, contents: Collection[str], caption: str = None):

@@ -1,5 +1,5 @@
 Parameters
-==========
+**********
 
 Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
 say, argparse) to differentiate between parameter types.  The two major categories are `Options`_ and `Positionals`_,
@@ -14,7 +14,7 @@ type will be inferred automatically from any type annotations (see :pep:`484`) t
 .. _Options:
 
 Options
--------
+=======
 
 Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
 They are typically not required by default, and often have both long and short forms, where long forms typically have
@@ -25,7 +25,7 @@ specified, based on the name of the Parameter attribute.
 .. _Option:
 
 Option
-^^^^^^
+------
 
 The generic :class:`~cli_command_parser.parameters.Option` parameter, that accepts arbitrary values or lists of values.
 
@@ -53,7 +53,7 @@ inputs, respectively.
 .. _Flag:
 
 Flag
-^^^^
+----
 
 :class:`~cli_command_parser.parameters.Flag` parameters typically represent boolean values, and do not accept any
 values.  By default, Flag parameters have a default value of ``False``, and will change to ``True`` if provided by a
@@ -93,7 +93,7 @@ Example usage::
 .. _Counter:
 
 Counter
-^^^^^^^
+-------
 
 :class:`~cli_command_parser.parameters.Counter` parameters are similar to Flags, but they may be specified multiple
 times, and they support an optional integer value to explicitly increase their stored value by that amount.  One common
@@ -126,7 +126,7 @@ forms, and it must be the last parameter in the combo so that it immediately pre
 .. _Positionals:
 
 Positionals
------------
+===========
 
 Positionals are parameters that must be provided in a specific order.  They are typically required by default, and they
 do not have any prefix before values.
@@ -141,7 +141,7 @@ the order in which they must be provided; i.e., the top-most positional paramete
 .. _Positional:
 
 Positional
-^^^^^^^^^^
+----------
 
 The generic :class:`~cli_command_parser.parameters.Positional` parameter, that accepts arbitrary values or lists of
 values.
@@ -164,7 +164,7 @@ Example usage::
 .. _SubCommand:
 
 SubCommand
-^^^^^^^^^^
+----------
 
 The :class:`.SubCommand` parameter allows additional :class:`.Command` classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.
@@ -221,7 +221,7 @@ to jump through hoops to handle them.
 .. _Action:
 
 Action
-^^^^^^
+------
 
 :class:`.Action` parameters are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command`
 classes to be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
@@ -277,12 +277,12 @@ Example usage::
 .. _Others:
 
 Others
-------
+======
 
 .. _ParamGroup:
 
 ParamGroup
-^^^^^^^^^^
+----------
 
 A group of parameters.  :class:`~cli_command_parser.parameters.ParamGroup` is intended to be used as a context manager,
 where group members are defined inside the ``with`` block.  Supports mutually exclusive and mutually dependent groups.
@@ -306,7 +306,7 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
 .. _PassThru:
 
 PassThru
-^^^^^^^^
+--------
 
 :class:`~cli_command_parser.parameters.PassThru` is a parameter that allows all remaining arguments to be collected,
 without processing them.  Only one PassThru parameter may exist in a given
@@ -346,7 +346,7 @@ Example usage::
 .. _ActionFlag:
 
 ActionFlag
-^^^^^^^^^^
+----------
 
 :class:`~cli_command_parser.parameters.ActionFlag` parameters act like a combination of :ref:`Flag` and :ref:`Action`
 parameters.  Like Flags, they are not required, and they can be combined with other :ref:`Options`.  Like Actions, they

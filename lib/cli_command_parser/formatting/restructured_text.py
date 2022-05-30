@@ -58,10 +58,11 @@ def rst_list_table(data: Dict[str, str], value_pad: int = 20) -> str:
 
 
 class RstTable:
-    def __init__(self, header: bool = False, title: str = None, subtitle: str = None):
+    def __init__(self, title: str = None, subtitle: str = None, show_title: bool = True, header: bool = True):
         self.header = header
         self.title = title
         self.subtitle = subtitle
+        self.show_title = show_title
         self.rows = []
         self.widths = []
 
@@ -90,9 +91,21 @@ class RstTable:
         return f'<RstTable[header={self.header}, rows={len(self.rows)}, title={self.title!r}, widths={self.widths}]>'
 
     def iter_build(self) -> Iterator[str]:
+        if self.show_title and self.title:
+            yield ''
+            yield f'.. rubric:: {self.title}'
+            yield ''
+
         if self.header:
-            settings = {'subtitle': self.subtitle, 'widths': ' '.join(map(str, self.widths))}
-            yield from _rst_directive('table', self.title, settings, check=True)
+            # total_width = max(sum(self.widths), len(self.widths))
+            # width_pcts = (int(round((w or 1) / total_width * 100, 0)) for w in self.widths)
+            options = {
+                'subtitle': self.subtitle,
+                # 'width': '90%',
+                'widths': 'auto',
+                # 'widths': ' '.join(map(str, width_pcts)),
+            }
+            yield from _rst_directive('table', options=options, check=True)
             yield ''
 
         bar = self.bar()

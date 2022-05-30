@@ -1,5 +1,5 @@
 Commands
-========
+********
 
 Commands provide a way to organize CLI applications intuitively.
 
@@ -17,7 +17,7 @@ common parameters, methods, and initialization steps with minimal extra work or 
 
 
 Initializing Commands
----------------------
+=====================
 
 All commands must extend the :class:`~cli_command_parser.commands.Command` class.
 
@@ -38,7 +38,7 @@ the following options::
 
 
 Command Metadata
-^^^^^^^^^^^^^^^^
+----------------
 
 Keyword arguments supported when defining a Command subclass:
 
@@ -55,7 +55,7 @@ Keyword arguments supported when defining a Command subclass:
 
 
 Configuration
-^^^^^^^^^^^^^
+-------------
 
 Configuration options supported by :class:`~.config.CommandConfig`.  For convenience, they may also be specified as
 keyword arguments when defining a Command subclass:
@@ -103,7 +103,7 @@ keyword arguments when defining a Command subclass:
 
 
 Command Methods
----------------
+===============
 
 Simple commands can define ``main`` as the primary method for that command::
 
@@ -122,7 +122,7 @@ overridden, or it must call the overridden method via ``super()...`` to maintain
 
 
 Subcommands
------------
+===========
 
 While subcommands will be automatically registered with their parent class as long as the parent class has a
 :ref:`SubCommand` parameter, it is also possible to have more control over that process.
@@ -241,7 +241,7 @@ without needing to escape the space or put it in quotes::
 .. _parse_and_run:
 
 Parse & Run
------------
+===========
 
 When only one :class:`~.commands.Command` direct subclass is present, the :func:`~.commands.main` convenience function
 can be used as the primary entry point for the program::
@@ -286,7 +286,7 @@ also be provided::
 .. _help_text_formatting:
 
 Help Text Formatting
---------------------
+====================
 
 To add a visual indicator for groups of parameters, specify ``show_group_tree=True``.  Example::
 

@@ -113,12 +113,12 @@ class HelpTextTest(TestCase):
 
         expected = """Optional arguments:
   --help, -h                  Show this help message and exit (default: False)
-  --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: ())
+  --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: '()')
   --allow_inst, -I            Allow search results that include instrumental versions of songs (default: False)
   --full_info, -F             Print all available info about the discovered objects (default: False)
   --format {json,json-pretty,json-compact,text,yaml,pprint,csv,table,pseudo-yaml,json-lines,plain,pseudo-json}, -f {json,json-pretty,json-compact,text,yaml,pprint,csv,table,pseudo-yaml,json-
                               lines,plain,pseudo-json}
-                              Output format to use for --full_info (default: yaml)
+                              Output format to use for --full_info (default: 'yaml')
   --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
                               help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example"""
 
@@ -194,12 +194,12 @@ class HelpTextTest(TestCase):
             self.assertNotIn('default:', Option(required=True).formatter.format_help())
             self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
             self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
             self.assertIn('(default: False)', Option(default=False).formatter.format_help())
             self.assertIn('(default: True)', Option(default=True).formatter.format_help())
             self.assertIn('(default: ())', Option(default=()).formatter.format_help())
             self.assertIn('(default: [])', Option(default=[]).formatter.format_help())
-            self.assertIn("(default: )", Option(default='').formatter.format_help())
+            self.assertIn("(default: '')", Option(default='').formatter.format_help())
             self.assertIn('(default: None)', Option(default=None).formatter.format_help())
 
     def test_sd_any_missing_adds_no_defaults(self):
@@ -207,22 +207,22 @@ class HelpTextTest(TestCase):
             self.assertNotIn('default:', Option(required=True).formatter.format_help())
             self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
             self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
             self.assertIn('(default: False)', Option(default=False).formatter.format_help())
             self.assertIn('(default: True)', Option(default=True).formatter.format_help())
             self.assertIn('(default: ())', Option(default=()).formatter.format_help())
             self.assertIn('(default: [])', Option(default=[]).formatter.format_help())
-            self.assertIn("(default: )", Option(default='').formatter.format_help())
+            self.assertIn("(default: '')", Option(default='').formatter.format_help())
             self.assertIn('(default: None)', Option(default=None).formatter.format_help())
 
             self.assertNotIn('(default: 0)', Option(default=0, help='default: fake').formatter.format_help())
             self.assertNotIn('(default: 1)', Option(default=1, help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: test)', Option(default='test', help='default: fake').formatter.format_help())
+            self.assertNotIn("(default: 'test')", Option(default='test', help='default: fake').formatter.format_help())
             self.assertNotIn('(default: False)', Option(default=False, help='default: fake').formatter.format_help())
             self.assertNotIn('(default: True)', Option(default=True, help='default: fake').formatter.format_help())
             self.assertNotIn('(default: ())', Option(default=(), help='default: fake').formatter.format_help())
             self.assertNotIn('(default: [])', Option(default=[], help='default: fake').formatter.format_help())
-            self.assertNotIn("(default: )", Option(default='', help='default: fake').formatter.format_help())
+            self.assertNotIn("(default: '')", Option(default='', help='default: fake').formatter.format_help())
             self.assertNotIn('(default: None)', Option(default=None, help='default: fake').formatter.format_help())
 
     def test_sd_non_empty_shows_falsey_non_empty_defaults(self):
@@ -230,7 +230,7 @@ class HelpTextTest(TestCase):
             self.assertNotIn('default:', Option(required=True).formatter.format_help())
             self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
             self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
             self.assertIn('(default: False)', Option(default=False).formatter.format_help())
             self.assertIn('(default: True)', Option(default=True).formatter.format_help())
             self.assertNotIn('default:', Option(default=()).formatter.format_help())
@@ -242,7 +242,7 @@ class HelpTextTest(TestCase):
         with Context(show_defaults='truthy'):
             self.assertNotIn('default:', Option(required=True).formatter.format_help())
             self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn('(default: test)', Option(default='test').formatter.format_help())
+            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
             self.assertIn('(default: True)', Option(default=True).formatter.format_help())
             self.assertNotIn('default:', Option(default=False).formatter.format_help())
             self.assertNotIn('default:', Option(default=0).formatter.format_help())

@@ -56,7 +56,7 @@ class RstFormatTest(ParserTest):
         self.assertTrue(repr(RstTable()).startswith('<RstTable[header='))
 
     def test_table_insert(self):
-        table = RstTable()
+        table = RstTable(header=False)
         table.add_row('x', 'y', 'z')
         table.add_row('a', 'b', 'c', index=0)
         expected = """

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Type, Callable, Iterator
 
 from ..context import ctx
 from ..utils import Bool, ProgramMetadata, camel_to_snake_case
-from .restructured_text import rst_header
+from .restructured_text import rst_header, RstTable
 from .utils import get_usage_sub_cmds
 
 if TYPE_CHECKING:
@@ -87,7 +87,9 @@ class CommandHelpFormatter:
 
         return '\n'.join(parts)
 
-    def _format_rst(self, include_epilog: Bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
+    def _format_rst(
+        self, include_epilog: Bool = False, sub_cmd_choice: str = None, init_level: int = 1
+    ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         meta = self._get_meta()
         yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')  # noqa
@@ -97,21 +99,22 @@ class CommandHelpFormatter:
 
         for group in self.groups:
             if group.show_in_help:
-                yield from group.formatter.rst_table().iter_build()  # noqa
+                table: RstTable = group.formatter.rst_table()  # noqa
+                yield from table.iter_build()  # noqa
 
         if include_epilog:
             epilog = meta.format_epilog(ctx.extended_epilog)
             if epilog:
                 yield epilog
 
-    def format_rst(self, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
+    def format_rst(self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         meta = self._get_meta()
         name = meta.doc_name
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)
 
-        parts = [rst_header(name, 1), '']
+        parts = [rst_header(name, init_level), '']
         if ctx.show_docstring:
             doc_str = meta.doc_str.strip() if meta.doc_str else None
             if doc_str:
@@ -122,12 +125,12 @@ class CommandHelpFormatter:
 
         sub_command = _get_params(self.command).sub_command
         if sub_command and sub_command.show_in_help:
-            parts += ['', rst_header('Subcommands', 2), '']
+            parts += ['', rst_header('Subcommands', init_level + 1), '']
             for cmd_name, choice in sub_command.choices.items():
-                parts += ['', rst_header(f'Subcommand: {cmd_name}', 3), '']
+                parts += ['', rst_header(f'Subcommand: {cmd_name}', init_level + 2), '']
                 if choice.help:
                     parts += [choice.help, '']
-                parts.extend(get_formatter(choice.target)._format_rst(sub_cmd_choice=cmd_name))
+                parts.extend(get_formatter(choice.target)._format_rst(sub_cmd_choice=cmd_name, init_level=init_level))
 
         return '\n'.join(parts)
 

@@ -1,8 +1,8 @@
 Advanced Usage
-==============
+**************
 
 Post-Run & Context
-------------------
+==================
 
 While Commands are intended to be self-contained, it is possible to interact with them after calling
 :meth:`.Command.parse_and_run`, which returns the instance of the executed Command.  Example::
@@ -69,7 +69,7 @@ action to be processed when parsing would otherwise fail.
 
 
 Mixing Actions & ActionFlags
-----------------------------
+============================
 
 The `build_docs.py <https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py>`__ script that is used
 to build the documentation for this project is an example of a Command that includes both :ref:`Action` methods and
@@ -157,7 +157,7 @@ you should include a check in your application to prevent it from being run twic
 
 
 Nested ParamGroups
-------------------
+==================
 
 It is possible to nest :ref:`ParamGroups<ParamGroup>` so that a mutually exclusive group contains a mutually
 dependent group, and vice versa.  This applies to any nesting depth.

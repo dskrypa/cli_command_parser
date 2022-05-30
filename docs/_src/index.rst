@@ -1,5 +1,5 @@
 CLI Command Parser
-==================
+##################
 
 |py_version| |coverage_badge| |build_status| |Black|
 
@@ -25,7 +25,7 @@ The primary goals of this project:
 
 
 User Guide
-----------
+**********
 
 .. toctree::
    :maxdepth: 2
@@ -34,10 +34,11 @@ User Guide
    parameters
    commands
    advanced
+   documentation
 
 
 API Documentation
------------------
+*****************
 
 .. toctree::
    :maxdepth: 3
@@ -46,7 +47,7 @@ API Documentation
 
 
 Documentation from Example Scripts
-----------------------------------
+**********************************
 
 .. toctree::
    :maxdepth: 2
@@ -55,7 +56,7 @@ Documentation from Example Scripts
 
 
 Indices and Tables
-------------------
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`
