@@ -11,8 +11,6 @@ being stored.  For the parameters that support a type, if not explicitly specifi
 type will be inferred automatically from any type annotations (see :pep:`484`) that are present.
 
 
-.. _Options:
-
 Options
 =======
 
@@ -21,8 +19,6 @@ They are typically not required by default, and often have both long and short f
 a ``--`` prefix, and short forms have a ``-`` prefix.  The long form is automatically added, if not explicitly
 specified, based on the name of the Parameter attribute.
 
-
-.. _Option:
 
 Option
 ------
@@ -49,8 +45,6 @@ All of the following are valid arguments::
 Inside ``MyCommand``, the resulting value of ``self.foo`` would be ``['bar']`` or ``['bar', 'baz']`` for each of those
 inputs, respectively.
 
-
-.. _Flag:
 
 Flag
 ----
@@ -90,8 +84,6 @@ Example usage::
       --help, -h                  Show this help message and exit (default: False)
 
 
-.. _Counter:
-
 Counter
 -------
 
@@ -123,8 +115,6 @@ additional ``-`` prefix character.
 forms, and it must be the last parameter in the combo so that it immediately precedes its value.
 
 
-.. _Positionals:
-
 Positionals
 ===========
 
@@ -137,8 +127,6 @@ preceding optional parameter accepts a bounded number of arguments and those val
 The order that positional parameters are defined in a given :class:`~cli_command_parser.commands.Command` determines
 the order in which they must be provided; i.e., the top-most positional parameters must be provided first.
 
-
-.. _Positional:
 
 Positional
 ----------
@@ -160,8 +148,6 @@ Example usage::
     $ echo.py Hello World
     Hello World
 
-
-.. _SubCommand:
 
 SubCommand
 ----------
@@ -218,8 +204,6 @@ technically separate arguments).  This allows for a more natural way to provide 
 to jump through hoops to handle them.
 
 
-.. _Action:
-
 Action
 ------
 
@@ -274,12 +258,8 @@ Example usage::
     two
 
 
-.. _Others:
-
 Others
 ======
-
-.. _ParamGroup:
 
 ParamGroup
 ----------
@@ -302,8 +282,6 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
 
         verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
-
-.. _PassThru:
 
 PassThru
 --------
@@ -343,20 +321,17 @@ Example usage::
     Would run on two: ['service', 'foo', 'restart']
 
 
-.. _ActionFlag:
-
 ActionFlag
 ----------
 
-:class:`~cli_command_parser.parameters.ActionFlag` parameters act like a combination of :ref:`Flag` and :ref:`Action`
-parameters.  Like Flags, they are not required, and they can be combined with other :ref:`Options`.  Like Actions, they
-allow methods in :class:`~cli_command_parser.commands.Command` classes to be registered as execution targets.
+:class:`.ActionFlag` parameters act like a combination of :ref:`parameters:Flag` and :ref:`parameters:Action`
+parameters.  Like Flags, they are not required, and they can be combined with other :ref:`parameters:Options`.  Like
+Actions, they allow methods in :class:`.Command` classes to be registered as execution targets.
 
 When ActionFlag arguments are provided, the associated methods are called in the order that was specified when marking
-those methods as ActionFlags.  Execution order is also customizable relative to when the
-:meth:`~cli_command_parser.commands.Command.main` method is called, so each ActionFlag must indicate whether it should
-run before or after main.  Helper decorators are provided to simplify this distinction:
-:data:`~cli_command_parser.parameters.before_main` and :data:`~cli_command_parser.parameters.after_main`.
+those methods as ActionFlags.  Execution order is also customizable relative to when the :meth:`.Command.main`
+method is called, so each ActionFlag must indicate whether it should run before or after main.  Helper decorators
+are provided to simplify this distinction: :data:`~.parameters.before_main` and :data:`~.parameters.after_main`.
 
 Example command::
 
