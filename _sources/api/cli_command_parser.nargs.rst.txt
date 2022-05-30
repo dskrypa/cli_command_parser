@@ -1,5 +1,5 @@
 Nargs Module
-************
+============
 
 .. currentmodule:: cli_command_parser.nargs
 

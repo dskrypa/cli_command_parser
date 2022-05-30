@@ -1,5 +1,5 @@
 Testing Module
-**************
+==============
 
 .. currentmodule:: cli_command_parser.testing
 

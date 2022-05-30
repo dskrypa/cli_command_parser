@@ -1,5 +1,5 @@
 Error_Handling Module
-*********************
+=====================
 
 .. currentmodule:: cli_command_parser.error_handling
 

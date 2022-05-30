@@ -1,5 +1,5 @@
 Exceptions Module
-*****************
+=================
 
 .. currentmodule:: cli_command_parser.exceptions
 

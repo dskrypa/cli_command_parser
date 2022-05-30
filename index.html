@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI Command Parser &mdash; CLI Command Parser 2022.05.28-1 documentation</title>
+  <title>CLI Command Parser &mdash; CLI Command Parser 2022.05.30 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -42,8 +42,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -83,7 +86,7 @@
   <section id="cli-command-parser">
 <h1>CLI Command Parser<a class="headerlink" href="#cli-command-parser" title="Permalink to this heading"></a></h1>
 <p><img alt="py_version" src="https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20-blue" /> <a class="reference external" href="https://codecov.io/gh/dskrypa/cli_command_parser"><img alt="coverage_badge" src="https://codecov.io/gh/dskrypa/cli_command_parser/branch/main/graph/badge.svg" /></a> <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/actions/workflows/run-tests.yml"><img alt="build_status" src="https://github.com/dskrypa/cli_command_parser/actions/workflows/run-tests.yml/badge.svg" /></a> <a class="reference external" href="https://github.com/psf/black"><img alt="Black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a></p>
-<p>Command Parser is a class-based CLI argument parser that defines parameters with descriptors.</p>
+<p>CLI Command Parser is a class-based CLI argument parser that defines parameters with descriptors.</p>
 <dl class="simple">
 <dt>The primary goals of this project:</dt><dd><ul class="simple">
 <li><p>Make it easy to define subcommands and actions in an clean and organized manner</p></li>
@@ -93,27 +96,77 @@
 </ul>
 </dd>
 </dl>
+<section id="installing-cli-command-parser">
+<h2>Installing CLI Command Parser<a class="headerlink" href="#installing-cli-command-parser" title="Permalink to this heading"></a></h2>
+<p>CLI Command Parser is available on PyPI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install cli-command-parser
+</pre></div>
+</div>
+</section>
 <section id="user-guide">
 <h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#installing-cli-command-parser">Installing CLI Command Parser</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic.html#basics">Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="basic.html#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="basic.html#entry-points">Entry Points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="basic.html#help-text">Help Text</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="parameters.html#options">Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parameters.html#positionals">Positionals</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parameters.html#others">Others</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#initializing-commands">Initializing Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#command-methods">Command Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#subcommands">Subcommands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#parse-run">Parse &amp; Run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#help-text-formatting">Help Text Formatting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html#options">Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#option">Option</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#flag">Flag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#counter">Counter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html#positionals">Positionals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#positional">Positional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#subcommand">SubCommand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#action">Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html#others">Others</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#paramgroup">ParamGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#passthru">PassThru</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameters.html#actionflag">ActionFlag</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="subcommands.html#explicit-registration">Explicit Registration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#command-metadata">Command Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-options">Configuration Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#error-handling-options">Error Handling Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#actionflag-options">ActionFlag Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#parsing-options">Parsing Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#usage-help-text-options">Usage &amp; Help Text Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#help-text">Help Text</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#group-formatting">Group Formatting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#restructuredtext">reStructuredText</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#generating-rst-documentation">Generating RST Documentation</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a><ul>

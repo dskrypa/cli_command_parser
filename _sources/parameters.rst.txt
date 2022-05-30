@@ -1,5 +1,5 @@
 Parameters
-==========
+**********
 
 Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
 say, argparse) to differentiate between parameter types.  The two major categories are `Options`_ and `Positionals`_,
@@ -11,10 +11,8 @@ being stored.  For the parameters that support a type, if not explicitly specifi
 type will be inferred automatically from any type annotations (see :pep:`484`) that are present.
 
 
-.. _Options:
-
 Options
--------
+=======
 
 Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
 They are typically not required by default, and often have both long and short forms, where long forms typically have
@@ -22,10 +20,8 @@ a ``--`` prefix, and short forms have a ``-`` prefix.  The long form is automati
 specified, based on the name of the Parameter attribute.
 
 
-.. _Option:
-
 Option
-^^^^^^
+------
 
 The generic :class:`~cli_command_parser.parameters.Option` parameter, that accepts arbitrary values or lists of values.
 
@@ -50,10 +46,8 @@ Inside ``MyCommand``, the resulting value of ``self.foo`` would be ``['bar']`` o
 inputs, respectively.
 
 
-.. _Flag:
-
 Flag
-^^^^
+----
 
 :class:`~cli_command_parser.parameters.Flag` parameters typically represent boolean values, and do not accept any
 values.  By default, Flag parameters have a default value of ``False``, and will change to ``True`` if provided by a
@@ -90,10 +84,8 @@ Example usage::
       --help, -h                  Show this help message and exit (default: False)
 
 
-.. _Counter:
-
 Counter
-^^^^^^^
+-------
 
 :class:`~cli_command_parser.parameters.Counter` parameters are similar to Flags, but they may be specified multiple
 times, and they support an optional integer value to explicitly increase their stored value by that amount.  One common
@@ -123,10 +115,8 @@ additional ``-`` prefix character.
 forms, and it must be the last parameter in the combo so that it immediately precedes its value.
 
 
-.. _Positionals:
-
 Positionals
------------
+===========
 
 Positionals are parameters that must be provided in a specific order.  They are typically required by default, and they
 do not have any prefix before values.
@@ -138,10 +128,8 @@ The order that positional parameters are defined in a given :class:`~cli_command
 the order in which they must be provided; i.e., the top-most positional parameters must be provided first.
 
 
-.. _Positional:
-
 Positional
-^^^^^^^^^^
+----------
 
 The generic :class:`~cli_command_parser.parameters.Positional` parameter, that accepts arbitrary values or lists of
 values.
@@ -161,10 +149,8 @@ Example usage::
     Hello World
 
 
-.. _SubCommand:
-
 SubCommand
-^^^^^^^^^^
+----------
 
 The :class:`.SubCommand` parameter allows additional :class:`.Command` classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.
@@ -218,10 +204,8 @@ technically separate arguments).  This allows for a more natural way to provide 
 to jump through hoops to handle them.
 
 
-.. _Action:
-
 Action
-^^^^^^
+------
 
 :class:`.Action` parameters are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command`
 classes to be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
@@ -274,15 +258,11 @@ Example usage::
     two
 
 
-.. _Others:
-
 Others
-------
-
-.. _ParamGroup:
+======
 
 ParamGroup
-^^^^^^^^^^
+----------
 
 A group of parameters.  :class:`~cli_command_parser.parameters.ParamGroup` is intended to be used as a context manager,
 where group members are defined inside the ``with`` block.  Supports mutually exclusive and mutually dependent groups.
@@ -303,10 +283,8 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
         verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
 
-.. _PassThru:
-
 PassThru
-^^^^^^^^
+--------
 
 :class:`~cli_command_parser.parameters.PassThru` is a parameter that allows all remaining arguments to be collected,
 without processing them.  Only one PassThru parameter may exist in a given
@@ -343,20 +321,17 @@ Example usage::
     Would run on two: ['service', 'foo', 'restart']
 
 
-.. _ActionFlag:
-
 ActionFlag
-^^^^^^^^^^
+----------
 
-:class:`~cli_command_parser.parameters.ActionFlag` parameters act like a combination of :ref:`Flag` and :ref:`Action`
-parameters.  Like Flags, they are not required, and they can be combined with other :ref:`Options`.  Like Actions, they
-allow methods in :class:`~cli_command_parser.commands.Command` classes to be registered as execution targets.
+:class:`.ActionFlag` parameters act like a combination of :ref:`parameters:Flag` and :ref:`parameters:Action`
+parameters.  Like Flags, they are not required, and they can be combined with other :ref:`parameters:Options`.  Like
+Actions, they allow methods in :class:`.Command` classes to be registered as execution targets.
 
 When ActionFlag arguments are provided, the associated methods are called in the order that was specified when marking
-those methods as ActionFlags.  Execution order is also customizable relative to when the
-:meth:`~cli_command_parser.commands.Command.main` method is called, so each ActionFlag must indicate whether it should
-run before or after main.  Helper decorators are provided to simplify this distinction:
-:data:`~cli_command_parser.parameters.before_main` and :data:`~cli_command_parser.parameters.after_main`.
+those methods as ActionFlags.  Execution order is also customizable relative to when the :meth:`.Command.main`
+method is called, so each ActionFlag must indicate whether it should run before or after main.  Helper decorators
+are provided to simplify this distinction: :data:`~.parameters.before_main` and :data:`~.parameters.after_main`.
 
 Example command::
 

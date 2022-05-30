@@ -1,5 +1,5 @@
 Actions Module
-**************
+==============
 
 .. currentmodule:: cli_command_parser.actions
 

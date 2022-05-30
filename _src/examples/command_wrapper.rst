@@ -7,18 +7,24 @@ Command Wrapper
     usage: command_wrapper.py HOSTS [--help] [-- COMMAND]
 
 
-.. table:: Positional arguments
-    :widths: 17 50
 
-    +-------------------+----------------------------------------------------+
-    | HOSTS [HOSTS ...] | The hosts on which the given command should be run |
-    +-------------------+----------------------------------------------------+
+.. rubric:: Positional arguments
 
-.. table:: Optional arguments
-    :widths: 10 48
+.. table::
+    :widths: auto
 
-    +------------+--------------------------------------------------+
-    | COMMAND    | The command to run                               |
-    +------------+--------------------------------------------------+
-    | --help, -h | Show this help message and exit (default: False) |
-    +------------+--------------------------------------------------+
+    +-----------------------+----------------------------------------------------+
+    | ``HOSTS [HOSTS ...]`` | The hosts on which the given command should be run |
+    +-----------------------+----------------------------------------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +----------------+------------------------------------------------------+
+    | ``COMMAND``    | The command to run                                   |
+    +----------------+------------------------------------------------------+
+    | ``--help, -h`` | Show this help message and exit (default: ``False``) |
+    +----------------+------------------------------------------------------+

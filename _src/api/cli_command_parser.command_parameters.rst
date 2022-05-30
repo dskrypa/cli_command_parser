@@ -1,5 +1,5 @@
 Command_Parameters Module
-*************************
+=========================
 
 .. currentmodule:: cli_command_parser.command_parameters
 

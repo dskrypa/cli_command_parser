@@ -19,12 +19,14 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.autodoc',  # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosectionlabel',
     # 'sphinx.ext.autosummary',  # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
     'sphinx_paramlinks',  # https://github.com/sqlalchemyorg/sphinx-paramlinks
     'show_on_github',
 ]
 
 # Extension options
+autosectionlabel_prefix_document = True
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
 }
@@ -35,7 +37,15 @@ show_on_github_options = {
     'rm_prefix': 'api/',
     'lib_relative_path': 'lib',
     'use_root': {'index', 'api'},
-    'skip': {'advanced.rst', 'basic.rst', 'parameters.rst', 'commands.rst'},
+    'skip': {
+        'advanced.rst',
+        'basic.rst',
+        'parameters.rst',
+        'commands.rst',
+        'configuration.rst',
+        'documentation.rst',
+        'subcommands.rst',
+    },
 }
 
 autodoc_default_options = {

@@ -7,16 +7,22 @@ Echo
     usage: echo.py TEXT [--help]
 
 
-.. table:: Positional arguments
-    :widths: 15 17
 
-    +-----------------+-------------------+
-    | TEXT [TEXT ...] | The text to print |
-    +-----------------+-------------------+
+.. rubric:: Positional arguments
 
-.. table:: Optional arguments
-    :widths: 10 48
+.. table::
+    :widths: auto
 
-    +------------+--------------------------------------------------+
-    | --help, -h | Show this help message and exit (default: False) |
-    +------------+--------------------------------------------------+
+    +---------------------+-------------------+
+    | ``TEXT [TEXT ...]`` | The text to print |
+    +---------------------+-------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +----------------+------------------------------------------------------+
+    | ``--help, -h`` | Show this help message and exit (default: ``False``) |
+    +----------------+------------------------------------------------------+

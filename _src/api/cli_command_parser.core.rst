@@ -1,5 +1,5 @@
 Core Module
-***********
+===========
 
 .. currentmodule:: cli_command_parser.core
 

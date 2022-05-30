@@ -1,5 +1,5 @@
 Context Module
-**************
+==============
 
 .. currentmodule:: cli_command_parser.context
 

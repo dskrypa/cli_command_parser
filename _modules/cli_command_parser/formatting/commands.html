@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.formatting.commands &mdash; CLI Command Parser 2022.05.28-1 documentation</title>
+  <title>cli_command_parser.formatting.commands &mdash; CLI Command Parser 2022.05.30 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -40,8 +40,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -88,7 +91,7 @@
 
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ProgramMetadata</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
-<span class="kn">from</span> <span class="nn">.restructured_text</span> <span class="kn">import</span> <span class="n">rst_header</span>
+<span class="kn">from</span> <span class="nn">.restructured_text</span> <span class="kn">import</span> <span class="n">rst_header</span><span class="p">,</span> <span class="n">RstTable</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">get_usage_sub_cmds</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -167,7 +170,9 @@
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_format_rst</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">include_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">init_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Generate the RST content for the specific Command associated with this formatter&quot;&quot;&quot;</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta</span><span class="p">()</span>
         <span class="k">yield from</span> <span class="p">(</span><span class="s1">&#39;::&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">sub_cmd_choice</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># noqa</span>
@@ -177,21 +182,22 @@
 
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="n">group</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">rst_table</span><span class="p">()</span><span class="o">.</span><span class="n">iter_build</span><span class="p">()</span>  <span class="c1"># noqa</span>
+                <span class="n">table</span><span class="p">:</span> <span class="n">RstTable</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">rst_table</span><span class="p">()</span>  <span class="c1"># noqa</span>
+                <span class="k">yield from</span> <span class="n">table</span><span class="o">.</span><span class="n">iter_build</span><span class="p">()</span>  <span class="c1"># noqa</span>
 
         <span class="k">if</span> <span class="n">include_epilog</span><span class="p">:</span>
             <span class="n">epilog</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">format_epilog</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">extended_epilog</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">epilog</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">epilog</span>
 
-<div class="viewcode-block" id="CommandHelpFormatter.format_rst"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_rst">[docs]</a>    <span class="k">def</span> <span class="nf">format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandHelpFormatter.format_rst"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_rst">[docs]</a>    <span class="k">def</span> <span class="nf">format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">init_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Generate the RST content for the Command associated with this formatter and all of its subcommands&quot;&quot;&quot;</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta</span><span class="p">()</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">doc_name</span>
         <span class="k">if</span> <span class="n">fix_name</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">fix_name_func</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">fix_name_func</span> <span class="k">else</span> <span class="n">_fix_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">rst_header</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">rst_header</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">init_level</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">show_docstring</span><span class="p">:</span>
             <span class="n">doc_str</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">doc_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">doc_str</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">doc_str</span><span class="p">:</span>
@@ -202,12 +208,12 @@
 
         <span class="n">sub_command</span> <span class="o">=</span> <span class="n">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span>
         <span class="k">if</span> <span class="n">sub_command</span> <span class="ow">and</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">:</span>
-            <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">(</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+            <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">(</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">init_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Subcommand: </span><span class="si">{</span><span class="n">cmd_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+                <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Subcommand: </span><span class="si">{</span><span class="n">cmd_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">init_level</span> <span class="o">+</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
                     <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="n">choice</span><span class="o">.</span><span class="n">help</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
-                <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_formatter</span><span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">_format_rst</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">cmd_name</span><span class="p">))</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_formatter</span><span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">_format_rst</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">cmd_name</span><span class="p">,</span> <span class="n">init_level</span><span class="o">=</span><span class="n">init_level</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div></div>
 

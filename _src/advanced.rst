@@ -1,8 +1,8 @@
 Advanced Usage
-==============
+**************
 
 Post-Run & Context
-------------------
+==================
 
 While Commands are intended to be self-contained, it is possible to interact with them after calling
 :meth:`.Command.parse_and_run`, which returns the instance of the executed Command.  Example::
@@ -69,12 +69,12 @@ action to be processed when parsing would otherwise fail.
 
 
 Mixing Actions & ActionFlags
-----------------------------
+============================
 
 The `build_docs.py <https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py>`__ script that is used
-to build the documentation for this project is an example of a Command that includes both :ref:`Action` methods and
-ActionFlags.  Additionally, some of the methods even have the two decorators stacked so that they can be called either
-way.
+to build the documentation for this project is an example of a Command that includes both :ref:`parameters:Action`
+methods and ActionFlags.  Additionally, some of the methods even have the two decorators stacked so that they can be
+called either way.
 
 Example snippet::
 
@@ -157,9 +157,9 @@ you should include a check in your application to prevent it from being run twic
 
 
 Nested ParamGroups
-------------------
+==================
 
-It is possible to nest :ref:`ParamGroups<ParamGroup>` so that a mutually exclusive group contains a mutually
+It is possible to nest :ref:`ParamGroups<parameters:ParamGroup>` so that a mutually exclusive group contains a mutually
 dependent group, and vice versa.  This applies to any nesting depth.
 
 Given a mutually exclusive group ``A`` that contains a mutually dependent group ``B``, if any member of ``B`` is
@@ -171,7 +171,7 @@ provided, then all members of ``C`` (that are not members of ``D``) must be prov
 ``D`` must be provided.
 
 The following `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py>`__
-will demonstrate this with :ref:`ActionFlags<ActionFlag>` that simply print their corresponding letter::
+will demonstrate this with :ref:`ActionFlags<parameters:ActionFlag>` that simply print their corresponding letter::
 
     class GroupedFlags(Command):
         with ParamGroup(mutually_exclusive=True):

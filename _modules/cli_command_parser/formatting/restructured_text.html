@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.formatting.restructured_text &mdash; CLI Command Parser 2022.05.28-1 documentation</title>
+  <title>cli_command_parser.formatting.restructured_text &mdash; CLI Command Parser 2022.05.30 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -40,8 +40,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -138,10 +141,11 @@
 
 
 <div class="viewcode-block" id="RstTable"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable">[docs]</a><span class="k">class</span> <span class="nc">RstTable</span><span class="p">:</span>
-<div class="viewcode-block" id="RstTable.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">subtitle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RstTable.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">subtitle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">show_title</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span> <span class="o">=</span> <span class="n">subtitle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_title</span> <span class="o">=</span> <span class="n">show_title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">widths</span> <span class="o">=</span> <span class="p">[]</span></div>
 
@@ -170,9 +174,21 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;RstTable[header=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="si">}</span><span class="s1">, rows=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s1">, title=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s1">, widths=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">widths</span><span class="si">}</span><span class="s1">]&gt;&#39;</span>
 
 <div class="viewcode-block" id="RstTable.iter_build"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.iter_build">[docs]</a>    <span class="k">def</span> <span class="nf">iter_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_title</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;.. rubric:: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">:</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subtitle&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span><span class="p">,</span> <span class="s1">&#39;widths&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">widths</span><span class="p">))}</span>
-            <span class="k">yield from</span> <span class="n">_rst_directive</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># total_width = max(sum(self.widths), len(self.widths))</span>
+            <span class="c1"># width_pcts = (int(round((w or 1) / total_width * 100, 0)) for w in self.widths)</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;subtitle&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span><span class="p">,</span>
+                <span class="c1"># &#39;width&#39;: &#39;90%&#39;,</span>
+                <span class="s1">&#39;widths&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+                <span class="c1"># &#39;widths&#39;: &#39; &#39;.join(map(str, width_pcts)),</span>
+            <span class="p">}</span>
+            <span class="k">yield from</span> <span class="n">_rst_directive</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
 
         <span class="n">bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>

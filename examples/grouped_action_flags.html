@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grouped Action Flags &mdash; CLI Command Parser 2022.05.28-1 documentation</title>
+  <title>Grouped Action Flags &mdash; CLI Command Parser 2022.05.30 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -43,8 +43,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 </ul>
 <ul>
@@ -98,43 +101,31 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">grouped_action_flags</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">action_a</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_b</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_c</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_d</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_w</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_x</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_y</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">action_z</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
-<table class="colwidths-given docutils align-default" id="id1">
-<caption><span class="caption-text">Optional arguments</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 17%" />
-<col style="width: 83%" />
-</colgroup>
+<p class="rubric">Optional arguments</p>
+<table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p>–help, -h</p></td>
-<td><p>Show this help message and exit (default: False)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
 </tbody>
 </table>
-<table class="colwidths-given docutils align-default" id="id2">
-<caption><span class="caption-text">Mutually dependent options</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 41%" />
-<col style="width: 59%" />
-</colgroup>
+<p class="rubric">Mutually exclusive options</p>
+<table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p>–action_w, -w</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_a,</span> <span class="pre">-a</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>–action_x, -x</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_b,</span> <span class="pre">-b</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Mutually exclusive options</p></td>
-<td><table class="docutils align-default">
-<colgroup>
-<col style="width: 47%" />
-<col style="width: 53%" />
-</colgroup>
+<tr class="row-odd"><td><p>Mutually dependent options</p></td>
+<td><table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p>–action_y, -y</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_c,</span> <span class="pre">-c</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>–action_z, -z</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_d,</span> <span class="pre">-d</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
 </tbody>
 </table>
@@ -142,31 +133,23 @@
 </tr>
 </tbody>
 </table>
-<table class="colwidths-given docutils align-default" id="id3">
-<caption><span class="caption-text">Mutually exclusive options</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 41%" />
-<col style="width: 59%" />
-</colgroup>
+<p class="rubric">Mutually dependent options</p>
+<table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p>–action_a, -a</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_w,</span> <span class="pre">-w</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>–action_b, -b</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_x,</span> <span class="pre">-x</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Mutually dependent options</p></td>
-<td><table class="docutils align-default">
-<colgroup>
-<col style="width: 47%" />
-<col style="width: 53%" />
-</colgroup>
+<tr class="row-odd"><td><p>Mutually exclusive options</p></td>
+<td><table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p>–action_c, -c</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_y,</span> <span class="pre">-y</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p>–action_d, -d</p></td>
-<td><p>(default: False)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_z,</span> <span class="pre">-z</span></code></p></td>
+<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
 </tbody>
 </table>

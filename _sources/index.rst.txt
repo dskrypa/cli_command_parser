@@ -1,5 +1,5 @@
 CLI Command Parser
-==================
+##################
 
 |py_version| |coverage_badge| |build_status| |Black|
 
@@ -15,7 +15,7 @@ CLI Command Parser
     :target: https://github.com/psf/black
 
 
-Command Parser is a class-based CLI argument parser that defines parameters with descriptors.
+CLI Command Parser is a class-based CLI argument parser that defines parameters with descriptors.
 
 The primary goals of this project:
   - Make it easy to define subcommands and actions in an clean and organized manner
@@ -24,29 +24,40 @@ The primary goals of this project:
   - Reduce the amount of boilerplate code that is necessary for setting up parsing and handling argument values
 
 
+Installing CLI Command Parser
+*****************************
+
+CLI Command Parser is available on PyPI::
+
+    $ pip install cli-command-parser
+
+
 User Guide
-----------
+**********
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    basic
-   parameters
    commands
+   parameters
+   subcommands
+   configuration
+   documentation
    advanced
 
 
 API Documentation
------------------
+*****************
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
 
    api
 
 
 Documentation from Example Scripts
-----------------------------------
+**********************************
 
 .. toctree::
    :maxdepth: 2
@@ -55,7 +66,7 @@ Documentation from Example Scripts
 
 
 Indices and Tables
-------------------
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`

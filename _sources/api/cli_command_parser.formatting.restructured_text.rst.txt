@@ -1,5 +1,5 @@
 Restructured_Text Module
-************************
+========================
 
 .. currentmodule:: cli_command_parser.formatting.restructured_text
 

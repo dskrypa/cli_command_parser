@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration &mdash; CLI Command Parser 2022.05.30 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documentation" href="documentation.html" />
+    <link rel="prev" title="Subcommands" href="subcommands.html" />
+    <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command-metadata">Command Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-options">Configuration Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling-options">Error Handling Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#actionflag-options">ActionFlag Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parsing-options">Parsing Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-help-text-options">Usage &amp; Help Text Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Configuration</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h1>
+<p>Configuration options can be specified as keyword arguments when
+<a class="reference internal" href="commands.html#initializing-commands"><span class="std std-ref">initializing Commands</span></a>.  It is also possible to provide either a dictionary of
+options or an instance of <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.</p>
+<section id="command-metadata">
+<h2>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this heading"></a></h2>
+<p>The following options cannot be provided in a CommandConfig object or <code class="docutils literal notranslate"><span class="pre">config</span></code> dictionary, and must be specified as
+keyword arguments when defining a Command subclass.  All of these options are optional:</p>
+<ul class="simple">
+<li><p><strong>choice</strong>: SubCommand value that should be mapped to this command, if different than this class’s (lower case)
+name.  Only used when the Command is a subcommand of another Command.</p></li>
+<li><p><strong>prog</strong>: The name of the program (default: <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code>)</p></li>
+<li><p><strong>usage</strong>: Usage message to be printed with help text or when incorrect arguments are provided (default:
+auto-generated)</p></li>
+<li><p><strong>description</strong>: Description of what the program does</p></li>
+<li><p><strong>epilog</strong>: Text to follow parameter descriptions</p></li>
+<li><p><strong>help</strong>: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</p></li>
+<li><p><strong>config</strong>: A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a> object containing the config options to use.  May not
+be combined with separate kwargs that would be stored in a CommandConfig object.</p></li>
+</ul>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Permalink to this heading"></a></h2>
+<p>Configuration options supported by <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.  For convenience, they may also be specified as keyword
+arguments when defining a Command subclass:</p>
+<section id="error-handling-options">
+<h3>Error Handling Options<a class="headerlink" href="#error-handling-options" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>error_handler</strong>: The <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> to be used by <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.__call__()</span></code></a> to wrap
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, or None to disable error handling.  (default:
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code>)</p></li>
+<li><p><strong>always_run_after_main</strong>: Whether <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a> should always be called, even if an exception
+was raised in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> (similar to a <code class="docutils literal notranslate"><span class="pre">finally</span></code> block) (default: False)</p></li>
+</ul>
+</section>
+<section id="actionflag-options">
+<h3>ActionFlag Options<a class="headerlink" href="#actionflag-options" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>multiple_action_flags</strong>: Whether multiple action_flag methods are allowed to run if they are all specified
+(default: True)</p></li>
+<li><p><strong>action_after_action_flags</strong>: Whether action_flag methods are allowed to be combined with a positional Action
+method in a given CLI invocation (default: True)</p></li>
+</ul>
+</section>
+<section id="parsing-options">
+<h3>Parsing Options<a class="headerlink" href="#parsing-options" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>ignore_unknown</strong>: Whether unknown arguments should be ignored (default: False / raise an exception when unknown
+arguments are encountered)</p></li>
+<li><p><strong>allow_missing</strong>: Whether missing required arguments should be allowed (default: False / raise an exception when
+they are missing)</p></li>
+<li><p><strong>allow_backtrack</strong>: Whether the parser is allowed to backtrack or not when a Positional parameter follows a
+parameter with variable <a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nargs</span></code></a>, and not enough arguments are available to fulfil that Positional’s
+requirements (default: True)</p></li>
+</ul>
+</section>
+<section id="usage-help-text-options">
+<h3>Usage &amp; Help Text Options<a class="headerlink" href="#usage-help-text-options" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>add_help</strong>: Whether the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action_flag should be added (default: True)</p></li>
+<li><p><strong>use_type_metavar</strong>: Whether the metavar for Parameters that accept values should default to the name of the
+specified type (default: False / the name of the parameter)</p></li>
+<li><p><strong>show_defaults</strong>: Whether default values for Parameters should be automatically included in help text or not,
+and related settings.  Acceptable values are defined as
+<a class="reference external" href="https://docs.python.org/3/library/enum.html#flag">enum flags</a> that can be combined.  See
+<a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a> for more info.</p></li>
+<li><p><strong>show_group_tree</strong>: Whether there should be a visual indicator in help text for the parameters that are members
+of a given group.  See <a class="reference internal" href="documentation.html#group-formatting"><span class="std std-ref">Group Formatting</span></a> for more info.  (default: False)</p></li>
+<li><p><strong>show_group_type</strong>: Whether mutually exclusive / dependent groups should include that fact in their
+descriptions (default: True)</p></li>
+<li><p><strong>command_formatter</strong>: A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
+<a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
+same methods).</p></li>
+<li><p><strong>param_formatter</strong>: A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
+<a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p></li>
+<li><p><strong>extended_epilog</strong>: Whether the program version, author email, and documentation URL should be included in the
+help text epilog, if they were successfully detected (default: True)</p></li>
+<li><p><strong>show_docstring</strong>: Whether the top level script’s docstring should be included in generated documentation
+(default: True)</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="subcommands.html" class="btn btn-neutral float-left" title="Subcommands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
