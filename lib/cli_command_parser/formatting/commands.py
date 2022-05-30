@@ -7,7 +7,7 @@ Command usage / help text formatters
 from typing import TYPE_CHECKING, Type, Callable, Iterator
 
 from ..context import ctx
-from ..utils import ProgramMetadata, camel_to_snake_case
+from ..utils import Bool, ProgramMetadata, camel_to_snake_case
 from .rst import rst_header
 from .utils import get_usage_sub_cmds
 
@@ -17,6 +17,8 @@ if TYPE_CHECKING:
     from ..parameters import ParamGroup, Parameter
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
+
+NameFunc = Callable[[str], str]
 
 
 class CommandHelpFormatter:
@@ -85,7 +87,7 @@ class CommandHelpFormatter:
 
         return '\n'.join(parts)
 
-    def _format_rst(self, include_epilog: bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
+    def _format_rst(self, include_epilog: Bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         meta = self._get_meta()
         yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')  # noqa
@@ -102,7 +104,7 @@ class CommandHelpFormatter:
             if epilog:
                 yield epilog
 
-    def format_rst(self, fix_name: bool = True, fix_name_func: Callable[[str], str] = None) -> str:
+    def format_rst(self, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         meta = self._get_meta()
         name = meta.doc_name
