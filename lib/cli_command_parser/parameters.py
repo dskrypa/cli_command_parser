@@ -846,7 +846,7 @@ class ChoiceMap(BasePositional):
         if choice_validation_exc is not None:
             cls._choice_validation_exc = choice_validation_exc
 
-    def __init__(self, action: str = 'append', title: str = None, description: str = None, **kwargs):
+    def __init__(self, *, action: str = 'append', title: str = None, description: str = None, **kwargs):
         """
         :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
           that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to (and only supports)
@@ -969,16 +969,15 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
     :meth:`.register` sub commands explicitly to specify a different choice value.
     """
 
-    def __init__(self, *args, required: Bool = True, **kwargs):
+    def __init__(self, *, required: Bool = True, **kwargs):
         """
-        :param args: Additional positional arguments to pass to :class:`ChoiceMap`.
         :param required: Whether this parameter is required or not.  If it is required, then an exception will be
           raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and
           not provided, the :meth:`~.commands.Command.main` method for the base :class:`~.commands.Command` that
           contains this SubCommand will be executed by default.
         :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.required = required
         if not required:
             self._register_choice(None, None)  # Results in next_cmd=None in parse_args, so the base cmd will run
