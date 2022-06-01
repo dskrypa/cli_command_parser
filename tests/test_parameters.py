@@ -181,6 +181,14 @@ class OptionTest(ParserTest):
         self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
         self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
 
+    def test_not_required_nargs_plus_default(self):
+        class Foo(Command):
+            bar = Option('-b', nargs='+')
+
+        foo = Foo.parse_and_run([])
+        self.assertFalse(foo.bar)
+        self.assertEqual([], foo.bar)
+
 
 class FlagTest(ParserTest):
     def test_default_consts(self):

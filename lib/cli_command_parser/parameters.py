@@ -57,6 +57,7 @@ ParamList = List[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
 
 # TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?
+# TODO: constraints / choice=range(1, 101) for example?
 
 
 class parameter_action:
@@ -207,7 +208,7 @@ class ParamGroup(ParamBase):
 
     def __init__(
         self,
-        name: str = None,
+        name: str = None,  # TODO: 'options' always added in help text
         *,
         description: str = None,
         mutually_exclusive: Bool = False,
@@ -478,6 +479,7 @@ class Parameter(ParamBase, ABC):
         :param help: A brief description of this parameter that will appear in ``--help`` text.
         :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
         """
+        # TODO: hide_default: Bool = False
         if action not in self._actions:
             raise ParameterDefinitionError(
                 f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
@@ -621,7 +623,8 @@ class Parameter(ParamBase, ABC):
             nargs = self.nargs
             val_count = len(value)
             if val_count == 0 and 0 not in nargs:
-                raise MissingArgument(self)
+                if self.required:
+                    raise MissingArgument(self)
             elif val_count not in nargs:
                 raise BadArgument(self, f'expected nargs={nargs!r} values but found {val_count}')
             elif choices:
