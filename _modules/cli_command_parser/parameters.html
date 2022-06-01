@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters &mdash; CLI Command Parser 2022.05.30 documentation</title>
+  <title>cli_command_parser.parameters &mdash; CLI Command Parser 2022.06.01 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -140,6 +140,7 @@
 <span class="n">ParamOrGroup</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Param</span><span class="p">,</span> <span class="s1">&#39;ParamGroup&#39;</span><span class="p">]</span>
 
 <span class="c1"># TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?</span>
+<span class="c1"># TODO: constraints / choice=range(1, 101) for example?</span>
 
 
 <span class="k">class</span> <span class="nc">parameter_action</span><span class="p">:</span>
@@ -290,7 +291,7 @@
 
 <div class="viewcode-block" id="ParamGroup.__init__"><a class="viewcode-back" href="../../api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: &#39;options&#39; always added in help text</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mutually_exclusive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -561,6 +562,7 @@
 <span class="sd">        :param help: A brief description of this parameter that will appear in ``--help`` text.</span>
 <span class="sd">        :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: hide_default: Bool = False</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> - valid actions: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -704,7 +706,8 @@
             <span class="n">nargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span>
             <span class="n">val_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">val_count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nargs</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">val_count</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nargs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;expected nargs=</span><span class="si">{</span><span class="n">nargs</span><span class="si">!r}</span><span class="s1"> values but found </span><span class="si">{</span><span class="n">val_count</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">choices</span><span class="p">:</span>
