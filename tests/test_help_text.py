@@ -24,6 +24,7 @@ from cli_command_parser.parameters import (
     Flag,
     PassThru,
     ChoiceMap,
+    action_flag,
 )
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.utils import ProgramMetadata, ProgInfo
@@ -250,6 +251,31 @@ class HelpTextTest(TestCase):
             self.assertNotIn('default:', Option(default=[]).formatter.format_help())
             self.assertNotIn('default:', Option(default='').formatter.format_help())
             self.assertNotIn('default:', Option(default=None).formatter.format_help())
+
+    def test_help_called_with_missing_required_params(self):
+        help_mock = Mock()
+
+        class Foo(Command, add_help=False):
+            help = action_flag('-h', order=float('-inf'), always_available=True)(help_mock)
+            bar = Option(required=True)
+
+        Foo.parse_and_run(['-h'])
+        self.assertTrue(help_mock.called)
+
+    def test_help_called_with_missing_required_group(self):
+        help_mock = Mock()
+
+        class Foo(Command, add_help=False):
+            help = action_flag('-h', order=float('-inf'), always_available=True)(help_mock)
+            with ParamGroup(mutually_exclusive=True, required=True):
+                bar = Option()
+                baz = Option()
+
+        Foo.parse_and_run(['-h'])
+        self.assertTrue(help_mock.called)
+
+    # def test_common_parent_group_shown_in_subcommand_help(self):
+    #     pass  # TODO
 
 
 class GroupHelpTextTest(ParserTest):

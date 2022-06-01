@@ -34,39 +34,42 @@ class CommandParser:
 
     @classmethod
     def parse_args(cls) -> Optional['CommandType']:
+        try:
+            return cls.__parse_args()
+        except UsageError:
+            ctx.failed = True
+            if not ctx.parsed_always_available_action_flags:
+                raise
+        except Exception:
+            ctx.failed = True
+            raise
+
+    @classmethod
+    def __parse_args(cls) -> Optional['CommandType']:
         params = ctx.params
         sub_cmd_param = params.sub_command
         if sub_cmd_param is not None and not sub_cmd_param.choices:
-            ctx.failed = True
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls()._parse_args()
         cls._validate_groups(params)
 
         if sub_cmd_param is not None:
-            try:
-                next_cmd = sub_cmd_param.result()  # type: CommandType
-            except UsageError:
+            next_cmd = sub_cmd_param.result()  # type: CommandType
+            missing = params.missing()
+            if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.failed = True
-                if not ctx.parsed_always_available_action_flags:
-                    raise
-            else:
-                missing = params.missing()
-                if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
-                    ctx.failed = True
-                    if ctx.parsed_always_available_action_flags:
-                        return None
-                    raise ParamsMissing(missing)
-                return next_cmd
+                if ctx.parsed_always_available_action_flags:
+                    return None
+                raise ParamsMissing(missing)
+            return next_cmd
 
         missing = params.missing()
         if missing and not ctx.allow_missing and (not params.action or params.action not in missing):
-            ctx.failed = True
             # Action is excluded because it provides a better error message
             if not ctx.parsed_always_available_action_flags:
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.ignore_unknown:
-            ctx.failed = True
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))
 
         return None
