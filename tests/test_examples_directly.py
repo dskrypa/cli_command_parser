@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from unittest import main
+from unittest.mock import patch
 
 from cli_command_parser.formatting.commands import get_formatter
 from cli_command_parser.testing import ParserTest
@@ -36,7 +37,7 @@ class ExampleHelpTest(ParserTest):
             expected = load_expected(f'rest_api_wrapper__{sub_cmd}.txt')
             with self.subTest(sub_cmd=sub_cmd):
                 cmd = ApiWrapper.parse([sub_cmd, '-h'])
-                with cmd.ctx:
+                with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)), cmd.ctx:
                     self.assert_strings_equal(expected, get_formatter(cmd).format_help())
 
 
