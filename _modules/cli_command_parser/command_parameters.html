@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.06.01 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.06.02 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -230,11 +230,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_group</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
             <span class="n">_groups</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">groups</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_groups</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_group</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>

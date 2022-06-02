@@ -11,5 +11,6 @@ Example Scripts
     examples/echo
     examples/grouped_action_flags
     examples/hello_world
+    examples/rest_api_wrapper
     examples/shared_logging_init
     examples/simple_flags
