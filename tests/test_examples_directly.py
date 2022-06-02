@@ -9,18 +9,35 @@ from cli_command_parser.documentation import load_commands
 
 THIS_FILE = Path(__file__).resolve()
 EXAMPLES_DIR = THIS_FILE.parents[1].joinpath('examples')
+TEST_DATA_DIR = THIS_FILE.parent.joinpath('data', 'test_examples_directly')
+
+
+def load_example_command(name: str, cmd_name: str):
+    return load_commands(EXAMPLES_DIR.joinpath(name))[cmd_name]
+
+
+def load_expected(name: str) -> str:
+    return TEST_DATA_DIR.joinpath(name).read_text('utf-8')
 
 
 class ExampleHelpTest(ParserTest):
     def test_advanced_subcommand(self):
-        script_path = EXAMPLES_DIR.joinpath('advanced_subcommand.py')
-        commands = load_commands(script_path)
+        Base = load_example_command('advanced_subcommand.py', 'Base')
         for args in ('foo', 'run foo'):
             expected = f'usage: advanced_subcommand.py {args} [--verbose [VERBOSE]] [--help]'
             with self.subTest(args=args):
-                cmd = commands['Base'].parse(args.split())
+                cmd = Base.parse(args.split())
                 with cmd.ctx:
                     self.assert_str_starts_with_line(expected, get_formatter(cmd).format_help())
+
+    def test_common_group_shown(self):
+        ApiWrapper = load_example_command('rest_api_wrapper.py', 'ApiWrapper')
+        for sub_cmd in ('show', 'find'):
+            expected = load_expected(f'rest_api_wrapper__{sub_cmd}.txt')
+            with self.subTest(sub_cmd=sub_cmd):
+                cmd = ApiWrapper.parse([sub_cmd, '-h'])
+                with cmd.ctx:
+                    self.assert_strings_equal(expected, get_formatter(cmd).format_help())
 
 
 if __name__ == '__main__':

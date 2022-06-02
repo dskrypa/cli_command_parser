@@ -147,11 +147,11 @@ class CommandParameters:
         self._process_groups(groups)
 
     def _process_groups(self, groups: Set[ParamGroup]):
-        self.formatter.maybe_add_group(*groups)
         if self.parent:
             _groups, groups = groups, self.parent.groups.copy()
             groups.extend(_groups)
 
+        self.formatter.maybe_add_group(*groups)
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):

@@ -1,0 +1,14 @@
+usage: rest_api_wrapper.py show {foo,bar,baz} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help] [--ids IDS]
+
+Positional arguments:
+  {foo,bar,baz}               The type of object to show
+
+Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+  --ids IDS, -i IDS           The IDs of the objects to show
+
+Common options:
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)
+  --env {dev,qa,uat,prod}, -e {dev,qa,uat,prod}
+                              Environment to connect to (default: 'prod')
