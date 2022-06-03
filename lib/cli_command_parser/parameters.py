@@ -59,6 +59,8 @@ ParamOrGroup = Union[Param, 'ParamGroup']
 # TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?
 # TODO: constraints / choice=range(1, 101) for example?
 
+# TODO: Way to read string from file
+
 
 class parameter_action:
     """
