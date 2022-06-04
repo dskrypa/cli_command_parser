@@ -127,9 +127,7 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
 
 .. _flag_init_params:
 
-.. rubric:: Flag Initialization Parameters
-
-Flag-specific initialization parameters:
+**Unique Flag initialization parameters:**
 
 - **action**: While not specific to Flags, this is one example of a Parameter where it may be desirable to specify a
   value here.  The default action is ``store_const``, but ``append_const`` is also supported.
@@ -180,9 +178,7 @@ is for verbosity levels, where logging verbosity would increase with the number 
 
 .. _counter_init_params:
 
-.. rubric:: Counter Initialization Parameters
-
-Counter-specific initialization parameters:
+**Unique Counter initialization parameters:**
 
 - **default**: The default value if the Parameter is not specified.  This value is also be used as the initial value
   that will be incremented when the flag is provided.  Defaults to ``0``.
@@ -237,6 +233,18 @@ Positional
 The generic :class:`~cli_command_parser.parameters.Positional` parameter, that accepts arbitrary values or lists of
 values.
 
+.. _positional_init_params:
+
+**Unique Positional initialization parameters:**
+
+- **nargs**: The number of values that are expected/required for the Parameter.  Defaults to 1.  Use a value that
+  allows 0 values to have the same effect as making the Parameter not required (the ``required`` option is not
+  supported for Positional Parameters).  Only the last Positional in a given :class:`.Command` may allow a
+  variable / unbound number of arguments.
+- **default**: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.  Defaults
+  to ``None`` under those conditions.
+
+
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py>`__::
 
     class Echo(Command):
@@ -260,6 +268,19 @@ Command that contains the SubCommand parameter.  A given Command may only contai
 
 SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
 should be provided relative to other positional parameters, if any.
+
+.. _subcommand_init_params:
+
+**Unique SubCommand initialization parameters:**
+
+- **title**: The title to use for help text sections containing the choices for the Parameter.  Defaults to
+  ``Subcommands``.
+- **description**: The description to be used in help text for the Parameter.
+- **nargs**: Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
+  Commands).
+- **type**: Not supported.
+- **choices**: Not supported.
+
 
 Explicit registration is not necessary for Commands that extend their parent Command - given the `following example
 <https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py>`_::
@@ -317,6 +338,18 @@ When there are multiple choices of functions that may be called for a given prog
 cases where all of those functions share the same parameters.  If the target functions require different / additional
 parameters, then using a :class:`.SubCommand` with separate sub :class:`.Command` classes may make more sense.
 
+.. _action_init_params:
+
+**Unique Action initialization parameters:**
+
+- **title**: The title to use for help text sections containing the choices for the Parameter.  Defaults to
+  ``Actions``.
+- **description**: The description to be used in help text for the Parameter.
+- **nargs**: Not supported.  Automatically calculated / maintained based on registered choices (target methods).
+- **type**: Not supported.
+- **choices**: Not supported.
+
+
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py>`__ that uses
 actions::
 
@@ -373,9 +406,7 @@ space.
 
 .. _passthru_init_params:
 
-.. rubric:: PassThru Initialization Parameters
-
-PassThru-specific initialization parameters:
+**Unique PassThru initialization parameters:**
 
 - **nargs**: Not supported.
 - **type**: Not supported.
@@ -427,9 +458,7 @@ are provided to simplify this distinction: :data:`~.parameters.before_main` and 
 
 .. _actionflag_init_params:
 
-.. rubric:: ActionFlag Initialization Parameters
-
-ActionFlag-specific initialization parameters:
+**Unique ActionFlag initialization parameters:**
 
 - **order**: The priority / order for execution, relative to other ActionFlags, if others would also be executed.  Two
   ActionFlags in a given :class:`.Command` may not have the same combination of ``before_main`` and ``order`` values.
