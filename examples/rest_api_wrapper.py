@@ -28,6 +28,23 @@ class Show(ApiWrapper, help='Show an object'):
         log.info(f'Would show {self.type} objects: {self.ids}')
 
 
+class Sync(ApiWrapper, help='Sync group members'):
+    dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
+    with ParamGroup(mutually_exclusive=True, required=True):
+        all = Flag('-a', help='Sync all groups')
+        with ParamGroup():  # --role and --group can be combined, but neither can be combined with --all
+            role = Option('-r', default='all', choices=('all', 'admin', 'user'), help='Sync members with this role')
+            group = Option('-g', help='Sync members for this group')
+
+    def main(self):
+        prefix = '[DRY RUN] Would sync' if self.dry_run else 'Syncing'
+        roles = ['admin', 'user'] if self.role == 'all' else [self.role]
+        groups = [self.group] if self.group else ['foo', 'bar', 'baz']
+        for group in groups:
+            for role in roles:
+                log.info(f'{prefix} group={group} members with role={role}')
+
+
 # region Find subcommands
 
 
@@ -62,6 +79,18 @@ class FindBar(Find, choice='bar', help='Find bar objects'):
         if self.pattern:
             objects = {c: even for c, even in objects.items() if fnmatch(c, self.pattern)}
         return objects
+
+
+class FindBaz(Find, choice='baz', help='Find baz objects'):
+    with ParamGroup(description='Filter Choices', mutually_exclusive=True, required=True):
+        foo = Option('-f', metavar='NAME', help='Find baz objects related to the foo object with the specified name')
+        bar: int = Option('-b', metavar='ID', help='Find baz objects related to the bar object with the specified ID')
+
+    def find_objects(self):
+        if self.foo:
+            return ['a', 'b', 'c']
+        else:
+            return [chr(self.bar)]
 
 
 # endregion

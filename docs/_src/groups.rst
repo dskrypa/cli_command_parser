@@ -9,7 +9,7 @@ Groups are defined by initializing a :class:`.ParamGroup` as a context manager, 
 inside the ``with`` block.
 
 
-.. _group_init_params::
+.. _group_init_params:
 
 .. rubric:: Initialization Parameters
 
@@ -168,7 +168,7 @@ Any of the valid combos can be combined with the Parameter outside of the group:
     [DRY RUN] Would sync group=baz members with role=user
 
 
-.. _mutually_dependent_example::
+.. _mutually_dependent_example:
 
 Similarly, it is also possible to nest mutually dependent groups inside mutually exclusive groups.  Using a refactored
 version of the same example::

@@ -11,7 +11,7 @@ being stored.  For the parameters that support a type, if not explicitly specifi
 type will be inferred automatically from any type annotations (see :pep:`484`) that are present.
 
 
-.. _common_init_params::
+.. _common_init_params:
 
 .. rubric:: Common Initialization Parameters
 
@@ -19,6 +19,7 @@ All parameters that can be specified when initializing Parameters should be pass
 otherwise stated.
 
 Common parameters that are supported by all Parameters:
+
 - **action**: The action to take on individual parsed values.  This usually does not need to be specified.  It is
   automatically determined based on the specified ``nargs`` value.  Supported values depend on the actions defined for
   each Parameter class.
@@ -32,6 +33,7 @@ Common parameters that are supported by all Parameters:
   the ``show_defaults`` setting.
 
 Common parameters that are supported when initializing most Parameters:
+
 - **default**: The default value to use when no argument is provided.  When a Parameter is not required, this defaults
   to ``None`` if ``nargs`` would only accept 1 value, and to an empty list if multiple values would be accepted.  Not
   used if the Parameter is required.  Some specialized Parameters have different defaults.
@@ -41,16 +43,17 @@ Common parameters that are supported when initializing most Parameters:
 - **nargs**: The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
   When multiple arguments are accepted, they are collected in a list.  When only 0 - 1 arguments are accepted, they
   will be stored / returned as-is.  Supported values:
+
     - ``N`` (an integer): Exactly ``N`` arguments must be provided.  If ``N > 1``, the arguments will be collected in
       a list.
     - ``'?'``: One argument may be provided, but it is not required.  Generally only useful for Positional Parameters.
     - ``'*'``: Any number of arguments may be provided, including none.  The arguments will be collected in a list.
     - ``'+'``: One or more arguments may be provided.  The arguments will be collected in a list.
-    - ``(N\ :sub:`0`\ , N\ :sub:`1`\ )`` (a tuple of 2 integers): Accept exactly either ``N\ :sub:`0`\ `` or
-      ``N\ :sub:`1`\ `` arguments.  ``N\ :sub:`0`\ `` must be less than ``N\ :sub:`1`\ ``.
+    - ``(N₀, N₁)`` (a tuple of 2 integers): Accept exactly either ``N₀`` or ``N₁`` arguments.  ``N₀`` must be less
+      than ``N₁``.
     - ``(N, None)`` (a tuple of an integer and ``None``): Similar to ``'+'``, accept a minimum of ``N`` arguments, or
       any number of arguments greater than ``N``.
-    - ``{N\ :sub:`0`\ , N\ :sub:`1`\ , ..., N\ :sub:`n`\ }`` (a set of integers): Accept any specific number of
+    - ``{N₀, N₁, ..., Nₓ}`` (a set of integers): Accept any specific number of
       arguments in the set.
     - ``range(...)`` (a :class:`python:range` object):  Similar to the set of integers, accept any number of arguments
       for which ``N in range(...)`` is ``True`` for the specified range.  Can be used to accept only an even number of
@@ -72,17 +75,20 @@ a ``--`` prefix, and short forms have a ``-`` prefix.  The long form is automati
 specified, based on the name of the Parameter attribute.
 
 
-.. _options_init_params::
+.. _options_init_params:
 
 .. rubric:: Common Initialization Parameters - Options
 
 Options support one additional initialization parameter:
+
 - **\*option_strs**: One or more long or short form option strings may be provided positionally, similar to how they
   would be specified when using ``argparse``.
+
     - Option strings cannot end with ``-`` or contain ``=``.
     - Short forms must begin with a ``-`` prefix, and may be one or more characters.  They may not contain any other
       ``-`` characters.
-    - Long forms must begin with a ``--`` prefix, and may be one or more characters.
+    - Long forms must begin with a ``--`` prefix, and may be one or more characters.  If provided, the automatically
+      generated long form based on the Parameter's name will not be added.
 
 
 Option
@@ -119,11 +125,12 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
 ``default=True``, then that behavior is reversed.  It is also possible to specify any default value with a different
 ``const`` value to use if the flag is provided.
 
-.. _flag_init_params::
+.. _flag_init_params:
 
 .. rubric:: Flag Initialization Parameters
 
 Flag-specific initialization parameters:
+
 - **action**: While not specific to Flags, this is one example of a Parameter where it may be desirable to specify a
   value here.  The default action is ``store_const``, but ``append_const`` is also supported.
 - **const**: The constant value to store / append.  If a ``default`` value is provided that is not a bool, then this
@@ -171,11 +178,12 @@ Counter
 optional integer value to explicitly increase their stored value by that amount.  One common use case for Counters
 is for verbosity levels, where logging verbosity would increase with the number of ``-v`` arguments that are provided.
 
-.. _counter_init_params::
+.. _counter_init_params:
 
 .. rubric:: Counter Initialization Parameters
 
 Counter-specific initialization parameters:
+
 - **default**: The default value if the Parameter is not specified.  This value is also be used as the initial value
   that will be incremented when the flag is provided.  Defaults to ``0``.
 - **const**: The value by which the stored value should increase whenever the flag is provided. Defaults to ``1``.
@@ -363,11 +371,12 @@ PassThru
 one PassThru parameter may exist in a given :class:`.Command`.  When provided, it must be preceded by ``--`` and a
 space.
 
-.. _passthru_init_params::
+.. _passthru_init_params:
 
 .. rubric:: PassThru Initialization Parameters
 
 PassThru-specific initialization parameters:
+
 - **nargs**: Not supported.
 - **type**: Not supported.
 - **choices**: Not supported.
@@ -416,11 +425,12 @@ those methods as ActionFlags.  Execution order is also customizable relative to 
 method is called, so each ActionFlag must indicate whether it should run before or after main.  Helper decorators
 are provided to simplify this distinction: :data:`~.parameters.before_main` and :data:`~.parameters.after_main`.
 
-.. _actionflag_init_params::
+.. _actionflag_init_params:
 
 .. rubric:: ActionFlag Initialization Parameters
 
 ActionFlag-specific initialization parameters:
+
 - **order**: The priority / order for execution, relative to other ActionFlags, if others would also be executed.  Two
   ActionFlags in a given :class:`.Command` may not have the same combination of ``before_main`` and ``order`` values.
   ActionFlags with lower ``order`` values are executed before those with higher values.  The ``--help`` action is

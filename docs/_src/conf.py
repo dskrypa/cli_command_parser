@@ -45,6 +45,7 @@ show_on_github_options = {
         'configuration.rst',
         'documentation.rst',
         'subcommands.rst',
+        'groups.rst',
     },
 }
 
