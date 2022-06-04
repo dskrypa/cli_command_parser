@@ -41,6 +41,7 @@ User Guide
    basic
    commands
    parameters
+   groups
    subcommands
    configuration
    documentation
