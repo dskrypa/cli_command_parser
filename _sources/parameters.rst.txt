@@ -56,8 +56,8 @@ Common parameters that are supported when initializing most Parameters:
     - ``{N₀, N₁, ..., Nₓ}`` (a set of integers): Accept any specific number of
       arguments in the set.
     - ``range(...)`` (a :class:`python:range` object):  Similar to the set of integers, accept any number of arguments
-      for which ``N in range(...)`` is ``True`` for the specified range.  Can be used to accept only an even number of
-      arguments, such as ``range(0, 6, 2)`` to accept 0, 2, or 4 values.
+      for which ``N in range(...)`` is ``True`` for the specified range.  Can be used, for example, to accept only an
+      even number of arguments, such as ``range(0, 6, 2)`` to accept 0, 2, or 4 values.
 - **type**: A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
   argument values.  It will be used before evaluating whether the value is in ``choices``, if specified.  If ``nargs``
   accepts multiple values, then this will be called on each value individually before appending it to the list of

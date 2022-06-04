@@ -17,7 +17,8 @@ keyword arguments when defining a Command subclass.  All of these options are op
 - **prog**: The name of the program (default: ``sys.argv[0]``)
 - **usage**: Usage message to be printed with help text or when incorrect arguments are provided (default:
   auto-generated)
-- **description**: Description of what the program does
+- **description**: Description of what the program does.  If the Command contains a class-level docstring, then that
+  value will be used unless this parameter is provided.
 - **epilog**: Text to follow parameter descriptions
 - **help**: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
 - **config**: A :class:`python:dict` or :class:`.CommandConfig` object containing the config options to use.  May not
