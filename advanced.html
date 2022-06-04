@@ -45,13 +45,13 @@
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nested-paramgroups">Nested ParamGroups</a></li>
 </ul>
 </li>
 </ul>
@@ -229,101 +229,6 @@ the following methods being called in the following order:</p>
 <p>It is technically possible to call the same method both via action and flag, such as <code class="docutils literal notranslate"><span class="pre">build_docs.py</span> <span class="pre">clean</span> <span class="pre">-c</span></code>.
 Nothing in this library will prevent that.  If this is problematic, but you want to stack decorators like this, then
 you should include a check in your application to prevent it from being run twice.</p>
-</section>
-<section id="nested-paramgroups">
-<h2>Nested ParamGroups<a class="headerlink" href="#nested-paramgroups" title="Permalink to this heading"></a></h2>
-<p>It is possible to nest <a class="reference internal" href="parameters.html#paramgroup"><span class="std std-ref">ParamGroups</span></a> so that a mutually exclusive group contains a mutually
-dependent group, and vice versa.  This applies to any nesting depth.</p>
-<p>Given a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">A</span></code> that contains a mutually dependent group <code class="docutils literal notranslate"><span class="pre">B</span></code>, if any member of <code class="docutils literal notranslate"><span class="pre">B</span></code> is
-provided, then all members of <code class="docutils literal notranslate"><span class="pre">B</span></code> must be provided, but no other members of <code class="docutils literal notranslate"><span class="pre">A</span></code> (that are not members of <code class="docutils literal notranslate"><span class="pre">B</span></code>) may
-be provided.</p>
-<p>Given a mutually dependent group <code class="docutils literal notranslate"><span class="pre">C</span></code> that contains a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">D</span></code>, if any member of <code class="docutils literal notranslate"><span class="pre">C</span></code> is
-provided, then all members of <code class="docutils literal notranslate"><span class="pre">C</span></code> (that are not members of <code class="docutils literal notranslate"><span class="pre">D</span></code>) must be provided, and one and only one member of
-<code class="docutils literal notranslate"><span class="pre">D</span></code> must be provided.</p>
-<p>The following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py">example</a>
-will demonstrate this with <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a> that simply print their corresponding letter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GroupedFlags</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">mutually_exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">action_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
-
-        <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">action_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">mutually_dependent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">action_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span>
-
-            <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">action_d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">mutually_dependent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">action_w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
-
-        <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-x&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">action_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">mutually_exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-y&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">action_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
-
-            <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-z&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">action_z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Example output for the mutually dependent group nested inside the mutually exclusive group:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ grouped_action_flags.py -a
-a
-main
-
-$ grouped_action_flags.py -ab
-argument conflict - the following arguments cannot be combined: --action_a / -a, --action_b / -b (they are mutually exclusive - only one is allowed)
-
-$ grouped_action_flags.py -abc
-argument conflict - the following arguments cannot be combined: --action_a / -a, --action_b / -b, {--action_c / -c,--action_d / -d} (they are mutually exclusive - only one is allowed)
-
-$ grouped_action_flags.py -c
-argument missing - the following argument is required: --action_d / -d (because --action_c/-c was provided)
-
-$ grouped_action_flags.py -cd
-c
-d
-main
-</pre></div>
-</div>
-<p>Example output for the mutually exclusive group nested inside the mutually dependent group:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ grouped_action_flags.py -w
-arguments missing - the following arguments are required: --action_x / -x, {--action_y / -y,--action_z / -z} (because --action_w/-w was provided)
-
-$ grouped_action_flags.py -wx
-argument missing - the following argument is required: {--action_y / -y,--action_z / -z} (because --action_w/-w, --action_x/-x were provided)
-
-$ grouped_action_flags.py -wxy
-main
-w
-x
-y
-
-$ grouped_action_flags.py -wxyz
-argument conflict - the following arguments cannot be combined: --action_y / -y, --action_z / -z (they are mutually exclusive - only one is allowed)
-</pre></div>
-</div>
-<p>Similar to how mutually exclusive / dependent groups can be nested within each other, normal groups can also be nested
-inside mutually exclusive / dependent groups.  Given a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">A</span></code> that contains parameters <code class="docutils literal notranslate"><span class="pre">x</span></code>
-and <code class="docutils literal notranslate"><span class="pre">y</span></code> and a normal group <code class="docutils literal notranslate"><span class="pre">B</span></code>, which contains parameters <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span></code>, then similar rules apply.  It is
-possible to provide any one of <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>, or <code class="docutils literal notranslate"><span class="pre">d</span></code>, but only <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span></code> can be combined.</p>
 </section>
 </section>
 

@@ -4,7 +4,7 @@ Rest Api Wrapper
 
 ::
 
-    usage: rest_api_wrapper.py {show,find} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help]
+    usage: rest_api_wrapper.py {show,sync,find} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help]
 
 
 
@@ -13,16 +13,18 @@ Rest Api Wrapper
 .. table::
     :widths: auto
 
-    +-------------+-----------------------------------+
-    | Subcommands | .. table::                        |
-    |             |     :widths: auto                 |
-    |             |                                   |
-    |             |     +----------+----------------+ |
-    |             |     | ``show`` | Show an object | |
-    |             |     +----------+----------------+ |
-    |             |     | ``find`` | Find objects   | |
-    |             |     +----------+----------------+ |
-    +-------------+-----------------------------------+
+    +-------------+---------------------------------------+
+    | Subcommands | .. table::                            |
+    |             |     :widths: auto                     |
+    |             |                                       |
+    |             |     +----------+--------------------+ |
+    |             |     | ``show`` | Show an object     | |
+    |             |     +----------+--------------------+ |
+    |             |     | ``sync`` | Sync group members | |
+    |             |     +----------+--------------------+ |
+    |             |     | ``find`` | Find objects       | |
+    |             |     +----------+--------------------+ |
+    +-------------+---------------------------------------+
 
 
 .. rubric:: Optional arguments
@@ -96,6 +98,60 @@ Show an object
     +---------------------------------------------------+--------------------------------------------------------------------------+
 
 
+Subcommand: sync
+----------------
+
+Sync group members
+
+::
+
+    usage: rest_api_wrapper.py sync [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help] [--dry_run] [--all] [--role {all,admin,user}] [--group GROUP]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------+-----------------------------------------------------------------------------------+
+    | ``--help, -h``    | Show this help message and exit (default: ``False``)                              |
+    +-------------------+-----------------------------------------------------------------------------------+
+    | ``--dry_run, -D`` | Print the actions that would be taken instead of taking them (default: ``False``) |
+    +-------------------+-----------------------------------------------------------------------------------+
+
+
+.. rubric:: Common options
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE], -v [VERBOSE]``             | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +---------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--env {dev,qa,uat,prod}, -e {dev,qa,uat,prod}`` | Environment to connect to (default: ``'prod'``)                          |
+    +---------------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Mutually exclusive options
+
+.. table::
+    :widths: auto
+
+    +--------------------+-------------------------------------------------------------------------------------------------------------+
+    | ``--all, -a``      | Sync all groups (default: ``False``)                                                                        |
+    +--------------------+-------------------------------------------------------------------------------------------------------------+
+    | Optional arguments | .. table::                                                                                                  |
+    |                    |     :widths: auto                                                                                           |
+    |                    |                                                                                                             |
+    |                    |     +--------------------------------------------------+--------------------------------------------------+ |
+    |                    |     | ``--role {all,admin,user}, -r {all,admin,user}`` | Sync members with this role (default: ``'all'``) | |
+    |                    |     +--------------------------------------------------+--------------------------------------------------+ |
+    |                    |     | ``--group GROUP, -g GROUP``                      | Sync members for this group                      | |
+    |                    |     +--------------------------------------------------+--------------------------------------------------+ |
+    +--------------------+-------------------------------------------------------------------------------------------------------------+
+
+
 Subcommand: find
 ----------------
 
@@ -103,7 +159,7 @@ Find objects
 
 ::
 
-    usage: rest_api_wrapper.py find {foo,bar} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help] [--limit LIMIT]
+    usage: rest_api_wrapper.py find {foo,bar,baz} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help] [--limit LIMIT]
 
 
 
@@ -120,6 +176,8 @@ Find objects
     |             |     | ``foo`` | Find foo objects | |
     |             |     +---------+------------------+ |
     |             |     | ``bar`` | Find bar objects | |
+    |             |     +---------+------------------+ |
+    |             |     | ``baz`` | Find baz objects | |
     |             |     +---------+------------------+ |
     +-------------+------------------------------------+
 

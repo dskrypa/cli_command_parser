@@ -50,7 +50,7 @@ The ``Option(...)`` Parameter above would be equivalent to the following if you 
 A Command may contain any number of Parameters to define how it will parse CLI arguments.  To better differentiate
 between Parameter types, they are defined as separate classes.  The basics are :ref:`parameters:Positional`,
 :ref:`parameters:Option`, and :ref:`parameters:Flag`, but there are :doc:`others<parameters>` as well, including
-:ref:`groups<parameters:ParamGroup>` that can be mutually exclusive or dependent.
+:doc:`groups<groups>` that can be mutually exclusive or dependent.
 
 
 Entry Points

@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#command-metadata">Command Metadata</a></li>
@@ -157,8 +158,9 @@ requirements (default: True)</p></li>
 specified type (default: False / the name of the parameter)</p></li>
 <li><p><strong>show_defaults</strong>: Whether default values for Parameters should be automatically included in help text or not,
 and related settings.  Acceptable values are defined as
-<a class="reference external" href="https://docs.python.org/3/library/enum.html#flag">enum flags</a> that can be combined.  See
-<a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a> for more info.</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/enum.html#flag">enum flags</a> that can be combined.  May be overridden on a
+per-Parameter level by using the <a class="reference internal" href="parameters.html#common-init-params"><span class="std std-ref">show_default</span></a> param. See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a> for
+more info.</p></li>
 <li><p><strong>show_group_tree</strong>: Whether there should be a visual indicator in help text for the parameters that are members
 of a given group.  See <a class="reference internal" href="documentation.html#group-formatting"><span class="std std-ref">Group Formatting</span></a> for more info.  (default: False)</p></li>
 <li><p><strong>show_group_type</strong>: Whether mutually exclusive / dependent groups should include that fact in their
