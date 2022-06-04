@@ -242,6 +242,18 @@ class FlagTest(ParserTest):
         success_cases = [(['--bar'], {'bar': [42]}), ([], {'bar': []}), (['-bb'], {'bar': [42, 42]})]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    def test_nargs_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Flag(nargs='+')
+
+    def test_type_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Flag(type=int)
+
+    def test_choices_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Flag(choices=(1, 2))
+
 
 class CounterTest(ParserTest):
     def test_counter_default(self):
@@ -347,6 +359,18 @@ class CounterTest(ParserTest):
         self.assertTrue(Counter().is_valid_arg('1'))
         self.assertFalse(Counter().is_valid_arg('1.5'))
 
+    def test_nargs_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Counter(nargs='+')
+
+    def test_type_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Counter(type=int)
+
+    def test_choices_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Counter(choices=(1, 2))
+
 
 class PassThruTest(ParserTest):
     def test_pass_thru(self):
@@ -417,6 +441,18 @@ class PassThruTest(ParserTest):
     def test_usage(self):
         self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).formatter.format_basic_usage())
         self.assertEqual('-- FOO', PassThru(name='foo', required=True).formatter.format_basic_usage())
+
+    def test_nargs_not_allowed(self):
+        with self.assertRaises(TypeError):
+            PassThru(nargs='+')
+
+    def test_type_not_allowed(self):
+        with self.assertRaises(TypeError):
+            PassThru(type=int)
+
+    def test_choices_not_allowed(self):
+        with self.assertRaises(TypeError):
+            PassThru(choices=(1, 2))
 
 
 class MiscParameterTest(ParserTest):
@@ -664,10 +700,6 @@ class TypeCastTest(ParserTest):
 
 
 class ChoiceMapTest(ParserTest):
-    def test_early_choices_rejected(self):
-        with self.assertRaises(ParameterDefinitionError):
-            Action(choices=())
-
     def test_reassign_choice_rejected(self):
         with self.assertRaises(CommandDefinitionError):
 
@@ -762,6 +794,30 @@ class ChoiceMapTest(ParserTest):
             action(choice='foo')(Mock(__name__='bar'))
 
         self.assertIn('foo', Foo.action.choices)
+
+    def test_nargs_not_allowed_sub_cmd(self):
+        with self.assertRaises(TypeError):
+            SubCommand(nargs='+')
+
+    def test_type_not_allowed_sub_cmd(self):
+        with self.assertRaises(TypeError):
+            SubCommand(type=int)
+
+    def test_choices_not_allowed_sub_cmd(self):
+        with self.assertRaises(ParameterDefinitionError):
+            SubCommand(choices=(1, 2))
+
+    def test_nargs_not_allowed_action(self):
+        with self.assertRaises(TypeError):
+            Action(nargs='+')
+
+    def test_type_not_allowed_action(self):
+        with self.assertRaises(TypeError):
+            Action(type=int)
+
+    def test_choices_not_allowed_action(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Action(choices=(1, 2))
 
 
 def _resolved_path(path):

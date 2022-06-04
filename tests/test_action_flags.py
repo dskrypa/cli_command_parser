@@ -274,6 +274,18 @@ class ActionFlagTest(ParserTest):
         with self.assertRaisesRegex(ParameterDefinitionError, 'cannot be combined with'):
             ActionFlag(before_main=False, always_available=True)
 
+    def test_nargs_not_allowed(self):
+        with self.assertRaises(TypeError):
+            ActionFlag(nargs='+')
+
+    def test_type_not_allowed(self):
+        with self.assertRaises(TypeError):
+            ActionFlag(type=int)
+
+    def test_choices_not_allowed(self):
+        with self.assertRaises(TypeError):
+            ActionFlag(choices=(1, 2))
+
 
 if __name__ == '__main__':
     try:

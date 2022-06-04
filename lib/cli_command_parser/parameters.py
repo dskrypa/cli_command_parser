@@ -59,7 +59,7 @@ ParamOrGroup = Union[Param, 'ParamGroup']
 # TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?
 # TODO: constraints / choice=range(1, 101) for example?
 
-# TODO: Way to read string from file
+# TODO: Way to read string from file, and/or https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
 
 
 class parameter_action:
@@ -210,7 +210,7 @@ class ParamGroup(ParamBase):
 
     def __init__(
         self,
-        name: str = None,  # TODO: 'options' always added in help text
+        name: str = None,
         *,
         description: str = None,
         mutually_exclusive: Bool = False,
@@ -223,10 +223,10 @@ class ParamGroup(ParamBase):
         :param description: A brief description for this group, to appear in help messages.
         :param mutually_exclusive: ``True`` if parameters in this group are mutually exclusive, ``False`` otherwise.
           I.e., if one parameter in this group is provided, then no other parameter in this group will be allowed.
-          Cannot be specified with ``mutually_dependent``.
+          Cannot be combined with ``mutually_dependent``.
         :param mutually_dependent: ``True`` if parameters in this group are mutually dependent, ``False`` otherwise.
           I.e., if one parameter in this group is provided, then all other parameters in this group must also be
-          provided.  Cannot be specified with ``mutually_exclusive``.
+          provided.  Cannot be combined with ``mutually_exclusive``.
         :param required: Whether at least one parameter in this group is required or not.  If it is required, then an
           exception will be raised if the user did not provide a value for any parameters in this group.  Defaults to
           ``False``.
@@ -429,6 +429,7 @@ class Parameter(ParamBase, ABC):
     metavar: str = None
     nargs: Nargs = Nargs(1)
     type: Callable[[str], Any] = None
+    show_default: bool = None
 
     def __init_subclass__(
         cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None
@@ -466,6 +467,7 @@ class Parameter(ParamBase, ABC):
         choices: Collection[Any] = None,
         help: str = None,  # noqa
         hide: Bool = False,
+        show_default: Bool = None,
     ):
         """
         :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
@@ -480,8 +482,9 @@ class Parameter(ParamBase, ABC):
           allowed.
         :param help: A brief description of this parameter that will appear in ``--help`` text.
         :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
+        :param show_default: Override the :attr:`.CommandConfig.show_defaults` setting for this parameter to always or
+          never include the default value in usage / help messages.  Default: follow the ``show_defaults`` setting.
         """
-        # TODO: hide_default: Bool = False
         if action not in self._actions:
             raise ParameterDefinitionError(
                 f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
@@ -493,6 +496,8 @@ class Parameter(ParamBase, ABC):
         self.choices = choices
         self.default = None if default is _NotSet and not required else default
         self.metavar = metavar
+        if show_default is not None:
+            self.show_default = show_default
 
     @staticmethod
     def _init_value_factory():
@@ -1194,7 +1199,7 @@ class Option(BasicActionMixin, BaseOption):
         :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,
           then one will automatically be added based on the name assigned to this parameter.
         :param nargs: The number of values that are expected/required when this parameter is specified.  Defaults to 1.
-          See :class:`~.nargs.Nargs` for more info.
+          See :class:`.Nargs` for more info.
         :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
           that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when
           ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list
@@ -1219,6 +1224,7 @@ class Option(BasicActionMixin, BaseOption):
             action = 'store' if self.nargs == 1 else 'append'
         elif action == 'store' and self.nargs != 1:
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
+        # TODO: nargs=? + required/not behavior?
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = type
         if action == 'append':
@@ -1246,6 +1252,8 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
         :param const: The constant value to store/append when this parameter is specified.  Defaults to ``True``.
         :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.
         """
+        if 'choices' in kwargs:
+            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         if const is _NotSet:
             try:
                 const = self.__default_const_map[default]
@@ -1410,6 +1418,8 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
           the user-provided value will be added verbatim - it will NOT be multiplied by ``const``.
         :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.
         """
+        if 'choices' in kwargs:
+            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         vals = {'const': const, 'default': default}
         bad_types = ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type))
         if bad_types:
@@ -1468,6 +1478,8 @@ class PassThru(Parameter):
           for this parameter type.
         :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
         """
+        if 'choices' in kwargs:
+            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         super().__init__(action=action, **kwargs)
 
     def take_action(self, values: Collection[str], short_combo: bool = False):

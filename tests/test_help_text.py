@@ -5,7 +5,7 @@ from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
-from typing import Sequence, Tuple, Type, Union
+from typing import Sequence, Type, Union, Iterable, Any, Tuple
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
@@ -190,68 +190,6 @@ class HelpTextTest(TestCase):
         self.assertIn('--bar BAR', usage_text)
         self.assertIn('--baz INT', usage_text)
 
-    def test_sd_any_shows_all_defaults(self):
-        with Context(show_defaults='any'):
-            self.assertNotIn('default:', Option(required=True).formatter.format_help())
-            self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
-            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
-            self.assertIn('(default: False)', Option(default=False).formatter.format_help())
-            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
-            self.assertIn('(default: ())', Option(default=()).formatter.format_help())
-            self.assertIn('(default: [])', Option(default=[]).formatter.format_help())
-            self.assertIn("(default: '')", Option(default='').formatter.format_help())
-            self.assertIn('(default: None)', Option(default=None).formatter.format_help())
-
-    def test_sd_any_missing_adds_no_defaults(self):
-        with Context(show_defaults=ShowDefaults.ANY | ShowDefaults.MISSING):
-            self.assertNotIn('default:', Option(required=True).formatter.format_help())
-            self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
-            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
-            self.assertIn('(default: False)', Option(default=False).formatter.format_help())
-            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
-            self.assertIn('(default: ())', Option(default=()).formatter.format_help())
-            self.assertIn('(default: [])', Option(default=[]).formatter.format_help())
-            self.assertIn("(default: '')", Option(default='').formatter.format_help())
-            self.assertIn('(default: None)', Option(default=None).formatter.format_help())
-
-            self.assertNotIn('(default: 0)', Option(default=0, help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: 1)', Option(default=1, help='default: fake').formatter.format_help())
-            self.assertNotIn("(default: 'test')", Option(default='test', help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: False)', Option(default=False, help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: True)', Option(default=True, help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: ())', Option(default=(), help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: [])', Option(default=[], help='default: fake').formatter.format_help())
-            self.assertNotIn("(default: '')", Option(default='', help='default: fake').formatter.format_help())
-            self.assertNotIn('(default: None)', Option(default=None, help='default: fake').formatter.format_help())
-
-    def test_sd_non_empty_shows_falsey_non_empty_defaults(self):
-        with Context(show_defaults='non-empty'):
-            self.assertNotIn('default:', Option(required=True).formatter.format_help())
-            self.assertIn('(default: 0)', Option(default=0).formatter.format_help())
-            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
-            self.assertIn('(default: False)', Option(default=False).formatter.format_help())
-            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
-            self.assertNotIn('default:', Option(default=()).formatter.format_help())
-            self.assertNotIn('default:', Option(default=[]).formatter.format_help())
-            self.assertNotIn('default:', Option(default='').formatter.format_help())
-            self.assertNotIn('default:', Option(default=None).formatter.format_help())
-
-    def test_sd_truthy_shows_only_truthy_defaults(self):
-        with Context(show_defaults='truthy'):
-            self.assertNotIn('default:', Option(required=True).formatter.format_help())
-            self.assertIn('(default: 1)', Option(default=1).formatter.format_help())
-            self.assertIn("(default: 'test')", Option(default='test').formatter.format_help())
-            self.assertIn('(default: True)', Option(default=True).formatter.format_help())
-            self.assertNotIn('default:', Option(default=False).formatter.format_help())
-            self.assertNotIn('default:', Option(default=0).formatter.format_help())
-            self.assertNotIn('default:', Option(default=()).formatter.format_help())
-            self.assertNotIn('default:', Option(default=[]).formatter.format_help())
-            self.assertNotIn('default:', Option(default='').formatter.format_help())
-            self.assertNotIn('default:', Option(default=None).formatter.format_help())
-
     def test_help_called_with_missing_required_params(self):
         help_mock = Mock()
 
@@ -274,8 +212,57 @@ class HelpTextTest(TestCase):
         Foo.parse_and_run(['-h'])
         self.assertTrue(help_mock.called)
 
-    # def test_common_parent_group_shown_in_subcommand_help(self):
-    #     pass  # TODO
+
+class ShowDefaultsTest(TestCase):
+    def assert_default_x_in_help_text(self, defaults: Iterable[Any], expect_in: bool, check_str: str = None, **kwargs):
+        for default in defaults:
+            with self.subTest(default=default, expect_in=expect_in):
+                default_str = check_str or f'(default: {default!r})'
+                help_text = Option(default=default, **kwargs).formatter.format_help()
+                self.assertEqual(expect_in, default_str in help_text)
+
+    def test_sd_any_shows_all_defaults(self):
+        cases = [0, 1, 'test', False, True, (), [], '', None]
+        with Context(show_defaults='any'):
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assert_default_x_in_help_text(cases, True)
+            self.assert_default_x_in_help_text(cases, True, show_default=True)
+            self.assert_default_x_in_help_text(cases, False, show_default=False, check_str='default:')
+
+    def test_sd_any_missing_adds_no_defaults(self):
+        cases = [0, 1, 'test', False, True, (), [], '', None]
+        with Context(show_defaults=ShowDefaults.ANY | ShowDefaults.MISSING):
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assert_default_x_in_help_text(cases, True)
+            self.assert_default_x_in_help_text(cases, False, help='default: fake')
+            self.assert_default_x_in_help_text(cases, True, show_default=True)
+            self.assert_default_x_in_help_text(cases, False, show_default=False, check_str='default:')
+
+    def test_sd_non_empty_shows_falsey_non_empty_defaults(self):
+        in_cases = [0, 1, 'test', False, True]
+        not_in_cases = [(), [], '', None]
+
+        with Context(show_defaults='non-empty'):
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assert_default_x_in_help_text(in_cases, True)
+            self.assert_default_x_in_help_text(not_in_cases, False, check_str='default:')
+            self.assert_default_x_in_help_text(in_cases, True, show_default=True)
+            self.assert_default_x_in_help_text(not_in_cases, True, show_default=True)
+            self.assert_default_x_in_help_text(in_cases, False, show_default=False, check_str='default:')
+            self.assert_default_x_in_help_text(not_in_cases, False, show_default=False, check_str='default:')
+
+    def test_sd_truthy_shows_only_truthy_defaults(self):
+        in_cases = [1, 'test', True]
+        not_in_cases = [0, False, (), [], '', None]
+
+        with Context(show_defaults='truthy'):
+            self.assertNotIn('default:', Option(required=True).formatter.format_help())
+            self.assert_default_x_in_help_text(in_cases, True)
+            self.assert_default_x_in_help_text(not_in_cases, False, check_str='default:')
+            self.assert_default_x_in_help_text(in_cases, True, show_default=True)
+            self.assert_default_x_in_help_text(not_in_cases, True, show_default=True)
+            self.assert_default_x_in_help_text(in_cases, False, show_default=False, check_str='default:')
+            self.assert_default_x_in_help_text(not_in_cases, False, show_default=False, check_str='default:')
 
 
 class GroupHelpTextTest(ParserTest):

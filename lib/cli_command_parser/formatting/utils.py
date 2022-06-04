@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Optional, Any, Collection, Type
 from ..config import ShowDefaults
 from ..context import ctx
 from ..exceptions import NoActiveContext
-from ..utils import _NotSet
+from ..utils import Bool, _NotSet
 
 if TYPE_CHECKING:
     from ..core import CommandMeta, CommandType
@@ -61,9 +61,11 @@ class HelpEntryFormatter:
         return '\n'.join(self.lines)
 
 
-def _should_add_default(default: Any, help_text: Optional[str]) -> bool:
+def _should_add_default(default: Any, help_text: Optional[str], param_show_default: Optional[Bool]) -> bool:
     if default is _NotSet:
         return False
+    elif param_show_default is not None:
+        return param_show_default
     sd = ctx.show_defaults
     if sd.value < 2 or (sd & ShowDefaults.MISSING and help_text and 'default:' in help_text):
         return False

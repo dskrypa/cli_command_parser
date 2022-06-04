@@ -75,7 +75,7 @@ class ParamHelpFormatter:
     def format_description(self, rst: Bool = False) -> str:
         param = self.param
         description = param.help or ''
-        if _should_add_default(param.default, description):
+        if _should_add_default(param.default, description, param.show_default):
             pad = ' ' if description else ''
             quote = '``' if rst else ''
             description += f'{pad}(default: {quote}{param.default!r}{quote})'
@@ -234,6 +234,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
 
     def rst_table(self) -> RstTable:
         table = RstTable(self.format_description())
+        # TODO: non-nested when config.show_group_tree is False; maybe separate options for rst vs help
         for member in self.param.members:
             if member.show_in_help:
                 try:
