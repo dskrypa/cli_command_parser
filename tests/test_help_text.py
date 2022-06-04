@@ -528,6 +528,20 @@ class ProgramMetadataTest(TestCase):
             ProgInfo._print_stack_info()
         self.assertLess(1, stdout.getvalue().count('\n'))
 
+    def test_empty_doc_ignored(self):
+        meta = ProgramMetadata(doc='\n\n')
+        self.assertIs(None, meta.description)
+
+    def test_cmd_doc_dedented(self):
+        class Foo(Command):
+            """
+            Foo
+            Bar
+            Baz
+            """
+
+        self.assertEqual('Foo\nBar\nBaz\n', Foo.meta().description)
+
 
 def _frame_info(f_globals: dict, path: str, function: str):
     return Mock(frame=Mock(f_globals=f_globals), filename=path, function=function)

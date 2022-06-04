@@ -4,6 +4,8 @@ from cli_command_parser import Command, Positional, main
 
 
 class Echo(Command):
+    """Write all of the provided arguments to stdout"""
+
     text = Positional(nargs='*', help='The text to print')
 
     def main(self):

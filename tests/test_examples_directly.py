@@ -40,6 +40,13 @@ class ExampleHelpTest(ParserTest):
                 with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)), cmd.ctx:
                     self.assert_strings_equal(expected, get_formatter(cmd).format_help())
 
+    def test_echo_help(self):
+        Echo = load_example_command('echo.py', 'Echo')
+        expected = load_expected('echo_help.txt')
+        cmd = Echo()
+        with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)), cmd.ctx:
+            self.assert_strings_equal(expected, get_formatter(cmd).format_help())
+
 
 if __name__ == '__main__':
     # import logging

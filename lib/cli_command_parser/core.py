@@ -66,9 +66,11 @@ class CommandMeta(ABCMeta, type):
         cls = super().__new__(mcls, name, bases, namespace)
         mcls._commands.add(cls)
         meta = mcls.meta(cls)
-        if meta is None or prog or usage or description or epilog or doc_name:  # Inherit from parent when possible
+        doc = cls.__doc__
+        if meta is None or prog or usage or description or epilog or doc_name or doc:
+            # Inherit from parent when possible
             mcls._metadata[cls] = ProgramMetadata(
-                prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name
+                prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name, doc=doc
             )
 
         if config is not None:

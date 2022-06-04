@@ -10,6 +10,7 @@ from collections.abc import Collection, Iterable, Callable
 from contextlib import contextmanager
 from inspect import stack, isclass, FrameInfo
 from pathlib import Path
+from textwrap import dedent
 from typing import Any, Union, Optional, Type, Sequence, get_type_hints, Tuple, Dict
 from string import whitespace, printable
 from urllib.parse import urlparse
@@ -57,6 +58,8 @@ def validate_positional(
 
 
 class ProgramMetadata:
+    description: Optional[str] = None
+
     def __init__(
         self,
         prog: str = None,
@@ -69,6 +72,7 @@ class ProgramMetadata:
         description: str = None,
         epilog: str = None,
         doc_name: str = None,
+        doc: str = None,
     ):
         self._cmd_args = {
             'prog': prog,
@@ -81,8 +85,13 @@ class ProgramMetadata:
         self._init(ProgInfo())
         self.doc_name = doc_name
         self.usage = usage
-        self.description = description
         self.epilog = epilog
+        if description:
+            self.description = description
+        elif doc:
+            doc = dedent(doc).lstrip()
+            if doc.strip():  # avoid space-only doc, but let possibly intentional trailing spaces / newlines to persist
+                self.description = doc
 
     def _init(self, info: 'ProgInfo'):
         a = self._cmd_args
@@ -230,6 +239,7 @@ class ProgInfo:
 
     def _find_top_frame_and_globals(self) -> Tuple[FrameInfo, Dict[str, Any]]:
         fi_stack = stack()
+        # TODO: Find globals for the module the Command is in instead
         self._detect_install_type(fi_stack)
         cmd_frame_info = self._find_cmd_frame_info(fi_stack)
         return fi_stack[-1], cmd_frame_info.frame.f_globals
