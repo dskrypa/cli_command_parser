@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.exceptions &mdash; CLI Command Parser 2022.06.04 documentation</title>
+  <title>cli_command_parser.exceptions &mdash; CLI Command Parser 2022.06.05 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../subcommands.html">Subcommands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
@@ -108,6 +109,7 @@
     <span class="s1">&#39;ParamConflict&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParamsMissing&#39;</span><span class="p">,</span>
     <span class="s1">&#39;NoActiveContext&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;InputValidationError&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -240,6 +242,10 @@
 
 <div class="viewcode-block" id="NoActiveContext"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoActiveContext">[docs]</a><span class="k">class</span> <span class="nc">NoActiveContext</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raised when attempting to perform an action that requires an active context while no context is active.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="InputValidationError"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InputValidationError">[docs]</a><span class="k">class</span> <span class="nc">InputValidationError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a custom Input&#39;s conversion/validation fails&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># endregion</span>

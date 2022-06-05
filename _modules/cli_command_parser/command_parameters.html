@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.06.04 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.06.05 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../subcommands.html">Subcommands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
@@ -331,8 +332,6 @@
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Option Processing</span>
-
-    <span class="c1"># TODO: Move this section to the parsing module?</span>
 
 <div class="viewcode-block" id="CommandParameters.get_option_param_value_pairs"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">get_option_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;---&#39;</span><span class="p">):</span>

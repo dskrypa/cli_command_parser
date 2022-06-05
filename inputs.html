@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Types &mdash; CLI Command Parser 2022.06.05 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Subcommands" href="subcommands.html" />
+    <link rel="prev" title="Parameter Groups" href="groups.html" />
+    <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Input Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#paths-files">Paths &amp; Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#path">Path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file">File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serialized-files">Serialized Files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Input Types</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="input-types">
+<h1>Input Types<a class="headerlink" href="#input-types" title="Permalink to this heading"></a></h1>
+<p>Parameters that accept a <a class="reference internal" href="parameters.html#parameters:type"><span class="std std-ref">type</span></a> parameter can accept any callable to transform parsed
+argument values, but some custom types are defined here to facilitate common use cases.</p>
+<section id="paths-files">
+<h2>Paths &amp; Files<a class="headerlink" href="#paths-files" title="Permalink to this heading"></a></h2>
+<section id="path">
+<h3>Path<a class="headerlink" href="#path" title="Permalink to this heading"></a></h3>
+<p>To automatically handle common normalization steps / checks that are done for paths, the <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Path" title="cli_command_parser.inputs.types.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> class is
+available.</p>
+<p id="path-init-params"><strong>Path initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="path:exists">exists</dt>
+<dd class="field-odd"><p>If set, then the provided path must already exist if True, or must not already exist if False.  By default,
+existence is not checked.</p>
+</dd>
+<dt class="field-even" id="path:expand">expand</dt>
+<dd class="field-even"><p>Whether tilde (<code class="docutils literal notranslate"><span class="pre">~</span></code>) should be expanded.  Defaults to True.</p>
+</dd>
+<dt class="field-odd" id="path:resolve">resolve</dt>
+<dd class="field-odd"><p>Whether the path should be fully resolved to its absolute path, with symlinks resolved, or not.  Defaults to
+False.</p>
+</dd>
+<dt class="field-even" id="path:type">type</dt>
+<dd class="field-even"><p>To restrict the acceptable types of files/directories that are accepted, specify the <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode" title="cli_command_parser.inputs.utils.StatMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatMode</span></code></a> that
+matches the desired type.  By default, any type is accepted.  To accept specifically only regular files or
+directories, for example, use <code class="docutils literal notranslate"><span class="pre">type=StatMode.DIR</span> <span class="pre">|</span> <span class="pre">StatMode.FILE</span></code>.</p>
+</dd>
+<dt class="field-odd" id="path:readable">readable</dt>
+<dd class="field-odd"><p>If True, the path must be readable.</p>
+</dd>
+<dt class="field-even" id="path:writable">writable</dt>
+<dd class="field-even"><p>If True, the path must be writable.</p>
+</dd>
+<dt class="field-odd" id="path:allow_dash">allow_dash</dt>
+<dd class="field-odd"><p>Allow a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) to be provided to indicate stdin/stdout (default: False).</p>
+</dd>
+</dl>
+<p>Given the following (truncated)
+<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">inputs</span> <span class="k">as</span> <span class="n">i</span>
+
+<span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You provided path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The resulting output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ custom_inputs.py -p examples
+argument --path / -p: bad value=&#39;examples&#39; for type=&lt;Path(exists=True, type=&lt;StatMode:FILE&gt;)&gt;: expected a regular file
+
+$ custom_inputs.py -p examples/custom_inputs.py
+You provided path=examples/custom_inputs.py
+
+$ custom_inputs.py -p examples/custom_inputs.p
+argument --path / -p: bad value=&#39;examples/custom_inputs.p&#39; for type=&lt;Path(exists=True, type=&lt;StatMode:FILE&gt;)&gt;: it does not exist
+</pre></div>
+</div>
+</section>
+<section id="file">
+<h3>File<a class="headerlink" href="#file" title="Permalink to this heading"></a></h3>
+<p>The <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.File" title="cli_command_parser.inputs.types.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> custom input extends <a class="reference internal" href="#path"><span class="std std-ref">Path</span></a>, so it can accept all of the same options, but it provides
+functionality for directly reading or writing to the provided path.</p>
+<p id="file-init-params"><strong>Additional File initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="file:mode">mode</dt>
+<dd class="field-odd"><p>The mode in which the file should be opened.  Defaults to <code class="docutils literal notranslate"><span class="pre">r</span></code> for reading text.  For more info,
+see <a class="reference external" href="https://docs.python.org/3/library/functions.html#open" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">open()</span></code></a>.</p>
+</dd>
+<dt class="field-even" id="file:encoding">encoding</dt>
+<dd class="field-even"><p>The encoding to use when reading the file in text mode.  Ignored if the parsed path is <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+</dd>
+<dt class="field-odd" id="file:errors">errors</dt>
+<dd class="field-odd"><p>Error handling when reading the file in text mode.  Ignored if the parsed path is <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+</dd>
+<dt class="field-even" id="file:lazy">lazy</dt>
+<dd class="field-even"><p>If True, a <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper" title="cli_command_parser.inputs.utils.FileWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileWrapper</span></code></a> will be stored in the Parameter using this File, otherwise the file will be
+read immediately upon parsing of the path argument.</p>
+</dd>
+</dl>
+<p>Using another snippet from the above
+<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">in_file</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file to read&#39;</span><span class="p">)</span>
+    <span class="n">out_file</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">FileWrapper</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file to write&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Content from the provided file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">in_file</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can see the results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo &#39;stdin example&#39; | custom_inputs.py -f-
+Content from the provided file: &#39;stdin example\n&#39;
+
+$ echo &#39;stdin example&#39; | examples/custom_inputs.py -f- -o example_out.txt
+
+$ cat example_out.txt
+Content from the provided file: &#39;stdin example\n&#39;
+</pre></div>
+</div>
+<p>By setting <code class="docutils literal notranslate"><span class="pre">lazy=False</span></code>, the <code class="docutils literal notranslate"><span class="pre">in_file</span></code> Option in the above example eagerly loaded the content, so the entire file
+contents were stored in the Parameter.  The default is for only the path to be stored, and a <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper" title="cli_command_parser.inputs.utils.FileWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileWrapper</span></code></a> that
+has <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.read" title="cli_command_parser.inputs.utils.FileWrapper.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">FileWrapper.read()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.write" title="cli_command_parser.inputs.utils.FileWrapper.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">FileWrapper.write()</span></code></a> methods is returned.  The file will only be opened for
+reading/writing when those methods are called, as can be seen in the example when <code class="docutils literal notranslate"><span class="pre">self.out_file.write(...)</span></code> is
+called.</p>
+</section>
+<section id="serialized-files">
+<h3>Serialized Files<a class="headerlink" href="#serialized-files" title="Permalink to this heading"></a></h3>
+<p>In addition to plain text or binary files, custom input handlers also exist for <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Json" title="cli_command_parser.inputs.types.Json"><code class="xref py py-class docutils literal notranslate"><span class="pre">Json</span></code></a> and <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Pickle" title="cli_command_parser.inputs.types.Pickle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pickle</span></code></a>,
+and a generic handler (<a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Serialized" title="cli_command_parser.inputs.types.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a>) exists for any other serialization format.  They all extend
+<a class="reference internal" href="#file"><span class="std std-ref">File</span></a>, so the same options are accepted.</p>
+<p id="serialized-init-params"><strong>Additional Serialized initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="serialized files:converter">converter</dt>
+<dd class="field-odd"><p>The function to call to serialize or deserialize the content in the specified file</p>
+</dd>
+<dt class="field-even" id="serialized files:convert_directly">convert_directly</dt>
+<dd class="field-even"><p>True to call the given function with the file, False to handle (de)serialization and read/write as
+separate steps.  If True, when reading, the converter will be called with the file as the only argument; when writing,
+the converter will be called as <code class="docutils literal notranslate"><span class="pre">converter(data,</span> <span class="pre">f)</span></code>.  If False, when reading, the converter will be called with
+the content from the file; when writing, the converter will be called before writing the data to the file.</p>
+</dd>
+</dl>
+<p>The JSON and Pickle handlers do not accept the above 2 parameters.  The converter is automatically picked to be
+<code class="docutils literal notranslate"><span class="pre">dump</span></code> or <code class="docutils literal notranslate"><span class="pre">load</span></code> based on whether the provided <code class="docutils literal notranslate"><span class="pre">mode</span></code> is for reading or writing, and the <code class="docutils literal notranslate"><span class="pre">convert_directly</span></code>
+option will be overridden if provided.</p>
+<p>Adding another snippet to the above
+<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">json</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">FileWrapper</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">Json</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file containing json&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You provided a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">iter_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">iter_data</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">] </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can see that the JSON content from stdin was automatically deserialized when <code class="docutils literal notranslate"><span class="pre">self.json.read()</span></code> was called:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo &#39;{&quot;a&quot;: 1, &quot;b&quot;: 2}&#39; | examples/custom_inputs.py -j -
+You provided a dict
+[0] (&#39;a&#39;, 1)
+[1] (&#39;b&#39;, 2)
+</pre></div>
+</div>
+<p>When using the generic <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Serialized" title="cli_command_parser.inputs.types.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a> directly, the specific (de)serialization function needs to be provided:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">convert_directly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">convert_directly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">,</span> <span class="n">convert_directly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="groups.html" class="btn btn-neutral float-left" title="Parameter Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="subcommands.html" class="btn btn-neutral float-right" title="Subcommands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

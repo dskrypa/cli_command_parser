@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exceptions Module &mdash; CLI Command Parser 2022.06.04 documentation</title>
+  <title>Exceptions Module &mdash; CLI Command Parser 2022.06.05 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../subcommands.html">Subcommands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
@@ -63,7 +64,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.error_handling.html">Error_Handling Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Exceptions Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
@@ -261,6 +262,13 @@
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.exceptions.</span></span><span class="sig-name descname"><span class="pre">NoActiveContext</span></span><a class="reference internal" href="../_modules/cli_command_parser/exceptions.html#NoActiveContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.exceptions.NoActiveContext" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#cli_command_parser.exceptions.CommandParserException" title="cli_command_parser.exceptions.CommandParserException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParserException</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></a></p>
 <p>Raised when attempting to perform an action that requires an active context while no context is active.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="cli_command_parser.exceptions.InputValidationError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.exceptions.</span></span><span class="sig-name descname"><span class="pre">InputValidationError</span></span><a class="reference internal" href="../_modules/cli_command_parser/exceptions.html#InputValidationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.exceptions.InputValidationError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cli_command_parser.exceptions.CommandParserException" title="cli_command_parser.exceptions.CommandParserException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParserException</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a></p>
+<p>Raised when a custom Input’s conversion/validation fails</p>
 </dd></dl>
 
 </section>

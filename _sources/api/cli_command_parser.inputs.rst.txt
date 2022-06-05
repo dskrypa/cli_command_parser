@@ -1,9 +1,9 @@
-Inputs Module
-=============
+Inputs Package
+**************
 
-.. currentmodule:: cli_command_parser.inputs
+.. toctree::
+    :maxdepth: 4
+    :caption: Modules
 
-.. automodule:: cli_command_parser.inputs
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    cli_command_parser.inputs.types
+    cli_command_parser.inputs.utils

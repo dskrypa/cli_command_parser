@@ -42,6 +42,7 @@ User Guide
    commands
    parameters
    groups
+   inputs
    subcommands
    configuration
    documentation

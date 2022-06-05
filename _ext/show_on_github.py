@@ -115,4 +115,4 @@ def setup(app):
     app.add_config_value('show_on_github_options', OPTION_DEFAULTS, True)
     app.connect('html-page-context', html_page_context)
     app.connect('builder-inited', process_config)  # Using builder-inited instead of config-inited to get builder.srcdir
-    return {'version': '1.0', 'parallel_read_safe': True}
+    return {'version': '1.0', 'parallel_read_safe': True, 'parallel_write_safe': True}

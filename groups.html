@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parameter Groups &mdash; CLI Command Parser 2022.06.04 documentation</title>
+  <title>Parameter Groups &mdash; CLI Command Parser 2022.06.05 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Subcommands" href="subcommands.html" />
+    <link rel="next" title="Input Types" href="inputs.html" />
     <link rel="prev" title="Parameters" href="parameters.html" />
     <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
@@ -59,6 +59,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -104,24 +105,36 @@ and vice versa.</p>
 <p>Groups are defined by initializing a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ParamGroup" title="cli_command_parser.parameters.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> as a context manager, and defining the member Parameters
 inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
 <p class="rubric" id="group-init-params">Initialization Parameters</p>
-<ul class="simple">
-<li><p><strong>name</strong>: The name of the group to appear in help text.  Ignored if <code class="docutils literal notranslate"><span class="pre">description</span></code> is provided.</p></li>
-<li><p><strong>description</strong>: The description (header) for this group in help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">{name}</span> <span class="pre">options</span></code> if <code class="docutils literal notranslate"><span class="pre">name</span></code> is
-specified.  If <a class="reference internal" href="configuration.html#usage-help-text-options"><span class="std std-ref">show_group_type</span></a> is True (the default), and the group
+<dl class="field-list simple">
+<dt class="field-odd" id="parameter groups:name">name</dt>
+<dd class="field-odd"><p>The name of the group to appear in help text.  Ignored if <code class="docutils literal notranslate"><span class="pre">description</span></code> is provided.</p>
+</dd>
+<dt class="field-even" id="parameter groups:description">description</dt>
+<dd class="field-even"><p>The description (header) for this group in help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">{name}</span> <span class="pre">options</span></code> if <code class="docutils literal notranslate"><span class="pre">name</span></code> is
+specified.  If <a class="reference internal" href="configuration.html#usage &amp; help text options:show_group_type"><span class="std std-ref">show_group_type</span></a> is True (the default), and the group
 is mutually exclusive/dependent, then <code class="docutils literal notranslate"><span class="pre">(mutually</span> <span class="pre">{type})</span></code> will be appended to this text.  If no description or name
 are provided, and <code class="docutils literal notranslate"><span class="pre">show_group_type</span></code> is True, then the entire description will default to
-<code class="docutils literal notranslate"><span class="pre">Mutually</span> <span class="pre">{type}</span> <span class="pre">options</span></code>, otherwise it will be <code class="docutils literal notranslate"><span class="pre">Optional</span> <span class="pre">arguments</span></code>.</p></li>
-<li><p><strong>mutually_exclusive</strong>: <code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually exclusive, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
+<code class="docutils literal notranslate"><span class="pre">Mutually</span> <span class="pre">{type}</span> <span class="pre">options</span></code>, otherwise it will be <code class="docutils literal notranslate"><span class="pre">Optional</span> <span class="pre">arguments</span></code>.</p>
+</dd>
+<dt class="field-odd" id="parameter groups:mutually_exclusive">mutually_exclusive</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually exclusive, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
 one Parameter in the group is provided, then no other Parameter in the group will be allowed.  Cannot be combined
-with <code class="docutils literal notranslate"><span class="pre">mutually_dependent</span></code>.</p></li>
-<li><p><strong>mutually_dependent</strong>: <code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually dependent, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
+with <code class="docutils literal notranslate"><span class="pre">mutually_dependent</span></code>.</p>
+</dd>
+<dt class="field-even" id="parameter groups:mutually_dependent">mutually_dependent</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually dependent, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
 one Parameter in the group is provided, then all other Parameters in the group must also be provided.  Cannot be
-combined with <code class="docutils literal notranslate"><span class="pre">mutually_exclusive</span></code>.</p></li>
-<li><p><strong>required</strong>: Whether at least one Parameter in the group is required or not.  If it is required, then an exception
-will be raised if the user did not provide a value for any Parameters in the group.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>hide</strong>: Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to hide the group and all of its members so they will not be included in usage / help
-text.</p></li>
-</ul>
+combined with <code class="docutils literal notranslate"><span class="pre">mutually_exclusive</span></code>.</p>
+</dd>
+<dt class="field-odd" id="parameter groups:required">required</dt>
+<dd class="field-odd"><p>Whether at least one Parameter in the group is required or not.  If it is required, then an exception
+will be raised if the user did not provide a value for any Parameters in the group.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even" id="parameter groups:hide">hide</dt>
+<dd class="field-even"><p>Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to hide the group and all of its members so they will not be included in usage / help
+text.</p>
+</dd>
+</dl>
 <p>One <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> use case for
 a basic group is to indicate that common arguments are accepted by all subcommands:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -387,7 +400,7 @@ argument conflict - the following arguments cannot be combined: --action_y / -y,
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="parameters.html" class="btn btn-neutral float-left" title="Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="subcommands.html" class="btn btn-neutral float-right" title="Subcommands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="inputs.html" class="btn btn-neutral float-right" title="Input Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
