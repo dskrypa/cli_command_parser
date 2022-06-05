@@ -5,11 +5,12 @@ import pickle
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import ContextManager
 from unittest import main
 from unittest.mock import patch
 
 from cli_command_parser import Command, Positional
-from cli_command_parser.inputs import Path as PathInput, File, Deserialized, Json, StatMode
+from cli_command_parser.inputs import Path as PathInput, File, Deserialized, Json, StatMode, InputParam
 from cli_command_parser.testing import ParserTest
 
 
@@ -24,7 +25,7 @@ def temp_chdir(path: Path):
 
 
 @contextmanager
-def temp_directory():
+def temp_directory() -> ContextManager[Path]:
     with TemporaryDirectory() as tmp_dir:
         yield Path(tmp_dir)
 
@@ -35,6 +36,26 @@ class InputTest(ParserTest):
             StatMode(None)
         with self.assertRaises(TypeError):
             StatMode('StatMode')
+
+    def test_stat_mode_combo_strs(self):
+        self.assertEqual('directory', str(StatMode.DIR))
+        self.assertEqual('directory or regular file', str(StatMode.DIR | StatMode.FILE))
+        expected = 'directory, regular file, or symbolic link'
+        self.assertEqual(expected, str(StatMode.DIR | StatMode.FILE | StatMode.LINK))
+
+    def test_stat_mode_combo_reprs(self):
+        self.assertEqual('<StatMode:DIR>', repr(StatMode.DIR))
+        self.assertEqual('<StatMode:DIR|FILE>', repr(StatMode.DIR | StatMode.FILE))
+        self.assertEqual('<StatMode:DIR|FILE|LINK>', repr(StatMode.DIR | StatMode.FILE | StatMode.LINK))
+
+    def test_input_param_on_cls(self):
+        self.assertIsInstance(PathInput.exists, InputParam)
+
+    def test_path_reprs(self):
+        self.assertEqual('<Path()>', repr(PathInput()))
+        self.assertEqual('<Path(exists=True)>', repr(PathInput(exists=True)))
+        self.assertEqual('<Path(exists=True, mode=<StatMode:DIR>)>', repr(PathInput(exists=True, mode='dir')))
+        self.assertEqual('<File(exists=True)>', repr(File(exists=True)))
 
     def test_path_resolve(self):
         with temp_directory() as tmp_path:
@@ -66,7 +87,17 @@ class InputTest(ParserTest):
             a = tmp_path.joinpath('a')
             a.touch()
             with self.assertRaises(ValueError):
-                PathInput(mode=StatMode.DIR)(a.as_posix())
+                PathInput(mode=StatMode.LINK | StatMode.DIR)(a.as_posix())
+
+    def test_path_accept_file_or_dir(self):
+        with temp_directory() as tmp_path:
+            a = tmp_path.joinpath('a')
+            a.touch()
+            b = tmp_path.joinpath('b')
+            b.mkdir()
+            pi = PathInput(mode=StatMode.DIR | StatMode.FILE)
+            self.assertEqual(a, pi(a.as_posix()))
+            self.assertEqual(b, pi(b.as_posix()))
 
     def test_empty_rejected(self):
         with self.assertRaises(ValueError):
@@ -81,7 +112,7 @@ class InputTest(ParserTest):
 
     def test_not_writable_rejected(self):
         with temp_directory() as tmp_path:
-            a: Path = tmp_path.joinpath('a')
+            a = tmp_path.joinpath('a')
             a.touch()
             a.chmod(0o000)
             with self.assertRaises(ValueError):

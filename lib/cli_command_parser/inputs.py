@@ -7,44 +7,43 @@ Custom input handlers for Parameters
 import logging
 import os
 import sys
-from enum import Flag, auto, _decompose as decompose  # noqa
+from enum import Flag, _decompose as decompose  # noqa
 from pathlib import Path as _Path
 from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S_IFSOCK
-from typing import Union, Callable, Any
+from typing import Union, Callable, Any, List
 
 from .utils import Bool
 
 __all__ = ['StatMode', 'Path', 'File', 'Deserialized', 'Json']
 log = logging.getLogger(__name__)
 
-MODE_MAP = {
-    'DIR': S_IFDIR,
-    'FILE': S_IFREG,
-    'CHARACTER': S_IFCHR,
-    'BLOCK': S_IFBLK,
-    'FIFO': S_IFIFO,
-    'LINK': S_IFLNK,
-    'SOCKET': S_IFSOCK,
-}
+Deserializer = Callable[[Union[str, bytes]], Any]
 
 
-# noinspection PyArgumentList
 class StatMode(Flag):
-    ANY = auto()
-    DIR = auto()
-    FILE = auto()
-    CHARACTER = auto()
-    BLOCK = auto()
-    FIFO = auto()
-    LINK = auto()
-    SOCKET = auto()
+    def __new__(cls, mode, friendly_name):
+        # Defined __new__ to avoid juggling dicts for the stat mode values and names
+        obj = object.__new__(cls)
+        if mode is None:  # ANY
+            obj._value_ = sum(m._value_ for m in cls.__members__.values())
+        else:
+            obj._value_ = 2 ** len(cls.__members__)
+        obj.mode = mode
+        obj.friendly_name = friendly_name
+        return obj
+
+    DIR = S_IFDIR, 'directory'
+    FILE = S_IFREG, 'regular file'
+    CHARACTER = S_IFCHR, 'character special device file'
+    BLOCK = S_IFBLK, 'block special device file'
+    FIFO = S_IFIFO, 'FIFO (named pipe)'
+    LINK = S_IFLNK, 'symbolic link'
+    SOCKET = S_IFSOCK, 'socket'
+    ANY = None, 'any'
 
     def matches(self, mode: int) -> bool:
         mode = S_IFMT(mode)
-        for part in decompose(StatMode, self.value)[0]:
-            if mode == MODE_MAP[part.name]:
-                return True
-        return False
+        return any(mode == part.mode for part in self._decompose())
 
     @classmethod
     def _missing_(cls, value):
@@ -55,8 +54,59 @@ class StatMode(Flag):
                 pass
         return super()._missing_(value)
 
+    def _decompose(self) -> List['StatMode']:
+        if self._name_ is None:
+            return sorted(decompose(StatMode, self.value)[0])
+        return [self]
+
+    def __repr__(self) -> str:
+        names = '|'.join(part._name_ for part in self._decompose())
+        return f'<{self.__class__.__name__}:{names}>'
+
+    def __str__(self) -> str:
+        try:
+            return self.friendly_name
+        except AttributeError:  # Combined flags
+            pass
+        names = [part.friendly_name for part in self._decompose()]
+        if len(names) == 2:
+            return '{} or {}'.format(*names)
+        names[-1] = f'or {names[-1]}'
+        return ', '.join(names)
+
+    def __lt__(self, other: 'StatMode') -> bool:
+        return self._value_ < other._value_
+
+
+class InputParam:
+    def __init__(self, default: Any):
+        self.default = default
+
+    def __set_name__(self, owner, name: str):
+        self.name = name
+
+    def __get__(self, instance, owner) -> Any:
+        if instance is None:
+            return self
+        try:
+            return instance.__dict__[self.name]
+        except KeyError:
+            return self.default
+
+    def __set__(self, instance, value: Any):
+        if value != self.default:
+            instance.__dict__[self.name] = value
+
 
 class Path:
+    exists: bool = InputParam(None)
+    expand: bool = InputParam(True)
+    resolve: bool = InputParam(False)
+    mode: Union[StatMode, str] = InputParam(StatMode.ANY)
+    readable: bool = InputParam(False)
+    writable: bool = InputParam(False)
+    allow_dash: bool = InputParam(False)
+
     def __init__(
         self,
         *,
@@ -88,6 +138,10 @@ class Path:
         self.writable = writable
         self.allow_dash = allow_dash
 
+    def __repr__(self) -> str:
+        non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f'<{self.__class__.__name__}({non_defaults})>'
+
     def __call__(self, value: str) -> _Path:
         value = value.strip()
         if not value:
@@ -104,19 +158,23 @@ class Path:
             path = path.resolve()
         if self.exists is not None:
             if self.exists and not path.exists():
-                raise ValueError(f'Invalid path={path} - it does not exist')
+                raise ValueError('it does not exist')
             elif not self.exists and path.exists():
-                raise ValueError(f'Invalid path={path} - it already exists')
+                raise ValueError('it already exists')
         if self.mode != StatMode.ANY and path.exists() and not self.mode.matches(path.stat().st_mode):
-            raise ValueError(f'Invalid path={path} - expected mode={self.mode}')
+            raise ValueError(f'expected a {self.mode}')
         if self.readable and not os.access(path, os.R_OK):
-            raise ValueError(f'Invalid path={path} - it is not readable')
+            raise ValueError('it is not readable')
         if self.writable and not os.access(path, os.W_OK):
-            raise ValueError(f'Invalid path={path} - it is not readable')
+            raise ValueError('it is not writable')
         return path
 
 
 class File(Path):
+    binary: bool = InputParam(False)
+    encoding: str = InputParam(None)
+    errors: str = InputParam(None)
+
     def __init__(self, *, binary: Bool = False, encoding: str = None, errors: str = None, **kwargs):
         """
         :param binary: Set to True to read the file in binary mode and return bytes (default: False / text).
@@ -139,7 +197,9 @@ class File(Path):
 
 
 class Deserialized(File):
-    def __init__(self, deserializer: Callable[[Union[str, bytes]], Any], **kwargs):
+    encoding: Deserializer = InputParam(None)
+
+    def __init__(self, deserializer: Deserializer, **kwargs):
         """
         :param deserializer: Function to use to deserialize the given file, such as :func:`python:json.loads`,
           :func:`python:pickle.loads`, etc.

@@ -35,9 +35,8 @@ arguments when defining a Command subclass:
 Error Handling Options
 ----------------------
 
-:error_handler: The :class:`~.error_handling.ErrorHandler` to be used by :meth:`.Command.__call__` to wrap
-  :meth:`.Command.main`, or None to disable error handling.  (default:
-  :obj:`~.error_handling.extended_error_handler`)
+:error_handler: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__` to wrap :meth:`.Command.main`, or
+  None to disable error handling.  (default: :obj:`~.error_handling.extended_error_handler`)
 :always_run_after_main: Whether :meth:`.Command._after_main_` should always be called, even if an exception
   was raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
 

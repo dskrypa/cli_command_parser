@@ -587,7 +587,7 @@ class Parameter(ParamBase, ABC):
         try:
             return type_func(value)
         except (TypeError, ValueError) as e:
-            raise BadArgument(self, f'bad value={value!r} for type={type_func!r}') from e
+            raise BadArgument(self, f'bad value={value!r} for type={type_func!r}: {e}') from e
         except Exception as e:
             raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e
 
@@ -1454,7 +1454,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         try:
             value = self.type(value)
         except (ValueError, TypeError) as e:
-            raise BadArgument(self, f'invalid value={value!r}') from e
+            raise BadArgument(self, f'invalid value={value!r} (expected an integer)') from e
         else:
             return
 
