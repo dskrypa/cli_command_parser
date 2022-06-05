@@ -256,6 +256,9 @@
 
 <div class="viewcode-block" id="Json"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Json">[docs]</a><span class="k">class</span> <span class="nc">Json</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
 <div class="viewcode-block" id="Json.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Json.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">json</span>
 
         <span class="n">write</span> <span class="o">=</span> <span class="n">allows_write</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -265,6 +268,9 @@
 
 <div class="viewcode-block" id="Pickle"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Pickle">[docs]</a><span class="k">class</span> <span class="nc">Pickle</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
 <div class="viewcode-block" id="Pickle.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Pickle.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">pickle</span>
 
         <span class="k">if</span> <span class="s1">&#39;t&#39;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
