@@ -5,7 +5,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-docs_dir = Path(__file__).resolve().parents[1]
+THIS_FILE = Path(__file__).resolve()
+docs_src = THIS_FILE.parent
+docs_dir = THIS_FILE.parents[1]
 sys.path.append(docs_dir.joinpath('_ext').as_posix())
 
 from cli_command_parser.__version__ import __author__, __version__, __description__, __title__
@@ -23,6 +25,7 @@ extensions = [
     # 'sphinx.ext.autosummary',  # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
     'sphinx_paramlinks',  # https://github.com/sqlalchemyorg/sphinx-paramlinks
     'show_on_github',
+    'field_list_refs',
 ]
 
 # Extension options
@@ -31,22 +34,18 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
 }
 viewcode_follow_imported_members = False
+
+_no_skip = {'examples.rst', 'api.rst'}
 show_on_github_options = {
     'user': 'dskrypa',
     'repo': __title__,
     'rm_prefix': 'api/',
     'lib_relative_path': 'lib',
     'use_root': {'index', 'api'},
-    'skip': {
-        'advanced.rst',
-        'basic.rst',
-        'parameters.rst',
-        'commands.rst',
-        'configuration.rst',
-        'documentation.rst',
-        'subcommands.rst',
-        'groups.rst',
-    },
+    'skip': {p.name for p in docs_src.glob('*.rst') if p.name not in _no_skip},
+}
+field_list_refs_options = {
+    'skip_dirs': (docs_src.joinpath('api'), docs_src.joinpath('examples')),
 }
 
 autodoc_default_options = {
