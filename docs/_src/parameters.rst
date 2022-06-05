@@ -28,7 +28,7 @@ Common parameters that are supported by all Parameters:
 :metavar: The name to use as a placeholder for values in usage / help messages.
 :help: A brief description for the Parameter that will appear in ``--help`` text.
 :hide: Set this to ``True`` to prevent a Parameter from being included in usage / help text.
-:show_default: Override the :ref:`show_defaults <configuration:Usage & Help Text Options>` setting for a given
+:show_default: Override the :ref:`configuration:Usage & Help Text Options:show_defaults` setting for a given
   Parameter to always or never include the default value in usage / help messages.  The default behavior is to follow
   the ``show_defaults`` setting.
 

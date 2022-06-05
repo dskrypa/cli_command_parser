@@ -72,7 +72,7 @@ Usage & Help Text Options
 :show_defaults: Whether default values for Parameters should be automatically included in help text or not,
   and related settings.  Acceptable values are defined as
   `enum flags <https://docs.python.org/3/library/enum.html#flag>`__ that can be combined.  May be overridden on a
-  per-Parameter level by using the :ref:`show_default<common_init_params>` param. See :class:`.ShowDefaults` for
+  per-Parameter level by using the :ref:`parameters:parameters:show_default` param. See :class:`.ShowDefaults` for
   more info.
 :show_group_tree: Whether there should be a visual indicator in help text for the parameters that are members
   of a given group.  See :ref:`documentation:Group Formatting` for more info.  (default: False)

@@ -15,7 +15,7 @@ inside the ``with`` block.
 
 :name: The name of the group to appear in help text.  Ignored if ``description`` is provided.
 :description: The description (header) for this group in help text.  Defaults to ``{name} options`` if ``name`` is
-  specified.  If :ref:`show_group_type <configuration:Usage & Help Text Options>` is True (the default), and the group
+  specified.  If :ref:`configuration:Usage & Help Text Options:show_group_type` is True (the default), and the group
   is mutually exclusive/dependent, then ``(mutually {type})`` will be appended to this text.  If no description or name
   are provided, and ``show_group_type`` is True, then the entire description will default to
   ``Mutually {type} options``, otherwise it will be ``Optional arguments``.
