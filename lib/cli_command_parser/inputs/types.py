@@ -171,6 +171,9 @@ class Serialized(File):
 
 class Json(Serialized):
     def __init__(self, *, mode: str = 'rb', **kwargs):
+        """
+        :param kwargs: Additional keyword arguments to pass to :class:`.File`
+        """
         import json
 
         write = allows_write(mode, True)
@@ -180,6 +183,9 @@ class Json(Serialized):
 
 class Pickle(Serialized):
     def __init__(self, *, mode: str = 'rb', **kwargs):
+        """
+        :param kwargs: Additional keyword arguments to pass to :class:`.File`
+        """
         import pickle
 
         if 't' in mode:
