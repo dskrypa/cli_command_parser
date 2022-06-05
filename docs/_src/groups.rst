@@ -13,21 +13,21 @@ inside the ``with`` block.
 
 .. rubric:: Initialization Parameters
 
-- **name**: The name of the group to appear in help text.  Ignored if ``description`` is provided.
-- **description**: The description (header) for this group in help text.  Defaults to ``{name} options`` if ``name`` is
+:name: The name of the group to appear in help text.  Ignored if ``description`` is provided.
+:description: The description (header) for this group in help text.  Defaults to ``{name} options`` if ``name`` is
   specified.  If :ref:`show_group_type <configuration:Usage & Help Text Options>` is True (the default), and the group
   is mutually exclusive/dependent, then ``(mutually {type})`` will be appended to this text.  If no description or name
   are provided, and ``show_group_type`` is True, then the entire description will default to
   ``Mutually {type} options``, otherwise it will be ``Optional arguments``.
-- **mutually_exclusive**: ``True`` if Parameters in the group are mutually exclusive, ``False`` otherwise.  I.e., if
+:mutually_exclusive: ``True`` if Parameters in the group are mutually exclusive, ``False`` otherwise.  I.e., if
   one Parameter in the group is provided, then no other Parameter in the group will be allowed.  Cannot be combined
   with ``mutually_dependent``.
-- **mutually_dependent**: ``True`` if Parameters in the group are mutually dependent, ``False`` otherwise.  I.e., if
+:mutually_dependent: ``True`` if Parameters in the group are mutually dependent, ``False`` otherwise.  I.e., if
   one Parameter in the group is provided, then all other Parameters in the group must also be provided.  Cannot be
   combined with ``mutually_exclusive``.
-- **required**: Whether at least one Parameter in the group is required or not.  If it is required, then an exception
+:required: Whether at least one Parameter in the group is required or not.  If it is required, then an exception
   will be raised if the user did not provide a value for any Parameters in the group.  Defaults to ``False``.
-- **hide**: Set this to ``True`` to hide the group and all of its members so they will not be included in usage / help
+:hide: Set this to ``True`` to hide the group and all of its members so they will not be included in usage / help
   text.
 
 

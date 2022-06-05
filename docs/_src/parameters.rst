@@ -20,27 +20,27 @@ otherwise stated.
 
 Common parameters that are supported by all Parameters:
 
-- **action**: The action to take on individual parsed values.  This usually does not need to be specified.  It is
+:action: The action to take on individual parsed values.  This usually does not need to be specified.  It is
   automatically determined based on the specified ``nargs`` value.  Supported values depend on the actions defined for
   each Parameter class.
-- **name**: The name of the Parameter.  Defaults to the name assigned to it in a Command.  Shown in usage / help text
+:name: The name of the Parameter.  Defaults to the name assigned to it in a Command.  Shown in usage / help text
   when no ``metavar`` value is specified.
-- **metavar**: The name to use as a placeholder for values in usage / help messages.
-- **help**: A brief description for the Parameter that will appear in ``--help`` text.
-- **hide**: Set this to ``True`` to prevent a Parameter from being included in usage / help text.
-- **show_default**: Override the :ref:`show_defaults <configuration:Usage & Help Text Options>` setting for a given
+:metavar: The name to use as a placeholder for values in usage / help messages.
+:help: A brief description for the Parameter that will appear in ``--help`` text.
+:hide: Set this to ``True`` to prevent a Parameter from being included in usage / help text.
+:show_default: Override the :ref:`show_defaults <configuration:Usage & Help Text Options>` setting for a given
   Parameter to always or never include the default value in usage / help messages.  The default behavior is to follow
   the ``show_defaults`` setting.
 
 Common parameters that are supported when initializing most Parameters:
 
-- **default**: The default value to use when no argument is provided.  When a Parameter is not required, this defaults
+:default: The default value to use when no argument is provided.  When a Parameter is not required, this defaults
   to ``None`` if ``nargs`` would only accept 1 value, and to an empty list if multiple values would be accepted.  Not
   used if the Parameter is required.  Some specialized Parameters have different defaults.
-- **required**: Whether a Parameter must be provided or not.  Generally defaults to ``False``, but Positionals, for
+:required: Whether a Parameter must be provided or not.  Generally defaults to ``False``, but Positionals, for
   example, default to ``True``.
-- **choices**: A container that holds the specific values that users must pick from.  By default, any value is allowed.
-- **nargs**: The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
+:choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
+:nargs: The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
   When multiple arguments are accepted, they are collected in a list.  When only 0 - 1 arguments are accepted, they
   will be stored / returned as-is.  Supported values:
 
@@ -58,13 +58,12 @@ Common parameters that are supported when initializing most Parameters:
     - ``range(...)`` (a :class:`python:range` object):  Similar to the set of integers, accept any number of arguments
       for which ``N in range(...)`` is ``True`` for the specified range.  Can be used, for example, to accept only an
       even number of arguments, such as ``range(0, 6, 2)`` to accept 0, 2, or 4 values.
-- **type**: A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
+:type: A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
   argument values.  It will be used before evaluating whether the value is in ``choices``, if specified.  If ``nargs``
   accepts multiple values, then this will be called on each value individually before appending it to the list of
   values.  By default, no transformation is performed, and values will be strings.  If not specified, but a type
   annotation is detected, then that annotation will be used as if it was provided here.  When both are present, this
   argument takes precedence.
-
 
 Options
 =======
@@ -81,7 +80,7 @@ specified, based on the name of the Parameter attribute.
 
 Options support one additional initialization parameter:
 
-- **\*option_strs**: One or more long or short form option strings may be provided positionally, similar to how they
+:\*option_strs: One or more long or short form option strings may be provided positionally, similar to how they
   would be specified when using ``argparse``.
 
     - Option strings cannot end with ``-`` or contain ``=``.
@@ -129,14 +128,14 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
 
 **Unique Flag initialization parameters:**
 
-- **action**: While not specific to Flags, this is one example of a Parameter where it may be desirable to specify a
+:action: While not specific to Flags, this is one example of a Parameter where it may be desirable to specify a
   value here.  The default action is ``store_const``, but ``append_const`` is also supported.
-- **const**: The constant value to store / append.  If a ``default`` value is provided that is not a bool, then this
+:const: The constant value to store / append.  If a ``default`` value is provided that is not a bool, then this
   must also be provided.  Defaults to ``True`` when ``default`` is ``False`` (the default when it is not specified),
   and to ``False`` when ``default`` is ``True``.
-- **nargs**: Not supported.
-- **type**: Not supported.
-- **choices**: Not supported.
+:nargs: Not supported.
+:type: Not supported.
+:choices: Not supported.
 
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py>`__::
@@ -180,14 +179,14 @@ is for verbosity levels, where logging verbosity would increase with the number 
 
 **Unique Counter initialization parameters:**
 
-- **default**: The default value if the Parameter is not specified.  This value is also be used as the initial value
+:default: The default value if the Parameter is not specified.  This value is also be used as the initial value
   that will be incremented when the flag is provided.  Defaults to ``0``.
-- **const**: The value by which the stored value should increase whenever the flag is provided. Defaults to ``1``.
+:const: The value by which the stored value should increase whenever the flag is provided. Defaults to ``1``.
   If a different ``const`` value is used, and if an explicit value is provided by a user, the user-provided value
   will be added verbatim - it will NOT be multiplied by ``const``.
-- **nargs**: Not supported.
-- **type**: Not supported.
-- **choices**: Not supported.
+:nargs: Not supported.
+:type: Not supported.
+:choices: Not supported.
 
 
 Given the following example Command::
@@ -237,11 +236,11 @@ values.
 
 **Unique Positional initialization parameters:**
 
-- **nargs**: The number of values that are expected/required for the Parameter.  Defaults to 1.  Use a value that
+:nargs: The number of values that are expected/required for the Parameter.  Defaults to 1.  Use a value that
   allows 0 values to have the same effect as making the Parameter not required (the ``required`` option is not
   supported for Positional Parameters).  Only the last Positional in a given :class:`.Command` may allow a
   variable / unbound number of arguments.
-- **default**: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.  Defaults
+:default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.  Defaults
   to ``None`` under those conditions.
 
 
@@ -273,13 +272,13 @@ should be provided relative to other positional parameters, if any.
 
 **Unique SubCommand initialization parameters:**
 
-- **title**: The title to use for help text sections containing the choices for the Parameter.  Defaults to
+:title: The title to use for help text sections containing the choices for the Parameter.  Defaults to
   ``Subcommands``.
-- **description**: The description to be used in help text for the Parameter.
-- **nargs**: Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
+:description: The description to be used in help text for the Parameter.
+:nargs: Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
   Commands).
-- **type**: Not supported.
-- **choices**: Not supported.
+:type: Not supported.
+:choices: Not supported.
 
 
 Explicit registration is not necessary for Commands that extend their parent Command - given the `following example
@@ -342,12 +341,12 @@ parameters, then using a :class:`.SubCommand` with separate sub :class:`.Command
 
 **Unique Action initialization parameters:**
 
-- **title**: The title to use for help text sections containing the choices for the Parameter.  Defaults to
+:title: The title to use for help text sections containing the choices for the Parameter.  Defaults to
   ``Actions``.
-- **description**: The description to be used in help text for the Parameter.
-- **nargs**: Not supported.  Automatically calculated / maintained based on registered choices (target methods).
-- **type**: Not supported.
-- **choices**: Not supported.
+:description: The description to be used in help text for the Parameter.
+:nargs: Not supported.  Automatically calculated / maintained based on registered choices (target methods).
+:type: Not supported.
+:choices: Not supported.
 
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py>`__ that uses
@@ -408,9 +407,9 @@ space.
 
 **Unique PassThru initialization parameters:**
 
-- **nargs**: Not supported.
-- **type**: Not supported.
-- **choices**: Not supported.
+:nargs: Not supported.
+:type: Not supported.
+:choices: Not supported.
 
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py>`__::
@@ -460,19 +459,19 @@ are provided to simplify this distinction: :data:`~.parameters.before_main` and 
 
 **Unique ActionFlag initialization parameters:**
 
-- **order**: The priority / order for execution, relative to other ActionFlags, if others would also be executed.  Two
+:order: The priority / order for execution, relative to other ActionFlags, if others would also be executed.  Two
   ActionFlags in a given :class:`.Command` may not have the same combination of ``before_main`` and ``order`` values.
   ActionFlags with lower ``order`` values are executed before those with higher values.  The ``--help`` action is
   implemented as an ActionFlag with ``order=float('-inf')``.
-- **func**: The function (any callable) to call.  Instead of passing a value here, ActionFlag can be used as a
+:func: The function (any callable) to call.  Instead of passing a value here, ActionFlag can be used as a
   decorator for a method that should be called.
-- **before_main**: Whether the action should be executed before the :meth:`.Command.main` method or after it.  Defaults
+:before_main: Whether the action should be executed before the :meth:`.Command.main` method or after it.  Defaults
   to ``True``.
-- **always_available**: Whether the action should always be available to be called, even if parsing failed.  Only
+:always_available: Whether the action should always be available to be called, even if parsing failed.  Only
   allowed when ``before_main=True``.  The intended use case is for actions like ``--help`` text.
-- **nargs**: Not supported.
-- **type**: Not supported.
-- **choices**: Not supported.
+:nargs: Not supported.
+:type: Not supported.
+:choices: Not supported.
 
 
 Example command::
