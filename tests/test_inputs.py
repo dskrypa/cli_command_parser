@@ -10,9 +10,10 @@ from typing import ContextManager
 from unittest import main, TestCase
 from unittest.mock import patch, Mock
 
-from cli_command_parser import Command, Positional
+from cli_command_parser import Command, Positional, Option
 from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode
 from cli_command_parser.inputs.utils import InputParam, FileWrapper
+from cli_command_parser.testing import ParserTest
 
 
 @contextmanager
@@ -241,6 +242,24 @@ class ReadWriteTest(TestCase):
             a.write_text('test')
             foo = Foo.parse_and_run([a.as_posix()])
             self.assertEqual('test', foo.bar)
+
+
+class ParseInputTest(ParserTest):
+    # TODO: Prevent double-read on lazy=False during would_accept
+
+    def test_short_option_no_space(self):
+        class Foo(Command):
+            foo = Option('-f', type=File())
+            bar = Option('-b', type=File(allow_dash=True))
+
+        success_cases = [
+            (['-bar'], {'bar': FileWrapper(Path('ar')), 'foo': None}),
+            (['-btest'], {'bar': FileWrapper(Path('test')), 'foo': None}),
+            (['-ftest'], {'foo': FileWrapper(Path('test')), 'bar': None}),
+            (['-b-'], {'bar': FileWrapper(Path('-')), 'foo': None}),
+        ]
+        with temp_path() as tmp_path, temp_chdir(tmp_path):
+            self.assert_parse_results_cases(Foo, success_cases)
 
 
 if __name__ == '__main__':

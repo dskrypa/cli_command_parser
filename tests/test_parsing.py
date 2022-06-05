@@ -433,9 +433,16 @@ class OptionTest(ParserTest):
 
     def test_short_value_no_space(self):
         class Foo(Command):
+            foo = Option('-f')
             bar = Option('-b')
 
-        self.assert_parse_results(Foo, ['-bar'], {'bar': 'ar'})
+        success_cases = [
+            (['-bar'], {'bar': 'ar', 'foo': None}),
+            (['-btest'], {'bar': 'test', 'foo': None}),
+            (['-ftest'], {'foo': 'test', 'bar': None}),
+            (['-b-'], {'bar': '-', 'foo': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
     def test_short_value_ambiguous(self):
         class Foo(Command):

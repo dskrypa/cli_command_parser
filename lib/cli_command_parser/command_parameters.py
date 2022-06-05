@@ -248,8 +248,6 @@ class CommandParameters:
 
     # region Option Processing
 
-    # TODO: Move this section to the parsing module?
-
     def get_option_param_value_pairs(self, option: str) -> Optional[Tuple[BaseOption, ...]]:
         if option.startswith('---'):
             return None

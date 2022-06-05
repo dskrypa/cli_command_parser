@@ -134,6 +134,10 @@ class FileWrapper:
         self._fp: Union[TextIO, BinaryIO, None] = None
         self._finalizer = None
 
+    def __eq__(self, other: 'FileWrapper') -> bool:
+        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'convert_directly')
+        return all(getattr(self, a) == getattr(other, a) for a in attrs)
+
     def read(self) -> Any:
         with self._file() as f:
             if self.converter is not None:

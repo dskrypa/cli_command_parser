@@ -6,17 +6,39 @@ Custom input handlers for Parameters
 
 import logging
 import os
+from abc import ABC, abstractmethod
 from pathlib import Path as _Path
-from typing import Union
+from typing import Union, Any
 
 from ..utils import Bool
 from .utils import InputParam, StatMode, FileWrapper, Converter, allows_write
 
-__all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
+__all__ = ['Input', 'Path', 'File', 'Serialized', 'Json', 'Pickle']
 log = logging.getLogger(__name__)
 
 
-class Path:
+class Input(ABC):
+    @abstractmethod
+    def __call__(self, value: str) -> Any:
+        """Process the parsed argument and convert it to the desired type"""
+        raise NotImplementedError
+
+    def is_valid_type(self, value: str) -> bool:  # noqa
+        """
+        Called during parsing when :meth:`.Parameter.would_accept` is called to determine if the value would be
+        accepted later for processing / conversion via :meth:`.__call__`.  May be overridden in subclasses to
+        provide actual validation, if necessary.
+
+        Not called by :meth:`.Parameter.take_action` - value validation should happen in :meth:`.__call__`
+
+        :param value: A parsed argument
+        :return: True if this input would accept it for processing later (where it may still be rejected), False if
+          it should be rejected before attempting to process / convert / store it.
+        """
+        return True
+
+
+class Path(Input):
     exists: bool = InputParam(None)
     expand: bool = InputParam(True)
     resolve: bool = InputParam(False)
@@ -89,49 +111,28 @@ class Path:
 
 
 class File(Path):
-    # binary: bool = InputParam(False)
     encoding: str = InputParam(None)
     errors: str = InputParam(None)
     lazy: bool = InputParam(True)
     mode: str = InputParam('r')
-    # write: bool = InputParam(False)
-    # append: bool = InputParam(False)
 
-    def __init__(
-        self,
-        *,
-        # binary: Bool = None,
-        encoding: str = None,
-        errors: str = None,
-        lazy: Bool = True,
-        mode: str = 'r',
-        **kwargs,
-    ):
+    def __init__(self, *, encoding: str = None, errors: str = None, lazy: Bool = True, mode: str = 'r', **kwargs):
         """
         :param binary: Set to True to read the file in binary mode and return bytes (default: False / text).
         :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
         :param errors: Error handling when reading the file in text mode.  Ignored if the parsed path is ``-``.
         :param lazy: If True, a :class:`FileWrapper` will be stored in the Parameter using this File, otherwise the
           file will be read immediately upon parsing of the path argument.
-        :param write: Whether the file should be opened for writing (default: False / read only)
-        :param append: Whether the file should be opened for appending (implies write)
+        :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`
         :param kwargs: Additional keyword arguments to pass to :class:`.Path`
         """
         if not lazy and allows_write(mode):
             raise ValueError(f'Cannot combine mode={mode!r} with lazy=False for {self.__class__.__name__}')
         super().__init__(**kwargs)
-        # self.binary = binary
         self.encoding = encoding
         self.errors = errors
         self.lazy = lazy
         self.mode = mode
-
-    # @property
-    # def _mode(self) -> str:
-    #     mode = 'a' if self.append else 'w' if self.write else 'r'
-    #     if self.binary:
-    #         mode += 'b'
-    #     return mode
 
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
         return FileWrapper(path, self.mode, self.encoding, self.errors)
@@ -184,6 +185,5 @@ class Pickle(Serialized):
             mode += 'b'
 
         write = allows_write(mode, True)
-        # kwargs['binary'] = True
         kwargs['convert_directly'] = True
         super().__init__(pickle.dump if write else pickle.load, mode=mode, **kwargs)

@@ -23,6 +23,7 @@ from .context import Context, ctx, get_current_context
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
 from .formatting.utils import HelpEntryFormatter
+from .inputs.types import Input
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 
@@ -58,8 +59,6 @@ ParamOrGroup = Union[Param, 'ParamGroup']
 
 # TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?
 # TODO: constraints / choice=range(1, 101) for example?
-
-# TODO: Way to read string from file, and/or https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
 
 
 class parameter_action:
@@ -575,14 +574,14 @@ class Parameter(ParamBase, ABC):
         elif action == 'append' and self._nargs_max_reached():
             return False
         try:
-            normalized = self.prepare_value(value, short_combo)
+            normalized = self.prepare_value(value, short_combo, True)
         except BadArgument:
             return False
         return self.is_valid_arg(normalized)
 
-    def prepare_value(self, value: str, short_combo: bool = False) -> Any:
+    def prepare_value(self, value: str, short_combo: bool = False, pre_action: bool = False) -> Any:
         type_func = self.type
-        if type_func is None:
+        if type_func is None or (pre_action and isinstance(type_func, Input) and type_func.is_valid_type(value)):
             return value
         try:
             return type_func(value)
@@ -596,7 +595,7 @@ class Parameter(ParamBase, ABC):
         if choices and value not in choices:
             raise InvalidChoice(self, value, choices)
         elif isinstance(value, str) and value.startswith('-'):
-            if not is_numeric(value):
+            if len(value) > 1 and not is_numeric(value):
                 raise BadArgument(self, f'invalid value={value!r}')
         elif value is None:
             if not self.accepts_none:
@@ -1430,7 +1429,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
     def _init_value_factory(self):
         return self.default
 
-    def prepare_value(self, value: Optional[str], short_combo: bool = False) -> int:
+    def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:
         if value is None:
             return self.const
         try:
