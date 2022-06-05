@@ -42,7 +42,7 @@ class Path(Input):
     exists: bool = InputParam(None)
     expand: bool = InputParam(True)
     resolve: bool = InputParam(False)
-    type: Union[StatMode, str] = InputParam(StatMode.ANY)
+    type: StatMode = InputParam(StatMode.ANY)
     readable: bool = InputParam(False)
     writable: bool = InputParam(False)
     allow_dash: bool = InputParam(False)
@@ -111,6 +111,7 @@ class Path(Input):
 
 
 class File(Path):
+    type: StatMode = InputParam(StatMode.FILE)
     encoding: str = InputParam(None)
     errors: str = InputParam(None)
     lazy: bool = InputParam(True)
@@ -128,6 +129,9 @@ class File(Path):
         """
         if not lazy and allows_write(mode):
             raise ValueError(f'Cannot combine mode={mode!r} with lazy=False for {self.__class__.__name__}')
+        if not allows_write(mode):
+            kwargs.setdefault('exists', True)
+        kwargs.setdefault('type', StatMode.FILE)
         super().__init__(**kwargs)
         self.encoding = encoding
         self.errors = errors

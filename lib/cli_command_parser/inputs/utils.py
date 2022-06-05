@@ -13,6 +13,7 @@ from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S
 from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager, List
 from weakref import finalize
 
+from ..exceptions import InputValidationError
 from ..utils import Bool
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper']
@@ -71,24 +72,41 @@ class StatMode(Flag):
     @classmethod
     def _missing_(cls, value):
         if isinstance(value, str):
+            if value.startswith(('!', '~')):
+                invert = True
+                value = value[1:]
+            else:
+                invert = False
+
             try:
-                return cls._member_map_[value.upper()]
+                member = cls._missing_str(value)
             except KeyError:
                 pass
-            if '|' in value:
-                tmp = cls(0)
-                for part in map(str.strip, value.split('|')):
-                    if not part:
-                        continue
-                    try:
-                        tmp |= cls._member_map_[part.upper()]
-                    except KeyError:
-                        break
-                else:
-                    if tmp._value_ != 0:
-                        return tmp
+            else:
+                return ~member if invert else member
 
         return super()._missing_(value)
+
+    @classmethod
+    def _missing_str(cls, value: str) -> 'StatMode':
+        try:
+            return cls._member_map_[value.upper()]  # noqa
+        except KeyError:
+            pass
+        if '|' in value:
+            tmp = cls(0)
+            for part in map(str.strip, value.split('|')):
+                if not part:
+                    continue
+                try:
+                    tmp |= cls._member_map_[part.upper()]
+                except KeyError:
+                    break
+            else:
+                if tmp._value_ != 0:
+                    return tmp
+
+        raise KeyError
 
     def _decompose(self) -> List['StatMode']:
         if self._name_ is None:
@@ -163,9 +181,13 @@ class FileWrapper:
             stream = sys.stdin if 'r' in self.mode else sys.stdout
             return stream.buffer if self.binary else stream
 
-        self._fp = fp = self.path.open(self.mode, encoding=self.encoding, errors=self.errors)
-        self._finalizer = finalize(self, self._cleanup, fp, f'Implicitly cleaning up {self.path}')
-        return fp
+        try:
+            self._fp = fp = self.path.open(self.mode, encoding=self.encoding, errors=self.errors)
+        except OSError as e:
+            raise InputValidationError(f'Unable to open {self.path} - {e}') from e
+        else:
+            self._finalizer = finalize(self, self._cleanup, fp, f'Implicitly cleaning up {self.path}')
+            return fp
 
     @classmethod
     def _cleanup(cls, fp: FP, warn_msg: str):

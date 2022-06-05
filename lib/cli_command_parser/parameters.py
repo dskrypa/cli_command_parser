@@ -22,6 +22,7 @@ except ImportError:
 from .context import Context, ctx, get_current_context
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
+from .exceptions import InputValidationError
 from .formatting.utils import HelpEntryFormatter
 from .inputs.types import Input
 from .nargs import Nargs, NargsValue
@@ -585,6 +586,8 @@ class Parameter(ParamBase, ABC):
             return value
         try:
             return type_func(value)
+        except InputValidationError as e:
+            raise BadArgument(self, str(e)) from e
         except (TypeError, ValueError) as e:
             raise BadArgument(self, f'bad value={value!r} for type={type_func!r}: {e}') from e
         except Exception as e:

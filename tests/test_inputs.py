@@ -11,6 +11,7 @@ from unittest import main, TestCase
 from unittest.mock import patch, Mock
 
 from cli_command_parser import Command, Positional, Option
+from cli_command_parser.exceptions import InputValidationError, BadArgument
 from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode
 from cli_command_parser.inputs.utils import InputParam, FileWrapper
 from cli_command_parser.testing import ParserTest
@@ -53,6 +54,14 @@ class InputTest(TestCase):
     def test_stat_mode_from_pipe_str(self):
         d, f, lnk = StatMode.DIR, StatMode.FILE, StatMode.LINK
         str_exp_map = {'dir|': d, '|dir': d, 'file|dir': d | f, 'file||dir': d | f, 'file|link|dir': d | f | lnk}
+        for sm_str, expected in str_exp_map.items():
+            with self.subTest(sm_str=sm_str):
+                self.assertEqual(expected, StatMode(sm_str))
+
+    def test_stat_mode_from_invert_str(self):
+        not_dir = StatMode('FILE|CHARACTER|BLOCK|FIFO|LINK|SOCKET')
+        not_dir_or_file = StatMode('CHARACTER|BLOCK|FIFO|LINK|SOCKET')
+        str_exp_map = {'!dir': not_dir, '~dir': not_dir, '~dir|file': not_dir_or_file}
         for sm_str, expected in str_exp_map.items():
             with self.subTest(sm_str=sm_str):
                 self.assertEqual(expected, StatMode(sm_str))
@@ -246,12 +255,29 @@ class ReadWriteTest(TestCase):
             foo = Foo.parse_and_run([a.as_posix()])
             self.assertEqual('test', foo.bar)
 
+    def test_read_error(self):
+        with temp_path() as tmp_path:
+            b = tmp_path.joinpath('b')
+            b.mkdir()
+            with self.assertRaises(InputValidationError):
+                File(lazy=False, type='any')(b.as_posix())
+
+    def test_cmd_read_error(self):
+        class Foo(Command, error_handler=None):
+            bar = Option('-b', type=File(lazy=False, type='any'))
+
+        with temp_path() as tmp_path:
+            b = tmp_path.joinpath('b')
+            b.mkdir()
+            with self.assertRaisesRegex(BadArgument, 'Unable to open'):
+                Foo.parse_and_run(['-b', b.as_posix()])
+
 
 class ParseInputTest(ParserTest):
     def test_short_option_no_space(self):
         class Foo(Command):
-            foo = Option('-f', type=File())
-            bar = Option('-b', type=File(allow_dash=True))
+            foo = Option('-f', type=File(exists=False))
+            bar = Option('-b', type=File(exists=False, allow_dash=True))
 
         success_cases = [
             (['-bar'], {'bar': FileWrapper(Path('ar')), 'foo': None}),
@@ -264,7 +290,7 @@ class ParseInputTest(ParserTest):
 
     def test_only_read_once(self):
         class Foo(Command):
-            bar = Option('-b', type=File(lazy=False))
+            bar = Option('-b', type=File(lazy=False, exists=False))
 
         for args in (['-b', 'test'], ['-btest']):
             with self.subTest(args=args):
