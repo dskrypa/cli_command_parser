@@ -1,0 +1,202 @@
+"""
+Utils for input types
+
+:author: Doug Skrypa
+"""
+
+import sys
+import warnings
+from contextlib import contextmanager
+from enum import Flag, _decompose as decompose  # noqa
+from pathlib import Path
+from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S_IFSOCK
+from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager, List
+from weakref import finalize
+
+from ..utils import Bool
+
+__all__ = ['InputParam', 'StatMode', 'FileWrapper']
+
+FP = Union[TextIO, BinaryIO]
+Deserializer = Callable[[Union[str, bytes, FP]], Any]
+Serializer = Callable[..., Union[str, bytes, None]]
+Converter = Union[Deserializer, Serializer]
+
+
+class InputParam:
+    def __init__(self, default: Any):
+        self.default = default
+
+    def __set_name__(self, owner, name: str):
+        self.name = name
+
+    def __get__(self, instance, owner) -> Any:
+        if instance is None:
+            return self
+        try:
+            return instance.__dict__[self.name]
+        except KeyError:
+            return self.default
+
+    def __set__(self, instance, value: Any):
+        if value != self.default:
+            instance.__dict__[self.name] = value
+
+
+class StatMode(Flag):
+    def __new__(cls, mode, friendly_name):
+        # Defined __new__ to avoid juggling dicts for the stat mode values and names
+        obj = object.__new__(cls)
+        if mode is None:  # ANY
+            obj._value_ = sum(m._value_ for m in cls.__members__.values())
+        else:
+            obj._value_ = 2 ** len(cls.__members__)
+        obj.mode = mode
+        obj.friendly_name = friendly_name
+        return obj
+
+    DIR = S_IFDIR, 'directory'
+    FILE = S_IFREG, 'regular file'
+    CHARACTER = S_IFCHR, 'character special device file'
+    BLOCK = S_IFBLK, 'block special device file'
+    FIFO = S_IFIFO, 'FIFO (named pipe)'
+    LINK = S_IFLNK, 'symbolic link'
+    SOCKET = S_IFSOCK, 'socket'
+    ANY = None, 'any'
+
+    def matches(self, mode: int) -> bool:
+        mode = S_IFMT(mode)
+        return any(mode == part.mode for part in self._decompose())
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            try:
+                return cls._member_map_[value.upper()]
+            except KeyError:
+                pass
+            if '|' in value:
+                tmp = cls(0)
+                for part in map(str.strip, value.split('|')):
+                    if not part:
+                        continue
+                    try:
+                        tmp |= cls._member_map_[part.upper()]
+                    except KeyError:
+                        break
+                else:
+                    if tmp._value_ != 0:
+                        return tmp
+
+        return super()._missing_(value)
+
+    def _decompose(self) -> List['StatMode']:
+        if self._name_ is None:
+            return sorted(decompose(StatMode, self.value)[0])
+        return [self]
+
+    def __repr__(self) -> str:
+        names = '|'.join(part._name_ for part in self._decompose())
+        return f'<{self.__class__.__name__}:{names}>'
+
+    def __str__(self) -> str:
+        try:
+            return self.friendly_name
+        except AttributeError:  # Combined flags
+            pass
+        names = [part.friendly_name for part in self._decompose()]
+        if len(names) == 2:
+            return '{} or {}'.format(*names)
+        names[-1] = f'or {names[-1]}'
+        return ', '.join(names)
+
+    def __lt__(self, other: 'StatMode') -> bool:
+        return self._value_ < other._value_
+
+
+class FileWrapper:
+    def __init__(
+        self,
+        path: Path,
+        mode: str = 'r',
+        encoding: str = None,
+        errors: str = None,
+        converter: Converter = None,
+        convert_directly: Bool = False,
+    ):
+        self.path = path
+        self.mode = mode
+        self.binary = 'b' in mode
+        self.encoding = encoding
+        self.errors = errors
+        self.converter = converter
+        self.convert_directly = convert_directly
+        self._fp: Union[TextIO, BinaryIO, None] = None
+        self._finalizer = None
+
+    def read(self) -> Any:
+        with self._file() as f:
+            if self.converter is not None:
+                return self.converter(f if self.convert_directly else f.read())
+            else:
+                return f.read()
+
+    def write(self, data: Any):
+        with self._file() as f:
+            if self.converter is not None:
+                if self.convert_directly:
+                    self.converter(data, f)
+                else:
+                    f.write(self.converter(data))
+            else:
+                f.write(data)
+
+    def _open(self) -> FP:
+        if self.path == Path('-'):
+            stream = sys.stdin if 'r' in self.mode else sys.stdout
+            return stream.buffer if self.binary else stream
+
+        self._fp = fp = self.path.open(self.mode, encoding=self.encoding, errors=self.errors)
+        self._finalizer = finalize(self, self._cleanup, fp, f'Implicitly cleaning up {self.path}')
+        return fp
+
+    @classmethod
+    def _cleanup(cls, fp: FP, warn_msg: str):
+        fp.close()
+        warnings.warn(warn_msg, ResourceWarning)
+
+    def _close(self):
+        try:
+            self._fp.close()
+        except AttributeError:
+            pass
+        finally:
+            self._fp = None
+
+    def close(self):
+        try:
+            do_close = self._finalizer.detach()
+        except AttributeError:
+            do_close = False
+        if do_close:
+            self._close()
+
+    @contextmanager
+    def _file(self) -> ContextManager[FP]:
+        try:
+            yield self._open()
+        finally:
+            self.close()
+
+    def __enter__(self) -> Union[FP, 'FileWrapper']:
+        if self.converter is not None:
+            return self
+        return self._open()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+
+def allows_write(mode: str, strict: bool = False) -> bool:
+    chars = 'wxa' if strict else 'wxa+'
+    return any(c in mode for c in chars)
