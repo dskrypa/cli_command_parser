@@ -52,6 +52,19 @@ class StatMode(Flag):
                 return cls._member_map_[value.upper()]
             except KeyError:
                 pass
+            if '|' in value:
+                tmp = cls(0)
+                for part in map(str.strip, value.split('|')):
+                    if not part:
+                        continue
+                    try:
+                        tmp |= cls._member_map_[part.upper()]
+                    except KeyError:
+                        break
+                else:
+                    if tmp._value_ != 0:
+                        return tmp
+
         return super()._missing_(value)
 
     def _decompose(self) -> List['StatMode']:

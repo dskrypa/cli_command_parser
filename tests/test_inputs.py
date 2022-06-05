@@ -36,6 +36,17 @@ class InputTest(ParserTest):
             StatMode(None)
         with self.assertRaises(TypeError):
             StatMode('StatMode')
+        with self.assertRaises(TypeError):
+            StatMode('|')
+        with self.assertRaises(TypeError):
+            StatMode('file|mock')
+
+    def test_stat_mode_from_pipe_str(self):
+        d, f, lnk = StatMode.DIR, StatMode.FILE, StatMode.LINK
+        str_exp_map = {'dir|': d, '|dir': d, 'file|dir': d | f, 'file||dir': d | f, 'file|link|dir': d | f | lnk}
+        for sm_str, expected in str_exp_map.items():
+            with self.subTest(sm_str=sm_str):
+                self.assertEqual(expected, StatMode(sm_str))
 
     def test_stat_mode_combo_strs(self):
         self.assertEqual('directory', str(StatMode.DIR))
