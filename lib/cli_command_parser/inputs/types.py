@@ -111,20 +111,19 @@ class Path(Input):
 
 
 class File(Path):
+    mode: str = InputParam('r')
     type: StatMode = InputParam(StatMode.FILE)
     encoding: str = InputParam(None)
     errors: str = InputParam(None)
     lazy: bool = InputParam(True)
-    mode: str = InputParam('r')
 
-    def __init__(self, *, encoding: str = None, errors: str = None, lazy: Bool = True, mode: str = 'r', **kwargs):
+    def __init__(self, mode: str = 'r', *, encoding: str = None, errors: str = None, lazy: Bool = True, **kwargs):
         """
-        :param binary: Set to True to read the file in binary mode and return bytes (default: False / text).
+        :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`
         :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
         :param errors: Error handling when reading the file in text mode.  Ignored if the parsed path is ``-``.
         :param lazy: If True, a :class:`FileWrapper` will be stored in the Parameter using this File, otherwise the
           file will be read immediately upon parsing of the path argument.
-        :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`
         :param kwargs: Additional keyword arguments to pass to :class:`.Path`
         """
         if not lazy and allows_write(mode):
@@ -133,10 +132,10 @@ class File(Path):
             kwargs.setdefault('exists', True)
         kwargs.setdefault('type', StatMode.FILE)
         super().__init__(**kwargs)
+        self.mode = mode
         self.encoding = encoding
         self.errors = errors
         self.lazy = lazy
-        self.mode = mode
 
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
         return FileWrapper(path, self.mode, self.encoding, self.errors)
