@@ -159,6 +159,9 @@ class InputTest(TestCase):
         with self.assertWarns(ResourceWarning):
             FileWrapper._cleanup(Mock(), 'test')
 
+    def test_file_wrapper_eq_bad_type(self):
+        self.assertNotEqual('test', FileWrapper(Path('test')))
+
 
 class ReadWriteTest(TestCase):
     def test_plain_read_with(self):
@@ -245,8 +248,6 @@ class ReadWriteTest(TestCase):
 
 
 class ParseInputTest(ParserTest):
-    # TODO: Prevent double-read on lazy=False during would_accept
-
     def test_short_option_no_space(self):
         class Foo(Command):
             foo = Option('-f', type=File())
@@ -260,6 +261,19 @@ class ParseInputTest(ParserTest):
         ]
         with temp_path() as tmp_path, temp_chdir(tmp_path):
             self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_only_read_once(self):
+        class Foo(Command):
+            bar = Option('-b', type=File(lazy=False))
+
+        for args in (['-b', 'test'], ['-btest']):
+            with self.subTest(args=args):
+                read_mock = Mock(return_value='test\ndata')
+                with patch.object(FileWrapper, '_open', return_value=Mock(read=read_mock)):
+                    foo = Foo.parse_and_run(args)
+                    self.assertEqual('test\ndata', foo.bar)
+
+                self.assertEqual(1, read_mock.call_count)
 
 
 if __name__ == '__main__':

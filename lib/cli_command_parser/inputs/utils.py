@@ -136,7 +136,10 @@ class FileWrapper:
 
     def __eq__(self, other: 'FileWrapper') -> bool:
         attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'convert_directly')
-        return all(getattr(self, a) == getattr(other, a) for a in attrs)
+        try:
+            return all(getattr(self, a) == getattr(other, a) for a in attrs)
+        except AttributeError:
+            return NotImplemented
 
     def read(self) -> Any:
         with self._file() as f:
