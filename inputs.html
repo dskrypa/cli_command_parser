@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input Types &mdash; CLI Command Parser 2022.06.05 documentation</title>
+  <title>Input Types &mdash; CLI Command Parser 2022.06.06 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -218,7 +218,7 @@ and a generic handler (<a class="reference internal" href="api/cli_command_parse
 <dt class="field-odd" id="serialized files:converter">converter</dt>
 <dd class="field-odd"><p>The function to call to serialize or deserialize the content in the specified file</p>
 </dd>
-<dt class="field-even" id="serialized files:convert_directly">convert_directly</dt>
+<dt class="field-even" id="serialized files:pass_file">pass_file</dt>
 <dd class="field-even"><p>True to call the given function with the file, False to handle (de)serialization and read/write as
 separate steps.  If True, when reading, the converter will be called with the file as the only argument; when writing,
 the converter will be called as <code class="docutils literal notranslate"><span class="pre">converter(data,</span> <span class="pre">f)</span></code>.  If False, when reading, the converter will be called with
@@ -226,7 +226,7 @@ the content from the file; when writing, the converter will be called before wri
 </dd>
 </dl>
 <p>The JSON and Pickle handlers do not accept the above 2 parameters.  The converter is automatically picked to be
-<code class="docutils literal notranslate"><span class="pre">dump</span></code> or <code class="docutils literal notranslate"><span class="pre">load</span></code> based on whether the provided <code class="docutils literal notranslate"><span class="pre">mode</span></code> is for reading or writing, and the <code class="docutils literal notranslate"><span class="pre">convert_directly</span></code>
+<code class="docutils literal notranslate"><span class="pre">dump</span></code> or <code class="docutils literal notranslate"><span class="pre">load</span></code> based on whether the provided <code class="docutils literal notranslate"><span class="pre">mode</span></code> is for reading or writing, and the <code class="docutils literal notranslate"><span class="pre">pass_file</span></code>
 option will be overridden if provided.</p>
 <p>Adding another snippet to the above
 <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
@@ -251,13 +251,13 @@ You provided a dict
 </div>
 <p>When using the generic <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Serialized" title="cli_command_parser.inputs.types.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a> directly, the specific (de)serialization function needs to be provided:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">convert_directly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">pass_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">convert_directly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">pass_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
-<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">,</span> <span class="n">convert_directly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">,</span> <span class="n">pass_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
