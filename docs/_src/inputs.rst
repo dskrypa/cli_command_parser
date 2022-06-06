@@ -122,14 +122,14 @@ and a generic handler (:class:`.Serialized`) exists for any other serialization 
 **Additional Serialized initialization parameters:**
 
 :converter: The function to call to serialize or deserialize the content in the specified file
-:convert_directly: True to call the given function with the file, False to handle (de)serialization and read/write as
+:pass_file: True to call the given function with the file, False to handle (de)serialization and read/write as
   separate steps.  If True, when reading, the converter will be called with the file as the only argument; when writing,
   the converter will be called as ``converter(data, f)``.  If False, when reading, the converter will be called with
   the content from the file; when writing, the converter will be called before writing the data to the file.
 
 
 The JSON and Pickle handlers do not accept the above 2 parameters.  The converter is automatically picked to be
-``dump`` or ``load`` based on whether the provided ``mode`` is for reading or writing, and the ``convert_directly``
+``dump`` or ``load`` based on whether the provided ``mode`` is for reading or writing, and the ``pass_file``
 option will be overridden if provided.
 
 
@@ -159,10 +159,10 @@ We can see that the JSON content from stdin was automatically deserialized when 
 When using the generic :class:`.Serialized` directly, the specific (de)serialization function needs to be provided::
 
     Serialized(pickle.loads, mode='rb', lazy=False)
-    Serialized(pickle.load, convert_directly=True, mode='rb', lazy=False)
+    Serialized(pickle.load, pass_file=True, mode='rb', lazy=False)
 
     Serialized(json.loads, lazy=False)
-    Serialized(json.load, convert_directly=True, lazy=False)
+    Serialized(json.load, pass_file=True, lazy=False)
 
     Serialized(json.dumps, mode='w')
-    Serialized(json.dump, convert_directly=True, mode='w')
+    Serialized(json.dump, pass_file=True, mode='w')

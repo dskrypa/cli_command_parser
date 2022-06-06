@@ -149,13 +149,13 @@ class File(Path):
 
 class Serialized(File):
     converter: Converter = InputParam(None)
-    convert_directly: bool = InputParam(False)
+    pass_file: bool = InputParam(False)
 
-    def __init__(self, converter: Converter, *, convert_directly: Bool = False, **kwargs):
+    def __init__(self, converter: Converter, *, pass_file: Bool = False, **kwargs):
         """
         :param converter: Function to use to (de)serialize the given file, such as :func:`python:json.loads`,
           :func:`python:json.dumps`, :func:`python:pickle.load`, etc.
-        :param convert_directly: For reading, if True, call the converter with the file object, otherwise read the
+        :param pass_file: For reading, if True, call the converter with the file object, otherwise read the
           file first and call the converter with the result.  For writing, if True, call the converter with both the
           data to be written and the file object, otherwise call the converter with only the data and then write the
           result to the file.
@@ -163,10 +163,10 @@ class Serialized(File):
         """
         super().__init__(**kwargs)
         self.converter = converter
-        self.convert_directly = convert_directly
+        self.pass_file = pass_file
 
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
-        return FileWrapper(path, self.mode, self.encoding, self.errors, self.converter, self.convert_directly)
+        return FileWrapper(path, self.mode, self.encoding, self.errors, self.converter, self.pass_file)
 
 
 class Json(Serialized):
@@ -177,7 +177,7 @@ class Json(Serialized):
         import json
 
         write = allows_write(mode, True)
-        kwargs['convert_directly'] = write  # json.load just calls loads with f.read()
+        kwargs['pass_file'] = write  # json.load just calls loads with f.read()
         super().__init__(json.dump if write else json.loads, mode=mode, **kwargs)
 
 
@@ -194,5 +194,5 @@ class Pickle(Serialized):
             mode += 'b'
 
         write = allows_write(mode, True)
-        kwargs['convert_directly'] = True
+        kwargs['pass_file'] = True
         super().__init__(pickle.dump if write else pickle.load, mode=mode, **kwargs)

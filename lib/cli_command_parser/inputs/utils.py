@@ -140,7 +140,7 @@ class FileWrapper:
         encoding: str = None,
         errors: str = None,
         converter: Converter = None,
-        convert_directly: Bool = False,
+        pass_file: Bool = False,
     ):
         self.path = path
         self.mode = mode
@@ -148,12 +148,12 @@ class FileWrapper:
         self.encoding = encoding
         self.errors = errors
         self.converter = converter
-        self.convert_directly = convert_directly
+        self.pass_file = pass_file
         self._fp: Union[TextIO, BinaryIO, None] = None
         self._finalizer = None
 
     def __eq__(self, other: 'FileWrapper') -> bool:
-        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'convert_directly')
+        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'pass_file')
         try:
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
         except AttributeError:
@@ -162,14 +162,14 @@ class FileWrapper:
     def read(self) -> Any:
         with self._file() as f:
             if self.converter is not None:
-                return self.converter(f if self.convert_directly else f.read())
+                return self.converter(f if self.pass_file else f.read())
             else:
                 return f.read()
 
     def write(self, data: Any):
         with self._file() as f:
             if self.converter is not None:
-                if self.convert_directly:
+                if self.pass_file:
                     self.converter(data, f)
                 else:
                     f.write(self.converter(data))
