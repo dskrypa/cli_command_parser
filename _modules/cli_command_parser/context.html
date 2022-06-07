@@ -99,7 +99,7 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span><span class="p">,</span> <span class="n">CommandConfig</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">,</span> <span class="n">OptionNameMode</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NoActiveContext</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span>
@@ -170,6 +170,7 @@
     <span class="n">ignore_unknown</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">allow_missing</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">allow_backtrack</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
+    <span class="n">option_name_mode</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">use_type_metavar</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">show_defaults</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">show_group_tree</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
@@ -177,7 +178,6 @@
     <span class="n">param_formatter</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">extended_epilog</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
     <span class="n">show_docstring</span> <span class="o">=</span> <span class="n">ConfigOption</span><span class="p">()</span>
-    <span class="c1"># strict_option_punctuation = ConfigOption()</span>
     <span class="c1"># strict_action_punctuation = ConfigOption()</span>
     <span class="c1"># strict_sub_command_punctuation = ConfigOption()</span>
 
@@ -194,14 +194,14 @@
         <span class="n">ignore_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_missing</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_backtrack</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">option_name_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">OptionNameMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">use_type_metavar</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">show_defaults</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ShowDefaults</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_defaults</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ShowDefaults</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">param_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">],</span> <span class="s1">&#39;ParamHelpFormatter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_docstring</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="c1"># strict_option_punctuation: Bool = None,</span>
         <span class="c1"># strict_action_punctuation: Bool = None,</span>
         <span class="c1"># strict_sub_command_punctuation: Bool = None,</span>
     <span class="p">):</span>
@@ -230,6 +230,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_unknown</span> <span class="o">=</span> <span class="n">ignore_unknown</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_missing</span> <span class="o">=</span> <span class="n">allow_missing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_backtrack</span> <span class="o">=</span> <span class="n">allow_backtrack</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_name_mode</span> <span class="o">=</span> <span class="n">option_name_mode</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">use_type_metavar</span> <span class="o">=</span> <span class="n">use_type_metavar</span>
         <span class="k">if</span> <span class="n">show_defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -240,7 +241,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">extended_epilog</span> <span class="o">=</span> <span class="n">extended_epilog</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_docstring</span> <span class="o">=</span> <span class="n">show_docstring</span></div>
 
-        <span class="c1"># self.strict_option_punctuation = strict_option_punctuation</span>
         <span class="c1"># self.strict_action_punctuation = strict_action_punctuation</span>
         <span class="c1"># self.strict_sub_command_punctuation = strict_sub_command_punctuation</span>
 

@@ -104,6 +104,7 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">OptionNameMode</span>
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">get_current_context</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">CommandDefinitionError</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParamsMissing</span><span class="p">,</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
@@ -249,6 +250,12 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">raise</span> <span class="n">NoActiveContext</span><span class="p">(</span><span class="s1">&#39;There is no active context&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ctx_or_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">,</span> <span class="n">Context</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
 
     <span class="c1"># region Usage / Help Text</span>
 
@@ -1254,7 +1261,11 @@
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_long_opts</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_long_opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx_or_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_long_opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;--</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_long_opts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;long_opts&#39;</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
