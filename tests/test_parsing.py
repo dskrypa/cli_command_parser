@@ -531,11 +531,23 @@ class OptionTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
-    # def test_underscore_dash_swap_allowed(self):
-    #     pass  # TODO
-    #
-    # def test_underscore_dash_swap_rejected(self):  # TODO: Also add CamelCase support
-    #     pass  # TODO
+    def test_underscore_dash_swap_allowed(self):
+        class Foo(Command, option_name_mode='both'):
+            foo_bar = Flag()
+
+        success_cases = [(['--foo-bar'], {'foo_bar': True}), (['--foo_bar'], {'foo_bar': True})]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-foo-bar'], ['-foo_bar'], ['--foobar'], ['--fooBar']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_dash_only(self):
+        class Foo(Command, option_name_mode='dash'):
+            foo_bar = Flag()
+
+        success_cases = [(['--foo-bar'], {'foo_bar': True})]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-foo-bar'], ['-foo_bar'], ['--foobar'], ['--fooBar'], ['--foo_bar']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 class PositionalTest(ParserTest):

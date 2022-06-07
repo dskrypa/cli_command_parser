@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 
 class CommandMeta(ABCMeta, type):
+    _tmp_configs = {}
     _configs = WeakKeyDictionary()
     _params = WeakKeyDictionary()
     _metadata = WeakKeyDictionary()
@@ -63,7 +64,29 @@ class CommandMeta(ABCMeta, type):
         :param bool always_run_after_main: Whether :meth:`Command._after_main_` should always be called, even if an
           exception was raised in :meth:`Command.main`
         """
+        config_key = '{__module__}.{__qualname__}'.format(**namespace)
+        if config is not None:
+            if kwargs:
+                raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+            if not isinstance(config, CommandConfig):
+                config = CommandConfig(**config)
+            mcls._tmp_configs[config_key] = config
+        else:
+            config = mcls._config_from_bases(bases)
+            if kwargs or (config is None and ABC not in bases):
+                if config is not None:
+                    # kwargs = config.as_dict() | kwargs
+                    for key, val in config.as_dict().items():  # py < 3.9 compatibility
+                        kwargs.setdefault(key, val)
+
+                mcls._tmp_configs[config_key] = CommandConfig(**kwargs)
+
         cls = super().__new__(mcls, name, bases, namespace)
+        try:
+            # The temp config setting above is to work around __set_name__ happening in super().__new__
+            mcls._configs[cls] = mcls._tmp_configs.pop(config_key)
+        except KeyError:
+            pass
         mcls._commands.add(cls)
         meta = mcls.meta(cls)
         doc = cls.__doc__
@@ -72,22 +95,6 @@ class CommandMeta(ABCMeta, type):
             mcls._metadata[cls] = ProgramMetadata(
                 prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name, doc=doc
             )
-
-        if config is not None:
-            if kwargs:
-                raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
-            if not isinstance(config, CommandConfig):
-                config = CommandConfig(**config)
-            mcls._configs[cls] = config
-        else:
-            config = mcls.config(cls)
-            if kwargs or (config is None and ABC not in bases):
-                if config is not None:
-                    # kwargs = config.as_dict() | kwargs
-                    for key, val in config.as_dict().items():  # py < 3.9 compatibility
-                        kwargs.setdefault(key, val)
-
-                mcls._configs[cls] = CommandConfig(**kwargs)
 
         config = mcls.config(cls)
         if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
@@ -114,15 +121,27 @@ class CommandMeta(ABCMeta, type):
                 return parent_cls
         return None
 
+    @classmethod
+    def _config_from_bases(mcls, bases: Tuple[type]) -> Optional[CommandConfig]:
+        for base in bases:
+            if isinstance(base, mcls):
+                return mcls.config(base)
+        return None
+
     def config(cls) -> Optional[CommandConfig]:
         mcls = cls.__class__
         try:
             return mcls._configs[cls]
         except KeyError:
-            parent = mcls.parent(cls)
-            if parent is not None:
-                return mcls.config(parent)
-            return None
+            pass
+        try:
+            return mcls._tmp_configs[f'{cls.__module__}.{cls.__qualname__}']
+        except KeyError:
+            pass
+        parent = mcls.parent(cls)
+        if parent is not None:
+            return mcls.config(parent)
+        return None
 
     def params(cls) -> CommandParameters:
         mcls = cls.__class__

@@ -4,11 +4,11 @@ Configuration options for Command behavior.
 :author: Doug Skrypa
 """
 
-from dataclasses import dataclass, fields, field
-from enum import Flag
-from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Dict, FrozenSet
+from dataclasses import dataclass, fields
+from enum import Flag, Enum
+from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, Dict, FrozenSet
 
-from .utils import Bool, _NotSet, cached_class_property
+from .utils import Bool, FlagEnumMixin, _NotSet, cached_class_property
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -18,7 +18,10 @@ if TYPE_CHECKING:
     from .formatting.params import ParamHelpFormatter
     from .parameters import ParamOrGroup
 
-__all__ = ['CommandConfig', 'ShowDefaults']
+__all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode']
+
+
+# region Config Option Enums
 
 
 class ShowDefaults(Flag):
@@ -34,11 +37,11 @@ class ShowDefaults(Flag):
     """
 
     # fmt: off
-    NEVER = 0       #: Never include the default value in help text
-    MISSING = 1     #: Only include the default value if ``default:`` is not already present
-    TRUTHY = 2      #: Only include the default value if it is treated as True in a boolean context
-    NON_EMPTY = 4   #: Only include the default value if it is not ``None`` or an empty container
-    ANY = 8         #: Any default value, regardless of truthiness, will be included
+    NEVER = 1       #: Never include the default value in help text
+    MISSING = 2     #: Only include the default value if ``default:`` is not already present
+    TRUTHY = 4      #: Only include the default value if it is treated as True in a boolean context
+    NON_EMPTY = 8   #: Only include the default value if it is not ``None`` or an empty container
+    ANY = 16        #: Any default value, regardless of truthiness, will be included
     # fmt: on
 
     @classmethod
@@ -55,6 +58,52 @@ class ShowDefaults(Flag):
         if ShowDefaults.NEVER in (self, other):
             return ShowDefaults.NEVER
         return super().__or__(other)  # noqa
+
+
+class OptionNameMode(FlagEnumMixin, Flag):
+    """
+    How the default long form that is added for Option/Flag/Counter/etc Parameters should handle underscores.
+
+    Given a Parameter defined as ``foo_bar = Option(...)``, the default long form handling based on this setting would
+    be:
+
+    :UNDERSCORE: ``--foo_bar``
+    :DASH: ``--foo-bar``
+    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` would be accepted; only ``--foo-bar`` would be shown in help text
+    """
+
+    # fmt: off
+    UNDERSCORE = 1
+    DASH = 2
+    BOTH = 3
+    # fmt: on
+
+
+# endregion
+
+
+class EnumConfigOption:
+    """
+    Descriptor that simplifies config option validation using Enums and works around dataclass property idiosyncrasies.
+    """
+
+    def __init__(self, enum_cls: Type[Enum], default: Enum):
+        self.enum_cls = enum_cls
+        self.default = default
+
+    def __set_name__(self, owner: Type['CommandConfig'], name: str):
+        self.name = name
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return instance.__dict__.get(self.name, self.default)
+
+    def __set__(self, instance, value):
+        if isinstance(value, EnumConfigOption):  # Workaround for initial value setting
+            instance.__dict__[self.name] = self.default
+        else:
+            instance.__dict__[self.name] = self.enum_cls(value)
 
 
 @dataclass
@@ -91,6 +140,9 @@ class CommandConfig:
     #: Whether backtracking is enabled for positionals following params with variable nargs
     allow_backtrack: Bool = True
 
+    #: How the default long form that is added for Option/Flag/Counter/etc Parameters should handle underscores
+    option_name_mode: OptionNameMode = EnumConfigOption(OptionNameMode, OptionNameMode.UNDERSCORE)
+
     # endregion
 
     # region Usage & Help Text Options
@@ -103,20 +155,7 @@ class CommandConfig:
     use_type_metavar: Bool = False
 
     #: Whether the default value for Parameters should be shown in help text, and related behavior
-    show_defaults: Union[ShowDefaults, str, int] = ShowDefaults.MISSING | ShowDefaults.NON_EMPTY
-
-    #: Workaround for property.setter to normalize/validate values
-    _show_defaults: ShowDefaults = field(init=False, repr=False, default=ShowDefaults.MISSING | ShowDefaults.NON_EMPTY)
-
-    @property
-    def show_defaults(self):  # noqa
-        return self._show_defaults
-
-    @show_defaults.setter
-    def show_defaults(self, value: Union[ShowDefaults, str, int]):
-        if isinstance(value, property):  # Workaround for initial value setting
-            value = self._show_defaults
-        self._show_defaults = ShowDefaults(value)
+    show_defaults: ShowDefaults = EnumConfigOption(ShowDefaults, ShowDefaults.MISSING | ShowDefaults.NON_EMPTY)
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = False
@@ -142,10 +181,6 @@ class CommandConfig:
 
     # region Planned Options
 
-    # #: Whether handling of dashes (``-``) and underscores (``_``) in the middle of option names should be strict
-    # #: (``True``) when processing user input, or if they should be allowed to be interchanged (``False``)
-    # strict_option_punctuation: Bool = False
-    #
     # #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional action
     # #: names should be strict (``True``) when processing user input, or if they should be allowed to be interchanged
     # #: (``False``)
@@ -162,7 +197,6 @@ class CommandConfig:
     def _field_names(cls) -> FrozenSet[str]:  # noqa
         """Cache the names of the config options for use in :meth:`.as_dict`"""
         names = {f.name for f in fields(cls)}
-        names.remove('show_defaults')  # not in __dict__ since it's overwritten by a property
         return frozenset(names)
 
     def as_dict(self) -> Dict[str, Any]:
@@ -173,6 +207,4 @@ class CommandConfig:
         non-None sentinel value.
         """
         d = self.__dict__
-        data = {f: d[f] for f in self._field_names}  # noqa
-        data['show_defaults'] = data.pop('_show_defaults')
-        return data
+        return {f: d[f] for f in self._field_names}  # noqa

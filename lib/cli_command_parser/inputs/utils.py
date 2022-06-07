@@ -14,7 +14,7 @@ from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager, List
 from weakref import finalize
 
 from ..exceptions import InputValidationError
-from ..utils import Bool
+from ..utils import Bool, FlagEnumMixin
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper']
 
@@ -44,7 +44,7 @@ class InputParam:
             instance.__dict__[self.name] = value
 
 
-class StatMode(Flag):
+class StatMode(FlagEnumMixin, Flag):
     def __new__(cls, mode, friendly_name):
         # Defined __new__ to avoid juggling dicts for the stat mode values and names
         obj = object.__new__(cls)
@@ -69,54 +69,6 @@ class StatMode(Flag):
         mode = S_IFMT(mode)
         return any(mode == part.mode for part in self._decompose())
 
-    @classmethod
-    def _missing_(cls, value):
-        if isinstance(value, str):
-            if value.startswith(('!', '~')):
-                invert = True
-                value = value[1:]
-            else:
-                invert = False
-
-            try:
-                member = cls._missing_str(value)
-            except KeyError:
-                pass
-            else:
-                return ~member if invert else member
-
-        return super()._missing_(value)
-
-    @classmethod
-    def _missing_str(cls, value: str) -> 'StatMode':
-        try:
-            return cls._member_map_[value.upper()]  # noqa
-        except KeyError:
-            pass
-        if '|' in value:
-            tmp = cls(0)
-            for part in map(str.strip, value.split('|')):
-                if not part:
-                    continue
-                try:
-                    tmp |= cls._member_map_[part.upper()]
-                except KeyError:
-                    break
-            else:
-                if tmp._value_ != 0:
-                    return tmp
-
-        raise KeyError
-
-    def _decompose(self) -> List['StatMode']:
-        if self._name_ is None:
-            return sorted(decompose(StatMode, self.value)[0])
-        return [self]
-
-    def __repr__(self) -> str:
-        names = '|'.join(part._name_ for part in self._decompose())
-        return f'<{self.__class__.__name__}:{names}>'
-
     def __str__(self) -> str:
         try:
             return self.friendly_name
@@ -127,9 +79,6 @@ class StatMode(Flag):
             return '{} or {}'.format(*names)
         names[-1] = f'or {names[-1]}'
         return ', '.join(names)
-
-    def __lt__(self, other: 'StatMode') -> bool:
-        return self._value_ < other._value_
 
 
 class FileWrapper:

@@ -19,6 +19,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
+from .config import CommandConfig, OptionNameMode
 from .context import Context, ctx, get_current_context
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
@@ -164,6 +165,12 @@ class ParamBase(ABC):
         except AttributeError:
             pass
         raise NoActiveContext('There is no active context')
+
+    def _ctx_or_config(self, command: 'CommandType') -> Union[CommandConfig, Context]:
+        try:
+            return self._ctx(command)
+        except NoActiveContext:
+            return command.__class__.config(command)
 
     # region Usage / Help Text
 
@@ -1169,7 +1176,11 @@ class BaseOption(Parameter, ABC):
     def __set_name__(self, command: 'CommandType', name: str):
         super().__set_name__(command, name)
         if not self._long_opts:
-            self._long_opts.add(f'--{name}')
+            mode = self._ctx_or_config(command).option_name_mode
+            if mode & OptionNameMode.DASH:
+                self._long_opts.add('--{}'.format(name.replace('_', '-')))
+            if mode & OptionNameMode.UNDERSCORE:
+                self._long_opts.add(f'--{name}')
             try:
                 del self.__dict__['long_opts']
             except KeyError:

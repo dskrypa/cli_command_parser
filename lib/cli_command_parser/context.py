@@ -14,7 +14,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
-from .config import ShowDefaults, CommandConfig
+from .config import CommandConfig, ShowDefaults, OptionNameMode
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
 from .utils import Bool, _NotSet
@@ -85,6 +85,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     ignore_unknown = ConfigOption()
     allow_missing = ConfigOption()
     allow_backtrack = ConfigOption()
+    option_name_mode = ConfigOption()
     use_type_metavar = ConfigOption()
     show_defaults = ConfigOption()
     show_group_tree = ConfigOption()
@@ -92,7 +93,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     param_formatter = ConfigOption()
     extended_epilog = ConfigOption()
     show_docstring = ConfigOption()
-    # strict_option_punctuation = ConfigOption()
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
 
@@ -109,14 +109,14 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         ignore_unknown: Bool = None,
         allow_missing: Bool = None,
         allow_backtrack: Bool = None,
+        option_name_mode: Union[OptionNameMode, str] = None,
         use_type_metavar: Bool = None,
-        show_defaults: Union[ShowDefaults, str, int] = None,
+        show_defaults: Union[ShowDefaults, str] = None,
         show_group_tree: Bool = None,
         show_group_type: Bool = None,
         param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None,
         extended_epilog: Bool = None,
         show_docstring: Bool = None,
-        # strict_option_punctuation: Bool = None,
         # strict_action_punctuation: Bool = None,
         # strict_sub_command_punctuation: Bool = None,
     ):
@@ -145,6 +145,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.ignore_unknown = ignore_unknown
         self.allow_missing = allow_missing
         self.allow_backtrack = allow_backtrack
+        self.option_name_mode = option_name_mode
 
         self.use_type_metavar = use_type_metavar
         if show_defaults is not None:
@@ -155,7 +156,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.extended_epilog = extended_epilog
         self.show_docstring = show_docstring
 
-        # self.strict_option_punctuation = strict_option_punctuation
         # self.strict_action_punctuation = strict_action_punctuation
         # self.strict_sub_command_punctuation = strict_sub_command_punctuation
 

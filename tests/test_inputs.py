@@ -44,12 +44,10 @@ class InputTest(TestCase):
     def test_invalid_stat_modes(self):
         with self.assertRaises(TypeError):
             StatMode(None)
-        with self.assertRaises(TypeError):
-            StatMode('StatMode')
-        with self.assertRaises(TypeError):
-            StatMode('|')
-        with self.assertRaises(TypeError):
-            StatMode('file|mock')
+
+        for val in ('StatMode', '|', 'file|mock'):
+            with self.subTest(val=val), self.assertRaises(ValueError):
+                StatMode(val)
 
     def test_stat_mode_from_pipe_str(self):
         d, f, lnk = StatMode.DIR, StatMode.FILE, StatMode.LINK

@@ -8,10 +8,11 @@ import re
 import sys
 from collections.abc import Collection, Iterable, Callable
 from contextlib import contextmanager
+from enum import Flag, _decompose as decompose  # noqa
 from inspect import stack, isclass, FrameInfo
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Union, Optional, Type, Sequence, get_type_hints, Tuple, Dict
+from typing import Any, Union, Optional, Type, TypeVar, Sequence, get_type_hints, Tuple, Dict, List
 from string import whitespace, printable
 from urllib.parse import urlparse
 
@@ -29,6 +30,7 @@ from .exceptions import ParameterDefinitionError
 
 Bool = Union[bool, Any]
 _NotSet = object()
+FlagEnum = TypeVar('FlagEnum', bound=Union[Flag, 'FlagEnumMixin'])
 
 
 class cached_class_property(classmethod):
@@ -334,3 +336,57 @@ def is_numeric(text: str) -> Bool:
     except AttributeError:
         is_numeric._num_match = num_match = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
     return num_match(text)
+
+
+class FlagEnumMixin:
+    @classmethod
+    def _missing_(cls: Type[FlagEnum], value) -> FlagEnum:
+        if isinstance(value, str):
+            if value.startswith(('!', '~')):
+                invert = True
+                value = value[1:]
+            else:
+                invert = False
+
+            try:
+                member = cls._missing_str(value)
+            except KeyError:
+                expected = ', '.join(cls._member_map_)
+                raise ValueError(f'Invalid {cls.__name__} value={value!r} - expected one of {expected}') from None
+            else:
+                return ~member if invert else member
+
+        return super()._missing_(value)  # noqa
+
+    @classmethod
+    def _missing_str(cls: Type[FlagEnum], value: str) -> FlagEnum:
+        try:
+            return cls._member_map_[value.upper()]  # noqa
+        except KeyError:
+            pass
+        if '|' in value:
+            tmp = cls(0)
+            for part in map(str.strip, value.split('|')):
+                if not part:
+                    continue
+                try:
+                    tmp |= cls._member_map_[part.upper()]
+                except KeyError:
+                    break
+            else:
+                if tmp._value_ != 0:
+                    return tmp
+
+        raise KeyError
+
+    def _decompose(self: FlagEnum) -> List[FlagEnum]:
+        if self._name_ is None:
+            return sorted(decompose(self.__class__, self.value)[0])
+        return [self]
+
+    def __repr__(self: FlagEnum) -> str:
+        names = '|'.join(part._name_ for part in self._decompose())
+        return f'<{self.__class__.__name__}:{names}>'
+
+    def __lt__(self: FlagEnum, other: FlagEnum) -> bool:
+        return self._value_ < other._value_

@@ -4,7 +4,7 @@ Command Parser
 :author: Doug Skrypa
 """
 
-from .config import CommandConfig, ShowDefaults
+from .config import CommandConfig, ShowDefaults, OptionNameMode
 from .commands import Command, main
 from .context import Context, get_current_context, ctx
 from .exceptions import (
