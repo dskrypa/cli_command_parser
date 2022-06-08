@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input Types &mdash; CLI Command Parser 2022.06.06 documentation</title>
+  <title>Input Types &mdash; CLI Command Parser 2022.06.08 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -100,7 +100,7 @@ argument values, but some custom types are defined here to facilitate common use
 <h2>Paths &amp; Files<a class="headerlink" href="#paths-files" title="Permalink to this heading"></a></h2>
 <section id="path">
 <h3>Path<a class="headerlink" href="#path" title="Permalink to this heading"></a></h3>
-<p>To automatically handle common normalization steps / checks that are done for paths, the <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Path" title="cli_command_parser.inputs.types.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> class is
+<p>To automatically handle common normalization steps / checks that are done for paths, the <a class="reference internal" href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path" title="cli_command_parser.inputs.files.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> class is
 available.</p>
 <p id="path-init-params"><strong>Path initialization parameters:</strong></p>
 <dl class="field-list simple">
@@ -156,7 +156,7 @@ argument --path / -p: bad value=&#39;examples/custom_inputs.p&#39; for type=&lt;
 </section>
 <section id="file">
 <h3>File<a class="headerlink" href="#file" title="Permalink to this heading"></a></h3>
-<p>The <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.File" title="cli_command_parser.inputs.types.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> custom input extends <a class="reference internal" href="#path"><span class="std std-ref">Path</span></a>, so it can accept all of the same options, but it provides
+<p>The <a class="reference internal" href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File" title="cli_command_parser.inputs.files.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> custom input extends <a class="reference internal" href="#path"><span class="std std-ref">Path</span></a>, so it can accept all of the same options, but it provides
 functionality for directly reading or writing to the provided path.</p>
 <p id="file-init-params"><strong>Additional File initialization parameters:</strong></p>
 <dl class="field-list simple">
@@ -210,8 +210,8 @@ called.</p>
 </section>
 <section id="serialized-files">
 <h3>Serialized Files<a class="headerlink" href="#serialized-files" title="Permalink to this heading"></a></h3>
-<p>In addition to plain text or binary files, custom input handlers also exist for <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Json" title="cli_command_parser.inputs.types.Json"><code class="xref py py-class docutils literal notranslate"><span class="pre">Json</span></code></a> and <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Pickle" title="cli_command_parser.inputs.types.Pickle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pickle</span></code></a>,
-and a generic handler (<a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Serialized" title="cli_command_parser.inputs.types.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a>) exists for any other serialization format.  They all extend
+<p>In addition to plain text or binary files, custom input handlers also exist for <a class="reference internal" href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Json" title="cli_command_parser.inputs.files.Json"><code class="xref py py-class docutils literal notranslate"><span class="pre">Json</span></code></a> and <a class="reference internal" href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Pickle" title="cli_command_parser.inputs.files.Pickle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pickle</span></code></a>,
+and a generic handler (<a class="reference internal" href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized" title="cli_command_parser.inputs.files.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a>) exists for any other serialization format.  They all extend
 <a class="reference internal" href="#file"><span class="std std-ref">File</span></a>, so the same options are accepted.</p>
 <p id="serialized-init-params"><strong>Additional Serialized initialization parameters:</strong></p>
 <dl class="field-list simple">
@@ -249,7 +249,7 @@ You provided a dict
 [1] (&#39;b&#39;, 2)
 </pre></div>
 </div>
-<p>When using the generic <a class="reference internal" href="api/cli_command_parser.inputs.types.html#cli_command_parser.inputs.types.Serialized" title="cli_command_parser.inputs.types.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a> directly, the specific (de)serialization function needs to be provided:</p>
+<p>When using the generic <a class="reference internal" href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized" title="cli_command_parser.inputs.files.Serialized"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serialized</span></code></a> directly, the specific (de)serialization function needs to be provided:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">Serialized</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">pass_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 

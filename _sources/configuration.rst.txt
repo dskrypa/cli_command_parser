@@ -60,6 +60,9 @@ Parsing Options
 :allow_backtrack: Whether the parser is allowed to backtrack or not when a Positional parameter follows a
   parameter with variable :class:`.Nargs`, and not enough arguments are available to fulfil that Positional's
   requirements (default: True)
+:option_name_mode: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle
+  underscores/dashes.  See :class:`.OptionNameMode` for more details.  Defaults to using underscores to match the
+  attribute name.  May be overridden on a per-Parameter basis with :ref:`parameters:Options:name_mode`.
 
 
 Usage & Help Text Options

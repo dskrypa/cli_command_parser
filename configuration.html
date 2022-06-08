@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Configuration &mdash; CLI Command Parser 2022.06.06 documentation</title>
+  <title>Configuration &mdash; CLI Command Parser 2022.06.08 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -176,6 +176,11 @@ they are missing)</p>
 <dd class="field-odd"><p>Whether the parser is allowed to backtrack or not when a Positional parameter follows a
 parameter with variable <a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nargs</span></code></a>, and not enough arguments are available to fulfil that Positional’s
 requirements (default: True)</p>
+</dd>
+<dt class="field-even" id="parsing options:option_name_mode">option_name_mode</dt>
+<dd class="field-even"><p>How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle
+underscores/dashes.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a> for more details.  Defaults to using underscores to match the
+attribute name.  May be overridden on a per-Parameter basis with <a class="reference internal" href="parameters.html#options:name_mode"><span class="std std-ref">name_mode</span></a>.</p>
 </dd>
 </dl>
 </section>

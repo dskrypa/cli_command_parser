@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.06.06 documentation</title>
+  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.06.08 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -147,14 +147,16 @@
 
 <div class="viewcode-block" id="OptionNameMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode">[docs]</a><span class="k">class</span> <span class="nc">OptionNameMode</span><span class="p">(</span><span class="n">FlagEnumMixin</span><span class="p">,</span> <span class="n">Flag</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    How the default long form that is added for Option/Flag/Counter/etc Parameters should handle underscores.</span>
+<span class="sd">    How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.</span>
 
 <span class="sd">    Given a Parameter defined as ``foo_bar = Option(...)``, the default long form handling based on this setting would</span>
 <span class="sd">    be:</span>
 
 <span class="sd">    :UNDERSCORE: ``--foo_bar``</span>
 <span class="sd">    :DASH: ``--foo-bar``</span>
-<span class="sd">    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` would be accepted; only ``--foo-bar`` would be shown in help text</span>
+<span class="sd">    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted</span>
+
+<span class="sd">    If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># fmt: off</span>
@@ -225,7 +227,7 @@
     <span class="c1">#: Whether backtracking is enabled for positionals following params with variable nargs</span>
     <span class="n">allow_backtrack</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="c1">#: How the default long form that is added for Option/Flag/Counter/etc Parameters should handle underscores</span>
+    <span class="c1">#: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes</span>
     <span class="n">option_name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">=</span> <span class="n">EnumConfigOption</span><span class="p">(</span><span class="n">OptionNameMode</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>

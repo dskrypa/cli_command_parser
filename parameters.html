@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parameters &mdash; CLI Command Parser 2022.06.06 documentation</title>
+  <title>Parameters &mdash; CLI Command Parser 2022.06.08 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -194,7 +194,7 @@ They are typically not required by default, and often have both long and short f
 a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.  The long form is automatically added, if not explicitly
 specified, based on the name of the Parameter attribute.</p>
 <p class="rubric" id="options-init-params">Common Initialization Parameters - Options</p>
-<p>Options support one additional initialization parameter:</p>
+<p>Options support two additional initialization parameters:</p>
 <dl class="field-list">
 <dt class="field-odd" id="options:*option_strs">*option_strs</dt>
 <dd class="field-odd"><p>One or more long or short form option strings may be provided positionally, similar to how they
@@ -208,6 +208,10 @@ would be specified when using <code class="docutils literal notranslate"><span c
 generated long form based on the Parameter’s name will not be added.</p></li>
 </ul>
 </div></blockquote>
+</dd>
+<dt class="field-even" id="options:name_mode">name_mode</dt>
+<dd class="field-even"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for this
+Option/Flag/Counter/etc.</p>
 </dd>
 </dl>
 <section id="option">

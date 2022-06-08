@@ -78,7 +78,7 @@ specified, based on the name of the Parameter attribute.
 
 .. rubric:: Common Initialization Parameters - Options
 
-Options support one additional initialization parameter:
+Options support two additional initialization parameters:
 
 :\*option_strs: One or more long or short form option strings may be provided positionally, similar to how they
   would be specified when using ``argparse``.
@@ -88,6 +88,8 @@ Options support one additional initialization parameter:
       ``-`` characters.
     - Long forms must begin with a ``--`` prefix, and may be one or more characters.  If provided, the automatically
       generated long form based on the Parameter's name will not be added.
+:name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this
+  Option/Flag/Counter/etc.
 
 
 Option
