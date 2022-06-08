@@ -596,6 +596,7 @@ class Parameter(ParamBase, ABC):
         except InputValidationError as e:
             raise BadArgument(self, str(e)) from e
         except (TypeError, ValueError) as e:
+            # TODO: Improve error message for enums
             raise BadArgument(self, f'bad value={value!r} for type={type_func!r}: {e}') from e
         except Exception as e:
             raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e
@@ -1143,17 +1144,20 @@ class BaseOption(Parameter, ABC):
     """
 
     # fmt: off
-    _long_opts: Set[str]        # --long options
-    _short_opts: Set[str]       # -short options
-    short_combinable: Set[str]  # short options without the leading dash (for combined flags)
+    _long_opts: Set[str]                        # --long options
+    _short_opts: Set[str]                       # -short options
+    short_combinable: Set[str]                  # short options without the leading dash (for combined flags)
+    name_mode: Optional[OptionNameMode] = None  # OptionNameMode override
     # fmt: on
 
-    def __init__(self, *option_strs: str, action: str, **kwargs):
+    def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str] = None, **kwargs):
         """
         :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,
           then one will automatically be added based on the name assigned to this parameter.
         :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
           that extend Parameter, and must be registered via :class:`parameter_action`.
+        :param name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this
+          Option/Flag/Counter/etc.
         :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
         """
         bad_opts = ', '.join(opt for opt in option_strs if not 0 < opt.count('-', 0, 3) < 3)
@@ -1169,6 +1173,8 @@ class BaseOption(Parameter, ABC):
         self._long_opts = {opt for opt in option_strs if opt.startswith('--')}
         self._short_opts = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
         self.short_combinable = {opt[1:] for opt in short_opts if len(opt) == 2}
+        if name_mode is not None:
+            self.name_mode = OptionNameMode(name_mode)
         bad_opts = ', '.join(opt for opt in short_opts if '-' in opt[1:])
         if bad_opts:
             raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
@@ -1176,7 +1182,7 @@ class BaseOption(Parameter, ABC):
     def __set_name__(self, command: 'CommandType', name: str):
         super().__set_name__(command, name)
         if not self._long_opts:
-            mode = self._ctx_or_config(command).option_name_mode
+            mode = self.name_mode if self.name_mode is not None else self._ctx_or_config(command).option_name_mode
             if mode & OptionNameMode.DASH:
                 self._long_opts.add('--{}'.format(name.replace('_', '-')))
             if mode & OptionNameMode.UNDERSCORE:

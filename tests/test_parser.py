@@ -188,9 +188,6 @@ class ParserTest(_ParserTest):
 
         self.assertIs(get_params(Baz).parent, get_params(Foo))
 
-    # def test_underscore_dash_ambiguous_redefine_rejected(self):
-    #     pass  # TODO
-
 
 if __name__ == '__main__':
     # import logging

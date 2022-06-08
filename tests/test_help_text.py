@@ -212,6 +212,41 @@ class HelpTextTest(TestCase):
         Foo.parse_and_run(['-h'])
         self.assertTrue(help_mock.called)
 
+    def test_underscore_and_dash_enabled(self):
+        class Foo(Command, option_name_mode='both'):
+            foo_bar = Flag()
+
+        help_text = _get_help_text(Foo)
+        self.assertIn('--foo-bar', help_text)
+        self.assertIn('--foo_bar', help_text)
+
+    def test_only_dash_enabled(self):
+        class Foo(Command, option_name_mode='dash'):
+            foo_bar = Flag()
+
+        help_text = _get_help_text(Foo)
+        self.assertIn('--foo-bar', help_text)
+        self.assertNotIn('--foo_bar', help_text)
+
+    def test_option_name_mode_overrides(self):
+        mode_exp_map = {'underscore': ('--foo_a',), 'dash': ('--foo-a',), 'both': ('--foo-a', '--foo_a')}
+        base_expected = ('--foo_b', '--foo-c', '--foo-d', '--foo_d', '--eeee')
+        for mode, expected_a in mode_exp_map.items():
+            with self.subTest(mode=mode):
+
+                class Foo(Command, option_name_mode=mode):
+                    foo_a = Flag()
+                    foo_b = Flag(name_mode='underscore')
+                    foo_c = Flag(name_mode='dash')
+                    foo_d = Flag(name_mode='both')
+                    foo_e = Flag('--eeee')
+
+                help_text = _get_help_text(Foo)
+                self.assertTrue(all(exp in help_text for exp in base_expected))
+                self.assertTrue(all(exp in help_text for exp in expected_a))
+                self.assertNotIn('--foo_e', help_text)
+                self.assertNotIn('--foo-e', help_text)
+
 
 class ShowDefaultsTest(TestCase):
     def assert_default_x_in_help_text(self, defaults: Iterable[Any], expect_in: bool, check_str: str = None, **kwargs):

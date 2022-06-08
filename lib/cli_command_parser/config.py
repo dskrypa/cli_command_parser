@@ -62,14 +62,16 @@ class ShowDefaults(Flag):
 
 class OptionNameMode(FlagEnumMixin, Flag):
     """
-    How the default long form that is added for Option/Flag/Counter/etc Parameters should handle underscores.
+    How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.
 
     Given a Parameter defined as ``foo_bar = Option(...)``, the default long form handling based on this setting would
     be:
 
     :UNDERSCORE: ``--foo_bar``
     :DASH: ``--foo-bar``
-    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` would be accepted; only ``--foo-bar`` would be shown in help text
+    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted
+
+    If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.
     """
 
     # fmt: off
@@ -140,7 +142,7 @@ class CommandConfig:
     #: Whether backtracking is enabled for positionals following params with variable nargs
     allow_backtrack: Bool = True
 
-    #: How the default long form that is added for Option/Flag/Counter/etc Parameters should handle underscores
+    #: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes
     option_name_mode: OptionNameMode = EnumConfigOption(OptionNameMode, OptionNameMode.UNDERSCORE)
 
     # endregion
