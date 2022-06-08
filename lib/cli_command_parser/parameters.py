@@ -25,7 +25,7 @@ from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, 
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
 from .exceptions import InputValidationError
 from .formatting.utils import HelpEntryFormatter
-from .inputs.types import Input
+from .inputs.base import Input
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 

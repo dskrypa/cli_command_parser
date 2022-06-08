@@ -5,4 +5,4 @@ Custom input handlers for Parameters
 """
 
 from .utils import StatMode, FileWrapper
-from .types import Path, File, Serialized, Json, Pickle
+from .files import Path, File, Serialized, Json, Pickle
