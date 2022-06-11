@@ -23,9 +23,8 @@ from .config import CommandConfig, OptionNameMode
 from .context import Context, ctx, get_current_context
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
-from .exceptions import InputValidationError
 from .formatting.utils import HelpEntryFormatter
-from .inputs import InputType, InputTypeFunc, normalize_input_type
+from .inputs import InputType, InputTypeFunc, normalize_input_type, InputValidationError, InvalidChoiceError
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 
@@ -590,6 +589,8 @@ class Parameter(ParamBase, ABC):
             return value
         try:
             return type_func(value)
+        except InvalidChoiceError as e:
+            raise InvalidChoice(self, e.invalid, e.choices) from e
         except InputValidationError as e:
             raise BadArgument(self, str(e)) from e
         except (TypeError, ValueError) as e:
@@ -795,7 +796,7 @@ class Positional(BasicActionMixin, BasePositional):
                 f'Invalid default={default!r} - only allowed for Positional parameters when nargs=?'
             )
         super().__init__(action=action, **kwargs)
-        self.type = normalize_input_type(type)
+        self.type = normalize_input_type(type, self.choices)
         if action == 'append':
             self._init_value_factory = list
         if 0 in self.nargs:
@@ -1240,7 +1241,7 @@ class Option(BasicActionMixin, BaseOption):
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
         # TODO: nargs=? + required/not behavior?
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
-        self.type = normalize_input_type(type)
+        self.type = normalize_input_type(type, self.choices)
         if action == 'append':
             self._init_value_factory = list
 

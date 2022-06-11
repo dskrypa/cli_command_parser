@@ -24,7 +24,6 @@ __all__ = [
     'ParamConflict',
     'ParamsMissing',
     'NoActiveContext',
-    'InputValidationError',
 ]
 
 
@@ -157,10 +156,6 @@ class NoSuchOption(UsageError):
 
 class NoActiveContext(CommandParserException, RuntimeError):
     """Raised when attempting to perform an action that requires an active context while no context is active."""
-
-
-class InputValidationError(CommandParserException, ValueError):
-    """Raised when a custom InputType's conversion/validation fails"""
 
 
 # endregion

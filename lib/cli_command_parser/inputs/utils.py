@@ -10,11 +10,11 @@ from contextlib import contextmanager
 from enum import Flag, _decompose as decompose  # noqa
 from pathlib import Path
 from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S_IFSOCK
-from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager, List
+from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager
 from weakref import finalize
 
-from ..exceptions import InputValidationError
 from ..utils import Bool, FlagEnumMixin
+from .exceptions import InputValidationError
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper']
 

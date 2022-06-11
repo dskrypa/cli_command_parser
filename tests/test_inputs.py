@@ -4,6 +4,7 @@ import json
 import os
 import pickle
 from contextlib import contextmanager
+from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import ContextManager
@@ -11,10 +12,14 @@ from unittest import main, TestCase
 from unittest.mock import patch, Mock
 
 from cli_command_parser import Command, Positional, Option
-from cli_command_parser.exceptions import InputValidationError, BadArgument, UsageError
+from cli_command_parser.exceptions import BadArgument, UsageError
 from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode, Range, NumRange
+from cli_command_parser.inputs.choices import Choices, ChoiceMap, EnumChoices
+from cli_command_parser.inputs.exceptions import InputValidationError, InvalidChoiceError
 from cli_command_parser.inputs.utils import InputParam, FileWrapper
 from cli_command_parser.testing import ParserTest
+
+# region Helpers
 
 
 @contextmanager
@@ -38,6 +43,15 @@ def temp_path(file: str = None, touch: bool = False) -> ContextManager[Path]:
             yield f
         else:
             yield d
+
+
+class EnumExample(Enum):
+    FOO = '1'
+    Bar = '2'
+    baz = '3'
+
+
+# endregion
 
 
 class FileInputTest(TestCase):
@@ -385,6 +399,116 @@ class NumericInputTest(TestCase):
             self.assertEqual(val, rng(str(val)))
 
 
+class ChoiceInputTest(TestCase):
+    def test_invalid_choice_multi(self):
+        e = InvalidChoiceError(('y', 'z'), ('a', 'b', 'c'))
+        self.assertEqual("invalid choices: 'y', 'z' (choose from: 'a', 'b', 'c')", str(e))
+
+    def test_enum_replaced(self):
+        class Foo(Command):
+            bar = Option(type=EnumExample)
+
+        self.assertIsInstance(Foo.bar.type, EnumChoices)
+
+    def test_enum_with_choices_not_replaced(self):
+        class Foo(Command):
+            bar = Option(type=EnumExample, choices=('',))
+
+        self.assertIs(Foo.bar.type, EnumExample)
+
+    def test_enum_repr(self):
+        self.assertEqual('<EnumChoices[case_sensitive=False, choices=(FOO,Bar,baz)]>', repr(EnumChoices(EnumExample)))
+
+    def test_enum_case_sensitive(self):
+        # fmt: off
+        val_exp_map = {
+            'FOO': EnumExample.FOO, 'Bar': EnumExample.Bar, 'baz': EnumExample.baz,
+            '1': EnumExample.FOO, '2': EnumExample.Bar, '3': EnumExample.baz,
+        }
+        # fmt: on
+        ec = EnumChoices(EnumExample, case_sensitive=True)
+        for value, expected in val_exp_map.items():
+            self.assertEqual(expected, ec(value))
+            self.assertIn(value, ec)
+
+        for val in ('bar', 'test', 'foo', 'BAZ', '0', '4'):
+            with self.subTest(val=val):
+                self.assertNotIn(val, ec)
+                with self.assertRaisesRegex(InvalidChoiceError, "choose from: 'FOO', 'Bar', 'baz'"):
+                    ec(val)
+
+    def test_enum_case_insensitive(self):
+        # fmt: off
+        val_exp_map = {
+            'foo': EnumExample.FOO, 'FOO': EnumExample.FOO, '1': EnumExample.FOO,
+            'bar': EnumExample.Bar, 'Bar': EnumExample.Bar, 'BAR': EnumExample.Bar, '2': EnumExample.Bar,
+            'baz': EnumExample.baz, 'BAZ': EnumExample.baz, '3': EnumExample.baz,
+        }
+        # fmt: on
+        ec = EnumChoices(EnumExample, case_sensitive=False)
+        for value, expected in val_exp_map.items():
+            self.assertEqual(expected, ec(value))
+            self.assertIn(value, ec)
+
+        for val in ('test', 'BAT', '0', '4'):
+            with self.subTest(val=val):
+                self.assertNotIn(val, ec)
+                with self.assertRaisesRegex(InvalidChoiceError, "choose from: 'FOO', 'Bar', 'baz'"):
+                    ec(val)
+
+    def test_choices_rejects_typed_insensitive(self):
+        with self.assertRaisesRegex(TypeError, 'Cannot combine case_sensitive=False'):
+            Choices((1, 2, 3), case_sensitive=False)
+
+    def test_choices_typed_repr(self):
+        choices = Choices((1, 2, 3), type=int)
+        self.assertEqual('<Choices[type=int, case_sensitive=True, choices=(1,2,3)]>', repr(choices))
+
+    def test_choices_ints(self):
+        choices = Choices((1, 2, 3), type=int)
+        for n in range(1, 4):
+            self.assertEqual(n, choices(str(n)))
+
+        for val in ('-1', '0', '4', '10', 'foo'):
+            with self.subTest(val=val):
+                with self.assertRaisesRegex(InvalidChoiceError, "choose from: 1, 2, 3"):
+                    choices(val)
+
+    def test_choices_strs_sensitive(self):
+        choices = Choices(('FOO', 'Bar', 'baz'))
+        for val in ('FOO', 'Bar', 'baz'):
+            self.assertIn(val, choices)
+
+        for val in ('test', 'BAT', '0', '4', 'foo', 'bar', 'BAZ'):
+            self.assertNotIn(val, choices)
+
+    def test_choices_strs_insensitive(self):
+        choices = Choices(('FOO', 'Bar', 'baz'), case_sensitive=False)
+        for val in ('FOO', 'Bar', 'baz', 'foo', 'bar', 'BAZ'):
+            self.assertIn(val, choices)
+
+        for val in ('test', 'BAT', '0', '4'):
+            self.assertNotIn(val, choices)
+
+    def test_choice_map_sensitive(self):
+        val_exp_map = {'FOO': 1, 'Bar': 2, 'baz': 3}
+        cm = ChoiceMap({'FOO': 1, 'Bar': 2, 'baz': 3})
+        for value, expected in val_exp_map.items():
+            self.assertEqual(expected, cm(value))
+
+        for val in ('test', 'BAT', '0', '4', 'foo', 'bar', 'BAZ'):
+            self.assertNotIn(val, cm)
+
+    def test_choice_map_insensitive(self):
+        val_exp_map = {'FOO': 1, 'Bar': 2, 'baz': 3, 'foo': 1, 'bar': 2, 'BAZ': 3}
+        cm = ChoiceMap({'FOO': 1, 'Bar': 2, 'baz': 3}, case_sensitive=False)
+        for value, expected in val_exp_map.items():
+            self.assertEqual(expected, cm(value))
+
+        for val in ('test', 'BAT', '0', '4'):
+            self.assertNotIn(val, cm)
+
+
 class ParseInputTest(ParserTest):
     def test_short_option_no_space(self):
         class Foo(Command):
@@ -423,8 +547,24 @@ class ParseInputTest(ParserTest):
             (['-b', '5'], {'bar': 5}),
             (['--bar', '9'], {'bar': 9}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['-ba'], ['-b', '-1'], ['-b', '11']]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_enum_type_validation(self):
+        class Foo(Command):
+            bar = Option('-b', type=EnumExample)
+
+        # fmt: off
+        val_exp_map = {
+            'foo': EnumExample.FOO, 'FOO': EnumExample.FOO, '1': EnumExample.FOO,
+            'bar': EnumExample.Bar, 'Bar': EnumExample.Bar, 'BAR': EnumExample.Bar, '2': EnumExample.Bar,
+            'baz': EnumExample.baz, 'BAZ': EnumExample.baz, '3': EnumExample.baz,
+        }
+        # fmt: on
+        success_cases = [(['-b', val], {'bar': exp}) for val, exp in val_exp_map.items()]
+        fail_cases = [['-b', val] for val in ('test', 'BAT', '0', '4')]
+        self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
