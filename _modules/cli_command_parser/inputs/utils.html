@@ -95,11 +95,11 @@
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">_decompose</span> <span class="k">as</span> <span class="n">decompose</span>  <span class="c1"># noqa</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">stat</span> <span class="kn">import</span> <span class="n">S_IFMT</span><span class="p">,</span> <span class="n">S_IFDIR</span><span class="p">,</span> <span class="n">S_IFCHR</span><span class="p">,</span> <span class="n">S_IFBLK</span><span class="p">,</span> <span class="n">S_IFREG</span><span class="p">,</span> <span class="n">S_IFIFO</span><span class="p">,</span> <span class="n">S_IFLNK</span><span class="p">,</span> <span class="n">S_IFSOCK</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">ContextManager</span>
 <span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">finalize</span>
 
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">FlagEnumMixin</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;InputParam&#39;</span><span class="p">,</span> <span class="s1">&#39;StatMode&#39;</span><span class="p">,</span> <span class="s1">&#39;FileWrapper&#39;</span><span class="p">]</span>
 

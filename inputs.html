@@ -58,6 +58,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#numrange">NumRange</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#choice-inputs">Choice Inputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#choices">Choices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choicemap">ChoiceMap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enumchoices">EnumChoices</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
@@ -315,6 +321,73 @@ them in this context.</p>
 </dd>
 <dt class="field-even" id="numrange:include_max">include_max</dt>
 <dd class="field-even"><p>Whether the maximum is inclusive (default: False).</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="choice-inputs">
+<h2>Choice Inputs<a class="headerlink" href="#choice-inputs" title="Permalink to this heading"></a></h2>
+<p>Choice inputs provide a way to validate / normalize input against a pre-defined set of values.</p>
+<section id="choices">
+<h3>Choices<a class="headerlink" href="#choices" title="Permalink to this heading"></a></h3>
+<p>Validates that values are members of the collection of allowed values.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is technically possible to use both <code class="docutils literal notranslate"><span class="pre">type=Choices(...)</span></code> and <code class="docutils literal notranslate"><span class="pre">choices=...</span></code> in the same Parameter, but the two
+methods will be merged in a future update.</p>
+</div>
+<p id="choices-init-params"><strong>Choices initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="choices:choices">choices</dt>
+<dd class="field-odd"><p>A collection of choices allowed for a given Parameter.</p>
+</dd>
+<dt class="field-even" id="choices:type">type</dt>
+<dd class="field-even"><p>Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
+a single string argument.</p>
+</dd>
+<dt class="field-odd" id="choices:case_sensitive">case_sensitive</dt>
+<dd class="field-odd"><p>Whether choices should be case-sensitive.  Defaults to True.  If the choices values are not
+all strings, then this cannot be set to False.</p>
+</dd>
+</dl>
+</section>
+<section id="choicemap">
+<h3>ChoiceMap<a class="headerlink" href="#choicemap" title="Permalink to this heading"></a></h3>
+<p>Similar to <a class="reference internal" href="#choices"><span class="std std-ref">Choices</span></a>, but requires a mapping for allowed values.</p>
+<p id="choicemap-init-params"><strong>ChoiceMap initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="choicemap:choices">choices</dt>
+<dd class="field-odd"><p>Mapping (dict) where for a given key=value pair, the key is the value that is expected to be
+provided as an argument, and the value is what should be stored in the Parameter for that argument.</p>
+</dd>
+<dt class="field-even" id="choicemap:type">type</dt>
+<dd class="field-even"><p>Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
+a single string argument.</p>
+</dd>
+<dt class="field-odd" id="choicemap:case_sensitive">case_sensitive</dt>
+<dd class="field-odd"><p>Whether choices should be case-sensitive.  Defaults to True.  If the choices keys are not
+all strings, then this cannot be set to False.</p>
+</dd>
+</dl>
+</section>
+<section id="enumchoices">
+<h3>EnumChoices<a class="headerlink" href="#enumchoices" title="Permalink to this heading"></a></h3>
+<p>Similar to <a class="reference internal" href="#choicemap"><span class="std std-ref">ChoiceMap</span></a>, but the <a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices" title="cli_command_parser.inputs.choices.EnumChoices"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumChoices</span></code></a> input uses an Enum to validate / normalize input
+instead of the keys in a dict.  Facilitates the use of Enums as an input type without the need to provide a redundant
+<code class="docutils literal notranslate"><span class="pre">choices</span></code> argument for accepted values or implement <code class="docutils literal notranslate"><span class="pre">_missing_</span></code> to be more permissive.</p>
+<p>If incorrect input is received, the error message presented to the user will list the names of the members of the
+provided Enum, as they would if they were provided as <code class="docutils literal notranslate"><span class="pre">choices</span></code>.</p>
+<p>For convenience, Parameters can be initialized with a normal Enum subclass as <code class="docutils literal notranslate"><span class="pre">type=MyEnum</span></code>, and it will
+automatically be wrapped in a <a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices" title="cli_command_parser.inputs.choices.EnumChoices"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumChoices</span></code></a> input handler.  If an Enum is provided as the type, and
+<code class="docutils literal notranslate"><span class="pre">choices=...</span></code> is also specified, then the Enum will not be wrapped.  To enable case-sensitive matching,
+<a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices" title="cli_command_parser.inputs.choices.EnumChoices"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumChoices</span></code></a> must be used directly.</p>
+<p id="enumchoices-init-params"><strong>EnumChoices initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="enumchoices:enum">enum</dt>
+<dd class="field-odd"><p>A subclass of <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">enum.Enum</span></code></a>.</p>
+</dd>
+<dt class="field-even" id="enumchoices:case_sensitive">case_sensitive</dt>
+<dd class="field-even"><p>Whether choices should be case-sensitive.  Defaults to False.</p>
 </dd>
 </dl>
 </section>
