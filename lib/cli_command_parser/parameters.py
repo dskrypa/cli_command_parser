@@ -600,7 +600,7 @@ class Parameter(ParamBase, ABC):
 
     def validate(self, value: Any):
         choices = self.choices
-        if choices and value not in choices:
+        if choices and value not in choices:  # TODO: Fully replace this choice handling with Choices type
             raise InvalidChoice(self, value, choices)
         elif isinstance(value, str) and value.startswith('-'):
             if len(value) > 1 and not is_numeric(value):

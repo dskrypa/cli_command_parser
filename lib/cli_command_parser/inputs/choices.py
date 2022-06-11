@@ -17,7 +17,7 @@ __all__ = ['Choices', 'ChoiceMap', 'EnumChoices']
 EnumT = TypeVar('EnumT', bound=Enum)
 
 
-class ChoicesBase(InputType, ABC):
+class _ChoicesBase(InputType, ABC):
     choices: Collection[Any]
     type: Optional[TypeFunc] = None
     case_sensitive: bool = True
@@ -64,7 +64,17 @@ class ChoicesBase(InputType, ABC):
         raise InvalidChoiceError(value, self.choices)
 
 
-class Choices(ChoicesBase):
+class Choices(_ChoicesBase):
+    """
+    Validates that values are members of the collection of allowed values.
+
+    :param choices: A collection of choices allowed for a given Parameter.
+    :param type: Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
+      a single string argument.
+    :param case_sensitive: Whether choices should be case-sensitive.  Defaults to True.  If the choices values are not
+      all strings, then this cannot be set to False.
+    """
+
     def __init__(self, choices: Collection[Any], type: TypeFunc = None, case_sensitive: Bool = True):  # noqa
         if not case_sensitive and not all(isinstance(c, str) for c in choices):
             raise TypeError(f'Cannot combine case_sensitive=False with non-str choices={choices}')
@@ -92,6 +102,17 @@ class Choices(ChoicesBase):
 
 
 class ChoiceMap(Choices):
+    """
+    Similar to :class:`Choices`, but requires a mapping for allowed values.
+
+    :param choices: Mapping (dict) where for a given key=value pair, the key is the value that is expected to be
+      provided as an argument, and the value is what should be stored in the Parameter for that argument.
+    :param type: Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
+      a single string argument.
+    :param case_sensitive: Whether choices should be case-sensitive.  Defaults to True.  If the choices keys are not
+      all strings, then this cannot be set to False.
+    """
+
     choices: Mapping[Any, Any]
 
     def __init__(self, choices: Mapping[Any, Any], *args, **kwargs):
@@ -108,7 +129,14 @@ class ChoiceMap(Choices):
         return self._case_insensitive_map_choice(value)
 
 
-class EnumChoices(ChoicesBase):
+class EnumChoices(_ChoicesBase):
+    """
+    Similar to :class:`ChoiceMap`, but uses an Enum to validate / normalize input instead of the keys in a dict.
+
+    :param enum: A subclass of :class:`python:enum.Enum`.
+    :param case_sensitive: Whether choices should be case-sensitive.  Defaults to False.
+    """
+
     enum: Type[EnumT]
 
     def __init__(self, enum: Type[EnumT], case_sensitive: Bool = False):

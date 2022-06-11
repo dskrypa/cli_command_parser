@@ -213,3 +213,70 @@ exclusive.
 :max: The maximum allowed value, or None to have no upper bound.
 :include_min: Whether the minimum is inclusive (default: True).
 :include_max: Whether the maximum is inclusive (default: False).
+
+
+
+Choice Inputs
+=============
+
+Choice inputs provide a way to validate / normalize input against a pre-defined set of values.
+
+
+Choices
+-------
+
+Validates that values are members of the collection of allowed values.
+
+.. note::
+    It is technically possible to use both ``type=Choices(...)`` and ``choices=...`` in the same Parameter, but the two
+    methods will be merged in a future update.
+
+.. _choices_init_params:
+
+**Choices initialization parameters:**
+
+:choices: A collection of choices allowed for a given Parameter.
+:type: Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
+  a single string argument.
+:case_sensitive: Whether choices should be case-sensitive.  Defaults to True.  If the choices values are not
+  all strings, then this cannot be set to False.
+
+
+ChoiceMap
+---------
+
+Similar to :ref:`inputs:Choices`, but requires a mapping for allowed values.
+
+.. _choicemap_init_params:
+
+**ChoiceMap initialization parameters:**
+
+:choices: Mapping (dict) where for a given key=value pair, the key is the value that is expected to be
+  provided as an argument, and the value is what should be stored in the Parameter for that argument.
+:type: Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
+  a single string argument.
+:case_sensitive: Whether choices should be case-sensitive.  Defaults to True.  If the choices keys are not
+  all strings, then this cannot be set to False.
+
+
+EnumChoices
+-----------
+
+Similar to :ref:`inputs:ChoiceMap`, but the :class:`.EnumChoices` input uses an Enum to validate / normalize input
+instead of the keys in a dict.  Facilitates the use of Enums as an input type without the need to provide a redundant
+``choices`` argument for accepted values or implement ``_missing_`` to be more permissive.
+
+If incorrect input is received, the error message presented to the user will list the names of the members of the
+provided Enum, as they would if they were provided as ``choices``.
+
+For convenience, Parameters can be initialized with a normal Enum subclass as ``type=MyEnum``, and it will
+automatically be wrapped in a :class:`.EnumChoices` input handler.  If an Enum is provided as the type, and
+``choices=...`` is also specified, then the Enum will not be wrapped.  To enable case-sensitive matching,
+:class:`.EnumChoices` must be used directly.
+
+.. _enumchoices_init_params:
+
+**EnumChoices initialization parameters:**
+
+:enum: A subclass of :class:`python:enum.Enum`.
+:case_sensitive: Whether choices should be case-sensitive.  Defaults to False.
