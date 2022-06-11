@@ -44,9 +44,11 @@ class Range(NumericInput):
     range: Optional[builtins.range]
     snap: bool
 
-    def __init__(self, range: builtins.range, snap: Bool = False):  # noqa
+    def __init__(self, range: builtins.range, snap: Bool = False, type: NumType = None):  # noqa
         self.snap = snap
         self.range = range
+        if type is not None:
+            self.type = type
 
     def _range_str(self, var: str = 'N') -> str:
         rng_min, rng_max = min(self.range), max(self.range)
@@ -55,7 +57,7 @@ class Range(NumericInput):
         return base if step == 1 else f'{base}, step={step}'
 
     def __call__(self, value: str) -> Union[float, int]:
-        value = int(value)
+        value = self.type(value)
         if value in self.range:
             return value
         elif self.snap:

@@ -24,7 +24,8 @@ from .context import Context, ctx, get_current_context
 from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
 from .formatting.utils import HelpEntryFormatter
-from .inputs import InputType, InputTypeFunc, normalize_input_type, InputValidationError, InvalidChoiceError
+from .inputs import InputType, InputTypeFunc, normalize_input_type, Choices, ChoiceMap as ChoiceMapInput
+from .inputs.exceptions import InputValidationError, InvalidChoiceError
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 
@@ -57,8 +58,6 @@ log = logging.getLogger(__name__)
 Param = TypeVar('Param', bound='Parameter')
 ParamList = List[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
-
-# TODO: Parameter.validator method to be used as a decorator, similar to property.setter, replacing type if specified?
 
 
 class parameter_action:
@@ -508,10 +507,16 @@ class Parameter(ParamBase, ABC):
 
     def __set_name__(self, command: 'CommandType', name: str):
         super().__set_name__(command, name)
-        if self.type is None:
+        type_attr = self.type
+        choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
+        if choices or type_attr is None:
             annotated_type = get_descriptor_value_type(command, name)
             if annotated_type is not None:
-                self.type = annotated_type
+                if choices:
+                    type_attr.type = annotated_type
+                else:  # self.type must be None
+                    # Choices present earlier would have already been converted
+                    self.type = normalize_input_type(annotated_type, None)
 
     # endregion
 
@@ -599,10 +604,7 @@ class Parameter(ParamBase, ABC):
             raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e
 
     def validate(self, value: Any):
-        choices = self.choices
-        if choices and value not in choices:  # TODO: Fully replace this choice handling with Choices type
-            raise InvalidChoice(self, value, choices)
-        elif isinstance(value, str) and value.startswith('-'):
+        if isinstance(value, str) and value.startswith('-'):
             if len(value) > 1 and not is_numeric(value):
                 raise BadArgument(self, f'invalid value={value!r}')
         elif value is None:
@@ -627,12 +629,8 @@ class Parameter(ParamBase, ABC):
             else:
                 return self.default
 
-        choices = self.choices
         if self.action == 'store':
-            if choices and value not in choices:
-                raise InvalidChoice(self, value, choices)
-            else:
-                return value
+            return value
         else:  # action == 'append' or 'store_all'
             nargs = self.nargs
             val_count = len(value)
@@ -641,10 +639,6 @@ class Parameter(ParamBase, ABC):
                     raise MissingArgument(self)
             elif val_count not in nargs:
                 raise BadArgument(self, f'expected nargs={nargs!r} values but found {val_count}')
-            elif choices:
-                bad_values = tuple(v for v in value if v not in choices)
-                if bad_values:
-                    raise InvalidChoice(self, bad_values, choices)
 
             return value
 

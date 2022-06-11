@@ -289,8 +289,16 @@ class NumericInputTest(TestCase):
     def test_range_replaced(self):
         class Foo(Command):
             bar: int = Option(type=range(10))
+            baz: int = Option(choices=range(10))
 
         self.assertIsInstance(Foo.bar.type, Range)  # noqa
+        self.assertIsInstance(Foo.baz.type, Range)  # noqa
+
+    def test_range_with_choices_rejected(self):
+        with self.assertRaises(ValueError):
+            Option(type=range(10), choices=(1, 2))
+        with self.assertRaises(ValueError):
+            Option(type=Range(range(10)), choices=(1, 2))
 
     def test_range_no_snap(self):
         for case in (range(10), range(9, -1, -1)):
@@ -320,6 +328,11 @@ class NumericInputTest(TestCase):
                 self.assertEqual(0, rng('-10'))
                 self.assertEqual(9, rng('10'))
                 self.assertEqual(9, rng('20'))
+
+    def test_range_with_type(self):
+        rng = Range(range(10), type=lambda x: int(x))
+        for n in range(10):
+            self.assertEqual(n, rng(str(n)))
 
     def test_num_range_str(self):
         self.assertEqual('0 <= N < 10', NumRange(min=0, max=10)._range_str())
@@ -410,11 +423,13 @@ class ChoiceInputTest(TestCase):
 
         self.assertIsInstance(Foo.bar.type, EnumChoices)
 
-    def test_enum_with_choices_not_replaced(self):
+    def test_enum_with_choices(self):
         class Foo(Command):
-            bar = Option(type=EnumExample, choices=('',))
+            bar = Option(type=EnumExample, choices=(EnumExample.FOO, EnumExample.Bar))
 
-        self.assertIs(Foo.bar.type, EnumExample)
+        self.assertIsInstance(Foo.bar.type, Choices)
+        self.assertIsInstance(Foo.bar.type.type, EnumChoices)
+        self.assertIs(Foo.bar.type.type.enum, EnumExample)
 
     def test_enum_repr(self):
         self.assertEqual('<EnumChoices[case_sensitive=False, choices=(FOO,Bar,baz)]>', repr(EnumChoices(EnumExample)))
@@ -551,6 +566,34 @@ class ParseInputTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    def test_int_choices(self):
+        class Foo(Command):
+            bar: int = Option('-b', choices=(1, 2))
+            baz = Option('-B', type=int, choices=(1, 2))
+
+        success_cases = [
+            (['-b1', '-B=2'], {'bar': 1, 'baz': 2}),
+            (['-b2', '-B=1'], {'bar': 2, 'baz': 1}),
+            (['-B=1'], {'bar': None, 'baz': 1}),
+        ]
+        fail_cases = [['-ba'], ['-b0'], ['-b3'], ['-Ba'], ['-B0'], ['-B3'], ['-b', '-1'], ['-b', '']]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_choices_with_nargs_plus(self):
+        class Foo(Command):
+            bar: int = Option('-b', choices=(1, 2), nargs='+')
+
+        success_cases = [
+            (['-b1'], {'bar': [1]}),
+            (['-b2'], {'bar': [2]}),
+            (['-b', '1', '1', '1'], {'bar': [1, 1, 1]}),
+            (['--bar', '2'], {'bar': [2]}),
+        ]
+        fail_cases = [['-ba'], ['-b0'], ['-b', '1', '3'], ['-b', '-1'], ['-b', '11']]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
     def test_enum_type_validation(self):
         class Foo(Command):
             bar = Option('-b', type=EnumExample)
@@ -564,6 +607,21 @@ class ParseInputTest(ParserTest):
         # fmt: on
         success_cases = [(['-b', val], {'bar': exp}) for val, exp in val_exp_map.items()]
         fail_cases = [['-b', val] for val in ('test', 'BAT', '0', '4')]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_enum_with_choices(self):
+        class Foo(Command):
+            bar = Option('-b', type=EnumExample, choices=(EnumExample.FOO, EnumExample.Bar))
+
+        # fmt: off
+        val_exp_map = {
+            'foo': EnumExample.FOO, 'FOO': EnumExample.FOO, '1': EnumExample.FOO,
+            'bar': EnumExample.Bar, 'Bar': EnumExample.Bar, 'BAR': EnumExample.Bar, '2': EnumExample.Bar,
+        }
+        # fmt: on
+        success_cases = [(['-b', val], {'bar': exp}) for val, exp in val_exp_map.items()]
+        fail_cases = [['-b', val] for val in ('test', 'BAT', '0', '4', 'baz', 'BAZ', '3')]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 

@@ -582,24 +582,6 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
             with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
                 foo.bar  # noqa
 
-    def test_bad_choice(self):
-        class Foo(Command):
-            bar = Option(choices=('a', 'b', 'c'))
-
-        foo = Foo.parse(['--bar', 'c'])
-        Foo.bar.choices = ('a', 'b')
-        with self.assertRaises(InvalidChoice):
-            foo.bar  # noqa
-
-    def test_bad_choices(self):
-        class Foo(Command):
-            bar = Option(nargs='+', choices=('a', 'b', 'c'))
-
-        foo = Foo.parse(['--bar', 'c'])
-        Foo.bar.choices = ('a', 'b')
-        with self.assertRaises(InvalidChoice):
-            foo.bar  # noqa
-
     def test_flag_pop_last(self):
         with self.assertRaises(UnsupportedAction):
             Flag().pop_last()
