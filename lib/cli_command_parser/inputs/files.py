@@ -9,13 +9,13 @@ from pathlib import Path as _Path
 from typing import Union
 
 from ..utils import Bool
-from .base import Input
+from .base import InputType
 from .utils import InputParam, StatMode, FileWrapper, Converter, allows_write
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 
 
-class Path(Input):
+class Path(InputType):
     exists: bool = InputParam(None)
     expand: bool = InputParam(True)
     resolve: bool = InputParam(False)

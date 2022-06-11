@@ -160,7 +160,7 @@ class NoActiveContext(CommandParserException, RuntimeError):
 
 
 class InputValidationError(CommandParserException, ValueError):
-    """Raised when a custom Input's conversion/validation fails"""
+    """Raised when a custom InputType's conversion/validation fails"""
 
 
 # endregion

@@ -25,7 +25,7 @@ from .exceptions import ParameterDefinitionError, BadArgument, MissingArgument, 
 from .exceptions import ParamUsageError, ParamConflict, ParamsMissing, NoActiveContext, UnsupportedAction
 from .exceptions import InputValidationError
 from .formatting.utils import HelpEntryFormatter
-from .inputs.base import Input
+from .inputs.base import InputType
 from .nargs import Nargs, NargsValue
 from .utils import _NotSet, Bool, validate_positional, camel_to_snake_case, get_descriptor_value_type, is_numeric
 
@@ -589,14 +589,13 @@ class Parameter(ParamBase, ABC):
 
     def prepare_value(self, value: str, short_combo: bool = False, pre_action: bool = False) -> Any:
         type_func = self.type
-        if type_func is None or (pre_action and isinstance(type_func, Input) and type_func.is_valid_type(value)):
+        if type_func is None or (pre_action and isinstance(type_func, InputType) and type_func.is_valid_type(value)):
             return value
         try:
             return type_func(value)
         except InputValidationError as e:
             raise BadArgument(self, str(e)) from e
         except (TypeError, ValueError) as e:
-            # TODO: Improve error message for enums
             raise BadArgument(self, f'bad value={value!r} for type={type_func!r}: {e}') from e
         except Exception as e:
             raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e

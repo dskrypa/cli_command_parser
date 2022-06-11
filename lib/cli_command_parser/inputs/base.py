@@ -7,10 +7,10 @@ Custom input handlers for Parameters
 from abc import ABC, abstractmethod
 from typing import Any
 
-__all__ = ['Input']
+__all__ = ['InputType']
 
 
-class Input(ABC):
+class InputType(ABC):
     @abstractmethod
     def __call__(self, value: str) -> Any:
         """Process the parsed argument and convert it to the desired type"""
