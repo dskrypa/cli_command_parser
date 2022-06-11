@@ -1,7 +1,7 @@
 CLI Command Parser
 ##################
 
-|py_version| |coverage_badge| |build_status| |Black|
+|downloads| |py_version| |coverage_badge| |build_status| |Black|
 
 .. |py_version| image:: https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20-blue
 
@@ -13,6 +13,9 @@ CLI Command Parser
 
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
+
+.. |downloads| image:: https://img.shields.io/pypi/dm/cli-command-parser
+    :target: https://pypistats.org/packages/cli-command-parser
 
 
 CLI Command Parser is a class-based CLI argument parser that defines parameters with descriptors.
