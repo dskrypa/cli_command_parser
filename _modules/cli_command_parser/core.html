@@ -103,13 +103,38 @@
 
 
 <div class="viewcode-block" id="CommandMeta"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta">[docs]</a><span class="k">class</span> <span class="nc">CommandMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param choice: SubCommand value that maps to this command</span>
+<span class="sd">    :param prog: The name of the program (default: ``sys.argv[0]``)</span>
+<span class="sd">    :param usage: Usage message (default: auto-generated)</span>
+<span class="sd">    :param description: Description of what the program does</span>
+<span class="sd">    :param epilog: Text to follow parameter descriptions</span>
+<span class="sd">    :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</span>
+<span class="sd">    :param doc_name: Name to use in documentation (default: the stem of the file name containing the Command, or</span>
+<span class="sd">      the specified ``prog`` value)</span>
+<span class="sd">    :param error_handler: The :class:`~.error_handling.ErrorHandler` to be used by</span>
+<span class="sd">      :meth:`Command.__call__&lt;.commands.Command.__call__&gt;` to wrap :meth:`~.commands.Command.main`, or None to</span>
+<span class="sd">      disable error handling.</span>
+<span class="sd">    :param bool add_help: Whether the --help / -h action_flag should be added</span>
+<span class="sd">    :param bool action_after_action_flags: Whether action_flag methods are allowed to be combined with a positional</span>
+<span class="sd">      Action method in a given CLI invocation</span>
+<span class="sd">    :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all</span>
+<span class="sd">      specified</span>
+<span class="sd">    :param bool ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when</span>
+<span class="sd">      unknown arguments are encountered)</span>
+<span class="sd">    :param bool allow_missing: Whether missing required arguments should be allowed (default: raise an exception</span>
+<span class="sd">      when required arguments are missing)</span>
+<span class="sd">    :param bool always_run_after_main: Whether :meth:`Command._after_main_` should always be called, even if an</span>
+<span class="sd">      exception was raised in :meth:`Command.main`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_tmp_configs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">_configs</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
     <span class="n">_params</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
     <span class="n">_metadata</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
     <span class="n">_commands</span> <span class="o">=</span> <span class="n">WeakSet</span><span class="p">()</span>
 
-<div class="viewcode-block" id="CommandMeta.__new__"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.__new__">[docs]</a>    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span>  <span class="c1"># noqa</span>
         <span class="n">mcls</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
@@ -125,30 +150,6 @@
         <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param choice: SubCommand value that maps to this command</span>
-<span class="sd">        :param prog: The name of the program (default: ``sys.argv[0]``)</span>
-<span class="sd">        :param usage: Usage message (default: auto-generated)</span>
-<span class="sd">        :param description: Description of what the program does</span>
-<span class="sd">        :param epilog: Text to follow parameter descriptions</span>
-<span class="sd">        :param help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</span>
-<span class="sd">        :param doc_name: Name to use in documentation (default: the stem of the file name containing the Command, or</span>
-<span class="sd">          the specified ``prog`` value)</span>
-<span class="sd">        :param error_handler: The :class:`~.error_handling.ErrorHandler` to be used by</span>
-<span class="sd">          :meth:`Command.__call__&lt;.commands.Command.__call__&gt;` to wrap :meth:`~.commands.Command.main`, or None to</span>
-<span class="sd">          disable error handling.</span>
-<span class="sd">        :param bool add_help: Whether the --help / -h action_flag should be added</span>
-<span class="sd">        :param bool action_after_action_flags: Whether action_flag methods are allowed to be combined with a positional</span>
-<span class="sd">          Action method in a given CLI invocation</span>
-<span class="sd">        :param bool multiple_action_flags: Whether multiple action_flag methods are allowed to run if they are all</span>
-<span class="sd">          specified</span>
-<span class="sd">        :param bool ignore_unknown: Whether unknown arguments should be allowed (default: raise an exception when</span>
-<span class="sd">          unknown arguments are encountered)</span>
-<span class="sd">        :param bool allow_missing: Whether missing required arguments should be allowed (default: raise an exception</span>
-<span class="sd">          when required arguments are missing)</span>
-<span class="sd">        :param bool always_run_after_main: Whether :meth:`Command._after_main_` should always be called, even if an</span>
-<span class="sd">          exception was raised in :meth:`Command.main`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config_key</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{__module__}</span><span class="s1">.</span><span class="si">{__qualname__}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">namespace</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -198,7 +199,7 @@
         <span class="k">elif</span> <span class="n">choice</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;choice=</span><span class="si">{</span><span class="n">choice</span><span class="si">!r}</span><span class="s1"> was not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because it has no parent Command&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">cls</span></div>
+        <span class="k">return</span> <span class="bp">cls</span>
 
 <div class="viewcode-block" id="CommandMeta.parent"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">[docs]</a>    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandMeta&#39;</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">parent_cls</span> <span class="ow">in</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>

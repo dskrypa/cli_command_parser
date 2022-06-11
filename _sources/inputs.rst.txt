@@ -166,3 +166,50 @@ When using the generic :class:`.Serialized` directly, the specific (de)serializa
 
     Serialized(json.dumps, mode='w')
     Serialized(json.dump, pass_file=True, mode='w')
+
+
+
+Numeric Ranges
+==============
+
+Range
+-----
+
+To restrict the allowed values to only integers in a :class:`python:range`, the :class:`.Range` input type is available.
+
+For convenience, Parameters can be initialized with a normal :class:`python:range` object as ``type=range(...)``,
+and it will automatically be wrapped in a :class:`.Range` input handler.  To use the ``snap`` feature, :class:`.Range`
+must be used directly.
+
+.. _range_init_params:
+
+**Range initialization parameters:**
+
+:range: A :class:`python:range` object
+:snap: If True and a provided value is outside the allowed range, snap to the nearest bound.  The min or max
+  of the provided range (not necessarily the start/stop values) will be used, depending on which one the provided
+  value exceeded.
+
+
+NumRange
+--------
+
+The :class:`.NumRange` input type can be used to restrict values to either integers or floats between a min and max,
+or only bound on one side.  At least one of min or max is required, and min must be less than max.
+
+By default, the min and max behave like the builtin :class:`python:range` - the min is inclusive, and the max is
+exclusive.
+
+.. _numrange_init_params:
+
+**NumRange initialization parameters:**
+
+:type: The type for values, or any callable that returns an int/float.  Defaults to float if one or both of min or max
+  is a float, otherwise int.
+:snap: If True and a provided value is outside the allowed range, snap to the nearest bound.  Respects inclusivity
+  / exclusivity of the bound.  Not supported for floats since there is not an obviously correct behavior for handling
+  them in this context.
+:min: The minimum allowed value, or None to have no lower bound.
+:max: The maximum allowed value, or None to have no upper bound.
+:include_min: Whether the minimum is inclusive (default: True).
+:include_max: Whether the maximum is inclusive (default: False).

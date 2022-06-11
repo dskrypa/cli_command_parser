@@ -111,14 +111,14 @@
 
     <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span>  <span class="c1"># The parsing Context used for this Command</span>
 
-<div class="viewcode-block" id="Command.__new__"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__new__">[docs]</a>    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">_get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="c1"># By storing the Context here instead of __init__, every single subclass won&#39;t need to</span>
         <span class="c1"># call super().__init__(...) from their own __init__ for this step</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="Command.parse_and_run"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>

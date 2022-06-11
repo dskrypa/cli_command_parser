@@ -53,6 +53,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#serialized-files">Serialized Files</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#numeric-ranges">Numeric Ranges</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#range">Range</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numrange">NumRange</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
@@ -260,6 +265,58 @@ You provided a dict
 <span class="n">Serialized</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">,</span> <span class="n">pass_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="numeric-ranges">
+<h2>Numeric Ranges<a class="headerlink" href="#numeric-ranges" title="Permalink to this heading"></a></h2>
+<section id="range">
+<h3>Range<a class="headerlink" href="#range" title="Permalink to this heading"></a></h3>
+<p>To restrict the allowed values to only integers in a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#range" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">range</span></code></a>, the <a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range" title="cli_command_parser.inputs.numeric.Range"><code class="xref py py-class docutils literal notranslate"><span class="pre">Range</span></code></a> input type is available.</p>
+<p>For convenience, Parameters can be initialized with a normal <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#range" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">range</span></code></a> object as <code class="docutils literal notranslate"><span class="pre">type=range(...)</span></code>,
+and it will automatically be wrapped in a <a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range" title="cli_command_parser.inputs.numeric.Range"><code class="xref py py-class docutils literal notranslate"><span class="pre">Range</span></code></a> input handler.  To use the <code class="docutils literal notranslate"><span class="pre">snap</span></code> feature, <a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range" title="cli_command_parser.inputs.numeric.Range"><code class="xref py py-class docutils literal notranslate"><span class="pre">Range</span></code></a>
+must be used directly.</p>
+<p id="range-init-params"><strong>Range initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="range:range">range</dt>
+<dd class="field-odd"><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#range" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">range</span></code></a> object</p>
+</dd>
+<dt class="field-even" id="range:snap">snap</dt>
+<dd class="field-even"><p>If True and a provided value is outside the allowed range, snap to the nearest bound.  The min or max
+of the provided range (not necessarily the start/stop values) will be used, depending on which one the provided
+value exceeded.</p>
+</dd>
+</dl>
+</section>
+<section id="numrange">
+<h3>NumRange<a class="headerlink" href="#numrange" title="Permalink to this heading"></a></h3>
+<p>The <a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange" title="cli_command_parser.inputs.numeric.NumRange"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumRange</span></code></a> input type can be used to restrict values to either integers or floats between a min and max,
+or only bound on one side.  At least one of min or max is required, and min must be less than max.</p>
+<p>By default, the min and max behave like the builtin <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#range" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">range</span></code></a> - the min is inclusive, and the max is
+exclusive.</p>
+<p id="numrange-init-params"><strong>NumRange initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="numrange:type">type</dt>
+<dd class="field-odd"><p>The type for values, or any callable that returns an int/float.  Defaults to float if one or both of min or max
+is a float, otherwise int.</p>
+</dd>
+<dt class="field-even" id="numrange:snap">snap</dt>
+<dd class="field-even"><p>If True and a provided value is outside the allowed range, snap to the nearest bound.  Respects inclusivity
+/ exclusivity of the bound.  Not supported for floats since there is not an obviously correct behavior for handling
+them in this context.</p>
+</dd>
+<dt class="field-odd" id="numrange:min">min</dt>
+<dd class="field-odd"><p>The minimum allowed value, or None to have no lower bound.</p>
+</dd>
+<dt class="field-even" id="numrange:max">max</dt>
+<dd class="field-even"><p>The maximum allowed value, or None to have no upper bound.</p>
+</dd>
+<dt class="field-odd" id="numrange:include_min">include_min</dt>
+<dd class="field-odd"><p>Whether the minimum is inclusive (default: True).</p>
+</dd>
+<dt class="field-even" id="numrange:include_max">include_max</dt>
+<dd class="field-even"><p>Whether the maximum is inclusive (default: False).</p>
+</dd>
+</dl>
 </section>
 </section>
 </section>

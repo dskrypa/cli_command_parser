@@ -110,8 +110,8 @@
 
 
 <div class="viewcode-block" id="InputParam"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam">[docs]</a><span class="k">class</span> <span class="nc">InputParam</span><span class="p">:</span>
-<div class="viewcode-block" id="InputParam.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
 
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -130,7 +130,7 @@
 
 
 <div class="viewcode-block" id="StatMode"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode">[docs]</a><span class="k">class</span> <span class="nc">StatMode</span><span class="p">(</span><span class="n">FlagEnumMixin</span><span class="p">,</span> <span class="n">Flag</span><span class="p">):</span>
-<div class="viewcode-block" id="StatMode.__new__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.__new__">[docs]</a>    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">friendly_name</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">friendly_name</span><span class="p">):</span>
         <span class="c1"># Defined __new__ to avoid juggling dicts for the stat mode values and names</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># ANY</span>
@@ -139,7 +139,7 @@
             <span class="n">obj</span><span class="o">.</span><span class="n">_value_</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">__members__</span><span class="p">)</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">friendly_name</span> <span class="o">=</span> <span class="n">friendly_name</span>
-        <span class="k">return</span> <span class="n">obj</span></div>
+        <span class="k">return</span> <span class="n">obj</span>
 
     <span class="n">DIR</span> <span class="o">=</span> <span class="n">S_IFDIR</span><span class="p">,</span> <span class="s1">&#39;directory&#39;</span>
     <span class="n">FILE</span> <span class="o">=</span> <span class="n">S_IFREG</span><span class="p">,</span> <span class="s1">&#39;regular file&#39;</span>
@@ -167,7 +167,7 @@
 
 
 <div class="viewcode-block" id="FileWrapper"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper">[docs]</a><span class="k">class</span> <span class="nc">FileWrapper</span><span class="p">:</span>
-<div class="viewcode-block" id="FileWrapper.__init__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
@@ -184,7 +184,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="n">converter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pass_file</span> <span class="o">=</span> <span class="n">pass_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_finalizer</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_finalizer</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;FileWrapper&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;binary&#39;</span><span class="p">,</span> <span class="s1">&#39;encoding&#39;</span><span class="p">,</span> <span class="s1">&#39;errors&#39;</span><span class="p">,</span> <span class="s1">&#39;converter&#39;</span><span class="p">,</span> <span class="s1">&#39;pass_file&#39;</span><span class="p">)</span>

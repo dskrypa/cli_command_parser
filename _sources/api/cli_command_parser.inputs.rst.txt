@@ -7,4 +7,5 @@ Inputs Package
 
     cli_command_parser.inputs.base
     cli_command_parser.inputs.files
+    cli_command_parser.inputs.numeric
     cli_command_parser.inputs.utils
