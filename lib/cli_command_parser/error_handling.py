@@ -1,4 +1,18 @@
 """
+Error handling for expected / unexpected exceptions.
+
+The default handler will...
+
+- Call ``print()`` after catching a :class:`python:KeyboardInterrupt`, before exiting
+- Exit gracefully after catching a :class:`python:BrokenPipeError` (often caused by piping output to a tool like
+  ``tail``)
+
+.. note::
+    Parameters defined in a base Command will be processed in the context of that Command.  I.e., if a valid
+    subcommand argument was provided, but an Option defined in the parent Command has an invalid value, then the
+    exception that is raised about that invalid value will be raised before transferring control to the
+    subcommand's error handler.
+
 :author: Doug Skrypa
 """
 
