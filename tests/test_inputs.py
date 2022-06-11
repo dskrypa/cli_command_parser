@@ -11,8 +11,8 @@ from unittest import main, TestCase
 from unittest.mock import patch, Mock
 
 from cli_command_parser import Command, Positional, Option
-from cli_command_parser.exceptions import InputValidationError, BadArgument
-from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode
+from cli_command_parser.exceptions import InputValidationError, BadArgument, UsageError
+from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode, Range, NumRange
 from cli_command_parser.inputs.utils import InputParam, FileWrapper
 from cli_command_parser.testing import ParserTest
 
@@ -40,7 +40,7 @@ def temp_path(file: str = None, touch: bool = False) -> ContextManager[Path]:
             yield d
 
 
-class InputTest(TestCase):
+class FileInputTest(TestCase):
     def test_invalid_stat_modes(self):
         with self.assertRaises(TypeError):
             StatMode(None)
@@ -271,6 +271,120 @@ class ReadWriteTest(TestCase):
                 Foo.parse_and_run(['-b', b.as_posix()])
 
 
+class NumericInputTest(TestCase):
+    def test_range_replaced(self):
+        class Foo(Command):
+            bar: int = Option(type=range(10))
+
+        self.assertIsInstance(Foo.bar.type, Range)  # noqa
+
+    def test_range_no_snap(self):
+        for case in (range(10), range(9, -1, -1)):
+            with self.subTest(case=case):
+                rng = Range(case)
+                for n in range(10):
+                    self.assertEqual(n, rng(str(n)))
+
+                for val in ('-1', '10', '11', '1.1'):
+                    with self.assertRaises(ValueError):
+                        rng(val)
+
+    def test_range_str(self):
+        self.assertEqual('0 <= N <= 9', Range(range(10))._range_str())
+        self.assertEqual('0 <= N <= 9', Range(range(9, -1, -1))._range_str())
+        self.assertEqual('0 <= N <= 8, step=2', Range(range(0, 10, 2))._range_str())
+        self.assertEqual('0 <= N <= 8, step=2', Range(range(8, -1, -2))._range_str())
+
+    def test_range_snap(self):
+        for case in (range(10), range(9, -1, -1)):
+            with self.subTest(case=case):
+                rng = Range(case, snap=True)
+                for n in range(10):
+                    self.assertEqual(n, rng(str(n)))
+
+                self.assertEqual(0, rng('-1'))
+                self.assertEqual(0, rng('-10'))
+                self.assertEqual(9, rng('10'))
+                self.assertEqual(9, rng('20'))
+
+    def test_num_range_str(self):
+        self.assertEqual('0 <= N < 10', NumRange(min=0, max=10)._range_str())
+        self.assertEqual('0 <= N', NumRange(min=0)._range_str())
+        self.assertEqual('N < 10', NumRange(max=10)._range_str())
+        self.assertEqual('0 <= N <= 10', NumRange(min=0, max=10, include_max=True)._range_str())
+        self.assertEqual('0 < N < 10', NumRange(min=0, max=10, include_min=False)._range_str())
+        self.assertEqual('0 < N <= 10', NumRange(min=0, max=10, include_min=False, include_max=True)._range_str())
+
+    def test_num_range_requires_min_max(self):
+        with self.assertRaisesRegex(ValueError, 'at least one of min and/or max values'):
+            NumRange()
+
+    def test_num_range_requires_min_lt_max(self):
+        with self.assertRaisesRegex(ValueError, 'min must be less than max'):
+            NumRange(min=10, max=0)
+
+    def test_num_range_snap_requires_strict_range(self):
+        with self.assertRaisesRegex(ValueError, 'snap would produce invalid values'):
+            NumRange(snap=True, min=1, max=2)
+
+    def test_snap_rejects_float(self):
+        with self.assertRaisesRegex(TypeError, 'Unable to snap to extrema with type=float'):
+            NumRange(snap=True, type=float, min=1)
+
+    def test_num_range_auto_type(self):
+        self.assertIs(int, NumRange(min=1, max=10).type)
+        self.assertIs(float, NumRange(min=1.5, max=10).type)
+        self.assertIs(float, NumRange(min=1.5, max=10.5).type)
+
+    def test_num_range_snap_incl_min(self):
+        rng = NumRange(snap=True, min=0, max=10)
+        for n in range(10):
+            self.assertEqual(n, rng(str(n)))
+
+        self.assertEqual(0, rng('-1'))
+        self.assertEqual(0, rng('-10'))
+        self.assertEqual(9, rng('10'))
+        self.assertEqual(9, rng('20'))
+
+    def test_num_range_snap_excl_min(self):
+        rng = NumRange(snap=True, min=-1, max=10, include_min=False)
+        for n in range(10):
+            self.assertEqual(n, rng(str(n)))
+
+        self.assertEqual(0, rng('-1'))
+        self.assertEqual(0, rng('-10'))
+        self.assertEqual(9, rng('10'))
+        self.assertEqual(9, rng('20'))
+
+    def test_num_range_snap_incl_max(self):
+        rng = NumRange(snap=True, min=0, max=9, include_max=True)
+        for n in range(10):
+            self.assertEqual(n, rng(str(n)))
+
+        self.assertEqual(0, rng('-1'))
+        self.assertEqual(0, rng('-10'))
+        self.assertEqual(9, rng('10'))
+        self.assertEqual(9, rng('20'))
+
+    def test_num_range_unbound_min(self):
+        rng = NumRange(max=10)
+        for val in ('10', '20', '100'):
+            with self.assertRaises(ValueError):
+                rng(val)
+
+        for val in (0, 1, 9, -1, -20, -100):
+            self.assertEqual(val, rng(str(val)))
+
+    def test_num_range_unbound_max(self):
+        rng = NumRange(min=0)
+        for val in ('-1', '-10', '-100'):
+            with self.assertRaises(ValueError):
+                rng(val)
+
+        for val in (0, 1, 10, 100):
+            self.assertEqual(val, rng(str(val)))
+
+
 class ParseInputTest(ParserTest):
     def test_short_option_no_space(self):
         class Foo(Command):
@@ -298,6 +412,20 @@ class ParseInputTest(ParserTest):
                     self.assertEqual('test\ndata', foo.bar)
 
                 self.assertEqual(1, read_mock.call_count)
+
+    def test_range_type_validation(self):
+        class Foo(Command):
+            bar = Option('-b', type=Range(range(10)))
+
+        success_cases = [
+            (['-b0'], {'bar': 0}),
+            (['-b1'], {'bar': 1}),
+            (['-b', '5'], {'bar': 5}),
+            (['--bar', '9'], {'bar': 9}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-ba'], ['-b', '-1'], ['-b', '11']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 if __name__ == '__main__':
