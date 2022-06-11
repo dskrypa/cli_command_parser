@@ -330,12 +330,13 @@ them in this context.</p>
 <p>Choice inputs provide a way to validate / normalize input against a pre-defined set of values.</p>
 <section id="choices">
 <h3>Choices<a class="headerlink" href="#choices" title="Permalink to this heading"></a></h3>
-<p>Validates that values are members of the collection of allowed values.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It is technically possible to use both <code class="docutils literal notranslate"><span class="pre">type=Choices(...)</span></code> and <code class="docutils literal notranslate"><span class="pre">choices=...</span></code> in the same Parameter, but the two
-methods will be merged in a future update.</p>
-</div>
+<p>Validates that values are members of the collection of allowed values.  Choices may be provided to Parameters as
+either <code class="docutils literal notranslate"><span class="pre">choices=...</span></code> or as <code class="docutils literal notranslate"><span class="pre">type=Choices(...)</span></code>.  If they are provided as <code class="docutils literal notranslate"><span class="pre">choices=...</span></code>, then a <a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a>
+input type will automatically be created to handle validating those choices.  Any <code class="docutils literal notranslate"><span class="pre">type=...</span></code> argument to the
+Parameter will be passed through when initializing the <a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a> object.  To adjust case-sensitivity,
+<a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a> must be initialized directly.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">choices</span></code> is a dict or other type of mapping, then only the keys will be used.  See <a class="reference internal" href="#choicemap"><span class="std std-ref">ChoiceMap</span></a> for
+another option for handling dicts.</p>
 <p id="choices-init-params"><strong>Choices initialization parameters:</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="choices:choices">choices</dt>

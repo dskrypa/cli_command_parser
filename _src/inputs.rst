@@ -225,11 +225,14 @@ Choice inputs provide a way to validate / normalize input against a pre-defined 
 Choices
 -------
 
-Validates that values are members of the collection of allowed values.
+Validates that values are members of the collection of allowed values.  Choices may be provided to Parameters as
+either ``choices=...`` or as ``type=Choices(...)``.  If they are provided as ``choices=...``, then a :class:`.Choices`
+input type will automatically be created to handle validating those choices.  Any ``type=...`` argument to the
+Parameter will be passed through when initializing the :class:`.Choices` object.  To adjust case-sensitivity,
+:class:`.Choices` must be initialized directly.
 
-.. note::
-    It is technically possible to use both ``type=Choices(...)`` and ``choices=...`` in the same Parameter, but the two
-    methods will be merged in a future update.
+If ``choices`` is a dict or other type of mapping, then only the keys will be used.  See :ref:`inputs:ChoiceMap` for
+another option for handling dicts.
 
 .. _choices_init_params:
 
