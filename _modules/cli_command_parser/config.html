@@ -90,10 +90,10 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">FlagEnumMixin</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">cached_class_property</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">FixedFlag</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">cached_class_property</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
@@ -109,7 +109,7 @@
 <span class="c1"># region Config Option Enums</span>
 
 
-<div class="viewcode-block" id="ShowDefaults"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults">[docs]</a><span class="k">class</span> <span class="nc">ShowDefaults</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+<div class="viewcode-block" id="ShowDefaults"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults">[docs]</a><span class="k">class</span> <span class="nc">ShowDefaults</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Options for showing ``(default: &lt;default&gt;)`` in ``--help`` text.  Options can be combined, but</span>
 <span class="sd">    :attr:`ShowDefaults.NEVER` will override all other options.</span>
@@ -145,7 +145,7 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__or__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
-<div class="viewcode-block" id="OptionNameMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode">[docs]</a><span class="k">class</span> <span class="nc">OptionNameMode</span><span class="p">(</span><span class="n">FlagEnumMixin</span><span class="p">,</span> <span class="n">Flag</span><span class="p">):</span>
+<div class="viewcode-block" id="OptionNameMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode">[docs]</a><span class="k">class</span> <span class="nc">OptionNameMode</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.</span>
 
