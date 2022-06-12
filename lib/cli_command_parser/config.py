@@ -5,10 +5,10 @@ Configuration options for Command behavior.
 """
 
 from dataclasses import dataclass, fields
-from enum import Flag, Enum
+from enum import Enum
 from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, Dict, FrozenSet
 
-from .utils import Bool, FlagEnumMixin, _NotSet, cached_class_property
+from .utils import Bool, FixedFlag, _NotSet, cached_class_property
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -24,7 +24,7 @@ __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode']
 # region Config Option Enums
 
 
-class ShowDefaults(Flag):
+class ShowDefaults(FixedFlag):
     """
     Options for showing ``(default: <default>)`` in ``--help`` text.  Options can be combined, but
     :attr:`ShowDefaults.NEVER` will override all other options.
@@ -60,7 +60,7 @@ class ShowDefaults(Flag):
         return super().__or__(other)  # noqa
 
 
-class OptionNameMode(FlagEnumMixin, Flag):
+class OptionNameMode(FixedFlag):
     """
     How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.
 

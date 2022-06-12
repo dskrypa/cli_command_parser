@@ -7,13 +7,12 @@ Utils for input types
 import sys
 import warnings
 from contextlib import contextmanager
-from enum import Flag, _decompose as decompose  # noqa
 from pathlib import Path
 from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S_IFSOCK
 from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager
 from weakref import finalize
 
-from ..utils import Bool, FlagEnumMixin
+from ..utils import Bool, FixedFlag
 from .exceptions import InputValidationError
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper']
@@ -44,16 +43,16 @@ class InputParam:
             instance.__dict__[self.name] = value
 
 
-class StatMode(FlagEnumMixin, Flag):
+class StatMode(FixedFlag):
     def __new__(cls, mode, friendly_name):
         # Defined __new__ to avoid juggling dicts for the stat mode values and names
         obj = object.__new__(cls)
+        obj.mode = mode
+        obj.friendly_name = friendly_name
         if mode is None:  # ANY
             obj._value_ = sum(m._value_ for m in cls.__members__.values())
         else:
             obj._value_ = 2 ** len(cls.__members__)
-        obj.mode = mode
-        obj.friendly_name = friendly_name
         return obj
 
     DIR = S_IFDIR, 'directory'

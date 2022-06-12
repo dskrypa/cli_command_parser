@@ -8,7 +8,7 @@ import re
 import sys
 from collections.abc import Collection, Iterable, Callable
 from contextlib import contextmanager
-from enum import Flag, _decompose as decompose  # noqa
+from enum import Flag
 from inspect import stack, isclass, FrameInfo
 from pathlib import Path
 from textwrap import dedent
@@ -26,11 +26,12 @@ try:
 except ImportError:  # Added in 3.10
     NoneType = type(None)
 
+from .compat import create_pseudo_member, decompose_flag, missing_flag
 from .exceptions import ParameterDefinitionError
 
 Bool = Union[bool, Any]
+FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
-FlagEnum = TypeVar('FlagEnum', bound=Union[Flag, 'FlagEnumMixin'])
 
 
 class cached_class_property(classmethod):
@@ -338,9 +339,17 @@ def is_numeric(text: str) -> Bool:
     return num_match(text)
 
 
-class FlagEnumMixin:
+class FixedFlag(Flag):
+    """Extends Flag to work around breaking changes in 3.11 for repr, missing, and pseudo-members."""
+
+    def __repr__(self) -> str:
+        # In 3.11, this needs to be declared in the parent of a Flag that actually has members - it breaks if it is
+        # defined in a mixin or the class with members.
+        names = '|'.join(part._name_ for part in self._decompose())
+        return f'<{self.__class__.__name__}:{names}>'
+
     @classmethod
-    def _missing_(cls: Type[FlagEnum], value) -> FlagEnum:
+    def _missing_(cls, value) -> FlagEnum:
         if isinstance(value, str):
             if value.startswith(('!', '~')):
                 invert = True
@@ -356,10 +365,10 @@ class FlagEnumMixin:
             else:
                 return ~member if invert else member
 
-        return super()._missing_(value)  # noqa
+        return missing_flag(cls, value)
 
     @classmethod
-    def _missing_str(cls: Type[FlagEnum], value: str) -> FlagEnum:
+    def _missing_str(cls, value: str) -> FlagEnum:
         try:
             return cls._member_map_[value.upper()]  # noqa
         except KeyError:
@@ -379,14 +388,8 @@ class FlagEnumMixin:
 
         raise KeyError
 
-    def _decompose(self: FlagEnum) -> List[FlagEnum]:
-        if self._name_ is None:
-            return sorted(decompose(self.__class__, self.value)[0])
-        return [self]
+    def _decompose(self) -> List[FlagEnum]:
+        return decompose_flag(self.__class__, self._value_, self._name_)[0]
 
-    def __repr__(self: FlagEnum) -> str:
-        names = '|'.join(part._name_ for part in self._decompose())
-        return f'<{self.__class__.__name__}:{names}>'
-
-    def __lt__(self: FlagEnum, other: FlagEnum) -> bool:
+    def __lt__(self, other: FlagEnum) -> bool:
         return self._value_ < other._value_
