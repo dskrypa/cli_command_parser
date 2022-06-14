@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.inputs.choices &mdash; CLI Command Parser 2022.06.12 documentation</title>
+  <title>cli_command_parser.inputs.choices &mdash; CLI Command Parser 2022.06.14 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -147,6 +147,9 @@
                     <span class="k">return</span> <span class="n">val</span>
 
         <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;{{</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)))</span>
 
 
 <div class="viewcode-block" id="Choices"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices">[docs]</a><span class="k">class</span> <span class="nc">Choices</span><span class="p">(</span><span class="n">_ChoicesBase</span><span class="p">):</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.formatting.params &mdash; CLI Command Parser 2022.06.12 documentation</title>
+  <title>cli_command_parser.formatting.params &mdash; CLI Command Parser 2022.06.14 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -135,12 +135,17 @@
             <span class="k">return</span> <span class="s1">&#39;{{</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="p">)))</span>
         <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">metavar</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">param</span><span class="o">.</span><span class="n">metavar</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa</span>
+                <span class="k">pass</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">use_type_metavar</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">use_type_metavar</span>
         <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
             <span class="n">use_type_metavar</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">use_type_metavar</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="n">use_type_metavar</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
