@@ -12,6 +12,7 @@ from unittest import main, TestCase
 from unittest.mock import patch, Mock
 
 from cli_command_parser import Command, Positional, Option
+from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import BadArgument, UsageError
 from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode, Range, NumRange
 from cli_command_parser.inputs.choices import Choices, ChoiceMap, EnumChoices
@@ -433,6 +434,14 @@ class ChoiceInputTest(TestCase):
 
     def test_enum_repr(self):
         self.assertEqual('<EnumChoices[case_sensitive=False, choices=(FOO,Bar,baz)]>', repr(EnumChoices(EnumExample)))
+
+    def test_enum_help_text(self):
+        class Foo(Command):
+            bar = Option('-b', type=EnumExample)
+
+        foo = Foo()
+        with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)), foo.ctx:
+            self.assertIn('{FOO,Bar,baz}', get_params(foo).formatter.format_help())
 
     def test_enum_case_sensitive(self):
         # fmt: off

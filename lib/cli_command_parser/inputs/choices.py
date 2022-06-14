@@ -63,6 +63,9 @@ class _ChoicesBase(InputType, ABC):
 
         raise InvalidChoiceError(value, self.choices)
 
+    def format_metavar(self, choice_delim: str = ',') -> str:
+        return '{{{}}}'.format(choice_delim.join(map(str, self.choices)))
+
 
 class Choices(_ChoicesBase):
     """

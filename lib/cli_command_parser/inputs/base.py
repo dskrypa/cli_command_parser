@@ -31,3 +31,6 @@ class InputType(ABC):
           it should be rejected before attempting to process / convert / store it.
         """
         return True
+
+    def format_metavar(self, choice_delim: str = ',') -> str:
+        raise NotImplementedError

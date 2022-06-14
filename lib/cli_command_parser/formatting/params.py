@@ -50,12 +50,17 @@ class ParamHelpFormatter:
             return '{{{}}}'.format(choice_delim.join(map(str, param.choices)))
         elif param.metavar:
             return param.metavar
+        t = param.type
+        if t is not None:
+            try:
+                return t.format_metavar(choice_delim)
+            except Exception:  # noqa
+                pass
         try:
             use_type_metavar = ctx.use_type_metavar
         except NoActiveContext:
             use_type_metavar = False
-        if use_type_metavar and param.type is not None:
-            t = param.type
+        if use_type_metavar and t is not None:
             try:
                 name = t.__name__
             except AttributeError:
