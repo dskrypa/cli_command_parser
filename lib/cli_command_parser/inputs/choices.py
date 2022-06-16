@@ -29,12 +29,12 @@ class _ChoicesBase(InputType, ABC):
             return False
         return True
 
+    def _type_str(self) -> str:
+        return f'type={self.type.__name__}, ' if self.type is not None else ''
+
     def __repr__(self) -> str:
-        type_str = f'type={self.type.__name__}, ' if self.type is not None else ''
-        return (
-            f'<{self.__class__.__name__}[{type_str}'
-            f'case_sensitive={self.case_sensitive}, choices=({self._choices_repr()})]>'
-        )
+        cls_name = self.__class__.__name__
+        return f'<{cls_name}[{self._type_str()}case_sensitive={self.case_sensitive}, choices=({self._choices_repr()})]>'
 
     @abstractmethod
     def _choices_repr(self, delim: str = ',') -> str:
@@ -81,6 +81,9 @@ class Choices(_ChoicesBase):
     def __init__(self, choices: Collection[Any], type: TypeFunc = None, case_sensitive: Bool = True):  # noqa
         if not case_sensitive and not all(isinstance(c, str) for c in choices):
             raise TypeError(f'Cannot combine case_sensitive=False with non-str choices={choices}')
+        elif isinstance(type, EnumChoices) and not any(isinstance(c, type.enum) for c in choices):
+            raise TypeError(f'Invalid choices={choices} for type={type}')
+
         self.choices = choices
         self.type = type
         self.case_sensitive = case_sensitive
@@ -146,6 +149,9 @@ class EnumChoices(_ChoicesBase):
         self.enum = enum
         self.case_sensitive = case_sensitive
         self.choices = enum._member_map_
+
+    def _type_str(self) -> str:
+        return f'type={self.enum.__name__}, '
 
     def _choices_repr(self, delim: str = ',') -> str:
         return delim.join(self.enum._member_map_)

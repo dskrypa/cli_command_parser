@@ -433,7 +433,8 @@ class ChoiceInputTest(TestCase):
         self.assertIs(Foo.bar.type.type.enum, EnumExample)
 
     def test_enum_repr(self):
-        self.assertEqual('<EnumChoices[case_sensitive=False, choices=(FOO,Bar,baz)]>', repr(EnumChoices(EnumExample)))
+        expected = '<EnumChoices[type=EnumExample, case_sensitive=False, choices=(FOO,Bar,baz)]>'
+        self.assertEqual(expected, repr(EnumChoices(EnumExample)))
 
     def test_enum_help_text(self):
         class Foo(Command):
@@ -483,6 +484,10 @@ class ChoiceInputTest(TestCase):
     def test_choices_rejects_typed_insensitive(self):
         with self.assertRaisesRegex(TypeError, 'Cannot combine case_sensitive=False'):
             Choices((1, 2, 3), case_sensitive=False)
+
+    def test_choices_rejects_bad_enum_choices(self):
+        with self.assertRaisesRegex(TypeError, 'Invalid choices='):
+            Choices(EnumExample._member_map_, EnumChoices(EnumExample))
 
     def test_choices_typed_repr(self):
         choices = Choices((1, 2, 3), type=int)
