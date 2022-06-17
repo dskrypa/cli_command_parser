@@ -21,7 +21,7 @@ class PassThru(Parameter):
 
     :param action: The action to take on individual parsed values.  Only ``store_all`` (the default) is supported
       for this parameter type.
-    :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.Parameter`.
     """
 
     nargs = Nargs('*')

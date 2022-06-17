@@ -83,7 +83,7 @@ class parameter_action:  # pylint: disable=C0103
 
 class ParamBase(ABC):
     """
-    Base class for :class:`Parameter` and :class:`ParamGroup`.
+    Base class for :class:`Parameter` and :class:`.ParamGroup`.
 
     :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.
     :param required: Whether this parameter is required or not.  If it is required, then an exception will be
@@ -220,10 +220,10 @@ class Parameter(ParamBase, ABC):
         cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None
     ):
         """
-        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`Flag`
+        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`.Flag`
           is an example of a class that does not accept values.
         :param accepts_none: Indicates whether a given subclass of Parameter accepts being specified without a value,
-          like :class:`Flag` and :class:`Counter`.
+          like :class:`.Flag` and :class:`.Counter`.
         :param repr_attrs: Additional attributes to include in the repr.
         """
         actions = set(cls._actions)  # Inherit actions from parent
@@ -484,7 +484,7 @@ class BasicActionMixin:
 
 class BasePositional(Parameter, ABC):
     """
-    Base class for :class:`Positional`, :class:`SubCommand`, :class:`Action`, and any other parameters that are
+    Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are
     provided positionally, without prefixes.  It is not meant to be used directly.
 
     All positional parameters are required by default.
@@ -514,7 +514,7 @@ class BasePositional(Parameter, ABC):
 
 class BaseOption(Parameter, ABC):
     """
-    Base class for :class:`Option`, :class:`Flag`, :class:`Counter`, and any other keyword-like parameters that have
+    Base class for :class:`.Option`, :class:`.Flag`, :class:`.Counter`, and any other keyword-like parameters that have
     ``--long`` and ``-short`` prefixes before values.
 
     Only the handling for processing long/short options and formatting usage of these parameters is provided in this

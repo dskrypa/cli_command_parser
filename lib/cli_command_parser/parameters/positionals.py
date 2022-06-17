@@ -21,11 +21,10 @@ class Positional(BasicActionMixin, BasePositional):
 
     :param nargs: The number of values that are expected/required for this parameter.  Defaults to 1.  Use a value
       that allows 0 values to have the same effect as making this parameter not required (the ``required`` option
-      is not supported for Positional parameters).  Only the last Positional parameter in a given
-      :class:`~.commands.Command` may allow a variable / unbound number of arguments.  See :class:`~.nargs.Nargs`
-      for more info.
+      is not supported for Positional parameters).  Only the last Positional parameter in a given :class:`.Command`
+      may allow a variable / unbound number of arguments.  See :class:`.Nargs` for more info.
     :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
-      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when
+      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store`` when
       ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list
       of values will be stored when ``action='append'``.
     :param type: A callable (function, class, etc.) that accepts a single string argument, which should be called
@@ -34,7 +33,7 @@ class Positional(BasicActionMixin, BasePositional):
       used as if it was provided here.  When both are present, this argument takes precedence.
     :param default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.
       Defaults to ``None`` under those conditions.
-    :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
     def __init__(

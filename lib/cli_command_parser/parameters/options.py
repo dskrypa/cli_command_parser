@@ -33,7 +33,7 @@ class Option(BasicActionMixin, BaseOption):
     :param nargs: The number of values that are expected/required when this parameter is specified.  Defaults to 1.
       See :class:`.Nargs` for more info.
     :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
-      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when
+      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store`` when
       ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list
       of values will be stored when ``action='append'``.
     :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if
@@ -44,7 +44,7 @@ class Option(BasicActionMixin, BaseOption):
       on every value for this parameter to transform the value.  By default, no transformation is performed, and
       values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
       used as if it was provided here.  When both are present, this argument takes precedence.
-    :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
     def __init__(
@@ -81,13 +81,13 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,
       then one will automatically be added based on the name assigned to this parameter.
     :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
-      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store_const``, but
+      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store_const``, but
       accepts ``append_const`` to build a list of the specified constant.
     :param default: The default value for this parameter if it is not specified.  Defaults to ``False`` when
       ``const=True`` (the default), and to ``True`` when ``const=False``.  Defaults to ``None`` for any other
       constant.
     :param const: The constant value to store/append when this parameter is specified.  Defaults to ``True``.
-    :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
     __default_const_map = {True: False, False: True, _NotSet: True}
@@ -134,21 +134,20 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
     """
-    A :class:`Flag` that triggers the execution of a function / method / other callable when specified.
+    A :class:`.Flag` that triggers the execution of a function / method / other callable when specified.
 
     :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,
       then one will automatically be added based on the name assigned to this parameter.
-    :param order: The priority / order in which this ActionFlag should be executed, relative to other ActionFlags,
-      if others would also be executed.  Two ActionFlags in a given :class:`~.commands.Command` may not have the
-      same combination of ``before_main`` and ``order`` values.  ActionFlags with lower ``order`` values are
-      executed before those with higher values.  The ``--help`` action is implemented as an ActionFlag with
-      ``order=float('-inf')``.
+    :param order: The priority / order in which this ActionFlag should be executed, relative to other ActionFlags, if
+      others would also be executed.  Two ActionFlags in a given :class:`.Command` may not have the same combination
+      of ``before_main`` and ``order`` values.  ActionFlags with lower ``order`` values are executed before those with
+      higher values.  The ``--help`` action is implemented as an ActionFlag with ``order=float('-inf')``.
     :param func: The function to execute when this parameter is specified.
     :param before_main: Whether this ActionFlag should be executed before the :meth:`.Command.main` method or
       after it.
     :param always_available: Whether this ActionFlag should always be available to be called, even if parsing
       failed.  Only allowed when ``before_main=True``.  The intended use case is for actions like ``--help`` text.
-    :param kwargs: Additional keyword arguments to pass to :class:`Flag`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.Flag`.
     """
 
     def __init__(
@@ -206,7 +205,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         """
         Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.
 
-        If stacking :class:`Action` and :class:`ActionFlag` decorators, the Action decorator must be first (i.e., the
+        If stacking :class:`.Action` and :class:`.ActionFlag` decorators, the Action decorator must be first (i.e., the
         ActionFlag decorator must be above the Action decorator).
         """
         if self.func is not None:
@@ -244,7 +243,7 @@ def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable =
 
 class Counter(BaseOption, accepts_values=True, accepts_none=True):
     """
-    A :class:`Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
+    A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
     to explicitly increase the stored value by that amount.
 
     :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,
@@ -256,7 +255,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
     :param const: The value by which the stored value should increase whenever this parameter is specified.
       Defaults to ``1``.  If a different ``const`` value is used, and if an explicit value is provided by a user,
       the user-provided value will be added verbatim - it will NOT be multiplied by ``const``.
-    :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
     type = int

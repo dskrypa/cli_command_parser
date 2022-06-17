@@ -57,14 +57,14 @@ class ChoiceMap(BasePositional):
     multi-word commands, without needing to jump through hoops to handle them.
 
     :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
-      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to (and only supports)
+      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to (and only supports)
       ``append``.  The ``nargs`` value is automatically calculated / maintained, based on the number of distinct
       words in the defined choices.  While most parameters that use ``action='append'`` will return a list, the
       final value for ChoiceMap parameters will instead be a string of space-separated provided values.
     :param title: The title to use for help text sections containing the choices for this parameter.  Default value
       depends on what is provided by subclasses.
     :param description: The description to be used in help text for this parameter.
-    :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.
+    :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
     _choice_validation_exc = ParameterDefinitionError
@@ -80,7 +80,7 @@ class ChoiceMap(BasePositional):
         """
         :param title: Default title to use for help text sections containing the choices for this parameter.
         :param choice_validation_exc: The type of exception to raise when validating defined choices.
-        :param kwargs: Additional keyword arguments to pass to :meth:`Parameter.__init_subclass__`.
+        :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.
         """
         super().__init_subclass__(**kwargs)
         if title is not None:
@@ -194,7 +194,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
     Used to indicate the position where a choice that results in delegating execution of the program to a sub-command
     should be provided.
 
-    Sub :class:`~.commands.Command` classes are automatically registered as choices for a SubCommand parameter
+    Sub :class:`.Command` classes are automatically registered as choices for a SubCommand parameter
     if they extend the Command that contains a SubCommand parameter instead of extending Command directly.  When
     automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
     :meth:`.register` sub commands explicitly to specify a different choice value.
@@ -204,8 +204,8 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         """
         :param required: Whether this parameter is required or not.  If it is required, then an exception will be
           raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and
-          not provided, the :meth:`~.commands.Command.main` method for the base :class:`~.commands.Command` that
-          contains this SubCommand will be executed by default.
+          not provided, the :meth:`~.Command.main` method for the base :class:`.Command` that contains this
+          SubCommand will be executed by default.
         :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.
         """
         super().__init__(**kwargs)
@@ -225,10 +225,9 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
             from ..core import get_parent
 
             parent = get_parent(command)
-            raise CommandDefinitionError(
-                f'Invalid choice={choice!r} for {command} with parent={parent!r}'
-                f' - already assigned to {self.choices[choice].target}'
-            ) from None
+            target = self.choices[choice].target
+            msg = f'Invalid choice={choice!r} for {command} with parent={parent!r} - already assigned to {target}'
+            raise CommandDefinitionError(msg) from None
 
         return command
 
@@ -236,7 +235,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         self, command_or_choice: Union[str, CommandType] = None, *, choice: str = None, help: str = None  # noqa
     ) -> Callable[[CommandType], CommandType]:
         """
-        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`~.commands.Command` as the
+        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`.Command` as the
         subcommand class to be used for further parsing when the given choice is specified for this parameter.
 
         This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent
@@ -264,12 +263,12 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
 
 class Action(ChoiceMap, title='Actions'):
     """
-    Actions are similar to :class:`SubCommand` parameters, but allow methods in :class:`~.commands.Command` classes to
+    Actions are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command` classes to
     be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
 
     Actions are better suited for use cases where all of the target functions accept the same arguments.  If target
-    functions require different / additional parameters, then using a :class:`SubCommand` with separate sub
-    :class:`~.commands.Command` classes may make more sense.
+    functions require different / additional parameters, then using a :class:`.SubCommand` with separate sub
+    :class:`.Command` classes may make more sense.
     """
 
     def register_action(
@@ -317,9 +316,10 @@ class Action(ChoiceMap, title='Actions'):
         :param default: (Keyword-only) If true, this method will be registered as the default action to take when no
           other choice is specified.  When marking a method as the default, if you want it to also be available as an
           explicit choice, then a ``choice`` value must be specified.
-        :return: The original method, unchanged.  When called explicitly, a :class:`~functools.partial` method
-          will be returned first, which will automatically be called by the interpreter with the method to be decorated,
-          and that call will return the original method.
+        :return: The original method, unchanged.  When called explicitly, a
+          `partial <https://docs.python.org/3/library/functools.html#functools.partial>`__ method will be returned
+          first, which will automatically be called by the interpreter with the method to be decorated, and that call
+          will return the original method.
         """
         if isinstance(method_or_choice, str):
             if choice is not None:
