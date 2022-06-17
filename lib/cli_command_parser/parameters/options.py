@@ -57,8 +57,6 @@ class Option(BasicActionMixin, BaseOption):
         type: InputTypeFunc = None,  # noqa
         **kwargs,
     ):
-        if not required and default is _NotSet:
-            default = None
         if nargs is not None:
             self.nargs = Nargs(nargs)
         if 0 in self.nargs:

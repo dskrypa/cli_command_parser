@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from functools import partial, update_wrapper, reduce
 from itertools import chain
 from operator import xor
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, TypeVar, List, Set, FrozenSet
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, List, Set, FrozenSet
 from types import MethodType
 
 try:
@@ -33,12 +33,8 @@ if TYPE_CHECKING:
     from ..commands import Command
     from ..formatting.params import ParamHelpFormatter
 
-__all__ = ['Parameter', 'BasePositional', 'BaseOption', 'Param', 'ParamOrGroup']
+__all__ = ['Parameter', 'BasePositional', 'BaseOption']
 # log = logging.getLogger(__name__)
-
-Param = TypeVar('Param', bound='Parameter')
-ParamList = List[Param]
-ParamOrGroup = Union[Param, 'ParamGroup']
 
 
 class parameter_action:  # pylint: disable=C0103
@@ -100,6 +96,7 @@ class ParamBase(ABC):
     required: Bool = False          #: Whether this param/group is required
     help: str = None                #: The description for this param/group that will appear in ``--help`` text
     hide: Bool = False              #: Whether this param/group should be hidden in ``--help`` text
+    missing_hint: str = None        #: Hint to provide if this param/group is missing
     # fmt: on
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
@@ -260,10 +257,15 @@ class Parameter(ParamBase, ABC):
             )
         if not choices and choices is not None:
             raise ParameterDefinitionError(f'Invalid choices={choices!r} - when specified, choices cannot be empty')
+        if required and default is not _NotSet:
+            raise ParameterDefinitionError(
+                f'Invalid combination of required=True with default={default!r} for {self.__class__.__name__} -'
+                ' required Parameters cannot have a default value'
+            )
         super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = action
         self.choices = choices
-        self.default = None if default is _NotSet and not required else default
+        self.default = None if default is _NotSet and not required and self.nargs.max == 1 else default
         self.metavar = metavar
         if show_default is not None:
             self.show_default = show_default
@@ -400,16 +402,25 @@ class Parameter(ParamBase, ABC):
 
         if self.action == 'store':
             return value
-        else:  # action == 'append' or 'store_all'
-            nargs = self.nargs
-            val_count = len(value)
-            if val_count == 0 and 0 not in nargs:
-                if self.required:
-                    raise MissingArgument(self)
-            elif val_count not in nargs:
-                raise BadArgument(self, f'expected nargs={nargs!r} values but found {val_count}')
 
-            return value
+        # action == 'append' or 'store_all'
+        if not value:
+            default = self.default
+            if default is not _NotSet:
+                if isinstance(default, Collection) and not isinstance(default, str):
+                    value = default
+                else:
+                    value.append(default)
+
+        nargs = self.nargs
+        val_count = len(value)
+        if val_count == 0 and 0 not in nargs:
+            if self.required:
+                raise MissingArgument(self)
+        elif val_count not in nargs:
+            raise BadArgument(self, f'expected nargs={nargs!r} values but found {val_count}')
+
+        return value
 
     result = result_value
 
@@ -548,6 +559,7 @@ class BaseOption(Parameter, ABC):
         bad_opts = ', '.join(opt for opt in option_strs if '=' in opt)
         if bad_opts:
             raise ParameterDefinitionError(f"Bad option(s) - may not contain '=': {bad_opts}")
+
         super().__init__(action, **kwargs)
         self._long_opts = {opt for opt in option_strs if opt.startswith('--')}
         self._short_opts = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}

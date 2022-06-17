@@ -5,6 +5,8 @@ Exceptions for Command Parser
 """
 # pylint: disable=W0231
 
+from __future__ import annotations
+
 import sys
 from typing import TYPE_CHECKING, Any, Collection
 
@@ -79,7 +81,7 @@ class ParamUsageError(UsageError):
 
     message: str = None
 
-    def __init__(self, param: 'ParamOrGroup', message: str = None):
+    def __init__(self, param: ParamOrGroup, message: str = None):
         self.param = param
         self.usage_str = param.format_usage(full=True, delim=' / ') if param else ''
         if message:
@@ -98,7 +100,7 @@ class ParamConflict(UsageError):
 
     message: str = None
 
-    def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
+    def __init__(self, params: Collection[ParamOrGroup], message: str = None):
         self.params = params
         self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
         if message:
@@ -114,7 +116,7 @@ class ParamsMissing(UsageError):
 
     message: str = None
 
-    def __init__(self, params: Collection['ParamOrGroup'], message: str = None):
+    def __init__(self, params: Collection[ParamOrGroup], message: str = None):
         self.params = params
         self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
         if message:
@@ -122,6 +124,9 @@ class ParamsMissing(UsageError):
 
     def __str__(self) -> str:
         message = f' ({self.message})' if self.message else ''
+        if not message:
+            message = '; '.join(p.missing_hint for p in self.params if p.missing_hint)
+
         if len(self.params) > 1:
             prefix = 'arguments missing - the following arguments are required'
         else:
@@ -136,7 +141,7 @@ class BadArgument(ParamUsageError):
 class InvalidChoice(BadArgument):
     """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
 
-    def __init__(self, param: 'Parameter', invalid: Any, choices: Collection[Any]):
+    def __init__(self, param: Parameter, invalid: Any, choices: Collection[Any]):
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
             bad_str = 'choices: {}'.format(', '.join(map(repr, invalid)))
         else:

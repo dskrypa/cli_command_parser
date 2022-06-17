@@ -20,6 +20,7 @@ from cli_command_parser.exceptions import (
     BadArgument,
     InvalidChoice,
     UnsupportedAction,
+    ParamsMissing,
 )
 from cli_command_parser.formatting.params import (
     ParamHelpFormatter,
@@ -175,6 +176,13 @@ class OptionTest(ParserTest):
         foo = Foo.parse_and_run([])
         self.assertFalse(foo.bar)
         self.assertEqual([], foo.bar)
+
+    def test_required_default_rejected(self):
+        cases = (None, 1, 'test')
+        for case in cases:
+            with self.subTest(case=case):
+                with self.assertRaises(ParameterDefinitionError):
+                    Option(required=True, default=case)
 
 
 class FlagTest(ParserTest):
@@ -380,8 +388,12 @@ class PassThruTest(ParserTest):
             bar = Flag()
             baz = PassThru(required=True)
 
+        self.assertTrue(Foo.baz.default is not None)
+        foo = Foo()
+        with self.assertRaisesRegex(ParamsMissing, "missing pass thru args separated from others with '--'"):
+            foo.parse([])
         with self.assertRaises(MissingArgument):
-            Foo.parse([])
+            foo.baz  # noqa
 
     def test_multiple_rejected(self):
         class Foo(Command):

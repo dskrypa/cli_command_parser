@@ -8,13 +8,16 @@ from __future__ import annotations
 
 # import logging
 from threading import local
-from typing import Optional, Iterable, Iterator, Tuple, List
+from typing import TYPE_CHECKING, Optional, Iterable, Iterator, Tuple, List
 
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, CommandDefinitionError, ParamConflict, ParamsMissing
 from ..utils import Bool
-from .base import ParamBase, BasePositional, BaseOption, ParamOrGroup, ParamList
+from .base import ParamBase, BasePositional, BaseOption
 from .pass_thru import PassThru
+
+if TYPE_CHECKING:
+    from .typing import ParamList, ParamOrGroup
 
 __all__ = ['ParamGroup']
 # log = logging.getLogger(__name__)

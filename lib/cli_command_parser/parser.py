@@ -127,9 +127,8 @@ class CommandParser:
         if pass_thru is not None:
             try:
                 separator_pos = remaining.index('--')
-            except ValueError as e:
-                if pass_thru.required:
-                    raise MissingArgument(pass_thru, "missing pass thru args separated from others with '--'") from e
+            except ValueError:
+                pass  # If required, it's handled by the normal missing param handler
             else:
                 remainder_start = separator_pos + 1
                 pass_thru.take_action(remaining[remainder_start:])

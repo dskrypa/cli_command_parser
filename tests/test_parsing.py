@@ -314,6 +314,17 @@ class PassThruTest(ParserTest):
 
         self.assert_parse_fails(Foo, ['bar', 'a', '--', 'x'], NoSuchOption)
 
+    def test_required_pass_thru(self):
+        class Foo(Command):
+            bar = PassThru(required=True)
+
+        success_cases = [
+            (['--', 'a', 'b'], {'bar': ['a', 'b']}),
+            (['--'], {'bar': []}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails(Foo, [], ParamsMissing)
+
 
 class NumericValueTest(ParserTest):
     def test_int_option(self):
@@ -848,7 +859,19 @@ class NargsTest(ParserTest):
             bar = Option('-b', nargs='+', type=int, default=1)
 
         success_cases = [
-            # ([], {'bar': [1]}),  # Results in [] now
+            ([], {'bar': [1]}),
+            (['-b', '2'], {'bar': [2]}),
+            # (['-b=2', '3'], {'bar': [2, 3]}),  # Rejects 3 now
+            (['--bar', '2', '3'], {'bar': [2, 3]}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_multi_default_with_nargs_multi(self):
+        class Foo(Command):
+            bar = Option('-b', nargs='+', type=int, default=[1])
+
+        success_cases = [
+            ([], {'bar': [1]}),
             (['-b', '2'], {'bar': [2]}),
             # (['-b=2', '3'], {'bar': [2, 3]}),  # Rejects 3 now
             (['--bar', '2', '3'], {'bar': [2, 3]}),
