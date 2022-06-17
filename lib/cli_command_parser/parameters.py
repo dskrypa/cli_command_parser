@@ -5,6 +5,8 @@ Parameters and Groups
 """
 # pylint: disable=C0103,R0801
 
+from __future__ import annotations
+
 import logging
 from abc import ABC, abstractmethod
 from functools import partial, update_wrapper, reduce
@@ -73,7 +75,7 @@ class parameter_action:
         self.method = method
         update_wrapper(self, method)
 
-    def __set_name__(self, parameter_cls: Type['Parameter'], name: str):
+    def __set_name__(self, parameter_cls: Type[Parameter], name: str):
         """
         Registers the decorated method in the Parameter subclass's _actions dict, then replaces the action decorator
         with the original method.
@@ -115,8 +117,8 @@ class ParamBase(ABC):
     # fmt: off
     __name: str = None              #: Always the name of the attr that points to this object
     _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
-    group: 'ParamGroup' = None      #: The group this object is a member of, if any
-    command: 'CommandType' = None   #: The :class:`.Command` this object is a member of
+    group: ParamGroup = None        #: The group this object is a member of, if any
+    command: CommandType = None     #: The :class:`.Command` this object is a member of
     required: Bool = False          #: Whether this param/group is required
     help: str = None                #: The description for this param/group that will appear in ``--help`` text
     hide: Bool = False              #: Whether this param/group should be hidden in ``--help`` text
@@ -143,7 +145,7 @@ class ParamBase(ABC):
         if value is not None:
             self._name = value
 
-    def __set_name__(self, command: 'CommandType', name: str):
+    def __set_name__(self, command: CommandType, name: str):
         self.command = command
         if self._name is None:
             self.name = name
@@ -152,7 +154,7 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
-    def _ctx(self, command: 'Command' = None) -> Context:
+    def _ctx(self, command: Command = None) -> Context:
         try:
             return get_current_context()
         except NoActiveContext:
@@ -164,7 +166,7 @@ class ParamBase(ABC):
             pass
         raise NoActiveContext('There is no active context')
 
-    def _ctx_or_config(self, command: 'CommandType') -> Union[CommandConfig, Context]:
+    def _ctx_or_config(self, command: CommandType) -> Union[CommandConfig, Context]:
         try:
             return self._ctx(command)
         except NoActiveContext:
@@ -173,7 +175,7 @@ class ParamBase(ABC):
     # region Usage / Help Text
 
     @cached_property
-    def formatter(self) -> 'ParamHelpFormatter':
+    def formatter(self) -> ParamHelpFormatter:
         from .formatting.params import ParamHelpFormatter  # Here due to circular dependency
 
         try:
@@ -259,13 +261,13 @@ class ParamGroup(ParamBase):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def __eq__(self, other: 'ParamGroup') -> bool:
+    def __eq__(self, other: ParamGroup) -> bool:
         if isinstance(other, ParamGroup) and self.group == other.group:
             attrs = ('mutually_exclusive', 'mutually_dependent', 'name', 'description', 'members')
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
         return False
 
-    def __lt__(self, other: 'ParamGroup') -> bool:
+    def __lt__(self, other: ParamGroup) -> bool:
         if not isinstance(other, ParamGroup):
             return NotImplemented
         elif self in other.members:
@@ -296,7 +298,7 @@ class ParamGroup(ParamBase):
 
     # region Active Group Methods
 
-    def __enter__(self) -> 'ParamGroup':
+    def __enter__(self) -> ParamGroup:
         """
         A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the
         ``with`` block will be registered as members of that group.
@@ -312,7 +314,7 @@ class ParamGroup(ParamBase):
         self._local.stack.pop()
 
     @classmethod
-    def active_group(cls) -> Optional['ParamGroup']:
+    def active_group(cls) -> Optional[ParamGroup]:
         try:
             return cls._local.stack[-1]
         except (AttributeError, IndexError):
@@ -505,7 +507,7 @@ class Parameter(ParamBase, ABC):
     def _init_value_factory():
         return _NotSet
 
-    def __set_name__(self, command: 'CommandType', name: str):
+    def __set_name__(self, command: CommandType, name: str):
         super().__set_name__(command, name)
         type_attr = self.type
         choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
@@ -532,7 +534,7 @@ class Parameter(ParamBase, ABC):
 
     # region Argument Handling
 
-    def __get__(self, command: Optional['Command'], owner: 'CommandType'):
+    def __get__(self, command: Optional[Command], owner: CommandType):
         if command is None:
             return self
 
@@ -693,7 +695,7 @@ class BasicActionMixin:
         n_values = len(values)
         return [i for i in range(1, n_values) if self.nargs.satisfied(n_values - i)]
 
-    def _reset(self: Union[Parameter, 'BasicActionMixin']) -> List[str]:
+    def _reset(self: Union[Parameter, BasicActionMixin]) -> List[str]:
         if self.action != 'append' or self.type not in (None, str):
             raise UnsupportedAction
 
@@ -705,7 +707,7 @@ class BasicActionMixin:
         ctx._provided[self] = 0
         return values
 
-    def pop_last(self: Union[Parameter, 'BasicActionMixin'], count: int = 1) -> List[str]:
+    def pop_last(self: Union[Parameter, BasicActionMixin], count: int = 1) -> List[str]:
         values = self._pre_pop_values()
         if not values or count >= len(values) or not self.nargs.satisfied(len(values) - count):
             raise UnsupportedAction
@@ -996,9 +998,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         if not required:
             self._register_choice(None, None)  # Results in next_cmd=None in parse_args, so the base cmd will run
 
-    def register_command(
-        self, choice: Optional[str], command: 'CommandType', help: Optional[str]  # noqa
-    ) -> 'CommandType':
+    def register_command(self, choice: Optional[str], command: CommandType, help: Optional[str]) -> CommandType:  # noqa
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
         else:
@@ -1018,8 +1018,8 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         return command
 
     def register(
-        self, command_or_choice: Union[str, 'CommandType'] = None, *, choice: str = None, help: str = None  # noqa
-    ) -> Callable[['CommandType'], 'CommandType']:
+        self, command_or_choice: Union[str, CommandType] = None, *, choice: str = None, help: str = None  # noqa
+    ) -> Callable[[CommandType], CommandType]:
         """
         Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`~.commands.Command` as the
         subcommand class to be used for further parsing when the given choice is specified for this parameter.
@@ -1172,7 +1172,7 @@ class BaseOption(Parameter, ABC):
         if bad_opts:
             raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
 
-    def __set_name__(self, command: 'CommandType', name: str):
+    def __set_name__(self, command: CommandType, name: str):
         super().__set_name__(command, name)
         if not self._long_opts:
             mode = self.name_mode if self.name_mode is not None else self._ctx_or_config(command).option_name_mode
@@ -1362,17 +1362,17 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         attrs = (self.__class__, self.name, self.command, self.func, self.order, self.before_main)
         return reduce(xor, map(hash, attrs))
 
-    def __eq__(self, other: 'ActionFlag') -> bool:
+    def __eq__(self, other: ActionFlag) -> bool:
         if not isinstance(other, ActionFlag):
             return NotImplemented
         return all(getattr(self, a) == getattr(other, a) for a in ('name', 'func', 'command', 'order', 'before_main'))
 
-    def __lt__(self, other: 'ActionFlag') -> bool:
+    def __lt__(self, other: ActionFlag) -> bool:
         if not isinstance(other, ActionFlag):
             return NotImplemented
         return (not self.before_main, self.order, self.name) < (not other.before_main, other.order, other.name)
 
-    def __call__(self, func: Callable) -> 'ActionFlag':
+    def __call__(self, func: Callable) -> ActionFlag:
         """
         Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.
 
@@ -1384,7 +1384,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         self.func = func
         return self
 
-    def __get__(self, command: Optional['Command'], owner: 'CommandType') -> Union['ActionFlag', Callable]:
+    def __get__(self, command: Optional[Command], owner: CommandType) -> Union[ActionFlag, Callable]:
         # Allow the method to be called, regardless of whether it was specified
         if command is None:
             return self

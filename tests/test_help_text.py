@@ -212,6 +212,28 @@ class HelpTextTest(TestCase):
         Foo.parse_and_run(['-h'])
         self.assertTrue(help_mock.called)
 
+    def test_help_called_with_unrecognized_args(self):
+        # TODO:BUG?: Fix handling of -fh / -hf
+        when_cases_map = {
+            # 'before': (['--foo', '-h'], ['-fh'], ['-f', '1', '-h'], ['f', '--help']),
+            # 'after': (['-h', '--foo'], ['-hf'], ['-h', '-f', '1'], ['--help', 'f']),
+            'before': (['--foo', '-h'], ['-f', '1', '-h'], ['f', '--help']),
+            'after': (['-h', '--foo'], ['-h', '-f', '1'], ['--help', 'f']),
+        }
+        for when, cases in when_cases_map.items():
+            for case in cases:
+                with self.subTest(when=when, case=case):
+                    help_mock = Mock()
+
+                    class Foo(Command, add_help=False):
+                        help = action_flag('-h', order=float('-inf'), always_available=True)(help_mock)
+                        with ParamGroup(mutually_exclusive=True, required=True):
+                            bar = Option()
+                            baz = Option()
+
+                    Foo.parse_and_run(case)
+                    self.assertTrue(help_mock.called)
+
     def test_underscore_and_dash_enabled(self):
         class Foo(Command, option_name_mode='both'):
             foo_bar = Flag()

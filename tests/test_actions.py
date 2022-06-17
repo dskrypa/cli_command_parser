@@ -15,6 +15,9 @@ from cli_command_parser.exceptions import (
 
 log = logging.getLogger(__name__)
 
+# TODO: Test multi-word actions; multi-word actions combined with subcommands (with multiple words)
+# TODO: Test space/-/_ switch for multi-word?
+
 
 class ActionTest(TestCase):
     def test_action_called(self):

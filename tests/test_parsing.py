@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from dataclasses import dataclass
-from unittest import main
+from unittest import main, skip
 
 from cli_command_parser.commands import Command
 from cli_command_parser.context import ctx
@@ -165,6 +165,38 @@ class ParamComboTest(ParserTest):
         ]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    @skip('This case is not currently supported')
+    def test_common_positional_after_sub_command(self):  # TODO: Should this be supported?
+        class Foo(Command):
+            sub = SubCommand()
+            pos = Positional()
+
+        class Bar(Foo):
+            bar = Option('-b')
+
+        class Baz(Foo):
+            baz = Option('-b')
+
+        bar_expected = {'pos': 'a', 'sub': 'bar', 'bar': 'c'}
+        baz_expected = {'pos': 'a', 'sub': 'bar', 'baz': 'c'}
+        success_cases = [
+            (['bar', 'a', '-b', 'c'], bar_expected),
+            (['bar', '-b', 'c', 'a'], bar_expected),
+            (['-b', 'c', 'bar', 'a'], bar_expected),
+            (['baz', 'a', '-b', 'c'], baz_expected),
+            (['baz', '-b', 'c', 'a'], baz_expected),
+            (['-b', 'c', 'baz', 'a'], baz_expected),
+            (['bar', 'a'], {'pos': 'a', 'sub': 'bar', 'bar': None}),
+            (['baz', 'a'], {'pos': 'a', 'sub': 'baz', 'baz': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['a', 'bar'], ['a', 'baz'], ['baz'], ['bar'], ['a'], ['-b', 'c', 'bar'], ['-b', 'c', 'baz'], ['-b', 'c']
+        ]
+        # fmt: on
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
     def test_sub_cmd_optional_before_base_positional(self):
         class Foo(Command):
             foo = Positional()
@@ -264,9 +296,6 @@ class ParamComboTest(ParserTest):
         fail_cases = [['-b', 'a'], ['a', '-b'], ['a', '-b', 'c']]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
-
-    # def test_help_detected_with_unrecognized_args(self):
-    #     pass  # TODO
 
 
 class PassThruTest(ParserTest):
@@ -620,24 +649,6 @@ class PositionalTest(ParserTest):
         fail_cases = [[], ['--', 'x']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
-    # def test_multi_word_action(self):
-    #     pass  # TODO
-    #
-    # def test_alt_sep_multi_word_action(self):
-    #     pass  # TODO
-    #
-    # def test_multi_word_sub_command(self):
-    #     pass  # TODO
-    #
-    # def test_alt_sep_multi_word_sub_command(self):
-    #     pass  # TODO
-    #
-    # def test_ambiguous_multi_word_sub_command_action_combo(self):
-    #     pass  # TODO
-    #
-    # def test_alt_sep_ambiguous_multi_word_sub_command_action_combo(self):
-    #     pass  # TODO
-
 
 class NargsTest(ParserTest):
     def test_positional_even_range(self):
@@ -834,6 +845,19 @@ class NargsTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_single_default_with_nargs_multi(self):
+        class Foo(Command):
+            bar = Option('-b', nargs='+', type=int, default=1)
+
+        # TODO:BUG: Fix commented-out lines
+        success_cases = [
+            # ([], {'bar': [1]}),  # Results in [] now
+            (['-b', '2'], {'bar': [2]}),
+            # (['-b=2', '3'], {'bar': [2, 3]}),  # Rejects 3 now
+            (['--bar', '2', '3'], {'bar': [2, 3]}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
 if __name__ == '__main__':
