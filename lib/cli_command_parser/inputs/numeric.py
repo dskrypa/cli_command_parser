@@ -3,9 +3,10 @@ Custom numeric input handlers for Parameters
 
 :author: Doug Skrypa
 """
+# pylint: disable=W0622
 
 import builtins
-from abc import ABC
+from abc import ABC, abstractmethod
 from operator import le, lt, ge, gt
 from typing import Union, Callable, Optional
 
@@ -27,6 +28,13 @@ class NumericInput(InputType, ABC):
         except (ValueError, TypeError):
             return False
         return True
+
+    @abstractmethod
+    def _range_str(self, var: str = 'N') -> str:
+        raise NotImplementedError
+
+    def format_metavar(self, choice_delim: str = ',') -> str:
+        return f'{{{self._range_str()}}}'
 
 
 class Range(NumericInput):

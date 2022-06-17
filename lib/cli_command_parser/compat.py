@@ -12,7 +12,7 @@ from typing import Generic, _GenericAlias  # noqa
 # region typing
 
 
-def get_origin(tp):
+def get_origin(tp):  # pylint: disable=C0103
     # Copied from 3.8
     if isinstance(tp, _GenericAlias):
         return tp.__origin__
@@ -21,7 +21,7 @@ def get_origin(tp):
     return None
 
 
-def _get_args(tp):
+def _get_args(tp):  # pylint: disable=C0103
     # Copied from 3.8
     if isinstance(tp, _GenericAlias):
         res = tp.__args__
@@ -39,7 +39,7 @@ def _get_args(tp):
 _NOT_FOUND = object()
 
 
-class cached_property:
+class cached_property:  # pylint: disable=C0103,R0903
     # Copied from 3.10
     def __init__(self, func):
         self.func = func

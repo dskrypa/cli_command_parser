@@ -3,6 +3,7 @@ Parameters and Groups
 
 :author: Doug Skrypa
 """
+# pylint: disable=C0103,R0801
 
 import logging
 from abc import ABC, abstractmethod
@@ -15,7 +16,7 @@ from typing import Tuple, List, Dict, Set, FrozenSet
 from types import MethodType
 
 try:
-    from functools import cached_property
+    from functools import cached_property  # pylint: disable=C0412
 except ImportError:
     from .compat import cached_property
 
@@ -309,7 +310,6 @@ class ParamGroup(ParamBase):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._local.stack.pop()
-        return None
 
     @classmethod
     def active_group(cls) -> Optional['ParamGroup']:
@@ -475,7 +475,7 @@ class Parameter(ParamBase, ABC):
         if repr_attrs is not None:
             cls._repr_attrs = repr_attrs
 
-    def __init__(
+    def __init__(  # pylint: disable=R0913
         self,
         action: str,
         name: str = None,
@@ -588,7 +588,9 @@ class Parameter(ParamBase, ABC):
             return False
         return self.is_valid_arg(normalized)
 
-    def prepare_value(self, value: str, short_combo: bool = False, pre_action: bool = False) -> Any:
+    def prepare_value(  # pylint: disable=W0613
+        self, value: str, short_combo: bool = False, pre_action: bool = False
+    ) -> Any:
         type_func = self.type
         if type_func is None or (pre_action and isinstance(type_func, InputType) and type_func.is_valid_type(value)):
             return value
@@ -855,7 +857,9 @@ class ChoiceMap(BasePositional):
     title: Optional[str]
     description: Optional[str]
 
-    def __init_subclass__(cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs):
+    def __init_subclass__(  # pylint: disable=W0222
+        cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs
+    ):
         """
         :param title: Default title to use for help text sections containing the choices for this parameter.
         :param choice_validation_exc: The type of exception to raise when validating defined choices.
@@ -1275,7 +1279,7 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
-    def _init_value_factory(self):
+    def _init_value_factory(self):  # pylint: disable=W0221
         if self.action == 'store_const':
             return self.default
         else:
@@ -1322,7 +1326,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         *option_strs: str,
         order: Union[int, float] = 1,
         func: Callable = None,
-        before_main: Bool = True,  # noqa
+        before_main: Bool = True,  # noqa  # pylint: disable=W0621
         always_available: Bool = False,
         **kwargs,
     ):
@@ -1437,7 +1441,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
-    def _init_value_factory(self):
+    def _init_value_factory(self):  # pylint: disable=W0221
         return self.default
 
     def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:
@@ -1493,7 +1497,7 @@ class PassThru(Parameter):
             raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         super().__init__(action=action, **kwargs)
 
-    def take_action(self, values: Collection[str], short_combo: bool = False):
+    def take_action(self, values: Collection[str], short_combo: bool = False):  # pylint: disable=W0237
         value = ctx.get_parsing_value(self)
         if value is not _NotSet:
             raise ParamUsageError(self, f'received values={values!r} but a stored value={value!r} already exists')

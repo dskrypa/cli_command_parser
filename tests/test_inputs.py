@@ -313,10 +313,10 @@ class NumericInputTest(TestCase):
                         rng(val)
 
     def test_range_str(self):
-        self.assertEqual('0 <= N <= 9', Range(range(10))._range_str())
-        self.assertEqual('0 <= N <= 9', Range(range(9, -1, -1))._range_str())
-        self.assertEqual('0 <= N <= 8, step=2', Range(range(0, 10, 2))._range_str())
-        self.assertEqual('0 <= N <= 8, step=2', Range(range(8, -1, -2))._range_str())
+        self.assertEqual('{0 <= N <= 9}', Range(range(10)).format_metavar())
+        self.assertEqual('{0 <= N <= 9}', Range(range(9, -1, -1)).format_metavar())
+        self.assertEqual('{0 <= N <= 8, step=2}', Range(range(0, 10, 2)).format_metavar())
+        self.assertEqual('{0 <= N <= 8, step=2}', Range(range(8, -1, -2)).format_metavar())
 
     def test_range_snap(self):
         for case in (range(10), range(9, -1, -1)):

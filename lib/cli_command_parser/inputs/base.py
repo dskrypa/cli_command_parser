@@ -18,7 +18,7 @@ class InputType(ABC):
         """Process the parsed argument and convert it to the desired type"""
         raise NotImplementedError
 
-    def is_valid_type(self, value: str) -> bool:  # noqa
+    def is_valid_type(self, value: str) -> bool:  # pylint: disable=W0613
         """
         Called during parsing when :meth:`.Parameter.would_accept` is called to determine if the value would be
         accepted later for processing / conversion via :meth:`.__call__`.  May be overridden in subclasses to
@@ -33,4 +33,5 @@ class InputType(ABC):
         return True
 
     def format_metavar(self, choice_delim: str = ',') -> str:
+        # TODO: Optional/required arg, or handle wrapping in []/{} in formatter
         raise NotImplementedError

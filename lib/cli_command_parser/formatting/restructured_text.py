@@ -110,7 +110,7 @@ class RstTable:
 
         bar = self.bar()
         format_row = self._get_row_format().format
-        for i, (any_new_line, row) in enumerate(self.rows):
+        for any_new_line, row in self.rows:
             yield bar
             if any_new_line:
                 for line in line_iter(row):
@@ -156,7 +156,7 @@ def line_iter(columns: Sequence[str]) -> Iterator[Tuple[str, ...]]:
 
     column_iters = tuple(_iter(c) for c in columns)
     while True:
-        row = tuple(next(ci) for ci in column_iters)
+        row = tuple(next(ci) for ci in column_iters)  # pylint: disable=R1708
         if exhausted == column_count:  # `while exhausted < column_count:` always results in 1 extra row
             break
         yield row

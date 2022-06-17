@@ -1,6 +1,10 @@
 """
+Helpers for handling ``nargs=...`` for Parameters.
+
 :author: Doug Skrypa
 """
+
+from __future__ import annotations
 
 from typing import Union, Optional, Sequence, Tuple, Set
 
@@ -20,7 +24,7 @@ class Nargs:
     Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.
     """
 
-    def __init__(self, nargs: NargsValue):
+    def __init__(self, nargs: NargsValue):  # pylint: disable=R0912
         self._orig = nargs
         self.range = None
         if isinstance(nargs, int):
@@ -79,7 +83,7 @@ class Nargs:
         elif self.min == self.max:
             return str(self.min)
         elif isinstance(self.allowed, frozenset):
-            return '{{{}}}'.format(','.join(map(str, sorted(self.allowed))))
+            return '{{{}}}'.format(','.join(map(str, sorted(self.allowed))))  # pylint: disable=C0209
         else:
             return f'{self.min} ~ {self.max}'
 
@@ -87,30 +91,32 @@ class Nargs:
         """See :meth:`.satisfied`"""
         return self.satisfied(num)
 
-    def __eq__(self, other: Union['Nargs', int]) -> bool:
+    def __eq__(self, other: Union[Nargs, int]) -> bool:
         if isinstance(other, Nargs):
-            if self.max is None:
-                return other.max is None and self.min == other.min
-            elif other.max is None:
-                return False
-            elif isinstance(other._orig, type(self._orig)):
-                return self.allowed == other.allowed
-            # After this point, the allowed / range attribute types cannot match because the originals did not match
-            elif isinstance(self.allowed, frozenset):
-                return self._compare_allowed_set(other)
-            elif isinstance(other.allowed, frozenset):
-                return other._compare_allowed_set(self)
-            rng = self.range or other.range
-            if rng:
-                return self.min == other.min and self.max == other.max and rng.step == 1
-            else:
-                return self.min == other.min and self.max == other.max
+            return self._eq_nargs(other)
         elif isinstance(other, int):
             return self.min == self.max == other
         else:
             return NotImplemented
 
-    def _compare_allowed_set(self, other: 'Nargs') -> bool:
+    def _eq_nargs(self, other: Nargs) -> bool:
+        if self.max is None:
+            return other.max is None and self.min == other.min
+        elif other.max is None:
+            return False
+        elif isinstance(other._orig, type(self._orig)):
+            return self.allowed == other.allowed
+
+        # After this point, the allowed / range attribute types cannot match because the originals did not match
+        if isinstance(self.allowed, frozenset):
+            return self._compare_allowed_set(other)
+        elif isinstance(other.allowed, frozenset):
+            return other._compare_allowed_set(self)
+
+        rng = self.range or other.range
+        return self.min == other.min and self.max == other.max and (not rng or rng.step == 1)
+
+    def _compare_allowed_set(self, other: Nargs) -> bool:
         """
         Used internally to determine whether 2 Nargs instances are equivalent when they were initialized with different
         types of arguments.

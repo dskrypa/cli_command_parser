@@ -123,7 +123,7 @@ if WINDOWS:
     NT_STATUSES = {0xC000_00B1: 'STATUS_PIPE_CLOSING', 0xC000_014B: 'STATUS_PIPE_BROKEN'}
 
     @extended_error_handler(OSError)
-    def _handle_os_error(e: OSError):
+    def _handle_os_error(exc: OSError):
         """
         This is a workaround for `issue35754 <https://bugs.python.org/issue35754>`_, which is a bug in the way that the
         windows error code for a broken pipe is translated into an errno value.  It should be translated to
@@ -133,7 +133,7 @@ if WINDOWS:
             Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
             OSError: [Errno 22] Invalid argument
         """
-        if e.errno == 22 and RtlGetLastNtStatus() in NT_STATUSES:
+        if exc.errno == 22 and RtlGetLastNtStatus() in NT_STATUSES:
             try:
                 sys.stdout.close()
             except OSError:

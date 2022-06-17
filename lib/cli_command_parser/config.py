@@ -4,6 +4,8 @@ Configuration options for Command behavior.
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, fields
 from enum import Enum
 from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, Dict, FrozenSet
@@ -19,6 +21,8 @@ if TYPE_CHECKING:
     from .parameters import ParamOrGroup
 
 __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode']
+
+# TODO: Config / handling for subcommand option conflict, especially for short form where name/long don't match previous
 
 
 # region Config Option Enums
@@ -45,7 +49,7 @@ class ShowDefaults(FixedFlag):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value: Union[str, int]) -> 'ShowDefaults':
+    def _missing_(cls, value: Union[str, int]) -> ShowDefaults:
         if isinstance(value, str):
             try:
                 return cls._member_map_[value.upper().replace('-', '_')]  # noqa
@@ -54,7 +58,7 @@ class ShowDefaults(FixedFlag):
                 raise ValueError(f'Invalid {cls.__name__} value={value!r} - expected one of {expected}') from None
         return super()._missing_(value)
 
-    def __or__(self, other: 'ShowDefaults') -> 'ShowDefaults':
+    def __or__(self, other: ShowDefaults) -> ShowDefaults:
         if ShowDefaults.NEVER in (self, other):
             return ShowDefaults.NEVER
         return super().__or__(other)  # noqa
@@ -93,7 +97,7 @@ class EnumConfigOption:
         self.enum_cls = enum_cls
         self.default = default
 
-    def __set_name__(self, owner: Type['CommandConfig'], name: str):
+    def __set_name__(self, owner: Type[CommandConfig], name: str):
         self.name = name
 
     def __get__(self, instance, owner):
@@ -110,10 +114,12 @@ class EnumConfigOption:
 
 @dataclass
 class CommandConfig:
+    """Configuration options for Commands."""
+
     # region Error Handling Options
 
     #: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`
-    error_handler: Optional['ErrorHandler'] = _NotSet
+    error_handler: Optional[ErrorHandler] = _NotSet
 
     #: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in
     #: :meth:`.Command.main` (similar to a ``finally`` block)
@@ -167,10 +173,10 @@ class CommandConfig:
 
     #: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`
     #: object, and returns a :class:`.CommandHelpFormatter`
-    command_formatter: Callable[['CommandType', 'CommandParameters'], 'CommandHelpFormatter'] = None
+    command_formatter: Callable[[CommandType, CommandParameters], CommandHelpFormatter] = None
 
     #: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`
-    param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None
+    param_formatter: Callable[[ParamOrGroup], ParamHelpFormatter] = None
 
     #: Whether the program version, author email, and documentation URL should be included in the help text epilog, if
     #: they were successfully detected
@@ -209,4 +215,4 @@ class CommandConfig:
         non-None sentinel value.
         """
         d = self.__dict__
-        return {f: d[f] for f in self._field_names}  # noqa
+        return {f: d[f] for f in self._field_names}  # noqa  # pylint: disable=E1133

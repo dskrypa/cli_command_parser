@@ -4,6 +4,8 @@ Command usage / help text formatters
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Type, Callable, Iterator
 
 from ..context import ctx
@@ -22,7 +24,7 @@ NameFunc = Callable[[str], str]
 
 
 class CommandHelpFormatter:
-    def __init__(self, command: 'CommandType', params: 'CommandParameters'):
+    def __init__(self, command: CommandType, params: CommandParameters):
         from ..parameters import ParamGroup  # here due to circular dependency
 
         self.command = command
@@ -31,7 +33,7 @@ class CommandHelpFormatter:
         self.opt_group = ParamGroup(description='Optional arguments')
         self.groups = [self.pos_group, self.opt_group]
 
-    def maybe_add_group(self, *groups: 'ParamGroup'):
+    def maybe_add_group(self, *groups: ParamGroup):
         for group in groups:
             if group.group:  # prevent duplicates
                 continue
@@ -40,7 +42,7 @@ class CommandHelpFormatter:
             else:
                 self.groups.append(group)
 
-    def maybe_add_param(self, *params: 'Parameter'):
+    def maybe_add_param(self, *params: Parameter):
         for param in params:
             if not param.group:
                 if param._positional:
@@ -49,7 +51,7 @@ class CommandHelpFormatter:
                     self.opt_group.add(param)
 
     def _get_meta(self) -> ProgramMetadata:
-        cmd_mcls: Type['CommandMeta'] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
+        cmd_mcls: Type[CommandMeta] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
         return cmd_mcls.meta(self.command)
 
     def format_usage(self, delim: str = ' ', sub_cmd_choice: str = None) -> str:
@@ -87,9 +89,7 @@ class CommandHelpFormatter:
 
         return '\n'.join(parts)
 
-    def _format_rst(
-        self, include_epilog: Bool = False, sub_cmd_choice: str = None, init_level: int = 1
-    ) -> Iterator[str]:
+    def _format_rst(self, include_epilog: Bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         meta = self._get_meta()
         yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')  # noqa
@@ -130,7 +130,7 @@ class CommandHelpFormatter:
                 parts += ['', rst_header(f'Subcommand: {cmd_name}', init_level + 2), '']
                 if choice.help:
                     parts += [choice.help, '']
-                parts.extend(get_formatter(choice.target)._format_rst(sub_cmd_choice=cmd_name, init_level=init_level))
+                parts.extend(get_formatter(choice.target)._format_rst(sub_cmd_choice=cmd_name))
 
         return '\n'.join(parts)
 
@@ -139,13 +139,13 @@ def _fix_name(name: str) -> str:
     return camel_to_snake_case(name).replace('_', ' ').title()
 
 
-def _get_params(command: 'CommandType') -> 'CommandParameters':
-    cmd_mcls: Type['CommandMeta'] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
+def _get_params(command: CommandType) -> CommandParameters:
+    cmd_mcls: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
     if not issubclass(cmd_mcls, type):
         command, cmd_mcls = cmd_mcls, cmd_mcls.__class__
     return cmd_mcls.params(command)
 
 
-def get_formatter(command: 'CommandType') -> CommandHelpFormatter:
+def get_formatter(command: CommandType) -> CommandHelpFormatter:
     """Get the :class:`CommandHelpFormatter` for the given Command"""
     return _get_params(command).formatter

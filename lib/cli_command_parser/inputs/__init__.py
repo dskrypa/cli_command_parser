@@ -60,7 +60,4 @@ def normalize_input_type(
                 return Choices(param_choices, enum_choices)
             return enum_choices
 
-    if param_choices_provided:
-        return Choices(param_choices, type_func)
-
-    return type_func
+    return Choices(param_choices, type_func) if param_choices_provided else type_func

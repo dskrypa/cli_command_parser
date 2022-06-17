@@ -3,6 +3,7 @@ Helpers for unit tests
 
 :author: Doug Skrypa
 """
+# pylint: disable=R0913,C0103
 
 from difflib import unified_diff
 from io import StringIO

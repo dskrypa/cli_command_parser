@@ -43,7 +43,7 @@ class _ChoicesBase(InputType, ABC):
     def _normalize(self, value: str) -> Any:
         if self.type is not None:
             try:
-                return self.type(value)
+                return self.type(value)  # pylint: disable=E1102
             except (ValueError, TypeError) as e:
                 raise InvalidChoiceError(value, self.choices) from e
         return value

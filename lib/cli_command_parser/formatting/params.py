@@ -3,6 +3,9 @@ Parameter usage / help text formatters
 
 :author: Doug Skrypa
 """
+# pylint: disable=W0613
+
+from __future__ import annotations
 
 from itertools import chain
 from textwrap import indent
@@ -24,7 +27,7 @@ class ParamHelpFormatter:
             cls._param_cls_fmt_cls_map[param_cls] = cls
 
     @classmethod
-    def for_param_cls(cls, param_cls: Type['ParamBase']) -> Type['ParamHelpFormatter']:
+    def for_param_cls(cls, param_cls: Type[ParamBase]) -> Type[ParamHelpFormatter]:
         try:
             return cls._param_cls_fmt_cls_map[param_cls]
         except KeyError:
@@ -37,9 +40,8 @@ class ParamHelpFormatter:
         return ParamHelpFormatter
 
     def __new__(cls, param: ParamOrGroup):
-        if cls is ParamHelpFormatter:
-            cls = cls.for_param_cls(param.__class__)
-        return super().__new__(cls)
+        fmt_cls = cls.for_param_cls(param.__class__) if cls is ParamHelpFormatter else cls
+        return super().__new__(fmt_cls)
 
     def __init__(self, param: ParamOrGroup):
         self.param = param
@@ -54,7 +56,7 @@ class ParamHelpFormatter:
         if t is not None:
             try:
                 return t.format_metavar(choice_delim)
-            except Exception:  # noqa
+            except Exception:  # noqa  # pylint: disable=W0703
                 pass
         try:
             use_type_metavar = ctx.use_type_metavar
@@ -169,7 +171,7 @@ class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
         return f'-- {usage}' if self.param.required else f'[-- {usage}]'
 
 
-class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
+class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # pylint: disable=W0223
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         choices = ','.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
         return f'{{{choices}}}'
@@ -196,15 +198,15 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa
         else:
             return '\u2502 '  # BOX DRAWINGS LIGHT VERTICAL
 
-    def format_help(self, width: int = 30, clean: Bool = True, prefix: str = '', tw_offset: int = 0) -> str:
+    def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0, clean: Bool = True) -> str:
         """
         Prepare the help text for this group.
 
         :param width: The width of the option/action/command column.
-        :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
-          description.
         :param prefix: Prefix to add to every line (primarily intended for use with nested groups)
         :param tw_offset: Terminal width offset for text width calculations
+        :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
+          description.
         :return: The formatted help text.
         """
         description = self.format_description()

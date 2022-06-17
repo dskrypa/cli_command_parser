@@ -4,6 +4,8 @@ The class that handles parsing input.
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 import logging
 from collections import deque
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
@@ -33,19 +35,20 @@ class CommandParser:
         self.positionals = ctx.params.positionals.copy()
 
     @classmethod
-    def parse_args(cls) -> Optional['CommandType']:
+    def parse_args(cls) -> Optional[CommandType]:
         try:
             return cls.__parse_args()
         except UsageError:
             ctx.failed = True
             if not ctx.parsed_always_available_action_flags:
                 raise
+            return None
         except Exception:
             ctx.failed = True
             raise
 
     @classmethod
-    def __parse_args(cls) -> Optional['CommandType']:
+    def __parse_args(cls) -> Optional[CommandType]:
         params = ctx.params
         sub_cmd_param = params.sub_command
         if sub_cmd_param is not None and not sub_cmd_param.choices:
@@ -75,7 +78,7 @@ class CommandParser:
         return None
 
     @classmethod
-    def _validate_groups(cls, params: 'CommandParameters'):
+    def _validate_groups(cls, params: CommandParameters):
         exc = None
         for group in params.groups:
             try:
@@ -93,7 +96,7 @@ class CommandParser:
         while arg_deque:
             arg = arg_deque.popleft()
             if arg == '--':
-                if ctx.params.find_nested_pass_thru():
+                if ctx.params.find_nested_pass_thru():  # pylint: disable=R1723
                     self.deferred.append(arg)
                     self.deferred.extend(arg_deque)
                     break

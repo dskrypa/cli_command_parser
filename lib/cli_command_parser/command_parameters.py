@@ -8,6 +8,8 @@ It has some involvement in the parsing process for :class:`.BaseOption` paramete
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING, Optional, Collection, List, Dict, Set, Tuple
@@ -41,10 +43,10 @@ log = logging.getLogger(__name__)
 
 
 class CommandParameters:
-    command: 'CommandType'
+    command: CommandType
     formatter: CommandHelpFormatter
-    command_parent: Optional['CommandType'] = None
-    parent: Optional['CommandParameters'] = None
+    command_parent: Optional[CommandType] = None
+    parent: Optional[CommandParameters] = None
     action: Optional[Action] = None
     _pass_thru: Optional[PassThru] = None
     sub_command: Optional[SubCommand] = None
@@ -55,7 +57,7 @@ class CommandParameters:
     positionals: List[BasePositional]
     option_map: Dict[str, BaseOption]
 
-    def __init__(self, command: 'CommandType', command_parent: 'CommandType' = None):
+    def __init__(self, command: CommandType, command_parent: CommandType = None):
         self.command = command
         if command_parent:
             self.command_parent = command_parent
@@ -215,7 +217,7 @@ class CommandParameters:
         self.options = options
         self.option_map = option_map
         self._process_action_flags(options)
-        self.combo_option_map = {k: v for k, v in sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0]))}
+        self.combo_option_map = dict(sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0])))  # noqa
 
     def _process_action_flags(self, options: List[BaseOption]):
         action_flags = sorted((p for p in options if isinstance(p, ActionFlag)))
@@ -303,11 +305,11 @@ class CommandParameters:
 
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if option.startswith('--'):
-            param, value = self.long_option_to_param_value_pair(option)
+            param = self.long_option_to_param_value_pair(option)[0]
             if param.accepts_values:
                 return param
         elif option.startswith('-'):
-            for param, value in self.short_option_to_param_value_pairs(option):
+            for param, _ in self.short_option_to_param_value_pairs(option):
                 if param.accepts_values:
                     return param
         else:
@@ -349,9 +351,9 @@ class CommandParameters:
 
     # endregion
 
-    def missing(self) -> List['Parameter']:
+    def missing(self) -> List[Parameter]:
         ignore = SubCommand
-        missing: List['Parameter'] = [
+        missing: List[Parameter] = [
             p for p in self.positionals if p.required and ctx.num_provided(p) == 0 and not isinstance(p, ignore)
         ]
         missing.extend(p for p in self.options if p.required and ctx.num_provided(p) == 0)

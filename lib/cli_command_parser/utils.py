@@ -3,6 +3,7 @@ Utilities for extracting types from annotations, finding / storing program metad
 
 :author: Doug Skrypa
 """
+# pylint: disable=C0103,R0903,W0703
 
 import re
 import sys
@@ -17,7 +18,7 @@ from string import whitespace, printable
 from urllib.parse import urlparse
 
 try:
-    from typing import get_origin, get_args as _get_args
+    from typing import get_origin, get_args as _get_args  # pylint: disable=C0412
 except ImportError:  # Added in 3.8; the versions from 3.8 are copied here
     from .compat import get_origin, _get_args
 
@@ -26,7 +27,7 @@ try:
 except ImportError:  # Added in 3.10
     NoneType = type(None)
 
-from .compat import create_pseudo_member, decompose_flag, missing_flag
+from .compat import decompose_flag, missing_flag
 from .exceptions import ParameterDefinitionError
 
 Bool = Union[bool, Any]
@@ -195,7 +196,7 @@ class ProgInfo:
         try:
             top_level, g = self._find_top_frame_and_globals()
             return self._resolve_path(top_level.filename), g
-        except Exception as e:  # noqa
+        except Exception:  # noqa
             return self._resolve_path(), {}
 
     def _resolve_path(self, path: str = None) -> Path:
@@ -266,13 +267,11 @@ def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
 
 def get_annotation_value_type(annotation) -> Optional[type]:
     origin = get_origin(annotation)
-    """
-    Note on get_origin return values:
-    get_origin(List[str]) -> list
-    get_origin(List) -> list
-    get_origin(list[str]) -> list
-    get_origin(list) -> None
-    """
+    # Note on get_origin return values:
+    # get_origin(List[str]) -> list
+    # get_origin(List) -> list
+    # get_origin(list[str]) -> list
+    # get_origin(list) -> None
     if origin is None and isinstance(annotation, type):
         return annotation
     elif isclass(origin) and issubclass(origin, (Collection, Iterable)):
@@ -363,7 +362,7 @@ class FixedFlag(Flag):
                 expected = ', '.join(cls._member_map_)
                 raise ValueError(f'Invalid {cls.__name__} value={value!r} - expected one of {expected}') from None
             else:
-                return ~member if invert else member
+                return ~member if invert else member  # pylint: disable=E1130
 
         return missing_flag(cls, value)
 

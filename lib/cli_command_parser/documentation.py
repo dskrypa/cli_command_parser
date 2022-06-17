@@ -54,7 +54,7 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
     # Fix provenance metadata
     with ProgInfo._dynamic_import(Path(path), module.__dict__):
-        for name, cmd_cls in commands.items():
+        for cmd_cls in commands.values():
             try:
                 meta: ProgramMetadata = CommandMeta._metadata[cmd_cls]
             except KeyError:
@@ -92,7 +92,7 @@ def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_fun
     # This could be better, but it's relatively unlikely to have multiple top level commands in a script...
     # For the same reason that main() does not try to pick one, this will just combine all of them.
     parts = []
-    for i, (name, command) in enumerate(sorted(commands.items())):
+    for i, (_name, command) in enumerate(sorted(commands.items())):
         if i:
             parts.append('\n--------\n')
 

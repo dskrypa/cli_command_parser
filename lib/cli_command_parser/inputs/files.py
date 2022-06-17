@@ -14,6 +14,8 @@ from .utils import InputParam, StatMode, FileWrapper, Converter, allows_write
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 
+# TODO: Convert default value?
+
 
 class Path(InputType):
     """
@@ -51,7 +53,7 @@ class Path(InputType):
         self.exists = exists
         self.expand = expand
         self.resolve = resolve
-        self.type = StatMode(type)
+        self.type = StatMode(type)  # pylint: disable=E1120
         self.readable = readable
         self.writable = writable
         self.allow_dash = allow_dash

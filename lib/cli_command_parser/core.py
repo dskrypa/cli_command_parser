@@ -2,6 +2,8 @@
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 from abc import ABC, ABCMeta
 from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Any, Dict, Tuple, List
 from warnings import warn
@@ -49,7 +51,7 @@ class CommandMeta(ABCMeta, type):
     _metadata = WeakKeyDictionary()
     _commands = WeakSet()
 
-    def __new__(  # noqa
+    def __new__(
         mcls,  # noqa
         name: str,
         bases: Tuple[Type, ...],
@@ -91,7 +93,7 @@ class CommandMeta(ABCMeta, type):
         mcls._commands.add(cls)
         meta = mcls.meta(cls)
         doc = cls.__doc__
-        if meta is None or prog or usage or description or epilog or doc_name or doc:
+        if meta is None or prog or usage or description or epilog or doc_name or doc:  # pylint: disable=R0916
             # Inherit from parent when possible
             mcls._metadata[cls] = ProgramMetadata(
                 prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name, doc=doc
@@ -99,7 +101,7 @@ class CommandMeta(ABCMeta, type):
 
         config = mcls.config(cls)
         if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
-            cls.__help = help_action
+            cls.__help = help_action  # pylint: disable=W0238
 
         parent = mcls.parent(cls, False)
         if parent:
@@ -116,14 +118,14 @@ class CommandMeta(ABCMeta, type):
 
         return cls
 
-    def parent(cls, include_abc: bool = True) -> Optional['CommandMeta']:
+    def parent(cls, include_abc: bool = True) -> Optional[CommandMeta]:
         for parent_cls in type.mro(cls)[1:]:
             if isinstance(parent_cls, CommandMeta) and (include_abc or ABC not in parent_cls.__bases__):
                 return parent_cls
         return None
 
     @classmethod
-    def _config_from_bases(mcls, bases: Tuple[type]) -> Optional[CommandConfig]:
+    def _config_from_bases(mcls, bases: Tuple[type]) -> Optional[CommandConfig]:  # noqa
         for base in bases:
             if isinstance(base, mcls):
                 return mcls.config(base)
@@ -164,25 +166,25 @@ class CommandMeta(ABCMeta, type):
             return None
 
 
-def get_parent(command: Union[CommandMeta, 'Command'], include_abc: bool = True) -> Optional[CommandMeta]:
+def get_parent(command: Union[CommandMeta, Command], include_abc: bool = True) -> Optional[CommandMeta]:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.parent(command, include_abc)
 
 
-def get_config(command: Union[CommandMeta, 'Command']) -> CommandConfig:
+def get_config(command: Union[CommandMeta, Command]) -> CommandConfig:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.config(command)
 
 
-def get_params(command: Union[CommandMeta, 'Command']) -> 'CommandParameters':
+def get_params(command: Union[CommandMeta, Command]) -> CommandParameters:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.params(command)
 
 
-def get_top_level_commands() -> List[CommandMeta]:
+def get_top_level_commands() -> List[Union[CommandMeta, Type[Command]]]:
     """
     Returns a list of Command subclasses that are inferred to be direct subclasses of :class:`~commands.Command`.
 
@@ -192,4 +194,4 @@ def get_top_level_commands() -> List[CommandMeta]:
     return [cmd for cmd in CommandMeta._commands if sum(isinstance(cls, CommandMeta) for cls in cmd.mro()) == 2]
 
 
-CommandType = TypeVar('CommandType', bound=CommandMeta)
+CommandType = TypeVar('CommandType', bound=CommandMeta)  # pylint: disable=C0103

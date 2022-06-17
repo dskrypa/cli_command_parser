@@ -12,6 +12,7 @@ from typing import TypeVar, Sequence, Optional
 from .core import CommandMeta, CommandType, get_top_level_commands
 from .context import Context, get_current_context
 from .exceptions import ParamConflict, NoActiveContext
+from .parser import CommandParser
 
 __all__ = ['Command', 'CommandType', 'main']
 log = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class Command(ABC, metaclass=CommandMeta):
         return self
 
     @classmethod
-    def parse_and_run(cls, argv: Sequence[str] = None, *args, **kwargs) -> Optional[CommandObj]:
+    def parse_and_run(cls, argv: Sequence[str] = None, **kwargs) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
         to parse arguments and resolve sub-commands, then calls :meth:`.__call__` on the resulting Command instance.
@@ -59,7 +60,7 @@ class Command(ABC, metaclass=CommandMeta):
         except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
             return None
         else:
-            self(*args, **kwargs)
+            self(**kwargs)
             return self
 
     @classmethod
@@ -71,8 +72,6 @@ class Command(ABC, metaclass=CommandMeta):
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :return: A Command instance with parsed arguments that is ready for :meth:`.__call__` or :meth:`.main`
         """
-        from .parser import CommandParser
-
         ctx = _get_or_create_context(cls, argv)
         cmd_cls = cls
         with ExitStack() as stack:
@@ -187,7 +186,7 @@ def _get_or_create_context(cls: CommandType, argv: Sequence[str] = None) -> Cont
             return ctx._sub_context(cls, argv=argv)
 
 
-def main(argv: Sequence[str] = None, *args, **kwargs):
+def main(argv: Sequence[str] = None, **kwargs):
     """
     Convenience function that can be used as the main entry point for a program.
 
@@ -218,4 +217,4 @@ def main(argv: Sequence[str] = None, *args, **kwargs):
                 'Verify that the intended command has been imported, or call <MyCommand>.parse_and_run() explicitly.'
             )
 
-    return commands[0].parse_and_run(argv, *args, **kwargs)  # noqa
+    return commands[0].parse_and_run(argv, **kwargs)

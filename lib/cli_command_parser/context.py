@@ -1,6 +1,9 @@
 """
 :author: Doug Skrypa
 """
+# pylint: disable=R0801
+
+from __future__ import annotations
 
 import sys
 from collections import defaultdict
@@ -37,25 +40,25 @@ class ConfigOption:
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    def get_value(self, ctx: 'Context', ctx_cls):
+    def get_value(self, context: Context, ctx_cls):
         try:
-            return ctx.__dict__[self.name]
+            return context.__dict__[self.name]
         except KeyError:
-            parent = ctx.parent
+            parent = context.parent
             if parent:
                 option = ctx_cls.__dict__[self.name]  # type: ConfigOption
                 return option.get_value(parent, ctx_cls)
             raise
 
-    def __get__(self, ctx: Optional['Context'], ctx_cls) -> Optional[Bool]:
-        if ctx is None:
+    def __get__(self, context: Optional[Context], ctx_cls) -> Optional[Bool]:
+        if context is None:
             return self
         try:
-            return self.get_value(ctx, ctx_cls)
+            return self.get_value(context, ctx_cls)
         except KeyError:
             pass
 
-        command = ctx.command
+        command = context.command
         try:
             config = command.__class__.config(command)
         except AttributeError:
@@ -65,9 +68,9 @@ class ConfigOption:
         else:
             return getattr(config, self.name)
 
-    def __set__(self, ctx: 'Context', value: Optional[Bool]):
+    def __set__(self, context: Context, value: Optional[Bool]):
         if value is not self.default:
-            ctx.__dict__[self.name] = value
+            context.__dict__[self.name] = value
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -96,11 +99,11 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     # strict_action_punctuation = ConfigOption()
     # strict_sub_command_punctuation = ConfigOption()
 
-    def __init__(
+    def __init__(  # pylint: disable=R0914
         self,
         argv: Optional[Sequence[str]] = None,
-        command: Optional['CommandType'] = None,
-        parent: Optional['Context'] = None,
+        command: Optional[CommandType] = None,
+        parent: Optional[Context] = None,
         *,
         error_handler: Optional[ErrorHandler] = _NotSet,
         always_run_after_main: Bool = None,
@@ -114,7 +117,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         show_defaults: Union[ShowDefaults, str] = None,
         show_group_tree: Bool = None,
         show_group_type: Bool = None,
-        param_formatter: Callable[['ParamOrGroup'], 'ParamHelpFormatter'] = None,
+        param_formatter: Callable[[ParamOrGroup], ParamHelpFormatter] = None,
         extended_epilog: Bool = None,
         show_docstring: Bool = None,
         # strict_action_punctuation: Bool = None,
@@ -159,7 +162,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         # self.strict_action_punctuation = strict_action_punctuation
         # self.strict_sub_command_punctuation = strict_sub_command_punctuation
 
-    def __enter__(self) -> 'Context':
+    def __enter__(self) -> Context:
         _context_stack.get().append(self)
         return self
 
@@ -167,7 +170,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         _context_stack.get().pop()
 
     @cached_property
-    def params(self) -> Optional['CommandParameters']:
+    def params(self) -> Optional[CommandParameters]:
         try:
             return self.command.__class__.params(self.command)
         except AttributeError:  # self.command is None
@@ -182,12 +185,12 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         else:
             return error_handler
 
-    def _sub_context(self, command: 'CommandType', argv: Optional[Sequence[str]] = None) -> 'Context':
+    def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None) -> Context:
         if argv is None:
             argv = self.remaining
         return self.__class__(argv, command, parent=self)
 
-    def get_parsed(self, exclude: Collection['Parameter'] = (), recursive: Bool = True) -> Dict[str, Any]:
+    def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
         with self:
             if recursive and self.parent:
                 parsed = self.parent.get_parsed(exclude, recursive)
@@ -203,17 +206,17 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
         return parsed
 
-    def get_parsing_value(self, param: 'Parameter'):
+    def get_parsing_value(self, param: Parameter):
         try:
             return self._parsing[param]
         except KeyError:
             self._parsing[param] = value = param._init_value_factory()
             return value
 
-    def set_parsing_value(self, param: 'Parameter', value: Any):
+    def set_parsing_value(self, param: Parameter, value: Any):
         self._parsing[param] = value
 
-    def __contains__(self, param: Union['ParamOrGroup', str, Any]) -> bool:
+    def __contains__(self, param: Union[ParamOrGroup, str, Any]) -> bool:
         try:
             self._parsing[param]
         except KeyError:
@@ -228,14 +231,14 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         else:
             return True
 
-    def record_action(self, param: 'ParamOrGroup', val_count: int = 1):
+    def record_action(self, param: ParamOrGroup, val_count: int = 1):
         self._provided[param] += val_count
 
-    def num_provided(self, param: 'ParamOrGroup') -> int:
+    def num_provided(self, param: ParamOrGroup) -> int:
         return self._provided[param]
 
     @cached_property
-    def parsed_action_flags(self) -> Tuple[int, List['ActionFlag'], List['ActionFlag']]:
+    def parsed_action_flags(self) -> Tuple[int, List[ActionFlag], List[ActionFlag]]:
         parsing = self._parsing
         try:
             action_flags = sorted(p for p in self.params.action_flags if p in parsing)
@@ -252,20 +255,20 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return num_flags, action_flags, []
 
     @property
-    def before_main_actions(self) -> Iterator['ActionFlag']:
+    def before_main_actions(self) -> Iterator[ActionFlag]:
         flags = self.parsed_always_available_action_flags if self.failed else self.parsed_action_flags[1]
         for action_flag in flags:
             self.actions_taken += 1
             yield action_flag
 
     @property
-    def after_main_actions(self) -> Iterator['ActionFlag']:
+    def after_main_actions(self) -> Iterator[ActionFlag]:
         for action_flag in self.parsed_action_flags[2]:
             self.actions_taken += 1
             yield action_flag
 
     @cached_property
-    def parsed_always_available_action_flags(self) -> Tuple['ActionFlag', ...]:
+    def parsed_always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
         parsing = self._parsing
         try:
             return tuple(p for p in self.params.always_available_action_flags if p in parsing)
