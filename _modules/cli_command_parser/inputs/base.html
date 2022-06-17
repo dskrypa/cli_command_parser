@@ -103,7 +103,7 @@
         <span class="sd">&quot;&quot;&quot;Process the parsed argument and convert it to the desired type&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="InputType.is_valid_type"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.is_valid_type">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="InputType.is_valid_type"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.is_valid_type">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># pylint: disable=W0613</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called during parsing when :meth:`.Parameter.would_accept` is called to determine if the value would be</span>
 <span class="sd">        accepted later for processing / conversion via :meth:`.__call__`.  May be overridden in subclasses to</span>
@@ -118,6 +118,7 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="InputType.format_metavar"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.format_metavar">[docs]</a>    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># TODO: Optional/required arg, or handle wrapping in []/{} in formatter</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 </pre></div>
 

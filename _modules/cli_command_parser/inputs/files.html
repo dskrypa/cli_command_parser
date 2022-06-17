@@ -99,6 +99,8 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Path&#39;</span><span class="p">,</span> <span class="s1">&#39;File&#39;</span><span class="p">,</span> <span class="s1">&#39;Serialized&#39;</span><span class="p">,</span> <span class="s1">&#39;Json&#39;</span><span class="p">,</span> <span class="s1">&#39;Pickle&#39;</span><span class="p">]</span>
 
+<span class="c1"># TODO: Convert default value?</span>
+
 
 <div class="viewcode-block" id="Path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="n">InputType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -136,7 +138,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="o">=</span> <span class="n">exists</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand</span> <span class="o">=</span> <span class="n">expand</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span> <span class="o">=</span> <span class="n">resolve</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">StatMode</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">StatMode</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>  <span class="c1"># pylint: disable=E1120</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">readable</span> <span class="o">=</span> <span class="n">readable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">writable</span> <span class="o">=</span> <span class="n">writable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_dash</span> <span class="o">=</span> <span class="n">allow_dash</span>

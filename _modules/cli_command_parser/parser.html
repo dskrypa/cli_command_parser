@@ -89,6 +89,8 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Deque</span><span class="p">,</span> <span class="n">List</span>
@@ -118,19 +120,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">positionals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
 <div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parse_args</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">UsageError</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">parsed_always_available_action_flags</span><span class="p">:</span>
                 <span class="k">raise</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">raise</span></div>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">__parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span>
         <span class="n">sub_cmd_param</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">sub_command</span>
         <span class="k">if</span> <span class="n">sub_cmd_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
@@ -160,7 +163,7 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_validate_groups</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="s1">&#39;CommandParameters&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_validate_groups</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span><span class="p">):</span>
         <span class="n">exc</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -178,7 +181,7 @@
         <span class="k">while</span> <span class="n">arg_deque</span><span class="p">:</span>
             <span class="n">arg</span> <span class="o">=</span> <span class="n">arg_deque</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">arg</span> <span class="o">==</span> <span class="s1">&#39;--&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">find_nested_pass_thru</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">find_nested_pass_thru</span><span class="p">():</span>  <span class="c1"># pylint: disable=R1723</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">arg_deque</span><span class="p">)</span>
                     <span class="k">break</span>

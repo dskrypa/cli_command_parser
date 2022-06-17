@@ -208,7 +208,7 @@
     <span class="n">NT_STATUSES</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0xC000_00B1</span><span class="p">:</span> <span class="s1">&#39;STATUS_PIPE_CLOSING&#39;</span><span class="p">,</span> <span class="mh">0xC000_014B</span><span class="p">:</span> <span class="s1">&#39;STATUS_PIPE_BROKEN&#39;</span><span class="p">}</span>
 
     <span class="nd">@extended_error_handler</span><span class="p">(</span><span class="ne">OSError</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_handle_os_error</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="ne">OSError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_handle_os_error</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">OSError</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is a workaround for `issue35754 &lt;https://bugs.python.org/issue35754&gt;`_, which is a bug in the way that the</span>
 <span class="sd">        windows error code for a broken pipe is translated into an errno value.  It should be translated to</span>
@@ -218,7 +218,7 @@
 <span class="sd">            Exception ignored in: &lt;_io.TextIOWrapper name=&#39;&lt;stdout&gt;&#39; mode=&#39;w&#39; encoding=&#39;utf-8&#39;&gt;</span>
 <span class="sd">            OSError: [Errno 22] Invalid argument</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">22</span> <span class="ow">and</span> <span class="n">RtlGetLastNtStatus</span><span class="p">()</span> <span class="ow">in</span> <span class="n">NT_STATUSES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="mi">22</span> <span class="ow">and</span> <span class="n">RtlGetLastNtStatus</span><span class="p">()</span> <span class="ow">in</span> <span class="n">NT_STATUSES</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>

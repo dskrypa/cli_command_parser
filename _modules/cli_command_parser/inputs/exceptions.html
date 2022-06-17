@@ -103,7 +103,7 @@
 <div class="viewcode-block" id="InvalidChoiceError"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.exceptions.html#cli_command_parser.inputs.exceptions.InvalidChoiceError">[docs]</a><span class="k">class</span> <span class="nc">InvalidChoiceError</span><span class="p">(</span><span class="n">InputValidationError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Error raised when a value that does not match one of the pre-defined choices was provided&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>  <span class="c1"># pylint: disable=W0231</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">invalid</span> <span class="o">=</span> <span class="n">invalid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
 

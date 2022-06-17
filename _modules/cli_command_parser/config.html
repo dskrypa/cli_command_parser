@@ -89,6 +89,8 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
@@ -104,6 +106,8 @@
     <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">ParamOrGroup</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">,</span> <span class="s1">&#39;OptionNameMode&#39;</span><span class="p">]</span>
+
+<span class="c1"># TODO: Config / handling for subcommand option conflict, especially for short form where name/long don&#39;t match previous</span>
 
 
 <span class="c1"># region Config Option Enums</span>
@@ -130,7 +134,7 @@
     <span class="c1"># fmt: on</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ShowDefaults</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span>  <span class="c1"># noqa</span>
@@ -139,7 +143,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected one of </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ShowDefaults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ShowDefaults</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NEVER</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NEVER</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__or__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
@@ -178,7 +182,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">enum_cls</span> <span class="o">=</span> <span class="n">enum_cls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
@@ -195,10 +199,12 @@
 
 <div class="viewcode-block" id="CommandConfig"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Configuration options for Commands.&quot;&quot;&quot;</span>
+
     <span class="c1"># region Error Handling Options</span>
 
     <span class="c1">#: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`</span>
-    <span class="n">error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;ErrorHandler&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>
+    <span class="n">error_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span>
 
     <span class="c1">#: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in</span>
     <span class="c1">#: :meth:`.Command.main` (similar to a ``finally`` block)</span>
@@ -252,10 +258,10 @@
 
     <span class="c1">#: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`</span>
     <span class="c1">#: object, and returns a :class:`.CommandHelpFormatter`</span>
-    <span class="n">command_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandParameters&#39;</span><span class="p">],</span> <span class="s1">&#39;CommandHelpFormatter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">command_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandType</span><span class="p">,</span> <span class="n">CommandParameters</span><span class="p">],</span> <span class="n">CommandHelpFormatter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1">#: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`</span>
-    <span class="n">param_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;ParamOrGroup&#39;</span><span class="p">],</span> <span class="s1">&#39;ParamHelpFormatter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">param_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">ParamHelpFormatter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1">#: Whether the program version, author email, and documentation URL should be included in the help text epilog, if</span>
     <span class="c1">#: they were successfully detected</span>
@@ -294,7 +300,7 @@
 <span class="sd">        non-None sentinel value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="p">}</span>  <span class="c1"># noqa</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="p">}</span>  <span class="c1"># noqa  # pylint: disable=E1133</span></div></div>
 </pre></div>
 
            </div>
