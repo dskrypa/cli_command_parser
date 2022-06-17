@@ -1,4 +1,7 @@
 """
+Core classes / functions for Commands, including the metaclass used for Commands, and utilities for finding the primary
+top-level Command.
+
 :author: Doug Skrypa
 """
 
@@ -17,6 +20,10 @@ from .utils import ProgramMetadata
 
 if TYPE_CHECKING:
     from .commands import Command
+
+Bases = Tuple[type, ...]
+Config = Optional[CommandConfig]
+AnyConfig = Union[Config, Dict[str, Any]]
 
 
 class CommandMeta(ABCMeta, type):
@@ -53,60 +60,54 @@ class CommandMeta(ABCMeta, type):
     _commands = WeakSet()
 
     def __new__(
-        mcls,  # noqa
+        mcs,
         name: str,
-        bases: Tuple[Type, ...],
+        bases: Bases,
         namespace: Dict[str, Any],
         *,
         choice: str = None,
+        help: str = None,  # noqa
+        config: AnyConfig = None,
+        **kwargs,
+    ):
+        metadata = {k: kwargs.pop(k, None) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name')}
+        with _PrepConfig(mcs, bases, namespace, config, kwargs) as cfg_prep:
+            cfg_prep.cls = cls = super().__new__(mcs, name, bases, namespace)
+
+        mcs._commands.add(cls)
+        mcs._maybe_populate_metadata(cls, **metadata)
+        mcs._maybe_register_sub_cmd(cls, choice, help)
+
+        config = mcs.config(cls)
+        if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
+            cls.__help = help_action  # pylint: disable=W0238
+
+        return cls
+
+    @classmethod
+    def _maybe_populate_metadata(
+        mcs,
+        cls,
         prog: str = None,
         usage: str = None,
         description: str = None,
         epilog: str = None,
-        help: str = None,  # noqa
         doc_name: str = None,
-        config: Union[CommandConfig, Dict[str, Any]] = None,
-        **kwargs,
     ):
-        config_key = '{__module__}.{__qualname__}'.format(**namespace)
-        if config is not None:
-            if kwargs:
-                raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
-            if not isinstance(config, CommandConfig):
-                config = CommandConfig(**config)
-            mcls._tmp_configs[config_key] = config
-        else:
-            config = mcls._config_from_bases(bases)
-            if kwargs or (config is None and ABC not in bases):
-                if config is not None:
-                    # kwargs = config.as_dict() | kwargs
-                    for key, val in config.as_dict().items():  # py < 3.9 compatibility
-                        kwargs.setdefault(key, val)
-
-                mcls._tmp_configs[config_key] = CommandConfig(**kwargs)
-
-        cls = super().__new__(mcls, name, bases, namespace)
-        try:
-            # The temp config setting above is to work around __set_name__ happening in super().__new__
-            mcls._configs[cls] = mcls._tmp_configs.pop(config_key)
-        except KeyError:
-            pass
-        mcls._commands.add(cls)
-        meta = mcls.meta(cls)
+        """Maybe populate ProgramMetadata for this class; inherit from parent when possible"""
+        meta = mcs.meta(cls)
         doc = cls.__doc__
-        if meta is None or prog or usage or description or epilog or doc_name or doc:  # pylint: disable=R0916
-            # Inherit from parent when possible
-            mcls._metadata[cls] = ProgramMetadata(
-                prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name, doc=doc
-            )
+        if meta is not None and not any((prog, usage, description, epilog, doc_name, doc)):
+            return
+        mcs._metadata[cls] = ProgramMetadata(
+            prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name, doc=doc
+        )
 
-        config = mcls.config(cls)
-        if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
-            cls.__help = help_action  # pylint: disable=W0238
-
-        parent = mcls.parent(cls, False)
+    @classmethod
+    def _maybe_register_sub_cmd(mcs, cls, choice: str = None, help: str = None):  # noqa
+        parent = mcs.parent(cls, False)
         if parent:
-            sub_cmd = mcls.params(parent).sub_command
+            sub_cmd = mcs.params(parent).sub_command
             if sub_cmd is not None:
                 sub_cmd.register_command(choice, cls, help)
             elif choice:
@@ -117,8 +118,6 @@ class CommandMeta(ABCMeta, type):
         elif choice:
             warn(f'choice={choice!r} was not registered for {cls} because it has no parent Command')
 
-        return cls
-
     def parent(cls, include_abc: bool = True) -> Optional[CommandMeta]:
         for parent_cls in type.mro(cls)[1:]:
             if isinstance(parent_cls, CommandMeta) and (include_abc or ABC not in parent_cls.__bases__):
@@ -126,13 +125,13 @@ class CommandMeta(ABCMeta, type):
         return None
 
     @classmethod
-    def _config_from_bases(mcls, bases: Tuple[type]) -> Optional[CommandConfig]:  # noqa
+    def _config_from_bases(mcs, bases: Bases) -> Config:
         for base in bases:
-            if isinstance(base, mcls):
-                return mcls.config(base)
+            if isinstance(base, mcs):
+                return mcs.config(base)
         return None
 
-    def config(cls) -> Optional[CommandConfig]:
+    def config(cls) -> Config:
         mcls = cls.__class__
         try:
             return mcls._configs[cls]
@@ -165,6 +164,54 @@ class CommandMeta(ABCMeta, type):
             if parent is not None:
                 return mcls.meta(parent)
             return None
+
+
+class _PrepConfig:
+    """
+    Temporarily stores config with a str key because __set_name__ for Parameters is called when super().__new__ is
+    called to create the Command class, and some config needs to be known at that point.
+    """
+
+    __slots__ = ('mcs', 'config_key', 'config', 'cls')
+
+    def __init__(
+        self, mcs: Type[CommandMeta], bases: Bases, ns: Dict[str, Any], config: AnyConfig, kwargs: Dict[str, Any]
+    ):
+        self.mcs = mcs
+        self.config_key = '{__module__}.{__qualname__}'.format(**ns)
+        self.config = self._prepare_config(mcs, bases, config, kwargs)
+
+    @classmethod
+    def _prepare_config(cls, mcs: Type[CommandMeta], bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]):
+        if config is not None:
+            if kwargs:
+                raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+            if not isinstance(config, CommandConfig):
+                config = CommandConfig(**config)
+            return config
+        else:
+            config = mcs._config_from_bases(bases)
+            if kwargs or (config is None and ABC not in bases):
+                if config is not None:
+                    # kwargs = config.as_dict() | kwargs
+                    for key, val in config.as_dict().items():  # py < 3.9 compatibility
+                        kwargs.setdefault(key, val)
+
+                return CommandConfig(**kwargs)
+
+        return None
+
+    def __enter__(self) -> _PrepConfig:
+        if self.config is not None:
+            self.mcs._tmp_configs[self.config_key] = self.config
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        mcs = self.mcs
+        try:
+            mcs._configs[self.cls] = mcs._tmp_configs.pop(self.config_key)
+        except (KeyError, AttributeError):
+            pass
 
 
 def get_parent(command: Union[CommandMeta, Command], include_abc: bool = True) -> Optional[CommandMeta]:
