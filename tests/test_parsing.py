@@ -853,30 +853,26 @@ class NargsTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
-    # TODO:BUG: Fix commented-out lines
-    def test_single_default_with_nargs_multi(self):
-        class Foo(Command):
-            bar = Option('-b', nargs='+', type=int, default=1)
-
+    def test_defaults_with_nargs_multi(self):
         success_cases = [
             ([], {'bar': [1]}),
             (['-b', '2'], {'bar': [2]}),
-            # (['-b=2', '3'], {'bar': [2, 3]}),  # Rejects 3 now
+            (['-b=2'], {'bar': [2]}),
             (['--bar', '2', '3'], {'bar': [2, 3]}),
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
-
-    def test_multi_default_with_nargs_multi(self):
-        class Foo(Command):
-            bar = Option('-b', nargs='+', type=int, default=[1])
-
-        success_cases = [
-            ([], {'bar': [1]}),
-            (['-b', '2'], {'bar': [2]}),
-            # (['-b=2', '3'], {'bar': [2, 3]}),  # Rejects 3 now
-            (['--bar', '2', '3'], {'bar': [2, 3]}),
+        fail_cases = [
+            ['-b=2', '3'],  # argparse also rejects this
+            ['-b'],
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
+
+        for default in (1, [1]):
+            with self.subTest(default=default):
+
+                class Foo(Command):
+                    bar = Option('-b', nargs='+', type=int, default=default)
+
+                self.assert_parse_results_cases(Foo, success_cases)
+                self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 if __name__ == '__main__':
