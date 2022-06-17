@@ -65,7 +65,7 @@ class cached_property:  # pylint: disable=C0103,R0903
         except AttributeError:  # not all objects have __dict__ (e.g. class defines slots)
             msg = (
                 f"No '__dict__' attribute on {type(instance).__name__!r} "
-                f"instance to cache {self.attrname!r} property."
+                f'instance to cache {self.attrname!r} property.'
             )
             raise TypeError(msg) from None
         val = cache.get(self.attrname, _NOT_FOUND)
@@ -80,7 +80,7 @@ class cached_property:  # pylint: disable=C0103,R0903
                     except TypeError:
                         msg = (
                             f"The '__dict__' attribute on {type(instance).__name__!r} instance "
-                            f"does not support item assignment for caching {self.attrname!r} property."
+                            f'does not support item assignment for caching {self.attrname!r} property.'
                         )
                         raise TypeError(msg) from None
         return val
