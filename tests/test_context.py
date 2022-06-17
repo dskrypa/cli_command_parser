@@ -2,8 +2,8 @@
 
 from unittest import TestCase, main
 
-from cli_command_parser import Command
-from cli_command_parser.config import CommandConfig
+from cli_command_parser import Command, CommandConfig
+from cli_command_parser.core import CommandMeta
 from cli_command_parser.context import Context, ConfigOption, get_current_context, ctx
 from cli_command_parser.parameters import Flag
 
@@ -19,8 +19,8 @@ class ContextTest(TestCase):
         class Foo(Command):
             pass
 
-        c = Context([], Foo, ignore_unknown=not Foo.config().ignore_unknown)
-        self.assertNotEqual(Foo.config().ignore_unknown, c.ignore_unknown)
+        c = Context([], Foo, ignore_unknown=not CommandMeta.config(Foo).ignore_unknown)
+        self.assertNotEqual(CommandMeta.config(Foo).ignore_unknown, c.ignore_unknown)
 
     def test_ctx_config_from_command(self):
         default = CommandConfig().ignore_unknown

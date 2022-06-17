@@ -80,12 +80,13 @@ class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):
     def test_no_args(self):
         code, stdout, stderr = self.call_script()
         self.assertEqual(2, code)
-        self.assertEqual('argument {echo,split}: missing required argument value\n', stderr)
+        self.assertEqual('argument {echo,split,double,reverse}: missing required argument value\n', stderr)
 
     def test_help(self):
         code, stdout, stderr = self.call_script('-h')
         self.assertEqual(0, code)
-        self.assertLinesStartWith('usage: action_with_args.py {echo,split} TEXT [--help]', stdout)
+        self.assertLinesStartWith('usage: action_with_args.py {echo,split,double,reverse} TEXT [--help]', stdout)
+        self.assertNotIn('The main class that other Commands should extend.', stdout)
 
     def test_echo(self):
         code, stdout, stderr = self.call_script('echo', 'test', 'one')

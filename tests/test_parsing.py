@@ -3,8 +3,10 @@
 from dataclasses import dataclass
 from unittest import main, skip
 
+
 from cli_command_parser.commands import Command
 from cli_command_parser.context import ctx
+from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import (
     NoSuchOption,
     BadArgument,
@@ -17,6 +19,8 @@ from cli_command_parser.nargs import Nargs
 from cli_command_parser.parameters.base import BaseOption, parameter_action
 from cli_command_parser.parameters import Positional, Option, Flag, Counter, SubCommand, PassThru
 from cli_command_parser.testing import ParserTest
+
+get_config = CommandMeta.config
 
 
 class ParamComboTest(ParserTest):
@@ -428,7 +432,7 @@ class OptionTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', '--baz', 'a'])
 
-        Foo.config().ignore_unknown = True
+        get_config(Foo).ignore_unknown = True
         self.assertEqual(Foo.parse(['bar', '--baz']).ctx.remaining, ['--baz'])
         self.assertEqual(Foo.parse(['bar', '--baz', 'a']).ctx.remaining, ['--baz', 'a'])
 
@@ -439,7 +443,7 @@ class OptionTest(ParserTest):
         fail_cases = [['bar', '-b'], ['bar', '-b', 'a'], ['bar', '-b=a']]
         self.assert_parse_fails_cases(Foo, fail_cases, NoSuchOption)
 
-        Foo.config().ignore_unknown = True
+        get_config(Foo).ignore_unknown = True
         self.assertEqual(Foo.parse(['bar', '-b']).ctx.remaining, ['-b'])
         self.assertEqual(Foo.parse(['bar', '-b', 'a']).ctx.remaining, ['-b', 'a'])
         self.assertEqual(Foo.parse(['bar', '-b=a']).ctx.remaining, ['-b=a'])
@@ -579,7 +583,7 @@ class PositionalTest(ParserTest):
         with self.assertRaises(NoSuchOption):
             Foo.parse(['bar', 'baz'])
 
-        Foo.config().ignore_unknown = True
+        get_config(Foo).ignore_unknown = True
         self.assertEqual(Foo.parse(['bar', 'baz']).ctx.remaining, ['baz'])
 
     def test_first_rejects_bad_choice(self):

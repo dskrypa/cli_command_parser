@@ -11,6 +11,8 @@ from cli_command_parser.error_handling import no_exit_handler, extended_error_ha
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption, ParamConflict
 from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag
 
+_get_config = CommandMeta.config
+
 
 class TestCommands(TestCase):
     def test_true_on_action_handled(self):
@@ -172,7 +174,7 @@ class TestCommands(TestCase):
         class Foo(Command):
             pass
 
-        config = Foo.config()
+        config = _get_config(Foo)
         self.assertDictEqual(config.as_dict(), CommandConfig().as_dict())
 
     def test_config_from_kwarg(self):
@@ -181,7 +183,7 @@ class TestCommands(TestCase):
         class Foo(Command, multiple_action_flags=not default):
             pass
 
-        self.assertEqual(Foo.config().multiple_action_flags, not default)
+        self.assertEqual(_get_config(Foo).multiple_action_flags, not default)
 
     def test_config_from_dict(self):
         default = CommandConfig().multiple_action_flags
@@ -189,7 +191,7 @@ class TestCommands(TestCase):
         class Foo(Command, config={'multiple_action_flags': not default}):
             pass
 
-        self.assertEqual(Foo.config().multiple_action_flags, not default)
+        self.assertEqual(_get_config(Foo).multiple_action_flags, not default)
 
     def test_config_explicit(self):
         default = CommandConfig().multiple_action_flags
@@ -197,7 +199,7 @@ class TestCommands(TestCase):
         class Foo(Command, config=CommandConfig(multiple_action_flags=not default)):
             pass
 
-        self.assertEqual(Foo.config().multiple_action_flags, not default)
+        self.assertEqual(_get_config(Foo).multiple_action_flags, not default)
 
     def test_config_inherited(self):
         default_config = CommandConfig()
@@ -205,17 +207,17 @@ class TestCommands(TestCase):
         class Foo(Command, multiple_action_flags=not default_config.multiple_action_flags):
             pass
 
-        self.assertEqual(Foo.config().action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Foo.config().multiple_action_flags, default_config.multiple_action_flags)
+        self.assertEqual(_get_config(Foo).action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(_get_config(Foo).multiple_action_flags, default_config.multiple_action_flags)
 
         class Bar(Foo, action_after_action_flags=not default_config.action_after_action_flags):
             pass
 
-        self.assertNotEqual(Bar.config().action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Bar.config().multiple_action_flags, default_config.multiple_action_flags)
+        self.assertNotEqual(_get_config(Bar).action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(_get_config(Bar).multiple_action_flags, default_config.multiple_action_flags)
         # Ensure Foo config has not changed:
-        self.assertEqual(Foo.config().action_after_action_flags, default_config.action_after_action_flags)
-        self.assertNotEqual(Foo.config().multiple_action_flags, default_config.multiple_action_flags)
+        self.assertEqual(_get_config(Foo).action_after_action_flags, default_config.action_after_action_flags)
+        self.assertNotEqual(_get_config(Foo).multiple_action_flags, default_config.multiple_action_flags)
 
     def test_default_error_handler_returned(self):
         self.assertIs(extended_error_handler, Context().get_error_handler())
@@ -293,7 +295,7 @@ class TestCommands(TestCase):
                     bar = Positional(nargs=b)
 
                 with self.assertRaises(CommandDefinitionError):
-                    Foo.params()
+                    CommandMeta.params(Foo)
 
     def test_after_main_not_called_after_exc(self):
         class Foo(Command):

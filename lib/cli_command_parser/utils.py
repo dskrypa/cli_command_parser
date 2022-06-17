@@ -109,6 +109,12 @@ class ProgramMetadata:
         self.doc_str = info.doc_str
         self.doc_name = a['doc_name']
 
+    def __repr__(self) -> str:
+        attrs = (*self._cmd_args, 'usage', 'doc_str', 'path', 'epilog', 'description')
+        part_iter = ((a, getattr(self, a)) for a in attrs)
+        part_str = ', '.join(f'{a}={v!r}' for a, v in part_iter if v)
+        return f'<{self.__class__.__name__}[{part_str}]>'
+
     @property
     def doc_name(self) -> str:
         return self._doc_name

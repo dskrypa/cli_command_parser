@@ -71,7 +71,7 @@ class CommandMeta(ABCMeta, type):
         **kwargs,
     ):
         metadata = {k: kwargs.pop(k, None) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name')}
-        with _PrepConfig(mcs, bases, namespace, config, kwargs) as cfg_prep:
+        with _PrepConfig(mcs, namespace, mcs._prepare_config(bases, config, kwargs)) as cfg_prep:
             cfg_prep.cls = cls = super().__new__(mcs, name, bases, namespace)
 
         mcs._commands.add(cls)
@@ -96,7 +96,7 @@ class CommandMeta(ABCMeta, type):
     ):
         """Maybe populate ProgramMetadata for this class; inherit from parent when possible"""
         meta = mcs.meta(cls)
-        doc = cls.__doc__
+        doc = None if cls.__module__ == 'cli_command_parser.commands' else cls.__doc__
         if meta is not None and not any((prog, usage, description, epilog, doc_name, doc)):
             return
         mcs._metadata[cls] = ProgramMetadata(
@@ -118,7 +118,8 @@ class CommandMeta(ABCMeta, type):
         elif choice:
             warn(f'choice={choice!r} was not registered for {cls} because it has no parent Command')
 
-    def parent(cls, include_abc: bool = True) -> Optional[CommandMeta]:
+    @classmethod
+    def parent(mcs, cls: CommandMeta, include_abc: bool = True) -> Optional[CommandMeta]:
         for parent_cls in type.mro(cls)[1:]:
             if isinstance(parent_cls, CommandMeta) and (include_abc or ABC not in parent_cls.__bases__):
                 return parent_cls
@@ -131,58 +132,8 @@ class CommandMeta(ABCMeta, type):
                 return mcs.config(base)
         return None
 
-    def config(cls) -> Config:
-        mcls = cls.__class__
-        try:
-            return mcls._configs[cls]
-        except KeyError:
-            pass
-        try:
-            return mcls._tmp_configs[f'{cls.__module__}.{cls.__qualname__}']
-        except KeyError:
-            pass
-        parent = mcls.parent(cls)
-        if parent is not None:
-            return mcls.config(parent)
-        return None
-
-    def params(cls) -> CommandParameters:
-        mcls = cls.__class__
-        try:
-            return mcls._params[cls]
-        except KeyError:
-            parent = mcls.parent(cls, False)
-            mcls._params[cls] = params = CommandParameters(cls, parent)
-            return params
-
-    def meta(cls) -> Optional[ProgramMetadata]:
-        mcls = cls.__class__
-        try:
-            return mcls._metadata[cls]
-        except KeyError:
-            parent = mcls.parent(cls)
-            if parent is not None:
-                return mcls.meta(parent)
-            return None
-
-
-class _PrepConfig:
-    """
-    Temporarily stores config with a str key because __set_name__ for Parameters is called when super().__new__ is
-    called to create the Command class, and some config needs to be known at that point.
-    """
-
-    __slots__ = ('mcs', 'config_key', 'config', 'cls')
-
-    def __init__(
-        self, mcs: Type[CommandMeta], bases: Bases, ns: Dict[str, Any], config: AnyConfig, kwargs: Dict[str, Any]
-    ):
-        self.mcs = mcs
-        self.config_key = '{__module__}.{__qualname__}'.format(**ns)
-        self.config = self._prepare_config(mcs, bases, config, kwargs)
-
     @classmethod
-    def _prepare_config(cls, mcs: Type[CommandMeta], bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]):
+    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]):
         if config is not None:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
@@ -201,15 +152,62 @@ class _PrepConfig:
 
         return None
 
+    @classmethod
+    def config(mcs, cls: CommandMeta) -> Config:
+        try:
+            return mcs._configs[cls]
+        except KeyError:
+            pass
+        try:
+            return mcs._tmp_configs[f'{cls.__module__}.{cls.__qualname__}']
+        except KeyError:
+            pass
+        parent = mcs.parent(cls)
+        if parent is not None:
+            return mcs.config(parent)
+        return None
+
+    @classmethod
+    def params(mcs, cls: CommandMeta) -> CommandParameters:
+        try:
+            return mcs._params[cls]
+        except KeyError:
+            parent = mcs.parent(cls, False)
+            mcs._params[cls] = params = CommandParameters(cls, parent)
+            return params
+
+    @classmethod
+    def meta(mcs, cls: CommandMeta) -> Optional[ProgramMetadata]:
+        try:
+            return mcs._metadata[cls]
+        except KeyError:
+            parent = mcs.parent(cls)
+            if parent is not None:
+                return mcs.meta(parent)
+            return None
+
+
+class _PrepConfig:
+    """
+    Temporarily stores config with a str key because __set_name__ for Parameters is called when super().__new__ is
+    called to create the Command class, and some config needs to be known at that point.
+    """
+
+    __slots__ = ('mcs', 'config_key', 'config', 'cls')
+
+    def __init__(self, mcs: Type[CommandMeta], ns: Dict[str, Any], config: Config):
+        self.mcs = mcs
+        self.config_key = '{__module__}.{__qualname__}'.format(**ns)
+        self.config = config
+
     def __enter__(self) -> _PrepConfig:
         if self.config is not None:
             self.mcs._tmp_configs[self.config_key] = self.config
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        mcs = self.mcs
         try:
-            mcs._configs[self.cls] = mcs._tmp_configs.pop(self.config_key)
+            self.mcs._configs[self.cls] = self.mcs._tmp_configs.pop(self.config_key)
         except (KeyError, AttributeError):
             pass
 

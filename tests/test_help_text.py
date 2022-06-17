@@ -10,7 +10,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
-from cli_command_parser.core import get_params, CommandType
+from cli_command_parser.core import get_params, CommandMeta, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
@@ -342,7 +342,7 @@ class GroupHelpTextTest(ParserTest):
 
         for use_type_metavar in (False, True):
             with self.subTest(use_type_metavar=use_type_metavar):
-                Base.config().use_type_metavar = use_type_metavar
+                CommandMeta.config(Base).use_type_metavar = use_type_metavar
 
                 help_text = _get_help_text(Base)
                 self.assertNotIn('Positional arguments:', help_text)
@@ -543,6 +543,14 @@ class ProgramMetadataTest(TestCase):
             self.assertEqual(meta.url, g['__url__'])
             self.assertEqual(meta.email, g['__author_email__'])
             self.assertEqual(meta.version, g['__version__'])
+            meta_repr = repr(meta)
+            # fmt: off
+            expected = [
+                "prog='foo.py'", "url='https://github.com/foo/bar'", "docs_url='https://foo.github.io/bar/'",
+                "email='example@fake.com'", "version='3.2.1'", "doc_name='foo'", 'path='
+            ]
+            # fmt: on
+            self.assertTrue(all(e in meta_repr for e in expected))
 
     @patch('cli_command_parser.utils.sys.argv', [])
     def test_prog_info_no_external_pkg(self, *mocks):
@@ -587,7 +595,7 @@ class ProgramMetadataTest(TestCase):
             Baz
             """
 
-        self.assertEqual('Foo\nBar\nBaz\n', Foo.meta().description)
+        self.assertEqual('Foo\nBar\nBaz\n', Foo.__class__.meta(Foo).description)
 
 
 def _frame_info(f_globals: dict, path: str, function: str):
