@@ -9,7 +9,8 @@ from cli_command_parser.actions import help_action
 from cli_command_parser.context import Context
 from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
-from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option, Parameter, parameter_action
+from cli_command_parser.parameters.base import parameter_action, Parameter
+from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option
 from cli_command_parser.testing import ParserTest as _ParserTest
 
 

@@ -14,18 +14,8 @@ from cli_command_parser.core import get_params, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
-from cli_command_parser.parameters import (
-    Positional,
-    SubCommand,
-    Action,
-    Counter,
-    ParamGroup,
-    Option,
-    Flag,
-    PassThru,
-    ChoiceMap,
-    action_flag,
-)
+from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
+from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.utils import ProgramMetadata, ProgInfo
 

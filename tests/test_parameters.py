@@ -29,22 +29,9 @@ from cli_command_parser.formatting.params import (
     PassThruHelpFormatter,
     GroupHelpFormatter,
 )
-from cli_command_parser.parameters import (
-    parameter_action,
-    Parameter,
-    PassThru,
-    Positional,
-    SubCommand,
-    ParamGroup,
-    ActionFlag,
-    BasePositional,
-    BaseOption,
-    Action,
-    Counter,
-    ChoiceMap,
-    Flag,
-    Option,
-)
+from cli_command_parser.parameters.base import parameter_action, Parameter, BaseOption, BasePositional
+from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
+from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
 from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest
 

@@ -14,16 +14,8 @@ from cli_command_parser.exceptions import (
     ParamUsageError,
 )
 from cli_command_parser.nargs import Nargs
-from cli_command_parser.parameters import (
-    Positional,
-    Option,
-    Flag,
-    Counter,
-    BaseOption,
-    parameter_action,
-    SubCommand,
-    PassThru,
-)
+from cli_command_parser.parameters.base import BaseOption, parameter_action
+from cli_command_parser.parameters import Positional, Option, Flag, Counter, SubCommand, PassThru
 from cli_command_parser.testing import ParserTest
 
 

@@ -22,17 +22,8 @@ except ImportError:
 from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
 from .formatting.commands import CommandHelpFormatter
-from .parameters import (
-    Parameter,
-    SubCommand,
-    BaseOption,
-    ParamBase,
-    PassThru,
-    ActionFlag,
-    ParamGroup,
-    Action,
-    BasePositional,
-)
+from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
+from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action
 
 if TYPE_CHECKING:
     from .config import CommandConfig

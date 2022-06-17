@@ -5,7 +5,7 @@ Common actions.
 """
 
 from .exceptions import ParserExit
-from .parameters import action_flag
+from .parameters.options import action_flag
 
 
 @action_flag('--help', '-h', order=float('-inf'), always_available=True, help='Show this help message and exit')

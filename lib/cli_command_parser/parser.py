@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 from .context import ctx
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
-from .parameters import BaseOption, Parameter, BasePositional, BasicActionMixin
+from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
     from .core import CommandType

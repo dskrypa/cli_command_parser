@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 
 class CommandMeta(ABCMeta, type):
+    # noinspection PyUnresolvedReferences
     """
     :param choice: SubCommand value that maps to this command
     :param prog: The name of the program (default: ``sys.argv[0]``)
