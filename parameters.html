@@ -447,7 +447,9 @@ to jump through hoops to handle them.</p>
 <section id="action">
 <h3>Action<a class="headerlink" href="#action" title="Permalink to this heading"></a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>
-classes to be registered as a callable to be executed based on a user’s choice instead of separate sub Commands.</p>
+classes to be registered as a callable to be executed based on a user’s choice instead of separate sub Commands.  The
+order of the Action relative to any other Parameters that are provided positionally determines where arguments for it
+must be provided.</p>
 <p>When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
 cases where all of those functions share the same parameters.  If the target functions require different / additional
 parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
@@ -470,31 +472,67 @@ parameters, then using a <a class="reference internal" href="api/cli_command_par
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
 </dl>
+<p>After creating an Action in a Command, it should be used as a decorator for the target methods that will be called,
+similar to the way that <code class="docutils literal notranslate"><span class="pre">&#64;property.setter</span></code> would be used to register a setter method for a given property.  When
+registering a method, the following keyword-only parameters are supported:</p>
+<dl class="field-list simple" id="action-register-params">
+<dt class="field-odd" id="action:choice">choice</dt>
+<dd class="field-odd"><p>The text that users must provide for the registered method to be called.  Defaults to the name of the method.</p>
+</dd>
+<dt class="field-even" id="action:help">help</dt>
+<dd class="field-even"><p>The help text / description to be displayed for the choice.  Defaults to the method’s docstring, if present.</p>
+</dd>
+<dt class="field-odd" id="action:default">default</dt>
+<dd class="field-odd"><p>If true, the method will be registered as the default action to take when no other choice is specified.  When
+marking a method as the default, if you want it to also be available as an explicit choice, then a <code class="docutils literal notranslate"><span class="pre">choice</span></code> value
+must be specified - the method name is not automatically used when <code class="docutils literal notranslate"><span class="pre">default=True</span></code>.  Only one method can be
+registered as the default for a given Action.</p>
+</dd>
+</dl>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses
 actions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The action to take&#39;</span><span class="p">)</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
 
-    <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Echo the provided text&#39;</span><span class="p">)</span>
+    <span class="c1"># Registering an action can be as simple as adding it as a decorator - the method&#39;s name will be registered as</span>
+    <span class="c1"># the choice for users to provide, and the docstring will be used as the help text.</span>
+    <span class="nd">@action</span>
     <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Echo the provided text&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
 
+    <span class="c1"># Keyword arguments can be provided to override the defaults - `help` here takes precedence over the docstring</span>
     <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Split the provided text so that each word is on a new line&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the provided text on separate lines&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+    <span class="c1"># This choice value will be used instead of the method name</span>
+    <span class="nd">@action</span><span class="p">(</span><span class="n">choice</span><span class="o">=</span><span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the provided text twice&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">print_twice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="c1"># Calling the action directly is just a shortcut for .register - both can be used the same way</span>
+    <span class="nd">@action</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Reverse the provided text&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>The resulting help text:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ action_with_args.py -h
-usage: action_with_args.py {echo,split} TEXT [--help]
+usage: action_with_args.py {echo,split,double,reverse} TEXT [--help]
 
 Positional arguments:
 
 Actions:
-  {echo,split}
+  {echo,split,double,reverse}
     echo                      Echo the provided text
     split                     Split the provided text so that each word is on a new line
+    double                    Print the provided text twice
+    reverse                   Reverse the provided text
 
   TEXT [TEXT ...]             The text to print
 

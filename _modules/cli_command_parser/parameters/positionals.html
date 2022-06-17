@@ -106,11 +106,10 @@
 
 <span class="sd">    :param nargs: The number of values that are expected/required for this parameter.  Defaults to 1.  Use a value</span>
 <span class="sd">      that allows 0 values to have the same effect as making this parameter not required (the ``required`` option</span>
-<span class="sd">      is not supported for Positional parameters).  Only the last Positional parameter in a given</span>
-<span class="sd">      :class:`~.commands.Command` may allow a variable / unbound number of arguments.  See :class:`~.nargs.Nargs`</span>
-<span class="sd">      for more info.</span>
+<span class="sd">      is not supported for Positional parameters).  Only the last Positional parameter in a given :class:`.Command`</span>
+<span class="sd">      may allow a variable / unbound number of arguments.  See :class:`.Nargs` for more info.</span>
 <span class="sd">    :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
-<span class="sd">      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when</span>
+<span class="sd">      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store`` when</span>
 <span class="sd">      ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action=&#39;store&#39;``, and a list</span>
 <span class="sd">      of values will be stored when ``action=&#39;append&#39;``.</span>
 <span class="sd">    :param type: A callable (function, class, etc.) that accepts a single string argument, which should be called</span>
@@ -119,7 +118,7 @@
 <span class="sd">      used as if it was provided here.  When both are present, this argument takes precedence.</span>
 <span class="sd">    :param default: Only supported when ``action=&#39;store&#39;`` and 0 values are allowed by the specified ``nargs``.</span>
 <span class="sd">      Defaults to ``None`` under those conditions.</span>
-<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>

@@ -142,14 +142,14 @@
 <span class="sd">    multi-word commands, without needing to jump through hoops to handle them.</span>
 
 <span class="sd">    :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
-<span class="sd">      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to (and only supports)</span>
+<span class="sd">      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to (and only supports)</span>
 <span class="sd">      ``append``.  The ``nargs`` value is automatically calculated / maintained, based on the number of distinct</span>
 <span class="sd">      words in the defined choices.  While most parameters that use ``action=&#39;append&#39;`` will return a list, the</span>
 <span class="sd">      final value for ChoiceMap parameters will instead be a string of space-separated provided values.</span>
 <span class="sd">    :param title: The title to use for help text sections containing the choices for this parameter.  Default value</span>
 <span class="sd">      depends on what is provided by subclasses.</span>
 <span class="sd">    :param description: The description to be used in help text for this parameter.</span>
-<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`BasePositional`.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_choice_validation_exc</span> <span class="o">=</span> <span class="n">ParameterDefinitionError</span>
@@ -165,7 +165,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param title: Default title to use for help text sections containing the choices for this parameter.</span>
 <span class="sd">        :param choice_validation_exc: The type of exception to raise when validating defined choices.</span>
-<span class="sd">        :param kwargs: Additional keyword arguments to pass to :meth:`Parameter.__init_subclass__`.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -279,7 +279,7 @@
 <span class="sd">    Used to indicate the position where a choice that results in delegating execution of the program to a sub-command</span>
 <span class="sd">    should be provided.</span>
 
-<span class="sd">    Sub :class:`~.commands.Command` classes are automatically registered as choices for a SubCommand parameter</span>
+<span class="sd">    Sub :class:`.Command` classes are automatically registered as choices for a SubCommand parameter</span>
 <span class="sd">    if they extend the Command that contains a SubCommand parameter instead of extending Command directly.  When</span>
 <span class="sd">    automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to</span>
 <span class="sd">    :meth:`.register` sub commands explicitly to specify a different choice value.</span>
@@ -289,8 +289,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
 <span class="sd">          raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and</span>
-<span class="sd">          not provided, the :meth:`~.commands.Command.main` method for the base :class:`~.commands.Command` that</span>
-<span class="sd">          contains this SubCommand will be executed by default.</span>
+<span class="sd">          not provided, the :meth:`~.Command.main` method for the base :class:`.Command` that contains this</span>
+<span class="sd">          SubCommand will be executed by default.</span>
 <span class="sd">        :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -310,10 +310,9 @@
             <span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">get_parent</span>
 
             <span class="n">parent</span> <span class="o">=</span> <span class="n">get_parent</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Invalid choice=</span><span class="si">{</span><span class="n">choice</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> with parent=</span><span class="si">{</span><span class="n">parent</span><span class="si">!r}</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39; - already assigned to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span><span class="o">.</span><span class="n">target</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid choice=</span><span class="si">{</span><span class="n">choice</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> with parent=</span><span class="si">{</span><span class="n">parent</span><span class="si">!r}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
 
         <span class="k">return</span> <span class="n">command</span></div>
 
@@ -321,7 +320,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">command_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandType</span><span class="p">],</span> <span class="n">CommandType</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`~.commands.Command` as the</span>
+<span class="sd">        Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`.Command` as the</span>
 <span class="sd">        subcommand class to be used for further parsing when the given choice is specified for this parameter.</span>
 
 <span class="sd">        This is only necessary for subcommands that do not extend their parent Command class.  When extending a parent</span>
@@ -349,12 +348,12 @@
 
 <div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action">[docs]</a><span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Actions are similar to :class:`SubCommand` parameters, but allow methods in :class:`~.commands.Command` classes to</span>
+<span class="sd">    Actions are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command` classes to</span>
 <span class="sd">    be registered as a callable to be executed based on a user&#39;s choice instead of separate sub Commands.</span>
 
 <span class="sd">    Actions are better suited for use cases where all of the target functions accept the same arguments.  If target</span>
-<span class="sd">    functions require different / additional parameters, then using a :class:`SubCommand` with separate sub</span>
-<span class="sd">    :class:`~.commands.Command` classes may make more sense.</span>
+<span class="sd">    functions require different / additional parameters, then using a :class:`.SubCommand` with separate sub</span>
+<span class="sd">    :class:`.Command` classes may make more sense.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Action.register_action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register_action">[docs]</a>    <span class="k">def</span> <span class="nf">register_action</span><span class="p">(</span>
@@ -402,9 +401,10 @@
 <span class="sd">        :param default: (Keyword-only) If true, this method will be registered as the default action to take when no</span>
 <span class="sd">          other choice is specified.  When marking a method as the default, if you want it to also be available as an</span>
 <span class="sd">          explicit choice, then a ``choice`` value must be specified.</span>
-<span class="sd">        :return: The original method, unchanged.  When called explicitly, a :class:`~functools.partial` method</span>
-<span class="sd">          will be returned first, which will automatically be called by the interpreter with the method to be decorated,</span>
-<span class="sd">          and that call will return the original method.</span>
+<span class="sd">        :return: The original method, unchanged.  When called explicitly, a</span>
+<span class="sd">          `partial &lt;https://docs.python.org/3/library/functools.html#functools.partial&gt;`__ method will be returned</span>
+<span class="sd">          first, which will automatically be called by the interpreter with the method to be decorated, and that call</span>
+<span class="sd">          will return the original method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method_or_choice</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

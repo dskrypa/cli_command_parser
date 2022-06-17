@@ -333,7 +333,9 @@ Action
 ------
 
 :class:`.Action` parameters are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command`
-classes to be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
+classes to be registered as a callable to be executed based on a user's choice instead of separate sub Commands.  The
+order of the Action relative to any other Parameters that are provided positionally determines where arguments for it
+must be provided.
 
 When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
 cases where all of those functions share the same parameters.  If the target functions require different / additional
@@ -351,6 +353,20 @@ parameters, then using a :class:`.SubCommand` with separate sub :class:`.Command
 :choices: Not supported.
 
 
+After creating an Action in a Command, it should be used as a decorator for the target methods that will be called,
+similar to the way that ``@property.setter`` would be used to register a setter method for a given property.  When
+registering a method, the following keyword-only parameters are supported:
+
+.. _action_register_params:
+
+:choice: The text that users must provide for the registered method to be called.  Defaults to the name of the method.
+:help: The help text / description to be displayed for the choice.  Defaults to the method's docstring, if present.
+:default: If true, the method will be registered as the default action to take when no other choice is specified.  When
+  marking a method as the default, if you want it to also be available as an explicit choice, then a ``choice`` value
+  must be specified - the method name is not automatically used when ``default=True``.  Only one method can be
+  registered as the default for a given Action.
+
+
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py>`__ that uses
 actions::
 
@@ -358,26 +374,45 @@ actions::
         action = Action(help='The action to take')
         text = Positional(nargs='+', help='The text to print')
 
-        @action(help='Echo the provided text')
+        # Registering an action can be as simple as adding it as a decorator - the method's name will be registered as
+        # the choice for users to provide, and the docstring will be used as the help text.
+        @action
         def echo(self):
+            """Echo the provided text"""
             print(' '.join(self.text))
 
+        # Keyword arguments can be provided to override the defaults - `help` here takes precedence over the docstring
         @action(help='Split the provided text so that each word is on a new line')
         def split(self):
+            """Print the provided text on separate lines"""
             print('\n'.join(self.text))
+
+        # This choice value will be used instead of the method name
+        @action(choice='double', help='Print the provided text twice')
+        def print_twice(self):
+            text = ' '.join(self.text)
+            print(text)
+            print(text)
+
+        # Calling the action directly is just a shortcut for .register - both can be used the same way
+        @action.register(help='Reverse the provided text')
+        def reverse(self):
+            print(' '.join(reversed(self.text)))
 
 
 The resulting help text::
 
     $ action_with_args.py -h
-    usage: action_with_args.py {echo,split} TEXT [--help]
+    usage: action_with_args.py {echo,split,double,reverse} TEXT [--help]
 
     Positional arguments:
 
     Actions:
-      {echo,split}
+      {echo,split,double,reverse}
         echo                      Echo the provided text
         split                     Split the provided text so that each word is on a new line
+        double                    Print the provided text twice
+        reverse                   Reverse the provided text
 
       TEXT [TEXT ...]             The text to print
 

@@ -118,7 +118,7 @@
 <span class="sd">    :param nargs: The number of values that are expected/required when this parameter is specified.  Defaults to 1.</span>
 <span class="sd">      See :class:`.Nargs` for more info.</span>
 <span class="sd">    :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
-<span class="sd">      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store`` when</span>
+<span class="sd">      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store`` when</span>
 <span class="sd">      ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action=&#39;store&#39;``, and a list</span>
 <span class="sd">      of values will be stored when ``action=&#39;append&#39;``.</span>
 <span class="sd">    :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if</span>
@@ -129,7 +129,7 @@
 <span class="sd">      on every value for this parameter to transform the value.  By default, no transformation is performed, and</span>
 <span class="sd">      values will be strings.  If not specified, but a type annotation is detected, then that annotation will be</span>
 <span class="sd">      used as if it was provided here.  When both are present, this argument takes precedence.</span>
-<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -166,13 +166,13 @@
 <span class="sd">    :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,</span>
 <span class="sd">      then one will automatically be added based on the name assigned to this parameter.</span>
 <span class="sd">    :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
-<span class="sd">      that extend Parameter, and must be registered via :class:`parameter_action`.  Defaults to ``store_const``, but</span>
+<span class="sd">      that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store_const``, but</span>
 <span class="sd">      accepts ``append_const`` to build a list of the specified constant.</span>
 <span class="sd">    :param default: The default value for this parameter if it is not specified.  Defaults to ``False`` when</span>
 <span class="sd">      ``const=True`` (the default), and to ``True`` when ``const=False``.  Defaults to ``None`` for any other</span>
 <span class="sd">      constant.</span>
 <span class="sd">    :param const: The constant value to store/append when this parameter is specified.  Defaults to ``True``.</span>
-<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__default_const_map</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
@@ -219,21 +219,20 @@
 
 <div class="viewcode-block" id="ActionFlag"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag">[docs]</a><span class="k">class</span> <span class="nc">ActionFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A :class:`Flag` that triggers the execution of a function / method / other callable when specified.</span>
+<span class="sd">    A :class:`.Flag` that triggers the execution of a function / method / other callable when specified.</span>
 
 <span class="sd">    :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,</span>
 <span class="sd">      then one will automatically be added based on the name assigned to this parameter.</span>
-<span class="sd">    :param order: The priority / order in which this ActionFlag should be executed, relative to other ActionFlags,</span>
-<span class="sd">      if others would also be executed.  Two ActionFlags in a given :class:`~.commands.Command` may not have the</span>
-<span class="sd">      same combination of ``before_main`` and ``order`` values.  ActionFlags with lower ``order`` values are</span>
-<span class="sd">      executed before those with higher values.  The ``--help`` action is implemented as an ActionFlag with</span>
-<span class="sd">      ``order=float(&#39;-inf&#39;)``.</span>
+<span class="sd">    :param order: The priority / order in which this ActionFlag should be executed, relative to other ActionFlags, if</span>
+<span class="sd">      others would also be executed.  Two ActionFlags in a given :class:`.Command` may not have the same combination</span>
+<span class="sd">      of ``before_main`` and ``order`` values.  ActionFlags with lower ``order`` values are executed before those with</span>
+<span class="sd">      higher values.  The ``--help`` action is implemented as an ActionFlag with ``order=float(&#39;-inf&#39;)``.</span>
 <span class="sd">    :param func: The function to execute when this parameter is specified.</span>
 <span class="sd">    :param before_main: Whether this ActionFlag should be executed before the :meth:`.Command.main` method or</span>
 <span class="sd">      after it.</span>
 <span class="sd">    :param always_available: Whether this ActionFlag should always be available to be called, even if parsing</span>
 <span class="sd">      failed.  Only allowed when ``before_main=True``.  The intended use case is for actions like ``--help`` text.</span>
-<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`Flag`.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.Flag`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -291,7 +290,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.</span>
 
-<span class="sd">        If stacking :class:`Action` and :class:`ActionFlag` decorators, the Action decorator must be first (i.e., the</span>
+<span class="sd">        If stacking :class:`.Action` and :class:`.ActionFlag` decorators, the Action decorator must be first (i.e., the</span>
 <span class="sd">        ActionFlag decorator must be above the Action decorator).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -329,7 +328,7 @@
 
 <div class="viewcode-block" id="Counter"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter">[docs]</a><span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">accepts_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accepts_none</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A :class:`Flag`-like option that counts the number of times it was specified.  Supports an optional integer value</span>
+<span class="sd">    A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value</span>
 <span class="sd">    to explicitly increase the stored value by that amount.</span>
 
 <span class="sd">    :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,</span>
@@ -341,7 +340,7 @@
 <span class="sd">    :param const: The value by which the stored value should increase whenever this parameter is specified.</span>
 <span class="sd">      Defaults to ``1``.  If a different ``const`` value is used, and if an explicit value is provided by a user,</span>
 <span class="sd">      the user-provided value will be added verbatim - it will NOT be multiplied by ``const``.</span>
-<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`BaseOption`.</span>
+<span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">type</span> <span class="o">=</span> <span class="nb">int</span>

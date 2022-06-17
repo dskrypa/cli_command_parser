@@ -168,7 +168,7 @@
 
 <span class="k">class</span> <span class="nc">ParamBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for :class:`Parameter` and :class:`ParamGroup`.</span>
+<span class="sd">    Base class for :class:`Parameter` and :class:`.ParamGroup`.</span>
 
 <span class="sd">    :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.</span>
 <span class="sd">    :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
@@ -305,10 +305,10 @@
         <span class="bp">cls</span><span class="p">,</span> <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">accepts_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`Flag`</span>
+<span class="sd">        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`.Flag`</span>
 <span class="sd">          is an example of a class that does not accept values.</span>
 <span class="sd">        :param accepts_none: Indicates whether a given subclass of Parameter accepts being specified without a value,</span>
-<span class="sd">          like :class:`Flag` and :class:`Counter`.</span>
+<span class="sd">          like :class:`.Flag` and :class:`.Counter`.</span>
 <span class="sd">        :param repr_attrs: Additional attributes to include in the repr.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_actions</span><span class="p">)</span>  <span class="c1"># Inherit actions from parent</span>
@@ -569,7 +569,7 @@
 
 <div class="viewcode-block" id="BasePositional"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional">[docs]</a><span class="k">class</span> <span class="nc">BasePositional</span><span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for :class:`Positional`, :class:`SubCommand`, :class:`Action`, and any other parameters that are</span>
+<span class="sd">    Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are</span>
 <span class="sd">    provided positionally, without prefixes.  It is not meant to be used directly.</span>
 
 <span class="sd">    All positional parameters are required by default.</span>
@@ -599,7 +599,7 @@
 
 <div class="viewcode-block" id="BaseOption"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption">[docs]</a><span class="k">class</span> <span class="nc">BaseOption</span><span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for :class:`Option`, :class:`Flag`, :class:`Counter`, and any other keyword-like parameters that have</span>
+<span class="sd">    Base class for :class:`.Option`, :class:`.Flag`, :class:`.Counter`, and any other keyword-like parameters that have</span>
 <span class="sd">    ``--long`` and ``-short`` prefixes before values.</span>
 
 <span class="sd">    Only the handling for processing long/short options and formatting usage of these parameters is provided in this</span>
