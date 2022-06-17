@@ -11,3 +11,4 @@ Parameters Package
     cli_command_parser.parameters.options
     cli_command_parser.parameters.pass_thru
     cli_command_parser.parameters.positionals
+    cli_command_parser.parameters.typing

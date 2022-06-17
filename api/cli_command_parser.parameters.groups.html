@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Groups Module &mdash; CLI Command Parser 2022.06.16 documentation</title>
+  <title>Groups Module &mdash; CLI Command Parser 2022.06.17 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -73,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.options.html">Options Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html">Pass_Thru Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.positionals.html">Positionals Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.typing.html">Typing Module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
@@ -175,20 +176,20 @@ exception will be raised if the user did not provide a value for any parameters 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.groups.ParamGroup.add">
-<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Param</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><span class="pre">ParamGroup</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/groups.html#ParamGroup.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.groups.ParamGroup.add" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParamOrGroup</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/groups.html#ParamGroup.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.groups.ParamGroup.add" title="Permalink to this definition"></a></dt>
 <dd><p>Add the given parameter without storing a back-reference.  Primary use case is for help text only groups.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.groups.ParamGroup.register">
-<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Param</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><span class="pre">ParamGroup</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/groups.html#ParamGroup.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.groups.ParamGroup.register" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParamOrGroup</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/groups.html#ParamGroup.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.groups.ParamGroup.register" title="Permalink to this definition"></a></dt>
 <dd><p>Register a virtual subclass of an ABC.</p>
 <p>Returns the subclass, to allow usage as a class decorator.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.groups.ParamGroup.register_all">
-<span class="sig-name descname"><span class="pre">register_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.10)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Param</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><span class="pre">ParamGroup</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/groups.html#ParamGroup.register_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.groups.ParamGroup.register_all" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">register_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">ParamOrGroup</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/groups.html#ParamGroup.register_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.groups.ParamGroup.register_all" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
