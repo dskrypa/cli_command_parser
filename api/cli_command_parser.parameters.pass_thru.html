@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pass_Thru Module &mdash; CLI Command Parser 2022.06.16 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Positionals Module" href="cli_command_parser.parameters.positionals.html" />
+    <link rel="prev" title="Options Module" href="cli_command_parser.parameters.options.html" />
+    <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.context.html">Context Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.core.html">Core Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.documentation.html">Documentation Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.error_handling.html">Error_Handling Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.exceptions.html">Exceptions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html">Base Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.choice_map.html">Choice_Map Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.groups.html">Groups Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.options.html">Options Module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Pass_Thru Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.positionals.html">Positionals Module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.utils.html">Utils Module</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+          <li><a href="cli_command_parser.parameters.html">Parameters Package</a> &raquo;</li>
+      <li>Pass_Thru Module</li>
+    <li class="wy-breadcrumbs-aside">
+        
+            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/parameters/pass_thru.py" target="_blank" class="fa fa-github"> View on GitHub</a>
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cli_command_parser.parameters.pass_thru">
+<span id="pass-thru-module"></span><h1>Pass_Thru Module<a class="headerlink" href="#module-cli_command_parser.parameters.pass_thru" title="Permalink to this heading"></a></h1>
+<p>PassThru Parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>Doug Skrypa</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.pass_thru.PassThru">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.pass_thru.</span></span><span class="sig-name descname"><span class="pre">PassThru</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'store_all'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/pass_thru.html#PassThru"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.pass_thru.PassThru" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+<p>Collects all remaining arguments, without processing them.  Must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parameters.pass_thru.PassThru.params.action"></span><strong>action</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.pass_thru.PassThru.params.action">¶</a> – The action to take on individual parsed values.  Only <code class="docutils literal notranslate"><span class="pre">store_all</span></code> (the default) is supported
+for this parameter type.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.pass_thru.PassThru.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.pass_thru.PassThru.params.kwargs">¶</a> – Additional keyword arguments to pass to <code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.pass_thru.PassThru.nargs">
+<span class="sig-name descname"><span class="pre">nargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><span class="pre">Nargs</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Nargs('*')</span></em><a class="headerlink" href="#cli_command_parser.parameters.pass_thru.PassThru.nargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.pass_thru.PassThru.take_action">
+<span class="sig-name descname"><span class="pre">take_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Collection" title="(in Python v3.10)"><span class="pre">Collection</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/pass_thru.html#PassThru.take_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.pass_thru.PassThru.take_action" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.pass_thru.PassThru.store_all">
+<span class="sig-name descname"><span class="pre">store_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Collection" title="(in Python v3.10)"><span class="pre">Collection</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/pass_thru.html#PassThru.store_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.pass_thru.PassThru.store_all" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli_command_parser.parameters.options.html" class="btn btn-neutral float-left" title="Options Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.parameters.positionals.html" class="btn btn-neutral float-right" title="Positionals Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

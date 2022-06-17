@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Options Module &mdash; CLI Command Parser 2022.06.16 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Pass_Thru Module" href="cli_command_parser.parameters.pass_thru.html" />
+    <link rel="prev" title="Groups Module" href="cli_command_parser.parameters.groups.html" />
+    <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.context.html">Context Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.core.html">Core Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.documentation.html">Documentation Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.error_handling.html">Error_Handling Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.exceptions.html">Exceptions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html">Base Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.choice_map.html">Choice_Map Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.groups.html">Groups Module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Options Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html">Pass_Thru Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.positionals.html">Positionals Module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.utils.html">Utils Module</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+          <li><a href="cli_command_parser.parameters.html">Parameters Package</a> &raquo;</li>
+      <li>Options Module</li>
+    <li class="wy-breadcrumbs-aside">
+        
+            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/parameters/options.py" target="_blank" class="fa fa-github"> View on GitHub</a>
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cli_command_parser.parameters.options">
+<span id="options-module"></span><h1>Options Module<a class="headerlink" href="#module-cli_command_parser.parameters.options" title="Permalink to this heading"></a></h1>
+<p>Optional Parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>Doug Skrypa</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Option">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">Option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*option_strs:</span> <span class="pre">str,</span> <span class="pre">nargs:</span> <span class="pre">~typing.Optional[~typing.Union[str,</span> <span class="pre">int,</span> <span class="pre">~typing.Tuple[int,</span> <span class="pre">~typing.Optional[int]],</span> <span class="pre">~typing.Sequence[int],</span> <span class="pre">~typing.Set[int],</span> <span class="pre">range]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">action:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;,</span> <span class="pre">default:</span> <span class="pre">~typing.Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;,</span> <span class="pre">required:</span> <span class="pre">~typing.Union[bool,</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">type:</span> <span class="pre">~typing.Union[None,</span> <span class="pre">~typing.Callable[[str],</span> <span class="pre">~typing.Any],</span> <span class="pre">~cli_command_parser.inputs.base.InputType,</span> <span class="pre">range,</span> <span class="pre">~typing.Type[~enum.Enum]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Option" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BasicActionMixin</span></code>, <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption" title="cli_command_parser.parameters.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code></a></p>
+<p>A generic option that can be specified as <code class="docutils literal notranslate"><span class="pre">--foo</span> <span class="pre">bar</span></code> or by using other similar forms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.option_strs"></span><strong>option_strs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.option_strs">¶</a> – The long and/or short option prefixes for this option.  If no long prefixes are specified,
+then one will automatically be added based on the name assigned to this parameter.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.nargs"></span><strong>nargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.nargs">¶</a> – The number of values that are expected/required when this parameter is specified.  Defaults to 1.
+See <a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nargs</span></code></a> for more info.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.action"></span><strong>action</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.action">¶</a> – The action to take on individual parsed values.  Actions must be defined as methods in classes
+that extend Parameter, and must be registered via <code class="xref py py-class docutils literal notranslate"><span class="pre">parameter_action</span></code>.  Defaults to <code class="docutils literal notranslate"><span class="pre">store</span></code> when
+<code class="docutils literal notranslate"><span class="pre">nargs=1</span></code>, and to <code class="docutils literal notranslate"><span class="pre">append</span></code> otherwise.  A single value will be stored when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code>, and a list
+of values will be stored when <code class="docutils literal notranslate"><span class="pre">action='append'</span></code>.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.default">¶</a> – The default value for this parameter if it is not specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if
+this parameter is not required; not used if it is required.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.required"></span><strong>required</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.required">¶</a> – Whether this parameter is required or not.  If it is required, then an exception will be
+raised if the user did not provide a value for this parameter.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.type"></span><strong>type</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.type">¶</a> – A callable (function, class, etc.) that accepts a single string argument, which should be called
+on every value for this parameter to transform the value.  By default, no transformation is performed, and
+values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
+used as if it was provided here.  When both are present, this argument takes precedence.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.kwargs">¶</a> – Additional keyword arguments to pass to <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">Flag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*option_strs:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'store_const'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default:</span> <span class="pre">~typing.Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">const:</span> <span class="pre">~typing.Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Flag" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption" title="cli_command_parser.parameters.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code></a></p>
+<p>A (typically boolean) option that does not accept any values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parameters.options.Flag.params.option_strs"></span><strong>option_strs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Flag.params.option_strs">¶</a> – The long and/or short option prefixes for this option.  If no long prefixes are specified,
+then one will automatically be added based on the name assigned to this parameter.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Flag.params.action"></span><strong>action</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Flag.params.action">¶</a> – The action to take on individual parsed values.  Actions must be defined as methods in classes
+that extend Parameter, and must be registered via <code class="xref py py-class docutils literal notranslate"><span class="pre">parameter_action</span></code>.  Defaults to <code class="docutils literal notranslate"><span class="pre">store_const</span></code>, but
+accepts <code class="docutils literal notranslate"><span class="pre">append_const</span></code> to build a list of the specified constant.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Flag.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Flag.params.default">¶</a> – The default value for this parameter if it is not specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> when
+<code class="docutils literal notranslate"><span class="pre">const=True</span></code> (the default), and to <code class="docutils literal notranslate"><span class="pre">True</span></code> when <code class="docutils literal notranslate"><span class="pre">const=False</span></code>.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> for any other
+constant.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Flag.params.const"></span><strong>const</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Flag.params.const">¶</a> – The constant value to store/append when this parameter is specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Flag.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Flag.params.kwargs">¶</a> – Additional keyword arguments to pass to <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.nargs">
+<span class="sig-name descname"><span class="pre">nargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><span class="pre">Nargs</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Nargs(0)</span></em><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.nargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.store_const">
+<span class="sig-name descname"><span class="pre">store_const</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Flag.store_const"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.store_const" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.append_const">
+<span class="sig-name descname"><span class="pre">append_const</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Flag.append_const"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.append_const" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.would_accept">
+<span class="sig-name descname"><span class="pre">would_accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Flag.would_accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.would_accept" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.result_value">
+<span class="sig-name descname"><span class="pre">result_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Flag.result_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.result_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.result">
+<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></span><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.accepts_none">
+<span class="sig-name descname"><span class="pre">accepts_none</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.accepts_none" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.accepts_values">
+<span class="sig-name descname"><span class="pre">accepts_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.accepts_values" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.ActionFlag">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">ActionFlag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">option_strs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">before_main</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">always_available</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#ActionFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.ActionFlag" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cli_command_parser.parameters.options.Flag" title="cli_command_parser.parameters.options.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a></p>
+<p>A <a class="reference internal" href="#cli_command_parser.parameters.options.Flag" title="cli_command_parser.parameters.options.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> that triggers the execution of a function / method / other callable when specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parameters.options.ActionFlag.params.option_strs"></span><strong>option_strs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.ActionFlag.params.option_strs">¶</a> – The long and/or short option prefixes for this option.  If no long prefixes are specified,
+then one will automatically be added based on the name assigned to this parameter.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.ActionFlag.params.order"></span><strong>order</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.ActionFlag.params.order">¶</a> – The priority / order in which this ActionFlag should be executed, relative to other ActionFlags,
+if others would also be executed.  Two ActionFlags in a given <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> may not have the
+same combination of <code class="docutils literal notranslate"><span class="pre">before_main</span></code> and <code class="docutils literal notranslate"><span class="pre">order</span></code> values.  ActionFlags with lower <code class="docutils literal notranslate"><span class="pre">order</span></code> values are
+executed before those with higher values.  The <code class="docutils literal notranslate"><span class="pre">--help</span></code> action is implemented as an ActionFlag with
+<code class="docutils literal notranslate"><span class="pre">order=float('-inf')</span></code>.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.ActionFlag.params.func"></span><strong>func</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.ActionFlag.params.func">¶</a> – The function to execute when this parameter is specified.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.ActionFlag.params.before_main"></span><strong>before_main</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.ActionFlag.params.before_main">¶</a> – Whether this ActionFlag should be executed before the <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> method or
+after it.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.ActionFlag.params.always_available"></span><strong>always_available</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.ActionFlag.params.always_available">¶</a> – Whether this ActionFlag should always be available to be called, even if parsing
+failed.  Only allowed when <code class="docutils literal notranslate"><span class="pre">before_main=True</span></code>.  The intended use case is for actions like <code class="docutils literal notranslate"><span class="pre">--help</span></code> text.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.ActionFlag.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.ActionFlag.params.kwargs">¶</a> – Additional keyword arguments to pass to <a class="reference internal" href="#cli_command_parser.parameters.options.Flag" title="cli_command_parser.parameters.options.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.ActionFlag.func">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">func</span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#ActionFlag.func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.ActionFlag.func" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.ActionFlag.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#ActionFlag.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.ActionFlag.__call__" title="Permalink to this definition"></a></dt>
+<dd><p>Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.</p>
+<p>If stacking <code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code> and <a class="reference internal" href="#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> decorators, the Action decorator must be first (i.e., the
+ActionFlag decorator must be above the Action decorator).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.ActionFlag.result">
+<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#ActionFlag.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.ActionFlag.result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">Counter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">option_strs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'append'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Counter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Counter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption" title="cli_command_parser.parameters.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code></a></p>
+<p>A <a class="reference internal" href="#cli_command_parser.parameters.options.Flag" title="cli_command_parser.parameters.options.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a>-like option that counts the number of times it was specified.  Supports an optional integer value
+to explicitly increase the stored value by that amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.parameters.options.Counter.params.option_strs"></span><strong>option_strs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Counter.params.option_strs">¶</a> – The long and/or short option prefixes for this option.  If no long prefixes are specified,
+then one will automatically be added based on the name assigned to this parameter.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Counter.params.action"></span><strong>action</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Counter.params.action">¶</a> – The action to take on individual parsed values.  Defaults to <code class="docutils literal notranslate"><span class="pre">append</span></code>, and no other actions
+are supported (unless this class is extended).</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Counter.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Counter.params.default">¶</a> – The default value for this parameter if it is not specified.  This value is also be used as the
+initial value that will be incremented when this parameter is specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Counter.params.const"></span><strong>const</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Counter.params.const">¶</a> – The value by which the stored value should increase whenever this parameter is specified.
+Defaults to <code class="docutils literal notranslate"><span class="pre">1</span></code>.  If a different <code class="docutils literal notranslate"><span class="pre">const</span></code> value is used, and if an explicit value is provided by a user,
+the user-provided value will be added verbatim - it will NOT be multiplied by <code class="docutils literal notranslate"><span class="pre">const</span></code>.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Counter.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Counter.params.kwargs">¶</a> – Additional keyword arguments to pass to <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.type" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.nargs">
+<span class="sig-name descname"><span class="pre">nargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><span class="pre">Nargs</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Nargs('?')</span></em><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.nargs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.prepare_value">
+<span class="sig-name descname"><span class="pre">prepare_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Counter.prepare_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.prepare_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Counter.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.append" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Counter.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.validate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.accepts_none">
+<span class="sig-name descname"><span class="pre">accepts_none</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.accepts_none" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.accepts_values">
+<span class="sig-name descname"><span class="pre">accepts_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.accepts_values" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.result_value">
+<span class="sig-name descname"><span class="pre">result_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Counter.result_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.result_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.result">
+<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.action_flag">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">action_flag</span></span><a class="headerlink" href="#cli_command_parser.parameters.options.action_flag" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for <a class="reference internal" href="#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.before_main">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">before_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">option_strs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#before_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.before_main" title="Permalink to this definition"></a></dt>
+<dd><p>An ActionFlag that will be executed before <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.parameters.options.after_main">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.options.</span></span><span class="sig-name descname"><span class="pre">after_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">option_strs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><span class="pre">Callable</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#after_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.after_main" title="Permalink to this definition"></a></dt>
+<dd><p>An ActionFlag that will be executed after <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a></p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli_command_parser.parameters.groups.html" class="btn btn-neutral float-left" title="Groups Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.parameters.pass_thru.html" class="btn btn-neutral float-right" title="Pass_Thru Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

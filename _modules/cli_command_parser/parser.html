@@ -98,7 +98,7 @@
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoSuchOption</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">ParamsMissing</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">Backtrack</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
-<span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BasicActionMixin</span>
+<span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BaseOption</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>

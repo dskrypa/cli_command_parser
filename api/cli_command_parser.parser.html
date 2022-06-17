@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Testing Module" href="cli_command_parser.testing.html" />
-    <link rel="prev" title="Parameters Module" href="cli_command_parser.parameters.html" />
+    <link rel="prev" title="Positionals Module" href="cli_command_parser.parameters.positionals.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -66,7 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parser Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.utils.html">Utils Module</a></li>
@@ -155,12 +155,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.consume_values">
-<span class="sig-name descname"><span class="pre">consume_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">found</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parser.html#CommandParser.consume_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parser.CommandParser.consume_values" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">consume_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">found</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/parser.html#CommandParser.consume_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parser.CommandParser.consume_values" title="Permalink to this definition"></a></dt>
 <dd><p>Consume values for the given Parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.parser.CommandParser.consume_values.params.param"></span><strong>param</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parser.CommandParser.consume_values.params.param">¶</a> – The active <a class="reference internal" href="cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that should receive the discovered values</p></li>
+<li><p><span class="target" id="cli_command_parser.parser.CommandParser.consume_values.params.param"></span><strong>param</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parser.CommandParser.consume_values.params.param">¶</a> – The active <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that should receive the discovered values</p></li>
 <li><p><span class="target" id="cli_command_parser.parser.CommandParser.consume_values.params.found"></span><strong>found</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parser.CommandParser.consume_values.params.found">¶</a> – The number of already discovered values for that Parameter (only specified for positional params)</p></li>
 </ul>
 </dd>
@@ -178,7 +178,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cli_command_parser.parameters.html" class="btn btn-neutral float-left" title="Parameters Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.parameters.positionals.html" class="btn btn-neutral float-left" title="Positionals Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="cli_command_parser.testing.html" class="btn btn-neutral float-right" title="Testing Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

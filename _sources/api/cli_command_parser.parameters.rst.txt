@@ -1,9 +1,13 @@
-Parameters Module
-=================
+Parameters Package
+******************
 
-.. currentmodule:: cli_command_parser.parameters
+.. toctree::
+    :maxdepth: 4
+    :caption: Modules
 
-.. automodule:: cli_command_parser.parameters
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    cli_command_parser.parameters.base
+    cli_command_parser.parameters.choice_map
+    cli_command_parser.parameters.groups
+    cli_command_parser.parameters.options
+    cli_command_parser.parameters.pass_thru
+    cli_command_parser.parameters.positionals

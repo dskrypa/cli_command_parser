@@ -108,7 +108,7 @@
 <p>Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
 say, argparse) to differentiate between parameter types.  The two major categories are <a class="reference internal" href="#options">Options</a> and <a class="reference internal" href="#positionals">Positionals</a>,
 but there are <a class="reference internal" href="#others">Others</a> as well.  The base class for all Parameters is extensible, and user-defined
-<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Parameter" title="cli_command_parser.parameters.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> types are technically possible as well.</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code> types are technically possible as well.</p>
 <p>Many parameters support a <code class="docutils literal notranslate"><span class="pre">type</span></code> argument, which will result in the user-provided value being cast to that type before
 being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
 type will be inferred automatically from any type annotations (see <span class="target" id="index-0"></span><a class="pep reference external" href="https://peps.python.org/pep-0484/"><strong>PEP 484</strong></a>) that are present.</p>
@@ -216,7 +216,7 @@ Option/Flag/Counter/etc.</p>
 </dl>
 <section id="option">
 <h3>Option<a class="headerlink" href="#option" title="Permalink to this heading"></a></h3>
-<p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Option" title="cli_command_parser.parameters.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter, that accepts arbitrary values or lists of values.</p>
+<p>The generic <code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code> parameter, that accepts arbitrary values or lists of values.</p>
 <p>Given the following example Command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
@@ -237,7 +237,7 @@ inputs, respectively.</p>
 </section>
 <section id="flag">
 <h3>Flag<a class="headerlink" href="#flag" title="Permalink to this heading"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Flag" title="cli_command_parser.parameters.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> parameters typically represent boolean values, and do not accept any values.  By default, Flag
+<p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag" title="cli_command_parser.parameters.options.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> parameters typically represent boolean values, and do not accept any values.  By default, Flag
 parameters have a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>, and will change to <code class="docutils literal notranslate"><span class="pre">True</span></code> if provided by a user.  By specifying
 <code class="docutils literal notranslate"><span class="pre">default=True</span></code>, then that behavior is reversed.  It is also possible to specify any default value with a different
 <code class="docutils literal notranslate"><span class="pre">const</span></code> value to use if the flag is provided.</p>
@@ -293,7 +293,7 @@ Optional arguments:
 </section>
 <section id="counter">
 <h3>Counter<a class="headerlink" href="#counter" title="Permalink to this heading"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Counter" title="cli_command_parser.parameters.Counter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Counter</span></code></a> parameters are similar to Flags, but they may be specified multiple times, and they support an
+<p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter" title="cli_command_parser.parameters.options.Counter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Counter</span></code></a> parameters are similar to Flags, but they may be specified multiple times, and they support an
 optional integer value to explicitly increase their stored value by that amount.  One common use case for Counters
 is for verbosity levels, where logging verbosity would increase with the number of <code class="docutils literal notranslate"><span class="pre">-v</span></code> arguments that are provided.</p>
 <p id="counter-init-params"><strong>Unique Counter initialization parameters:</strong></p>
@@ -348,7 +348,7 @@ preceding optional parameter accepts a bounded number of arguments and those val
 the order in which they must be provided; i.e., the top-most positional parameters must be provided first.</p>
 <section id="positional">
 <h3>Positional<a class="headerlink" href="#positional" title="Permalink to this heading"></a></h3>
-<p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Positional" title="cli_command_parser.parameters.Positional"><code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code></a> parameter, that accepts arbitrary values or lists of
+<p>The generic <code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code> parameter, that accepts arbitrary values or lists of
 values.</p>
 <p id="positional-init-params"><strong>Unique Positional initialization parameters:</strong></p>
 <dl class="field-list simple">
@@ -379,7 +379,7 @@ Hello World
 </section>
 <section id="subcommand">
 <h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this heading"></a></h3>
-<p>The <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the
+<p>The <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.</p>
 <p>SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
 should be provided relative to other positional parameters, if any.</p>
@@ -439,18 +439,18 @@ bar
 </pre></div>
 </div>
 <p>When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
-<a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand.register" title="cli_command_parser.parameters.SubCommand.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> sub commands explicitly to specify a different choice value, including names that may
+<a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register" title="cli_command_parser.parameters.choice_map.SubCommand.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> sub commands explicitly to specify a different choice value, including names that may
 include spaces.  Such names can be provided without requiring users to escape or quote the string (i.e., as
 technically separate arguments).  This allows for a more natural way to provide multi-word commands, without needing
 to jump through hoops to handle them.</p>
 </section>
 <section id="action">
 <h3>Action<a class="headerlink" href="#action" title="Permalink to this heading"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.Action" title="cli_command_parser.parameters.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>
 classes to be registered as a callable to be executed based on a user’s choice instead of separate sub Commands.</p>
 <p>When there are multiple choices of functions that may be called for a given program, Actions are better suited to use
 cases where all of those functions share the same parameters.  If the target functions require different / additional
-parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.SubCommand" title="cli_command_parser.parameters.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
+parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
 <p id="action-init-params"><strong>Unique Action initialization parameters:</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="action:title">title</dt>
@@ -517,7 +517,7 @@ two
 <h2>Others<a class="headerlink" href="#others" title="Permalink to this heading"></a></h2>
 <section id="passthru">
 <h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this heading"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.PassThru" title="cli_command_parser.parameters.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected, without processing them.  Only
+<p><a class="reference internal" href="api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru" title="cli_command_parser.parameters.pass_thru.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected, without processing them.  Only
 one PassThru parameter may exist in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  When provided, it must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a
 space.</p>
 <p id="passthru-init-params"><strong>Unique PassThru initialization parameters:</strong></p>
@@ -563,7 +563,7 @@ Would run on two: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
 </section>
 <section id="actionflag">
 <h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this heading"></a></h3>
-<p><a class="reference internal" href="api/cli_command_parser.parameters.html#cli_command_parser.parameters.ActionFlag" title="cli_command_parser.parameters.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
+<p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
 parameters.  Like Flags, they are not required, and they can be combined with other <a class="reference internal" href="#options"><span class="std std-ref">Options</span></a>.  Like
 Actions, they allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as execution targets.</p>
 <p>When ActionFlag arguments are provided, the associated methods are called in the order that was specified when marking
