@@ -88,7 +88,6 @@ class ParamBase(ABC):
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
-    # fmt: off
     __name: str = None              #: Always the name of the attr that points to this object
     _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
     group: ParamGroup = None        #: The group this object is a member of, if any
@@ -97,7 +96,6 @@ class ParamBase(ABC):
     help: str = None                #: The description for this param/group that will appear in ``--help`` text
     hide: Bool = False              #: Whether this param/group should be hidden in ``--help`` text
     missing_hint: str = None        #: Hint to provide if this param/group is missing
-    # fmt: on
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
         self.required = required
@@ -542,12 +540,10 @@ class BaseOption(Parameter, ABC):
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
-    # fmt: off
     _long_opts: Set[str]                        # --long options
     _short_opts: Set[str]                       # -short options
     short_combinable: Set[str]                  # short options without the leading dash (for combined flags)
     name_mode: Optional[OptionNameMode] = None  # OptionNameMode override
-    # fmt: on
 
     def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str] = None, **kwargs):
         bad_opts = ', '.join(opt for opt in option_strs if not 0 < opt.count('-', 0, 3) < 3)

@@ -40,13 +40,11 @@ class ShowDefaults(FixedFlag):
     is equivalent to ``ShowDefaults.MISSING | ShowDefaults.NEVER``, which will result in no default values being shown.
     """
 
-    # fmt: off
     NEVER = 1       #: Never include the default value in help text
     MISSING = 2     #: Only include the default value if ``default:`` is not already present
     TRUTHY = 4      #: Only include the default value if it is treated as True in a boolean context
     NON_EMPTY = 8   #: Only include the default value if it is not ``None`` or an empty container
     ANY = 16        #: Any default value, regardless of truthiness, will be included
-    # fmt: on
 
     @classmethod
     def _missing_(cls, value: Union[str, int]) -> ShowDefaults:
@@ -78,11 +76,9 @@ class OptionNameMode(FixedFlag):
     If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.
     """
 
-    # fmt: off
     UNDERSCORE = 1
     DASH = 2
     BOTH = 3
-    # fmt: on
 
 
 # endregion
