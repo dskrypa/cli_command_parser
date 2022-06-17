@@ -212,8 +212,8 @@ class HelpTextTest(TestCase):
         Foo.parse_and_run(['-h'])
         self.assertTrue(help_mock.called)
 
+    # TODO:BUG?: Fix handling of -fh / -hf
     def test_help_called_with_unrecognized_args(self):
-        # TODO:BUG?: Fix handling of -fh / -hf
         when_cases_map = {
             # 'before': (['--foo', '-h'], ['-fh'], ['-f', '1', '-h'], ['f', '--help']),
             # 'after': (['-h', '--foo'], ['-hf'], ['-h', '-f', '1'], ['--help', 'f']),

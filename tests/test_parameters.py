@@ -725,12 +725,12 @@ class ChoiceMapTest(ParserTest):
             with self.assertRaises(BadArgument):
                 Foo.action.validate('bar')
 
+    # TODO: Should this be raised earlier?
     def test_no_choices_result(self):
         class Foo(Command):
             action = Action()
 
         with self.assertRaises(CommandDefinitionError):
-            # TODO: Should this be raised earlier?
             Foo.parse([]).action  # noqa
 
     def test_unexpected_nargs(self):

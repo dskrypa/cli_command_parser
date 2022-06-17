@@ -165,8 +165,8 @@ class ParamComboTest(ParserTest):
         ]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
-    @skip('This case is not currently supported')
-    def test_common_positional_after_sub_command(self):  # TODO: Should this be supported?
+    @skip('This case is not currently supported')  # TODO: Should this be supported?
+    def test_common_positional_after_sub_command(self):
         class Foo(Command):
             sub = SubCommand()
             pos = Positional()
@@ -846,11 +846,11 @@ class NargsTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    # TODO:BUG: Fix commented-out lines
     def test_single_default_with_nargs_multi(self):
         class Foo(Command):
             bar = Option('-b', nargs='+', type=int, default=1)
 
-        # TODO:BUG: Fix commented-out lines
         success_cases = [
             # ([], {'bar': [1]}),  # Results in [] now
             (['-b', '2'], {'bar': [2]}),
