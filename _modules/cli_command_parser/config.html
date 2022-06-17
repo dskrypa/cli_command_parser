@@ -125,13 +125,11 @@
 <span class="sd">    is equivalent to ``ShowDefaults.MISSING | ShowDefaults.NEVER``, which will result in no default values being shown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># fmt: off</span>
     <span class="n">NEVER</span> <span class="o">=</span> <span class="mi">1</span>       <span class="c1">#: Never include the default value in help text</span>
     <span class="n">MISSING</span> <span class="o">=</span> <span class="mi">2</span>     <span class="c1">#: Only include the default value if ``default:`` is not already present</span>
     <span class="n">TRUTHY</span> <span class="o">=</span> <span class="mi">4</span>      <span class="c1">#: Only include the default value if it is treated as True in a boolean context</span>
     <span class="n">NON_EMPTY</span> <span class="o">=</span> <span class="mi">8</span>   <span class="c1">#: Only include the default value if it is not ``None`` or an empty container</span>
     <span class="n">ANY</span> <span class="o">=</span> <span class="mi">16</span>        <span class="c1">#: Any default value, regardless of truthiness, will be included</span>
-    <span class="c1"># fmt: on</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ShowDefaults</span><span class="p">:</span>
@@ -163,11 +161,9 @@
 <span class="sd">    If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># fmt: off</span>
     <span class="n">UNDERSCORE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">DASH</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">BOTH</span> <span class="o">=</span> <span class="mi">3</span></div>
-    <span class="c1"># fmt: on</span>
 
 
 <span class="c1"># endregion</span>

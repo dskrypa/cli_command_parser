@@ -1,7 +1,7 @@
 CLI Command Parser
 ##################
 
-|downloads| |py_version| |coverage_badge| |build_status| |Black|
+|downloads| |py_version| |coverage_badge| |build_status| |Blue|
 
 .. |py_version| image:: https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20-blue
     :target: https://pypi.org/project/cli-command-parser/
@@ -12,8 +12,8 @@ CLI Command Parser
 .. |build_status| image:: https://github.com/dskrypa/cli_command_parser/actions/workflows/run-tests.yml/badge.svg
     :target: https://github.com/dskrypa/cli_command_parser/actions/workflows/run-tests.yml
 
-.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
+.. |Blue| image:: https://img.shields.io/badge/code%20style-blue-blue.svg
+    :target: https://blue.readthedocs.io/
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/cli-command-parser
     :target: https://pypistats.org/packages/cli-command-parser

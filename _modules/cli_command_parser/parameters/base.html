@@ -173,7 +173,6 @@
 <span class="sd">    :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># fmt: off</span>
     <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1">#: Always the name of the attr that points to this object</span>
     <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>               <span class="c1">#: An explicitly provided name, or the name of the attr that points to this object</span>
     <span class="n">group</span><span class="p">:</span> <span class="n">ParamGroup</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1">#: The group this object is a member of, if any</span>
@@ -182,7 +181,6 @@
     <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>                <span class="c1">#: The description for this param/group that will appear in ``--help`` text</span>
     <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>              <span class="c1">#: Whether this param/group should be hidden in ``--help`` text</span>
     <span class="n">missing_hint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1">#: Hint to provide if this param/group is missing</span>
-    <span class="c1"># fmt: on</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
@@ -627,12 +625,10 @@
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># fmt: off</span>
     <span class="n">_long_opts</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                        <span class="c1"># --long options</span>
     <span class="n">_short_opts</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                       <span class="c1"># -short options</span>
     <span class="n">short_combinable</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                  <span class="c1"># short options without the leading dash (for combined flags)</span>
     <span class="n">name_mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OptionNameMode</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># OptionNameMode override</span>
-    <span class="c1"># fmt: on</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">OptionNameMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">bad_opts</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">option_strs</span> <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">opt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span>
