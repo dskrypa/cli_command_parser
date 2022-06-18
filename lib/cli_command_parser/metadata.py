@@ -1,5 +1,5 @@
 """
-Utilities for extracting types from annotations, finding / storing program metadata, and other misc utilities.
+Program metadata introspection for use in usage, help text, and documentation.
 
 :author: Doug Skrypa
 """
@@ -85,6 +85,7 @@ class ProgramMetadata:
     ) -> ProgramMetadata:
         path, g = _path_and_globals(command, path)
         if command.__module__ != 'cli_command_parser.commands':
+            # Prevent inheritors from getting docstrings from the base Command
             doc_str = g.get('__doc__')
             doc = command.__doc__
         else:
