@@ -14,10 +14,10 @@ from cli_command_parser.core import get_params, CommandMeta, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
+from cli_command_parser.metadata import ProgramMetadata, ProgInfo
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag
 from cli_command_parser.testing import ParserTest
-from cli_command_parser.utils import ProgramMetadata, ProgInfo
 
 TEST_DESCRIPTION = 'This is a test description'
 TEST_EPILOG = 'This is a test epilog'
@@ -202,11 +202,8 @@ class HelpTextTest(TestCase):
         Foo.parse_and_run(['-h'])
         self.assertTrue(help_mock.called)
 
-    # TODO:BUG?: Fix handling of -fh / -hf
     def test_help_called_with_unrecognized_args(self):
         when_cases_map = {
-            # 'before': (['--foo', '-h'], ['-fh'], ['-f', '1', '-h'], ['f', '--help']),
-            # 'after': (['-h', '--foo'], ['-hf'], ['-h', '-f', '1'], ['--help', 'f']),
             'before': (['--foo', '-h'], ['-f', '1', '-h'], ['f', '--help']),
             'after': (['-h', '--foo'], ['-h', '-f', '1'], ['--help', 'f']),
         }
@@ -501,8 +498,8 @@ class ProgramMetadataTest(TestCase):
         with TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir).joinpath('bar.py')
             tmp_path.touch()
-            with patch('cli_command_parser.utils.sys.argv', [tmp_path.as_posix()]):
-                with patch('cli_command_parser.utils.stack', return_value=_mock_stack(g)):
+            with patch('cli_command_parser.metadata.sys.argv', [tmp_path.as_posix()]):
+                with patch('cli_command_parser.metadata.stack', return_value=_mock_stack(g)):
                     meta = ProgramMetadata()
                     self.assertEqual(meta.path.name, 'bar.py')
                     self.assertEqual(meta.prog, 'bar.py')
@@ -527,7 +524,7 @@ class ProgramMetadataTest(TestCase):
         meta = ProgramMetadata(url='https://github.com/foo')
         self.assertIs(meta.docs_url, None)
 
-    @patch('cli_command_parser.utils.sys.argv', [])
+    @patch('cli_command_parser.metadata.sys.argv', [])
     def test_find_dunder_info(self, *mocks):
         g = {
             '__package__': 'foo.cli',
@@ -535,7 +532,7 @@ class ProgramMetadataTest(TestCase):
             '__version__': '3.2.1',
             '__url__': 'https://github.com/foo/bar',
         }
-        with patch('cli_command_parser.utils.stack', return_value=_mock_stack(g)):
+        with patch('cli_command_parser.metadata.stack', return_value=_mock_stack(g)):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'foo.py')
             self.assertEqual(meta.prog, 'foo.py')
@@ -552,22 +549,22 @@ class ProgramMetadataTest(TestCase):
             # fmt: on
             self.assertTrue(all(e in meta_repr for e in expected))
 
-    @patch('cli_command_parser.utils.sys.argv', [])
+    @patch('cli_command_parser.metadata.sys.argv', [])
     def test_prog_info_no_external_pkg(self, *mocks):
         g = {'__package__': 'cli_command_parser'}
-        with patch('cli_command_parser.utils.stack', return_value=_mock_stack(g)):
+        with patch('cli_command_parser.metadata.stack', return_value=_mock_stack(g)):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'foo.py')
             self.assertEqual(meta.prog, 'foo.py')
 
-    @patch('cli_command_parser.utils.sys.argv', [])
+    @patch('cli_command_parser.metadata.sys.argv', [])
     def test_resolve_path_no_setup_no_argv(self, *mocks):
         with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
             meta = ProgramMetadata()
             self.assertEqual(meta.path.name, 'UNKNOWN')
             self.assertEqual(meta.prog, 'UNKNOWN')
 
-    @patch('cli_command_parser.utils.sys.argv', ['fake\n\nfile!'])
+    @patch('cli_command_parser.metadata.sys.argv', ['fake\n\nfile!'])
     def test_find_info_error(self, *mocks):
         with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
             meta = ProgramMetadata()

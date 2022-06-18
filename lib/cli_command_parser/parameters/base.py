@@ -7,6 +7,7 @@ Base classes and helpers for Parameters and Groups
 from __future__ import annotations
 
 # import logging
+import re
 from abc import ABC, abstractmethod
 from functools import partial, update_wrapper, reduce
 from itertools import chain
@@ -26,7 +27,7 @@ from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
 from ..inputs import InputType, normalize_input_type, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
-from ..utils import _NotSet, Bool, get_descriptor_value_type, is_numeric
+from ..utils import _NotSet, Bool, get_descriptor_value_type
 
 if TYPE_CHECKING:
     from ..core import CommandType
@@ -374,7 +375,7 @@ class Parameter(ParamBase, ABC):
 
     def validate(self, value: Any):
         if isinstance(value, str) and value.startswith('-'):
-            if len(value) > 1 and not is_numeric(value):
+            if len(value) > 1 and not _is_numeric(value):
                 raise BadArgument(self, f'invalid value={value!r}')
         elif value is None:
             if not self.accepts_none:
@@ -586,6 +587,14 @@ class BaseOption(Parameter, ABC):
     @cached_property
     def short_opts(self) -> List[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
+
+
+def _is_numeric(text: str) -> Bool:
+    try:
+        num_match = _is_numeric._num_match
+    except AttributeError:
+        _is_numeric._num_match = num_match = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
+    return num_match(text)
 
 
 # Down here due to circular dependency

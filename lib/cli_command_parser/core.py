@@ -15,7 +15,7 @@ from weakref import WeakKeyDictionary, WeakSet
 from .command_parameters import CommandParameters
 from .config import CommandConfig
 from .exceptions import CommandDefinitionError
-from .utils import ProgramMetadata
+from .metadata import ProgramMetadata
 
 if TYPE_CHECKING:
     from .commands import Command

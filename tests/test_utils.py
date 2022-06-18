@@ -5,7 +5,8 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-from cli_command_parser.utils import camel_to_snake_case, get_args, ProgramMetadata, ProgInfo
+from cli_command_parser.metadata import ProgramMetadata, ProgInfo
+from cli_command_parser.utils import camel_to_snake_case, get_args
 
 
 class UtilsTest(TestCase):
@@ -25,7 +26,7 @@ class UtilsTest(TestCase):
     def test_real_bad_path(self):
         with TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir).joinpath('foo.py')
-            with patch('cli_command_parser.utils.sys.argv', [tmp_path.as_posix()]):
+            with patch('cli_command_parser.metadata.sys.argv', [tmp_path.as_posix()]):
                 with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
                     meta = ProgramMetadata()
                     self.assertEqual(meta.path.name, 'UNKNOWN')

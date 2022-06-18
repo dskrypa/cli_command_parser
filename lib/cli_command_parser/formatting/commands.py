@@ -9,7 +9,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type, Callable, Iterator
 
 from ..context import ctx
-from ..utils import Bool, ProgramMetadata, camel_to_snake_case
+from ..metadata import ProgramMetadata
+from ..utils import Bool, camel_to_snake_case
 from .restructured_text import rst_header, RstTable
 from .utils import get_usage_sub_cmds
 

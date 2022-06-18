@@ -7,6 +7,7 @@ ChoiceMap Parameters
 from __future__ import annotations
 
 from functools import partial
+from string import whitespace, printable
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Union, Dict
 from types import MethodType
 
@@ -14,7 +15,7 @@ from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import HelpEntryFormatter
 from ..nargs import Nargs
-from ..utils import _NotSet, Bool, validate_positional, camel_to_snake_case
+from ..utils import _NotSet, Bool, camel_to_snake_case
 from .base import BasePositional, parameter_action
 
 if TYPE_CHECKING:
@@ -112,7 +113,7 @@ class ChoiceMap(BasePositional):
         self.nargs = Nargs(lengths)
 
     def register_choice(self, choice: str, target: Any = _NotSet, help: str = None):  # noqa
-        validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+        _validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
         self._register_choice(choice, target, help)
 
     def _register_choice(self, choice: Optional[str], target: Any = _NotSet, help: str = None):  # noqa
@@ -217,7 +218,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
         else:
-            validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+            _validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
 
         try:
             self.register_choice(choice, command, help)
@@ -334,3 +335,14 @@ class Action(ChoiceMap, title='Actions'):
             return self.register_action(choice, method_or_choice, help=help, default=default)
 
     __call__ = register
+
+
+def _validate_positional(
+    param_cls: str, value: str, prefix: str = 'choice', exc: Type[Exception] = ParameterDefinitionError
+):
+    if not value or value.startswith('-'):
+        raise exc(f"Invalid {param_cls} {prefix}={value!r} - may not be empty or start with '-'")
+
+    bad = {c for c in value if (c in whitespace and c != ' ') or c not in printable}
+    if bad:
+        raise exc(f'Invalid {param_cls} {prefix}={value!r} - invalid characters: {bad}')
