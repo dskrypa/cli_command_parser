@@ -84,7 +84,7 @@
              
   <h1>Source code for cli_command_parser.metadata</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Utilities for extracting types from annotations, finding / storing program metadata, and other misc utilities.</span>
+<span class="sd">Program metadata introspection for use in usage, help text, and documentation.</span>
 
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -170,6 +170,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProgramMetadata</span><span class="p">:</span>
         <span class="n">path</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="n">_path_and_globals</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">!=</span> <span class="s1">&#39;cli_command_parser.commands&#39;</span><span class="p">:</span>
+            <span class="c1"># Prevent inheritors from getting docstrings from the base Command</span>
             <span class="n">doc_str</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">)</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__doc__</span>
         <span class="k">else</span><span class="p">:</span>
