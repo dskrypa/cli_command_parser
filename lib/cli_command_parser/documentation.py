@@ -6,6 +6,7 @@ Utilities for generating documentation for Commands
 
 from __future__ import annotations
 
+import sys
 from collections import defaultdict
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
@@ -15,7 +16,6 @@ from .commands import Command
 from .context import get_current_context
 from .core import CommandMeta, CommandType, get_params, get_parent
 from .formatting.commands import get_formatter, NameFunc
-from .metadata import ProgInfo, ProgramMetadata
 
 if TYPE_CHECKING:
     from .utils import Bool
@@ -57,16 +57,6 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     """
     module = _load_module(path)
     commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
-    # Fix provenance metadata
-    with ProgInfo.dynamic_import(Path(path), module.__dict__):
-        for cmd_cls in commands.values():
-            try:
-                meta: ProgramMetadata = CommandMeta._metadata[cmd_cls]
-            except KeyError:
-                CommandMeta._metadata[cmd_cls] = ProgramMetadata()
-            else:
-                meta._init(ProgInfo())
-
     return top_level_commands(commands) if top_only else commands
 
 
@@ -113,6 +103,7 @@ def _load_module(path: PathLike):
     # TODO: Error handling for not file / cannot load / etc
     spec = spec_from_file_location(path.stem, path)
     module = module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

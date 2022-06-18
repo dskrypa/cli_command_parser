@@ -74,7 +74,7 @@ class CommandMeta(ABCMeta, type):
             tmp_cfg.cls = cls = super().__new__(mcs, name, bases, namespace)
 
         mcs._commands.add(cls)
-        mcs._maybe_populate_metadata(cls, **metadata)
+        mcs._metadata[cls] = ProgramMetadata.for_command(cls, parent=mcs.meta(cls), **metadata)
         mcs._maybe_register_sub_cmd(cls, choice, help)
 
         config = mcs.config(cls)
@@ -84,25 +84,6 @@ class CommandMeta(ABCMeta, type):
             cls.__help = help_action  # pylint: disable=W0238
 
         return cls
-
-    @classmethod
-    def _maybe_populate_metadata(
-        mcs,
-        cls,
-        prog: str = None,
-        usage: str = None,
-        description: str = None,
-        epilog: str = None,
-        doc_name: str = None,
-    ):
-        """Maybe populate ProgramMetadata for this class; inherit from parent when possible"""
-        meta = mcs.meta(cls)
-        doc = None if cls.__module__ == 'cli_command_parser.commands' else cls.__doc__
-        if meta is not None and not any((prog, usage, description, epilog, doc_name, doc)):
-            return
-        mcs._metadata[cls] = ProgramMetadata(
-            prog=prog, usage=usage, description=description, epilog=epilog, doc_name=doc_name, doc=doc
-        )
 
     @classmethod
     def _maybe_register_sub_cmd(mcs, cls, choice: str = None, help: str = None):  # noqa

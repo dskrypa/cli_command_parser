@@ -2,8 +2,6 @@
 
 from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from textwrap import dedent
 from typing import Sequence, Type, Union, Iterable, Any, Tuple
 from unittest import TestCase, main
@@ -14,7 +12,6 @@ from cli_command_parser.core import get_params, CommandMeta, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
-from cli_command_parser.metadata import ProgramMetadata, ProgInfo
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag
 from cli_command_parser.testing import ParserTest
@@ -485,146 +482,6 @@ def _get_rst_text(cmd: Union[Type[Command], Command]) -> str:
     with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)):
         with cmd.ctx:
             return get_params(cmd).formatter.format_rst()
-
-
-class ProgramMetadataTest(TestCase):
-    def test_meta_init(self):
-        g = {
-            '__package__': 'bar.cli',
-            '__author_email__': 'example@fake.com',
-            '__version__': '3.2.1',
-            '__url__': 'https://github.com/foo/bar',
-        }
-        with TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir).joinpath('bar.py')
-            tmp_path.touch()
-            with patch('cli_command_parser.metadata.sys.argv', [tmp_path.as_posix()]):
-                with patch('cli_command_parser.metadata.stack', return_value=_mock_stack(g)):
-                    meta = ProgramMetadata()
-                    self.assertEqual(meta.path.name, 'bar.py')
-                    self.assertEqual(meta.prog, 'bar.py')
-                    self.assertEqual(meta.docs_url, 'https://foo.github.io/bar/')
-                    self.assertEqual(meta.url, g['__url__'])
-                    self.assertEqual(meta.email, g['__author_email__'])
-                    self.assertEqual(meta.version, g['__version__'])
-
-    def test_extended_epilog(self):
-        meta = ProgramMetadata(
-            prog='foo', epilog='test', version='4.3.2', email='example@fake.com', url='http://fake.com'
-        )
-        self.assertEqual(meta.format_epilog(False), 'test')
-        expected = 'test\n\nReport foo [ver. 4.3.2] bugs to example@fake.com\n\nOnline documentation: http://fake.com'
-        self.assertEqual(meta.format_epilog(), expected)
-
-    def test_extended_epilog_no_email(self):
-        meta = ProgramMetadata(prog='foo', epilog='test', version='4.3.2', url='http://fake.com')
-        self.assertEqual(meta.format_epilog(), 'test\n\nOnline documentation: http://fake.com')
-
-    def test_doc_url_none(self):
-        meta = ProgramMetadata(url='https://github.com/foo')
-        self.assertIs(meta.docs_url, None)
-
-    @patch('cli_command_parser.metadata.sys.argv', [])
-    def test_find_dunder_info(self, *mocks):
-        g = {
-            '__package__': 'foo.cli',
-            '__author_email__': 'example@fake.com',
-            '__version__': '3.2.1',
-            '__url__': 'https://github.com/foo/bar',
-        }
-        with patch('cli_command_parser.metadata.stack', return_value=_mock_stack(g)):
-            meta = ProgramMetadata()
-            self.assertEqual(meta.path.name, 'foo.py')
-            self.assertEqual(meta.prog, 'foo.py')
-            self.assertEqual(meta.docs_url, 'https://foo.github.io/bar/')
-            self.assertEqual(meta.url, g['__url__'])
-            self.assertEqual(meta.email, g['__author_email__'])
-            self.assertEqual(meta.version, g['__version__'])
-            meta_repr = repr(meta)
-            # fmt: off
-            expected = [
-                "prog='foo.py'", "url='https://github.com/foo/bar'", "docs_url='https://foo.github.io/bar/'",
-                "email='example@fake.com'", "version='3.2.1'", "doc_name='foo'", 'path='
-            ]
-            # fmt: on
-            self.assertTrue(all(e in meta_repr for e in expected))
-
-    @patch('cli_command_parser.metadata.sys.argv', [])
-    def test_prog_info_no_external_pkg(self, *mocks):
-        g = {'__package__': 'cli_command_parser'}
-        with patch('cli_command_parser.metadata.stack', return_value=_mock_stack(g)):
-            meta = ProgramMetadata()
-            self.assertEqual(meta.path.name, 'foo.py')
-            self.assertEqual(meta.prog, 'foo.py')
-
-    @patch('cli_command_parser.metadata.sys.argv', [])
-    def test_resolve_path_no_setup_no_argv(self, *mocks):
-        with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
-            meta = ProgramMetadata()
-            self.assertEqual(meta.path.name, 'UNKNOWN')
-            self.assertEqual(meta.prog, 'UNKNOWN')
-
-    @patch('cli_command_parser.metadata.sys.argv', ['fake\n\nfile!'])
-    def test_find_info_error(self, *mocks):
-        with patch.object(ProgInfo, '_find_top_frame_and_globals', side_effect=RuntimeError):
-            meta = ProgramMetadata()
-            self.assertEqual(meta.path.name, 'UNKNOWN')
-            self.assertIs(meta.docs_url, None)
-            self.assertIs(meta.url, None)
-            self.assertIs(meta.email, None)
-            self.assertEqual(meta.version, '')
-
-    def test_print_stack_info(self):
-        stdout = StringIO()
-        with redirect_stdout(stdout):
-            ProgInfo._print_stack_info()
-        self.assertLess(1, stdout.getvalue().count('\n'))
-
-    def test_empty_doc_ignored(self):
-        meta = ProgramMetadata(doc='\n\n')
-        self.assertIs(None, meta.description)
-
-    def test_cmd_doc_dedented(self):
-        class Foo(Command):
-            """
-            Foo
-            Bar
-            Baz
-            """
-
-        self.assertEqual('Foo\nBar\nBaz\n', Foo.__class__.meta(Foo).description)
-
-
-def _frame_info(f_globals: dict, path: str, function: str):
-    return Mock(frame=Mock(f_globals=f_globals), filename=path, function=function)
-
-
-def _mock_stack(g: dict, file_name: str = 'foo.py', setup: bool = True, main_fn: bool = False, top_name: str = None):
-    pkg_g = {'__package__': 'cli_command_parser'}
-    root = '/home/user/git/foo_proj/'
-    pkg_path = f'{root}venv/lib/site-packages/cli_command_parser/'
-    cmds_path = f'{pkg_path}commands.py'
-
-    cmd_mid_stack = [_frame_info(pkg_g, cmds_path, '__call__'), _frame_info(pkg_g, cmds_path, 'parse_and_run')]
-    if main_fn:
-        cmd_mid_stack.append(_frame_info(pkg_g, cmds_path, 'main'))
-
-    if setup:
-        if top_name is None:
-            name, ext = file_name.rsplit('.', 1)
-            top_name = f'{name}-script.{ext}'
-        top_path, end_path = f'{root}venv/bin/{top_name}', f'{root}lib/cli/{file_name}'
-        top_g = {'__package__': None, 'load_entry_point': 1}
-    else:
-        top_path = end_path = f'{root}bin/{file_name}'
-        top_g = g
-
-    return [
-        _frame_info(pkg_g, f'{pkg_path}utils.py', '_find_top_frame_and_globals'),
-        _frame_info(g, end_path, 'main'),
-        *cmd_mid_stack,
-        _frame_info(top_g, top_path, '<module>'),
-    ]
 
 
 class FormatterTest(ParserTest):
