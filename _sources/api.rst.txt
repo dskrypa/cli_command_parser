@@ -15,6 +15,7 @@ API Documentation
     api/cli_command_parser.exceptions
     api/cli_command_parser.formatting
     api/cli_command_parser.inputs
+    api/cli_command_parser.metadata
     api/cli_command_parser.nargs
     api/cli_command_parser.parameters
     api/cli_command_parser.parser

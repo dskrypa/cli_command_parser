@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; CLI Command Parser 2022.06.17 documentation</title>
+  <title>Index &mdash; CLI Command Parser 2022.06.18 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -517,6 +517,13 @@
 </li>
       </ul></li>
       <li>
+    cli_command_parser.metadata
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#module-cli_command_parser.metadata">module</a>
+</li>
+      </ul></li>
+      <li>
     cli_command_parser.nargs
 
       <ul>
@@ -608,6 +615,8 @@
       <ul>
         <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst.params.command">(cli_command_parser.documentation.render_command_rst parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
       </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.command_formatter">command_formatter (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
@@ -681,20 +690,18 @@
         <li><a href="api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional.params.default">(cli_command_parser.parameters.positionals.Positional parameter)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.default_file_name">default_file_name (cli_command_parser.utils.ProgInfo attribute)</a>
+      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.deferred">deferred (cli_command_parser.parser.CommandParser attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.deferred">deferred (cli_command_parser.parser.CommandParser attribute)</a>
-</li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params.description">description (cli_command_parser.core.CommandMeta parameter)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.description">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.description">(cli_command_parser.parameters.groups.ParamGroup attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.params.description">(cli_command_parser.parameters.groups.ParamGroup parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata.description">(cli_command_parser.utils.ProgramMetadata attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.DIR">DIR (cli_command_parser.inputs.utils.StatMode attribute)</a>
@@ -702,10 +709,12 @@
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params.doc_name">doc_name (cli_command_parser.core.CommandMeta parameter)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata.doc_name">(cli_command_parser.utils.ProgramMetadata property)</a>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.doc_str">doc_str (cli_command_parser.utils.ProgInfo attribute)</a>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_str">doc_str (cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url">docs_url (cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -713,7 +722,7 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.email">email (cli_command_parser.utils.ProgInfo attribute)</a>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email">email (cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.encoding">encoding (cli_command_parser.inputs.files.File attribute)</a>
 
@@ -730,7 +739,11 @@
       <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices">EnumChoices (class in cli_command_parser.inputs.choices)</a>
 </li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params.epilog">epilog (cli_command_parser.core.CommandMeta parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.epilog">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.error_handler">error_handler (cli_command_parser.config.CommandConfig attribute)</a>
 
       <ul>
@@ -791,6 +804,8 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag">Flag (class in cli_command_parser.parameters.options)</a>
 </li>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.for_command">for_command() (cli_command_parser.metadata.ProgramMetadata class method)</a>
+</li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.for_param_cls">for_param_cls() (cli_command_parser.formatting.params.ParamHelpFormatter class method)</a>
 </li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.format_basic_usage">format_basic_usage() (cli_command_parser.formatting.params.OptionHelpFormatter method)</a>
@@ -811,7 +826,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata.format_epilog">format_epilog() (cli_command_parser.utils.ProgramMetadata method)</a>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog">format_epilog() (cli_command_parser.metadata.ProgramMetadata method)</a>
 </li>
       <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_help">format_help() (cli_command_parser.formatting.commands.CommandHelpFormatter method)</a>
 
@@ -967,21 +982,17 @@
       </ul></li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.handle_invalid.params.inclusive">inclusive (cli_command_parser.inputs.numeric.NumRange.handle_invalid parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam">InputParam (class in cli_command_parser.inputs.utils)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam">InputParam (class in cli_command_parser.inputs.utils)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType">InputType (class in cli_command_parser.inputs.base)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.exceptions.html#cli_command_parser.inputs.exceptions.InputValidationError">InputValidationError</a>
 </li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.installed_via_setup">installed_via_setup (cli_command_parser.utils.ProgInfo attribute)</a>
-</li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">InvalidChoice</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.exceptions.html#cli_command_parser.inputs.exceptions.InvalidChoiceError">InvalidChoiceError</a>
-</li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.is_numeric">is_numeric() (in module cli_command_parser.utils)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.is_valid_arg">is_valid_arg() (cli_command_parser.parameters.base.Parameter method)</a>
 </li>
@@ -1171,6 +1182,8 @@
 </li>
         <li><a href="api/cli_command_parser.inputs.utils.html#module-cli_command_parser.inputs.utils">cli_command_parser.inputs.utils</a>
 </li>
+        <li><a href="api/cli_command_parser.metadata.html#module-cli_command_parser.metadata">cli_command_parser.metadata</a>
+</li>
         <li><a href="api/cli_command_parser.nargs.html#module-cli_command_parser.nargs">cli_command_parser.nargs</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#module-cli_command_parser.parameters.base">cli_command_parser.parameters.base</a>
@@ -1196,6 +1209,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module">module (cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.multiple_action_flags">multiple_action_flags (cli_command_parser.config.CommandConfig attribute)</a>
 
       <ul>
@@ -1304,6 +1319,8 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.package">package (cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.consume_values.params.param">param (cli_command_parser.parser.CommandParser.consume_values parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.param_formatter">param_formatter (cli_command_parser.config.CommandConfig attribute)</a>
@@ -1327,7 +1344,11 @@
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParamUsageError">ParamUsageError</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.parent">parent (cli_command_parser.command_parameters.CommandParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.parent">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">parent() (cli_command_parser.core.CommandMeta class method)</a>
 </li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse">parse() (cli_command_parser.commands.Command class method)</a>
@@ -1344,14 +1365,14 @@
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized.pass_file">pass_file (cli_command_parser.inputs.files.Serialized attribute)</a>
 
       <ul>
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized.params.pass_file">(cli_command_parser.inputs.files.Serialized parameter)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru">pass_thru (cli_command_parser.command_parameters.CommandParameters property)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru">PassThru (class in cli_command_parser.parameters.pass_thru)</a>
@@ -1363,7 +1384,7 @@
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands.params.path">path (cli_command_parser.documentation.load_commands parameter)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.path">(cli_command_parser.utils.ProgInfo attribute)</a>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.path">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Pickle">Pickle (class in cli_command_parser.inputs.files)</a>
@@ -1389,10 +1410,12 @@
       <li><a href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.HelpEntryFormatter.process_usage">process_usage() (cli_command_parser.formatting.utils.HelpEntryFormatter method)</a>
 </li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params.prog">prog (cli_command_parser.core.CommandMeta parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo">ProgInfo (class in cli_command_parser.utils)</a>
-</li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgramMetadata">ProgramMetadata (class in cli_command_parser.utils)</a>
+      </ul></li>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata">ProgramMetadata (class in cli_command_parser.metadata)</a>
 </li>
       <li>
     Python Enhancement Proposals
@@ -1444,8 +1467,6 @@
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst">render_command_rst() (in module cli_command_parser.documentation)</a>
 </li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">render_script_rst() (in module cli_command_parser.documentation)</a>
-</li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.repo_url">repo_url (cli_command_parser.utils.ProgInfo attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__.params.repr_attrs">repr_attrs (cli_command_parser.parameters.base.Parameter.__init_subclass__ parameter)</a>
 </li>
@@ -1625,10 +1646,16 @@
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.unregister">unregister() (cli_command_parser.error_handling.ErrorHandler method)</a>
 </li>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url">url (cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params.usage">usage (cli_command_parser.core.CommandMeta parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.UsageError">UsageError</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar">use_type_metavar (cli_command_parser.config.CommandConfig attribute)</a>
@@ -1649,11 +1676,9 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.validate_positional">validate_positional() (in module cli_command_parser.utils)</a>
-</li>
       <li><a href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.is_valid_type.params.value">value (cli_command_parser.inputs.base.InputType.is_valid_type parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ProgInfo.version">version (cli_command_parser.utils.ProgInfo attribute)</a>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version">version (cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
   </ul></td>
 </tr></table>
