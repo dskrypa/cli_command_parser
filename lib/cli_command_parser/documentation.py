@@ -53,7 +53,7 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     module = _load_module(path)
     commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
     # Fix provenance metadata
-    with ProgInfo._dynamic_import(Path(path), module.__dict__):
+    with ProgInfo.dynamic_import(Path(path), module.__dict__):
         for cmd_cls in commands.values():
             try:
                 meta: ProgramMetadata = CommandMeta._metadata[cmd_cls]

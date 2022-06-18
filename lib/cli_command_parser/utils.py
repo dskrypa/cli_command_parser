@@ -3,7 +3,6 @@ Utilities for extracting types from annotations, finding / storing program metad
 
 :author: Doug Skrypa
 """
-# pylint: disable=R0903,W0703
 
 import re
 import sys
@@ -119,7 +118,7 @@ class ProgramMetadata:
             if parsed.scheme == 'https' and parsed.hostname == 'github.com':
                 user, repo = parsed.path[1:].split('/')
                 return f'https://{user}.github.io/{repo}/'
-        except Exception:  # noqa
+        except Exception:  # noqa  # pylint: disable=W0703
             pass
         return None
 
@@ -174,7 +173,7 @@ class ProgInfo:
 
     @classmethod
     @contextmanager
-    def _dynamic_import(cls, path: Path, module_globals: Dict[str, Any]):
+    def dynamic_import(cls, path: Path, module_globals: Dict[str, Any]):
         cls.__dynamic_import = path, module_globals
         try:
             yield
@@ -187,7 +186,7 @@ class ProgInfo:
         try:
             top_level, g = self._find_top_frame_and_globals()
             return self._resolve_path(top_level.filename), g
-        except Exception:  # noqa
+        except Exception:  # noqa  # pylint: disable=W0703
             return self._resolve_path(), {}
 
     def _resolve_path(self, path: str = None) -> Path:

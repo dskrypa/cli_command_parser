@@ -6,7 +6,7 @@ The class that handles parsing input.
 
 from __future__ import annotations
 
-import logging
+# import logging
 from collections import deque
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from .command_parameters import CommandParameters
 
 __all__ = ['CommandParser']
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
 
 
 class CommandParser:
