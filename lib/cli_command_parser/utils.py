@@ -3,11 +3,11 @@ Utilities for extracting types from annotations, finding / storing program metad
 
 :author: Doug Skrypa
 """
-# pylint: disable=C0103,R0903,W0703
+# pylint: disable=R0903,W0703
 
 import re
 import sys
-from collections.abc import Collection, Iterable, Callable
+from collections.abc import Collection, Iterable
 from contextlib import contextmanager
 from enum import Flag
 from inspect import stack, isclass, FrameInfo
@@ -33,21 +33,6 @@ from .exceptions import ParameterDefinitionError
 Bool = Union[bool, Any]
 FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
-
-
-class cached_class_property(classmethod):
-    def __init__(self, func: Callable):
-        super().__init__(property(func))  # noqa  # makes Sphinx handle it better than if this was not done
-        self.__doc__ = func.__doc__
-        self.func = func
-        self.values = {}
-
-    def __get__(self, obj: None, cls):  # noqa
-        try:
-            return self.values[cls]
-        except KeyError:
-            self.values[cls] = value = self.func(cls)
-            return value
 
 
 def validate_positional(

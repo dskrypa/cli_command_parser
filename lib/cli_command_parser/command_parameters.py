@@ -19,7 +19,6 @@ try:
 except ImportError:
     from .compat import cached_property
 
-from .context import ctx
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
 from .formatting.commands import CommandHelpFormatter
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
@@ -54,7 +53,7 @@ class CommandParameters:
             self.command_parent = command_parent
             self.parent = command_parent.__class__.params(command_parent)
 
-        config: 'CommandConfig' = command.__class__.config(command)
+        config: CommandConfig = command.__class__.config(command)
         if config is None:
             formatter_factory = CommandHelpFormatter
         else:
@@ -342,15 +341,12 @@ class CommandParameters:
 
     # endregion
 
-    def _params_to_check(self) -> Iterator[Parameter]:
+    def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand
         yield from (p for p in self.positionals if not isinstance(p, ignore))
         yield from self.options
         if self._pass_thru:
             yield self._pass_thru
-
-    def missing(self) -> List[Parameter]:
-        return [p for p in self._params_to_check() if p.required and ctx.num_provided(p) == 0]
 
 
 def _get_groups(param: ParamBase) -> Set[ParamGroup]:

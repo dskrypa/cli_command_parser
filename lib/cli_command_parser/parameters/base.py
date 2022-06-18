@@ -139,9 +139,9 @@ class ParamBase(ABC):
             pass
         raise NoActiveContext('There is no active context')
 
-    def _ctx_or_config(self, command: CommandType) -> Union[CommandConfig, Context]:
+    def _config(self, command: CommandType) -> Union[CommandConfig, Context]:
         try:
-            return self._ctx(command)
+            return self._ctx(command).config
         except NoActiveContext:
             return command.__class__.config(command)
 
@@ -153,7 +153,7 @@ class ParamBase(ABC):
 
         try:
             with self._ctx() as context:
-                formatter_factory = context.param_formatter or ParamHelpFormatter
+                formatter_factory = context.config.param_formatter or ParamHelpFormatter
         except NoActiveContext:
             formatter_factory = ParamHelpFormatter
 
@@ -569,7 +569,7 @@ class BaseOption(Parameter, ABC):
     def __set_name__(self, command: CommandType, name: str):
         super().__set_name__(command, name)
         if not self._long_opts:
-            mode = self.name_mode if self.name_mode is not None else self._ctx_or_config(command).option_name_mode
+            mode = self.name_mode if self.name_mode is not None else self._config(command).option_name_mode
             if mode & OptionNameMode.DASH:
                 self._long_opts.add('--{}'.format(name.replace('_', '-')))
             if mode & OptionNameMode.UNDERSCORE:

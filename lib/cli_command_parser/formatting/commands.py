@@ -83,7 +83,7 @@ class CommandHelpFormatter:
             if group.show_in_help:
                 parts.append(group.formatter.format_help(width=width))  # noqa
 
-        epilog = meta.format_epilog(ctx.extended_epilog)
+        epilog = meta.format_epilog(ctx.config.extended_epilog)
         if epilog:
             parts.append(epilog)
 
@@ -103,7 +103,7 @@ class CommandHelpFormatter:
                 yield from table.iter_build()  # noqa
 
         if include_epilog:
-            epilog = meta.format_epilog(ctx.extended_epilog)
+            epilog = meta.format_epilog(ctx.config.extended_epilog)
             if epilog:
                 yield epilog
 
@@ -115,7 +115,7 @@ class CommandHelpFormatter:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)
 
         parts = [rst_header(name, init_level), '']
-        if ctx.show_docstring:
+        if ctx.config.show_docstring:
             doc_str = meta.doc_str.strip() if meta.doc_str else None
             if doc_str:
                 parts += [doc_str, '']

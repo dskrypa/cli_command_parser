@@ -4,6 +4,8 @@ Utils for usage / help text formatters
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 from shutil import get_terminal_size
 from textwrap import TextWrapper
 from typing import TYPE_CHECKING, Optional, Any, Collection, Type
@@ -66,7 +68,7 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
         return False
     elif param_show_default is not None:
         return param_show_default
-    sd = ctx.show_defaults
+    sd = ctx.config.show_defaults
     if sd.value < 2 or (sd & ShowDefaults.MISSING and help_text and 'default:' in help_text):
         return False
     elif sd & ShowDefaults.ANY:
@@ -77,15 +79,15 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
         return bool(default)
 
 
-def get_usage_sub_cmds(command: 'CommandType'):
-    cmd_mcls: Type['CommandMeta'] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
-    parent: 'CommandType' = cmd_mcls.parent(command)
+def get_usage_sub_cmds(command: CommandType):
+    cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
+    parent: CommandType = cmd_mcs.parent(command)
     if not parent:
         return []
 
     cmd_chain = get_usage_sub_cmds(parent)
 
-    sub_cmd_param: 'SubCommand' = cmd_mcls.params(parent).sub_command
+    sub_cmd_param: SubCommand = cmd_mcs.params(parent).sub_command
     if not sub_cmd_param:
         return cmd_chain
 

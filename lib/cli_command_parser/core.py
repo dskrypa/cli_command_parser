@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Any, Dict, Tup
 from warnings import warn
 from weakref import WeakKeyDictionary, WeakSet
 
-from .actions import help_action
 from .command_parameters import CommandParameters
 from .config import CommandConfig
 from .exceptions import CommandDefinitionError
@@ -71,8 +70,8 @@ class CommandMeta(ABCMeta, type):
         **kwargs,
     ):
         metadata = {k: kwargs.pop(k, None) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name')}
-        with _PrepConfig(mcs, namespace, mcs._prepare_config(bases, config, kwargs)) as cfg_prep:
-            cfg_prep.cls = cls = super().__new__(mcs, name, bases, namespace)
+        with _TempConfig(mcs, namespace, mcs._prepare_config(bases, config, kwargs)) as tmp_cfg:
+            tmp_cfg.cls = cls = super().__new__(mcs, name, bases, namespace)
 
         mcs._commands.add(cls)
         mcs._maybe_populate_metadata(cls, **metadata)
@@ -80,6 +79,8 @@ class CommandMeta(ABCMeta, type):
 
         config = mcs.config(cls)
         if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
+            from .actions import help_action
+
             cls.__help = help_action  # pylint: disable=W0238
 
         return cls
@@ -121,7 +122,7 @@ class CommandMeta(ABCMeta, type):
     @classmethod
     def parent(mcs, cls: CommandMeta, include_abc: bool = True) -> Optional[CommandMeta]:
         for parent_cls in type.mro(cls)[1:]:
-            if isinstance(parent_cls, CommandMeta) and (include_abc or ABC not in parent_cls.__bases__):
+            if isinstance(parent_cls, mcs) and (include_abc or ABC not in parent_cls.__bases__):
                 return parent_cls
         return None
 
@@ -138,17 +139,13 @@ class CommandMeta(ABCMeta, type):
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
             if not isinstance(config, CommandConfig):
-                config = CommandConfig(**config)
+                parent = mcs._config_from_bases(bases)
+                config = CommandConfig(parents=(parent,) if parent else (), **config)
             return config
         else:
-            config = mcs._config_from_bases(bases)
-            if kwargs or (config is None and ABC not in bases):
-                if config is not None:
-                    # kwargs = config.as_dict() | kwargs
-                    for key, val in config.as_dict().items():  # py < 3.9 compatibility
-                        kwargs.setdefault(key, val)
-
-                return CommandConfig(**kwargs)
+            parent = mcs._config_from_bases(bases)
+            if kwargs or (parent is None and ABC not in bases):
+                return CommandConfig(parents=(parent,) if parent else (), **kwargs)
 
         return None
 
@@ -187,7 +184,7 @@ class CommandMeta(ABCMeta, type):
             return None
 
 
-class _PrepConfig:
+class _TempConfig:
     """
     Temporarily stores config with a str key because __set_name__ for Parameters is called when super().__new__ is
     called to create the Command class, and some config needs to be known at that point.
@@ -200,7 +197,7 @@ class _PrepConfig:
         self.config_key = '{__module__}.{__qualname__}'.format(**ns)
         self.config = config
 
-    def __enter__(self) -> _PrepConfig:
+    def __enter__(self) -> _TempConfig:
         if self.config is not None:
             self.mcs._tmp_configs[self.config_key] = self.config
         return self

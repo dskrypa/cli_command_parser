@@ -10,8 +10,8 @@ from contextlib import ExitStack
 from typing import TypeVar, Sequence, Optional
 
 from .core import CommandMeta, CommandType, get_top_level_commands
-from .context import Context, get_current_context
-from .exceptions import ParamConflict, NoActiveContext
+from .context import Context, get_or_create_context
+from .exceptions import ParamConflict
 from .parser import CommandParser
 
 __all__ = ['Command', 'CommandType', 'main']
@@ -28,7 +28,7 @@ class Command(ABC, metaclass=CommandMeta):
     ctx: Context  # The parsing Context used for this Command
 
     def __new__(cls):
-        ctx = _get_or_create_context(cls)
+        ctx = get_or_create_context(cls)
         # By storing the Context here instead of __init__, every single subclass won't need to
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
@@ -51,7 +51,7 @@ class Command(ABC, metaclass=CommandMeta):
         :param kwargs: Keyword arguments to pass to :meth:`.__call__`
         :return: The Command instance with parsed arguments for which :meth:`.__call__` was already called.
         """
-        ctx = _get_or_create_context(cls, argv)
+        ctx = get_or_create_context(cls, argv)
         with ctx.get_error_handler():
             self = cls.parse(argv)
 
@@ -72,7 +72,7 @@ class Command(ABC, metaclass=CommandMeta):
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :return: A Command instance with parsed arguments that is ready for :meth:`.__call__` or :meth:`.main`
         """
-        ctx = _get_or_create_context(cls, argv)
+        ctx = get_or_create_context(cls, argv)
         cmd_cls = cls
         with ExitStack() as stack:
             stack.enter_context(ctx)
@@ -103,7 +103,7 @@ class Command(ABC, metaclass=CommandMeta):
             try:
                 self.main(*args, **kwargs)
             except BaseException:
-                if ctx.always_run_after_main:
+                if ctx.config.always_run_after_main:
                     log.debug('Caught exception - running _after_main_ before propagating', exc_info=True)
                     self._after_main_(*args, **kwargs)
                 raise
@@ -123,13 +123,13 @@ class Command(ABC, metaclass=CommandMeta):
         """
         ctx = self.__ctx
         n_flags, before, after = ctx.parsed_action_flags
-        if n_flags and not ctx.multiple_action_flags and n_flags > 1:
+        if n_flags and not ctx.config.multiple_action_flags and n_flags > 1:
             raise ParamConflict(before + after, 'combining multiple action flags is disabled')
 
         if before:
             cls = self.__class__
             action = cls.__class__.params(cls).action  # noqa
-            if action is not None and not ctx.action_after_action_flags:
+            if action is not None and not ctx.config.action_after_action_flags:
                 raise ParamConflict([action, *before], 'combining an action with action flags is disabled')
 
         for param in ctx.before_main_actions:
@@ -155,7 +155,7 @@ class Command(ABC, metaclass=CommandMeta):
         with self.__ctx as ctx:
             cls = self.__class__
             action = cls.__class__.params(cls).action  # noqa
-            if action is not None and (ctx.actions_taken == 0 or ctx.action_after_action_flags):
+            if action is not None and (ctx.actions_taken == 0 or ctx.config.action_after_action_flags):
                 ctx.actions_taken += 1
                 action.result()(self, *args, **kwargs)
 
@@ -172,18 +172,6 @@ class Command(ABC, metaclass=CommandMeta):
         """
         for param in self.__ctx.after_main_actions:
             param.func(self, *args, **kwargs)
-
-
-def _get_or_create_context(cls: CommandType, argv: Sequence[str] = None) -> Context:
-    try:
-        ctx = get_current_context()
-    except NoActiveContext:
-        return Context(argv, cls)
-    else:
-        if argv is None and ctx.command is cls:
-            return ctx
-        else:
-            return ctx._sub_context(cls, argv=argv)
 
 
 def main(argv: Sequence[str] = None, **kwargs):

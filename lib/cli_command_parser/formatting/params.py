@@ -61,7 +61,7 @@ class ParamHelpFormatter:
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
         try:
-            use_type_metavar = ctx.use_type_metavar
+            use_type_metavar = ctx.config.use_type_metavar
         except NoActiveContext:
             use_type_metavar = False
         if use_type_metavar and t is not None:
@@ -175,19 +175,20 @@ class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
 
 class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # pylint: disable=W0223
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        # TODO: | between mutually exclusive members, + between dependent?  Different chars?
         choices = ','.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
         return f'{{{choices}}}'
 
     def format_description(self, rst: Bool = False) -> str:
         group = self.param
         if not group.description and not group._name:
-            if ctx.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
+            if ctx.config.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
                 return 'Mutually {} options'.format('exclusive' if group.mutually_exclusive else 'dependent')
             else:
                 return 'Optional arguments'
         else:
             description = group.description or f'{group.name} options'
-            if ctx.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
+            if ctx.config.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
                 description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
             return description
 
@@ -214,7 +215,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         description = self.format_description()
         parts = [f'{description}:']
 
-        if ctx.show_group_tree:
+        if ctx.config.show_group_tree:
             spacer = self._get_spacer()
             tw_offset += 2
         else:

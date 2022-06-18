@@ -59,7 +59,7 @@ class CommandParser:
 
         if sub_cmd_param is not None:
             next_cmd = sub_cmd_param.result()  # type: CommandType
-            missing = params.missing()
+            missing = cls._missing(params)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.failed = True
                 if ctx.parsed_always_available_action_flags:
@@ -67,15 +67,19 @@ class CommandParser:
                 raise ParamsMissing(missing)
             return next_cmd
 
-        missing = params.missing()
-        if missing and not ctx.allow_missing and (not params.action or params.action not in missing):
+        missing = cls._missing(params)
+        if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
             # Action is excluded because it provides a better error message
             if not ctx.parsed_always_available_action_flags:
                 raise ParamsMissing(missing)
-        elif ctx.remaining and not ctx.ignore_unknown:
+        elif ctx.remaining and not ctx.config.ignore_unknown:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))
 
         return None
+
+    @classmethod
+    def _missing(cls, params: CommandParameters) -> List[Parameter]:
+        return [p for p in params.required_check_params() if p.required and ctx.num_provided(p) == 0]
 
     @classmethod
     def _validate_groups(cls, params: CommandParameters):
@@ -210,7 +214,7 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if not ctx.allow_backtrack or not self.positionals or found < 2:
+        if not ctx.config.allow_backtrack or not self.positionals or found < 2:
             return found
 
         can_pop = param.can_pop_counts()
@@ -225,7 +229,7 @@ class CommandParser:
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
-        if not ctx.allow_backtrack:
+        if not ctx.config.allow_backtrack:
             return
 
         can_pop = self._last.can_pop_counts()

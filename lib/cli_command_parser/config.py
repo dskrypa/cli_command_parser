@@ -6,11 +6,9 @@ Configuration options for Command behavior.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
-from enum import Enum
-from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, Dict, FrozenSet
+from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, overload, Generic, Sequence, Dict
 
-from .utils import Bool, FixedFlag, _NotSet, cached_class_property
+from .utils import Bool, FixedFlag, _NotSet
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -21,6 +19,9 @@ if TYPE_CHECKING:
     from .parameters import ParamOrGroup
 
 __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode']
+
+_ConfigValue = TypeVar('_ConfigValue')
+ConfigValue = Union[_ConfigValue, Any]
 
 # TODO: Config / handling for subcommand option conflict, especially for short form where name/long don't match previous
 
@@ -84,131 +85,157 @@ class OptionNameMode(FixedFlag):
 # endregion
 
 
-class EnumConfigOption:
-    """
-    Descriptor that simplifies config option validation using Enums and works around dataclass property idiosyncrasies.
-    """
-
-    def __init__(self, enum_cls: Type[Enum], default: Enum):
-        self.enum_cls = enum_cls
+class ConfigItem(Generic[_ConfigValue]):
+    def __init__(self, default: ConfigValue, type: Callable[[Any], _ConfigValue] = None):  # noqa
         self.default = default
+        self.type = type
 
     def __set_name__(self, owner: Type[CommandConfig], name: str):
         self.name = name
+        owner._fields.add(name)
 
-    def __get__(self, instance, owner):
+    def get_value(self, instance: CommandConfig) -> ConfigValue:
+        try:
+            return instance.__dict__[self.name]
+        except KeyError:
+            pass
+
+        for parent in instance.parents:
+            try:
+                return self.get_value(parent)
+            except KeyError:
+                pass
+
+        raise KeyError
+
+    @overload
+    def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[_ConfigValue]:
+        ...
+
+    @overload
+    def __get__(self, instance: CommandConfig, owner: Type[CommandConfig]) -> ConfigValue:
+        ...
+
+    def __get__(
+        self, instance: Optional[CommandConfig], owner: Type[CommandConfig]
+    ) -> Union[ConfigItem[_ConfigValue], ConfigValue]:
         if instance is None:
             return self
-        return instance.__dict__.get(self.name, self.default)
 
-    def __set__(self, instance, value):
-        if isinstance(value, EnumConfigOption):  # Workaround for initial value setting
-            instance.__dict__[self.name] = self.default
-        else:
-            instance.__dict__[self.name] = self.enum_cls(value)
+        try:
+            return self.get_value(instance)
+        except KeyError:
+            return self.default
+
+    def __set__(self, instance: CommandConfig, value: ConfigValue):
+        if self.type is not None:
+            value = self.type(value)
+        instance.__dict__[self.name] = value
+
+    def __delete__(self, instance: CommandConfig):
+        try:
+            del instance.__dict__[self.name]
+        except KeyError as e:
+            raise AttributeError(f'No {self.name!r} config was stored for {instance}') from e
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__}({self.default!r}, type={self.type!r})>'
 
 
-@dataclass
 class CommandConfig:
     """Configuration options for Commands."""
+
+    _fields = set()
 
     # region Error Handling Options
 
     #: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`
-    error_handler: Optional[ErrorHandler] = _NotSet
+    error_handler: Optional[ErrorHandler] = ConfigItem(_NotSet)
 
     #: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in
     #: :meth:`.Command.main` (similar to a ``finally`` block)
-    always_run_after_main: Bool = False
+    always_run_after_main: Bool = ConfigItem(False, bool)
 
     # endregion
 
     # region ActionFlag Options
 
     #: Whether multiple action_flag methods are allowed to run if they are all specified
-    multiple_action_flags: Bool = True
+    multiple_action_flags: Bool = ConfigItem(True, bool)
 
     #: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation
-    action_after_action_flags: Bool = True
+    action_after_action_flags: Bool = ConfigItem(True, bool)
 
     # endregion
 
     # region Parsing Options
 
     #: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)
-    ignore_unknown: Bool = False
+    ignore_unknown: Bool = ConfigItem(False, bool)
 
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
-    allow_missing: Bool = False
+    allow_missing: Bool = ConfigItem(False, bool)
 
     #: Whether backtracking is enabled for positionals following params with variable nargs
-    allow_backtrack: Bool = True
+    allow_backtrack: Bool = ConfigItem(True, bool)
 
     #: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes
-    option_name_mode: OptionNameMode = EnumConfigOption(OptionNameMode, OptionNameMode.UNDERSCORE)
+    option_name_mode: OptionNameMode = ConfigItem(OptionNameMode.UNDERSCORE, OptionNameMode)
 
     # endregion
 
     # region Usage & Help Text Options
 
     #: Whether the ``--help`` / ``-h`` action_flag should be added
-    add_help: Bool = True
+    add_help: Bool = ConfigItem(True, bool)
 
     #: Whether the metavar for Parameters that accept values should default to the name of the specified type
     #: (default: the name of the parameter)
-    use_type_metavar: Bool = False
+    use_type_metavar: Bool = ConfigItem(False, bool)
 
     #: Whether the default value for Parameters should be shown in help text, and related behavior
-    show_defaults: ShowDefaults = EnumConfigOption(ShowDefaults, ShowDefaults.MISSING | ShowDefaults.NON_EMPTY)
+    show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
-    show_group_tree: Bool = False
+    show_group_tree: Bool = ConfigItem(False, bool)
 
     #: Whether mutually exclusive / dependent groups should include that fact in their descriptions
-    show_group_type: Bool = True
+    show_group_type: Bool = ConfigItem(True, bool)
 
     #: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`
     #: object, and returns a :class:`.CommandHelpFormatter`
-    command_formatter: Callable[[CommandType, CommandParameters], CommandHelpFormatter] = None
+    command_formatter: Callable[[CommandType, CommandParameters], CommandHelpFormatter] = ConfigItem(None)
 
     #: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`
-    param_formatter: Callable[[ParamOrGroup], ParamHelpFormatter] = None
+    param_formatter: Callable[[ParamOrGroup], ParamHelpFormatter] = ConfigItem(None)
 
     #: Whether the program version, author email, and documentation URL should be included in the help text epilog, if
     #: they were successfully detected
-    extended_epilog: Bool = True
+    extended_epilog: Bool = ConfigItem(True, bool)
 
     #: Whether the top level script's docstring should be included in generated documentation
-    show_docstring: Bool = True
+    show_docstring: Bool = ConfigItem(True, bool)
 
     # endregion
 
-    # region Planned Options
+    def __init__(self, parents: Optional[Sequence[CommandConfig]] = None, **kwargs):
+        self.parents = parents or ()
+        bad = {}
+        for key, val in kwargs.items():
+            if key in self._fields:
+                setattr(self, key, val)
+            else:
+                bad[key] = val
+        if bad:
+            raise ValueError(f'Invalid configuration - unsupported options: {", ".join(sorted(bad))}')
 
-    # #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional action
-    # #: names should be strict (``True``) when processing user input, or if they should be allowed to be interchanged
-    # #: (``False``)
-    # strict_action_punctuation: Bool = False
-    #
-    # #: Whether handling of spaces (`` ``), dashes (``-``), and underscores (``_``) in the middle of positional sub
-    # #: command names should be strict (``True``) when processing user input, or if they should be allowed to be
-    # #: interchanged (``False``)
-    # strict_sub_command_punctuation: Bool = False
+    def __repr__(self) -> str:
+        settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False))
+        cfg_str = f', {settings}' if settings else ''
+        return f'<{self.__class__.__name__}(parents={self.parents!r}{cfg_str})>'
 
-    # endregion
-
-    @cached_class_property
-    def _field_names(cls) -> FrozenSet[str]:  # noqa
-        """Cache the names of the config options for use in :meth:`.as_dict`"""
-        names = {f.name for f in fields(cls)}
-        return frozenset(names)
-
-    def as_dict(self) -> Dict[str, Any]:
-        """
-        Return a dict representing the configured options.
-
-        This was necessary because :func:`dataclasses.asdict` copies values, which breaks the use of _NotSet as a
-        non-None sentinel value.
-        """
-        d = self.__dict__
-        return {f: d[f] for f in self._field_names}  # noqa  # pylint: disable=E1133
+    def as_dict(self, full: Bool = True) -> Dict[str, Any]:
+        """Return a dict representing the configured options."""
+        if full:
+            return {key: getattr(self, key) for key in self._fields}
+        return {key: val for key, val in self.__dict__.items() if key in self._fields}

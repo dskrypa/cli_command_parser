@@ -72,6 +72,9 @@ class Option(BasicActionMixin, BaseOption):
             self._init_value_factory = list
 
 
+# TODO: 1/2 flag, 1/2 option, like Counter, but for any value
+
+
 class Flag(BaseOption, accepts_values=False, accepts_none=True):
     """
     A (typically boolean) option that does not accept any values.

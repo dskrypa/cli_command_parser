@@ -9,68 +9,26 @@ import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, Callable, cast
-from typing import Dict, Tuple, List
+from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast, Dict, Tuple, List
 
 try:
     from functools import cached_property
 except ImportError:
     from .compat import cached_property
 
-from .config import CommandConfig, ShowDefaults, OptionNameMode
+from .config import CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
 from .utils import Bool, _NotSet
 
 if TYPE_CHECKING:
-    from .core import CommandType
+    from .core import CommandType, AnyConfig
     from .command_parameters import CommandParameters
-    from .formatting.params import ParamHelpFormatter
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context', 'ctx', 'get_current_context']
+__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
-
-
-class ConfigOption:
-    def __init__(self, default: Any = None):
-        self.default = default
-
-    def __set_name__(self, owner, name: str):
-        self.name = name
-
-    def get_value(self, context: Context, ctx_cls):
-        try:
-            return context.__dict__[self.name]
-        except KeyError:
-            parent = context.parent
-            if parent:
-                option = ctx_cls.__dict__[self.name]  # type: ConfigOption
-                return option.get_value(parent, ctx_cls)
-            raise
-
-    def __get__(self, context: Optional[Context], ctx_cls) -> Optional[Bool]:
-        if context is None:
-            return self
-        try:
-            return self.get_value(context, ctx_cls)
-        except KeyError:
-            pass
-
-        command = context.command
-        try:
-            config = command.__class__.config(command)
-        except AttributeError:
-            if self.default is not None:
-                return self.default
-            return getattr(CommandConfig(), self.name)
-        else:
-            return getattr(config, self.name)
-
-    def __set__(self, context: Context, value: Optional[Bool]):
-        if value is not self.default:
-            context.__dict__[self.name] = value
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -81,53 +39,22 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     affect parser behavior.
     """
 
-    error_handler = ConfigOption(_NotSet)
-    always_run_after_main = ConfigOption()
-    multiple_action_flags = ConfigOption()
-    action_after_action_flags = ConfigOption()
-    ignore_unknown = ConfigOption()
-    allow_missing = ConfigOption()
-    allow_backtrack = ConfigOption()
-    option_name_mode = ConfigOption()
-    use_type_metavar = ConfigOption()
-    show_defaults = ConfigOption()
-    show_group_tree = ConfigOption()
-    show_group_type = ConfigOption()
-    param_formatter = ConfigOption()
-    extended_epilog = ConfigOption()
-    show_docstring = ConfigOption()
-    # strict_action_punctuation = ConfigOption()
-    # strict_sub_command_punctuation = ConfigOption()
+    config: CommandConfig
 
-    def __init__(  # pylint: disable=R0914
+    def __init__(
         self,
         argv: Optional[Sequence[str]] = None,
         command: Optional[CommandType] = None,
         parent: Optional[Context] = None,
-        *,
-        error_handler: Optional[ErrorHandler] = _NotSet,
-        always_run_after_main: Bool = None,
-        multiple_action_flags: Bool = None,
-        action_after_action_flags: Bool = None,
-        ignore_unknown: Bool = None,
-        allow_missing: Bool = None,
-        allow_backtrack: Bool = None,
-        option_name_mode: Union[OptionNameMode, str] = None,
-        use_type_metavar: Bool = None,
-        show_defaults: Union[ShowDefaults, str] = None,
-        show_group_tree: Bool = None,
-        show_group_type: Bool = None,
-        param_formatter: Callable[[ParamOrGroup], ParamHelpFormatter] = None,
-        extended_epilog: Bool = None,
-        show_docstring: Bool = None,
-        # strict_action_punctuation: Bool = None,
-        # strict_sub_command_punctuation: Bool = None,
+        config: AnyConfig = None,
+        **kwargs,
     ):
         self.argv = sys.argv[1:] if argv is None else argv
         self.remaining = list(self.argv)
         self.command = command
         self.parent = parent
         self.failed = False
+        self.config = _normalize_config(config, kwargs, parent, command)
         if parent is not None:
             self._parsing = parent._parsing.copy()
             self.unknown = parent.unknown.copy()
@@ -137,30 +64,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             self.unknown = {}
             self._provided = defaultdict(int)
         self.actions_taken = 0
-
-        # Command config overrides
-        self.error_handler = error_handler
-        self.always_run_after_main = always_run_after_main
-
-        self.multiple_action_flags = multiple_action_flags
-        self.action_after_action_flags = action_after_action_flags
-
-        self.ignore_unknown = ignore_unknown
-        self.allow_missing = allow_missing
-        self.allow_backtrack = allow_backtrack
-        self.option_name_mode = option_name_mode
-
-        self.use_type_metavar = use_type_metavar
-        if show_defaults is not None:
-            self.show_defaults = ShowDefaults(show_defaults)
-        self.show_group_tree = show_group_tree
-        self.show_group_type = show_group_type
-        self.param_formatter = param_formatter
-        self.extended_epilog = extended_epilog
-        self.show_docstring = show_docstring
-
-        # self.strict_action_punctuation = strict_action_punctuation
-        # self.strict_sub_command_punctuation = strict_sub_command_punctuation
 
     def __enter__(self) -> Context:
         _context_stack.get().append(self)
@@ -177,7 +80,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return None
 
     def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
-        error_handler = self.error_handler
+        error_handler = self.config.error_handler
         if error_handler is _NotSet:
             return extended_error_handler
         elif error_handler is None:
@@ -276,6 +179,27 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return ()
 
 
+def _normalize_config(
+    config: AnyConfig, kwargs: Dict[str, Any], parent: Optional[Context], command: Optional[CommandType]
+) -> CommandConfig:
+    if config is not None:
+        if kwargs:
+            raise ValueError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+        elif isinstance(config, CommandConfig):
+            return config
+        kwargs = config
+
+    parents = []
+    if parent and parent.config:
+        parents.append(parent.config)
+    if command is not None:
+        cmd_cfg = command.__class__.config(command)
+        if cmd_cfg:
+            parents.append(cmd_cfg)
+
+    return CommandConfig(parents=parents, **kwargs)
+
+
 def get_current_context(silent: bool = False) -> Optional[Context]:
     """
     Get the currently active parsing context.
@@ -290,6 +214,18 @@ def get_current_context(silent: bool = False) -> Optional[Context]:
         if silent:
             return None
         raise NoActiveContext('There is no active context') from None
+
+
+def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None) -> Context:
+    try:
+        context = get_current_context()
+    except NoActiveContext:
+        return Context(argv, command_cls)
+    else:
+        if argv is None and context.command is command_cls:
+            return context
+        else:
+            return context._sub_context(command_cls, argv=argv)
 
 
 class ContextProxy:
