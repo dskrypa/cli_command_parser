@@ -97,7 +97,6 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">WeakKeyDictionary</span><span class="p">,</span> <span class="n">WeakSet</span>
 
-<span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span>
@@ -156,8 +155,8 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;prog&#39;</span><span class="p">,</span> <span class="s1">&#39;usage&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;epilog&#39;</span><span class="p">,</span> <span class="s1">&#39;doc_name&#39;</span><span class="p">)}</span>
-        <span class="k">with</span> <span class="n">_PrepConfig</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_prepare_config</span><span class="p">(</span><span class="n">bases</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span> <span class="k">as</span> <span class="n">cfg_prep</span><span class="p">:</span>
-            <span class="n">cfg_prep</span><span class="o">.</span><span class="n">cls</span> <span class="o">=</span> <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">_TempConfig</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_prepare_config</span><span class="p">(</span><span class="n">bases</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span> <span class="k">as</span> <span class="n">tmp_cfg</span><span class="p">:</span>
+            <span class="n">tmp_cfg</span><span class="o">.</span><span class="n">cls</span> <span class="o">=</span> <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
 
         <span class="n">mcs</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">mcs</span><span class="o">.</span><span class="n">_maybe_populate_metadata</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
@@ -165,6 +164,8 @@
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">add_help</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;_CommandMeta__help&#39;</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
+
             <span class="bp">cls</span><span class="o">.</span><span class="n">__help</span> <span class="o">=</span> <span class="n">help_action</span>  <span class="c1"># pylint: disable=W0238</span>
 
         <span class="k">return</span> <span class="bp">cls</span>
@@ -206,7 +207,7 @@
 <div class="viewcode-block" id="CommandMeta.parent"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandMeta</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">parent_cls</span> <span class="ow">in</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_cls</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_abc</span> <span class="ow">or</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_cls</span><span class="p">,</span> <span class="n">mcs</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_abc</span> <span class="ow">or</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">parent_cls</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
@@ -223,17 +224,13 @@
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot combine config=</span><span class="si">{</span><span class="n">config</span><span class="si">!r}</span><span class="s1"> with keyword config arguments=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">CommandConfig</span><span class="p">):</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_config_from_bases</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="n">parent</span><span class="p">,)</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="p">(),</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">config</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_config_from_bases</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="p">(</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1"># kwargs = config.as_dict() | kwargs</span>
-                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># py &lt; 3.9 compatibility</span>
-                        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-
-                <span class="k">return</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_config_from_bases</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="p">(</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="n">parent</span><span class="p">,)</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -272,7 +269,7 @@
             <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">_PrepConfig</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">_TempConfig</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Temporarily stores config with a str key because __set_name__ for Parameters is called when super().__new__ is</span>
 <span class="sd">    called to create the Command class, and some config needs to be known at that point.</span>
@@ -285,7 +282,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config_key</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{__module__}</span><span class="s1">.</span><span class="si">{__qualname__}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">ns</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PrepConfig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_TempConfig</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mcs</span><span class="o">.</span><span class="n">_tmp_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">return</span> <span class="bp">self</span>

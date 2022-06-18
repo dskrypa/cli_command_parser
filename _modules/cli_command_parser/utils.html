@@ -88,11 +88,11 @@
 
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># pylint: disable=C0103,R0903,W0703</span>
+<span class="c1"># pylint: disable=R0903,W0703</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">stack</span><span class="p">,</span> <span class="n">isclass</span><span class="p">,</span> <span class="n">FrameInfo</span>
@@ -118,21 +118,6 @@
 <span class="n">Bool</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 <span class="n">FlagEnum</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;FlagEnum&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;FixedFlag&#39;</span><span class="p">)</span>
 <span class="n">_NotSet</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
-
-
-<div class="viewcode-block" id="cached_class_property"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.cached_class_property">[docs]</a><span class="k">class</span> <span class="nc">cached_class_property</span><span class="p">(</span><span class="nb">classmethod</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">property</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>  <span class="c1"># noqa  # makes Sphinx handle it better than if this was not done</span>
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="bp">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">value</span></div>
 
 
 <div class="viewcode-block" id="validate_positional"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.validate_positional">[docs]</a><span class="k">def</span> <span class="nf">validate_positional</span><span class="p">(</span>
