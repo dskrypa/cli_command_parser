@@ -54,6 +54,7 @@ class Positional(BasicActionMixin, BasePositional):
         elif action == 'store' and self.nargs.max != 1:
             raise ParameterDefinitionError(f'Invalid action={action!r} for nargs={self.nargs}')
         if default is not _NotSet and (action != 'store' or 0 not in self.nargs):
+            # TODO: Allow default when nargs='*'
             raise ParameterDefinitionError(
                 f'Invalid default={default!r} - only allowed for Positional parameters when nargs=?'
             )

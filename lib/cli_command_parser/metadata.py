@@ -24,6 +24,8 @@ DEFAULT_FILE_NAME: str = 'UNKNOWN'
 
 
 class Metadata:
+    __slots__ = ('default', 'name')
+
     def __init__(self, default):
         self.default = default
 

@@ -24,6 +24,8 @@ Converter = Union[Deserializer, Serializer]
 
 
 class InputParam:
+    __slots__ = ('default', 'name')
+
     def __init__(self, default: Any):
         self.default = default
 

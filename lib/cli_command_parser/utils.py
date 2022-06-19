@@ -166,6 +166,8 @@ class FixedFlag(Flag):
 
 
 class Terminal:  # pylint: disable=R0903
+    __slots__ = ('_cache_time', '_last_time', '_width')
+
     def __init__(self, cache_time: float = 1):
         self._cache_time = cache_time
         self._last_time = 0

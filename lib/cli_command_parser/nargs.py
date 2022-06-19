@@ -24,6 +24,8 @@ class Nargs:
     Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.
     """
 
+    __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable')
+
     def __init__(self, nargs: NargsValue):  # pylint: disable=R0912
         self._orig = nargs
         self.range = None

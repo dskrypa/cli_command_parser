@@ -86,6 +86,8 @@ class OptionNameMode(FixedFlag):
 
 
 class ConfigItem(Generic[_ConfigValue]):
+    __slots__ = ('default', 'type', 'name')
+
     def __init__(self, default: ConfigValue, type: Callable[[Any], _ConfigValue] = None):  # noqa
         self.default = default
         self.type = type

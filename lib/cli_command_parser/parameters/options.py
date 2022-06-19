@@ -73,6 +73,7 @@ class Option(BasicActionMixin, BaseOption):
 
 
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value
+# TODO: Explicit True/False pair of args for default=None
 
 
 class Flag(BaseOption, accepts_values=False, accepts_none=True):
