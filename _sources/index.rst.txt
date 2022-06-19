@@ -51,6 +51,7 @@ User Guide
    configuration
    documentation
    advanced
+   testing
 
 
 API Documentation

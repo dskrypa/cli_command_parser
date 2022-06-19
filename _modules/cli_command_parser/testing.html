@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.testing &mdash; CLI Command Parser 2022.06.18 documentation</title>
+  <title>cli_command_parser.testing &mdash; CLI Command Parser 2022.06.19 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
@@ -104,7 +105,7 @@
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UsageError</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParserTest&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParserTest&#39;</span><span class="p">,</span> <span class="s1">&#39;RedirectStreams&#39;</span><span class="p">,</span> <span class="s1">&#39;format_diff&#39;</span><span class="p">]</span>
 
 <span class="n">Argv</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="n">Expected</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
@@ -220,7 +221,7 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\x1b</span><span class="s1">[38;5;</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s1">m</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="se">\x1b</span><span class="s1">[0m</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">&#39;</span>
 
 
-<span class="k">def</span> <span class="nf">format_diff</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;expected&#39;</span><span class="p">,</span> <span class="n">name_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  actual&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="format_diff"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.format_diff">[docs]</a><span class="k">def</span> <span class="nf">format_diff</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;expected&#39;</span><span class="p">,</span> <span class="n">name_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  actual&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">sio</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
@@ -234,10 +235,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
 
-<span class="k">class</span> <span class="nc">RedirectStreams</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>
+<div class="viewcode-block" id="RedirectStreams"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams">[docs]</a><span class="k">class</span> <span class="nc">RedirectStreams</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>
     <span class="n">_stdin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IO</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stdin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IO</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -248,18 +249,19 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stdin</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdin</span>  <span class="c1"># pretend to be the underlying buffer as well</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stdin</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">stdin</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_stdin</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">stdin</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stdin</span> <span class="o">=</span> <span class="n">stdin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="RedirectStreams.stdout"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams.stdout">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="RedirectStreams.stderr"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams.stderr">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">stderr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RedirectStreams</span><span class="p">:</span>
         <span class="n">streams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;stdout&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span><span class="p">,</span> <span class="s1">&#39;stderr&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span><span class="p">}</span>
@@ -273,7 +275,7 @@
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="p">:</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">orig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
