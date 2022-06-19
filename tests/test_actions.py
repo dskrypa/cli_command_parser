@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import logging
-from contextlib import redirect_stderr
 from unittest import TestCase, main
 from unittest.mock import Mock, PropertyMock
 
@@ -12,6 +11,7 @@ from cli_command_parser.exceptions import (
     MissingArgument,
     InvalidChoice,
 )
+from cli_command_parser.testing import RedirectStreams
 
 log = logging.getLogger(__name__)
 
@@ -134,7 +134,7 @@ class ActionTest(TestCase):
 
     def test_invalid_action_choice_with_default(self):
         BuildDocs, build_mock, clean_mock = make_build_docs_command()
-        with redirect_stderr(Mock()), self.assertRaises(SystemExit):
+        with RedirectStreams(), self.assertRaises(SystemExit):
             BuildDocs.parse_and_run(['foo'])
 
         self.assertFalse(build_mock.called)

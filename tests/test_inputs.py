@@ -5,6 +5,7 @@ import os
 import pickle
 from contextlib import contextmanager
 from enum import Enum
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import ContextManager
@@ -18,7 +19,7 @@ from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json,
 from cli_command_parser.inputs.choices import Choices, ChoiceMap, EnumChoices
 from cli_command_parser.inputs.exceptions import InputValidationError, InvalidChoiceError
 from cli_command_parser.inputs.utils import InputParam, FileWrapper
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest, RedirectStreams
 
 # region Helpers
 
@@ -251,8 +252,16 @@ class ReadWriteTest(TestCase):
             self.assertEqual({'a': 1}, Pickle(lazy=False)(a.as_posix()))
 
     def test_read_stdin(self):
-        with patch('sys.stdin.read', return_value='test'):
+        with RedirectStreams(StringIO('test')):
             self.assertEqual('test', File(allow_dash=True, lazy=False)('-'))
+
+    def test_json_read_stdin(self):
+        with RedirectStreams('{"a": 1, "b": 2}'):
+            self.assertEqual({'a': 1, 'b': 2}, Json(allow_dash=True, lazy=False, mode='r')('-'))
+
+    def test_json_read_stdin_bytes(self):
+        with RedirectStreams(b'{"a": 1, "b": 2}'):
+            self.assertEqual({'a': 1, 'b': 2}, Json(allow_dash=True, lazy=False, mode='rb')('-'))
 
     def test_file_read_text(self):
         with temp_path('a') as a:
@@ -500,7 +509,7 @@ class ChoiceInputTest(TestCase):
 
         for val in ('-1', '0', '4', '10', 'foo'):
             with self.subTest(val=val):
-                with self.assertRaisesRegex(InvalidChoiceError, "choose from: 1, 2, 3"):
+                with self.assertRaisesRegex(InvalidChoiceError, 'choose from: 1, 2, 3'):
                     choices(val)
 
     def test_choices_strs_sensitive(self):

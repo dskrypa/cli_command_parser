@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stdout
 from importlib import reload
-from io import StringIO
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
@@ -17,6 +16,7 @@ from cli_command_parser.exceptions import (
     ParamsMissing,
 )
 from cli_command_parser.parameters import Flag
+from cli_command_parser.testing import RedirectStreams
 
 
 class ErrorHandlingTest(TestCase):
@@ -50,11 +50,10 @@ class ErrorHandlingTest(TestCase):
 
     def test_handle_parser_exception(self):
         handler = ErrorHandler()
-        sio = StringIO()
-        with redirect_stderr(sio), self.assertRaises(SystemExit), handler:
+        with RedirectStreams() as streams, self.assertRaises(SystemExit), handler:
             raise CommandParserException('test one')
 
-        self.assertEqual(sio.getvalue(), 'test one\n')
+        self.assertEqual(streams.stderr, 'test one\n')
 
     def test_error_handler_repr(self):
         self.assertIn('handlers=', repr(ErrorHandler()))
@@ -66,11 +65,10 @@ class ExceptionTest(TestCase):
         self.assertNotIn('foo', str(ParserExit()))
 
     def test_exit_exit(self):
-        mock = Mock(write=Mock())
-        with redirect_stderr(mock), self.assertRaises(SystemExit):
+        with RedirectStreams() as streams, self.assertRaises(SystemExit):
             ParserExit(message='test').exit()
 
-        self.assertTrue(mock.write.called)
+        self.assertIn('test', streams.stderr)
 
     def test_usage_error_str(self):
         self.assertEqual('test', str(ParamUsageError(None, 'test')))  # noqa
@@ -116,23 +114,20 @@ with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', cr
             self.assertTrue(mock.close.called)
 
         def test_oserror_other_ignored(self):
-            with redirect_stdout(Mock()), self.assertRaises(OSError), extended_error_handler:
+            with RedirectStreams(), self.assertRaises(OSError), extended_error_handler:
                 raise OSError(21, 'test')
 
         def test_keyboard_interrupt_print(self):
-            mock = Mock(write=Mock())
-            with redirect_stdout(mock), extended_error_handler:
+            with RedirectStreams() as streams, extended_error_handler:
                 raise KeyboardInterrupt
 
-            # self.assertEqual(mock.write.call_args.args[0], '\n')  # 3.8+
-            self.assertEqual(mock.write.call_args[0][0], '\n')
+            self.assertEqual('\n', streams.stdout)
 
         def test_broken_pipe_caught(self):
-            mock = Mock(write=Mock())
-            with redirect_stdout(mock), extended_error_handler:
+            with RedirectStreams() as streams, extended_error_handler:
                 raise BrokenPipeError
 
-            self.assertFalse(mock.write.called)
+            self.assertEqual('', streams.stdout)
 
 
 class ModuleLoadTest(TestCase):

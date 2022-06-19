@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from abc import ABC
-from contextlib import redirect_stdout, redirect_stderr
 from unittest import TestCase, main
 from unittest.mock import Mock
 
@@ -10,6 +9,7 @@ from cli_command_parser.core import CommandMeta, get_config, get_parent, get_par
 from cli_command_parser.error_handling import no_exit_handler, extended_error_handler
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption, ParamConflict
 from cli_command_parser.parameters import Action, ActionFlag, SubCommand, Positional, Flag
+from cli_command_parser.testing import RedirectStreams
 
 _get_config = CommandMeta.config
 
@@ -149,8 +149,7 @@ class TestCommands(TestCase):
             bar = Flag()
             __call__ = Mock()
 
-        mock = Mock(close=Mock())
-        with redirect_stdout(mock), redirect_stderr(mock):
+        with RedirectStreams():
             Foo.parse_and_run(['-B'])
 
         self.assertFalse(Foo.__call__.called)
@@ -236,7 +235,7 @@ class TestCommands(TestCase):
         class Bar(Foo):
             pass
 
-        with redirect_stdout(Mock()), self.assertRaises(SystemExit):
+        with RedirectStreams(), self.assertRaises(SystemExit):
             Bar.parse_and_run(['-h'])
 
     def test_argv_results_in_sub_context(self):

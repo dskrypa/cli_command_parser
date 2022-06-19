@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from contextlib import redirect_stdout
 from unittest import main
 from unittest.mock import Mock
 
@@ -11,7 +10,7 @@ from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import ParamsMissing, CommandDefinitionError, MissingArgument, ParserExit
 from cli_command_parser.parameters.base import parameter_action, Parameter
 from cli_command_parser.parameters import Counter, Flag, Positional, SubCommand, Option
-from cli_command_parser.testing import ParserTest as _ParserTest
+from cli_command_parser.testing import RedirectStreams, ParserTest as _ParserTest
 
 
 class ParserTest(_ParserTest):
@@ -83,40 +82,28 @@ class ParserTest(_ParserTest):
         with self.assertRaisesRegex(CommandDefinitionError, 'conflict for command=.* between'):
             Foo.parse(['bar'])
 
-    def test_alt_parent_sub_command_missing_args_1(self):
-        class Foo(Command, error_handler=None):
-            cmd = SubCommand()
+    def test_alt_parent_sub_command_missing_args(self):
+        for with_option in (False, True):
+            with self.subTest(with_option=with_option):
 
-        @Foo.cmd.register
-        class Bar(Command, error_handler=None):
-            baz = Positional()
+                class Foo(Command, error_handler=None):
+                    cmd = SubCommand()
+                    if with_option:
+                        foo = Option('-f', required=True)
 
-        with self.assertRaises(ParamsMissing):
-            Foo.parse_and_run(['bar'])
-        with self.assertRaises(MissingArgument):
-            Foo.parse_and_run([])
-        with redirect_stdout(Mock()), self.assertRaises(ParserExit):
-            Foo.parse_and_run(['bar', '-h'])
-        with redirect_stdout(Mock()), self.assertRaises(ParserExit):
-            Foo.parse_and_run(['-h'])
+                @Foo.cmd.register
+                class Bar(Command, error_handler=None):
+                    baz = Positional()
 
-    def test_alt_parent_sub_command_missing_args_2(self):
-        class Foo(Command, error_handler=None):
-            cmd = SubCommand()
-            foo = Option('-f', required=True)
-
-        @Foo.cmd.register
-        class Bar(Command, error_handler=None):
-            baz = Positional()
-
-        with self.assertRaises(ParamsMissing):
-            Foo.parse_and_run(['bar'])
-        with self.assertRaises(MissingArgument):
-            Foo.parse_and_run([])
-        with redirect_stdout(Mock()), self.assertRaises(ParserExit):
-            Foo.parse_and_run(['bar', '-h'])
-        with redirect_stdout(Mock()), self.assertRaises(ParserExit):
-            Foo.parse_and_run(['-h'])
+                with self.assertRaises(ParamsMissing):
+                    Foo.parse_and_run(['bar'])
+                with self.assertRaises(MissingArgument):
+                    Foo.parse_and_run([])
+                with RedirectStreams():
+                    with self.assertRaises(ParserExit):
+                        Foo.parse_and_run(['bar', '-h'])
+                    with self.assertRaises(ParserExit):
+                        Foo.parse_and_run(['-h'])
 
     def test_arg_dict_with_parent(self):
         class Foo(Command):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from contextlib import redirect_stdout
 from unittest import TestCase, main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
+from cli_command_parser.testing import RedirectStreams
 
 
 class SubCommandTest(TestCase):
@@ -112,12 +112,10 @@ class SubCommandTest(TestCase):
         class FooBar(Foo):
             pass
 
-        mock = Mock(write=Mock())
-        with redirect_stdout(mock), self.assertRaises(SystemExit):
+        with RedirectStreams() as streams, self.assertRaises(SystemExit):
             Foo.parse_and_run(['-h'])
 
-        # self.assertIn('--help, -h', mock.write.call_args_list[0].args[0])  # 3.8+
-        self.assertIn('--help, -h', mock.write.call_args_list[0][0][0])
+        self.assertIn('--help, -h', streams.stdout)
 
     def test_optional_sub_cmd_runs_base_main(self):
         class Foo(Command):

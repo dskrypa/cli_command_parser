@@ -5,9 +5,13 @@ Helpers for unit tests
 """
 # pylint: disable=R0913,C0103
 
+from __future__ import annotations
+
+import sys
+from contextlib import AbstractContextManager
 from difflib import unified_diff
-from io import StringIO
-from typing import Any, Iterable, Type, Union, Callable, Dict, List, Tuple
+from io import StringIO, BytesIO
+from typing import Any, Iterable, Type, Union, Callable, IO, Dict, List, Tuple
 from unittest import TestCase
 
 from .actions import help_action
@@ -146,3 +150,42 @@ def format_diff(a: str, b: str, name_a: str = 'expected', name_b: str = '  actua
             sio.write(line + '\n')
 
     return sio.getvalue()
+
+
+class RedirectStreams(AbstractContextManager):
+    _stdin: Union[IO, str, bytes, None] = None
+
+    def __init__(self, stdin: Union[IO, str, bytes, None] = None):
+        self._old = {}
+        if stdin is not None:
+            if isinstance(stdin, bytes):
+                self._stdin = BytesIO(stdin)
+                self._stdin.buffer = self._stdin  # pretend to be the underlying buffer as well
+            elif isinstance(stdin, str):
+                self._stdin = StringIO(stdin)
+            else:
+                self._stdin = stdin
+        self._stdout = StringIO()
+        self._stderr = StringIO()
+
+    @property
+    def stdout(self) -> str:
+        return self._stdout.getvalue()
+
+    @property
+    def stderr(self) -> str:
+        return self._stderr.getvalue()
+
+    def __enter__(self) -> RedirectStreams:
+        streams = {'stdout': self._stdout, 'stderr': self._stderr}
+        if self._stdin is not None:
+            streams['stdin'] = self._stdin
+        for name, io in streams.items():
+            self._old[name] = getattr(sys, name)
+            setattr(sys, name, io)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        while self._old:
+            name, orig = self._old.popitem()
+            setattr(sys, name, orig)

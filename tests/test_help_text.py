@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from contextlib import redirect_stdout, redirect_stderr
-from io import StringIO
+from abc import ABC
 from textwrap import dedent
 from typing import Sequence, Type, Union, Iterable, Any, Tuple
 from unittest import TestCase, main
@@ -10,11 +9,12 @@ from unittest.mock import Mock, patch
 from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandMeta, CommandType
 from cli_command_parser.exceptions import MissingArgument
+from cli_command_parser.formatting.commands import CommandHelpFormatter
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.utils import get_usage_sub_cmds
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest, RedirectStreams
 
 TEST_DESCRIPTION = 'This is a test description'
 TEST_EPILOG = 'This is a test epilog'
@@ -525,13 +525,18 @@ class FormatterTest(ParserTest):
         with Foo().ctx:
             self.assertEqual('test help', Foo.bar.format_help())
 
+    def test_formatter_no_config(self):
+        class Foo(ABC, metaclass=CommandMeta):
+            pass
+
+        self.assertIsInstance(CommandMeta.params(Foo).formatter, CommandHelpFormatter)
+
 
 def _get_output(command: CommandType, args: Sequence[str]) -> Tuple[str, str]:
-    stdout, stderr = StringIO(), StringIO()
-    with redirect_stdout(stdout), redirect_stderr(stderr):
+    with RedirectStreams() as streams:
         command.parse_and_run(args)
 
-    return stdout.getvalue(), stderr.getvalue()
+    return streams.stdout, streams.stderr
 
 
 if __name__ == '__main__':

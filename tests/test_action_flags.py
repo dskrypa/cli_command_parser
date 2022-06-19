@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 import logging
-from contextlib import redirect_stdout
-from io import StringIO
 from itertools import count
 from unittest import main
 from unittest.mock import Mock
@@ -12,7 +10,7 @@ from cli_command_parser.actions import help_action
 from cli_command_parser.context import Context
 from cli_command_parser.parameters import before_main, after_main, action_flag
 from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest, RedirectStreams
 
 log = logging.getLogger(__name__)
 
@@ -25,12 +23,10 @@ class ActionFlagTest(ParserTest):
             action = Action()
             action.register(mock)
 
-        sio = StringIO()
-        with redirect_stdout(sio):
-            foo = Foo.parse(['bar', '-h'])
-            foo()
+        with RedirectStreams() as streams:
+            Foo.parse(['bar', '-h'])()
 
-        self.assertTrue(sio.getvalue().startswith('usage: '))
+        self.assertTrue(streams.stdout.startswith('usage: '))
         self.assertEqual(mock.call_count, 0)
 
     def test_af_func_missing(self):
