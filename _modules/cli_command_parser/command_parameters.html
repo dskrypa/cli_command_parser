@@ -138,13 +138,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="o">=</span> <span class="n">command_parent</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command_parent</span><span class="p">)</span>
 
-        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">CommandHelpFormatter</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">command_formatter</span> <span class="ow">or</span> <span class="n">CommandHelpFormatter</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">formatter_factory</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -170,6 +163,21 @@
 <span class="sd">        failed (such as the one for ``--help``).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">af</span> <span class="k">for</span> <span class="n">af</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_flags</span> <span class="k">if</span> <span class="n">af</span><span class="o">.</span><span class="n">always_available</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandParameters.formatter"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter">[docs]</a>    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHelpFormatter</span><span class="p">:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">CommandHelpFormatter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">command_formatter</span> <span class="ow">or</span> <span class="n">CommandHelpFormatter</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="n">formatter_factory</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_option</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">)</span>
+        <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_positionals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">)</span>
+        <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_groups</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">formatter</span></div>
 
     <span class="c1"># region Initialization</span>
 
@@ -209,7 +217,6 @@
                         <span class="sa">f</span><span class="s1">&#39;Invalid PassThru param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> - it cannot follow another PassThru param&#39;</span>
                     <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span> <span class="o">=</span> <span class="n">param</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_param</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;Unexpected type=</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s1"> for param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> - custom parameters must extend&#39;</span>
@@ -228,7 +235,6 @@
             <span class="n">_groups</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">groups</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_groups</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_group</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>
@@ -260,7 +266,6 @@
                 <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">param</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_param</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]):</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
@@ -288,7 +293,6 @@
                             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">opt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">opt</span><span class="si">!r}</span><span class="s1"> conflict for command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">!r}</span><span class="s1"> between </span><span class="si">{</span><span class="n">existing</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
                         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_param</span><span class="p">(</span><span class="o">*</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span> <span class="o">=</span> <span class="n">option_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_action_flags</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
