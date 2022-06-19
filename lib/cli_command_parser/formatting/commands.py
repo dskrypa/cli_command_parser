@@ -6,7 +6,7 @@ Command usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, Callable, Iterator
+from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional
 
 from ..context import ctx
 from ..metadata import ProgramMetadata
@@ -17,7 +17,7 @@ from .utils import get_usage_sub_cmds
 if TYPE_CHECKING:
     from ..core import CommandType, CommandMeta
     from ..command_parameters import CommandParameters
-    from ..parameters import ParamGroup, Parameter
+    from ..parameters import ParamGroup, Parameter, BasePositional, BaseOption
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -34,7 +34,7 @@ class CommandHelpFormatter:
         self.opt_group = ParamGroup(description='Optional arguments')
         self.groups = [self.pos_group, self.opt_group]
 
-    def maybe_add_group(self, *groups: ParamGroup):
+    def maybe_add_groups(self, groups: Iterable[ParamGroup]):
         for group in groups:
             if group.group:  # prevent duplicates
                 continue
@@ -43,13 +43,15 @@ class CommandHelpFormatter:
             else:
                 self.groups.append(group)
 
-    def maybe_add_param(self, *params: Parameter):
-        for param in params:
-            if not param.group:
-                if param._positional:
-                    self.pos_group.add(param)
-                else:
-                    self.opt_group.add(param)
+    def maybe_add_option(self, param: Optional[Parameter]):
+        if param is not None and not param.group:
+            self.opt_group.add(param)
+
+    def maybe_add_positionals(self, params: Iterable[BasePositional]):
+        self.pos_group.extend(param for param in params if not param.group)
+
+    def maybe_add_options(self, params: Iterable[BaseOption]):
+        self.opt_group.extend(param for param in params if not param.group)
 
     def _get_meta(self) -> ProgramMetadata:
         cmd_mcls: Type[CommandMeta] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs

@@ -149,6 +149,10 @@ class ParamGroup(ParamBase):
         """Add the given parameter without storing a back-reference.  Primary use case is for help text only groups."""
         self.members.append(param)
 
+    def extend(self, params: Iterable[ParamOrGroup]):
+        """Add the given parameters without storing a back-reference.  Primary use case is for help text only groups."""
+        self.members.extend(params)
+
     def register(self, param: ParamOrGroup):
         if self.mutually_exclusive:
             if (isinstance(param, BasePositional) and 0 not in param.nargs) or isinstance(param, PassThru):

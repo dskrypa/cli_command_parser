@@ -53,13 +53,6 @@ class CommandParameters:
             self.command_parent = command_parent
             self.parent = command_parent.__class__.params(command_parent)
 
-        config: CommandConfig = command.__class__.config(command)
-        if config is None:
-            formatter_factory = CommandHelpFormatter
-        else:
-            formatter_factory = config.command_formatter or CommandHelpFormatter
-
-        self.formatter = formatter_factory(command, self)
         self._process_parameters()
 
     def __repr__(self) -> str:
@@ -85,6 +78,21 @@ class CommandParameters:
         failed (such as the one for ``--help``).
         """
         return tuple(af for af in self.action_flags if af.always_available)
+
+    @cached_property
+    def formatter(self) -> CommandHelpFormatter:
+        command = self.command
+        config: CommandConfig = command.__class__.config(command)
+        if config is None:
+            formatter_factory = CommandHelpFormatter
+        else:
+            formatter_factory = config.command_formatter or CommandHelpFormatter
+        formatter = formatter_factory(command, self)
+        formatter.maybe_add_option(self._pass_thru)
+        formatter.maybe_add_positionals(self.positionals)
+        formatter.maybe_add_options(self.options)
+        formatter.maybe_add_groups(self.groups)
+        return formatter
 
     # region Initialization
 
@@ -124,7 +132,6 @@ class CommandParameters:
                         f'Invalid PassThru param={param!r} - it cannot follow another PassThru param'
                     )
                 self._pass_thru = param
-                self.formatter.maybe_add_param(param)
             else:
                 raise CommandDefinitionError(
                     f'Unexpected type={param.__class__} for param={param!r} - custom parameters must extend'
@@ -143,7 +150,6 @@ class CommandParameters:
             _groups, groups = groups, self.parent.groups.copy()
             groups.extend(_groups)
 
-        self.formatter.maybe_add_group(*groups)
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):
@@ -175,7 +181,6 @@ class CommandParameters:
                 var_nargs_param = param
 
         self.positionals = params
-        self.formatter.maybe_add_param(*params)
 
     def _process_options(self, params: Collection[BaseOption]):
         parent = self.parent
@@ -203,7 +208,6 @@ class CommandParameters:
                             f'{opt_type}={opt!r} conflict for command={self.command!r} between {existing} and {param}'
                         )
 
-        self.formatter.maybe_add_param(*options)
         self.options = options
         self.option_map = option_map
         self._process_action_flags(options)
