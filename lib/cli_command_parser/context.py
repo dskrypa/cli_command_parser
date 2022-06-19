@@ -244,6 +244,8 @@ class ContextProxy:
     This class should not be instantiated by users - use the common :data:`ctx` instance.
     """
 
+    __slots__ = ()
+
     def __getattr__(self, attr: str):
         return getattr(get_current_context(), attr)
 
