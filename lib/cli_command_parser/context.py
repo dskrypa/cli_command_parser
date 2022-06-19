@@ -91,10 +91,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         else:
             return error_handler
 
-    def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None) -> Context:
+    def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
         if argv is None:
             argv = self.remaining
-        return self.__class__(argv, command, parent=self)
+        return self.__class__(argv, command, parent=self, **kwargs)
 
     def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
         with self:
@@ -225,16 +225,16 @@ def get_current_context(silent: bool = False) -> Optional[Context]:
         raise NoActiveContext('There is no active context') from None
 
 
-def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None) -> Context:
+def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, **kwargs) -> Context:
     try:
         context = get_current_context()
     except NoActiveContext:
-        return Context(argv, command_cls)
+        return Context(argv, command_cls, **kwargs)
     else:
-        if argv is None and context.command is command_cls:
+        if argv is None and context.command is command_cls and not kwargs:
             return context
         else:
-            return context._sub_context(command_cls, argv=argv)
+            return context._sub_context(command_cls, argv=argv, **kwargs)
 
 
 class ContextProxy:

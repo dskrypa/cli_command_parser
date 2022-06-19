@@ -6,7 +6,7 @@ Command usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional
+from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional, Union
 
 from ..context import ctx
 from ..parameters.groups import ParamGroup
@@ -17,6 +17,7 @@ from .utils import get_usage_sub_cmds
 if TYPE_CHECKING:
     from ..core import CommandType, CommandMeta
     from ..command_parameters import CommandParameters
+    from ..commands import Command
     from ..metadata import ProgramMetadata
     from ..parameters import Parameter, BasePositional, BaseOption
 
@@ -148,6 +149,6 @@ def _get_params(command: CommandType) -> CommandParameters:
     return cmd_mcls.params(command)
 
 
-def get_formatter(command: CommandType) -> CommandHelpFormatter:
+def get_formatter(command: Union[CommandType, Command]) -> CommandHelpFormatter:
     """Get the :class:`CommandHelpFormatter` for the given Command"""
     return _get_params(command).formatter

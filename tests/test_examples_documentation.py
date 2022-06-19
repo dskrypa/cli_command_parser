@@ -9,7 +9,7 @@ from cli_command_parser.documentation import load_commands
 
 THIS_FILE = Path(__file__).resolve()
 EXAMPLES_DIR = THIS_FILE.parents[1].joinpath('examples')
-TEST_DATA_DIR = THIS_FILE.parent.joinpath('data', 'test_examples_directly')
+TEST_DATA_DIR = THIS_FILE.parent.joinpath('data', 'test_examples_documentation')
 
 
 def load_example_command(name: str, cmd_name: str):
