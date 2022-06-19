@@ -19,7 +19,7 @@ from .commands import Command
 from .core import CommandType
 from .exceptions import UsageError
 
-__all__ = ['ParserTest']
+__all__ = ['ParserTest', 'RedirectStreams', 'format_diff']
 
 Argv = List[str]
 Expected = Dict[str, Any]
@@ -163,6 +163,7 @@ class RedirectStreams(AbstractContextManager):
                 self._stdin.buffer = self._stdin  # pretend to be the underlying buffer as well
             elif isinstance(stdin, str):
                 self._stdin = StringIO(stdin)
+                self._stdin.buffer = BytesIO(stdin.encode('utf-8'))
             else:
                 self._stdin = stdin
         self._stdout = StringIO()
