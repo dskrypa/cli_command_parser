@@ -104,7 +104,7 @@
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NoActiveContext</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Terminal</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">AnyConfig</span>
@@ -114,6 +114,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">]</span>
 
 <span class="n">_context_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.context.stack&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">_TERMINAL</span> <span class="o">=</span> <span class="n">Terminal</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>  <span class="c1"># Extending AbstractContextManager to make PyCharm&#39;s type checker happy</span>
@@ -132,6 +133,7 @@
         <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Context</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">AnyConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">terminal_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">argv</span>
@@ -140,6 +142,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">_normalize_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="o">=</span> <span class="n">terminal_width</span>
         <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parsing</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_parsing</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unknown</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">unknown</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -261,7 +264,13 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">always_available_action_flags</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parsing</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># self.command is None</span>
-            <span class="k">return</span> <span class="p">()</span></div></div>
+            <span class="k">return</span> <span class="p">()</span></div>
+
+<div class="viewcode-block" id="Context.terminal_width"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.terminal_width">[docs]</a>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">terminal_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span>
+        <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_normalize_config</span><span class="p">(</span>
@@ -337,6 +346,13 @@
 
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">terminal_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">terminal_width</span>
+        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span>
 
 
 <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Context</span><span class="p">,</span> <span class="n">ContextProxy</span><span class="p">())</span>
