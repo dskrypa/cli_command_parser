@@ -6,7 +6,6 @@ Utils for usage / help text formatters
 
 from __future__ import annotations
 
-from shutil import get_terminal_size
 from textwrap import TextWrapper
 from typing import TYPE_CHECKING, Optional, Any, Collection, Type
 
@@ -27,7 +26,7 @@ class HelpEntryFormatter:
         self.usage = usage
         self.width = width
         self.lines = []
-        self.term_width = get_terminal_size()[0] - tw_offset
+        self.term_width = ctx.terminal_width - tw_offset
         self.process_usage(usage, lpad)
         if description:
             self.process_description(description)

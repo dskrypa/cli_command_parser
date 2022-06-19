@@ -74,8 +74,9 @@ class HelpTextTest(TestCase):
         class Custom(ChoiceMap):
             pass
 
-        self.assertTrue(Custom().formatter.format_help().startswith('Choices:'))
-        self.assertTrue(Custom().format_help().startswith('Choices:'))
+        with patch('cli_command_parser.utils.get_terminal_size', return_value=(123, 1)):
+            self.assertTrue(Custom().formatter.format_help().startswith('Choices:'))
+            self.assertTrue(Custom().format_help().startswith('Choices:'))
 
     def test_option_with_choices(self):
         obj_types = ('track', 'artist', 'album', 'tracks', 'artists', 'albums')
@@ -471,17 +472,18 @@ def _get_usage_text(cmd: Type[Command]) -> str:
 def _get_help_text(cmd: Union[Type[Command], Command]) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
-    with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)):
-        with cmd.ctx:
-            return get_params(cmd).formatter.format_help()
+
+    cmd.ctx._terminal_width = 199
+    with cmd.ctx:
+        return get_params(cmd).formatter.format_help()
 
 
 def _get_rst_text(cmd: Union[Type[Command], Command]) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
-    with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)):
-        with cmd.ctx:
-            return get_params(cmd).formatter.format_rst()
+    cmd.ctx._terminal_width = 199
+    with cmd.ctx:
+        return get_params(cmd).formatter.format_rst()
 
 
 class FormatterTest(ParserTest):

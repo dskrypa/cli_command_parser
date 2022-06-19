@@ -450,7 +450,8 @@ class ChoiceInputTest(TestCase):
             bar = Option('-b', type=EnumExample)
 
         foo = Foo()
-        with patch('cli_command_parser.formatting.utils.get_terminal_size', return_value=(199, 1)), foo.ctx:
+        foo.ctx._terminal_width = 199
+        with foo.ctx:
             self.assertIn('{FOO,Bar,baz}', get_params(foo).formatter.format_help())
 
     def test_enum_case_sensitive(self):

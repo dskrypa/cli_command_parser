@@ -19,7 +19,7 @@ except ImportError:
 from .config import CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
-from .utils import Bool, _NotSet
+from .utils import Bool, _NotSet, Terminal
 
 if TYPE_CHECKING:
     from .core import CommandType, AnyConfig
@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
+_TERMINAL = Terminal()
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -47,6 +48,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         command: Optional[CommandType] = None,
         parent: Optional[Context] = None,
         config: AnyConfig = None,
+        terminal_width: int = None,
         **kwargs,
     ):
         self.argv = sys.argv[1:] if argv is None else argv
@@ -55,6 +57,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.parent = parent
         self.failed = False
         self.config = _normalize_config(config, kwargs, parent, command)
+        self._terminal_width = terminal_width
         if parent is not None:
             self._parsing = parent._parsing.copy()
             self.unknown = parent.unknown.copy()
@@ -178,6 +181,12 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         except AttributeError:  # self.command is None
             return ()
 
+    @property
+    def terminal_width(self) -> int:
+        if self._terminal_width is not None:
+            return self._terminal_width
+        return _TERMINAL.width
+
 
 def _normalize_config(
     config: AnyConfig, kwargs: Dict[str, Any], parent: Optional[Context], command: Optional[CommandType]
@@ -252,6 +261,13 @@ class ContextProxy:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return get_current_context().__exit__(exc_type, exc_val, exc_tb)
+
+    @property
+    def terminal_width(self):
+        try:
+            return get_current_context().terminal_width
+        except NoActiveContext:
+            return _TERMINAL.width
 
 
 ctx: Context = cast(Context, ContextProxy())

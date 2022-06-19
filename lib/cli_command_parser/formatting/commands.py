@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional
 
 from ..context import ctx
-from ..metadata import ProgramMetadata
+from ..parameters.groups import ParamGroup
 from ..utils import Bool, camel_to_snake_case
 from .restructured_text import rst_header, RstTable
 from .utils import get_usage_sub_cmds
@@ -17,7 +17,8 @@ from .utils import get_usage_sub_cmds
 if TYPE_CHECKING:
     from ..core import CommandType, CommandMeta
     from ..command_parameters import CommandParameters
-    from ..parameters import ParamGroup, Parameter, BasePositional, BaseOption
+    from ..metadata import ProgramMetadata
+    from ..parameters import Parameter, BasePositional, BaseOption
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -26,8 +27,6 @@ NameFunc = Callable[[str], str]
 
 class CommandHelpFormatter:
     def __init__(self, command: CommandType, params: CommandParameters):
-        from ..parameters import ParamGroup  # here due to circular dependency
-
         self.command = command
         self.params = params
         self.pos_group = ParamGroup(description='Positional arguments')

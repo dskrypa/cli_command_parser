@@ -128,19 +128,22 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
-    def _ctx(self, command: Command = None) -> Context:
+    def _ctx(self, command: CommandType = None) -> Context:
         try:
             return get_current_context()
         except NoActiveContext:
             pass
-        command = command or self.command
+        if command is None:
+            command = self.command
         try:
             return command._Command__ctx
         except AttributeError:
             pass
         raise NoActiveContext('There is no active context')
 
-    def _config(self, command: CommandType) -> Union[CommandConfig, Context]:
+    def _config(self, command: CommandType = None) -> CommandConfig:
+        if command is None:
+            command = self.command
         try:
             return self._ctx(command).config
         except NoActiveContext:
@@ -153,9 +156,8 @@ class ParamBase(ABC):
         from ..formatting.params import ParamHelpFormatter  # Here due to circular dependency
 
         try:
-            with self._ctx() as context:
-                formatter_factory = context.config.param_formatter or ParamHelpFormatter
-        except NoActiveContext:
+            formatter_factory = self._config().param_formatter or ParamHelpFormatter
+        except AttributeError:  # self.command is None
             formatter_factory = ParamHelpFormatter
 
         return formatter_factory(self)  # noqa

@@ -9,16 +9,18 @@ from __future__ import annotations
 
 from itertools import chain
 from textwrap import indent
-from typing import Type, Tuple
+from typing import TYPE_CHECKING, Type, Tuple
 
 from ..context import ctx
 from ..exceptions import NoActiveContext
-from ..utils import Bool
 from ..parameters.base import ParamBase, BasePositional, BaseOption
 from ..parameters.choice_map import ChoiceMap
 from ..parameters import ParamGroup, PassThru, ParamOrGroup
 from .restructured_text import RstTable
 from .utils import HelpEntryFormatter, _should_add_default
+
+if TYPE_CHECKING:
+    from ..utils import Bool
 
 
 class ParamHelpFormatter:

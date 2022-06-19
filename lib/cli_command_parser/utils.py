@@ -7,6 +7,8 @@ Utilities for extracting types from annotations, finding / storing program metad
 from collections.abc import Collection, Iterable
 from enum import Flag
 from inspect import isclass
+from shutil import get_terminal_size
+from time import monotonic
 from typing import Any, Union, Optional, TypeVar, get_type_hints, List
 
 try:
@@ -161,3 +163,17 @@ class FixedFlag(Flag):
 
     def __lt__(self, other: FlagEnum) -> bool:
         return self._value_ < other._value_
+
+
+class Terminal:  # pylint: disable=R0903
+    def __init__(self, cache_time: float = 1):
+        self._cache_time = cache_time
+        self._last_time = 0
+        self._width = 80
+
+    @property
+    def width(self) -> int:
+        if monotonic() - self._last_time > self._cache_time:
+            self._width = get_terminal_size()[0]
+            self._last_time = monotonic()
+        return self._width
