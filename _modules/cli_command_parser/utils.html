@@ -252,6 +252,8 @@
 
 
 <div class="viewcode-block" id="Terminal"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.Terminal">[docs]</a><span class="k">class</span> <span class="nc">Terminal</span><span class="p">:</span>  <span class="c1"># pylint: disable=R0903</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_cache_time&#39;</span><span class="p">,</span> <span class="s1">&#39;_last_time&#39;</span><span class="p">,</span> <span class="s1">&#39;_width&#39;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache_time</span> <span class="o">=</span> <span class="n">cache_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_time</span> <span class="o">=</span> <span class="mi">0</span>
