@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.positionals &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>cli_command_parser.parameters.positionals &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -101,7 +101,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Positional&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Positional"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional">[docs]</a><span class="k">class</span> <span class="nc">Positional</span><span class="p">(</span><span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">):</span>
+<div class="viewcode-block" id="Positional"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional">[docs]</a><span class="k">class</span> <span class="nc">Positional</span><span class="p">(</span><span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">default_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A parameter that must be provided positionally.</span>
 
@@ -117,8 +117,9 @@
 <span class="sd">      on every value for this parameter to transform the value.  By default, no transformation is performed, and</span>
 <span class="sd">      values will be strings.  If not specified, but a type annotation is detected, then that annotation will be</span>
 <span class="sd">      used as if it was provided here.  When both are present, this argument takes precedence.</span>
-<span class="sd">    :param default: Only supported when ``action=&#39;store&#39;`` and 0 values are allowed by the specified ``nargs``.</span>
-<span class="sd">      Defaults to ``None`` under those conditions.</span>
+<span class="sd">    :param default: Only supported when 0 values are allowed by the specified ``nargs``.  If not specified and</span>
+<span class="sd">      ``action=&#39;store&#39;``, then this will default to ``None``; if ``action=&#39;append&#39;``, and no values are provided, then</span>
+<span class="sd">      an empty list will be returned for this Parameter.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -139,19 +140,16 @@
             <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;store&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="n">Nargs</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;append&#39;</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">max</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s1"> for nargs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="p">(</span><span class="n">action</span> <span class="o">!=</span> <span class="s1">&#39;store&#39;</span> <span class="ow">or</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">):</span>
-            <span class="c1"># TODO: Allow default when nargs=&#39;*&#39;</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="n">required</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Invalid default=</span><span class="si">{</span><span class="n">default</span><span class="si">!r}</span><span class="s1"> - only allowed for Positional parameters when nargs=?&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid default=</span><span class="si">{</span><span class="n">default</span><span class="si">!r}</span><span class="s1"> - only allowed for Positional parameters when nargs=? or nargs=*&#39;</span>
             <span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="n">required</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span> <span class="o">=</span> <span class="nb">list</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="n">default</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span> <span class="o">=</span> <span class="nb">list</span></div>
 </pre></div>
 
            </div>

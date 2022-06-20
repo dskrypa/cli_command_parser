@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -267,6 +267,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="o">=</span> <span class="n">param</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">param</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No choices were registered for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
                 <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">param</span>
@@ -340,7 +342,7 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+                <span class="n">opt</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
@@ -351,21 +353,21 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param_value_pairs</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param</span> <span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param_value_pairs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="CommandParameters.long_option_to_param_value_pair"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair">[docs]</a>    <span class="k">def</span> <span class="nf">long_option_to_param_value_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<div class="viewcode-block" id="CommandParameters.long_option_to_param_value_pair"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair">[docs]</a>    <span class="k">def</span> <span class="nf">long_option_to_param_value_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">option</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;=&#39;</span> <span class="ow">in</span> <span class="n">option</span><span class="p">:</span>
                 <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="n">value</span>
+                <span class="k">return</span> <span class="n">option</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">],</span> <span class="n">value</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span></div>
 
-<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -377,24 +379,24 @@
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">option</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
 
         <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
         <span class="c1"># value will never be empty if key is a valid option because by this point, option is not a short option</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">combo_option_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span>
-            <span class="k">return</span> <span class="p">[(</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span></div>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">c</span><span class="p">,</span> <span class="n">combo_option_map</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span></div>
 
 <div class="viewcode-block" id="CommandParameters.find_option_that_accepts_values"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
-            <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_option_to_param_value_pair</span><span class="p">(</span><span class="n">option</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">param</span>
         <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">option</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">option</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">param</span>
         <span class="k">else</span><span class="p">:</span>

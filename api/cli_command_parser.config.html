@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Config Module &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>Config Module &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -295,6 +295,15 @@ be:</p>
 </dd>
 </dl>
 <p>If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</p>
+<p>The value may be specified to Commands as <code class="docutils literal notranslate"><span class="pre">option_name_mode=&lt;mode&gt;</span></code> or to Parameters as <code class="docutils literal notranslate"><span class="pre">name_mode=&lt;mode&gt;</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> is one of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OptionNameMode.UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.DASH</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'dash'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'-'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*'</span></code></p></li>
+</ul>
+</div></blockquote>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.UNDERSCORE">
 <span class="sig-name descname"><span class="pre">UNDERSCORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.UNDERSCORE" title="Permalink to this definition"></a></dt>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Positionals Module &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>Positionals Module &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -145,8 +145,9 @@ of values will be stored when <code class="docutils literal notranslate"><span c
 on every value for this parameter to transform the value.  By default, no transformation is performed, and
 values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
 used as if it was provided here.  When both are present, this argument takes precedence.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.positionals.Positional.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.positionals.Positional.params.default">¶</a> – Only supported when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code> and 0 values are allowed by the specified <code class="docutils literal notranslate"><span class="pre">nargs</span></code>.
-Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> under those conditions.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.positionals.Positional.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.positionals.Positional.params.default">¶</a> – Only supported when 0 values are allowed by the specified <code class="docutils literal notranslate"><span class="pre">nargs</span></code>.  If not specified and
+<code class="docutils literal notranslate"><span class="pre">action='store'</span></code>, then this will default to <code class="docutils literal notranslate"><span class="pre">None</span></code>; if <code class="docutils literal notranslate"><span class="pre">action='append'</span></code>, and no values are provided, then
+an empty list will be returned for this Parameter.</p></li>
 <li><p><span class="target" id="cli_command_parser.parameters.positionals.Positional.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.positionals.Positional.params.kwargs">¶</a> – Additional keyword arguments to pass to <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional" title="cli_command_parser.parameters.base.BasePositional"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePositional</span></code></a>.</p></li>
 </ul>
 </dd>

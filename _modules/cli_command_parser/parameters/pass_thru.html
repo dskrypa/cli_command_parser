@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.pass_thru &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>cli_command_parser.parameters.pass_thru &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -124,7 +124,9 @@
     <span class="k">def</span> <span class="nf">store_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PassThru.take_action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.take_action">[docs]</a>    <span class="k">def</span> <span class="nf">take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">short_combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0237</span>
+<div class="viewcode-block" id="PassThru.take_action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.take_action">[docs]</a>    <span class="k">def</span> <span class="nf">take_action</span><span class="p">(</span>  <span class="c1"># pylint: disable=W0237</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">short_combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;received values=</span><span class="si">{</span><span class="n">values</span><span class="si">!r}</span><span class="s1"> but a stored value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> already exists&#39;</span><span class="p">)</span>

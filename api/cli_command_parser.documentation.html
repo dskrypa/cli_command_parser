@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Documentation Module &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>Documentation Module &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -143,6 +143,9 @@ words or not (default: True)</p></li>
 <dt class="sig sig-object py" id="cli_command_parser.documentation.load_commands">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.documentation.</span></span><span class="sig-name descname"><span class="pre">load_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Commands</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#load_commands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.load_commands" title="Permalink to this definition"></a></dt>
 <dd><p>Load all of the commands from the file with the given path and return them as a dict of <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">Command}</span></code>.</p>
+<p>If an <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">OSError</span></code></a> or a subclass thereof is encountered while attempting to load the file (due to the
+path not existing, or a permission error, etc), it will be allowed to propagate.  An <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">ImportError</span></code></a>
+may be raised by <code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code> if the specified path cannot be imported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

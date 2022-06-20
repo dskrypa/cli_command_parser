@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.documentation &mdash; CLI Command Parser 2022.06.19 documentation</title>
+  <title>cli_command_parser.documentation &mdash; CLI Command Parser 2022.06.20 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -137,11 +137,15 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load all of the commands from the file with the given path and return them as a dict of ``{name: Command}``.</span>
 
+<span class="sd">    If an :class:`python:OSError` or a subclass thereof is encountered while attempting to load the file (due to the</span>
+<span class="sd">    path not existing, or a permission error, etc), it will be allowed to propagate.  An :class:`python:ImportError`</span>
+<span class="sd">    may be raised by :func:`import_module` if the specified path cannot be imported.</span>
+
 <span class="sd">    :param path: The path to a file containing one or more :class:`.Command` classes</span>
 <span class="sd">    :param top_only: If True, then only top-level commands are returned (default: all)</span>
 <span class="sd">    :return: Dict containing the Commands loaded from the given file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">module</span> <span class="o">=</span> <span class="n">_load_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_is_command</span><span class="p">(</span><span class="n">val</span><span class="p">)}</span>
     <span class="k">return</span> <span class="n">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">if</span> <span class="n">top_only</span> <span class="k">else</span> <span class="n">commands</span></div>
 
@@ -184,13 +188,21 @@
     <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import the module from the given path&quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="c1"># TODO: Error handling for not file / cannot load / etc</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-    <span class="n">module</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
-    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">path_str</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid path=</span><span class="si">{</span><span class="n">path_str</span><span class="si">!r}</span><span class="s1"> - are you sure it is a Python module?&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path_str</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>  <span class="c1"># This is required for the program metadata introspection</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">raise</span>
     <span class="k">return</span> <span class="n">module</span>
 
 
