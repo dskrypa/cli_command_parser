@@ -37,7 +37,7 @@ from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest
 
 
-class PositionalTest(TestCase):
+class PositionalTest(ParserTest):
     def test_required_rejected(self):
         with self.assertRaises(ParameterDefinitionError):
             Positional(required=False)
@@ -62,6 +62,31 @@ class PositionalTest(TestCase):
             Positional(nargs=2, action='store')
 
         self.assertEqual(1, Positional(action='store').nargs)
+
+    def test_nargs_star_empty_list(self):
+        class Foo(Command):
+            bar = Positional(nargs='*')
+
+        success_cases = [([], {'bar': []}), (['a'], {'bar': ['a']}), (['a', 'b'], {'bar': ['a', 'b']})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_nargs_star_defaults(self):
+        for default in ('a', ['a']):
+            with self.subTest(default=default):
+
+                class Foo(Command):
+                    bar = Positional(nargs='*', default=default)
+
+                success_cases = [([], {'bar': ['a']}), (['b'], {'bar': ['b']}), (['a', 'b'], {'bar': ['a', 'b']})]
+                self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_pos_after_nargs_star_rejected(self):
+        class Foo(Command):
+            bar = Positional(nargs='*')
+            baz = Positional()
+
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parse([])
 
 
 class OptionTest(ParserTest):

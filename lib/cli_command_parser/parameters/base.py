@@ -128,7 +128,7 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
 
-    def _ctx(self, command: CommandType = None) -> Context:
+    def _ctx(self, command: Command = None) -> Context:
         try:
             return get_current_context()
         except NoActiveContext:
@@ -141,7 +141,7 @@ class ParamBase(ABC):
             pass
         raise NoActiveContext('There is no active context')
 
-    def _config(self, command: CommandType = None) -> CommandConfig:
+    def _config(self, command: Command = None) -> CommandConfig:
         if command is None:
             command = self.command
         try:
@@ -510,18 +510,28 @@ class BasePositional(Parameter, ABC):
     """
 
     _positional: bool = True
+    _default_ok: bool = False
 
-    def __init__(self, action: str, **kwargs):
-        required = kwargs.setdefault('required', True)
-        if not required:
+    def __init_subclass__(cls, default_ok: bool = None, **kwargs):
+        """
+        :param default_ok: Whether default values are supported for this Parameter type
+        :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.
+        """
+        super().__init_subclass__(**kwargs)
+        if default_ok is not None:
+            cls._default_ok = default_ok
+
+    def __init__(self, action: str, *, required: Bool = True, default: Any = _NotSet, **kwargs):
+        default_bad = not self._default_ok or 0 not in self.nargs
+        if not required and default_bad:
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(
                 f'All {cls_name} parameters must be required - invalid required={required!r}'
             )
-        elif kwargs.setdefault('default', _NotSet) is not _NotSet:
+        elif default_bad and default is not _NotSet:
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
-        super().__init__(action, **kwargs)
+        super().__init__(action, default=default, required=required, **kwargs)
 
 
 class BaseOption(Parameter, ABC):

@@ -15,7 +15,7 @@ from .base import BasicActionMixin, BasePositional
 __all__ = ['Positional']
 
 
-class Positional(BasicActionMixin, BasePositional):
+class Positional(BasicActionMixin, BasePositional, default_ok=True):
     """
     A parameter that must be provided positionally.
 
@@ -31,8 +31,9 @@ class Positional(BasicActionMixin, BasePositional):
       on every value for this parameter to transform the value.  By default, no transformation is performed, and
       values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
       used as if it was provided here.  When both are present, this argument takes precedence.
-    :param default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.
-      Defaults to ``None`` under those conditions.
+    :param default: Only supported when 0 values are allowed by the specified ``nargs``.  If not specified and
+      ``action='store'``, then this will default to ``None``; if ``action='append'``, and no values are provided, then
+      an empty list will be returned for this Parameter.
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
@@ -53,16 +54,13 @@ class Positional(BasicActionMixin, BasePositional):
             action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
         elif action == 'store' and self.nargs.max != 1:
             raise ParameterDefinitionError(f'Invalid action={action!r} for nargs={self.nargs}')
-        if default is not _NotSet and (action != 'store' or 0 not in self.nargs):
-            # TODO: Allow default when nargs='*'
+        required = 0 not in self.nargs
+        if default is not _NotSet and required:
             raise ParameterDefinitionError(
-                f'Invalid default={default!r} - only allowed for Positional parameters when nargs=?'
+                f'Invalid default={default!r} - only allowed for Positional parameters when nargs=? or nargs=*'
             )
-        super().__init__(action=action, **kwargs)
+        kwargs.setdefault('required', required)
+        super().__init__(action=action, default=default, **kwargs)
         self.type = normalize_input_type(type, self.choices)
         if action == 'append':
             self._init_value_factory = list
-        if 0 in self.nargs:
-            self.required = False
-            if action == 'store':
-                self.default = None if default is _NotSet else default
