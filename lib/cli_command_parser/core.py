@@ -70,15 +70,17 @@ class CommandMeta(ABCMeta, type):
         **kwargs,
     ):
         metadata = {k: kwargs.pop(k, None) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name')}
-        with _TempConfig(mcs, namespace, mcs._prepare_config(bases, config, kwargs)) as tmp_cfg:
+        parent_config, config = mcs._prepare_config(bases, config, kwargs)
+        with _TempConfig(mcs, namespace, config) as tmp_cfg:
             tmp_cfg.cls = cls = super().__new__(mcs, name, bases, namespace)
 
         mcs._commands.add(cls)
         mcs._metadata[cls] = ProgramMetadata.for_command(cls, parent=mcs.meta(cls), **metadata)
         mcs._maybe_register_sub_cmd(cls, choice, help)
 
-        config = mcs.config(cls)
-        if config is not None and config.add_help and not hasattr(cls, '_CommandMeta__help'):
+        if not config:
+            config = parent_config
+        if config and config.add_help and not hasattr(cls, '_CommandMeta__help'):
             from .actions import help_action
 
             cls.__help = help_action  # pylint: disable=W0238
@@ -100,12 +102,7 @@ class CommandMeta(ABCMeta, type):
         elif choice:
             warn(f'choice={choice!r} was not registered for {cls} because it has no parent Command')
 
-    @classmethod
-    def parent(mcs, cls: CommandMeta, include_abc: bool = True) -> Optional[CommandMeta]:
-        for parent_cls in type.mro(cls)[1:]:
-            if isinstance(parent_cls, mcs) and (include_abc or ABC not in parent_cls.__bases__):
-                return parent_cls
-        return None
+    # region Config Methods
 
     @classmethod
     def _config_from_bases(mcs, bases: Bases) -> Config:
@@ -115,20 +112,19 @@ class CommandMeta(ABCMeta, type):
         return None
 
     @classmethod
-    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]):
+    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]) -> Tuple[Config, Config]:
         if config is not None:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
-            if not isinstance(config, CommandConfig):
-                parent = mcs._config_from_bases(bases)
-                config = CommandConfig(parents=(parent,) if parent else (), **config)
-            return config
-        else:
-            parent = mcs._config_from_bases(bases)
-            if kwargs or (parent is None and ABC not in bases):
-                return CommandConfig(parents=(parent,) if parent else (), **kwargs)
+            elif isinstance(config, CommandConfig):
+                return None, config  # Parent only used here as a fallback for no cmd config to decide on adding --help
+            kwargs = config  # It was a dict
 
-        return None
+        parent = mcs._config_from_bases(bases)
+        if kwargs or (not parent and ABC not in bases):
+            return parent, CommandConfig(parents=(parent,) if parent else (), **kwargs)
+
+        return parent, None
 
     @classmethod
     def config(mcs, cls: CommandMeta) -> Config:
@@ -143,6 +139,15 @@ class CommandMeta(ABCMeta, type):
         parent = mcs.parent(cls)
         if parent is not None:
             return mcs.config(parent)
+        return None
+
+    # endregion
+
+    @classmethod
+    def parent(mcs, cls: CommandMeta, include_abc: bool = True) -> Optional[CommandMeta]:
+        for parent_cls in type.mro(cls)[1:]:
+            if isinstance(parent_cls, mcs) and (include_abc or ABC not in parent_cls.__bases__):
+                return parent_cls
         return None
 
     @classmethod
