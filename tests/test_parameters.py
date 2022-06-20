@@ -547,6 +547,32 @@ class MiscParameterTest(ParserTest):
             with self.subTest(param_cls=param_cls):
                 self.assertIs(expected_cls, ParamHelpFormatter.for_param_cls(param_cls))
 
+    def test_short_conflict(self):
+        class Foo(Command):
+            bar = Flag('-b')
+            baz = Option('-b')
+
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parse([])
+
+    def test_short_conflict_in_subcommand(self):
+        class A(Command):
+            sub_cmd = SubCommand()
+            with ParamGroup('Common'):
+                bar = Option('-b')
+
+        class B(A):
+            sub_cmd = SubCommand()
+            baz = Option('-b')
+
+        # class C(B):
+        #     with ParamGroup(mutually_exclusive=True):
+        #         foo = Option('-f')
+        #         baz = Flag('-b')
+
+        with self.assertRaises(CommandDefinitionError):
+            A.parse(['b', 'c'])
+
 
 class UnlikelyToBeReachedParameterTest(ParserTest):
     def test_too_many_rejected(self):

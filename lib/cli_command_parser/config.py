@@ -23,8 +23,6 @@ __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode']
 _ConfigValue = TypeVar('_ConfigValue')
 ConfigValue = Union[_ConfigValue, Any]
 
-# TODO: Config / handling for subcommand option conflict, especially for short form where name/long don't match previous
-
 
 # region Config Option Enums
 
