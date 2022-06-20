@@ -19,6 +19,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
+from .actions import help_action
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
 from .formatting.commands import CommandHelpFormatter
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
@@ -47,21 +48,20 @@ class CommandParameters:
     positionals: List[BasePositional]
     option_map: Dict[str, BaseOption]
 
-    def __init__(self, command: CommandType, command_parent: CommandType = None):
+    def __init__(self, command: CommandType, command_parent: Optional[CommandType], config: CommandConfig):
         self.command = command
-        if command_parent:
+        if command_parent is not None:
             self.command_parent = command_parent
             self.parent = command_parent.__class__.params(command_parent)
 
+        self.config = config
         self._process_parameters()
 
     def __repr__(self) -> str:
         positionals = len(self.positionals)
         options = len(self.options)
-        return (
-            f'<{self.__class__.__name__}[command={self.command.__name__},'
-            f' positionals={positionals!r}, options={options!r}]>'
-        )
+        cls_name = self.__class__.__name__
+        return f'<{cls_name}[command={self.command.__name__}, positionals={positionals!r}, options={options!r}]>'
 
     @property
     def pass_thru(self) -> Optional[PassThru]:
@@ -81,18 +81,20 @@ class CommandParameters:
 
     @cached_property
     def formatter(self) -> CommandHelpFormatter:
-        command = self.command
-        config: CommandConfig = command.__class__.config(command)
-        if config is None:
+        if self.config is None:
             formatter_factory = CommandHelpFormatter
         else:
-            formatter_factory = config.command_formatter or CommandHelpFormatter
-        formatter = formatter_factory(command, self)
+            formatter_factory = self.config.command_formatter or CommandHelpFormatter
+        formatter = formatter_factory(self.command, self)
         formatter.maybe_add_option(self._pass_thru)
         formatter.maybe_add_positionals(self.positionals)
         formatter.maybe_add_options(self.options)
         formatter.maybe_add_groups(self.groups)
         return formatter
+
+    @property
+    def _has_help(self) -> bool:
+        return help_action in self.always_available_action_flags or (self.parent and self.parent._has_help)
 
     # region Initialization
 
@@ -140,6 +142,9 @@ class CommandParameters:
 
             if param.group:
                 groups.update(_get_groups(param))
+
+        if self.config and self.config.add_help and (not self.parent or not self.parent._has_help):
+            options.append(help_action)
 
         self._process_positionals(positionals)
         self._process_options(options)
@@ -227,7 +232,7 @@ class CommandParameters:
                 if len(params) > 1:
                     group = next((p.group for p in params if p.group), None)
                     if group and group.mutually_exclusive:
-                        if not all(p.group == group for p in params):
+                        if any(p.group != group for p in params):
                             invalid[(before_main, prio)] = params
                     else:
                         invalid[(before_main, prio)] = params

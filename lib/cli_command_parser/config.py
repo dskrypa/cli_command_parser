@@ -232,7 +232,7 @@ class CommandConfig:
             raise ValueError(f'Invalid configuration - unsupported options: {", ".join(sorted(bad))}')
 
     def __repr__(self) -> str:
-        settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False))
+        settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False).items())
         cfg_str = f', {settings}' if settings else ''
         return f'<{self.__class__.__name__}(parents={self.parents!r}{cfg_str})>'
 

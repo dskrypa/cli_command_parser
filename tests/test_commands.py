@@ -348,20 +348,6 @@ class TestCommands(TestCase):
         self.assertTrue(act_flag_mock.called)
         self.assertTrue(action_mock.called)
 
-    def test_error_in_cmd_new_does_not_leak_temp_config(self):
-        self.assertFalse(CommandMeta._tmp_configs)
-
-        class ErrorFlag(Flag):
-            def __set_name__(self, owner, name):
-                raise RuntimeError
-
-        with self.assertRaises(RuntimeError):
-
-            class Foo(Command, error_handler=None):
-                bar = ErrorFlag()
-
-        self.assertFalse(CommandMeta._tmp_configs)
-
 
 if __name__ == '__main__':
     try:

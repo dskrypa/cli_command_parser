@@ -8,9 +8,9 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Any, Dict, Tuple, List
+from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Callable, Iterable, Any, Dict, Tuple, List
 from warnings import warn
-from weakref import WeakKeyDictionary, WeakSet
+from weakref import WeakSet
 
 from .command_parameters import CommandParameters
 from .config import CommandConfig
@@ -20,9 +20,10 @@ from .metadata import ProgramMetadata
 if TYPE_CHECKING:
     from .commands import Command
 
-Bases = Tuple[type, ...]
+Bases = Union[Tuple[type, ...], Iterable[type]]
 Config = Optional[CommandConfig]
 AnyConfig = Union[Config, Dict[str, Any]]
+T = TypeVar('T')
 
 
 class CommandMeta(ABCMeta, type):
@@ -52,10 +53,6 @@ class CommandMeta(ABCMeta, type):
       exception was raised in :meth:`Command.main`
     """
 
-    _tmp_configs = {}
-    _configs = WeakKeyDictionary()
-    _params = WeakKeyDictionary()
-    _metadata = WeakKeyDictionary()
     _commands = WeakSet()
 
     def __new__(
@@ -69,21 +66,19 @@ class CommandMeta(ABCMeta, type):
         config: AnyConfig = None,
         **kwargs,
     ):
-        metadata = {k: kwargs.pop(k, None) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name')}
-        parent_config, config = mcs._prepare_config(bases, config, kwargs)
-        with _TempConfig(mcs, namespace, config) as tmp_cfg:
-            tmp_cfg.cls = cls = super().__new__(mcs, name, bases, namespace)
+        meta_iter = ((k, kwargs.pop(k, None)) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name'))
+        metadata = {k: v for k, v in meta_iter if v}
+        namespace['_CommandMeta__params'] = None  # Prevent commands from inheriting parent params
+        namespace['_CommandMeta__metadata'] = None  # Prevent commands from inheriting parent metadata directly
+        config = mcs._prepare_config(bases, config, kwargs)
+        if config:
+            namespace['_CommandMeta__config'] = config
 
+        cls = super().__new__(mcs, name, bases, namespace)
         mcs._commands.add(cls)
-        mcs._metadata[cls] = ProgramMetadata.for_command(cls, parent=mcs.meta(cls), **metadata)
         mcs._maybe_register_sub_cmd(cls, choice, help)
-
-        if not config:
-            config = parent_config
-        if config and config.add_help and not hasattr(cls, '_CommandMeta__help'):
-            from .actions import help_action
-
-            cls.__help = help_action  # pylint: disable=W0238
+        if metadata:  # If no overrides were provided, then initialize lazily later
+            cls.__metadata = ProgramMetadata.for_command(cls, parent=mcs._from_parent(mcs.meta, bases), **metadata)
 
         return cls
 
@@ -102,39 +97,35 @@ class CommandMeta(ABCMeta, type):
         elif choice:
             warn(f'choice={choice!r} was not registered for {cls} because it has no parent Command')
 
+    @classmethod
+    def _from_parent(mcs, meth: Callable[[CommandMeta], T], bases: Bases) -> Optional[T]:
+        for base in bases:
+            if isinstance(base, mcs):
+                return meth(base)
+        return None
+
     # region Config Methods
 
     @classmethod
-    def _config_from_bases(mcs, bases: Bases) -> Config:
-        for base in bases:
-            if isinstance(base, mcs):
-                return mcs.config(base)
-        return None
-
-    @classmethod
-    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]) -> Tuple[Config, Config]:
+    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]) -> Config:
         if config is not None:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
             elif isinstance(config, CommandConfig):
-                return None, config  # Parent only used here as a fallback for no cmd config to decide on adding --help
+                return config
             kwargs = config  # It was a dict
 
-        parent = mcs._config_from_bases(bases)
+        parent = mcs._from_parent(mcs.config, bases)
         if kwargs or (not parent and ABC not in bases):
-            return parent, CommandConfig(parents=(parent,) if parent else (), **kwargs)
+            return CommandConfig(parents=(parent,) if parent else (), **kwargs)
 
-        return parent, None
+        return None
 
     @classmethod
     def config(mcs, cls: CommandMeta) -> Config:
         try:
-            return mcs._configs[cls]
-        except KeyError:
-            pass
-        try:
-            return mcs._tmp_configs[f'{cls.__module__}.{cls.__qualname__}']
-        except KeyError:
+            return cls.__config  # noqa
+        except AttributeError:
             pass
         parent = mcs.parent(cls)
         if parent is not None:
@@ -152,47 +143,19 @@ class CommandMeta(ABCMeta, type):
 
     @classmethod
     def params(mcs, cls: CommandMeta) -> CommandParameters:
-        try:
-            return mcs._params[cls]
-        except KeyError:
-            parent = mcs.parent(cls, False)
-            mcs._params[cls] = params = CommandParameters(cls, parent)
-            return params
+        # Late initialization is necessary to allow late assignment of Parameters for now
+        params = cls.__params
+        if not params:
+            cls.__params = params = CommandParameters(cls, mcs.parent(cls, False), mcs.config(cls))
+        return params
 
     @classmethod
     def meta(mcs, cls: CommandMeta) -> Optional[ProgramMetadata]:
-        try:
-            return mcs._metadata[cls]
-        except KeyError:
-            parent = mcs.parent(cls)
-            if parent is not None:
-                return mcs.meta(parent)
-            return None
-
-
-class _TempConfig:
-    """
-    Temporarily stores config with a str key because __set_name__ for Parameters is called when super().__new__ is
-    called to create the Command class, and some config needs to be known at that point.
-    """
-
-    __slots__ = ('mcs', 'config_key', 'config', 'cls')
-
-    def __init__(self, mcs: Type[CommandMeta], ns: Dict[str, Any], config: Config):
-        self.mcs = mcs
-        self.config_key = '{__module__}.{__qualname__}'.format(**ns)
-        self.config = config
-
-    def __enter__(self) -> _TempConfig:
-        if self.config is not None:
-            self.mcs._tmp_configs[self.config_key] = self.config
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        try:
-            self.mcs._configs[self.cls] = self.mcs._tmp_configs.pop(self.config_key)
-        except (KeyError, AttributeError):
-            pass
+        meta = cls.__metadata
+        if not meta:
+            parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
+            cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta)
+        return meta
 
 
 def get_parent(command: Union[CommandMeta, Command], include_abc: bool = True) -> Optional[CommandMeta]:
@@ -220,7 +183,7 @@ def get_top_level_commands() -> List[Union[CommandMeta, Type[Command]]]:
     This was implemented because ``Command.__subclasses__()`` does not release dead references to subclasses quickly
     enough for tests.
     """
-    return [cmd for cmd in CommandMeta._commands if sum(isinstance(cls, CommandMeta) for cls in cmd.mro()) == 2]
+    return [cmd for cmd in CommandMeta._commands if sum(isinstance(cls, CommandMeta) for cls in type.mro(cmd)) == 2]
 
 
 CommandType = TypeVar('CommandType', bound=CommandMeta)  # pylint: disable=C0103
