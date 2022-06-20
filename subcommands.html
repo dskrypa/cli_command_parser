@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Configuration" href="configuration.html" />
-    <link rel="prev" title="Input Types" href="inputs.html" />
+    <link rel="next" title="Input Types" href="inputs.html" />
+    <link rel="prev" title="Parameter Groups" href="groups.html" />
     <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -46,11 +46,18 @@
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Subcommands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#automatic-registration">Automatic Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inheritance">Inheritance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-before-main">Using _before_main_</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-init">Using __init__</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#nested-subcommands">Nested Subcommands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#explicit-registration">Explicit Registration</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
@@ -90,6 +97,226 @@
              
   <section id="subcommands">
 <h1>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h1>
+<p>Subcommands provide a way of organizing Commands by separating distinct functionalities and options that are specific
+to those functionalities.</p>
+<p>For a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> to support subcommands, it must have a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> Parameter.  If other
+<a class="reference internal" href="parameters.html#positionals"><span class="std std-ref">Positional Parameters</span></a> are present in the Command, the position of the SubCommand
+Parameter determines the relative position for the argument(s) that select which subcommand should be executed.</p>
+<p>A given Command may only contain one SubCommand Parameter, but multiple Commands can be registered with it as
+subcommands, and each of those subcommands can have their own SubCommand Parameter.  It is possible to have multiple
+levels of nested subcommands.</p>
+<p id="subcommand-init-params"><strong>Initialization parameters for SubCommand Parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="subcommands:title">title</dt>
+<dd class="field-odd"><p>The title to use for help text sections containing the choices for the Parameter.  Defaults to
+<code class="docutils literal notranslate"><span class="pre">Subcommands</span></code>.</p>
+</dd>
+<dt class="field-even" id="subcommands:description">description</dt>
+<dd class="field-even"><p>The description to be used in help text for the Parameter.</p>
+</dd>
+<dt class="field-odd" id="subcommands:nargs">nargs</dt>
+<dd class="field-odd"><p>Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
+Commands).</p>
+</dd>
+<dt class="field-even" id="subcommands:type">type</dt>
+<dd class="field-even"><p>Not supported.</p>
+</dd>
+<dt class="field-odd" id="subcommands:choices">choices</dt>
+<dd class="field-odd"><p>Not supported - all choices are populated by registering subcommands.</p>
+</dd>
+</dl>
+<section id="automatic-registration">
+<h2>Automatic Registration<a class="headerlink" href="#automatic-registration" title="Permalink to this heading"></a></h2>
+<p>Given a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class has a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> Parameter, any classes that extend that Command will
+automatically be registered as subcommands of the Command that they extend.</p>
+<p id="subcommand-cls-params">When defining a subcommand class that extends a base Command, in addition to the other options that are supported when
+<a class="reference internal" href="commands.html#initializing-commands"><span class="std std-ref">initializing Commands</span></a>, the following keyword-only parameters may also be
+provided along with the class that it extends:</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="automatic registration:choice">choice</dt>
+<dd class="field-odd"><p>The value a user must provide to choose the target subcommand.  Spaces are supported.  By default, the
+lower-case (snake_case) name of the subcommand class is used.  I.e., if the class is called <code class="docutils literal notranslate"><span class="pre">Foo</span></code>, then the
+automatically generated choice value will be <code class="docutils literal notranslate"><span class="pre">foo</span></code>.  If the class is called <code class="docutils literal notranslate"><span class="pre">FooBar</span></code>, then the choice will be
+<code class="docutils literal notranslate"><span class="pre">foo_bar</span></code>.</p>
+</dd>
+<dt class="field-even" id="automatic registration:help">help</dt>
+<dd class="field-even"><p>The help text to display for the subcommand when viewing the parent Command’s help text.</p>
+</dd>
+</dl>
+<p>Given the following overly-simplistic
+<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">basic example</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can see from the help text that it is aware of its subcommands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ basic_subcommand.py -h
+usage: basic_subcommand.py {foo,bar} [--help]
+
+Subcommands:
+  {foo,bar}
+    foo                       Print foo
+    bar                       Print bar
+
+Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+<p>Usage examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ basic_subcommand.py foo
+foo
+
+$ basic_subcommand.py bar
+bar
+</pre></div>
+</div>
+</section>
+<section id="inheritance">
+<h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this heading"></a></h2>
+<p>One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
+Python already provides for common Parameters, methods, or initialization steps.</p>
+<section id="using-before-main">
+<h3>Using _before_main_<a class="headerlink" href="#using-before-main" title="Permalink to this heading"></a></h3>
+<p>The current recommended way to handle initializing logging, or other common initialization steps, is to do so
+in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._before_main_()</span></code></a> - example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_before_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_before_main_</span><span class="p">()</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>It is important to make sure that <code class="docutils literal notranslate"><span class="pre">super()._before_main_()</span></code> is called from <code class="docutils literal notranslate"><span class="pre">_before_main_</span></code> if it is
+overwritten.  If the <code class="docutils literal notranslate"><span class="pre">super()...</span></code> call is missed, then <code class="docutils literal notranslate"><span class="pre">--help</span></code> or other
+<a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">before_main action flags</span></a> will not be processed.</p>
+</div>
+<p>The primary reason for this recommendation is to avoid the overhead of those initialization steps if a user specifies
+<code class="docutils literal notranslate"><span class="pre">--help</span></code> or an invalid command, to improve the user experience by providing a faster response.  Any extra work that
+is not necessary will result in a slower response, regardless of the parsing library that is used.</p>
+</section>
+<section id="using-init">
+<h3>Using __init__<a class="headerlink" href="#using-init" title="Permalink to this heading"></a></h3>
+<p>If your program uses other <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a>, or if you don’t mind the extra overhead before
+<code class="docutils literal notranslate"><span class="pre">--help</span></code>, then you can include the initialization steps in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> instead.  The base <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class
+has no <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method, so there is no need to call <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code> if you define it - example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="nested-subcommands">
+<h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Permalink to this heading"></a></h2>
+<p>Using the example script that is a <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">fake wrapper around a hypothetical REST API</a>, we can see an example of
+two levels of subcommands, and another way that we can take advantage of inheritance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="s1">&#39;Common&#39;</span><span class="p">):</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;qa&#39;</span><span class="p">,</span> <span class="s1">&#39;uat&#39;</span><span class="p">,</span> <span class="s1">&#39;prod&#39;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;prod&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Environment to connect to&#39;</span><span class="p">)</span>
+    <span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">Show</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show an object&#39;</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c1"># region Find subcommands</span>
+
+<span class="k">class</span> <span class="nc">Find</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find objects&#39;</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;What to find&#39;</span><span class="p">)</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of results to show&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_objects</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<span class="k">class</span> <span class="nc">FindFoo</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find foo objects&#39;</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find foo objects that match the specified query&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Would have run query=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="si">!r}</span><span class="s1"> in env=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s1">, returning fake results&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">FindBar</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find bar objects&#39;</span><span class="p">):</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Pattern to find&#39;</span><span class="p">)</span>
+    <span class="n">show_all</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--all&#39;</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show all (default: only even)&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">123</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_all</span><span class="p">:</span>
+            <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">even</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">even</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">even</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">:</span>
+            <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">even</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">even</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">objects</span>
+
+<span class="k">class</span> <span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c1"># endregion</span>
+</pre></div>
+</div>
+<p>In that example, both the <code class="docutils literal notranslate"><span class="pre">Show</span></code> and <code class="docutils literal notranslate"><span class="pre">Find</span></code> subcommands share the common logging initialization, and they share the
+common <code class="docutils literal notranslate"><span class="pre">env</span></code> Option for selecting an environment to connect to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rest_api_wrapper.py -h
+usage: rest_api_wrapper.py {show,sync,find} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help]
+
+Subcommands:
+  {show,sync,find}
+    show                      Show an object
+    sync                      Sync group members
+    find                      Find objects
+
+Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+
+Common options:
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)
+  --env {dev,qa,uat,prod}, -e {dev,qa,uat,prod}
+                              Environment to connect to (default: &#39;prod&#39;)
+</pre></div>
+</div>
+<p>Since the different types of objects have different criteria for finding them, it helps to split the <code class="docutils literal notranslate"><span class="pre">Find</span></code>
+subcommand further so that each one only has the Parameters relevant for finding objects of that type.  To avoid name
+conflicts with other type-specific subcommands related to the same types, each <code class="docutils literal notranslate"><span class="pre">Find</span></code> subcommand uses a prefix for
+its name, and the <code class="docutils literal notranslate"><span class="pre">choice=</span></code> param to specify what should be provided on the CLI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rest_api_wrapper.py find -h
+usage: rest_api_wrapper.py find {foo,bar,baz} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help] [--limit LIMIT]
+
+Subcommands:
+  {foo,bar,baz}
+    foo                       Find foo objects
+    bar                       Find bar objects
+    baz                       Find baz objects
+
+...
+</pre></div>
+</div>
+<p>We’re able to take advantage of inheritance again in <code class="docutils literal notranslate"><span class="pre">Find</span></code> where we only need to define <code class="docutils literal notranslate"><span class="pre">main</span></code> once, and we can
+have each subcommand define the method that is called by <code class="docutils literal notranslate"><span class="pre">main</span></code> to produce results.</p>
+</section>
 <section id="explicit-registration">
 <h2>Explicit Registration<a class="headerlink" href="#explicit-registration" title="Permalink to this heading"></a></h2>
 <p>While subcommands will be automatically registered with their parent class as long as the parent class has a
@@ -205,8 +432,8 @@ bar
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="inputs.html" class="btn btn-neutral float-left" title="Input Types" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="configuration.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="groups.html" class="btn btn-neutral float-left" title="Parameter Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inputs.html" class="btn btn-neutral float-right" title="Input Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

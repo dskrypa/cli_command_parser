@@ -65,8 +65,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
@@ -382,68 +382,7 @@ Hello World
 <h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this heading"></a></h3>
 <p>The <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.</p>
-<p>SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
-should be provided relative to other positional parameters, if any.</p>
-<p id="subcommand-init-params"><strong>Unique SubCommand initialization parameters:</strong></p>
-<dl class="field-list simple">
-<dt class="field-odd" id="subcommand:title">title</dt>
-<dd class="field-odd"><p>The title to use for help text sections containing the choices for the Parameter.  Defaults to
-<code class="docutils literal notranslate"><span class="pre">Subcommands</span></code>.</p>
-</dd>
-<dt class="field-even" id="subcommand:description">description</dt>
-<dd class="field-even"><p>The description to be used in help text for the Parameter.</p>
-</dd>
-<dt class="field-odd" id="subcommand:nargs">nargs</dt>
-<dd class="field-odd"><p>Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
-Commands).</p>
-</dd>
-<dt class="field-even" id="subcommand:type">type</dt>
-<dd class="field-even"><p>Not supported.</p>
-</dd>
-<dt class="field-odd" id="subcommand:choices">choices</dt>
-<dd class="field-odd"><p>Not supported.</p>
-</dd>
-</dl>
-<p>Explicit registration is not necessary for Commands that extend their parent Command - given the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">following example</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
-
-<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>It produces the following help text:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ basic_subcommand.py -h
-usage: basic_subcommand.py {foo,bar} [--help]
-
-Subcommands:
-  {foo,bar}
-    foo                       Print foo
-    bar                       Print bar
-
-
-Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
-</pre></div>
-</div>
-<p>Usage examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ basic_subcommand.py foo
-foo
-
-$ basic_subcommand.py bar
-bar
-</pre></div>
-</div>
-<p>When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
-<a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register" title="cli_command_parser.parameters.choice_map.SubCommand.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> sub commands explicitly to specify a different choice value, including names that may
-include spaces.  Such names can be provided without requiring users to escape or quote the string (i.e., as
-technically separate arguments).  This allows for a more natural way to provide multi-word commands, without needing
-to jump through hoops to handle them.</p>
+<p>For more information, see <a class="reference internal" href="subcommands.html"><span class="doc">Subcommands</span></a>.</p>
 </section>
 <section id="action">
 <h3>Action<a class="headerlink" href="#action" title="Permalink to this heading"></a></h3>

@@ -21,10 +21,12 @@ Initializing Commands
 
 All commands must extend the :class:`.Command` class.
 
-Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof)
+Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some
+options provide a way to include additional :ref:`configuration:Command Metadata` in help text / documentation, while
+other :ref:`configuration:Configuration Options` exist to control error handling and parsing / formatting.
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py>`__ that uses some of
-the following options::
+those options::
 
     class HelloWorld(
         Command,

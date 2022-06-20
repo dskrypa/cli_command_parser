@@ -43,8 +43,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../groups.html">Parameter Groups</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
@@ -95,7 +95,7 @@
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_top_level_commands</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_top_level_commands</span><span class="p">,</span> <span class="n">get_params</span>
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">get_or_create_context</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
@@ -107,11 +107,11 @@
 
 
 <div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">CommandMeta</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The main class that other Commands should extend.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The main class that other Commands should extend.&quot;&quot;&quot;</span>
 
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span>  <span class="c1"># The parsing Context used for this Command</span>
+    <span class="c1">#: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by</span>
+    <span class="c1">#: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
@@ -125,15 +125,15 @@
 <div class="viewcode-block" id="Command.parse_and_run"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`</span>
-<span class="sd">        to parse arguments and resolve sub-commands, then calls :meth:`.__call__` on the resulting Command instance.</span>
-<span class="sd">        Handles exceptions during parsing using the configured :class:`.ErrorHandler`.</span>
+<span class="sd">        Primary entry point for parsing arguments, resolving subcommands, and running a command.</span>
 
-<span class="sd">        To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use</span>
+<span class="sd">        Calls :meth:`.parse` to parse arguments and resolve subcommands, then calls :meth:`.__call__` on the resulting</span>
+<span class="sd">        Command instance.  Handles exceptions during parsing using the configured :class:`.ErrorHandler`.</span>
+
+<span class="sd">        To be able to store a reference to the (possibly resolved subcommand) command instance, you should instead use</span>
 <span class="sd">        the above-mentioned methods separately.</span>
 
 <span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
-<span class="sd">        :param args: Positional arguments to pass to :meth:`.__call__`</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.__call__`</span>
 <span class="sd">        :return: The Command instance with parsed arguments for which :meth:`.__call__` was already called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -152,8 +152,8 @@
 <div class="viewcode-block" id="Command.parse"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the</span>
-<span class="sd">        parsed arguments, if necessary.</span>
+<span class="sd">        Parses the specified arguments (or :data:`sys.argv`), and resolves the final subcommand class based on the</span>
+<span class="sd">        parsed arguments, if necessary.  Initializes the Command, but does not call any of its other methods.</span>
 
 <span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
 <span class="sd">        :return: A Command instance with parsed arguments that is ready for :meth:`.__call__` or :meth:`.main`</span>
@@ -162,11 +162,11 @@
         <span class="n">cmd_cls</span> <span class="o">=</span> <span class="bp">cls</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-            <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+            <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
             <span class="k">while</span> <span class="n">sub_cmd</span><span class="p">:</span>
                 <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">sub_cmd</span>
                 <span class="n">ctx</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">))</span>
-                <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+                <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">()</span></div>
 
@@ -174,9 +174,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for running a command.  Subclasses generally should not override this method.</span>
 
-<span class="sd">        Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can</span>
-<span class="sd">        be specified via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class</span>
-<span class="sd">        initialization.  To skip error handling, define the class with ``error_handler=None``.</span>
+<span class="sd">        Handles exceptions using the configured :class:`.ErrorHandler`.  Alternate error handlers can be specified</span>
+<span class="sd">        via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class initialization.</span>
+<span class="sd">        To skip error handling, define the class with ``error_handler=None``.</span>
 
 <span class="sd">        Calls 3 methods in order: :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`.</span>
 
@@ -213,11 +213,12 @@
             <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">before</span> <span class="o">+</span> <span class="n">after</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">before</span><span class="p">:</span>
-            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>  <span class="c1"># noqa</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
             <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">([</span><span class="n">action</span><span class="p">,</span> <span class="o">*</span><span class="n">before</span><span class="p">],</span> <span class="s1">&#39;combining an action with action flags is disabled&#39;</span><span class="p">)</span>
 
+        <span class="c1"># TODO: Add a way to handle things like logging initialization only after finding that --help was not specified</span>
+        <span class="c1">#  but before processing other before-main actions</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">before_main_actions</span><span class="p">:</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -239,8 +240,7 @@
 <span class="sd">        :return: The total number of actions that were taken so far</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
-            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>  <span class="c1"># noqa</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
             <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">):</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">action</span><span class="o">.</span><span class="n">result</span><span class="p">()(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -265,8 +265,8 @@
 <span class="sd">    Convenience function that can be used as the main entry point for a program.</span>
 
 <span class="sd">    As long as only one :class:`Command` subclass is present, this function will detect it and call its</span>
-<span class="sd">    :meth:`~Command.parse_and_run` method.  Sub-commands do not count as direct subclasses of Command, so this function</span>
-<span class="sd">    will continue to work even if sub-commands are present (as long as they extend their parent command).</span>
+<span class="sd">    :meth:`~Command.parse_and_run` method.  Subcommands do not count as direct subclasses of Command, so this function</span>
+<span class="sd">    will continue to work even if subcommands are present (as long as they extend their parent command).</span>
 
 <span class="sd">    If multiple direct subclasses of Command are detected, or if no direct subclasses can be found, then a RuntimeError</span>
 <span class="sd">    will be raised.  In such cases, you must explicitly call :meth:`~Command.parse_and_run` on the command that is</span>

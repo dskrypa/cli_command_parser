@@ -267,66 +267,7 @@ SubCommand
 The :class:`.SubCommand` parameter allows additional :class:`.Command` classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.
 
-SubCommand exists as a Parameter so that it is possible to specify where the argument for choosing the subcommand
-should be provided relative to other positional parameters, if any.
-
-.. _subcommand_init_params:
-
-**Unique SubCommand initialization parameters:**
-
-:title: The title to use for help text sections containing the choices for the Parameter.  Defaults to
-  ``Subcommands``.
-:description: The description to be used in help text for the Parameter.
-:nargs: Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
-  Commands).
-:type: Not supported.
-:choices: Not supported.
-
-
-Explicit registration is not necessary for Commands that extend their parent Command - given the `following example
-<https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py>`_::
-
-    class Base(Command):
-        sub_cmd = SubCommand()
-
-    class Foo(Base, help='Print foo'):
-        def main(self):
-            print('foo')
-
-    class Bar(Base, help='Print bar'):
-        def main(self):
-            print('bar')
-
-
-It produces the following help text::
-
-    $ basic_subcommand.py -h
-    usage: basic_subcommand.py {foo,bar} [--help]
-
-    Subcommands:
-      {foo,bar}
-        foo                       Print foo
-        bar                       Print bar
-
-
-    Optional arguments:
-      --help, -h                  Show this help message and exit (default: False)
-
-
-Usage examples::
-
-    $ basic_subcommand.py foo
-    foo
-
-    $ basic_subcommand.py bar
-    bar
-
-
-When automatically registered, the choice will be the lower-case name of the sub command class.  It is possible to
-:meth:`~.SubCommand.register` sub commands explicitly to specify a different choice value, including names that may
-include spaces.  Such names can be provided without requiring users to escape or quote the string (i.e., as
-technically separate arguments).  This allows for a more natural way to provide multi-word commands, without needing
-to jump through hoops to handle them.
+For more information, see :doc:`subcommands`.
 
 
 Action

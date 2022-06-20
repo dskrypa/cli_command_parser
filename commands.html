@@ -51,8 +51,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
@@ -105,9 +105,11 @@ common parameters, methods, and initialization steps with minimal extra work or 
 <section id="initializing-commands">
 <h2>Initializing Commands<a class="headerlink" href="#initializing-commands" title="Permalink to this heading"></a></h2>
 <p>All commands must extend the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class.</p>
-<p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof)</p>
+<p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some
+options provide a way to include additional <a class="reference internal" href="configuration.html#command-metadata"><span class="std std-ref">Command Metadata</span></a> in help text / documentation, while
+other <a class="reference internal" href="configuration.html#configuration-options"><span class="std std-ref">Configuration Options</span></a> exist to control error handling and parsing / formatting.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of
-the following options:</p>
+those options:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span>
     <span class="n">Command</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span>
