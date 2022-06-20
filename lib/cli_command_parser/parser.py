@@ -10,12 +10,12 @@ from __future__ import annotations
 from collections import deque
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
-from .context import ctx
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
+    from .context import Context
     from .core import CommandType
     from .command_parameters import CommandParameters
 
@@ -30,14 +30,15 @@ class CommandParser:
     deferred: Optional[List[str]] = None
     _last: Optional[Parameter] = None
 
-    def __init__(self):
+    def __init__(self, ctx: Context):
+        self.ctx = ctx
         self.params = ctx.params
         self.positionals = ctx.params.positionals.copy()
 
     @classmethod
-    def parse_args(cls) -> Optional[CommandType]:
+    def parse_args(cls, ctx: Context) -> Optional[CommandType]:
         try:
-            return cls.__parse_args()
+            return cls.__parse_args(ctx)
         except UsageError:
             ctx.failed = True
             if not ctx.parsed_always_available_action_flags:
@@ -48,18 +49,18 @@ class CommandParser:
             raise
 
     @classmethod
-    def __parse_args(cls) -> Optional[CommandType]:
+    def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
         params = ctx.params
         sub_cmd_param = params.sub_command
         if sub_cmd_param is not None and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
-        cls()._parse_args()
+        cls(ctx)._parse_args(ctx)
         cls._validate_groups(params)
 
         if sub_cmd_param is not None:
             next_cmd = sub_cmd_param.result()  # type: CommandType
-            missing = cls._missing(params)
+            missing = cls._missing(params, ctx)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.failed = True
                 if ctx.parsed_always_available_action_flags:
@@ -67,7 +68,7 @@ class CommandParser:
                 raise ParamsMissing(missing)
             return next_cmd
 
-        missing = cls._missing(params)
+        missing = cls._missing(params, ctx)
         if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
             # Action is excluded because it provides a better error message
             if not ctx.parsed_always_available_action_flags:
@@ -78,7 +79,7 @@ class CommandParser:
         return None
 
     @classmethod
-    def _missing(cls, params: CommandParameters) -> List[Parameter]:
+    def _missing(cls, params: CommandParameters, ctx: Context) -> List[Parameter]:
         return [p for p in params.required_check_params() if p.required and ctx.num_provided(p) == 0]
 
     @classmethod
@@ -94,8 +95,8 @@ class CommandParser:
         if exc is not None:
             raise exc
 
-    def _parse_args(self):
-        self.arg_deque = arg_deque = self.handle_pass_thru()
+    def _parse_args(self, ctx: Context):
+        self.arg_deque = arg_deque = self.handle_pass_thru(ctx)
         self.deferred = ctx.remaining = []
         while arg_deque:
             arg = arg_deque.popleft()
@@ -125,7 +126,7 @@ class CommandParser:
             else:
                 self.handle_positional(arg)
 
-    def handle_pass_thru(self) -> Deque[str]:
+    def handle_pass_thru(self, ctx: Context) -> Deque[str]:
         remaining = ctx.remaining
         pass_thru = self.params.pass_thru
         if pass_thru is not None:
@@ -214,7 +215,7 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if not ctx.config.allow_backtrack or not self.positionals or found < 2:
+        if not self.ctx.config.allow_backtrack or not self.positionals or found < 2:
             return found
 
         can_pop = param.can_pop_counts()
@@ -229,7 +230,7 @@ class CommandParser:
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
-        if not ctx.config.allow_backtrack:
+        if not self.ctx.config.allow_backtrack:
             return
 
         can_pop = self._last.can_pop_counts()

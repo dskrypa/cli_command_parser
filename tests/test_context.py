@@ -93,6 +93,16 @@ class ContextTest(TestCase):
         self.assertEqual(0, len(context.config.parents))
         self.assertFalse(context.config.show_docstring)
 
+    def test_set_attr_thru_proxy(self):
+        with Context() as outer_ctx:
+            orig = ctx.argv
+            with Context() as inner_ctx:
+                ctx.argv = ['test', '123']
+
+        self.assertEqual(['test', '123'], inner_ctx.argv)
+        self.assertNotEqual(orig, inner_ctx.argv)
+        self.assertEqual(orig, outer_ctx.argv)
+
 
 if __name__ == '__main__':
     try:

@@ -577,7 +577,7 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         with Context(['--bar', 'a'], Foo) as ctx:
             foo = Foo()  # This is NOT the recommended way of initializing a Command
             with self.assertRaises(BadArgument):
-                CommandParser.parse_args()
+                CommandParser.parse_args(ctx)
             with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
                 foo.bar  # noqa
 
