@@ -105,6 +105,7 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
+<span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
 <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
 <span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">ParamBase</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span>
@@ -133,21 +134,20 @@
     <span class="n">positionals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span>
     <span class="n">option_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">command_parent</span><span class="p">:</span> <span class="n">CommandType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">command_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
-        <span class="k">if</span> <span class="n">command_parent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">command_parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="o">=</span> <span class="n">command_parent</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">command_parent</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command_parent</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">positionals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">)</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">,&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39; positionals=</span><span class="si">{</span><span class="n">positionals</span><span class="si">!r}</span><span class="s1">, options=</span><span class="si">{</span><span class="n">options</span><span class="si">!r}</span><span class="s1">]&gt;&#39;</span>
-        <span class="p">)</span>
+        <span class="n">cls_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, positionals=</span><span class="si">{</span><span class="n">positionals</span><span class="si">!r}</span><span class="s1">, options=</span><span class="si">{</span><span class="n">options</span><span class="si">!r}</span><span class="s1">]&gt;&#39;</span>
 
 <div class="viewcode-block" id="CommandParameters.pass_thru"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PassThru</span><span class="p">]:</span>
@@ -167,18 +167,20 @@
 
 <div class="viewcode-block" id="CommandParameters.formatter"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHelpFormatter</span><span class="p">:</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">CommandHelpFormatter</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">command_formatter</span> <span class="ow">or</span> <span class="n">CommandHelpFormatter</span>
-        <span class="n">formatter</span> <span class="o">=</span> <span class="n">formatter_factory</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">command_formatter</span> <span class="ow">or</span> <span class="n">CommandHelpFormatter</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="n">formatter_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_option</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">)</span>
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_positionals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">)</span>
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_groups</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">formatter</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_has_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">help_action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">always_available_action_flags</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_has_help</span><span class="p">)</span>
 
     <span class="c1"># region Initialization</span>
 
@@ -226,6 +228,9 @@
 
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
                 <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_groups</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_help</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_has_help</span><span class="p">):</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">help_action</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_positionals</span><span class="p">(</span><span class="n">positionals</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
@@ -313,7 +318,7 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">group</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">group</span> <span class="ow">and</span> <span class="n">group</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="o">==</span> <span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="o">!=</span> <span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">):</span>
                             <span class="n">invalid</span><span class="p">[(</span><span class="n">before_main</span><span class="p">,</span> <span class="n">prio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">params</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">invalid</span><span class="p">[(</span><span class="n">before_main</span><span class="p">,</span> <span class="n">prio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">params</span>
