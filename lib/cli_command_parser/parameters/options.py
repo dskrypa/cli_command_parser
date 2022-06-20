@@ -65,7 +65,6 @@ class Option(BasicActionMixin, BaseOption):
             action = 'store' if self.nargs == 1 else 'append'
         elif action == 'store' and self.nargs != 1:
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
-        # TODO: nargs=? + required/not behavior?
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, self.choices)
         if action == 'append':

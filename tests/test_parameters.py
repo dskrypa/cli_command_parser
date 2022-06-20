@@ -148,6 +148,11 @@ class OptionTest(ParserTest):
     def test_nargs_0_rejected(self):
         fail_cases = [
             ({'nargs': '?'}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
+            ({'nargs': '?', 'required': True}, ParameterDefinitionError),
+            ({'nargs': '?', 'required': False}, ParameterDefinitionError),
+            ({'nargs': '*'}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
+            ({'nargs': '*', 'required': True}, ParameterDefinitionError),
+            ({'nargs': '*', 'required': False}, ParameterDefinitionError),
             ({'nargs': 0}, ParameterDefinitionError),
             ({'nargs': (0, 2)}, ParameterDefinitionError),
             ({'nargs': range(2)}, ParameterDefinitionError),
