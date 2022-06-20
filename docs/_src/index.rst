@@ -46,8 +46,8 @@ User Guide
    commands
    parameters
    groups
-   inputs
    subcommands
+   inputs
    configuration
    documentation
    advanced

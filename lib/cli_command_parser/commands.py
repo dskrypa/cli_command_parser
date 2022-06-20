@@ -9,7 +9,7 @@ from abc import ABC
 from contextlib import ExitStack
 from typing import TypeVar, Sequence, Optional
 
-from .core import CommandMeta, CommandType, get_top_level_commands
+from .core import CommandMeta, CommandType, get_top_level_commands, get_params
 from .context import Context, get_or_create_context
 from .exceptions import ParamConflict
 from .parser import CommandParser
@@ -21,11 +21,11 @@ CommandObj = TypeVar('CommandObj', bound='Command')
 
 
 class Command(ABC, metaclass=CommandMeta):
-    """
-    The main class that other Commands should extend.
-    """
+    """The main class that other Commands should extend."""
 
-    ctx: Context  # The parsing Context used for this Command
+    #: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by
+    #: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.
+    ctx: Context
 
     def __new__(cls):
         ctx = get_or_create_context(cls)
@@ -39,15 +39,15 @@ class Command(ABC, metaclass=CommandMeta):
     @classmethod
     def parse_and_run(cls, argv: Sequence[str] = None, **kwargs) -> Optional[CommandObj]:
         """
-        Primary entry point for parsing arguments, resolving sub-commands, and running a command.  Calls :meth:`.parse`
-        to parse arguments and resolve sub-commands, then calls :meth:`.__call__` on the resulting Command instance.
-        Handles exceptions during parsing using the configured :class:`.ErrorHandler`.
+        Primary entry point for parsing arguments, resolving subcommands, and running a command.
 
-        To be able to store a reference to the (possibly resolved sub-command) command instance, you should instead use
+        Calls :meth:`.parse` to parse arguments and resolve subcommands, then calls :meth:`.__call__` on the resulting
+        Command instance.  Handles exceptions during parsing using the configured :class:`.ErrorHandler`.
+
+        To be able to store a reference to the (possibly resolved subcommand) command instance, you should instead use
         the above-mentioned methods separately.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
-        :param args: Positional arguments to pass to :meth:`.__call__`
         :param kwargs: Keyword arguments to pass to :meth:`.__call__`
         :return: The Command instance with parsed arguments for which :meth:`.__call__` was already called.
         """
@@ -66,8 +66,8 @@ class Command(ABC, metaclass=CommandMeta):
     @classmethod
     def parse(cls, argv: Sequence[str] = None) -> CommandObj:
         """
-        Parses the specified arguments (or :data:`sys.argv`), and resolves the final sub-command class based on the
-        parsed arguments, if necessary.
+        Parses the specified arguments (or :data:`sys.argv`), and resolves the final subcommand class based on the
+        parsed arguments, if necessary.  Initializes the Command, but does not call any of its other methods.
 
         :param argv: The arguments to parse (defaults to :data:`sys.argv`)
         :return: A Command instance with parsed arguments that is ready for :meth:`.__call__` or :meth:`.main`
@@ -88,9 +88,9 @@ class Command(ABC, metaclass=CommandMeta):
         """
         Primary entry point for running a command.  Subclasses generally should not override this method.
 
-        Handles exceptions using the configured :class:`~.error_handling.ErrorHandler`.  Alternate error handlers can
-        be specified via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class
-        initialization.  To skip error handling, define the class with ``error_handler=None``.
+        Handles exceptions using the configured :class:`.ErrorHandler`.  Alternate error handlers can be specified
+        via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class initialization.
+        To skip error handling, define the class with ``error_handler=None``.
 
         Calls 3 methods in order: :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`.
 
@@ -127,11 +127,12 @@ class Command(ABC, metaclass=CommandMeta):
             raise ParamConflict(before + after, 'combining multiple action flags is disabled')
 
         if before:
-            cls = self.__class__
-            action = cls.__class__.params(cls).action  # noqa
+            action = get_params(self).action
             if action is not None and not ctx.config.action_after_action_flags:
                 raise ParamConflict([action, *before], 'combining an action with action flags is disabled')
 
+        # TODO: Add a way to handle things like logging initialization only after finding that --help was not specified
+        #  but before processing other before-main actions
         for param in ctx.before_main_actions:
             param.func(self, *args, **kwargs)
 
@@ -153,8 +154,7 @@ class Command(ABC, metaclass=CommandMeta):
         :return: The total number of actions that were taken so far
         """
         with self.__ctx as ctx:
-            cls = self.__class__
-            action = cls.__class__.params(cls).action  # noqa
+            action = get_params(self).action
             if action is not None and (ctx.actions_taken == 0 or ctx.config.action_after_action_flags):
                 ctx.actions_taken += 1
                 action.result()(self, *args, **kwargs)
@@ -179,8 +179,8 @@ def main(argv: Sequence[str] = None, **kwargs):
     Convenience function that can be used as the main entry point for a program.
 
     As long as only one :class:`Command` subclass is present, this function will detect it and call its
-    :meth:`~Command.parse_and_run` method.  Sub-commands do not count as direct subclasses of Command, so this function
-    will continue to work even if sub-commands are present (as long as they extend their parent command).
+    :meth:`~Command.parse_and_run` method.  Subcommands do not count as direct subclasses of Command, so this function
+    will continue to work even if subcommands are present (as long as they extend their parent command).
 
     If multiple direct subclasses of Command are detected, or if no direct subclasses can be found, then a RuntimeError
     will be raised.  In such cases, you must explicitly call :meth:`~Command.parse_and_run` on the command that is

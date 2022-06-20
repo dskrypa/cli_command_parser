@@ -14,7 +14,8 @@ class ApiWrapper(Command):
         verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
         env = Option('-e', choices=('dev', 'qa', 'uat', 'prod'), default='prod', help='Environment to connect to')
 
-    def __init__(self):
+    def _before_main_(self):
+        super()._before_main_()
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)
@@ -64,7 +65,7 @@ class FindFoo(Find, choice='foo', help='Find foo objects'):
     query = Positional(help='Find foo objects that match the specified query')
 
     def find_objects(self):
-        log.debug(f'Would have run query={self.query!r}, returning fake results')
+        log.debug(f'Would have run query={self.query!r} in env={self.env}, returning fake results')
         return ['a', 'b', 'c']
 
 
