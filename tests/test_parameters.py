@@ -703,7 +703,7 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             action = Action()
 
-        self.assert_parse_fails(Foo, ['-a'], NoSuchOption)
+        self.assert_parse_fails(Foo, [], CommandDefinitionError)
 
     def test_missing_action_target_forced(self):
         class Foo(Command):
@@ -724,13 +724,15 @@ class ChoiceMapTest(ParserTest):
             with self.assertRaises(BadArgument):
                 Foo.action.validate('bar')
 
-    # TODO: Should this be raised earlier?
-    def test_no_choices_result(self):
+    def test_no_choices_result_forced(self):
         class Foo(Command):
             action = Action()
+            action('foo')(Mock())
 
         with self.assertRaises(CommandDefinitionError):
-            Foo.parse([]).action  # noqa
+            foo = Foo.parse([])
+            del Foo.action.choices['foo']
+            foo.action  # noqa
 
     def test_unexpected_nargs(self):
         class Foo(Command):
