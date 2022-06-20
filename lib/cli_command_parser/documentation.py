@@ -51,11 +51,15 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     """
     Load all of the commands from the file with the given path and return them as a dict of ``{name: Command}``.
 
+    If an :class:`python:OSError` or a subclass thereof is encountered while attempting to load the file (due to the
+    path not existing, or a permission error, etc), it will be allowed to propagate.  An :class:`python:ImportError`
+    may be raised by :func:`import_module` if the specified path cannot be imported.
+
     :param path: The path to a file containing one or more :class:`.Command` classes
     :param top_only: If True, then only top-level commands are returned (default: all)
     :return: Dict containing the Commands loaded from the given file
     """
-    module = _load_module(path)
+    module = import_module(path)
     commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
     return top_level_commands(commands) if top_only else commands
 
@@ -98,13 +102,21 @@ def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_fun
     return '\n'.join(parts)
 
 
-def _load_module(path: PathLike):
+def import_module(path: PathLike):
+    """Import the module from the given path"""
     path = Path(path)
-    # TODO: Error handling for not file / cannot load / etc
     spec = spec_from_file_location(path.stem, path)
-    module = module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
+    try:
+        module = module_from_spec(spec)
+    except AttributeError as e:
+        path_str = path.as_posix()
+        raise ImportError(f'Invalid path={path_str!r} - are you sure it is a Python module?', path=path_str) from e
+    sys.modules[spec.name] = module  # This is required for the program metadata introspection
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        del sys.modules[spec.name]
+        raise
     return module
 
 

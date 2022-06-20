@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 from pathlib import Path
 from textwrap import dedent
 from unittest import main
@@ -13,6 +14,7 @@ from cli_command_parser.documentation import (
     render_script_rst,
     top_level_commands,
     _render_commands_rst,
+    import_module,
 )
 
 THIS_FILE = Path(__file__).resolve()
@@ -131,6 +133,15 @@ class DocumentationUtilsTest(ParserTest):
 
         commands = {'Foo': Foo, 'Bar': Bar}
         self.assert_strings_equal(expected, _render_commands_rst(commands, fix_name=False), trim=True)
+
+    def test_import_error(self):
+        with self.assertRaises(ImportError):
+            import_module(TEST_DATA_DIR.joinpath('hello_world.rst'))
+
+    def test_remove_from_sys_modules_on_error(self):
+        with self.assertRaises(RuntimeError):
+            import_module(TEST_DATA_DIR.joinpath('runtime_error.py'))
+        self.assertNotIn('runtime_error', sys.modules)
 
 
 if __name__ == '__main__':
