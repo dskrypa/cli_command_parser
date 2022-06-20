@@ -38,7 +38,9 @@ class PassThru(Parameter):
     def store_all(self, values: Collection[str]):
         ctx.set_parsing_value(self, values)
 
-    def take_action(self, values: Collection[str], short_combo: bool = False):  # pylint: disable=W0237
+    def take_action(  # pylint: disable=W0237
+        self, values: Collection[str], short_combo: bool = False, opt_str: str = None
+    ):
         value = ctx.get_parsing_value(self)
         if value is not _NotSet:
             raise ParamUsageError(self, f'received values={values!r} but a stored value={value!r} already exists')

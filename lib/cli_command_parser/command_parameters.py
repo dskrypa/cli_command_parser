@@ -256,7 +256,7 @@ class CommandParameters:
             return None
         elif option.startswith('--'):
             try:
-                param, value = self.long_option_to_param_value_pair(option)
+                opt, param, value = self.long_option_to_param_value_pair(option)
             except KeyError:
                 return None
             else:
@@ -267,21 +267,21 @@ class CommandParameters:
             except KeyError:
                 return None
             else:
-                return tuple(param for param, value in param_value_pairs)
+                return tuple(param for opt, param, value in param_value_pairs)
         else:
             return None
 
-    def long_option_to_param_value_pair(self, option: str) -> Tuple[BaseOption, Optional[str]]:
+    def long_option_to_param_value_pair(self, option: str) -> Tuple[str, BaseOption, Optional[str]]:
         try:
-            return self.option_map[option], None
+            return option, self.option_map[option], None
         except KeyError:
             if '=' in option:
                 option, value = option.split('=', 1)
-                return self.option_map[option], value
+                return option, self.option_map[option], value
             else:
                 raise
 
-    def short_option_to_param_value_pairs(self, option: str) -> List[Tuple[BaseOption, Optional[str]]]:
+    def short_option_to_param_value_pairs(self, option: str) -> List[Tuple[str, BaseOption, Optional[str]]]:
         try:
             option, value = option.split('=', 1)
         except ValueError:
@@ -293,24 +293,24 @@ class CommandParameters:
             if value is not None:
                 raise
         else:
-            return [(param, value)]
+            return [(option, param, value)]
 
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
         param = self.combo_option_map[key]
         if param.would_accept(value, short_combo=True):
-            return [(param, value)]
+            return [(key, param, value)]
         else:
             combo_option_map = self.combo_option_map
-            return [(combo_option_map[c], None) for c in option[1:]]
+            return [(c, combo_option_map[c], None) for c in option[1:]]
 
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if option.startswith('--'):
-            param = self.long_option_to_param_value_pair(option)[0]
+            param = self.long_option_to_param_value_pair(option)[1]
             if param.accepts_values:
                 return param
         elif option.startswith('-'):
-            for param, _ in self.short_option_to_param_value_pairs(option):
+            for _, param, _ in self.short_option_to_param_value_pairs(option):
                 if param.accepts_values:
                     return param
         else:

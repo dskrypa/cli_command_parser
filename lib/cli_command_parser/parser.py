@@ -162,15 +162,15 @@ class CommandParser:
     def handle_long(self, arg: str):
         # log.debug(f'handle_long({arg=})')
         try:
-            param, value = self.params.long_option_to_param_value_pair(arg)
+            opt, param, value = self.params.long_option_to_param_value_pair(arg)
         except KeyError:
             self._check_sub_command_options(arg)
             self.deferred.append(arg)
         else:
             if value is not None or (param.accepts_none and not param.accepts_values):
-                param.take_action(value)
+                param.take_action(value, opt_str=opt)
             elif not self.consume_values(param) and param.accepts_none:
-                param.take_action(None)
+                param.take_action(None, opt_str=opt)
             self._last = param
 
     def handle_short(self, arg: str):
@@ -178,21 +178,21 @@ class CommandParser:
         param_val_combos = self.params.short_option_to_param_value_pairs(arg)
         # log.debug(f'Split {arg=} into {param_val_combos=}')
         if len(param_val_combos) == 1:
-            param, value = param_val_combos[0]
-            self._handle_short_value(param, value)
+            opt, param, value = param_val_combos[0]
+            self._handle_short_value(opt, param, value)
         else:
-            last = param_val_combos[-1][0]
-            for param, _ in param_val_combos[:-1]:
-                param.take_action(None, short_combo=True)
+            last_opt, last_param, _last_val = param_val_combos[-1]
+            for opt, param, _ in param_val_combos[:-1]:
+                param.take_action(None, short_combo=True, opt_str=opt)
 
-            self._handle_short_value(last, None)
+            self._handle_short_value(last_opt, last_param, None)
 
-    def _handle_short_value(self, param: BaseOption, value: Any):
+    def _handle_short_value(self, opt: str, param: BaseOption, value: Any):
         # log.debug(f'Handling short {value=} for {param=}')
         if value is not None or (param.accepts_none and not param.accepts_values):
-            param.take_action(value, short_combo=True)
+            param.take_action(value, short_combo=True, opt_str=opt)
         elif not self.consume_values(param) and param.accepts_none:
-            param.take_action(None, short_combo=True)
+            param.take_action(None, short_combo=True, opt_str=opt)
         self._last = param
         # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 

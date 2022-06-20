@@ -4,7 +4,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
-from unittest import TestCase, main, skipIf
+from unittest import main, skipIf
 from unittest.mock import Mock
 
 from cli_command_parser import Command
@@ -32,7 +32,7 @@ from cli_command_parser.formatting.params import (
 )
 from cli_command_parser.parameters.base import parameter_action, Parameter, BaseOption, BasePositional
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
-from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
+from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option, TriFlag
 from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest
 
@@ -278,6 +278,64 @@ class FlagTest(ParserTest):
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
             Flag(choices=(1, 2))
+
+
+class TriFlagTest(ParserTest):
+    def test_trinary(self):
+        class Foo(Command):
+            bar = TriFlag('-b', alt_short='-B', name_mode='-')
+            baz = Flag('-Z')  # TODO: ensure conflict check detects alts
+
+        success_cases = [
+            ([], {'bar': None, 'baz': False}),
+            (['-b'], {'bar': True, 'baz': False}),
+            (['--bar'], {'bar': True, 'baz': False}),
+            (['-B'], {'bar': False, 'baz': False}),
+            (['--no-bar'], {'bar': False, 'baz': False}),
+            (['-bZ'], {'bar': True, 'baz': True}),
+            (['-BZ'], {'bar': False, 'baz': True}),
+            (['-Zb'], {'bar': True, 'baz': True}),
+            (['-ZB'], {'bar': False, 'baz': True}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_nargs_not_allowed(self):
+        with self.assertRaises(TypeError):
+            TriFlag(nargs='+')
+
+    def test_type_not_allowed(self):
+        with self.assertRaises(TypeError):
+            TriFlag(type=int)
+
+    def test_choices_not_allowed(self):
+        with self.assertRaises(TypeError):
+            TriFlag(choices=(1, 2))
+
+    def test_bad_consts(self):
+        exc = ParameterDefinitionError
+        fail_cases = [({'consts': None}, exc), ({'consts': (1,)}, exc), ({'consts': [1, 2, 3]}, exc)]
+        self.assert_call_fails_cases(TriFlag, fail_cases)
+
+    def test_bad_alt_short(self):
+        with self.assertRaises(ParameterDefinitionError):
+            TriFlag(alt_short='-a-a')
+
+    def test_bad_alt_prefix(self):
+        exc = ParameterDefinitionError
+        fail_cases = [({'alt_prefix': '-no'}, exc), ({'alt_prefix': 'a=b'}, exc), ({'alt_prefix': '='}, exc)]
+        self.assert_call_fails_cases(TriFlag, fail_cases)
+
+    def test_bad_combos(self):
+        cases = [{'alt_short': '-B'}, {'alt_long': '--baz'}, {'alt_long': '--baz', 'alt_short': '-B'}]
+        for case in cases:
+            with self.subTest(case=case):
+
+                class Foo(Command):
+                    bar = TriFlag('-b', **case)
+                    baz = Flag('-B')
+
+                with self.assertRaises(CommandDefinitionError):
+                    Foo.parse([])
 
 
 class CounterTest(ParserTest):

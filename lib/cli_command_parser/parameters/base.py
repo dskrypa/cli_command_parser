@@ -320,7 +320,9 @@ class Parameter(ParamBase, ABC):
         except TypeError:
             return False
 
-    def take_action(self, value: Optional[str], short_combo: bool = False):
+    def take_action(  # pylint: disable=W0613
+        self, value: Optional[str], short_combo: bool = False, opt_str: str = None
+    ):
         # log.debug(f'{self!r}.take_action({value!r})')
         action = self.action
         if action == 'append' and self._nargs_max_reached():
@@ -334,17 +336,10 @@ class Parameter(ParamBase, ABC):
                 raise ParamUsageError(self, f'received value={value!r} but a stored value={val!r} already exists')
 
         ctx.record_action(self)
-        action_method = getattr(self, self.action)
-        if action in {'store_const', 'append_const'}:
-            if value is not None:
-                raise ParamUsageError(
-                    self, f'received value={value!r} but no values are accepted for action={action!r}'
-                )
-            return action_method()
-        else:
-            normalized = self.prepare_value(value, short_combo) if value is not None else value
-            self.validate(normalized)
-            return action_method(normalized)
+        action_method = getattr(self, action)
+        normalized = self.prepare_value(value, short_combo) if value is not None else value
+        self.validate(normalized)
+        return action_method(normalized)
 
     def would_accept(self, value: str, short_combo: bool = False) -> bool:
         action = self.action
@@ -512,7 +507,7 @@ class BasePositional(Parameter, ABC):
     _positional: bool = True
     _default_ok: bool = False
 
-    def __init_subclass__(cls, default_ok: bool = None, **kwargs):
+    def __init_subclass__(cls, default_ok: bool = None, **kwargs):  # pylint: disable=W0222
         """
         :param default_ok: Whether default values are supported for this Parameter type
         :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.
@@ -559,16 +554,7 @@ class BaseOption(Parameter, ABC):
     name_mode: Optional[OptionNameMode] = None  # OptionNameMode override
 
     def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str] = None, **kwargs):
-        bad_opts = ', '.join(opt for opt in option_strs if not 0 < opt.count('-', 0, 3) < 3)
-        if bad_opts:
-            raise ParameterDefinitionError(f"Bad option(s) - must start with '--' or '-': {bad_opts}")
-        bad_opts = ', '.join(opt for opt in option_strs if opt.endswith('-'))
-        if bad_opts:
-            raise ParameterDefinitionError(f"Bad option(s) - may not end with '-': {bad_opts}")
-        bad_opts = ', '.join(opt for opt in option_strs if '=' in opt)
-        if bad_opts:
-            raise ParameterDefinitionError(f"Bad option(s) - may not contain '=': {bad_opts}")
-
+        _validate_opt_strs(option_strs)
         super().__init__(action, **kwargs)
         self._long_opts = {opt for opt in option_strs if opt.startswith('--')}
         self._short_opts = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
@@ -599,6 +585,13 @@ class BaseOption(Parameter, ABC):
     @cached_property
     def short_opts(self) -> List[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
+
+
+def _validate_opt_strs(opt_strs: Collection[str]):
+    bad = ', '.join(opt for opt in opt_strs if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt)
+    if bad:
+        msg = f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
+        raise ParameterDefinitionError(msg)
 
 
 def _is_numeric(text: str) -> Bool:

@@ -8,10 +8,11 @@ from __future__ import annotations
 
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Tuple
 
+from ..config import OptionNameMode
 from ..context import ctx
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import InputTypeFunc, normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet, Bool
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     from ..core import CommandType
     from ..commands import Command
 
-__all__ = ['Option', 'Flag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
+__all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
 
 
 class Option(BasicActionMixin, BaseOption):
@@ -72,10 +73,41 @@ class Option(BasicActionMixin, BaseOption):
 
 
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value
-# TODO: Explicit True/False pair of args for default=None
 
 
-class Flag(BaseOption, accepts_values=False, accepts_none=True):
+class _Flag(BaseOption):
+    nargs = Nargs(0)
+    _use_opt_str: bool = False
+
+    def __init_subclass__(cls, use_opt_str: bool = False, **kwargs):  # pylint: disable=W0222
+        super().__init_subclass__(**kwargs)
+        cls._use_opt_str = use_opt_str
+
+    def _init_value_factory(self):  # pylint: disable=W0221
+        if self.action == 'store_const':
+            return self.default
+        else:
+            return []
+
+    def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
+        # log.debug(f'{self!r}.take_action({value!r})')
+        ctx.record_action(self)
+        action_method = getattr(self, self.action)
+        if value is None:
+            return action_method(opt_str) if self._use_opt_str else action_method()
+
+        raise ParamUsageError(self, f'received value={value!r} but no values are accepted for action={self.action!r}')
+
+    def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:  # noqa
+        return value is None
+
+    def result_value(self) -> Any:
+        return ctx.get_parsing_value(self)
+
+    result = result_value
+
+
+class Flag(_Flag, accepts_values=False, accepts_none=True):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -92,7 +124,6 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     """
 
     __default_const_map = {True: False, False: True, _NotSet: True}
-    nargs = Nargs(0)
 
     def __init__(
         self, *option_strs: str, action: str = 'store_const', default: Any = _NotSet, const: Any = _NotSet, **kwargs
@@ -110,12 +141,6 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
-    def _init_value_factory(self):  # pylint: disable=W0221
-        if self.action == 'store_const':
-            return self.default
-        else:
-            return []
-
     @parameter_action
     def store_const(self):
         ctx.set_parsing_value(self, self.const)
@@ -124,13 +149,86 @@ class Flag(BaseOption, accepts_values=False, accepts_none=True):
     def append_const(self):
         ctx.get_parsing_value(self).append(self.const)
 
-    def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:
-        return value is None
 
-    def result_value(self) -> Any:
-        return ctx.get_parsing_value(self)
+class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
+    """
+    A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
+    provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
+    separate default.
 
-    result = result_value
+    :param option_strs: The primary long and/or short option prefixes for this option.  If no long prefixes are
+      specified, then one will automatically be added based on the name assigned to this parameter.
+    :param consts: A 2-tuple containing the ``(primary, alternate)`` values to store.  Defaults to ``(True, False)``.
+    :param alt_prefix: The prefix to add to the assigned name for the alternate long form.  Ignored if ``alt_long`` is
+      specified.  Defaults to ``no`` if ``alt_long`` is not specified.
+    :param alt_long: The alternate long form to use.
+    :param alt_short: The alternate short form to use
+    :param action: The action to take on individual parsed values.  Only ``store_const`` (the default) is supported.
+    :param default: The default value to use if neither the primary or alternate options are provided.  Defaults
+      to None.
+    :param name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this TriFlag.
+    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
+    """
+
+    alt_short = ()
+
+    def __init__(
+        self,
+        *option_strs: str,
+        consts: Tuple[Any, Any] = (True, False),
+        alt_prefix: str = None,
+        alt_long: str = None,
+        alt_short: str = None,
+        action: str = 'store_const',
+        default: Any = None,
+        **kwargs,
+    ):
+        if 'choices' in kwargs:
+            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
+        elif alt_short and '-' in alt_short[1:]:
+            raise ParameterDefinitionError(f"Bad alt_short option - may not contain '-': {alt_short}")
+        elif alt_prefix and ('=' in alt_prefix or alt_prefix.startswith('-')):
+            raise ParameterDefinitionError(f"Bad alt_prefix - may not contain '=' or start with '-': {alt_prefix}")
+        elif not alt_prefix and not alt_long:
+            alt_prefix = 'no'
+
+        try:
+            _pos, _neg = consts
+        except (ValueError, TypeError) as e:
+            msg = f'Invalid consts={consts!r} - expected a 2-tuple of (positive, negative) constants to store'
+            raise ParameterDefinitionError(msg) from e
+
+        alt_opt_strs = tuple(filter(None, (alt_short, alt_long)))
+        super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
+        self.consts = consts
+        self._alt_prefix = alt_prefix
+        self.alt_long = (alt_long,) if alt_long else set()
+        if alt_short:
+            self.alt_short = {alt_short, alt_short[1:]}
+        # TODO: Add formatter for this to separate / properly indicate primary/alternate results
+
+    def __set_name__(self, command: CommandType, name: str):
+        super().__set_name__(command, name)
+        if not self.alt_long:
+            mode = self.name_mode if self.name_mode is not None else self._config(command).option_name_mode
+            if mode & OptionNameMode.DASH:
+                self.alt_long.add('--{}-{}'.format(self._alt_prefix, name.replace('_', '-')))
+            if mode & OptionNameMode.UNDERSCORE:
+                self.alt_long.add(f'--{self._alt_prefix}_{name}')
+
+            self._long_opts.update(self.alt_long)
+            try:
+                del self.__dict__['long_opts']
+            except KeyError:
+                pass
+
+    @parameter_action
+    def store_const(self, opt_str: str):
+        if opt_str in self.alt_long or opt_str in self.alt_short:
+            const = self.consts[1]
+        else:
+            const = self.consts[0]
+        ctx.set_parsing_value(self, const)
 
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):

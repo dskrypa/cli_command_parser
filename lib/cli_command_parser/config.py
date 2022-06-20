@@ -73,11 +73,29 @@ class OptionNameMode(FixedFlag):
     :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted
 
     If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.
+
+    The value may be specified to Commands as ``option_name_mode=<mode>`` or to Parameters as ``name_mode=<mode>``,
+    where ``<mode>`` is one of:
+
+        - ``OptionNameMode.UNDERSCORE`` or ``OptionNameMode.DASH`` or ``OptionNameMode.BOTH``
+        - ``'underscore'`` or ``'dash'`` or ``'both'``
+        - ``'_'`` or ``'-'`` or ``'*'``
     """
 
     UNDERSCORE = 1
     DASH = 2
     BOTH = 3
+
+    @classmethod
+    def _missing_(cls, value: Union[str, int]) -> OptionNameMode:
+        try:
+            return OPT_NAME_MODE_ALIASES[value]
+        except KeyError:
+            pass
+        return super()._missing_(value)
+
+
+OPT_NAME_MODE_ALIASES = {'-': OptionNameMode.DASH, '_': OptionNameMode.UNDERSCORE, '*': OptionNameMode.BOTH}
 
 
 # endregion
