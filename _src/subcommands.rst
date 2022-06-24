@@ -19,10 +19,12 @@ levels of nested subcommands.
 :title: The title to use for help text sections containing the choices for the Parameter.  Defaults to
   ``Subcommands``.
 :description: The description to be used in help text for the Parameter.
+:local_choices: If some choices should be handled in the Command that the SubCommand Parameter is in, they should
+  be specified here.  Supports either a mapping of ``{choice: help text}`` or a collection of choice values.
 :nargs: Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
   Commands).
 :type: Not supported.
-:choices: Not supported - all choices are populated by registering subcommands.
+:choices: Not supported - all other choices are populated by registering subcommands.
 
 
 

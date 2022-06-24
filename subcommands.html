@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subcommands &mdash; CLI Command Parser 2022.06.20 documentation</title>
+  <title>Subcommands &mdash; CLI Command Parser 2022.06.24 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -114,15 +114,19 @@ levels of nested subcommands.</p>
 <dt class="field-even" id="subcommands:description">description</dt>
 <dd class="field-even"><p>The description to be used in help text for the Parameter.</p>
 </dd>
-<dt class="field-odd" id="subcommands:nargs">nargs</dt>
-<dd class="field-odd"><p>Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
+<dt class="field-odd" id="subcommands:local_choices">local_choices</dt>
+<dd class="field-odd"><p>If some choices should be handled in the Command that the SubCommand Parameter is in, they should
+be specified here.  Supports either a mapping of <code class="docutils literal notranslate"><span class="pre">{choice:</span> <span class="pre">help</span> <span class="pre">text}</span></code> or a collection of choice values.</p>
+</dd>
+<dt class="field-even" id="subcommands:nargs">nargs</dt>
+<dd class="field-even"><p>Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
 Commands).</p>
 </dd>
-<dt class="field-even" id="subcommands:type">type</dt>
-<dd class="field-even"><p>Not supported.</p>
+<dt class="field-odd" id="subcommands:type">type</dt>
+<dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-odd" id="subcommands:choices">choices</dt>
-<dd class="field-odd"><p>Not supported - all choices are populated by registering subcommands.</p>
+<dt class="field-even" id="subcommands:choices">choices</dt>
+<dd class="field-even"><p>Not supported - all other choices are populated by registering subcommands.</p>
 </dd>
 </dl>
 <section id="automatic-registration">

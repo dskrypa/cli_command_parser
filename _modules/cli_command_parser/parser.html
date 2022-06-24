@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parser &mdash; CLI Command Parser 2022.06.20 documentation</title>
+  <title>cli_command_parser.parser &mdash; CLI Command Parser 2022.06.24 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -145,7 +145,7 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">_validate_groups</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sub_cmd_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">next_cmd</span> <span class="o">=</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>  <span class="c1"># type: CommandType</span>
+            <span class="n">next_cmd</span> <span class="o">=</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">target</span><span class="p">()</span>  <span class="c1"># type: CommandType</span>
             <span class="n">missing</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_missing</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">missing</span> <span class="ow">and</span> <span class="n">next_cmd</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="n">next_cmd</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
@@ -388,7 +388,9 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s1">&#39;_reset&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_backtrack_last</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">min</span><span class="si">}</span><span class="s1"> values, but only found </span><span class="si">{</span><span class="n">found</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">min</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;s&#39;</span>
+        <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> value</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">, but only found </span><span class="si">{</span><span class="n">found</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_to_pop</span><span class="p">(</span><span class="n">positionals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">],</span> <span class="n">can_pop</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">available</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">req_mod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
