@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from unittest import main
 from typing import Type
+from unittest import main
 
 from cli_command_parser import Command, Context
 from cli_command_parser.core import get_params

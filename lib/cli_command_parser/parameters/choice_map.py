@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from functools import partial
 from string import whitespace, printable
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Union, Dict
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Union, Collection, Mapping, Dict
 from types import MethodType
 
 from ..context import ctx
@@ -175,7 +175,9 @@ class ChoiceMap(BasePositional):
             raise InvalidChoice(self, choice, choices)
         return choice
 
-    def result(self):
+    result = result_value
+
+    def target(self):
         choice = self.result_value()
         return self.choices[choice].target
 
@@ -190,6 +192,9 @@ class ChoiceMap(BasePositional):
     # endregion
 
 
+# TODO: Choice aliases?
+
+
 class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):
     """
     Used to indicate the position where a choice that results in delegating execution of the program to a sub-command
@@ -201,18 +206,37 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
     :meth:`.register` sub commands explicitly to specify a different choice value.
     """
 
-    def __init__(self, *, required: Bool = True, **kwargs):
+    def __init__(
+        self,
+        *,
+        required: Bool = True,
+        local_choices: Optional[Union[Mapping[str, str], Collection[str]]] = None,
+        **kwargs,
+    ):
         """
         :param required: Whether this parameter is required or not.  If it is required, then an exception will be
           raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and
           not provided, the :meth:`~.Command.main` method for the base :class:`.Command` that contains this
           SubCommand will be executed by default.
+        :param local_choices: If some choices should be handled in the Command that this SubCommand is in, they should
+          be specified here.  Supports either a mapping of ``{choice: help text}`` or a collection of choice values.
         :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.
         """
         super().__init__(**kwargs)
         self.required = required
         if not required:
             self._register_choice(None, None)  # Results in next_cmd=None in parse_args, so the base cmd will run
+        if local_choices:
+            self._register_local_choices(local_choices)
+
+    def _register_local_choices(self, local_choices: Union[Mapping[str, str], Collection[str]]):
+        try:
+            choice_help_iter = local_choices.items()
+        except AttributeError:
+            choice_help_iter = ((choice, None) for choice in local_choices)
+
+        for choice, help_text in choice_help_iter:
+            self._register_choice(choice, None, help_text)
 
     def register_command(self, choice: Optional[str], command: CommandType, help: Optional[str]) -> CommandType:  # noqa
         if choice is None:

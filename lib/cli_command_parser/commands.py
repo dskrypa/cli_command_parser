@@ -157,7 +157,7 @@ class Command(ABC, metaclass=CommandMeta):
             action = get_params(self).action
             if action is not None and (ctx.actions_taken == 0 or ctx.config.action_after_action_flags):
                 ctx.actions_taken += 1
-                action.result()(self, *args, **kwargs)
+                action.target()(self, *args, **kwargs)
 
         return ctx.actions_taken
 

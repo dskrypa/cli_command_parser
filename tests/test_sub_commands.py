@@ -3,7 +3,8 @@
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, SubCommand, CommandDefinitionError, MissingArgument, Counter
+from cli_command_parser import Command, SubCommand, Counter, Option, Positional
+from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument
 from cli_command_parser.testing import RedirectStreams
 
 
@@ -127,6 +128,36 @@ class SubCommandTest(TestCase):
 
         Foo.parse_and_run([])
         self.assertTrue(Foo.main.called)
+
+    def test_local_choices(self):
+        base, d, e = Mock(), Mock(), Mock()
+
+        class Find(Command):
+            sub_cmd = SubCommand(local_choices=('a', 'b', 'c'))
+            format = Option('-f', choices=('plain', 'json'))
+            query = Option('-q')
+            main = base
+
+        class FindD(Find, choice='d'):
+            name = Positional()
+            main = d
+
+        class FindE(Find, choice='e'):
+            num = Positional()
+            main = e
+
+        with self.subTest(sub_cmd='a'):
+            find = Find.parse_and_run(['a'])
+            self.assertEqual((1, 0, 0), (base.call_count, d.call_count, e.call_count))
+            self.assertEqual('a', find.sub_cmd, f'Parsed: {find.ctx.get_parsed()}')
+
+        with self.subTest(sub_cmd='d'):
+            Find.parse_and_run(['d', 'test'])
+            self.assertEqual((1, 1, 0), (base.call_count, d.call_count, e.call_count))
+
+        with self.subTest(sub_cmd='e'):
+            Find.parse_and_run(['e', '1'])
+            self.assertEqual((1, 1, 1), (base.call_count, d.call_count, e.call_count))
 
 
 if __name__ == '__main__':

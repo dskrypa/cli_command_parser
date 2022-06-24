@@ -59,7 +59,7 @@ class CommandParser:
         cls._validate_groups(params)
 
         if sub_cmd_param is not None:
-            next_cmd = sub_cmd_param.result()  # type: CommandType
+            next_cmd = sub_cmd_param.target()  # type: CommandType
             missing = cls._missing(params, ctx)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.failed = True
@@ -302,7 +302,9 @@ class CommandParser:
         elif self._last and isinstance(param, BasePositional) and hasattr(param, '_reset'):
             self._maybe_backtrack_last(param, found)
 
-        raise MissingArgument(param, f'expected {param.nargs.min} values, but only found {found}')
+        n = param.nargs.min
+        s = '' if n == 1 else 's'
+        raise MissingArgument(param, f'expected {n} value{s}, but only found {found}')
 
 
 def _to_pop(positionals: List[BasePositional], can_pop: List[int], available: int, req_mod: int = 0) -> Optional[int]:

@@ -104,7 +104,7 @@ class ParamBase(ABC):
         self.help = help
         self.hide = hide
         group = ParamGroup.active_group()
-        if group is not None:
+        if group:
             group.register(self)  # noqa  # This sets self.group = group
 
     @property
