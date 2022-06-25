@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context']
+__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_config_item']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 _TERMINAL = Terminal()
@@ -235,6 +235,13 @@ def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, 
             return context
         else:
             return context._sub_context(command_cls, argv=argv, **kwargs)
+
+
+def get_config_item(item: str, default: Any):
+    try:
+        return getattr(get_current_context().config, item)
+    except NoActiveContext:
+        return default
 
 
 class ContextProxy:

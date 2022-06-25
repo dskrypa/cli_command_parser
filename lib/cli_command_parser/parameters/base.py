@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, List, Set, FrozenSet
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, Iterator, List, Set, FrozenSet
 
 try:
     from functools import cached_property  # pylint: disable=C0412
@@ -585,6 +585,10 @@ class BaseOption(Parameter, ABC):
     @cached_property
     def short_opts(self) -> List[str]:
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
+
+    def option_strs(self) -> Iterator[str]:
+        yield from self.long_opts
+        yield from self.short_opts
 
 
 def get_active_param_group() -> Optional[ParamGroup]:

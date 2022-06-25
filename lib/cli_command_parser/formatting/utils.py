@@ -7,59 +7,90 @@ Utils for usage / help text formatters
 from __future__ import annotations
 
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Optional, Any, Collection, Type
+from typing import Optional, Union, Any, Collection, Sequence, Iterator, Iterable, Tuple
 
 from ..config import ShowDefaults
-from ..context import ctx
-from ..exceptions import NoActiveContext
+from ..context import ctx, get_config_item
 from ..utils import Bool, _NotSet
 
-if TYPE_CHECKING:
-    from ..core import CommandMeta, CommandType
-    from ..parameters import SubCommand
+__all__ = ['format_help_entry', 'line_iter']
 
-__all__ = ['HelpEntryFormatter', 'get_usage_sub_cmds']
+Strs = Union[str, Sequence[str]]
+OptStrs = Optional[Strs]
 
 
-class HelpEntryFormatter:
-    def __init__(self, usage: str, description: Optional[str], width: int = 30, lpad: int = 2, tw_offset: int = 0):
-        self.usage = usage
-        self.width = width
-        self.lines = []
-        self.term_width = ctx.terminal_width - tw_offset
-        self.process_usage(usage, lpad)
-        if description:
-            self.process_description(description)
+def format_help_entry(
+    usage: Strs,
+    description: OptStrs,
+    usage_width: int = 30,
+    lpad: int = 2,
+    tw_offset: int = 0,
+    prefix: str = '',
+    cont_indent: int = 2,
+) -> str:
+    usage_width = max(get_config_item('min_usage_column_width', 20), usage_width - tw_offset - 2)
+    after_pad_width = usage_width - lpad
+    term_width = ctx.terminal_width - tw_offset
 
-    def process_usage(self, usage: str, lpad: int = 2):
-        if len(usage) + lpad > self.term_width:
-            tw = TextWrapper(self.term_width, initial_indent=' ' * lpad, subsequent_indent=' ' * self.width)
-            self.lines.extend(tw.wrap(usage))
+    usage = tuple(_apply_continuation_indent(normalize_column(usage, term_width, cont_indent), cont_indent))
+    if description:
+        description_lines = [''] * description_start_line(usage, after_pad_width)
+        description_lines.extend(normalize_column(description, term_width - usage_width - 2))
+    else:
+        description_lines = []
+
+    format_row = f'{prepare_prefix(prefix, lpad)}{{:<{after_pad_width}s}}  {{}}'.format
+    return '\n'.join(format_row(*row).rstrip() for row in line_iter((usage, description_lines)))
+
+
+def prepare_prefix(prefix: str = '', padding: int = 2) -> str:
+    if prefix:
+        padding -= len(prefix)
+        if padding < 0:
+            padding = 0
+
+    pad_str = ' ' * padding
+    return prefix + pad_str
+
+
+def description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
+    widths = [len(line) for line in usage]
+    if max(widths, default=0) <= max_usage_width:
+        return 0
+
+    widths.reverse()
+    line = len(widths)
+    for width in widths:
+        if width > max_usage_width:
+            break
+        line -= 1
+    return line
+
+
+def normalize_column(lines: Strs, column_width: int, cont_indent: int = 0) -> Sequence[str]:
+    if isinstance(lines, str):
+        lines = (lines,)
+    max_width = max(map(len, lines)) + cont_indent
+    if max_width <= column_width:
+        return lines
+
+    tw = TextWrapper(column_width, break_long_words=True, break_on_hyphens=True)
+    fixed = []
+    for line in lines:
+        if len(line) + cont_indent >= column_width:
+            fixed.extend(tw.wrap(line))
         else:
-            left_pad = ' ' * lpad
-            self.lines.append(left_pad + usage)
+            fixed.append(line)
 
-    def process_description(self, description: str):
-        full_indent = ' ' * self.width
-        line = self.lines[0]
-        pad_chars = self.width - len(line)
-        if pad_chars < 0 or len(self.lines) != 1:
-            if len(description) + self.width < self.term_width:
-                self.lines.append(full_indent + description)
-            else:
-                tw = TextWrapper(self.term_width, initial_indent=full_indent, subsequent_indent=full_indent)
-                self.lines.extend(tw.wrap(description))
-        else:
-            mid = ' ' * pad_chars
-            line += mid + description
-            if len(line) > self.term_width:
-                tw = TextWrapper(self.term_width, initial_indent='', subsequent_indent=full_indent)
-                self.lines = tw.wrap(line)
-            else:
-                self.lines = [line]
+    return fixed
 
-    def __call__(self):
-        return '\n'.join(self.lines)
+
+def _apply_continuation_indent(lines: Iterable[str], cont_indent: int = 2) -> Iterator[str]:
+    i_lines = iter(lines)
+    yield next(i_lines)
+    prefix = ' ' * cont_indent
+    for line in i_lines:
+        yield prefix + line
 
 
 def _should_add_default(default: Any, help_text: Optional[str], param_show_default: Optional[Bool]) -> bool:
@@ -78,30 +109,21 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
         return bool(default)
 
 
-def get_usage_sub_cmds(command: CommandType):
-    cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
-    parent: CommandType = cmd_mcs.parent(command)
-    if not parent:
-        return []
+def line_iter(columns: Sequence[Strs]) -> Iterator[Tuple[str, ...]]:
+    """More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+"""
+    exhausted = 0
+    column_count = len(columns)
 
-    cmd_chain = get_usage_sub_cmds(parent)
+    def _iter(column: Strs) -> Iterator[str]:
+        nonlocal exhausted
+        yield from column.splitlines() if isinstance(column, str) else column
+        exhausted += 1
+        while True:
+            yield ''
 
-    sub_cmd_param: SubCommand = cmd_mcs.params(parent).sub_command
-    if not sub_cmd_param:
-        return cmd_chain
-
-    try:
-        parsed = ctx.get_parsing_value(sub_cmd_param)
-    except NoActiveContext:
-        parsed = []
-
-    if parsed:  # May have been called directly on the subcommand without parsing
-        cmd_chain.extend(parsed)
-        return cmd_chain
-
-    for name, choice in sub_cmd_param.choices.items():
-        if choice.target is command:
-            cmd_chain.append(name)
+    column_iters = tuple(_iter(c) for c in columns)
+    while True:
+        row = tuple(next(ci) for ci in column_iters)  # pylint: disable=R1708
+        if exhausted == column_count:  # `while exhausted < column_count:` always results in 1 extra row
             break
-
-    return cmd_chain
+        yield row

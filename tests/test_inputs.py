@@ -452,7 +452,7 @@ class ChoiceInputTest(TestCase):
         foo = Foo()
         foo.ctx._terminal_width = 199
         with foo.ctx:
-            self.assertIn('{FOO,Bar,baz}', get_params(foo).formatter.format_help())
+            self.assertIn('{FOO|Bar|baz}', get_params(foo).formatter.format_help())
 
     def test_enum_case_sensitive(self):
         # fmt: off

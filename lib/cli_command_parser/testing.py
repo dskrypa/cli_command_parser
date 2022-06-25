@@ -130,6 +130,11 @@ class ParserTest(TestCase):
         new_line = text.index('\n')
         self.assertEqual(prefix, text[:new_line])
 
+    def assert_str_contains(self, sub_text: str, text: str, diff_lines: int = 3):
+        if sub_text not in text:
+            diff = format_diff(sub_text, text, n=diff_lines)
+            self.fail('String did not contain expected text:\n' + diff)
+
 
 def _colored(text: str, color: int, end: str = '\n'):
     return f'\x1b[38;5;{color}m{text}\x1b[0m{end}'

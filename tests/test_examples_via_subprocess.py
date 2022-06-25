@@ -80,12 +80,12 @@ class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):
     def test_no_args(self):
         code, stdout, stderr = self.call_script()
         self.assertEqual(2, code)
-        self.assertEqual('argument {echo,split,double,reverse}: missing required argument value\n', stderr)
+        self.assertEqual('argument {echo|split|double|reverse}: missing required argument value\n', stderr)
 
     def test_help(self):
         code, stdout, stderr = self.call_script('-h')
         self.assertEqual(0, code)
-        self.assertLinesStartWith('usage: action_with_args.py {echo,split,double,reverse} TEXT [--help]', stdout)
+        self.assertLinesStartWith('usage: action_with_args.py {echo|split|double|reverse} TEXT [--help]', stdout)
         self.assertNotIn('The main class that other Commands should extend.', stdout)
 
     def test_echo(self):
@@ -119,12 +119,12 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_show_no_args(self):
         code, stdout, stderr = self.call_script('show')
         self.assertEqual(2, code)
-        self.assertEqual(stderr, 'argument {attrs,hello,log_test,rst}: missing required argument value\n')
+        self.assertEqual(stderr, 'argument {attrs|hello|log_test|rst}: missing required argument value\n')
 
     def test_show_help(self):
         code, stdout, stderr = self.call_script('show', '--help')
         self.assertEqual(0, code)
-        expected = 'usage: shared_logging_init.py show {attrs,hello,log_test,rst} [--verbose [VERBOSE]] [--help]'
+        expected = 'usage: shared_logging_init.py show {attrs|hello|log_test|rst} [--verbose [VERBOSE]] [--help]'
         self.assertLinesStartWith(expected, stdout)
 
     def test_show_attrs(self):
@@ -158,7 +158,7 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
         code, stdout, stderr = self.call_script('show', 'oops')
         self.assertEqual(2, code)
         expected = (
-            "argument {attrs,hello,log_test,rst}: invalid choice: 'oops'"
+            "argument {attrs|hello|log_test|rst}: invalid choice: 'oops'"
             " (choose from: 'attrs', 'hello', 'log_test', 'rst')\n"
         )
         self.assertEqual(expected, stderr)

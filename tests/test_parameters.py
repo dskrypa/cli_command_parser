@@ -275,16 +275,16 @@ class FlagTest(ParserTest):
         with self.assertRaises(TypeError):
             Flag(type=int)
 
-    def test_choices_not_allowed(self):
-        with self.assertRaises(TypeError):
-            Flag(choices=(1, 2))
+    def test_bad_not_allowed(self):
+        with self.assertRaisesRegex(TypeError, 'got unexpected keyword arguments:'):
+            Flag(choices=(1, 2), metavar='foo')
 
 
 class TriFlagTest(ParserTest):
     def test_trinary(self):
         class Foo(Command):
             bar = TriFlag('-b', alt_short='-B', name_mode='-')
-            baz = Flag('-Z')  # TODO: ensure conflict check detects alts
+            baz = Flag('-Z')
 
         success_cases = [
             ([], {'bar': None, 'baz': False}),
@@ -308,8 +308,12 @@ class TriFlagTest(ParserTest):
             TriFlag(type=int)
 
     def test_choices_not_allowed(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaisesRegex(TypeError, 'got an unexpected keyword argument:'):
             TriFlag(choices=(1, 2))
+
+    def test_metavar_not_allowed(self):
+        with self.assertRaises(TypeError):
+            TriFlag(metavar='foo')
 
     def test_bad_consts(self):
         exc = ParameterDefinitionError
@@ -336,6 +340,12 @@ class TriFlagTest(ParserTest):
 
                 with self.assertRaises(CommandDefinitionError):
                     Foo.parse([])
+
+    def test_no_alt_short(self):
+        class Foo(Command):
+            spam = TriFlag('-s', name_mode='-')
+
+        self.assertSetEqual({'--no-spam'}, Foo.spam.alt_allowed)
 
 
 class CounterTest(ParserTest):
@@ -613,23 +623,33 @@ class MiscParameterTest(ParserTest):
         with self.assertRaises(CommandDefinitionError):
             Foo.parse([])
 
-    def test_short_conflict_in_subcommand(self):
-        class A(Command):
-            sub_cmd = SubCommand()
-            with ParamGroup('Common'):
-                bar = Option('-b')
-
-        class B(A):
-            sub_cmd = SubCommand()
-            baz = Option('-b')
-
-        # class C(B):
-        #     with ParamGroup(mutually_exclusive=True):
-        #         foo = Option('-f')
-        #         baz = Flag('-b')
-
-        with self.assertRaises(CommandDefinitionError):
-            A.parse(['b', 'c'])
+    # TODO: Conflict check issues
+    # def test_short_conflict_in_subcommand(self):
+    #     class A(Command, description='...'):
+    #         sub_cmd = SubCommand()
+    #         verbose = Counter('-v')
+    #         with ParamGroup(description='API Options'):
+    #             env = Option('-e', choices=(), default='dev')
+    #             limit: int = Option('-L')
+    #             max: int = Option('-M')
+    #
+    #         def __init__(self):
+    #             pass
+    #
+    #     class B(A):
+    #         sub_cmd = SubCommand()
+    #         format = Option('-f', choices=(), default='')
+    #
+    #     class C(B):
+    #         with ParamGroup(mutually_exclusive=True, required=True):
+    #             tag = Option('-t')
+    #             baz = Flag('-b')
+    #
+    #         extra = Flag('-e')  # conflicts with env
+    #         # TODO: Earlier conflict check?  currently only happens when using a given subcommand
+    #
+    #     with self.assertRaises(CommandDefinitionError):
+    #         A.parse(['b', 'c'])
 
 
 class UnlikelyToBeReachedParameterTest(ParserTest):

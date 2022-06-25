@@ -234,6 +234,12 @@ class CommandConfig:
     #: Whether the top level script's docstring should be included in generated documentation
     show_docstring: Bool = ConfigItem(True, bool)
 
+    #: Delimiter to use between choices in usage / help text
+    choice_delim: str = ConfigItem('|', str)
+
+    #: Minimum width for the usage column in help text (unit: characters)
+    min_usage_column_width: int = ConfigItem(20, int)
+
     # endregion
 
     def __init__(self, parents: Optional[Sequence[CommandConfig]] = None, **kwargs):

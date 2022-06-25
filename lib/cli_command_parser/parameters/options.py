@@ -8,7 +8,12 @@ from __future__ import annotations
 
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Iterator, overload, Tuple, List, Set
+
+try:
+    from functools import cached_property  # pylint: disable=C0412
+except ImportError:
+    from ..compat import cached_property
 
 from ..config import OptionNameMode
 from ..context import ctx
@@ -83,6 +88,13 @@ class _Flag(BaseOption):
         super().__init_subclass__(**kwargs)
         cls._use_opt_str = use_opt_str
 
+    def __init__(self, *option_strs: str, **kwargs):
+        bad = ', '.join(repr(key) for key in ('choices', 'metavar') if key in kwargs)
+        if bad:
+            art, s = ('', 's') if ',' in bad else ('an ', '')
+            raise TypeError(f'{self.__class__.__name__}.__init__() got {art}unexpected keyword argument{s}: {bad}')
+        super().__init__(*option_strs, **kwargs)
+
     def _init_value_factory(self):  # pylint: disable=W0221
         if self.action == 'store_const':
             return self.default
@@ -128,8 +140,6 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
     def __init__(
         self, *option_strs: str, action: str = 'store_const', default: Any = _NotSet, const: Any = _NotSet, **kwargs
     ):
-        if 'choices' in kwargs:
-            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         if const is _NotSet:
             try:
                 const = self.__default_const_map[default]
@@ -150,6 +160,7 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
         ctx.get_parsing_value(self).append(self.const)
 
 
+# TODO: Add to documentation
 class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
@@ -170,7 +181,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
-    alt_short = ()
+    _alt_short = None
 
     def __init__(
         self,
@@ -183,9 +194,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
         default: Any = None,
         **kwargs,
     ):
-        if 'choices' in kwargs:
-            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
-        elif alt_short and '-' in alt_short[1:]:
+        if alt_short and '-' in alt_short[1:]:
             raise ParameterDefinitionError(f"Bad alt_short option - may not contain '-': {alt_short}")
         elif alt_prefix and ('=' in alt_prefix or alt_prefix.startswith('-')):
             raise ParameterDefinitionError(f"Bad alt_prefix - may not contain '=' or start with '-': {alt_prefix}")
@@ -202,33 +211,62 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
         self.consts = consts
         self._alt_prefix = alt_prefix
-        self.alt_long = (alt_long,) if alt_long else set()
+        self._alt_long = (alt_long,) if alt_long else set()
         if alt_short:
-            self.alt_short = {alt_short, alt_short[1:]}
-        # TODO: Add formatter for this to separate / properly indicate primary/alternate results
+            self._alt_short = alt_short
 
     def __set_name__(self, command: CommandType, name: str):
         super().__set_name__(command, name)
-        if not self.alt_long:
+        if not self._alt_long:
             mode = self.name_mode if self.name_mode is not None else self._config(command).option_name_mode
             if mode & OptionNameMode.DASH:
-                self.alt_long.add('--{}-{}'.format(self._alt_prefix, name.replace('_', '-')))
+                self._alt_long.add('--{}-{}'.format(self._alt_prefix, name.replace('_', '-')))
             if mode & OptionNameMode.UNDERSCORE:
-                self.alt_long.add(f'--{self._alt_prefix}_{name}')
+                self._alt_long.add(f'--{self._alt_prefix}_{name}')
 
-            self._long_opts.update(self.alt_long)
-            try:
-                del self.__dict__['long_opts']
-            except KeyError:
-                pass
+            self._long_opts.update(self._alt_long)
 
     @parameter_action
     def store_const(self, opt_str: str):
-        if opt_str in self.alt_long or opt_str in self.alt_short:
+        if opt_str in self.alt_allowed:
             const = self.consts[1]
         else:
             const = self.consts[0]
         ctx.set_parsing_value(self, const)
+
+    @cached_property
+    def alt_allowed(self) -> Set[str]:
+        allowed = set(self._alt_long)
+        short = self._alt_short
+        if short:
+            allowed.add(short)
+            allowed.add(short[1:])
+        return allowed
+
+    @cached_property
+    def long_primary_opts(self) -> List[str]:
+        return [opt for opt in self.long_opts if opt not in self._alt_long]
+
+    @cached_property
+    def short_primary_opts(self) -> List[str]:
+        alt_short = self._alt_short
+        return [opt for opt in self.short_opts if opt != alt_short]
+
+    @cached_property
+    def long_alt_opts(self) -> List[str]:
+        return sorted(self._alt_long, key=lambda opt: (-len(opt), opt))
+
+    @cached_property
+    def short_alt_opts(self) -> List[str]:
+        return [self._alt_short] if self._alt_short else []
+
+    def primary_option_strs(self) -> Iterator[str]:
+        yield from self.long_primary_opts
+        yield from self.short_primary_opts
+
+    def alt_option_strs(self) -> Iterator[str]:
+        yield from self.long_alt_opts
+        yield from self.short_alt_opts
 
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):

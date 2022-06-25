@@ -22,6 +22,10 @@ class MiscTest(ParserTest):
         with self.assertRaises(AssertionError):
             self.assert_strings_equal('foo', 'bar', 'baz')
 
+    def test_assert_str_contains(self):
+        with self.assertRaises(AssertionError):
+            self.assert_str_contains('a', 'b')
+
 
 if __name__ == '__main__':
     # import logging

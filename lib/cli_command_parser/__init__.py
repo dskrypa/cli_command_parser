@@ -42,4 +42,5 @@ from .parameters import (
     Param,
     ParamGroup,
     ParamOrGroup,
+    TriFlag,
 )

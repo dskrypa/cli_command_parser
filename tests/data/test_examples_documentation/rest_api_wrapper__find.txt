@@ -1,7 +1,7 @@
-usage: rest_api_wrapper.py find {foo,bar,baz,bazs} [--verbose [VERBOSE]] [--env {dev,qa,uat,prod}] [--help] [--limit LIMIT]
+usage: rest_api_wrapper.py find {foo|bar|baz|bazs} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT]
 
 Subcommands:
-  {foo,bar,baz,bazs}
+  {foo|bar|baz|bazs}
     foo                       Find foo objects
     bar                       Find bar objects
     baz                       Find baz objects
@@ -14,5 +14,5 @@ Optional arguments:
 Common options:
   --verbose [VERBOSE], -v [VERBOSE]
                               Increase logging verbosity (can specify multiple times) (default: 0)
-  --env {dev,qa,uat,prod}, -e {dev,qa,uat,prod}
+  --env {dev|qa|uat|prod}, -e {dev|qa|uat|prod}
                               Environment to connect to (default: 'prod')

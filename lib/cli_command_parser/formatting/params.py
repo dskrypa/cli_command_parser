@@ -7,31 +7,32 @@ Parameter usage / help text formatters
 
 from __future__ import annotations
 
-from itertools import chain
-from textwrap import indent
-from typing import TYPE_CHECKING, Type, Tuple
+from typing import TYPE_CHECKING, Union, Type, Callable, Tuple, Dict
 
-from ..context import ctx
-from ..exceptions import NoActiveContext
-from ..parameters.base import ParamBase, BasePositional, BaseOption
+from ..context import ctx, get_config_item
+from ..parameters.base import BasePositional, BaseOption
 from ..parameters.choice_map import ChoiceMap
-from ..parameters import ParamGroup, PassThru, ParamOrGroup
+from ..parameters import ParamOrGroup, ParamGroup, PassThru, TriFlag
 from .restructured_text import RstTable
-from .utils import HelpEntryFormatter, _should_add_default
+from .utils import format_help_entry, _should_add_default
 
 if TYPE_CHECKING:
     from ..utils import Bool
 
 
+BoolFormatterMap = Dict[bool, Callable[[str], str]]
+
+
 class ParamHelpFormatter:
     _param_cls_fmt_cls_map = {}
+    required_formatter_map: BoolFormatterMap = {False: '[{}]'.format}
 
-    def __init_subclass__(cls, param_cls: Type[ParamBase] = None):  # noqa
+    def __init_subclass__(cls, param_cls: Type[ParamOrGroup] = None):  # noqa
         if param_cls is not None:
             cls._param_cls_fmt_cls_map[param_cls] = cls
 
     @classmethod
-    def for_param_cls(cls, param_cls: Type[ParamBase]) -> Type[ParamHelpFormatter]:
+    def for_param_cls(cls, param_cls: Type[ParamOrGroup]):
         try:
             return cls._param_cls_fmt_cls_map[param_cls]
         except KeyError:
@@ -50,23 +51,27 @@ class ParamHelpFormatter:
     def __init__(self, param: ParamOrGroup):
         self.param = param
 
-    def format_metavar(self, choice_delim: str = ',') -> str:
+    def wrap_usage(self, text: str) -> str:
+        try:
+            return self.required_formatter_map[self.param.required](text)
+        except KeyError:
+            return text
+
+    def format_metavar(self) -> str:
         param = self.param
         if param.choices:
-            return '{{{}}}'.format(choice_delim.join(map(str, param.choices)))
+            # TODO: re-optimize get_config_item usage - it caused a (very) minor slow-down for tests
+            return '{{{}}}'.format(get_config_item('choice_delim', '|').join(map(str, param.choices)))
         elif param.metavar:
             return param.metavar
         t = param.type
         if t is not None:
             try:
-                return t.format_metavar(choice_delim)
+                return t.format_metavar(get_config_item('choice_delim', '|'))
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
-        try:
-            use_type_metavar = ctx.config.use_type_metavar
-        except NoActiveContext:
-            use_type_metavar = False
-        if use_type_metavar and t is not None:
+
+        if get_config_item('use_type_metavar', False) and t is not None:
             try:
                 name = t.__name__
             except AttributeError:
@@ -78,9 +83,11 @@ class ParamHelpFormatter:
         return param.name.upper()
 
     def format_basic_usage(self) -> str:
-        raise NotImplementedError
+        """Format the Parameter for use in the ``usage:`` line"""
+        return self.wrap_usage(self.format_usage(True))
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        """Format the Parameter for use in both the ``usage:`` line and in the list of Parameters"""
         return self.format_metavar()
 
     def format_description(self, rst: Bool = False) -> str:
@@ -93,12 +100,10 @@ class ParamHelpFormatter:
 
         return description
 
-    def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
+    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
         usage = self.format_usage(include_meta=True, full=True)
         description = self.format_description()
-        entry_width = max(20, width - tw_offset)
-        text = HelpEntryFormatter(usage, description, entry_width, tw_offset=tw_offset)()
-        return indent(text, prefix) if prefix else text
+        return format_help_entry(usage, description, usage_width, tw_offset=tw_offset, prefix=prefix)
 
     def rst_row(self) -> Tuple[str, str]:
         usage = self.format_usage(include_meta=True, full=True)
@@ -106,60 +111,88 @@ class ParamHelpFormatter:
 
 
 class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
-    def format_basic_usage(self) -> str:
-        return self.format_usage()
-
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         metavar = self.format_metavar()
         return metavar if not full or self.param.nargs == 1 else f'{metavar} [{metavar} ...]'
 
 
 class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
-    def format_basic_usage(self) -> str:
-        usage = self.format_usage(True)
-        return usage if self.param.required else f'[{usage}]'
+    def _format_usage_metavar(self) -> str:
+        metavar = self.format_metavar()
+        if 0 in self.param.nargs:
+            metavar = f'[{metavar}]'
+        return metavar
+
+    def format_usage_parts(self, delim: str = ', ') -> Union[str, Tuple[str, ...]]:
+        param: BaseOption = self.param
+        if param.nargs == 0:
+            return delim.join(param.option_strs())
+
+        metavar = self._format_usage_metavar()
+        option_strs = tuple(param.option_strs())
+        usage_iter = (f'{opt} {metavar}' for opt in option_strs)
+        options = len(option_strs)
+        if options > 1 and (options * len(metavar) + 2) > max(78, ctx.terminal_width - 2) / 2:
+            last = options - 1
+            return tuple(f'{us}{delim}' if i < last else us for i, us in enumerate(usage_iter))
+
+        return delim.join(usage_iter)
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        param = self.param
-        if include_meta:
-            metavar = self.format_metavar().replace('{', '{{').replace('}', '}}')
-            fmt = '{}' if param.nargs == 0 else f'{{}} [{metavar}]' if 0 in param.nargs else f'{{}} {metavar}'
-            if full:
-                return delim.join(fmt.format(opt) for opt in chain(param.long_opts, param.short_opts))
-            else:
-                return fmt.format(param.long_opts[0])
+        if full:
+            parts = self.format_usage_parts(delim)
+            return parts if isinstance(parts, str) else ''.join(parts)
+
+        param: BaseOption = self.param
+        opt = param.long_opts[0]
+        if not include_meta or param.nargs == 0:
+            return opt
+        return f'{opt} {self._format_usage_metavar()}'
+
+    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
+        usage = self.format_usage_parts()
+        description = self.format_description()
+        return format_help_entry(usage, description, usage_width, tw_offset=tw_offset, prefix=prefix)
+
+
+class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
+    def format_usage_parts(self, delim: str = ', ') -> Union[str, Tuple[str, ...]]:
+        param: TriFlag = self.param
+        primary = delim.join(param.primary_option_strs())
+        alts = delim.join(param.alt_option_strs())
+        return primary, alts
+
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        if full:
+            return '{} | {}'.format(*self.format_usage_parts(delim))
         else:
-            if full:
-                return delim.join(chain(param.long_opts, param.short_opts))
-            else:
-                return param.long_opts[0]
+            param: TriFlag = self.param
+            return f'{param.long_primary_opts[0]} | {param.long_alt_opts[0]}'
 
 
-class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
-    def format_metavar(self, choice_delim: str = ',') -> str:
+class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
+    def format_metavar(self) -> str:
         param = self.param
         if param.choices:
-            return '{{{}}}'.format(choice_delim.join(map(str, filter(None, param.choices))))
+            return '{{{}}}'.format(get_config_item('choice_delim', '|').join(map(str, filter(None, param.choices))))
         else:
             return param.metavar or param.name.upper()
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.format_metavar()
 
-    def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
+    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
         param: ChoiceMap = self.param
         usage = self.format_usage()
-        entry_width = max(20, width - tw_offset)
-        help_entry = HelpEntryFormatter(usage, param.description, entry_width, lpad=2, tw_offset=tw_offset)()
+        help_entry = format_help_entry(usage, param.description, usage_width, 2, tw_offset=tw_offset, prefix=prefix)
 
         # TODO: Combine choices/aliases that point to the same target sub Command
-        parts = [f'{param.title or param._default_title}:', help_entry]
+        parts = [f'{prefix}{param.title or param._default_title}:', help_entry]
         for choice in param.choices.values():
-            parts.append(choice.format_help(entry_width, lpad=4))
+            parts.append(choice.format_help(usage_width, lpad=4, tw_offset=tw_offset))
 
-        parts.append('')
-        text = '\n'.join(parts)
-        return indent(text, prefix) if prefix else text
+        parts.append(prefix.rstrip())
+        return '\n'.join(parts)
 
     def rst_table(self) -> RstTable:
         param = self.param
@@ -171,16 +204,25 @@ class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
 
 
 class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
-    def format_basic_usage(self) -> str:
-        usage = self.format_usage()
-        return f'-- {usage}' if self.param.required else f'[-- {usage}]'
+    required_formatter_map = {True: '-- {}'.format, False: '[-- {}]'.format}
 
 
 class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # pylint: disable=W0223
+    required_formatter_map: BoolFormatterMap = {True: '{{{}}}'.format, False: '[{}]'.format}
+
+    def _get_choice_delim(self) -> str:
+        param: ParamGroup = self.param
+        if param.mutually_dependent:
+            return ' + '
+        elif param.mutually_exclusive:
+            return ' | '
+        else:
+            return ', '
+
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        # TODO: | between mutually exclusive members, + between dependent?  Different chars?
-        choices = ','.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
-        return f'{{{choices}}}'
+        choice_delim = self._get_choice_delim()
+        choices = choice_delim.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
+        return self.wrap_usage(choices)
 
     def format_description(self, rst: Bool = False) -> str:
         group = self.param
@@ -204,11 +246,11 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         else:
             return '\u2502 '  # BOX DRAWINGS LIGHT VERTICAL
 
-    def format_help(self, width: int = 30, prefix: str = '', tw_offset: int = 0, clean: Bool = True) -> str:
+    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0, clean: Bool = True) -> str:
         """
         Prepare the help text for this group.
 
-        :param width: The width of the option/action/command column.
+        :param usage_width: The width of the option/action/command column.
         :param prefix: Prefix to add to every line (primarily intended for use with nested groups)
         :param tw_offset: Terminal width offset for text width calculations
         :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
@@ -216,13 +258,13 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         :return: The formatted help text.
         """
         description = self.format_description()
-        parts = [f'{description}:']
+        parts = [f'{prefix}{description}:']
 
         if ctx.config.show_group_tree:
-            spacer = self._get_spacer()
+            spacer = prefix + self._get_spacer()
             tw_offset += 2
         else:
-            spacer = ''
+            spacer = prefix
 
         nested, params = 0, 0
         for member in self.param.members:
@@ -231,19 +273,18 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
 
             if isinstance(member, (ChoiceMap, ParamGroup)):
                 nested += 1
-                parts.append(spacer)  # Add space for readability
+                parts.append(spacer.rstrip())  # Add space for readability
             else:
                 params += 1
-            parts.append(member.formatter.format_help(width=width, prefix=spacer, tw_offset=tw_offset))
+            parts.append(member.formatter.format_help(usage_width, prefix=spacer, tw_offset=tw_offset))
 
         if clean and nested and not params:
             parts = parts[2:]  # remove description and the first spacer
 
         if not parts[-1].endswith('\n'):  # ensure a new line separates sections, but avoid extra lines
-            parts.append(spacer)
+            parts.append(spacer.rstrip())
 
-        text = '\n'.join(parts)
-        return indent(text, prefix) if prefix else text
+        return '\n'.join(parts)
 
     def rst_table(self) -> RstTable:
         table = RstTable(self.format_description())

@@ -9,18 +9,17 @@ from unittest.mock import Mock, patch
 from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import get_params, CommandMeta, CommandType
 from cli_command_parser.exceptions import MissingArgument
-from cli_command_parser.formatting.commands import CommandHelpFormatter
+from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
-from cli_command_parser.formatting.utils import get_usage_sub_cmds
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
-from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag
+from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 TEST_DESCRIPTION = 'This is a test description'
 TEST_EPILOG = 'This is a test epilog'
 
 
-class HelpTextTest(TestCase):
+class MetadataTest(ParserTest):
     def test_prog(self):
         class Foo(Command, error_handler=no_exit_handler, prog='foo.py', add_help=True):
             action = Action()
@@ -61,59 +60,6 @@ class HelpTextTest(TestCase):
         self.assertTrue(stdout.startswith('usage: foo.py {bar}'), f'Unexpected stdout: {stdout}')
         self.assertTrue(stdout.endswith(f'\n{TEST_EPILOG}\n'), f'Unexpected stdout: {stdout}')
 
-    def test_pass_thru_usage(self):
-        class Foo(Command):
-            foo = Option()
-            bar = PassThru()
-
-        help_text = _get_help_text(Foo)
-        self.assertIn('--foo', help_text)
-        self.assertIn('[-- BAR]', help_text)
-
-    def test_custom_choice_map(self):
-        class Custom(ChoiceMap):
-            pass
-
-        with patch('cli_command_parser.utils.get_terminal_size', return_value=(123, 1)):
-            self.assertTrue(Custom().formatter.format_help().startswith('Choices:'))
-            self.assertTrue(Custom().format_help().startswith('Choices:'))
-
-    def test_option_with_choices(self):
-        obj_types = ('track', 'artist', 'album', 'tracks', 'artists', 'albums')
-        # fmt: off
-        printer_formats = [
-            'json', 'json-pretty', 'json-compact', 'text', 'yaml', 'pprint', 'csv', 'table',
-            'pseudo-yaml', 'json-lines', 'plain', 'pseudo-json',
-        ]
-        # fmt: on
-
-        class Base(Command):
-            sub = SubCommand()
-
-        class Find(Base, help='Find information'):
-            obj_type = Positional(choices=obj_types, help='Object type')
-            title = Positional(nargs='*', help='Object title (optional)')
-            escape = Option('-e', default='()', help='Escape the provided regex special characters')
-            allow_inst = Flag('-I', help='Allow search results that include instrumental versions of songs')
-            full_info = Flag('-F', help='Print all available info about the discovered objects')
-            format = Option('-f', choices=printer_formats, default='yaml', help='Output format to use for --full_info')
-            test = Option('-t', help=','.join(f'{i} extra long help text example' for i in range(10)))
-            xl = Option('-x', choices=printer_formats, help=','.join(f'{i} extra long help text' for i in range(10)))
-
-        expected = """Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
-  --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: '()')
-  --allow_inst, -I            Allow search results that include instrumental versions of songs (default: False)
-  --full_info, -F             Print all available info about the discovered objects (default: False)
-  --format {json,json-pretty,json-compact,text,yaml,pprint,csv,table,pseudo-yaml,json-lines,plain,pseudo-json}, -f {json,json-pretty,json-compact,text,yaml,pprint,csv,table,pseudo-yaml,json-
-                              lines,plain,pseudo-json}
-                              Output format to use for --full_info (default: 'yaml')
-  --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
-                              help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example"""
-
-        help_text = _get_help_text(Base.parse(['find', '-h']))
-        self.assertIn(expected, help_text)
-
     def test_subcommand_is_in_usage(self):
         class Foo(Command, prog='foo.py'):
             sub_cmd = SubCommand()
@@ -127,57 +73,8 @@ class HelpTextTest(TestCase):
         usage = _get_usage_text(Baz)
         self.assertEqual('usage: foo.py baz [--help]', usage)
 
-    def test_subcommands_with_common_base_options_spacing(self):
-        class Foo(Command, prog='foo.py'):
-            sub_cmd = SubCommand()
-            abc = Flag()
 
-        class Bar(Foo):
-            pass
-
-        class Baz(Foo):
-            pass
-
-        expected = dedent(
-            """
-            usage: foo.py {bar,baz} [--abc] [--help]
-
-            Subcommands:
-              {bar,baz}
-                bar
-                baz
-
-            Optional arguments:
-              --abc                       (default: False)
-              --help, -h                  Show this help message and exit (default: False)
-            """
-        ).lstrip()
-        help_text = _get_help_text(Foo)
-        self.assertEqual(expected, help_text)
-
-    def test_usage_lambda_type(self):
-        class Foo(Command, use_type_metavar=True):
-            bar = Option(type=lambda v: v * 2)
-            baz = Option(type=int)
-
-        usage_text = _get_usage_text(Foo)
-        self.assertIn('--bar BAR', usage_text)
-        self.assertIn('--baz INT', usage_text)
-
-    def test_usage_no_name(self):
-        class NoName:  # Note: PropertyMock does not work with side_effect=AttributeError
-            @property
-            def __name__(self):
-                raise AttributeError
-
-        class Foo(Command, use_type_metavar=True):
-            bar = Option(type=NoName())  # noqa
-            baz = Option(type=int)
-
-        usage_text = _get_usage_text(Foo)
-        self.assertIn('--bar BAR', usage_text)
-        self.assertIn('--baz INT', usage_text)
-
+class ParsedInvocationTest(ParserTest):
     def test_help_called_with_missing_required_params(self):
         help_mock = Mock()
 
@@ -219,6 +116,120 @@ class HelpTextTest(TestCase):
                     Foo.parse_and_run(case)
                     self.assertTrue(help_mock.called)
 
+
+class UsageTextTest(ParserTest):
+    def test_pass_thru_usage(self):
+        class Foo(Command):
+            foo = Option()
+            bar = PassThru()
+
+        help_text = _get_help_text(Foo)
+        self.assertIn('--foo', help_text)
+        self.assertIn('[-- BAR]', help_text)
+
+    def test_usage_lambda_type(self):
+        class Foo(Command, use_type_metavar=True):
+            bar = Option(type=lambda v: v * 2)
+            baz = Option(type=int)
+
+        usage_text = _get_usage_text(Foo)
+        self.assertIn('--bar BAR', usage_text)
+        self.assertIn('--baz INT', usage_text)
+
+    def test_usage_no_name(self):
+        class NoName:  # Note: PropertyMock does not work with side_effect=AttributeError
+            @property
+            def __name__(self):
+                raise AttributeError
+
+        class Foo(Command, use_type_metavar=True):
+            bar = Option(type=NoName())  # noqa
+            baz = Option(type=int)
+
+        usage_text = _get_usage_text(Foo)
+        self.assertIn('--bar BAR', usage_text)
+        self.assertIn('--baz INT', usage_text)
+
+    def test_tri_flag_full_usage(self):
+        class Foo(Command):
+            spam = TriFlag('-s', name_mode='-')
+
+        self.assertEqual('--spam, -s | --no-spam', Foo.spam.format_usage(full=True))
+
+
+class HelpTextTest(ParserTest):
+    def test_custom_choice_map(self):
+        class Custom(ChoiceMap):
+            pass
+
+        with patch('cli_command_parser.utils.get_terminal_size', return_value=(123, 1)):
+            self.assertTrue(Custom().formatter.format_help().startswith('Choices:'))
+            self.assertTrue(Custom().format_help().startswith('Choices:'))
+
+    def test_option_with_choices(self):
+        obj_types = ('track', 'artist', 'album', 'tracks', 'artists', 'albums')
+        # fmt: off
+        printer_formats = [
+            'json', 'json-pretty', 'json-compact', 'text', 'yaml', 'pprint', 'csv', 'table',
+            'pseudo-yaml', 'json-lines', 'plain', 'pseudo-json',
+        ]
+        # fmt: on
+
+        class Base(Command):
+            sub = SubCommand()
+
+        class Find(Base, help='Find information'):
+            obj_type = Positional(choices=obj_types, help='Object type')
+            title = Positional(nargs='*', help='Object title (optional)')
+            escape = Option('-e', default='()', help='Escape the provided regex special characters')
+            allow_inst = Flag('-I', help='Allow search results that include instrumental versions of songs')
+            full_info = Flag('-F', help='Print all available info about the discovered objects')
+            format = Option('-f', choices=printer_formats, default='yaml', help='Output format to use for --full_info')
+            test = Option('-t', help=','.join(f'{i} extra long help text example' for i in range(10)))
+            xl = Option('-x', choices=printer_formats, help=','.join(f'{i} extra long help text' for i in range(10)))
+
+        expected = """Optional arguments:
+  --help, -h                  Show this help message and exit (default: False)
+  --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: '()')
+  --allow_inst, -I            Allow search results that include instrumental versions of songs (default: False)
+  --full_info, -F             Print all available info about the discovered objects (default: False)
+  --format {json|json-pretty|json-compact|text|yaml|pprint|csv|table|pseudo-yaml|json-lines|plain|pseudo-json},
+    -f {json|json-pretty|json-compact|text|yaml|pprint|csv|table|pseudo-yaml|json-lines|plain|pseudo-json}
+                              Output format to use for --full_info (default: 'yaml')
+  --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
+                              help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example"""
+
+        help_text = _get_help_text(Base.parse(['find', '-h']))
+        self.assert_str_contains(expected, help_text)
+
+    def test_subcommands_with_common_base_options_spacing(self):
+        class Foo(Command, prog='foo.py'):
+            sub_cmd = SubCommand()
+            abc = Flag()
+
+        class Bar(Foo):
+            pass
+
+        class Baz(Foo):
+            pass
+
+        expected = dedent(
+            """
+            usage: foo.py {bar|baz} [--abc] [--help]
+
+            Subcommands:
+              {bar|baz}
+                bar
+                baz
+
+            Optional arguments:
+              --abc                       (default: False)
+              --help, -h                  Show this help message and exit (default: False)
+            """
+        ).lstrip()
+        help_text = _get_help_text(Foo)
+        self.assertEqual(expected, help_text)
+
     def test_underscore_and_dash_enabled(self):
         class Foo(Command, option_name_mode='both'):
             foo_bar = Flag()
@@ -253,6 +264,22 @@ class HelpTextTest(TestCase):
                 self.assertTrue(all(exp in help_text for exp in expected_a))
                 self.assertNotIn('--foo_e', help_text)
                 self.assertNotIn('--foo-e', help_text)
+
+    def test_tri_flag_no_alt_short(self):
+        class Foo(Command):
+            spam = TriFlag('-s', name_mode='-')
+
+        self.assertIn('--spam, -s\n    --no-spam\n', _get_help_text(Foo))
+
+    # TODO
+    # def test_subcommand_local_choices_map(self):
+    #     class Foo(Command):
+    #         sub_cmd = SubCommand(local_choices={'a': 'Find As', 'b': 'Find Bs', 'c': 'Find Cs'})
+
+    # TODO
+    # def test_subcommand_local_choices_simple(self):
+    #     class Foo(Command):
+    #         sub_cmd = SubCommand(local_choices=('a', 'b', 'c'))
 
 
 class ShowDefaultsTest(TestCase):
@@ -385,13 +412,13 @@ class GroupHelpTextTest(ParserTest):
 
     def test_anon_group_auto_names_not_used(self):
         expected = """
-        usage: ansi_color_test.py [--text TEXT] [--attr {bold,dim}] [--limit LIMIT] [--basic] [--hex] [--all] [--color COLOR] [--background BACKGROUND] [--help]
+        usage: ansi_color_test.py [--text TEXT] [--attr {bold|dim}] [--limit LIMIT] [--basic] [--hex] [--all] [--color COLOR] [--background BACKGROUND] [--help]
 
         Tool for testing ANSI colors
 
         Optional arguments:
           --text TEXT, -t TEXT        Text to be displayed (default: the number of the color being shown)
-          --attr {bold,dim}, -a {bold,dim}
+          --attr {bold|dim}, -a {bold|dim}
                                       Background color to use (default: None)
           --limit LIMIT, -L LIMIT     Range limit (default: 256)
           --help, -h                  Show this help message and exit (default: False)
@@ -428,21 +455,23 @@ class GroupHelpTextTest(ParserTest):
         usage: foo.py [--foo FOO] [--arg_a ARG_A] [--arg_b ARG_B] [--arg_y ARG_Y] [--arg_z ARG_Z] [--bar] [--baz] [--help]
 
         Optional arguments:
-        │   --foo FOO, -f FOO         Do foo
-        │   --help, -h                Show this help message and exit (default: False)
+        │ --foo FOO, -f FOO         Do foo
+        │ --help, -h                Show this help message and exit (default: False)
         │
         Mutually exclusive options:
-        ¦   --arg_a ARG_A, -a ARG_A   A
-        ¦   --arg_b ARG_B, -b ARG_B   B
+        ¦ --arg_a ARG_A, -a ARG_A   A
+        ¦ --arg_b ARG_B, -b ARG_B   B
         ¦
         ¦ Mutually dependent options:
-        ¦ ║   --arg_y ARG_Y, -y ARG_Y Y
-        ¦ ║   --arg_z ARG_Z, -z ARG_Z Z
+        ¦ ║ --arg_y ARG_Y, -y ARG_Y
+        ¦ ║                         Y
+        ¦ ║ --arg_z ARG_Z, -z ARG_Z
+        ¦ ║                         Z
         ¦ ║
         ¦
         ¦ Optional arguments:
-        ¦ │   --bar                   (default: False)
-        ¦ │   --baz                   (default: False)
+        ¦ │ --bar                   (default: False)
+        ¦ │ --baz                   (default: False)
         ¦ │
         ¦
         """

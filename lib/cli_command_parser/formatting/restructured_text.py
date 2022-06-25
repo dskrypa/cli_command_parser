@@ -5,10 +5,11 @@ Utilities for formatting data using RST markup
 """
 
 from itertools import starmap
-from typing import Union, Sequence, Iterator, Iterable, Any, Dict, Tuple, List
+from typing import Union, Iterator, Iterable, Any, Dict, Tuple, List
+
+from .utils import line_iter
 
 __all__ = ['rst_bar', 'rst_list_table', 'RstTable']
-
 
 BAR_CHAR_ORDER = ('#', '*', '=', '-', '^', '"')  # parts, chapters, sections, subsections, sub-subsections, paragraphs
 
@@ -138,25 +139,3 @@ def _widths(columns: Iterable[str]) -> Tuple[bool, List[int]]:
             widths.append(len(column))
 
     return any_new_line, widths
-
-
-def line_iter(columns: Sequence[str]) -> Iterator[Tuple[str, ...]]:
-    """More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+"""
-    exhausted = 0
-    column_count = len(columns)
-
-    def _iter(column: str) -> Iterator[str]:
-        nonlocal exhausted
-        for line in column.splitlines():
-            yield line
-
-        exhausted += 1
-        while True:
-            yield ''
-
-    column_iters = tuple(_iter(c) for c in columns)
-    while True:
-        row = tuple(next(ci) for ci in column_iters)  # pylint: disable=R1708
-        if exhausted == column_count:  # `while exhausted < column_count:` always results in 1 extra row
-            break
-        yield row

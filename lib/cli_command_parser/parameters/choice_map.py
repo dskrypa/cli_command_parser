@@ -13,7 +13,7 @@ from types import MethodType
 
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
-from ..formatting.utils import HelpEntryFormatter
+from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
 from ..utils import _NotSet, Bool, camel_to_snake_case
 from .base import BasePositional, parameter_action
@@ -45,8 +45,9 @@ class Choice:
     def format_usage(self) -> str:
         return '(default)' if self.choice is None else self.choice
 
-    def format_help(self, width: int = 30, lpad: int = 4) -> str:
-        return HelpEntryFormatter(self.format_usage(), self.help, width, lpad)()
+    def format_help(self, usage_width: int = 30, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
+        usage = self.format_usage()
+        return format_help_entry(usage, self.help, usage_width, lpad, tw_offset=tw_offset, prefix=prefix)
 
 
 class ChoiceMap(BasePositional):
@@ -190,9 +191,6 @@ class ChoiceMap(BasePositional):
         return bool(self.choices)
 
     # endregion
-
-
-# TODO: Choice aliases?
 
 
 class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):

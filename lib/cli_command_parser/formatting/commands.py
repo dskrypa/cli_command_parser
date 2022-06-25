@@ -8,18 +8,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional, Union
 
-from ..context import ctx
+from ..context import ctx, NoActiveContext
 from ..parameters.groups import ParamGroup
 from ..utils import Bool, camel_to_snake_case
 from .restructured_text import rst_header, RstTable
-from .utils import get_usage_sub_cmds
 
 if TYPE_CHECKING:
     from ..core import CommandType, CommandMeta
     from ..command_parameters import CommandParameters
     from ..commands import Command
     from ..metadata import ProgramMetadata
-    from ..parameters import Parameter, BasePositional, BaseOption
+    from ..parameters import Parameter, BasePositional, BaseOption, SubCommand
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -76,7 +75,7 @@ class CommandHelpFormatter:
         parts.extend(param.formatter.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
-    def format_help(self, width: int = 30) -> str:
+    def format_help(self, usage_width: int = 30) -> str:
         meta = self._get_meta()
         parts = [self.format_usage(), '']
         if meta.description:
@@ -84,7 +83,7 @@ class CommandHelpFormatter:
 
         for group in self.groups:
             if group.show_in_help:
-                parts.append(group.formatter.format_help(width=width))  # noqa
+                parts.append(group.formatter.format_help(usage_width))
 
         epilog = meta.format_epilog(ctx.config.extended_epilog)
         if epilog:
@@ -152,3 +151,32 @@ def _get_params(command: CommandType) -> CommandParameters:
 def get_formatter(command: Union[CommandType, Command]) -> CommandHelpFormatter:
     """Get the :class:`CommandHelpFormatter` for the given Command"""
     return _get_params(command).formatter
+
+
+def get_usage_sub_cmds(command: CommandType):
+    cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
+    parent: CommandType = cmd_mcs.parent(command)
+    if not parent:
+        return []
+
+    cmd_chain = get_usage_sub_cmds(parent)
+
+    sub_cmd_param: SubCommand = cmd_mcs.params(parent).sub_command
+    if not sub_cmd_param:
+        return cmd_chain
+
+    try:
+        parsed = ctx.get_parsing_value(sub_cmd_param)
+    except NoActiveContext:
+        parsed = []
+
+    if parsed:  # May have been called directly on the subcommand without parsing
+        cmd_chain.extend(parsed)
+        return cmd_chain
+
+    for name, choice in sub_cmd_param.choices.items():
+        if choice.target is command:
+            cmd_chain.append(name)
+            break
+
+    return cmd_chain
