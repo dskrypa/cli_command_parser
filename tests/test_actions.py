@@ -1,25 +1,24 @@
 #!/usr/bin/env python
 
-import logging
 from unittest import TestCase, main
 from unittest.mock import Mock, PropertyMock
 
-from cli_command_parser import Command, Action, Positional, action_flag
-from cli_command_parser.exceptions import (
-    ParameterDefinitionError,
-    CommandDefinitionError,
-    MissingArgument,
-    InvalidChoice,
-)
+from cli_command_parser import Command, Action, Positional, action_flag, ParameterDefinitionError
+from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, InvalidChoice
 from cli_command_parser.testing import RedirectStreams
-
-log = logging.getLogger(__name__)
 
 # TODO: Test multi-word actions; multi-word actions combined with subcommands (with multiple words)
 # TODO: Test space/-/_ switch for multi-word?
 
 
 class ActionTest(TestCase):
+    def test_action_requires_targets(self):
+        class Foo(Command):
+            a = Action()
+
+        with self.assertRaisesRegex(CommandDefinitionError, 'No choices were registered for Action'):
+            Foo.parse([])
+
     def test_action_called(self):
         # redundant with the next test, but proves it works with intended usage
         call_count = 0
@@ -48,19 +47,13 @@ class ActionTest(TestCase):
         # self.assertEqual(mock.call_args.args[0], foo)  # 3.8+
         self.assertEqual(mock.call_args[0][0], foo)
 
-    def test_action_wrong(self):
+    def test_action_wrong_missing_choices(self):
         class Foo(Command):
             action = Action()
             action(Mock(__name__='bar'))
 
         with self.assertRaises(InvalidChoice):
             Foo.parse(['baz']).main()
-
-    def test_action_missing(self):
-        class Foo(Command):
-            action = Action()
-            action.register(Mock(__name__='bar'))
-
         with self.assertRaises(MissingArgument):
             Foo.parse([]).main()
 
@@ -224,6 +217,6 @@ def make_build_docs_command(explicit_build: bool = False):
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2)
     except KeyboardInterrupt:
         print()

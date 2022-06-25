@@ -79,7 +79,7 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
 By making a group both mutually exclusive and required, we can ensure that one argument is always provided.  Given the
 following `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py>`__ snippet::
 
-    class FindBaz(Find, choice='baz', help='Find baz objects'):
+    class FindBaz(Find, choices=('baz', 'bazs'), help='Find baz objects'):
         with ParamGroup(description='Filter Choices', mutually_exclusive=True, required=True):
             foo = Option('-f', metavar='NAME', help='Find baz objects related to the foo object with the specified name')
             bar: int = Option('-b', metavar='ID', help='Find baz objects related to the bar object with the specified ID')

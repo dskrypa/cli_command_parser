@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, SubCommand, Counter, Option, Positional
+from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument
-from cli_command_parser.testing import RedirectStreams
+from cli_command_parser.testing import RedirectStreams, ParserTest
 
 
-class SubCommandTest(TestCase):
+class SubCommandTest(ParserTest):
     def test_auto_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
@@ -159,9 +159,38 @@ class SubCommandTest(TestCase):
             Find.parse_and_run(['e', '1'])
             self.assertEqual((1, 1, 1), (base.call_count, d.call_count, e.call_count))
 
+    def test_2_sub_cmd_levels(self):
+        class A(Command):
+            sub_cmd = SubCommand()
+
+        class B(A):
+            sub_cmd = SubCommand()
+
+        class C(B):
+            x = Positional()
+
+        class D(B):
+            y = Positional()
+
+        self.assertEqual('1', A.parse_and_run(['b', 'c', '1']).x)
+        self.assertEqual('2', A.parse_and_run(['b', 'd', '2']).y)
+
+    def test_choices(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo, choices=('bar', 'bars')):
+            baz = Flag('-b')
+
+        success_cases = [
+            (['bar', '-b'], {'baz': True, 'sub_cmd': 'bar'}),
+            (['bars', '-b'], {'baz': True, 'sub_cmd': 'bars'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2)
     except KeyboardInterrupt:
         print()

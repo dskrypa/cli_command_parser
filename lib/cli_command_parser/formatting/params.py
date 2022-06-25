@@ -152,6 +152,7 @@ class ChoiceMapHelpFormatter(PositionalHelpFormatter, param_cls=ChoiceMap):
         entry_width = max(20, width - tw_offset)
         help_entry = HelpEntryFormatter(usage, param.description, entry_width, lpad=2, tw_offset=tw_offset)()
 
+        # TODO: Combine choices/aliases that point to the same target sub Command
         parts = [f'{param.title or param._default_title}:', help_entry]
         for choice in param.choices.values():
             parts.append(choice.format_help(entry_width, lpad=4))

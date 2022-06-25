@@ -82,7 +82,7 @@ class FindBar(Find, choice='bar', help='Find bar objects'):
         return objects
 
 
-class FindBaz(Find, choice='baz', help='Find baz objects'):
+class FindBaz(Find, choices=('baz', 'bazs'), help='Find baz objects'):
     with ParamGroup(description='Filter Choices', mutually_exclusive=True, required=True):
         foo = Option('-f', metavar='NAME', help='Find baz objects related to the foo object with the specified name')
         bar: int = Option('-b', metavar='ID', help='Find baz objects related to the bar object with the specified ID')

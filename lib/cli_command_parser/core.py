@@ -8,7 +8,7 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Callable, Iterable, Any, Dict, Tuple, List
+from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Callable, Iterable, Collection, Any, Dict, Tuple, List
 from warnings import warn
 from weakref import WeakSet
 
@@ -62,6 +62,7 @@ class CommandMeta(ABCMeta, type):
         namespace: Dict[str, Any],
         *,
         choice: str = None,
+        choices: Collection[str] = None,
         help: str = None,  # noqa
         config: AnyConfig = None,
         **kwargs,
@@ -76,26 +77,35 @@ class CommandMeta(ABCMeta, type):
 
         cls = super().__new__(mcs, name, bases, namespace)
         mcs._commands.add(cls)
-        mcs._maybe_register_sub_cmd(cls, choice, help)
+        mcs._maybe_register_sub_cmd(cls, choice, choices, help)
         if metadata:  # If no overrides were provided, then initialize lazily later
             cls.__metadata = ProgramMetadata.for_command(cls, parent=mcs._from_parent(mcs.meta, bases), **metadata)
 
         return cls
 
     @classmethod
-    def _maybe_register_sub_cmd(mcs, cls, choice: str = None, help: str = None):  # noqa
+    def _maybe_register_sub_cmd(
+        mcs, cls, choice: str = None, choices: Collection[str] = None, help: str = None  # noqa
+    ):
+        should_warn = choices or choice is not None
+        if choices and choice:
+            choices = sorted({choice, *choices})
+        elif not choices:
+            choices = (choice,)
+
         parent = mcs.parent(cls, False)
         if parent:
             sub_cmd = mcs.params(parent).sub_command
             if sub_cmd is not None:
-                sub_cmd.register_command(choice, cls, help)
-            elif choice:
+                for choice in choices:
+                    sub_cmd.register_command(choice, cls, help)
+            elif should_warn:
                 warn(
-                    f'choice={choice!r} was not registered for {cls} because'
+                    f'choices={choices} were not registered for {cls} because'
                     f' its parent={parent!r} has no SubCommand parameter'
                 )
-        elif choice:
-            warn(f'choice={choice!r} was not registered for {cls} because it has no parent Command')
+        elif should_warn:
+            warn(f'choices={choices} were not registered for {cls} because it has no parent Command')
 
     @classmethod
     def _from_parent(mcs, meth: Callable[[CommandMeta], T], bases: Bases) -> Optional[T]:
