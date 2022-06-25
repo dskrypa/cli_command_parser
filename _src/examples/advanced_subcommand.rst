@@ -4,7 +4,7 @@ Advanced Subcommand
 
 ::
 
-    usage: advanced_subcommand.py {foo,run foo,run bar,baz} [--verbose [VERBOSE]] [--help]
+    usage: advanced_subcommand.py {foo|run foo|run bar|baz} [--verbose [VERBOSE]] [--help]
 
 
 

@@ -46,7 +46,7 @@ Show the results of an action
 
 ::
 
-    usage: shared_logging_init.py show {attrs,hello,log_test,rst} [--verbose [VERBOSE]] [--help]
+    usage: shared_logging_init.py show {attrs|hello|log_test|rst} [--verbose [VERBOSE]] [--help]
 
 
 

@@ -4,7 +4,7 @@ Basic Subcommand
 
 ::
 
-    usage: basic_subcommand.py {foo,bar} [--help]
+    usage: basic_subcommand.py {foo|bar} [--help]
 
 
 

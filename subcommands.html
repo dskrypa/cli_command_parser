@@ -143,8 +143,12 @@ lower-case (snake_case) name of the subcommand class is used.  I.e., if the clas
 automatically generated choice value will be <code class="docutils literal notranslate"><span class="pre">foo</span></code>.  If the class is called <code class="docutils literal notranslate"><span class="pre">FooBar</span></code>, then the choice will be
 <code class="docutils literal notranslate"><span class="pre">foo_bar</span></code>.</p>
 </dd>
-<dt class="field-even" id="automatic registration:help">help</dt>
-<dd class="field-even"><p>The help text to display for the subcommand when viewing the parent Command’s help text.</p>
+<dt class="field-even" id="automatic registration:choices">choices</dt>
+<dd class="field-even"><p>If multiple choices should be supported as aliases for selecting a given target subcommand, they can be
+provided via <code class="docutils literal notranslate"><span class="pre">choices</span></code> instead of <code class="docutils literal notranslate"><span class="pre">choice</span></code>.</p>
+</dd>
+<dt class="field-odd" id="automatic registration:help">help</dt>
+<dd class="field-odd"><p>The help text to display for the subcommand when viewing the parent Command’s help text.</p>
 </dd>
 </dl>
 <p>Given the following overly-simplistic
@@ -275,7 +279,7 @@ two levels of subcommands, and another way that we can take advantage of inherit
             <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">even</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">even</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">)}</span>
         <span class="k">return</span> <span class="n">objects</span>
 
-<span class="k">class</span> <span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="s1">&#39;bazs&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
     <span class="o">...</span>
 
 <span class="c1"># endregion</span>

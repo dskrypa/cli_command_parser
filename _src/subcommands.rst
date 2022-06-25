@@ -44,6 +44,8 @@ provided along with the class that it extends:
   lower-case (snake_case) name of the subcommand class is used.  I.e., if the class is called ``Foo``, then the
   automatically generated choice value will be ``foo``.  If the class is called ``FooBar``, then the choice will be
   ``foo_bar``.
+:choices: If multiple choices should be supported as aliases for selecting a given target subcommand, they can be
+  provided via ``choices`` instead of ``choice``.
 :help: The help text to display for the subcommand when viewing the parent Command's help text.
 
 
@@ -186,7 +188,7 @@ two levels of subcommands, and another way that we can take advantage of inherit
                 objects = {c: even for c, even in objects.items() if fnmatch(c, self.pattern)}
             return objects
 
-    class FindBaz(Find, choice='baz', help='Find baz objects'):
+    class FindBaz(Find, choices=('baz', 'bazs'), help='Find baz objects'):
         ...
 
     # endregion

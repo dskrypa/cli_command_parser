@@ -111,7 +111,7 @@
              
   <section id="rest-api-wrapper">
 <h1>Rest Api Wrapper<a class="headerlink" href="#rest-api-wrapper" title="Permalink to this heading"></a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="p">{</span><span class="n">show</span><span class="p">,</span><span class="n">sync</span><span class="p">,</span><span class="n">find</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="p">,</span><span class="n">qa</span><span class="p">,</span><span class="n">uat</span><span class="p">,</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="p">{</span><span class="n">show</span><span class="o">|</span><span class="n">sync</span><span class="o">|</span><span class="n">find</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Positional arguments</p>
@@ -149,7 +149,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE],</span> <span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
 <td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev,qa,uat,prod},</span> <span class="pre">-e</span> <span class="pre">{dev,qa,uat,prod}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod},</span> <span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
 </tr>
 </tbody>
@@ -159,13 +159,13 @@
 <section id="subcommand-show">
 <h3>Subcommand: show<a class="headerlink" href="#subcommand-show" title="Permalink to this heading"></a></h3>
 <p>Show an object</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">show</span> <span class="p">{</span><span class="n">foo</span><span class="p">,</span><span class="n">bar</span><span class="p">,</span><span class="n">baz</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="p">,</span><span class="n">qa</span><span class="p">,</span><span class="n">uat</span><span class="p">,</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">show</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">baz</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Positional arguments</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{foo,bar,baz}</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{foo|bar|baz}</span></code></p></td>
 <td><p>The type of object to show</p></td>
 </tr>
 </tbody>
@@ -187,7 +187,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE],</span> <span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
 <td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev,qa,uat,prod},</span> <span class="pre">-e</span> <span class="pre">{dev,qa,uat,prod}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod},</span> <span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
 </tr>
 </tbody>
@@ -196,7 +196,7 @@
 <section id="subcommand-sync">
 <h3>Subcommand: sync<a class="headerlink" href="#subcommand-sync" title="Permalink to this heading"></a></h3>
 <p>Sync group members</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">sync</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="p">,</span><span class="n">qa</span><span class="p">,</span><span class="n">uat</span><span class="p">,</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry_run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">role</span> <span class="p">{</span><span class="nb">all</span><span class="p">,</span><span class="n">admin</span><span class="p">,</span><span class="n">user</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">group</span> <span class="n">GROUP</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">sync</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry_run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">role</span> <span class="p">{</span><span class="nb">all</span><span class="o">|</span><span class="n">admin</span><span class="o">|</span><span class="n">user</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">group</span> <span class="n">GROUP</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Optional arguments</p>
@@ -216,7 +216,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE],</span> <span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
 <td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev,qa,uat,prod},</span> <span class="pre">-e</span> <span class="pre">{dev,qa,uat,prod}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod},</span> <span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
 </tr>
 </tbody>
@@ -230,7 +230,7 @@
 <tr class="row-even"><td><p>Optional arguments</p></td>
 <td><table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--role</span> <span class="pre">{all,admin,user},</span> <span class="pre">-r</span> <span class="pre">{all,admin,user}</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--role</span> <span class="pre">{all|admin|user},</span> <span class="pre">-r</span> <span class="pre">{all|admin|user}</span></code></p></td>
 <td><p>Sync members with this role (default: <code class="docutils literal notranslate"><span class="pre">'all'</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--group</span> <span class="pre">GROUP,</span> <span class="pre">-g</span> <span class="pre">GROUP</span></code></p></td>
@@ -246,7 +246,7 @@
 <section id="subcommand-find">
 <h3>Subcommand: find<a class="headerlink" href="#subcommand-find" title="Permalink to this heading"></a></h3>
 <p>Find objects</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="p">{</span><span class="n">foo</span><span class="p">,</span><span class="n">bar</span><span class="p">,</span><span class="n">baz</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="p">,</span><span class="n">qa</span><span class="p">,</span><span class="n">uat</span><span class="p">,</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">baz</span><span class="o">|</span><span class="n">bazs</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Positional arguments</p>
@@ -262,6 +262,9 @@
 <td><p>Find bar objects</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">baz</span></code></p></td>
+<td><p>Find baz objects</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bazs</span></code></p></td>
 <td><p>Find baz objects</p></td>
 </tr>
 </tbody>
@@ -287,7 +290,7 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE],</span> <span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
 <td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev,qa,uat,prod},</span> <span class="pre">-e</span> <span class="pre">{dev,qa,uat,prod}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod},</span> <span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
 </tr>
 </tbody>

@@ -102,7 +102,7 @@
              
   <section id="simple-flags">
 <h1>Simple Flags<a class="headerlink" href="#simple-flags" title="Permalink to this heading"></a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">simple_flags</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">foo</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">bar</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">simple_flags</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">foo</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">bar</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">spam</span> <span class="o">|</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">spam</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Optional arguments</p>
@@ -114,7 +114,10 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--no-bar,</span> <span class="pre">-B</span></code></p></td>
 <td><p>(default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--spam,</span> <span class="pre">-s</span> <span class="pre">|</span> <span class="pre">--no-spam,</span> <span class="pre">-S</span></code></p></td>
+<td><p>Whether spam should be enabled (default: depends on other factors)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p></td>
 <td><p>Show this help message and exit (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
 </tr>
 </tbody>

@@ -112,7 +112,7 @@
     <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
     <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">ActionFlag</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_config_item&#39;</span><span class="p">]</span>
 
 <span class="n">_context_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.context.stack&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
 <span class="n">_TERMINAL</span> <span class="o">=</span> <span class="n">Terminal</span><span class="p">()</span>
@@ -321,6 +321,13 @@
             <span class="k">return</span> <span class="n">context</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="n">command_cls</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_config_item"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_config_item">[docs]</a><span class="k">def</span> <span class="nf">get_config_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span></div>
 
 
 <span class="k">class</span> <span class="nc">ContextProxy</span><span class="p">:</span>

@@ -91,10 +91,11 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">starmap</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">line_iter</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rst_bar&#39;</span><span class="p">,</span> <span class="s1">&#39;rst_list_table&#39;</span><span class="p">,</span> <span class="s1">&#39;RstTable&#39;</span><span class="p">]</span>
-
 
 <span class="n">BAR_CHAR_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>  <span class="c1"># parts, chapters, sections, subsections, sub-subsections, paragraphs</span>
 
@@ -224,28 +225,6 @@
             <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">any_new_line</span><span class="p">,</span> <span class="n">widths</span>
-
-
-<span class="k">def</span> <span class="nf">line_iter</span><span class="p">(</span><span class="n">columns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+&quot;&quot;&quot;</span>
-    <span class="n">exhausted</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">column_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_iter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">nonlocal</span> <span class="n">exhausted</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">column</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-            <span class="k">yield</span> <span class="n">line</span>
-
-        <span class="n">exhausted</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="n">column_iters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_iter</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span> <span class="k">for</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">column_iters</span><span class="p">)</span>  <span class="c1"># pylint: disable=R1708</span>
-        <span class="k">if</span> <span class="n">exhausted</span> <span class="o">==</span> <span class="n">column_count</span><span class="p">:</span>  <span class="c1"># `while exhausted &lt; column_count:` always results in 1 extra row</span>
-            <span class="k">break</span>
-        <span class="k">yield</span> <span class="n">row</span>
 </pre></div>
 
            </div>
