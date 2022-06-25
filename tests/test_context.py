@@ -5,6 +5,7 @@ from unittest import TestCase, main
 from cli_command_parser import Command, CommandConfig
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.context import Context, get_current_context, ctx
+from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.parameters import Flag
 
 
@@ -103,9 +104,12 @@ class ContextTest(TestCase):
         self.assertNotEqual(orig, inner_ctx.argv)
         self.assertEqual(orig, outer_ctx.argv)
 
+    def test_default_error_handler_returned(self):
+        self.assertIs(extended_error_handler, Context().get_error_handler())
+
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2)
     except KeyboardInterrupt:
         print()

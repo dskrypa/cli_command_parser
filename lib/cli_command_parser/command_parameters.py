@@ -10,7 +10,6 @@ It has some involvement in the parsing process for :class:`.BaseOption` paramete
 
 from __future__ import annotations
 
-import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
 
@@ -30,7 +29,8 @@ if TYPE_CHECKING:
     from .core import CommandType
 
 __all__ = ['CommandParameters']
-log = logging.getLogger(__name__)
+
+OptionMap = Dict[str, BaseOption]
 
 
 class CommandParameters:
@@ -43,10 +43,10 @@ class CommandParameters:
     sub_command: Optional[SubCommand] = None
     action_flags: List[ActionFlag]
     options: List[BaseOption]
-    combo_option_map: Dict[str, BaseOption]
+    combo_option_map: OptionMap
     groups: List[ParamGroup]
     positionals: List[BasePositional]
-    option_map: Dict[str, BaseOption]
+    option_map: OptionMap
 
     def __init__(self, command: CommandType, command_parent: Optional[CommandType], config: CommandConfig):
         self.command = command
@@ -160,18 +160,19 @@ class CommandParameters:
     def _process_positionals(self, params: List[BasePositional]):
         var_nargs_param = None
         for param in params:
-            if self.sub_command is not None:
+            if self.sub_command:
                 raise CommandDefinitionError(
                     f'Positional param={param!r} may not follow the sub command {self.sub_command} - re-order the'
                     ' positionals, move it into the sub command(s), or convert it to an optional parameter'
                 )
-            elif var_nargs_param is not None:
+            elif var_nargs_param:
                 raise CommandDefinitionError(
                     f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
                     f' a variable number of arguments with no specific choices defined - param={param!r} is invalid'
                 )
 
-            if isinstance(param, (SubCommand, Action)) and param.command is self.command:
+            # if isinstance(param, (SubCommand, Action)) and param.command is self.command:
+            if isinstance(param, (SubCommand, Action)):
                 if self.action:  # self.sub_command being already defined is handled above
                     raise CommandDefinitionError(
                         f'Only 1 Action xor SubCommand is allowed in a given Command - {self.command.__name__} cannot'
@@ -202,23 +203,28 @@ class CommandParameters:
 
         for param in params:
             options.append(param)
-            for opt_type, opt_strs in (('long option', param.long_opts), ('short option', param.short_opts)):
-                for opt in opt_strs:
-                    try:
-                        existing = option_map[opt]
-                    except KeyError:
-                        option_map[opt] = param
-                        if opt_type == 'short option':
-                            combo_option_map[opt[1:]] = param
-                    else:
-                        raise CommandDefinitionError(
-                            f'{opt_type}={opt!r} conflict for command={self.command!r} between {existing} and {param}'
-                        )
+            self._process_option_strs(param, 'long', param.long_opts, option_map, combo_option_map)
+            self._process_option_strs(param, 'short', param.short_opts, option_map, combo_option_map)
 
         self.options = options
         self.option_map = option_map
         self._process_action_flags(options)
         self.combo_option_map = dict(sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0])))  # noqa
+
+    def _process_option_strs(
+        self, param: BaseOption, opt_type: str, opt_strs: List[str], option_map: OptionMap, combo_option_map: OptionMap
+    ):
+        for opt in opt_strs:
+            try:
+                existing = option_map[opt]
+            except KeyError:
+                option_map[opt] = param
+                if opt_type == 'short':
+                    combo_option_map[opt[1:]] = param
+            else:
+                raise CommandDefinitionError(
+                    f'{opt_type} option={opt!r} conflict for command={self.command!r} between {existing} and {param}'
+                )
 
     def _process_action_flags(self, options: List[BaseOption]):
         action_flags = sorted((p for p in options if isinstance(p, ActionFlag)))

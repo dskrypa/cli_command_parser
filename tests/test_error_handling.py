@@ -139,6 +139,6 @@ class ModuleLoadTest(TestCase):
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2)
     except KeyboardInterrupt:
         print()

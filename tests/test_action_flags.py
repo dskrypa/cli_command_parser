@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import logging
 from itertools import count
 from unittest import main
 from unittest.mock import Mock
@@ -11,8 +10,6 @@ from cli_command_parser.context import Context
 from cli_command_parser.parameters import before_main, after_main, action_flag
 from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
 from cli_command_parser.testing import ParserTest, RedirectStreams
-
-log = logging.getLogger(__name__)
 
 
 class ActionFlagTest(ParserTest):
@@ -224,6 +221,7 @@ class ActionFlagTest(ParserTest):
 
     def test_equals(self):
         self.assertEqual(help_action, help_action)
+        self.assertNotEqual(help_action, '')
 
     def test_dunder_get(self):
         mock = Mock()
@@ -285,6 +283,6 @@ class ActionFlagTest(ParserTest):
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2)
     except KeyboardInterrupt:
         print()

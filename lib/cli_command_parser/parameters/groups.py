@@ -6,21 +6,18 @@ Parameter Groups
 
 from __future__ import annotations
 
-# import logging
-from threading import local
 from typing import TYPE_CHECKING, Optional, Iterable, Iterator, Tuple, List
 
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, CommandDefinitionError, ParamConflict, ParamsMissing
-from ..utils import Bool
-from .base import ParamBase, BasePositional, BaseOption
+from .base import ParamBase, BasePositional, BaseOption, _group_stack
 from .pass_thru import PassThru
 
 if TYPE_CHECKING:
+    from ..utils import Bool
     from .typing import ParamList, ParamOrGroup
 
 __all__ = ['ParamGroup']
-# log = logging.getLogger(__name__)
 
 
 class ParamGroup(ParamBase):
@@ -44,7 +41,6 @@ class ParamGroup(ParamBase):
       ``False``.
     """
 
-    _local = local()
     description: Optional[str]
     members: List[ParamOrGroup]
     mutually_exclusive: Bool = False
@@ -124,22 +120,11 @@ class ParamGroup(ParamBase):
         A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the
         ``with`` block will be registered as members of that group.
         """
-        try:
-            stack = self._local.stack
-        except AttributeError:
-            self._local.stack = stack = []
-        stack.append(self)
+        _group_stack.get().append(self)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._local.stack.pop()
-
-    @classmethod
-    def active_group(cls) -> Optional[ParamGroup]:
-        try:
-            return cls._local.stack[-1]
-        except (AttributeError, IndexError):
-            return None
+        _group_stack.get().pop()
 
     # endregion
 

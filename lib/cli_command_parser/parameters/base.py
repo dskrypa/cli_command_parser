@@ -6,14 +6,12 @@ Base classes and helpers for Parameters and Groups
 
 from __future__ import annotations
 
-# import logging
 import re
 from abc import ABC, abstractmethod
-from functools import partial, update_wrapper, reduce
+from contextvars import ContextVar
+from functools import partial, update_wrapper
 from itertools import chain
-from operator import xor
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, List, Set, FrozenSet
-from types import MethodType
 
 try:
     from functools import cached_property  # pylint: disable=C0412
@@ -30,12 +28,15 @@ from ..nargs import Nargs
 from ..utils import _NotSet, Bool, get_descriptor_value_type
 
 if TYPE_CHECKING:
+    from types import MethodType
     from ..core import CommandType
     from ..commands import Command
     from ..formatting.params import ParamHelpFormatter
+    from .groups import ParamGroup
 
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
-# log = logging.getLogger(__name__)
+
+_group_stack = ContextVar('cli_command_parser.parameters.base.group_stack', default=[])
 
 
 class parameter_action:  # pylint: disable=C0103
@@ -103,7 +104,7 @@ class ParamBase(ABC):
         self.name = name
         self.help = help
         self.hide = hide
-        group = ParamGroup.active_group()
+        group = get_active_param_group()
         if group:
             group.register(self)  # noqa  # This sets self.group = group
 
@@ -126,7 +127,7 @@ class ParamBase(ABC):
         self.__name = name
 
     def __hash__(self) -> int:
-        return reduce(xor, map(hash, (self.__class__, self.__name, self.name, self.command)))
+        return hash(self.__class__) ^ hash(self.__name) ^ hash(self.name) ^ hash(self.command)
 
     def _ctx(self, command: Command = None) -> Context:
         try:
@@ -323,7 +324,6 @@ class Parameter(ParamBase, ABC):
     def take_action(  # pylint: disable=W0613
         self, value: Optional[str], short_combo: bool = False, opt_str: str = None
     ):
-        # log.debug(f'{self!r}.take_action({value!r})')
         action = self.action
         if action == 'append' and self._nargs_max_reached():
             val_count = len(ctx.get_parsing_value(self))
@@ -587,6 +587,13 @@ class BaseOption(Parameter, ABC):
         return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
 
 
+def get_active_param_group() -> Optional[ParamGroup]:
+    try:
+        return _group_stack.get()[-1]
+    except (AttributeError, IndexError):
+        return None
+
+
 def _validate_opt_strs(opt_strs: Collection[str]):
     bad = ', '.join(opt for opt in opt_strs if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt)
     if bad:
@@ -600,7 +607,3 @@ def _is_numeric(text: str) -> Bool:
     except AttributeError:
         _is_numeric._num_match = num_match = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
     return num_match(text)
-
-
-# Down here due to circular dependency
-from .groups import ParamGroup  # pylint: disable=C0413
