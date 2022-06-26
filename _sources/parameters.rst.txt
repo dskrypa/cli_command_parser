@@ -170,6 +170,59 @@ Example usage::
       --help, -h                  Show this help message and exit (default: False)
 
 
+
+TriFlag
+-------
+
+A trinary / ternary Flag.  While :ref:`parameters:Flag` only supports 1 constant when provided, with 1 default if not
+provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
+separate default.
+
+A typical use case is that there is some functionality that may be automatically enabled or disabled, but users
+should be able to explicitly enable / disable it as well.  To support this, the default behavior results in None being
+stored by default, and True / False being stored when the positive / negative (primary / alternate) versions are
+provided, respectively.
+
+.. _triflag_init_params:
+
+**Unique TriFlag initialization parameters:**
+
+:option_strs: The primary long and/or short option prefixes for this option.  If no long prefixes are
+  specified, then one will automatically be added based on the name assigned to this parameter.
+:consts: A 2-tuple containing the ``(primary, alternate)`` values to store.  Defaults to ``(True, False)``.
+:alt_prefix: The prefix to add to the assigned name for the alternate long form.  Ignored if ``alt_long`` is
+  specified.  Defaults to ``no`` if ``alt_long`` is not specified.
+:alt_long: The alternate long form to use.
+:alt_short: The alternate short form to use.
+:default: The default value to use if neither the primary or alternate options are provided.  Defaults to None.
+:name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for the TriFlag.
+
+
+Example::
+
+    class MyCommand(Command):
+        foo = TriFlag('-f', alt_short='-F', name_mode='-', help='Enable/disable foo (default: automatically picked)')
+
+
+Help text::
+
+      --foo, -f                   Enable/disable foo (default: automatically picked)
+        --no-foo, -F
+
+
+Results::
+
+    >>> MyCommand.parse(['--foo']).foo
+    True
+
+    >>> MyCommand.parse(['--no-foo']).foo
+    False
+
+    >>> MyCommand.parse([]).foo is None
+    True
+
+
+
 Counter
 -------
 

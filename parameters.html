@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parameters &mdash; CLI Command Parser 2022.06.24 documentation</title>
+  <title>Parameters &mdash; CLI Command Parser 2022.06.26 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -48,6 +48,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#option">Option</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#flag">Flag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triflag">TriFlag</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#counter">Counter</a></li>
 </ul>
 </li>
@@ -289,6 +290,63 @@ Optional arguments:
   --foo, -f                   (default: False)
   --no-bar, -B                (default: True)
   --help, -h                  Show this help message and exit (default: False)
+</pre></div>
+</div>
+</section>
+<section id="triflag">
+<h3>TriFlag<a class="headerlink" href="#triflag" title="Permalink to this heading"></a></h3>
+<p>A trinary / ternary Flag.  While <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> only supports 1 constant when provided, with 1 default if not
+provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
+separate default.</p>
+<p>A typical use case is that there is some functionality that may be automatically enabled or disabled, but users
+should be able to explicitly enable / disable it as well.  To support this, the default behavior results in None being
+stored by default, and True / False being stored when the positive / negative (primary / alternate) versions are
+provided, respectively.</p>
+<p id="triflag-init-params"><strong>Unique TriFlag initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="triflag:option_strs">option_strs</dt>
+<dd class="field-odd"><p>The primary long and/or short option prefixes for this option.  If no long prefixes are
+specified, then one will automatically be added based on the name assigned to this parameter.</p>
+</dd>
+<dt class="field-even" id="triflag:consts">consts</dt>
+<dd class="field-even"><p>A 2-tuple containing the <code class="docutils literal notranslate"><span class="pre">(primary,</span> <span class="pre">alternate)</span></code> values to store.  Defaults to <code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">False)</span></code>.</p>
+</dd>
+<dt class="field-odd" id="triflag:alt_prefix">alt_prefix</dt>
+<dd class="field-odd"><p>The prefix to add to the assigned name for the alternate long form.  Ignored if <code class="docutils literal notranslate"><span class="pre">alt_long</span></code> is
+specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">no</span></code> if <code class="docutils literal notranslate"><span class="pre">alt_long</span></code> is not specified.</p>
+</dd>
+<dt class="field-even" id="triflag:alt_long">alt_long</dt>
+<dd class="field-even"><p>The alternate long form to use.</p>
+</dd>
+<dt class="field-odd" id="triflag:alt_short">alt_short</dt>
+<dd class="field-odd"><p>The alternate short form to use.</p>
+</dd>
+<dt class="field-even" id="triflag:default">default</dt>
+<dd class="field-even"><p>The default value to use if neither the primary or alternate options are provided.  Defaults to None.</p>
+</dd>
+<dt class="field-odd" id="triflag:name_mode">name_mode</dt>
+<dd class="field-odd"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for the TriFlag.</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">TriFlag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">alt_short</span><span class="o">=</span><span class="s1">&#39;-F&#39;</span><span class="p">,</span> <span class="n">name_mode</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Enable/disable foo (default: automatically picked)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Help text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">foo</span><span class="p">,</span> <span class="o">-</span><span class="n">f</span>                   <span class="n">Enable</span><span class="o">/</span><span class="n">disable</span> <span class="n">foo</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">automatically</span> <span class="n">picked</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">foo</span><span class="p">,</span> <span class="o">-</span><span class="n">F</span>
+</pre></div>
+</div>
+<p>Results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">MyCommand</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;--foo&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">foo</span>
+<span class="go">True</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MyCommand</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;--no-foo&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">foo</span>
+<span class="go">False</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MyCommand</span><span class="o">.</span><span class="n">parse</span><span class="p">([])</span><span class="o">.</span><span class="n">foo</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </section>
