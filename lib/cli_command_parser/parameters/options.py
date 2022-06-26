@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Iterator, overload, Tuple, List, Set
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Iterator, Tuple, List, Set
 
 try:
     from functools import cached_property  # pylint: disable=C0412

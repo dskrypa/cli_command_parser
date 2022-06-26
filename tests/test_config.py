@@ -4,7 +4,7 @@ from itertools import product, starmap
 from operator import or_
 from unittest import TestCase, main
 
-from cli_command_parser.config import CommandConfig, ShowDefaults, ConfigItem
+from cli_command_parser.config import CommandConfig, ShowDefaults, ConfigItem, DEFAULT_CONFIG
 
 
 class ConfigTest(TestCase):
@@ -58,6 +58,14 @@ class ConfigTest(TestCase):
     def test_config_invalid_key(self):
         with self.assertRaisesRegex(ValueError, 'unsupported options: bar, foo'):
             CommandConfig(foo=1, bar=2)
+
+    def test_ro_set_rejected(self):
+        with self.assertRaises(AttributeError):
+            DEFAULT_CONFIG.usage_column_width = 50
+
+    def test_ro_del_rejected(self):
+        with self.assertRaises(AttributeError):
+            del DEFAULT_CONFIG.usage_column_width
 
 
 if __name__ == '__main__':

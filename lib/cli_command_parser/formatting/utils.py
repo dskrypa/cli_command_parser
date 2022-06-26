@@ -7,10 +7,10 @@ Utils for usage / help text formatters
 from __future__ import annotations
 
 from textwrap import TextWrapper
-from typing import Optional, Union, Any, Collection, Sequence, Iterator, Iterable, Tuple
+from typing import Optional, Union, Any, Collection, Sequence, Iterator, Iterable, Tuple, List
 
 from ..config import ShowDefaults
-from ..context import ctx, get_config_item
+from ..context import ctx
 from ..utils import Bool, _NotSet
 
 __all__ = ['format_help_entry', 'line_iter']
@@ -22,35 +22,25 @@ OptStrs = Optional[Strs]
 def format_help_entry(
     usage: Strs,
     description: OptStrs,
-    usage_width: int = 30,
     lpad: int = 2,
     tw_offset: int = 0,
     prefix: str = '',
     cont_indent: int = 2,
 ) -> str:
-    usage_width = max(get_config_item('min_usage_column_width', 20), usage_width - tw_offset - 2)
+    config = ctx.config
+    usage_width = max(config.min_usage_column_width, config.usage_column_width - tw_offset - 2)
     after_pad_width = usage_width - lpad
     term_width = ctx.terminal_width - tw_offset
+    pad_prefix = prefix + ' ' * (lpad - len(prefix)) if prefix else ' ' * lpad
 
     usage = tuple(_apply_continuation_indent(normalize_column(usage, term_width, cont_indent), cont_indent))
-    if description:
-        description_lines = [''] * description_start_line(usage, after_pad_width)
-        description_lines.extend(normalize_column(description, term_width - usage_width - 2))
-    else:
-        description_lines = []
+    if not description:
+        return '\n'.join(f'{pad_prefix}{line}' for line in usage)
 
-    format_row = f'{prepare_prefix(prefix, lpad)}{{:<{after_pad_width}s}}  {{}}'.format
+    description_lines = [''] * description_start_line(usage, after_pad_width)
+    description_lines.extend(normalize_column(description, term_width - usage_width - 2))
+    format_row = f'{pad_prefix}{{:<{after_pad_width}s}}  {{}}'.format
     return '\n'.join(format_row(*row).rstrip() for row in line_iter((usage, description_lines)))
-
-
-def prepare_prefix(prefix: str = '', padding: int = 2) -> str:
-    if prefix:
-        padding -= len(prefix)
-        if padding < 0:
-            padding = 0
-
-    pad_str = ' ' * padding
-    return prefix + pad_str
 
 
 def description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
@@ -87,7 +77,7 @@ def normalize_column(lines: Strs, column_width: int, cont_indent: int = 0) -> Se
 
 def _apply_continuation_indent(lines: Iterable[str], cont_indent: int = 2) -> Iterator[str]:
     i_lines = iter(lines)
-    yield next(i_lines)
+    yield next(i_lines)  # pylint: disable=R1708
     prefix = ' ' * cont_indent
     for line in i_lines:
         yield prefix + line

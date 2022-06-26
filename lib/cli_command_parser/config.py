@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from .formatting.params import ParamHelpFormatter
     from .parameters import ParamOrGroup
 
-__all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode']
+__all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'DEFAULT_CONFIG']
 
 _ConfigValue = TypeVar('_ConfigValue')
 ConfigValue = Union[_ConfigValue, Any]
@@ -146,11 +146,15 @@ class ConfigItem(Generic[_ConfigValue]):
             return self.default
 
     def __set__(self, instance: CommandConfig, value: ConfigValue):
-        if self.type is not None:
+        if instance._read_only:
+            raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
+        elif self.type is not None:
             value = self.type(value)
         instance.__dict__[self.name] = value
 
     def __delete__(self, instance: CommandConfig):
+        if instance._read_only:
+            raise AttributeError(f'Unable to delete attribute {self.name} because {instance} is read-only')
         try:
             del instance.__dict__[self.name]
         except KeyError as e:
@@ -237,13 +241,17 @@ class CommandConfig:
     #: Delimiter to use between choices in usage / help text
     choice_delim: str = ConfigItem('|', str)
 
-    #: Minimum width for the usage column in help text (unit: characters)
+    #: Width (in characters) for the usage column in help text
+    usage_column_width: int = ConfigItem(30, int)
+
+    #: Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width
     min_usage_column_width: int = ConfigItem(20, int)
 
     # endregion
 
-    def __init__(self, parents: Optional[Sequence[CommandConfig]] = None, **kwargs):
+    def __init__(self, parents: Optional[Sequence[CommandConfig]] = None, read_only: bool = False, **kwargs):
         self.parents = parents or ()
+        self._read_only = read_only
         bad = {}
         for key, val in kwargs.items():
             if key in self._fields:
@@ -263,3 +271,6 @@ class CommandConfig:
         if full:
             return {key: getattr(self, key) for key in self._fields}
         return {key: val for key, val in self.__dict__.items() if key in self._fields}
+
+
+DEFAULT_CONFIG = CommandConfig(read_only=True)

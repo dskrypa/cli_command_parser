@@ -75,7 +75,7 @@ class CommandHelpFormatter:
         parts.extend(param.formatter.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
-    def format_help(self, usage_width: int = 30) -> str:
+    def format_help(self) -> str:
         meta = self._get_meta()
         parts = [self.format_usage(), '']
         if meta.description:
@@ -83,7 +83,7 @@ class CommandHelpFormatter:
 
         for group in self.groups:
             if group.show_in_help:
-                parts.append(group.formatter.format_help(usage_width))
+                parts.append(group.formatter.format_help())
 
         epilog = meta.format_epilog(ctx.config.extended_epilog)
         if epilog:

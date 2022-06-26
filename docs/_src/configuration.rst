@@ -89,3 +89,7 @@ Usage & Help Text Options
   help text epilog, if they were successfully detected (default: True)
 :show_docstring: Whether the top level script's docstring should be included in generated documentation
   (default: True)
+:choice_delim: Delimiter to use between choices in usage / help text.  Defaults to ``|``.
+:usage_column_width: Width (in characters) for the usage column in help text.  Defaults to 30.
+:min_usage_column_width: Minimum width (in characters) for the usage column in help text after adjusting for group
+  indentation / terminal width.  Defaults to 20.

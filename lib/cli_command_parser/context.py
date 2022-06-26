@@ -16,7 +16,7 @@ try:
 except ImportError:
     from .compat import cached_property
 
-from .config import CommandConfig
+from .config import CommandConfig, DEFAULT_CONFIG
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
 from .utils import Bool, _NotSet, Terminal
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_config_item']
+__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 _TERMINAL = Terminal()
@@ -237,13 +237,6 @@ def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, 
             return context._sub_context(command_cls, argv=argv, **kwargs)
 
 
-def get_config_item(item: str, default: Any):
-    try:
-        return getattr(get_current_context().config, item)
-    except NoActiveContext:
-        return default
-
-
 class ContextProxy:
     """
     Proxy for the currently active :class:`Context` object.  Allows usage similar to the ``request`` object in Flask.
@@ -272,11 +265,18 @@ class ContextProxy:
         return get_current_context().__exit__(exc_type, exc_val, exc_tb)
 
     @property
-    def terminal_width(self):
+    def terminal_width(self) -> int:
         try:
             return get_current_context().terminal_width
         except NoActiveContext:
             return _TERMINAL.width
+
+    @property
+    def config(self) -> CommandConfig:
+        try:
+            return get_current_context().config
+        except NoActiveContext:
+            return DEFAULT_CONFIG
 
 
 ctx: Context = cast(Context, ContextProxy())

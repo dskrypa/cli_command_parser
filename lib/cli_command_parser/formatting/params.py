@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union, Type, Callable, Tuple, Dict
 
-from ..context import ctx, get_config_item
+from ..context import ctx
 from ..parameters.base import BasePositional, BaseOption
 from ..parameters.choice_map import ChoiceMap
 from ..parameters import ParamOrGroup, ParamGroup, PassThru, TriFlag
@@ -60,18 +60,17 @@ class ParamHelpFormatter:
     def format_metavar(self) -> str:
         param = self.param
         if param.choices:
-            # TODO: re-optimize get_config_item usage - it caused a (very) minor slow-down for tests
-            return '{{{}}}'.format(get_config_item('choice_delim', '|').join(map(str, param.choices)))
+            return '{{{}}}'.format(ctx.config.choice_delim.join(map(str, param.choices)))
         elif param.metavar:
             return param.metavar
         t = param.type
         if t is not None:
             try:
-                return t.format_metavar(get_config_item('choice_delim', '|'))
+                return t.format_metavar(ctx.config.choice_delim)
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
 
-        if get_config_item('use_type_metavar', False) and t is not None:
+        if ctx.config.use_type_metavar and t is not None:
             try:
                 name = t.__name__
             except AttributeError:
@@ -100,10 +99,10 @@ class ParamHelpFormatter:
 
         return description
 
-    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
+    def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
         usage = self.format_usage(include_meta=True, full=True)
         description = self.format_description()
-        return format_help_entry(usage, description, usage_width, tw_offset=tw_offset, prefix=prefix)
+        return format_help_entry(usage, description, tw_offset=tw_offset, prefix=prefix)
 
     def rst_row(self) -> Tuple[str, str]:
         usage = self.format_usage(include_meta=True, full=True)
@@ -149,10 +148,10 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             return opt
         return f'{opt} {self._format_usage_metavar()}'
 
-    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
+    def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
         usage = self.format_usage_parts()
         description = self.format_description()
-        return format_help_entry(usage, description, usage_width, tw_offset=tw_offset, prefix=prefix)
+        return format_help_entry(usage, description, tw_offset=tw_offset, prefix=prefix)
 
 
 class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
@@ -174,22 +173,22 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
     def format_metavar(self) -> str:
         param = self.param
         if param.choices:
-            return '{{{}}}'.format(get_config_item('choice_delim', '|').join(map(str, filter(None, param.choices))))
+            return '{{{}}}'.format(ctx.config.choice_delim.join(map(str, filter(None, param.choices))))
         else:
             return param.metavar or param.name.upper()
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.format_metavar()
 
-    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0) -> str:
+    def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
         param: ChoiceMap = self.param
         usage = self.format_usage()
-        help_entry = format_help_entry(usage, param.description, usage_width, 2, tw_offset=tw_offset, prefix=prefix)
+        help_entry = format_help_entry(usage, param.description, 2, tw_offset=tw_offset, prefix=prefix)
 
         # TODO: Combine choices/aliases that point to the same target sub Command
         parts = [f'{prefix}{param.title or param._default_title}:', help_entry]
         for choice in param.choices.values():
-            parts.append(choice.format_help(usage_width, lpad=4, tw_offset=tw_offset))
+            parts.append(choice.format_help(lpad=4, tw_offset=tw_offset))
 
         parts.append(prefix.rstrip())
         return '\n'.join(parts)
@@ -246,11 +245,10 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         else:
             return '\u2502 '  # BOX DRAWINGS LIGHT VERTICAL
 
-    def format_help(self, usage_width: int = 30, prefix: str = '', tw_offset: int = 0, clean: Bool = True) -> str:
+    def format_help(self, prefix: str = '', tw_offset: int = 0, clean: Bool = True) -> str:
         """
         Prepare the help text for this group.
 
-        :param usage_width: The width of the option/action/command column.
         :param prefix: Prefix to add to every line (primarily intended for use with nested groups)
         :param tw_offset: Terminal width offset for text width calculations
         :param clean: If this group only contains other groups or Action or SubCommand parameters, then omit the
@@ -276,7 +274,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
                 parts.append(spacer.rstrip())  # Add space for readability
             else:
                 params += 1
-            parts.append(member.formatter.format_help(usage_width, prefix=spacer, tw_offset=tw_offset))
+            parts.append(member.formatter.format_help(prefix=spacer, tw_offset=tw_offset))
 
         if clean and nested and not params:
             parts = parts[2:]  # remove description and the first spacer

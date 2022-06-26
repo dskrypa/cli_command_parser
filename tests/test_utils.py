@@ -31,7 +31,7 @@ class UtilsTest(TestCase):
 
     def test_normalize_column_uneven(self):
         result = normalize_column(('a' * 10, 'b' * 3), 5)
-        self.assertListEqual(['aaaaa', 'aaaaa', 'bbb'], result)
+        self.assertListEqual(['aaaaa', 'aaaaa', 'bbb'], result)  # noqa
 
 
 if __name__ == '__main__':

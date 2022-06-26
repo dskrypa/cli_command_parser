@@ -45,9 +45,9 @@ class Choice:
     def format_usage(self) -> str:
         return '(default)' if self.choice is None else self.choice
 
-    def format_help(self, usage_width: int = 30, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
+    def format_help(self, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
         usage = self.format_usage()
-        return format_help_entry(usage, self.help, usage_width, lpad, tw_offset=tw_offset, prefix=prefix)
+        return format_help_entry(usage, self.help, lpad, tw_offset=tw_offset, prefix=prefix)
 
 
 class ChoiceMap(BasePositional):

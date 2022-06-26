@@ -3,6 +3,7 @@ Base classes and helpers for Parameters and Groups
 
 :author: Doug Skrypa
 """
+# pylint: disable=R0801
 
 from __future__ import annotations
 
