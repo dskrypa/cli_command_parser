@@ -160,7 +160,6 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
         ctx.get_parsing_value(self).append(self.const)
 
 
-# TODO: Add to documentation
 class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
@@ -173,7 +172,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
     :param alt_prefix: The prefix to add to the assigned name for the alternate long form.  Ignored if ``alt_long`` is
       specified.  Defaults to ``no`` if ``alt_long`` is not specified.
     :param alt_long: The alternate long form to use.
-    :param alt_short: The alternate short form to use
+    :param alt_short: The alternate short form to use.
     :param action: The action to take on individual parsed values.  Only ``store_const`` (the default) is supported.
     :param default: The default value to use if neither the primary or alternate options are provided.  Defaults
       to None.

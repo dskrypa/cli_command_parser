@@ -4,7 +4,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 from cli_command_parser.utils import camel_to_snake_case, get_args, Terminal
-from cli_command_parser.formatting.utils import description_start_line, normalize_column
+from cli_command_parser.formatting.utils import _description_start_line, _norm_column, _single_line_strs
 
 
 class UtilsTest(TestCase):
@@ -24,14 +24,20 @@ class UtilsTest(TestCase):
 
     def test_descr_start_middle(self):
         usage = ['a' * 10, 'a' * 15, 'a' * 5]
-        self.assertEqual(2, description_start_line(usage, 5))
+        self.assertEqual(2, _description_start_line(usage, 5))
 
     def test_descr_start_no_usage(self):
-        self.assertEqual(0, description_start_line((), -5))
+        self.assertEqual(0, _description_start_line((), -5))
 
     def test_normalize_column_uneven(self):
-        result = normalize_column(('a' * 10, 'b' * 3), 5)
+        result = _norm_column(('a' * 10, 'b' * 3), 5)
         self.assertListEqual(['aaaaa', 'aaaaa', 'bbb'], result)  # noqa
+
+    def test_single_line_strs_split(self):
+        self.assertListEqual(['a', 'b'], _single_line_strs('a\nb'))
+        self.assertListEqual(['a', 'b'], _single_line_strs(['a\nb']))
+        self.assertListEqual(['a', 'b'], _single_line_strs(['a', 'b']))
+        self.assertListEqual(['a', 'b', 'c'], _single_line_strs(['a', 'b\nc']))
 
 
 if __name__ == '__main__':

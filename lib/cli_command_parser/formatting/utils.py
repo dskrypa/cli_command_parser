@@ -33,17 +33,19 @@ def format_help_entry(
     term_width = ctx.terminal_width - tw_offset
     pad_prefix = prefix + ' ' * (lpad - len(prefix)) if prefix else ' ' * lpad
 
-    usage = tuple(_apply_continuation_indent(normalize_column(usage, term_width, cont_indent), cont_indent))
+    usage = tuple(
+        _indented(_norm_column((usage,) if isinstance(usage, str) else usage, term_width, cont_indent), cont_indent)
+    )
     if not description:
         return '\n'.join(f'{pad_prefix}{line}' for line in usage)
 
-    description_lines = [''] * description_start_line(usage, after_pad_width)
-    description_lines.extend(normalize_column(description, term_width - usage_width - 2))
+    description_lines = [''] * _description_start_line(usage, after_pad_width)
+    description_lines.extend(_norm_column(_single_line_strs(description), term_width - usage_width - 2))
     format_row = f'{pad_prefix}{{:<{after_pad_width}s}}  {{}}'.format
     return '\n'.join(format_row(*row).rstrip() for row in line_iter((usage, description_lines)))
 
 
-def description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
+def _description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
     widths = [len(line) for line in usage]
     if max(widths, default=0) <= max_usage_width:
         return 0
@@ -57,9 +59,13 @@ def description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
     return line
 
 
-def normalize_column(lines: Strs, column_width: int, cont_indent: int = 0) -> Sequence[str]:
+def _single_line_strs(lines: Strs) -> List[str]:
     if isinstance(lines, str):
         lines = (lines,)
+    return [line for full_line in lines for line in full_line.splitlines()]
+
+
+def _norm_column(lines: Sequence[str], column_width: int, cont_indent: int = 0) -> Sequence[str]:
     max_width = max(map(len, lines)) + cont_indent
     if max_width <= column_width:
         return lines
@@ -75,7 +81,7 @@ def normalize_column(lines: Strs, column_width: int, cont_indent: int = 0) -> Se
     return fixed
 
 
-def _apply_continuation_indent(lines: Iterable[str], cont_indent: int = 2) -> Iterator[str]:
+def _indented(lines: Iterable[str], cont_indent: int = 2) -> Iterator[str]:
     i_lines = iter(lines)
     yield next(i_lines)  # pylint: disable=R1708
     prefix = ' ' * cont_indent
