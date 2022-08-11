@@ -97,6 +97,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self.__class__(argv, command, parent=self, **kwargs)
 
     def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
+        # TODO: Document that this can provide a dict of name:value
         with self:
             if recursive and self.parent:
                 parsed = self.parent.get_parsed(exclude, recursive)

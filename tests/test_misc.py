@@ -26,6 +26,13 @@ class MiscTest(ParserTest):
         with self.assertRaises(AssertionError):
             self.assert_str_contains('a', 'b')
 
+    def test_assert_dict_equal(self):
+        self.assert_dict_equal({'a': 1}, {'a': 1})
+        with self.assertRaises(AssertionError):
+            self.assert_dict_equal({'a': 1, 'b': 3}, {'a': 2, 'b': 3})
+        with self.assertRaises(AssertionError):
+            self.assert_dict_equal({'a': 1}, {'b': 1})
+
 
 if __name__ == '__main__':
     # import logging

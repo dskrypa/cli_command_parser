@@ -78,6 +78,37 @@ class ParamComboTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    def test_combined_flags_ambiguous(self):
+        class Foo(Command):
+            a = Flag('-a')
+            b = Flag('-b')
+            c = Flag('-c')
+            ab = Flag('-ab')
+            bc = Flag('-bc')
+            abc = Flag('-abc')
+
+        success_cases = [
+            ([], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': False, 'abc': False}),
+            (['-ab'], {'a': False, 'b': False, 'c': False, 'ab': True, 'bc': False, 'abc': False}),
+            (['-ba'], {'a': True, 'b': True, 'c': False, 'ab': False, 'bc': False, 'abc': False}),
+            (['-bc'], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': True, 'abc': False}),
+            (['-cb'], {'a': False, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-abc'], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': False, 'abc': True}),
+            (['-ac'], {'a': True, 'b': False, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-ca'], {'a': True, 'b': False, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            # TODO: #7 - When configured to reject ambiguous, the below combos should result in errors
+            (['-cab'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-abcc'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-bbc'], {'a': False, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-bcc'], {'a': False, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-aab'], {'a': True, 'b': True, 'c': False, 'ab': False, 'bc': False, 'abc': False}),
+            (['-abbc'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-bcab'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-bcaab'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+            (['-abcabc'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
     def test_flag_counter_combo(self):
         class Foo(Command):
             foo = Flag('-f')

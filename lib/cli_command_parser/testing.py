@@ -37,12 +37,19 @@ class ParserTest(TestCase):
     #     print()
     #     return super().subTest(*args, **kwargs)
 
+    def assert_dict_equal(self, d1, d2, msg: str = None):
+        self.assertIsInstance(d1, dict, 'First argument is not a dictionary')
+        self.assertIsInstance(d2, dict, 'Second argument is not a dictionary')
+        if d1 != d2:
+            standard_msg = f'{d1} != {d2}\n{format_dict_diff(d1, d2)}'
+            self.fail(self._formatMessage(msg, standard_msg))
+
     def assert_parse_results(
         self, cmd_cls: CommandType, argv: Argv, expected: Expected, message: str = None
     ) -> Command:
         cmd = cmd_cls.parse_and_run(argv)
         parsed = cmd.ctx.get_parsed((help_action,))
-        self.assertDictEqual(expected, parsed, message)
+        self.assert_dict_equal(expected, parsed, message)
         return cmd
 
     def assert_parse_results_cases(self, cmd_cls: CommandType, cases: Iterable[Case], message: str = None):
@@ -155,6 +162,38 @@ def format_diff(a: str, b: str, name_a: str = 'expected', name_b: str = '  actua
             sio.write(line + '\n')
 
     return sio.getvalue()
+
+
+def format_dict_diff(a: Dict[str, Any], b: Dict[str, Any]) -> str:
+    formatted_a = []
+    formatted_b = []
+    for key in sorted(set(a) | set(b)):
+        try:
+            val_a = a[key]
+        except KeyError:
+            str_b = f'{key!r}: {b[key]!r}'
+            formatted_a.append(' ' * len(str_b))
+            formatted_b.append(_colored(str_b, 2, ''))
+        else:
+            str_a = f'{key!r}: {val_a!r}'
+            try:
+                val_b = b[key]
+            except KeyError:
+                str_b = ' ' * len(str_a)
+                formatted_a.append(_colored(str_a, 1, ''))
+                formatted_b.append(str_b)
+            else:
+                str_b = f'{key!r}: {val_b!r}'
+                if val_a == val_b:
+                    formatted_a.append(str_a)
+                    formatted_b.append(str_b)
+                else:
+                    formatted_a.append(_colored(str_a, 2, ''))
+                    formatted_b.append(_colored(str_b, 1, ''))
+
+    kvs_a = ', '.join(formatted_a)
+    kvs_b = ', '.join(formatted_b)
+    return f'- {{{kvs_a}}}\n+ {{{kvs_b}}}'
 
 
 class RedirectStreams(AbstractContextManager):

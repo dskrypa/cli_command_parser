@@ -79,7 +79,7 @@ class GroupTest(_GroupTest):
                 baz = Flag('-B')
 
         class Foo2(Command):
-            with ParamGroup(required=True) as group:
+            with ParamGroup(required=True):
                 bar = Flag('-b')
                 baz = Flag('-B')
 

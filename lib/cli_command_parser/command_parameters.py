@@ -34,19 +34,19 @@ OptionMap = Dict[str, BaseOption]
 
 
 class CommandParameters:
-    command: CommandType
-    formatter: CommandHelpFormatter
-    command_parent: Optional[CommandType] = None
-    parent: Optional[CommandParameters] = None
-    action: Optional[Action] = None
-    _pass_thru: Optional[PassThru] = None
-    sub_command: Optional[SubCommand] = None
-    action_flags: List[ActionFlag]
-    options: List[BaseOption]
-    combo_option_map: OptionMap
-    groups: List[ParamGroup]
-    positionals: List[BasePositional]
-    option_map: OptionMap
+    command: CommandType                            #: The Command associated with this CommandParameters object
+    formatter: CommandHelpFormatter                 #: The formatter used for this Command's help text
+    command_parent: Optional[CommandType] = None    #: The parent Command, if any
+    parent: Optional[CommandParameters] = None      #: The parent Command's CommandParameters
+    action: Optional[Action] = None                 #: An Action Parameter, if specified
+    _pass_thru: Optional[PassThru] = None           #: A PassThru Parameter, if specified
+    sub_command: Optional[SubCommand] = None        #: A SubCommand Parameter, if specified
+    action_flags: List[ActionFlag]                  #: List of action flags
+    options: List[BaseOption]                       #: List of optional Parameters
+    combo_option_map: OptionMap                     #: Mapping of {short opt: Parameter} (no dash characters)
+    groups: List[ParamGroup]                        #: List of ParamGroup objects
+    positionals: List[BasePositional]               #: List of positional Parameters
+    option_map: OptionMap                           #: Mapping of {--opt / -opt: Parameter}
 
     def __init__(self, command: CommandType, command_parent: Optional[CommandType], config: CommandConfig):
         self.command = command
@@ -303,11 +303,12 @@ class CommandParameters:
 
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
-        param = self.combo_option_map[key]
+        combo_option_map = self.combo_option_map
+        # TODO: #7 - detect ambiguous combined options if configured to reject them
+        param = combo_option_map[key]
         if param.would_accept(value, short_combo=True):
             return [(key, param, value)]
         else:
-            combo_option_map = self.combo_option_map
             return [(c, combo_option_map[c], None) for c in option[1:]]
 
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
