@@ -129,7 +129,15 @@ class ContextTest(TestCase):
         def bar(a):
             pass
 
+        def baz(a, **kwargs):
+            pass
+
+        def zab(a, **b):
+            pass
+
         self.assertDictEqual({'a': True}, get_parsed(foo, bar))
+        self.assertDictEqual({'a': True}, get_parsed(foo, baz))
+        self.assertDictEqual({'a': True}, get_parsed(foo, zab))
 
 
 if __name__ == '__main__':

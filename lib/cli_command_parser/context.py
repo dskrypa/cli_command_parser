@@ -9,7 +9,7 @@ import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
-from inspect import Signature
+from inspect import Signature, Parameter as _Parameter
 from typing import TYPE_CHECKING, Any, Callable, Union, Sequence, Optional, Iterator, Collection, cast
 from typing import Dict, Tuple, List
 
@@ -296,7 +296,8 @@ def get_context(command: Command) -> Context:
 def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
     parsed = get_context(command).get_parsed()
     if to_call is not None:
-        keys = set(Signature.from_callable(to_call).parameters)
+        sig = Signature.from_callable(to_call)
+        keys = {k for k, p in sig.parameters.items() if p.kind != _Parameter.VAR_KEYWORD}
         parsed = {k: v for k, v in parsed.items() if k in keys}
 
     return parsed
