@@ -51,7 +51,10 @@
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
 </ul>
 </li>
@@ -127,7 +130,7 @@ interactive terminal after parsing and running:</p>
 <span class="go">{</span>
 <span class="go">    &#39;baz&#39;: [&#39;test&#39;, &#39;one&#39;],</span>
 <span class="go">    &#39;bar&#39;: False,</span>
-<span class="go">    &#39;ActionFlag#2671379799232&#39;: False</span>
+<span class="go">    &#39;help&#39;: False</span>
 <span class="go">}</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">argv</span>
@@ -136,10 +139,10 @@ interactive terminal after parsing and running:</p>
 </div>
 <p>The Context object stores information about the Command’s configuration, the parameters defined in that Command
 (organized in a <a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object), the input, and a dictionary containing the parsed values.  The
-<code class="docutils literal notranslate"><span class="pre">ActionFlag#2671379799232</span></code> entry in the above example is the automatically added <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> that represents
+<code class="docutils literal notranslate"><span class="pre">help</span></code> entry in the above example is the automatically added <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> that represents
 the <code class="docutils literal notranslate"><span class="pre">--help</span></code> action:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">action_flags</span>
-<span class="go">[ActionFlag(&#39;ActionFlag#2671379799232&#39;, action=&#39;store_const&#39;, const=True, default=False, required=False, help=&#39;Show this help message and exit&#39;, order=-inf, before_main=True)]</span>
+<span class="go">[ActionFlag(&#39;help&#39;, action=&#39;store_const&#39;, const=True, default=False, required=False, help=&#39;Show this help message and exit&#39;, order=-inf, before_main=True)]</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">action_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">func</span>
 <span class="go">&lt;function lib.cli_command_parser.actions.help_action(self)&gt;</span>
@@ -150,6 +153,34 @@ will not always have the same number in the name.</p>
 <p>Since its <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.order" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">ActionFlag.order</span></code></a> is negative infinity, the <a class="reference internal" href="api/cli_command_parser.actions.html#cli_command_parser.actions.help_action" title="cli_command_parser.actions.help_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">help_action()</span></code></a> will always
 take precedence over any other ActionFlag.  There is special handling in the parser for specifically allowing that
 action to be processed when parsing would otherwise fail.</p>
+<section id="parsed-args-as-a-dictionary">
+<h3>Parsed Args as a Dictionary<a class="headerlink" href="#parsed-args-as-a-dictionary" title="Permalink to this heading"></a></h3>
+<p>A <a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed" title="cli_command_parser.context.get_parsed"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_parsed()</span></code></a> helper function exists for retrieving a dictionary of parsed arguments without needing to deal
+with the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> attribute like in the above example.  The get_parsed helper function will continue to work, even if
+a given command overrides the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> attribute with a different value.</p>
+<p>Example using the same Command as above:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_parsed</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;baz&#39;: [&#39;test&#39;, &#39;one&#39;],</span>
+<span class="go">    &#39;bar&#39;: False,</span>
+<span class="go">    &#39;help&#39;: False</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
+parsed dict to only the keys that match that callable’s signature.  Only VAR_KEYWORD parameters (i.e., <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>) are
+excluded - if any parameters of the given callable cannot be passed as a keyword argument, that must be handled after
+calling get_parsed.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_parsed</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+<span class="go">{&#39;bar&#39;: False}</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="mixing-actions-actionflags">
 <h2>Mixing Actions &amp; ActionFlags<a class="headerlink" href="#mixing-actions-actionflags" title="Permalink to this heading"></a></h2>
