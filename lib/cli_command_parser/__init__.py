@@ -6,7 +6,7 @@ Command Parser
 
 from .config import CommandConfig, ShowDefaults, OptionNameMode
 from .commands import Command, main
-from .context import Context, get_current_context, ctx
+from .context import Context, get_current_context, ctx, get_parsed
 from .exceptions import (
     CommandParserException,
     CommandDefinitionError,

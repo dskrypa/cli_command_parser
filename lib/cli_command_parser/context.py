@@ -9,7 +9,9 @@ import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, Any, Union, Sequence, Optional, Iterator, Collection, cast, Dict, Tuple, List
+from inspect import Signature
+from typing import TYPE_CHECKING, Any, Callable, Union, Sequence, Optional, Iterator, Collection, cast
+from typing import Dict, Tuple, List
 
 try:
     from functools import cached_property
@@ -24,9 +26,10 @@ from .utils import Bool, _NotSet, Terminal
 if TYPE_CHECKING:
     from .core import CommandType, AnyConfig
     from .command_parameters import CommandParameters
+    from .commands import Command
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context']
+__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 _TERMINAL = Terminal()
@@ -281,3 +284,19 @@ class ContextProxy:
 
 
 ctx: Context = cast(Context, ContextProxy())
+
+
+def get_context(command: Command) -> Context:
+    try:
+        return command._Command__ctx  # noqa
+    except AttributeError as e:
+        raise TypeError('get_context only supports Command objects') from e
+
+
+def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
+    parsed = get_context(command).get_parsed()
+    if to_call is not None:
+        keys = set(Signature.from_callable(to_call).parameters)
+        parsed = {k: v for k, v in parsed.items() if k in keys}
+
+    return parsed

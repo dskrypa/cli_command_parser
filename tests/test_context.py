@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from cli_command_parser import Command, CommandConfig
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.context import Context, get_current_context, ctx
+from cli_command_parser.context import Context, get_current_context, ctx, get_context, get_parsed
 from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.parameters import Flag
 
@@ -106,6 +106,30 @@ class ContextTest(TestCase):
 
     def test_default_error_handler_returned(self):
         self.assertIs(extended_error_handler, Context().get_error_handler())
+
+    def test_get_context_bad(self):
+        with self.assertRaises(TypeError):
+            get_context(Command)  # noqa
+
+    def test_get_context_ok(self):
+        class Foo(Command):
+            pass
+
+        foo = Foo()
+        self.assertIs(foo.ctx, get_context(foo))
+
+    def test_get_parsed(self):
+        class Foo(Command):
+            a = Flag('-a')
+            b = Flag('-b')
+
+        foo = Foo.parse(['-ab'])
+        self.assertDictEqual({'a': True, 'b': True, 'help': False}, get_parsed(foo))
+
+        def bar(a):
+            pass
+
+        self.assertDictEqual({'a': True}, get_parsed(foo, bar))
 
 
 if __name__ == '__main__':
