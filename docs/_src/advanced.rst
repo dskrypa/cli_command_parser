@@ -41,7 +41,7 @@ interactive terminal after parsing and running::
     {
         'baz': ['test', 'one'],
         'bar': False,
-        'ActionFlag#2671379799232': False
+        'help': False
     }
 
     >>> foo.ctx.argv
@@ -50,11 +50,11 @@ interactive terminal after parsing and running::
 
 The Context object stores information about the Command's configuration, the parameters defined in that Command
 (organized in a :class:`.CommandParameters` object), the input, and a dictionary containing the parsed values.  The
-``ActionFlag#2671379799232`` entry in the above example is the automatically added :class:`.ActionFlag` that represents
+``help`` entry in the above example is the automatically added :class:`.ActionFlag` that represents
 the ``--help`` action::
 
     >>> foo.ctx.params.action_flags
-    [ActionFlag('ActionFlag#2671379799232', action='store_const', const=True, default=False, required=False, help='Show this help message and exit', order=-inf, before_main=True)]
+    [ActionFlag('help', action='store_const', const=True, default=False, required=False, help='Show this help message and exit', order=-inf, before_main=True)]
 
     >>> foo.ctx.params.action_flags[0].func
     <function lib.cli_command_parser.actions.help_action(self)>
@@ -66,6 +66,38 @@ will not always have the same number in the name.
 Since its :paramref:`.ActionFlag.order` is negative infinity, the :func:`~.actions.help_action` will always
 take precedence over any other ActionFlag.  There is special handling in the parser for specifically allowing that
 action to be processed when parsing would otherwise fail.
+
+
+Parsed Args as a Dictionary
+---------------------------
+
+A :func:`.get_parsed` helper function exists for retrieving a dictionary of parsed arguments without needing to deal
+with the ``ctx`` attribute like in the above example.  The get_parsed helper function will continue to work, even if
+a given command overrides the ``ctx`` attribute with a different value.
+
+Example using the same Command as above::
+
+    >>> get_parsed(foo)
+    {
+        'baz': ['test', 'one'],
+        'bar': False,
+        'help': False
+    }
+
+
+As an added convenience, this helper function accepts a :class:`python:collections.abc.Callable` object to filter the
+parsed dict to only the keys that match that callable's signature.  Only VAR_KEYWORD parameters (i.e., ``**kwargs``) are
+excluded - if any parameters of the given callable cannot be passed as a keyword argument, that must be handled after
+calling get_parsed.
+
+Example::
+
+    >>> def test(bar, **kwargs):
+    ...     pass
+    ...
+
+    >>> get_parsed(foo, test)
+    {'bar': False}
 
 
 Mixing Actions & ActionFlags
