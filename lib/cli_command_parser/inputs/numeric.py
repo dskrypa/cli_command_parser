@@ -5,13 +5,17 @@ Custom numeric input handlers for Parameters
 """
 # pylint: disable=W0622
 
+from __future__ import annotations
+
 import builtins
 from abc import ABC, abstractmethod
 from operator import le, lt, ge, gt
-from typing import Union, Callable, Optional
+from typing import TYPE_CHECKING, Union, Callable, Optional
 
-from ..utils import Bool
 from .base import InputType
+
+if TYPE_CHECKING:
+    from ..utils import Bool
 
 __all__ = ['Range', 'NumRange']
 
