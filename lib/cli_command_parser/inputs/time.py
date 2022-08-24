@@ -1,5 +1,15 @@
 """
-Custom date/time input handlers for Parameters
+Custom date/time input handlers for Parameters.
+
+.. warning::
+
+    Uses :func:`python:locale.setlocale` if alternate locales are specified, which may cause problems on some systems.
+    Using alternate locales in this manner should not be used in a multi-threaded application, as it will lead to
+    unexpected output from other parts of the program.
+
+    If you need to handle multiple locales and this is a problem for your application, then you should leave the
+    ``locale`` parameters empty / ``None`` and use a proper i18n library like `babel <https://babel.pocoo.org/>`__
+    for localization.
 
 :author: Doug Skrypa
 """
@@ -8,17 +18,16 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from calendar import day_name, day_abbr
-from datetime import datetime, date, time, timezone, tzinfo, timedelta
-from locale import getlocale, LC_TIME, LC_ALL, setlocale
+from datetime import datetime
+from locale import getlocale, LC_TIME, LC_CTYPE, setlocale
 from threading import Lock
-from typing import TYPE_CHECKING, Union, Callable, Optional, Tuple, List
+from typing import TYPE_CHECKING, Union, Iterator, Optional, Tuple, List
 
 from .base import InputType
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
     from ..utils import Bool
-
 
 __all__ = ['Day']
 
@@ -30,36 +39,43 @@ class different_locale:
     Context manager that allows the temporary use of an alternate locale for date/time parsing/formatting.
 
     Not using :class:`python:calendar.different_locale` because it results in incorrect string encoding for some
-    locales.
+    locales (at least on Windows).
     """
 
     _lock = Lock()
-    __slots__ = ('locale', 'original')
+    __slots__ = ('locale', 'original_ctype', 'original_time')
 
     def __init__(self, locale: Optional[Locale]):
         self.locale = locale
 
     def __enter__(self):
         self._lock.acquire()
-        self.original = getlocale()
-        setlocale(LC_ALL, self.locale)
+        locale = self.locale
+        if not locale:
+            return
+        self.original_ctype = getlocale(LC_CTYPE)
+        self.original_time = getlocale(LC_TIME)
+        setlocale(LC_TIME, locale)  # This is what calendar.different_locale used
+        setlocale(LC_CTYPE, locale)  # This is required for str encoding to work as expected
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        setlocale(LC_ALL, self.original)
+        if self.locale:
+            setlocale(LC_TIME, self.original_time)
+            setlocale(LC_CTYPE, self.original_ctype)
         self._lock.release()
 
 
 class DateTimeInput(InputType, ABC):
     dt_type: str
     formats: List[str]
-    locale: Locale
+    locale: Optional[Locale]
 
     def __init_subclass__(cls, dt_type: str):  # noqa
         cls.dt_type = dt_type
 
     def __init__(self, formats: List[str], locale: Locale = None):
         self.formats = formats
-        self.locale = locale or getlocale(LC_TIME)
+        self.locale = locale
 
     @abstractmethod
     def choice_str(self, choice_delim: str = ',') -> str:
@@ -128,14 +144,17 @@ class Day(DateTimeInput, dt_type='day of the week'):
         self.out_iso = out_iso
         self.out_locale = out_locale or self.locale
 
-    def choice_str(self, choice_delim: str = ',') -> str:
-        choices = []
+    def _weekdays(self) -> Iterator[Tuple[int, str]]:
+        if not self.full and not self.abbreviation:
+            return
         with different_locale(self.locale):
             if self.full:
-                choices.extend(day_name)
+                yield from enumerate(day_name)
             if self.abbreviation:
-                choices.extend(day_abbr)
+                yield from enumerate(day_abbr)
 
+    def choice_str(self, choice_delim: str = ',') -> str:
+        choices = [dow for _, dow in self._weekdays()]
         if self.numeric:
             start, stop = (1, 8) if self.iso else (0, 7)
             choices.extend(map(str, range(start, stop)))
@@ -176,38 +195,35 @@ class Day(DateTimeInput, dt_type='day of the week'):
             except ValueError:
                 pass
 
-        choice_map = {}
-        with different_locale(self.locale):
-            if self.full:
-                for i in range(7):
-                    choice_map[day_name[i].casefold()] = i
-            if self.abbreviation:
-                for i in range(7):
-                    choice_map[day_abbr[i].casefold()] = i
-            try:
-                return choice_map[value.casefold()]
-            except KeyError:
-                pass
-
-        raise ValueError(f'Expected a {self.dt_type} matching the following: {self.choice_str()}')
-
-    def __call__(self, value: str) -> Union[str, int]:
-        parsed = self.parse_dow(value)
-        if self.out_numeric:
-            return (parsed + 1) if self.out_iso else parsed
-
+        choice_map = {dow.casefold(): i for i, dow in self._weekdays()}
         try:
-            out_day = self._str_formatters[self.out_format]
+            return choice_map[value.casefold()]
+        except KeyError:
+            pass
+
+        raise InputValidationError(f'Expected a {self.dt_type} matching the following: {self.choice_str()}')
+
+    def _format_weekday(self, day_num: int) -> str:
+        try:
+            weekdays = self._str_formatters[self.out_format]
         except KeyError:
             pass
         else:
             with different_locale(self.out_locale):
-                return out_day[parsed]
+                return weekdays[day_num]
+
+        raise ValueError(f'Unexpected output format={self.out_format!r} for weekday={day_num}')
+
+    def __call__(self, value: str) -> Union[str, int]:
+        day_num = self.parse_dow(value)
+        if self.out_numeric:
+            return (day_num + 1) if self.out_iso else day_num
+
         try:
             iso = self._num_formatters[self.out_format]
         except KeyError:
             pass
         else:
-            return str((parsed + 1) if iso else parsed)
+            return str((day_num + 1) if iso else day_num)
 
-        raise ValueError(f'Unexpected output format={self.out_format!r} for weekday={parsed}')
+        return self._format_weekday(day_num)

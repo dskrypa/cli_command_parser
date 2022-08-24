@@ -13,6 +13,7 @@ from .base import InputType, TypeFunc
 from .choices import Choices, ChoiceMap, EnumChoices
 from .files import Path, File, Serialized, Json, Pickle
 from .numeric import Range, NumRange
+from .time import Day
 
 __all__ = [
     'StatMode',
@@ -38,6 +39,8 @@ def normalize_input_type(
 ) -> _t.Optional[TypeFunc]:
     param_choices_provided = param_choices is not None
 
+    # TODO: If choices=range(0, 100) is used, for example, that should be turned into a Range type input
+    # TODO: Test help text with range choices/type
     if param_choices_provided:
         if isinstance(param_choices, range):
             return Range(param_choices, type_func)
