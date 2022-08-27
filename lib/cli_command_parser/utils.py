@@ -4,6 +4,8 @@ Utilities for extracting types from annotations, finding / storing program metad
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 from collections.abc import Collection, Iterable
 from enum import Flag
 from inspect import isclass
@@ -107,6 +109,17 @@ def _type_from_collection(origin, annotation) -> Optional[type]:
 
 
 # endregion
+
+
+class MissingMixin:
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            try:
+                return cls._member_map_[value.upper()]  # noqa
+            except KeyError:
+                pass
+        return super()._missing_(value)  # noqa
 
 
 class FixedFlag(Flag):

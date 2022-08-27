@@ -19,17 +19,19 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from calendar import day_name, day_abbr
 from datetime import datetime
-from locale import getlocale, LC_TIME, LC_CTYPE, setlocale
-from threading import Lock
-from typing import TYPE_CHECKING, Union, Iterator, Optional, Tuple, List
+from enum import Enum
+from locale import LC_ALL, setlocale
+from threading import RLock
+from typing import TYPE_CHECKING, Union, Iterator, Collection, Optional, Tuple
 
+from ..utils import MissingMixin
 from .base import InputType
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
     from ..utils import Bool
 
-__all__ = ['Day']
+__all__ = ['Day', 'FormatMode']
 
 Locale = Union[str, Tuple[Optional[str], Optional[str]]]
 
@@ -42,8 +44,8 @@ class different_locale:
     locales (at least on Windows).
     """
 
-    _lock = Lock()
-    __slots__ = ('locale', 'original_ctype', 'original_time')
+    _lock = RLock()
+    __slots__ = ('locale', 'original')
 
     def __init__(self, locale: Optional[Locale]):
         self.locale = locale
@@ -53,27 +55,28 @@ class different_locale:
         locale = self.locale
         if not locale:
             return
-        self.original_ctype = getlocale(LC_CTYPE)
-        self.original_time = getlocale(LC_TIME)
-        setlocale(LC_TIME, locale)  # This is what calendar.different_locale used
-        setlocale(LC_CTYPE, locale)  # This is required for str encoding to work as expected
+        # locale.getlocale does not support LC_ALL, but `setlocale(LC_ALL)` with no locale to set will return a str
+        # containing all of the current locale settings as `key1=val1;key2=val2;...;keyN=valN`
+        self.original = setlocale(LC_ALL)
+        # The calendar.different_locale implementation only calls setlocale with LC_TIME, which caused LC_CTYPE
+        # to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results
+        setlocale(LC_ALL, f'LC_CTYPE={locale};LC_TIME={locale}')  # a subset of vars only affects the specified ones
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.locale:
-            setlocale(LC_TIME, self.original_time)
-            setlocale(LC_CTYPE, self.original_ctype)
+            setlocale(LC_ALL, self.original)
         self._lock.release()
 
 
 class DateTimeInput(InputType, ABC):
     dt_type: str
-    formats: List[str]
+    formats: Collection[str]
     locale: Optional[Locale]
 
     def __init_subclass__(cls, dt_type: str):  # noqa
         cls.dt_type = dt_type
 
-    def __init__(self, formats: List[str], locale: Locale = None):
+    def __init__(self, formats: Collection[str] = (), locale: Locale = None):
         self.formats = formats
         self.locale = locale
 
@@ -94,9 +97,20 @@ class DateTimeInput(InputType, ABC):
         raise ValueError(f'Expected a {self.dt_type} matching the following: {self.choice_str()}')
 
 
+class FormatMode(MissingMixin, Enum):
+    FULL = 'full'                   #: The full name of a given date/time unit
+    ABBREVIATION = 'abbreviation'   #: The abbreviation of a given date/time unit
+    NUMERIC = 'numeric'             #: The numeric representation of a given date/time unit
+    NUMERIC_ISO = 'numeric_iso'     #: The ISO numeric representation of a given date/time unit
+
+
 class Day(DateTimeInput, dt_type='day of the week'):
-    _str_formatters = {'%A': day_name, '%a': day_abbr}
-    _num_formatters = {'%u': True, '%w': False}
+    _outputs = {
+        FormatMode.FULL: day_name,
+        FormatMode.ABBREVIATION: day_abbr,
+        FormatMode.NUMERIC: range(7),
+        FormatMode.NUMERIC_ISO: range(1, 8),
+    }
 
     def __init__(
         self,
@@ -106,9 +120,7 @@ class Day(DateTimeInput, dt_type='day of the week'):
         numeric: Bool = False,
         iso: Bool = False,
         locale: Locale = None,
-        out_format: str = '%A',
-        out_numeric: Bool = False,
-        out_iso: Bool = False,
+        out_format: Union[str, FormatMode] = FormatMode.FULL,
         out_locale: Locale = None,
     ):
         """
@@ -120,28 +132,17 @@ class Day(DateTimeInput, dt_type='day of the week'):
         :param iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,
           where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.
         :param locale: An alternate locale to use when parsing input
-        :param out_format: Weekday output format
-        :param out_numeric: True to return the parsed weekday as a decimal number, False to return it as a string
-        :param out_iso: Ignored if ``out_numeric`` is not True.  If True, then the ISO numeric weekday will be returned.
+        :param out_format: A :class:`FormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
         """
-        formats = []
-        if full:
-            formats.append('%A')
-        if abbreviation:
-            formats.append('%a')
-        if numeric:
-            formats.append('%u' if iso else '%w')
-        if not formats:
+        if not (full or abbreviation or numeric):
             raise ValueError('At least one of full, abbreviation, or numeric must be True')
-        super().__init__(formats, locale)
+        super().__init__(locale=locale)
         self.full = full
         self.abbreviation = abbreviation
         self.numeric = numeric
         self.iso = iso
-        self.out_format = out_format
-        self.out_numeric = out_numeric
-        self.out_iso = out_iso
+        self.out_format = FormatMode(out_format)
         self.out_locale = out_locale or self.locale
 
     def _weekdays(self) -> Iterator[Tuple[int, str]]:
@@ -203,9 +204,14 @@ class Day(DateTimeInput, dt_type='day of the week'):
 
         raise InputValidationError(f'Expected a {self.dt_type} matching the following: {self.choice_str()}')
 
-    def _format_weekday(self, day_num: int) -> str:
+    def __call__(self, value: str) -> Union[str, int]:
+        day_num = self.parse_dow(value)
+        out_mode = self.out_format
+        if out_mode in (FormatMode.NUMERIC, FormatMode.NUMERIC_ISO):
+            return self._outputs[out_mode][day_num]
+
         try:
-            weekdays = self._str_formatters[self.out_format]
+            weekdays = self._outputs[out_mode]
         except KeyError:
             pass
         else:
@@ -213,17 +219,3 @@ class Day(DateTimeInput, dt_type='day of the week'):
                 return weekdays[day_num]
 
         raise ValueError(f'Unexpected output format={self.out_format!r} for weekday={day_num}')
-
-    def __call__(self, value: str) -> Union[str, int]:
-        day_num = self.parse_dow(value)
-        if self.out_numeric:
-            return (day_num + 1) if self.out_iso else day_num
-
-        try:
-            iso = self._num_formatters[self.out_format]
-        except KeyError:
-            pass
-        else:
-            return str((day_num + 1) if iso else day_num)
-
-        return self._format_weekday(day_num)
