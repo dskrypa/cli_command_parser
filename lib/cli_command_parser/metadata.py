@@ -57,7 +57,7 @@ class ProgramMetadata:
     package: str = Metadata(None)
     module: str = Metadata(None)
     command: str = Metadata(None)
-    prog: str = Metadata(None)
+    prog: str = Metadata(None)  # TODO: handle cmd defined as package, with different top level name
     url: str = Metadata(None)
     docs_url: str = Metadata(None)
     email: str = Metadata(None)

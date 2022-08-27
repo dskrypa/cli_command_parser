@@ -10,6 +10,7 @@ from typing import Any, Callable
 __all__ = ['InputType']
 
 TypeFunc = Callable[[str], Any]
+# TODO: Accept a tuple of types to apply to nargs=>1 in order
 
 
 class InputType(ABC):

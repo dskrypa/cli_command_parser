@@ -17,6 +17,7 @@ __all__ = ['format_help_entry', 'line_iter']
 
 Strs = Union[str, Sequence[str]]
 OptStrs = Optional[Strs]
+# TODO: wcwidth?
 
 
 def format_help_entry(
@@ -43,6 +44,9 @@ def format_help_entry(
     description_lines.extend(_norm_column(_single_line_strs(description), term_width - usage_width - 2))
     format_row = f'{pad_prefix}{{:<{after_pad_width}s}}  {{}}'.format
     return '\n'.join(format_row(*row).rstrip() for row in line_iter((usage, description_lines)))
+
+
+# TODO: Generic Table where above one just has no borders?
 
 
 def _description_start_line(usage: Iterable[str], max_usage_width: int) -> int:

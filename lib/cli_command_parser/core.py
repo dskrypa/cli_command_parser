@@ -25,6 +25,9 @@ Config = Optional[CommandConfig]
 AnyConfig = Union[Config, Dict[str, Any]]
 T = TypeVar('T')
 
+# TODO: Subcommands thru intermediary non-subcommand parent, possibly ABC, for common args?
+#  Document recipe if already possible
+
 
 class CommandMeta(ABCMeta, type):
     # noinspection PyUnresolvedReferences
