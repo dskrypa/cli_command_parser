@@ -111,6 +111,9 @@
 <span class="n">AnyConfig</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Config</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
 
+<span class="c1"># TODO: Subcommands thru intermediary non-subcommand parent, possibly ABC, for common args?</span>
+<span class="c1">#  Document recipe if already possible</span>
+
 
 <div class="viewcode-block" id="CommandMeta"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta">[docs]</a><span class="k">class</span> <span class="nc">CommandMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
     <span class="c1"># noinspection PyUnresolvedReferences</span>
