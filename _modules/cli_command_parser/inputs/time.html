@@ -103,23 +103,30 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">calendar</span> <span class="kn">import</span> <span class="n">day_name</span><span class="p">,</span> <span class="n">day_abbr</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">calendar</span> <span class="kn">import</span> <span class="n">day_name</span><span class="p">,</span> <span class="n">day_abbr</span><span class="p">,</span> <span class="n">month_name</span><span class="p">,</span> <span class="n">month_abbr</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">locale</span> <span class="kn">import</span> <span class="n">LC_ALL</span><span class="p">,</span> <span class="n">setlocale</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">RLock</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">MissingMixin</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Bool</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Day&#39;</span><span class="p">,</span> <span class="s1">&#39;FormatMode&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DTFormatMode&#39;</span><span class="p">,</span> <span class="s1">&#39;Day&#39;</span><span class="p">,</span> <span class="s1">&#39;Month&#39;</span><span class="p">,</span> <span class="s1">&#39;DateTime&#39;</span><span class="p">,</span> <span class="s1">&#39;Date&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">]</span>
 
 <span class="n">Locale</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+<span class="n">TimeBound</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="n">DT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;DT&#39;</span><span class="p">)</span>
+
+<span class="n">DEFAULT_DATE_FMT</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span>
+<span class="n">DEFAULT_TIME_FMT</span> <span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span>
+<span class="n">DEFAULT_DT_FMT</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span>
 
 
 <span class="k">class</span> <span class="nc">different_locale</span><span class="p">:</span>
@@ -154,50 +161,154 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">DateTimeInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">DTInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">locale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Locale</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">dt_type</span> <span class="o">=</span> <span class="n">dt_type</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">locale</span> <span class="o">=</span> <span class="n">locale</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
 
-    <span class="k">def</span> <span class="nf">parse_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">pass</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> matching the following: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="c1"># region Calendar Unit Inputs</span>
 
 
-<div class="viewcode-block" id="FormatMode"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode">[docs]</a><span class="k">class</span> <span class="nc">FormatMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="DTFormatMode"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode">[docs]</a><span class="k">class</span> <span class="nc">DTFormatMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">FULL</span> <span class="o">=</span> <span class="s1">&#39;full&#39;</span>                   <span class="c1">#: The full name of a given date/time unit</span>
     <span class="n">ABBREVIATION</span> <span class="o">=</span> <span class="s1">&#39;abbreviation&#39;</span>   <span class="c1">#: The abbreviation of a given date/time unit</span>
     <span class="n">NUMERIC</span> <span class="o">=</span> <span class="s1">&#39;numeric&#39;</span>             <span class="c1">#: The numeric representation of a given date/time unit</span>
     <span class="n">NUMERIC_ISO</span> <span class="o">=</span> <span class="s1">&#39;numeric_iso&#39;</span>     <span class="c1">#: The ISO numeric representation of a given date/time unit</span></div>
 
 
-<div class="viewcode-block" id="Day"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day">[docs]</a><span class="k">class</span> <span class="nc">Day</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;day of the week&#39;</span><span class="p">):</span>
-    <span class="n">_outputs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">FormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">day_name</span><span class="p">,</span>
-        <span class="n">FormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">:</span> <span class="n">day_abbr</span><span class="p">,</span>
-        <span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
-        <span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+<span class="k">class</span> <span class="nc">CalendarUnitInput</span><span class="p">(</span><span class="n">DTInput</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="n">_formats</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span>
+    <span class="n">_min_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">min_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_min_index</span> <span class="o">=</span> <span class="n">min_index</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">abbreviation</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_format</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DTFormatMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
+        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input type representing a date/time unit.</span>
+
+<span class="sd">        :param full: Allow the full unit name to be provided</span>
+<span class="sd">        :param abbreviation: Allow abbreviations of unit names to be provided</span>
+<span class="sd">        :param numeric: Allow unit values to be specified as a decimal number</span>
+<span class="sd">        :param locale: An alternate locale to use when parsing input</span>
+<span class="sd">        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.</span>
+<span class="sd">        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">full</span> <span class="ow">or</span> <span class="n">abbreviation</span> <span class="ow">or</span> <span class="n">numeric</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one of full, abbreviation, or numeric must be True&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="o">=</span> <span class="n">full</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span> <span class="o">=</span> <span class="n">abbreviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span> <span class="o">=</span> <span class="n">numeric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="p">(</span><span class="n">out_format</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span> <span class="o">=</span> <span class="n">out_locale</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">locale</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported out_format=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_format</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> inputs&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">min_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_index</span>
+        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">][</span><span class="n">min_index</span><span class="p">:],</span> <span class="n">min_index</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">][</span><span class="n">min_index</span><span class="p">:],</span> <span class="n">min_index</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">dow</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;iso&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span>
+            <span class="c1"># fmt: off</span>
+            <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">[</span><span class="n">mode</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_min_index</span><span class="p">:]))</span>
+            <span class="c1"># fmt: on</span>
+        <span class="k">return</span> <span class="n">choices</span>
+
+    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the date/time unit from the given value.</span>
+
+<span class="sd">        This method does not use :meth:`python:datetime.strptime` because it is not accurate for standalone numeric</span>
+<span class="sd">        weekdays.</span>
+
+<span class="sd">        :param value: The value provided as input</span>
+<span class="sd">        :return: The numeric unit value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_numeric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">InputValidationError</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="n">choice_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">dow</span><span class="o">.</span><span class="n">casefold</span><span class="p">():</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">()}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">choice_map</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalized</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_index</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="p">)</span>
+
+        <span class="n">out_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span>
+        <span class="k">if</span> <span class="n">out_mode</span> <span class="ow">in</span> <span class="p">(</span><span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">,</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">[</span><span class="n">out_mode</span><span class="p">][</span><span class="n">normalized</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">names_or_abbreviations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">[</span><span class="n">out_mode</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">names_or_abbreviations</span><span class="p">[</span><span class="n">normalized</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected output format=</span><span class="si">{</span><span class="n">out_mode</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">normalized</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Day"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day">[docs]</a><span class="k">class</span> <span class="nc">Day</span><span class="p">(</span><span class="n">CalendarUnitInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;day of the week&#39;</span><span class="p">):</span>
+    <span class="n">_formats</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">day_name</span><span class="p">,</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">:</span> <span class="n">day_abbr</span><span class="p">,</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
     <span class="p">}</span>
 
+    <span class="nd">@overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -206,7 +317,7 @@
         <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">iso</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">out_format</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FormatMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">FormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
+        <span class="n">out_format</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DTFormatMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
         <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -218,43 +329,22 @@
 <span class="sd">        :param iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,</span>
 <span class="sd">          where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.</span>
 <span class="sd">        :param locale: An alternate locale to use when parsing input</span>
-<span class="sd">        :param out_format: A :class:`FormatMode` or str that matches a format mode.  Defaults to full weekday name.</span>
+<span class="sd">        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.</span>
 <span class="sd">        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">full</span> <span class="ow">or</span> <span class="n">abbreviation</span> <span class="ow">or</span> <span class="n">numeric</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one of full, abbreviation, or numeric must be True&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="o">=</span> <span class="n">full</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span> <span class="o">=</span> <span class="n">abbreviation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span> <span class="o">=</span> <span class="n">numeric</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">iso</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="o">=</span> <span class="n">iso</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span> <span class="o">=</span> <span class="n">FormatMode</span><span class="p">(</span><span class="n">out_format</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span> <span class="o">=</span> <span class="n">out_locale</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">locale</span>
 
-    <span class="k">def</span> <span class="nf">_weekdays</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">day_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">day_abbr</span><span class="p">)</span>
-
-<div class="viewcode-block" id="Day.choice_str"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.choice_str">[docs]</a>    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">dow</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weekdays</span><span class="p">()]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
-            <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
-            <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)))</span>
-
-        <span class="k">return</span> <span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">_parse_dow_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<div class="viewcode-block" id="Day.parse_numeric"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_numeric">[docs]</a>    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">dow_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid numeric weekday=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
+        <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">dow_num</span> <span class="o">&lt;=</span> <span class="n">stop</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">dow_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="n">dow_num</span>
 
@@ -262,49 +352,202 @@
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid weekday=</span><span class="si">{</span><span class="n">dow_num</span><span class="si">}</span><span class="s1"> - expected a value&#39;</span>
                 <span class="sa">f</span><span class="s1">&#39; between </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">day_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">) and </span><span class="si">{</span><span class="n">stop</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">day_name</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Month"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month">[docs]</a><span class="k">class</span> <span class="nc">Month</span><span class="p">(</span><span class="n">CalendarUnitInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">min_index</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">_formats</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">month_name</span><span class="p">,</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">:</span> <span class="n">month_abbr</span><span class="p">,</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">abbreviation</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_format</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DTFormatMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
+        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input type representing a month.</span>
+
+<span class="sd">        :param full: Allow the full month name to be provided</span>
+<span class="sd">        :param abbreviation: Allow abbreviations of month names to be provided</span>
+<span class="sd">        :param numeric: Allow months to be specified as a decimal number</span>
+<span class="sd">        :param locale: An alternate locale to use when parsing input</span>
+<span class="sd">        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full month name.</span>
+<span class="sd">        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">numeric</span><span class="o">=</span><span class="n">numeric</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Month.parse_numeric"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month.parse_numeric">[docs]</a>    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid numeric weekday=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">month</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">month</span>
+
+        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid month=</span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s1"> - expected a value between 1 (</span><span class="si">{</span><span class="n">month_name</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">) and 12 (</span><span class="si">{</span><span class="n">month_name</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="p">)</span></div></div>
+
+
+<span class="c1"># endregion</span>
+
+
+<span class="c1"># region Date/Time Parse Inputs</span>
+
+
+<span class="k">class</span> <span class="nc">DateTimeInput</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">DT</span><span class="p">],</span> <span class="n">DTInput</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">DT</span><span class="p">]</span>
+    <span class="n">_earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">DT</span><span class="p">]):</span>  <span class="c1"># noqa</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="n">dt_type</span><span class="o">=</span><span class="nb">type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">earliest</span> <span class="o">=</span> <span class="n">earliest</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latest</span> <span class="o">=</span> <span class="n">latest</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_fix_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dt_type</span><span class="p">)()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dt</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">earliest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="n">normalize_dt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_earliest</span><span class="p">))</span>
+
+    <span class="nd">@earliest</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">earliest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_bound_combo</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_earliest</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="n">normalize_dt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">))</span>
+
+    <span class="nd">@latest</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">latest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_bound_combo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_earliest</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_bound_combo</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">raw_earliest</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">raw_latest</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">):</span>
+        <span class="n">earliest</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="n">normalize_dt</span><span class="p">(</span><span class="n">raw_earliest</span><span class="p">))</span>
+        <span class="n">latest</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="n">normalize_dt</span><span class="p">(</span><span class="n">raw_latest</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">earliest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">earliest</span> <span class="o">&gt;=</span> <span class="n">latest</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid combination of earliest=</span><span class="si">{</span><span class="n">raw_earliest</span><span class="si">!r}</span><span class="s1"> and latest=</span><span class="si">{</span><span class="n">raw_latest</span><span class="si">!r}</span><span class="s1"> values&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; - </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="Day.parse_dow"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_dow">[docs]</a>    <span class="k">def</span> <span class="nf">parse_dow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parse the day of week from the given value.</span>
+    <span class="k">def</span> <span class="nf">parse_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
 
-<span class="sd">        This method does not use :meth:`python:datetime.strptime` because it is not accurate for standalone numeric</span>
-<span class="sd">        weekdays.</span>
+        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> matching one of the following formats: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
 
-<span class="sd">        :param value: The value provided as input</span>
-<span class="sd">        :return: The numeric weekday (non-ISO)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_dow_num</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">InputValidationError</span><span class="p">:</span>
-                <span class="k">raise</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_dt</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
-        <span class="n">choice_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">dow</span><span class="o">.</span><span class="n">casefold</span><span class="p">():</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weekdays</span><span class="p">()}</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">choice_map</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> matching the following: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+        <span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earliest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1"> &lt;= &#39;</span> <span class="k">if</span> <span class="n">earliest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; &lt;= </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">choices</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">]&#39;</span> <span class="k">if</span> <span class="n">prefix</span> <span class="ow">or</span> <span class="n">suffix</span> <span class="k">else</span> <span class="n">choices</span>
 
-<div class="viewcode-block" id="Day.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-        <span class="n">day_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_dow</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="n">out_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span>
-        <span class="k">if</span> <span class="n">out_mode</span> <span class="ow">in</span> <span class="p">(</span><span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">,</span> <span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="n">out_mode</span><span class="p">][</span><span class="n">day_num</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">_validate_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">DT</span><span class="p">):</span>
+        <span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earliest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest</span>
+        <span class="n">check_earliest</span> <span class="o">=</span> <span class="n">earliest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">check_latest</span> <span class="o">=</span> <span class="n">latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">check_earliest</span> <span class="ow">or</span> <span class="n">check_latest</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">check_earliest</span> <span class="ow">and</span> <span class="n">dt</span> <span class="o">&lt;</span> <span class="n">earliest</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">check_latest</span> <span class="ow">and</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="n">latest</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">check_earliest</span> <span class="ow">and</span> <span class="n">check_latest</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;between </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">)</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">)</span><span class="si">}</span><span class="s1"> (inclusive)&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;after </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">check_earliest</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;before </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="si">}</span><span class="s1"> - a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1"> is required&#39;</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">weekdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="n">out_mode</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">weekdays</span><span class="p">[</span><span class="n">day_num</span><span class="p">]</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_bounds</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parsed</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected output format=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_format</span><span class="si">!r}</span><span class="s1"> for weekday=</span><span class="si">{</span><span class="n">day_num</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">datetime</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formats</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DEFAULT_DT_FMT</span><span class="p">,),</span> <span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">latest</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Date"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date">[docs]</a><span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">date</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formats</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DEFAULT_DATE_FMT</span><span class="p">,),</span> <span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">latest</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Time"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time">[docs]</a><span class="k">class</span> <span class="nc">Time</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">time</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formats</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DEFAULT_TIME_FMT</span><span class="p">,),</span> <span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">latest</span><span class="p">)</span></div>
+
+
+<span class="c1"># endregion</span>
+
+
+<span class="k">def</span> <span class="nf">dt_repr</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="n">use_repr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dt_str</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>  <span class="c1"># TypeError for date objects, ValueError for time objects</span>
+        <span class="n">dt_str</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dt_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_repr</span> <span class="k">else</span> <span class="n">dt_str</span>
+
+
+<span class="k">def</span> <span class="nf">normalize_dt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">now</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">now</span> <span class="o">+</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">time</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="k">if</span> <span class="n">now</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">now</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Unexpected datetime specifier type=</span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> for value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span>
+        <span class="s1">&#39; (expected datetime, date, time, timedelta, or None)&#39;</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

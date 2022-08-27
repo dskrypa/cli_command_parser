@@ -135,8 +135,6 @@
 </li>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.__call__">(cli_command_parser.inputs.numeric.Range method)</a>
 </li>
-        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.__call__">(cli_command_parser.inputs.time.Day method)</a>
-</li>
         <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.__call__">(cli_command_parser.parameters.choice_map.Action method)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__">(cli_command_parser.parameters.options.ActionFlag method)</a>
@@ -162,7 +160,7 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode.ABBREVIATION">ABBREVIATION (cli_command_parser.inputs.time.FormatMode attribute)</a>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.ABBREVIATION">ABBREVIATION (cli_command_parser.inputs.time.DTFormatMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.accepts_none">accepts_none (cli_command_parser.parameters.base.Parameter attribute)</a>
 
@@ -385,8 +383,6 @@
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim">choice_delim (cli_command_parser.config.CommandConfig attribute)</a>
-</li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.choice_str">choice_str() (cli_command_parser.inputs.time.Day method)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap">ChoiceMap (class in cli_command_parser.inputs.choices)</a>
 </li>
@@ -710,6 +706,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode.DASH">DASH (cli_command_parser.config.OptionNameMode attribute)</a>
 </li>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date">Date (class in cli_command_parser.inputs.time)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime">DateTime (class in cli_command_parser.inputs.time)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day">Day (class in cli_command_parser.inputs.time)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam.default">default (cli_command_parser.inputs.utils.InputParam attribute)</a>
@@ -732,12 +732,12 @@
         <li><a href="api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional.params.default">(cli_command_parser.parameters.positionals.Positional parameter)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional.__init_subclass__.params.default_ok">default_ok (cli_command_parser.parameters.base.BasePositional.__init_subclass__ parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.deferred">deferred (cli_command_parser.parser.CommandParser attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params.description">description (cli_command_parser.core.CommandMeta parameter)</a>
 
       <ul>
@@ -760,7 +760,19 @@
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url">docs_url (cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.dt_type">dt_type (cli_command_parser.inputs.time.Day attribute)</a>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date.dt_type">dt_type (cli_command_parser.inputs.time.Date attribute)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime.dt_type">(cli_command_parser.inputs.time.DateTime attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.dt_type">(cli_command_parser.inputs.time.Day attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month.dt_type">(cli_command_parser.inputs.time.Month attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time.dt_type">(cli_command_parser.inputs.time.Time attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode">DTFormatMode (class in cli_command_parser.inputs.time)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -916,13 +928,11 @@
         <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.format_usage_parts">(cli_command_parser.formatting.params.TriFlagHelpFormatter method)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode">FormatMode (class in cli_command_parser.inputs.time)</a>
-</li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter">formatter (cli_command_parser.command_parameters.CommandParameters property)</a>
 </li>
       <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.consume_values.params.found">found (cli_command_parser.parser.CommandParser.consume_values parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode.FULL">FULL (cli_command_parser.inputs.time.FormatMode attribute)</a>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.FULL">FULL (cli_command_parser.inputs.time.DTFormatMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.func">func (cli_command_parser.parameters.options.ActionFlag parameter)</a>
 
@@ -1295,6 +1305,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module">module (cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month">Month (class in cli_command_parser.inputs.time)</a>
+</li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.multiple_action_flags">multiple_action_flags (cli_command_parser.config.CommandConfig attribute)</a>
 
       <ul>
@@ -1363,9 +1375,9 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.num_provided">num_provided() (cli_command_parser.context.Context method)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode.NUMERIC">NUMERIC (cli_command_parser.inputs.time.FormatMode attribute)</a>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.NUMERIC">NUMERIC (cli_command_parser.inputs.time.DTFormatMode attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode.NUMERIC_ISO">NUMERIC_ISO (cli_command_parser.inputs.time.FormatMode attribute)</a>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.NUMERIC_ISO">NUMERIC_ISO (cli_command_parser.inputs.time.DTFormatMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange">NumRange (class in cli_command_parser.inputs.numeric)</a>
 </li>
@@ -1451,8 +1463,12 @@
 </li>
       <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">parse_args() (cli_command_parser.parser.CommandParser class method)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_dow">parse_dow() (cli_command_parser.inputs.time.Day method)</a>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_numeric">parse_numeric() (cli_command_parser.inputs.time.Day method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month.parse_numeric">(cli_command_parser.inputs.time.Month method)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.parsed_action_flags">parsed_action_flags (cli_command_parser.context.Context property)</a>
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.parsed_always_available_action_flags">parsed_always_available_action_flags (cli_command_parser.context.Context property)</a>
@@ -1724,6 +1740,8 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.terminal_width">terminal_width (cli_command_parser.context.Context property)</a>
 </li>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time">Time (class in cli_command_parser.inputs.time)</a>
+</li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands.params.top_only">top_only (cli_command_parser.documentation.load_commands parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">TriFlag (class in cli_command_parser.parameters.options)</a>
@@ -1734,6 +1752,8 @@
 </li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.format_help.params.tw_offset">tw_offset (cli_command_parser.formatting.params.GroupHelpFormatter.format_help parameter)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap.params.type">type (cli_command_parser.inputs.choices.ChoiceMap parameter)</a>
 
       <ul>
@@ -1801,11 +1821,7 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.is_valid_type.params.value">value (cli_command_parser.inputs.base.InputType.is_valid_type parameter)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_dow.params.value">(cli_command_parser.inputs.time.Day.parse_dow parameter)</a>
 </li>
-      </ul></li>
       <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable">variable (cli_command_parser.nargs.Nargs attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version">version (cli_command_parser.metadata.ProgramMetadata attribute)</a>
