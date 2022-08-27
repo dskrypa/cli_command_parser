@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.08.27 documentation</title>
+  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.08.27-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -157,6 +157,10 @@
 <span class="sd">    :UNDERSCORE: ``--foo_bar``</span>
 <span class="sd">    :DASH: ``--foo-bar``</span>
 <span class="sd">    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted</span>
+<span class="sd">    :BOTH_UNDERSCORE: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo_bar`` with be displayed</span>
+<span class="sd">      in help text</span>
+<span class="sd">    :BOTH_DASH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo-bar`` with be displayed</span>
+<span class="sd">      in help text</span>
 
 <span class="sd">    If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</span>
 
@@ -164,13 +168,17 @@
 <span class="sd">    where ``&lt;mode&gt;`` is one of:</span>
 
 <span class="sd">        - ``OptionNameMode.UNDERSCORE`` or ``OptionNameMode.DASH`` or ``OptionNameMode.BOTH``</span>
-<span class="sd">        - ``&#39;underscore&#39;`` or ``&#39;dash&#39;`` or ``&#39;both&#39;``</span>
-<span class="sd">        - ``&#39;_&#39;`` or ``&#39;-&#39;`` or ``&#39;*&#39;``</span>
+<span class="sd">          or ``OptionNameMode.BOTH_UNDERSCORE`` or ``OptionNameMode.BOTH_DASH``</span>
+<span class="sd">        - ``&#39;underscore&#39;`` or ``&#39;dash&#39;`` or ``&#39;both&#39;`` or ``&#39;both_underscore&#39;`` or ``&#39;both_dash&#39;``</span>
+<span class="sd">        - ``&#39;_&#39;`` or ``&#39;-&#39;`` or ``&#39;*&#39;`` or ``&#39;*_&#39;`` or ``&#39;*-&#39;``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">UNDERSCORE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">DASH</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">BOTH</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">BOTH</span> <span class="o">=</span> <span class="mi">3</span>                <span class="c1"># = 1|2</span>
+    <span class="c1">#                         &amp; 4  -&gt; display options set</span>
+    <span class="n">BOTH_UNDERSCORE</span> <span class="o">=</span> <span class="mi">15</span>    <span class="c1"># &amp; 8  -&gt; show only underscore version</span>
+    <span class="n">BOTH_DASH</span> <span class="o">=</span> <span class="mi">23</span>          <span class="c1"># &amp; 16 -&gt; show only dash version</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">OptionNameMode</span><span class="p">:</span>
@@ -181,7 +189,17 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
-<span class="n">OPT_NAME_MODE_ALIASES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH</span><span class="p">}</span>
+<span class="n">OPT_NAME_MODE_ALIASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">,</span>
+    <span class="s1">&#39;_&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">,</span>
+    <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
+    <span class="s1">&#39;-_&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
+    <span class="s1">&#39;_-&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH</span><span class="p">,</span>
+    <span class="s1">&#39;*_&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH_UNDERSCORE</span><span class="p">,</span>
+    <span class="s1">&#39;_*&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH_UNDERSCORE</span><span class="p">,</span>
+    <span class="s1">&#39;*-&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH_DASH</span><span class="p">,</span>
+    <span class="s1">&#39;-*&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH_DASH</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <span class="c1"># endregion</span>

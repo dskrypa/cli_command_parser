@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.testing &mdash; CLI Command Parser 2022.08.27 documentation</title>
+  <title>cli_command_parser.testing &mdash; CLI Command Parser 2022.08.27-1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -102,10 +102,10 @@
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_params</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UsageError</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParserTest&#39;</span><span class="p">,</span> <span class="s1">&#39;RedirectStreams&#39;</span><span class="p">,</span> <span class="s1">&#39;format_diff&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParserTest&#39;</span><span class="p">,</span> <span class="s1">&#39;RedirectStreams&#39;</span><span class="p">,</span> <span class="s1">&#39;format_diff&#39;</span><span class="p">,</span> <span class="s1">&#39;get_rst_text&#39;</span><span class="p">,</span> <span class="s1">&#39;get_help_text&#39;</span><span class="p">,</span> <span class="s1">&#39;get_usage_text&#39;</span><span class="p">]</span>
 
 <span class="n">Argv</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="n">Expected</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
@@ -320,6 +320,28 @@
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="p">:</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">orig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_usage_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_usage_text">[docs]</a><span class="k">def</span> <span class="nf">get_usage_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">cmd</span><span class="p">()</span><span class="o">.</span><span class="n">ctx</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_help_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_help_text">[docs]</a><span class="k">def</span> <span class="nf">get_help_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">Command</span><span class="p">):</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">()</span>
+
+    <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="o">=</span> <span class="mi">199</span>
+    <span class="k">with</span> <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_rst_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text">[docs]</a><span class="k">def</span> <span class="nf">get_rst_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">Command</span><span class="p">):</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">()</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="o">=</span> <span class="mi">199</span>
+    <span class="k">with</span> <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_rst</span><span class="p">()</span></div>
 </pre></div>
 
            </div>

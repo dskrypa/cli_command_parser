@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Base Module &mdash; CLI Command Parser 2022.08.27 documentation</title>
+  <title>Base Module &mdash; CLI Command Parser 2022.08.27-1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -72,6 +72,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Base Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.choice_map.html">Choice_Map Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.groups.html">Groups Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.option_strings.html">Option_Strings Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.options.html">Options Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html">Pass_Thru Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.positionals.html">Positionals Module</a></li>
@@ -311,28 +312,8 @@ Option/Flag/Counter/etc.</p></li>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.parameters.base.BaseOption.short_combinable">
-<span class="sig-name descname"><span class="pre">short_combinable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cli_command_parser.parameters.base.BaseOption.short_combinable" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.parameters.base.BaseOption.name_mode">
-<span class="sig-name descname"><span class="pre">name_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><span class="pre">OptionNameMode</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cli_command_parser.parameters.base.BaseOption.name_mode" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cli_command_parser.parameters.base.BaseOption.long_opts">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">long_opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/parameters/base.html#BaseOption.long_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.base.BaseOption.long_opts" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cli_command_parser.parameters.base.BaseOption.short_opts">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">short_opts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/parameters/base.html#BaseOption.short_opts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.base.BaseOption.short_opts" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.base.BaseOption.option_strs">
-<span class="sig-name descname"><span class="pre">option_strs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.10)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/base.html#BaseOption.option_strs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.base.BaseOption.option_strs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">option_strs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.OptionStrings" title="cli_command_parser.parameters.option_strings.OptionStrings"><span class="pre">OptionStrings</span></a></em><a class="headerlink" href="#cli_command_parser.parameters.base.BaseOption.option_strs" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.options &mdash; CLI Command Parser 2022.08.27 documentation</title>
+  <title>cli_command_parser.parameters.options &mdash; CLI Command Parser 2022.08.27-1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -101,19 +101,20 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">OptionNameMode</span>
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">parameter_action</span>
+<span class="kn">from</span> <span class="nn">.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">CommandType</span>
     <span class="kn">from</span> <span class="nn">..commands</span> <span class="kn">import</span> <span class="n">Command</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Option&#39;</span><span class="p">,</span> <span class="s1">&#39;Flag&#39;</span><span class="p">,</span> <span class="s1">&#39;TriFlag&#39;</span><span class="p">,</span> <span class="s1">&#39;ActionFlag&#39;</span><span class="p">,</span> <span class="s1">&#39;Counter&#39;</span><span class="p">,</span> <span class="s1">&#39;action_flag&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">,</span> <span class="s1">&#39;after_main&#39;</span><span class="p">]</span>
+<span class="c1"># TODO: envvar param to pull value from an env var (or tuple of vars, in order) if no value given, but env var is set?</span>
 
 
 <div class="viewcode-block" id="Option"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option">[docs]</a><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">):</span>
@@ -266,7 +267,8 @@
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_alt_short</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_opt_str_cls</span> <span class="o">=</span> <span class="n">TriFlagOptionStrings</span>
+    <span class="n">option_strs</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -295,63 +297,19 @@
         <span class="n">alt_opt_strs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="n">alt_short</span><span class="p">,</span> <span class="n">alt_long</span><span class="p">)))</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="o">*</span><span class="n">alt_opt_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">consts</span> <span class="o">=</span> <span class="n">consts</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_alt_prefix</span> <span class="o">=</span> <span class="n">alt_prefix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span> <span class="o">=</span> <span class="p">(</span><span class="n">alt_long</span><span class="p">,)</span> <span class="k">if</span> <span class="n">alt_long</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">alt_short</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span> <span class="o">=</span> <span class="n">alt_short</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">add_alts</span><span class="p">(</span><span class="n">alt_prefix</span><span class="p">,</span> <span class="n">alt_long</span><span class="p">,</span> <span class="n">alt_short</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
-            <span class="k">if</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;--</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_prefix</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)))</span>
-            <span class="k">if</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_long_opts</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">update_alts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TriFlag.store_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.store_const">[docs]</a>    <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">opt_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt_allowed</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opt_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">alt_allowed</span><span class="p">:</span>
             <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="TriFlag.alt_allowed"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.alt_allowed">[docs]</a>    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">alt_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="n">allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="p">)</span>
-        <span class="n">short</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span>
-        <span class="k">if</span> <span class="n">short</span><span class="p">:</span>
-            <span class="n">allowed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">short</span><span class="p">)</span>
-            <span class="n">allowed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">short</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="k">return</span> <span class="n">allowed</span></div>
-
-<div class="viewcode-block" id="TriFlag.long_primary_opts"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.long_primary_opts">[docs]</a>    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">long_primary_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_opts</span> <span class="k">if</span> <span class="n">opt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="TriFlag.short_primary_opts"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.short_primary_opts">[docs]</a>    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">short_primary_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="n">alt_short</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_opts</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">!=</span> <span class="n">alt_short</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="TriFlag.long_alt_opts"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.long_alt_opts">[docs]</a>    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">long_alt_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">opt</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">opt</span><span class="p">),</span> <span class="n">opt</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="TriFlag.short_alt_opts"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.short_alt_opts">[docs]</a>    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">short_alt_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span> <span class="k">else</span> <span class="p">[]</span></div>
-
-<div class="viewcode-block" id="TriFlag.primary_option_strs"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.primary_option_strs">[docs]</a>    <span class="k">def</span> <span class="nf">primary_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_primary_opts</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_primary_opts</span></div>
-
-<div class="viewcode-block" id="TriFlag.alt_option_strs"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.alt_option_strs">[docs]</a>    <span class="k">def</span> <span class="nf">alt_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_alt_opts</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_alt_opts</span></div></div>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="ActionFlag"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag">[docs]</a><span class="k">class</span> <span class="nc">ActionFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">)):</span>
@@ -502,7 +460,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">combinable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_combinable</span>
+            <span class="n">combinable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">combinable</span>
             <span class="k">if</span> <span class="n">short_combo</span> <span class="ow">and</span> <span class="n">combinable</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">combinable</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># +1 for the -short that preceded this value</span>
             <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;bad counter value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
