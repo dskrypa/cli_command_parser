@@ -124,11 +124,12 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
 
     def format_usage_parts(self, delim: str = ', ') -> Union[str, Tuple[str, ...]]:
         param: BaseOption = self.param
+        opts = param.option_strs
         if param.nargs == 0:
-            return delim.join(param.option_strs())
+            return delim.join(opts.option_strs())
 
         metavar = self._format_usage_metavar()
-        option_strs = tuple(param.option_strs())
+        option_strs = tuple(opts.option_strs())
         usage_iter = (f'{opt} {metavar}' for opt in option_strs)
         options = len(option_strs)
         if options > 1 and (options * len(metavar) + 2) > max(78, ctx.terminal_width - 2) / 2:
@@ -143,7 +144,7 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             return parts if isinstance(parts, str) else ''.join(parts)
 
         param: BaseOption = self.param
-        opt = param.long_opts[0]
+        opt = param.option_strs.display_long[0]
         if not include_meta or param.nargs == 0:
             return opt
         return f'{opt} {self._format_usage_metavar()}'
@@ -156,17 +157,17 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
 
 class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
     def format_usage_parts(self, delim: str = ', ') -> Union[str, Tuple[str, ...]]:
-        param: TriFlag = self.param
-        primary = delim.join(param.primary_option_strs())
-        alts = delim.join(param.alt_option_strs())
+        opts = self.param.option_strs
+        primary = delim.join(opts.primary_option_strs())
+        alts = delim.join(opts.alt_option_strs())
         return primary, alts
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if full:
             return '{} | {}'.format(*self.format_usage_parts(delim))
         else:
-            param: TriFlag = self.param
-            return f'{param.long_primary_opts[0]} | {param.long_alt_opts[0]}'
+            opts = self.param.option_strs
+            return f'{opts.display_long_primary[0]} | {opts.display_long_alt[0]}'
 
 
 class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):

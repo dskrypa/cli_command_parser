@@ -15,19 +15,20 @@ try:
 except ImportError:
     from ..compat import cached_property
 
-from ..config import OptionNameMode
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import InputTypeFunc, normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet, Bool
 from .base import BasicActionMixin, BaseOption, parameter_action
+from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
     from ..core import CommandType
     from ..commands import Command
 
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
+# TODO: envvar param to pull value from an env var (or tuple of vars, in order) if no value given, but env var is set?
 
 
 class Option(BasicActionMixin, BaseOption):
@@ -180,7 +181,8 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
-    _alt_short = None
+    _opt_str_cls = TriFlagOptionStrings
+    option_strs: TriFlagOptionStrings
 
     def __init__(
         self,
@@ -209,63 +211,19 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
         alt_opt_strs = tuple(filter(None, (alt_short, alt_long)))
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
         self.consts = consts
-        self._alt_prefix = alt_prefix
-        self._alt_long = (alt_long,) if alt_long else set()
-        if alt_short:
-            self._alt_short = alt_short
+        self.option_strs.add_alts(alt_prefix, alt_long, alt_short)
 
     def __set_name__(self, command: CommandType, name: str):
         super().__set_name__(command, name)
-        if not self._alt_long:
-            mode = self.name_mode if self.name_mode is not None else self._config(command).option_name_mode
-            if mode & OptionNameMode.DASH:
-                self._alt_long.add('--{}-{}'.format(self._alt_prefix, name.replace('_', '-')))
-            if mode & OptionNameMode.UNDERSCORE:
-                self._alt_long.add(f'--{self._alt_prefix}_{name}')
-
-            self._long_opts.update(self._alt_long)
+        self.option_strs.update_alts(self, command, name)
 
     @parameter_action
     def store_const(self, opt_str: str):
-        if opt_str in self.alt_allowed:
+        if opt_str in self.option_strs.alt_allowed:
             const = self.consts[1]
         else:
             const = self.consts[0]
         ctx.set_parsing_value(self, const)
-
-    @cached_property
-    def alt_allowed(self) -> Set[str]:
-        allowed = set(self._alt_long)
-        short = self._alt_short
-        if short:
-            allowed.add(short)
-            allowed.add(short[1:])
-        return allowed
-
-    @cached_property
-    def long_primary_opts(self) -> List[str]:
-        return [opt for opt in self.long_opts if opt not in self._alt_long]
-
-    @cached_property
-    def short_primary_opts(self) -> List[str]:
-        alt_short = self._alt_short
-        return [opt for opt in self.short_opts if opt != alt_short]
-
-    @cached_property
-    def long_alt_opts(self) -> List[str]:
-        return sorted(self._alt_long, key=lambda opt: (-len(opt), opt))
-
-    @cached_property
-    def short_alt_opts(self) -> List[str]:
-        return [self._alt_short] if self._alt_short else []
-
-    def primary_option_strs(self) -> Iterator[str]:
-        yield from self.long_primary_opts
-        yield from self.short_primary_opts
-
-    def alt_option_strs(self) -> Iterator[str]:
-        yield from self.long_alt_opts
-        yield from self.short_alt_opts
 
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
@@ -416,7 +374,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
-            combinable = self.short_combinable
+            combinable = self.option_strs.combinable
             if short_combo and combinable and all(c in combinable for c in value):
                 return len(value) + 1  # +1 for the -short that preceded this value
             raise BadArgument(self, f'bad counter value={value!r}') from e

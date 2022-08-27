@@ -71,6 +71,10 @@ class OptionNameMode(FixedFlag):
     :UNDERSCORE: ``--foo_bar``
     :DASH: ``--foo-bar``
     :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted
+    :BOTH_UNDERSCORE: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo_bar`` with be displayed
+      in help text
+    :BOTH_DASH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo-bar`` with be displayed
+      in help text
 
     If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.
 
@@ -78,13 +82,17 @@ class OptionNameMode(FixedFlag):
     where ``<mode>`` is one of:
 
         - ``OptionNameMode.UNDERSCORE`` or ``OptionNameMode.DASH`` or ``OptionNameMode.BOTH``
-        - ``'underscore'`` or ``'dash'`` or ``'both'``
-        - ``'_'`` or ``'-'`` or ``'*'``
+          or ``OptionNameMode.BOTH_UNDERSCORE`` or ``OptionNameMode.BOTH_DASH``
+        - ``'underscore'`` or ``'dash'`` or ``'both'`` or ``'both_underscore'`` or ``'both_dash'``
+        - ``'_'`` or ``'-'`` or ``'*'`` or ``'*_'`` or ``'*-'``
     """
 
     UNDERSCORE = 1
     DASH = 2
-    BOTH = 3
+    BOTH = 3                # = 1|2
+    #                         & 4  -> display options set
+    BOTH_UNDERSCORE = 15    # & 8  -> show only underscore version
+    BOTH_DASH = 23          # & 16 -> show only dash version
 
     @classmethod
     def _missing_(cls, value: Union[str, int]) -> OptionNameMode:
@@ -95,7 +103,17 @@ class OptionNameMode(FixedFlag):
         return super()._missing_(value)
 
 
-OPT_NAME_MODE_ALIASES = {'-': OptionNameMode.DASH, '_': OptionNameMode.UNDERSCORE, '*': OptionNameMode.BOTH}
+OPT_NAME_MODE_ALIASES = {
+    '-': OptionNameMode.DASH,
+    '_': OptionNameMode.UNDERSCORE,
+    '*': OptionNameMode.BOTH,
+    '-_': OptionNameMode.BOTH,
+    '_-': OptionNameMode.BOTH,
+    '*_': OptionNameMode.BOTH_UNDERSCORE,
+    '_*': OptionNameMode.BOTH_UNDERSCORE,
+    '*-': OptionNameMode.BOTH_DASH,
+    '-*': OptionNameMode.BOTH_DASH,
+}
 
 
 # endregion

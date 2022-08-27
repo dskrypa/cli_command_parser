@@ -13,7 +13,7 @@ from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usa
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
-from cli_command_parser.testing import ParserTest, RedirectStreams
+from cli_command_parser.testing import ParserTest, RedirectStreams, get_rst_text, get_help_text, get_usage_text
 
 TEST_DESCRIPTION = 'This is a test description'
 TEST_EPILOG = 'This is a test epilog'
@@ -70,7 +70,7 @@ class MetadataTest(ParserTest):
         class Baz(Foo):
             pass
 
-        usage = _get_usage_text(Baz)
+        usage = get_usage_text(Baz)
         self.assertEqual('usage: foo.py baz [--help]', usage)
 
 
@@ -123,7 +123,7 @@ class UsageTextTest(ParserTest):
             foo = Option()
             bar = PassThru()
 
-        help_text = _get_help_text(Foo)
+        help_text = get_help_text(Foo)
         self.assertIn('--foo', help_text)
         self.assertIn('[-- BAR]', help_text)
 
@@ -132,7 +132,7 @@ class UsageTextTest(ParserTest):
             bar = Option(type=lambda v: v * 2)
             baz = Option(type=int)
 
-        usage_text = _get_usage_text(Foo)
+        usage_text = get_usage_text(Foo)
         self.assertIn('--bar BAR', usage_text)
         self.assertIn('--baz INT', usage_text)
 
@@ -146,7 +146,7 @@ class UsageTextTest(ParserTest):
             bar = Option(type=NoName())  # noqa
             baz = Option(type=int)
 
-        usage_text = _get_usage_text(Foo)
+        usage_text = get_usage_text(Foo)
         self.assertIn('--bar BAR', usage_text)
         self.assertIn('--baz INT', usage_text)
 
@@ -199,7 +199,7 @@ class HelpTextTest(ParserTest):
   --test TEST, -t TEST        0 extra long help text example,1 extra long help text example,2 extra long help text example,3 extra long help text example,4 extra long help text example,5 extra long
                               help text example,6 extra long help text example,7 extra long help text example,8 extra long help text example,9 extra long help text example"""
 
-        help_text = _get_help_text(Base.parse(['find', '-h']))
+        help_text = get_help_text(Base.parse(['find', '-h']))
         self.assert_str_contains(expected, help_text)
 
     def test_subcommands_with_common_base_options_spacing(self):
@@ -227,14 +227,14 @@ class HelpTextTest(ParserTest):
               --help, -h                  Show this help message and exit (default: False)
             """
         ).lstrip()
-        help_text = _get_help_text(Foo)
+        help_text = get_help_text(Foo)
         self.assertEqual(expected, help_text)
 
     def test_underscore_and_dash_enabled(self):
         class Foo(Command, option_name_mode='both'):
             foo_bar = Flag()
 
-        help_text = _get_help_text(Foo)
+        help_text = get_help_text(Foo)
         self.assertIn('--foo-bar', help_text)
         self.assertIn('--foo_bar', help_text)
 
@@ -242,7 +242,7 @@ class HelpTextTest(ParserTest):
         class Foo(Command, option_name_mode='dash'):
             foo_bar = Flag()
 
-        help_text = _get_help_text(Foo)
+        help_text = get_help_text(Foo)
         self.assertIn('--foo-bar', help_text)
         self.assertNotIn('--foo_bar', help_text)
 
@@ -259,7 +259,7 @@ class HelpTextTest(ParserTest):
                     foo_d = Flag(name_mode='both')
                     foo_e = Flag('--eeee')
 
-                help_text = _get_help_text(Foo)
+                help_text = get_help_text(Foo)
                 self.assertTrue(all(exp in help_text for exp in base_expected))
                 self.assertTrue(all(exp in help_text for exp in expected_a))
                 self.assertNotIn('--foo_e', help_text)
@@ -269,7 +269,7 @@ class HelpTextTest(ParserTest):
         class Foo(Command):
             spam = TriFlag('-s', name_mode='-')
 
-        self.assertIn('--spam, -s\n    --no-spam\n', _get_help_text(Foo))
+        self.assertIn('--spam, -s\n    --no-spam\n', get_help_text(Foo))
 
     # TODO
     # def test_subcommand_local_choices_map(self):
@@ -366,7 +366,7 @@ class GroupHelpTextTest(ParserTest):
             with self.subTest(use_type_metavar=use_type_metavar):
                 CommandMeta.config(Base).use_type_metavar = use_type_metavar
 
-                help_text = _get_help_text(Base)
+                help_text = get_help_text(Base)
                 self.assertNotIn('Positional arguments:', help_text)
                 self.assertIn(expected_sub_cmd, help_text)
 
@@ -391,11 +391,11 @@ class GroupHelpTextTest(ParserTest):
         self.assertTrue(Foo.bar.show_in_help)
         self.assertFalse(Foo.baz.show_in_help)
 
-        help_text = _get_help_text(Foo)
-        rst_test = _get_rst_text(Foo)
+        help_text = get_help_text(Foo)
+        rst_text = get_rst_text(Foo)
         self.assertIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
-        self.assertNotIn('--baz', rst_test)
+        self.assertNotIn('--baz', rst_text)
 
     def test_hidden_groups_not_shown(self):
         class Foo(Command):
@@ -405,10 +405,12 @@ class GroupHelpTextTest(ParserTest):
                 with ParamGroup() as inner:
                     baz = Flag()
 
-        help_text = _get_help_text(Foo)
+        help_text = get_help_text(Foo)
+        rst_text = get_rst_text(Foo())
         self.assertIn('--foo', help_text)
         self.assertNotIn('--bar', help_text)
         self.assertNotIn('--baz', help_text)
+        self.assertNotIn('--baz', rst_text)
 
     def test_anon_group_auto_names_not_used(self):
         expected = """
@@ -448,7 +450,7 @@ class GroupHelpTextTest(ParserTest):
                     color = Option('-c', help='Text color to use (default: cycle through 0-256)')
                     background = Option('-b', help='Background color to use (default: None)')
 
-        self.assert_strings_equal(expected, _get_help_text(AnsiColorTest), diff_lines=7)
+        self.assert_strings_equal(expected, get_help_text(AnsiColorTest), diff_lines=7)
 
     def test_nested_show_tree(self):
         expected = """
@@ -489,30 +491,8 @@ class GroupHelpTextTest(ParserTest):
                     bar = Flag()
                     baz = Flag()
 
-        help_text = _get_help_text(Foo).rstrip()
+        help_text = get_help_text(Foo).rstrip()
         self.assert_strings_equal(expected, help_text, diff_lines=7, trim=True)
-
-
-def _get_usage_text(cmd: Type[Command]) -> str:
-    with cmd().ctx:
-        return get_params(cmd).formatter.format_usage()
-
-
-def _get_help_text(cmd: Union[Type[Command], Command]) -> str:
-    if not isinstance(cmd, Command):
-        cmd = cmd()
-
-    cmd.ctx._terminal_width = 199
-    with cmd.ctx:
-        return get_params(cmd).formatter.format_help()
-
-
-def _get_rst_text(cmd: Union[Type[Command], Command]) -> str:
-    if not isinstance(cmd, Command):
-        cmd = cmd()
-    cmd.ctx._terminal_width = 199
-    with cmd.ctx:
-        return get_params(cmd).formatter.format_rst()
 
 
 class FormatterTest(ParserTest):

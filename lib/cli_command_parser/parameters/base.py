@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, Iterator, List, Set, FrozenSet
+from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, List, FrozenSet
 
 try:
     from functools import cached_property  # pylint: disable=C0412
@@ -27,6 +27,7 @@ from ..inputs import InputType, normalize_input_type, Choices, ChoiceMap as Choi
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
 from ..utils import _NotSet, Bool, get_descriptor_value_type
+from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from types import MethodType
@@ -549,47 +550,17 @@ class BaseOption(Parameter, ABC):
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
-    _long_opts: Set[str]                        # --long options
-    _short_opts: Set[str]                       # -short options
-    short_combinable: Set[str]                  # short options without the leading dash (for combined flags)
-    name_mode: Optional[OptionNameMode] = None  # OptionNameMode override
+    _opt_str_cls = OptionStrings
+    option_strs: OptionStrings
 
     def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str] = None, **kwargs):
         _validate_opt_strs(option_strs)
         super().__init__(action, **kwargs)
-        self._long_opts = {opt for opt in option_strs if opt.startswith('--')}
-        self._short_opts = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
-        self.short_combinable = {opt[1:] for opt in short_opts if len(opt) == 2}
-        if name_mode is not None:
-            self.name_mode = OptionNameMode(name_mode)
-        bad_opts = ', '.join(opt for opt in short_opts if '-' in opt[1:])
-        if bad_opts:
-            raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
+        self.option_strs = self._opt_str_cls(option_strs, name_mode)
 
     def __set_name__(self, command: CommandType, name: str):
         super().__set_name__(command, name)
-        if not self._long_opts:
-            mode = self.name_mode if self.name_mode is not None else self._config(command).option_name_mode
-            if mode & OptionNameMode.DASH:
-                self._long_opts.add('--{}'.format(name.replace('_', '-')))
-            if mode & OptionNameMode.UNDERSCORE:
-                self._long_opts.add(f'--{name}')
-            try:
-                del self.__dict__['long_opts']
-            except KeyError:
-                pass
-
-    @cached_property
-    def long_opts(self) -> List[str]:
-        return sorted(self._long_opts, key=lambda opt: (-len(opt), opt))
-
-    @cached_property
-    def short_opts(self) -> List[str]:
-        return sorted(self._short_opts, key=lambda opt: (-len(opt), opt))
-
-    def option_strs(self) -> Iterator[str]:
-        yield from self.long_opts
-        yield from self.short_opts
+        self.option_strs.update(self, command, name)
 
 
 def get_active_param_group() -> Optional[ParamGroup]:

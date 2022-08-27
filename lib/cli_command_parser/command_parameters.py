@@ -203,8 +203,9 @@ class CommandParameters:
 
         for param in params:
             options.append(param)
-            self._process_option_strs(param, 'long', param.long_opts, option_map, combo_option_map)
-            self._process_option_strs(param, 'short', param.short_opts, option_map, combo_option_map)
+            opts = param.option_strs
+            self._process_option_strs(param, 'long', opts.long, option_map, combo_option_map)
+            self._process_option_strs(param, 'short', opts.short, option_map, combo_option_map)
 
         self.options = options
         self.option_map = option_map

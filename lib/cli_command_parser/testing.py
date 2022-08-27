@@ -16,10 +16,10 @@ from unittest import TestCase
 
 from .actions import help_action
 from .commands import Command
-from .core import CommandType
+from .core import CommandType, get_params
 from .exceptions import UsageError
 
-__all__ = ['ParserTest', 'RedirectStreams', 'format_diff']
+__all__ = ['ParserTest', 'RedirectStreams', 'format_diff', 'get_rst_text', 'get_help_text', 'get_usage_text']
 
 Argv = List[str]
 Expected = Dict[str, Any]
@@ -234,3 +234,25 @@ class RedirectStreams(AbstractContextManager):
         while self._old:
             name, orig = self._old.popitem()
             setattr(sys, name, orig)
+
+
+def get_usage_text(cmd: Type[Command]) -> str:
+    with cmd().ctx:
+        return get_params(cmd).formatter.format_usage()
+
+
+def get_help_text(cmd: Union[Type[Command], Command]) -> str:
+    if not isinstance(cmd, Command):
+        cmd = cmd()
+
+    cmd.ctx._terminal_width = 199
+    with cmd.ctx:
+        return get_params(cmd).formatter.format_help()
+
+
+def get_rst_text(cmd: Union[Type[Command], Command]) -> str:
+    if not isinstance(cmd, Command):
+        cmd = cmd()
+    cmd.ctx._terminal_width = 199
+    with cmd.ctx:
+        return get_params(cmd).formatter.format_rst()
