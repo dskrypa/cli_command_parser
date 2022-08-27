@@ -153,7 +153,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">)</span>
         <span class="c1"># The calendar.different_locale implementation only calls setlocale with LC_TIME, which caused LC_CTYPE</span>
         <span class="c1"># to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results</span>
-        <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;LC_CTYPE=</span><span class="si">{</span><span class="n">locale</span><span class="si">}</span><span class="s1">;LC_TIME=</span><span class="si">{</span><span class="n">locale</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># a subset of vars only affects the specified ones</span>
+        <span class="c1"># setlocale(LC_ALL, f&#39;LC_CTYPE={locale};LC_TIME={locale}&#39;)  # a subset of vars only affects the specified ones</span>
+        <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="n">locale</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">:</span>
@@ -508,16 +509,46 @@
 
 <div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">datetime</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning</span>
+<span class="sd">        a :class:`python:datetime.datetime` object.</span>
+
+<span class="sd">        :param formats: One or more :ref:`datetime format strings &lt;python:strftime-strptime-behavior&gt;`.  Defaults to</span>
+<span class="sd">          :data:`DEFAULT_DT_FMT`.</span>
+<span class="sd">        :param locale: An alternate locale to use when parsing input</span>
+<span class="sd">        :param earliest: If specified, the parsed value must be later than or equal to this</span>
+<span class="sd">        :param latest: If specified, the parsed value must be earlier than or equal to this</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formats</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DEFAULT_DT_FMT</span><span class="p">,),</span> <span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">latest</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Date"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date">[docs]</a><span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">date</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning</span>
+<span class="sd">        a :class:`python:datetime.date` object.</span>
+
+<span class="sd">        :param formats: One or more :ref:`datetime format strings &lt;python:strftime-strptime-behavior&gt;`.  Defaults to</span>
+<span class="sd">          :data:`DEFAULT_DT_FMT`.</span>
+<span class="sd">        :param locale: An alternate locale to use when parsing input</span>
+<span class="sd">        :param earliest: If specified, the parsed value must be later than or equal to this</span>
+<span class="sd">        :param latest: If specified, the parsed value must be earlier than or equal to this</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formats</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DEFAULT_DATE_FMT</span><span class="p">,),</span> <span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">latest</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Time"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time">[docs]</a><span class="k">class</span> <span class="nc">Time</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">time</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning</span>
+<span class="sd">        a :class:`python:datetime.time` object.</span>
+
+<span class="sd">        :param formats: One or more :ref:`datetime format strings &lt;python:strftime-strptime-behavior&gt;`.  Defaults to</span>
+<span class="sd">          :data:`DEFAULT_DT_FMT`.</span>
+<span class="sd">        :param locale: An alternate locale to use when parsing input</span>
+<span class="sd">        :param earliest: If specified, the parsed value must be later than or equal to this</span>
+<span class="sd">        :param latest: If specified, the parsed value must be earlier than or equal to this</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">formats</span> <span class="ow">or</span> <span class="p">(</span><span class="n">DEFAULT_TIME_FMT</span><span class="p">,),</span> <span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="n">latest</span><span class="p">)</span></div>
 
 
