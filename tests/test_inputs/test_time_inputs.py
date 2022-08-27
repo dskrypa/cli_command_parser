@@ -18,6 +18,9 @@ MONTHS = {
     '1': 'January', '2': 'February', '3': 'March', '4': 'April', '5': 'May', '6': 'June',
     '7': 'July', '8': 'August', '9': 'September', '10': 'October', '11': 'November', '12': 'December',
 }
+EN_US = 'en_US.utf-8'
+KO_KR = 'ko_KR.utf-8'
+FR_FR = 'fr_FR.utf-8'
 # fmt: on
 
 
@@ -80,21 +83,21 @@ class DayInputTest(TestCase):
     # region Alternate Locale Handling
 
     def test_ko_in_en_out(self):
-        self.assertEqual('monday', Day(locale='ko_KR', out_locale='en_US')('월요일').casefold())
+        self.assertEqual('monday', Day(locale=KO_KR, out_locale=EN_US)('월요일').casefold())
 
     def test_en_in_fr_out(self):
-        self.assertEqual('lundi', Day(locale='en_US', out_locale='fr_FR')('Monday').casefold())
+        self.assertEqual('lundi', Day(locale=EN_US, out_locale=FR_FR)('Monday').casefold())
 
     # endregion
 
     # region Numeric Input / Output
 
     def test_numeric_input_iso(self):
-        day = Day(numeric=True, iso=True, out_locale='en_US')
+        day = Day(numeric=True, iso=True, out_locale=EN_US)
         self.assertDictEqual(ISO_DAYS, {num: day(num) for num in ISO_DAYS})
 
     def test_numeric_input_non_iso(self):
-        day = Day(numeric=True, out_locale='en_US')
+        day = Day(numeric=True, out_locale=EN_US)
         self.assertDictEqual(NON_ISO_DAYS, {num: day(num) for num in NON_ISO_DAYS})
 
     def test_invalid_numeric_input(self):
@@ -102,11 +105,11 @@ class DayInputTest(TestCase):
             Day(numeric=True).parse_numeric('9')
 
     def test_numeric_output_iso(self):
-        day = Day(locale='en_US', out_format='numeric_iso')
+        day = Day(locale=EN_US, out_format='numeric_iso')
         self.assertDictEqual(ISO_DAYS, {str(day(dow)): dow for dow in ISO_DAYS.values()})
 
     def test_numeric_output_non_iso(self):
-        day = Day(locale='en_US', out_format='numeric')
+        day = Day(locale=EN_US, out_format='numeric')
         self.assertDictEqual(NON_ISO_DAYS, {str(day(dow)): dow for dow in NON_ISO_DAYS.values()})
 
     # endregion
@@ -120,7 +123,7 @@ class DayInputTest(TestCase):
     def test_full_rejected_on_abbr_only(self):
         for kwargs in ({}, {'numeric': True}):
             with self.assertRaises(InvalidChoiceError):
-                Day(locale='en_US', full=False, **kwargs)('Monday')
+                Day(locale=EN_US, full=False, **kwargs)('Monday')
 
     def test_bad_output_format_value(self):
         with self.assertRaisesRegex(ValueError, 'is not a valid DTFormatMode'):
@@ -174,11 +177,11 @@ class MonthInputTest(TestCase):
                 Month(numeric=True).parse(case)
 
     def test_numeric_output(self):
-        month = Month(out_format='numeric', locale='en_US')
+        month = Month(out_format='numeric', locale=EN_US)
         self.assertDictEqual(MONTHS, {str(month(m)): m for m in MONTHS.values()})
 
     def test_numeric_input(self):
-        month = Month(out_locale='en_US')
+        month = Month(out_locale=EN_US)
         self.assertDictEqual(MONTHS, {n: month(n) for n in MONTHS})
 
     # region Help Formatting
