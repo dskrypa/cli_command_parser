@@ -283,3 +283,110 @@ automatically be wrapped in a :class:`.EnumChoices` input handler.  If an Enum i
 
 :enum: A subclass of :class:`python:enum.Enum`.
 :case_sensitive: Whether choices should be case-sensitive.  Defaults to False.
+
+
+
+Date & Time
+===========
+
+Date and Time inputs provide a way to parse day, month, datetime, date, and time inputs with optional alternate
+localization support.
+
+.. warning:: Locale Support
+
+    Alternate locale support is handled by using :func:`python:locale.setlocale`, which may cause problems on some
+    systems.  Using alternate locales in this manner should not be used in a multi-threaded application, as it will
+    lead to unexpected output from other parts of the program.
+
+    If you do not specify a ``locale`` or ``out_locale`` value for any input type in this section, then the locale will
+    not be modified by this library (``setlocale`` will not be used).
+
+    If you need to handle multiple locales and this is a problem for your application, then you should leave the
+    ``locale`` parameters empty / ``None`` and use a proper i18n library like `babel <https://babel.pocoo.org/>`__
+    for localization.
+
+
+Day & Month
+-----------
+
+The :class:`.Day` and :class:`.Month` input types accept full, abbreviated, and numeric input values, and return full
+names for the parsed values by default.  Both can be configured to return numeric values instead.  Day supports both
+ISO 8601 (1-7) and non-ISO (0-6) numeric weekday values for both input and output (configurable independently).
+
+Input and output locales are configurable independently, but if an input locale is specified, then the output locale
+defaults to the same locale as the input one.  By default, locale modification is not performed.
+
+Day
+^^^
+
+Input type representing a day of the week.
+
+.. _day_init_params:
+
+**Day initialization parameters:**
+
+:full: Allow the full day name to be provided
+:abbreviation: Allow abbreviations of day names to be provided
+:numeric: Allow weekdays to be specified as a decimal number
+:iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,
+  where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.
+:locale: An alternate locale to use when parsing input
+:out_format: A :class:`.DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
+:out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+
+
+Month
+^^^^^
+
+Input type representing a month.
+
+.. _month_init_params:
+
+**Month initialization parameters:**
+
+:full: Allow the full month name to be provided
+:abbreviation: Allow abbreviations of month names to be provided
+:numeric: Allow months to be specified as a decimal number
+:locale: An alternate locale to use when parsing input
+:out_format: A :class:`.DTFormatMode` or str that matches a format mode.  Defaults to full month name.
+:out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+
+
+Full Date / Time Parsing
+------------------------
+
+The :class:`.DateTime`, :class:`.Date`, and :class:`.Time` input types accept multiple format strings for processing
+input, and default to formats very close to `ISO <https://en.wikipedia.org/wiki/ISO_8601>`__
+`8601 <https://xkcd.com/1179/>`__.  Each of these input types also accepts optional earliest and latest bounds
+(inclusive) to validate that the provided date/time falls within an expected time range.  They all return parsed values
+as objects of their respective :mod:`python:datetime` classes.
+
+.. _datetime_init_params:
+
+**Common initialization parameters for DateTime, Date, and Time inputs:**
+
+:formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.
+:locale: An alternate locale to use when parsing input
+:earliest: If specified, the parsed value must be later than or equal to this
+:latest: If specified, the parsed value must be earlier than or equal to this
+
+
+DateTime
+^^^^^^^^
+
+Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+a :class:`python:datetime.datetime` object.
+
+
+Date
+^^^^
+
+Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+a :class:`python:datetime.date` object.
+
+
+Time
+^^^^
+
+Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+a :class:`python:datetime.time` object.
