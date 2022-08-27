@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
+from datetime import datetime, date, timedelta, time
 from unittest import main, TestCase
 from unittest.mock import patch
 
-from cli_command_parser.inputs.time import different_locale, Day, Month
+from cli_command_parser.inputs.time import Day, Month, DateTime, Date, Time, different_locale, normalize_dt, dt_repr
 from cli_command_parser.inputs.exceptions import InvalidChoiceError, InputValidationError
-from cli_command_parser.testing import ParserTest
 
 # fmt: off
 ISO_DAYS = {
@@ -21,13 +21,59 @@ MONTHS = {
 # fmt: on
 
 
-class DateTimeInputTest(TestCase):
+class MiscDTInputTest(TestCase):
     def test_setlocale_not_called_without_locale(self):
         with patch('cli_command_parser.inputs.time.setlocale') as setlocale:
             with different_locale(None):
                 pass
 
         self.assertFalse(setlocale.called)
+
+    # region normalize_dt
+
+    def test_normalize_dt_bad_type(self):
+        with self.assertRaisesRegex(TypeError, 'Unexpected datetime specifier type=int'):
+            normalize_dt(15)  # noqa
+
+    def test_normalize_dt_timedelta(self):
+        now = datetime(2000, 1, 15)
+        self.assertEqual(datetime(2000, 1, 10), normalize_dt(timedelta(days=-5), now))
+        self.assertEqual(datetime(2000, 1, 20), normalize_dt(timedelta(days=5), now))
+
+    def test_normalize_dt_time(self):
+        now = datetime(2000, 1, 15, 15, 30, 45)
+        self.assertEqual(datetime(2000, 1, 15, 3, 40, 10), normalize_dt(time(3, 40, 10), now))
+
+    def test_normalize_dt_date(self):
+        self.assertEqual(datetime(2000, 1, 10), normalize_dt(date(2000, 1, 10)))
+
+    def test_normalize_dt_dt(self):
+        dt = datetime(2000, 1, 15, 15, 30, 45)
+        self.assertIs(dt, normalize_dt(dt))
+
+    def test_normalize_dt_none(self):
+        self.assertIs(None, normalize_dt(None))
+
+    # endregion
+
+    # region dt_repr
+
+    def test_dt_repr_dt(self):
+        dt = datetime(2000, 1, 15, 15, 30, 45)
+        self.assertEqual("'2000-01-15 15:30:45'", dt_repr(dt))
+        self.assertEqual('2000-01-15 15:30:45', dt_repr(dt, False))
+
+    def test_dt_repr_date(self):
+        dt = date(2000, 1, 15)
+        self.assertEqual("'2000-01-15'", dt_repr(dt))
+        self.assertEqual('2000-01-15', dt_repr(dt, False))
+
+    def test_dt_repr_time(self):
+        dt = time(15, 30, 45)
+        self.assertEqual("'15:30:45'", dt_repr(dt))
+        self.assertEqual('15:30:45', dt_repr(dt, False))
+
+    # endregion
 
 
 class DayInputTest(TestCase):
@@ -77,11 +123,11 @@ class DayInputTest(TestCase):
                 Day(locale='en_US', full=False, **kwargs)('Monday')
 
     def test_bad_output_format_value(self):
-        with self.assertRaisesRegex(ValueError, 'is not a valid FormatMode'):
+        with self.assertRaisesRegex(ValueError, 'is not a valid DTFormatMode'):
             Day(out_format='%Y', numeric=True)('1')
 
     def test_bad_output_format_type(self):
-        with self.assertRaisesRegex(ValueError, 'is not a valid FormatMode'):
+        with self.assertRaisesRegex(ValueError, 'is not a valid DTFormatMode'):
             Day(out_format=None, numeric=True)('1')  # noqa
 
     def test_bad_output_format_set_late(self):
@@ -160,8 +206,88 @@ class MonthInputTest(TestCase):
     # endregion
 
 
-class ParseInputTest(ParserTest):
-    pass
+class DateTimeInputTest(TestCase):
+    _CASES = {
+        DateTime: (datetime(2000, 1, 1, 2, 30, 45), '2000-01-01 2:30:45'),
+        Date: (date(2000, 1, 1), '2000-01-01'),
+        Time: (time(2, 30, 45), '2:30:45'),
+    }
+
+    def test_no_bounds(self):
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                parsed = input_cls()(dt_str)
+                self.assertEqual(expected, parsed)
+                self.assertIs(parsed.__class__, expected.__class__)
+
+    def test_no_format_match(self):
+        with self.assertRaisesRegex(InputValidationError, 'matching one of the following formats'):
+            Date()('2000')
+
+    def test_bad_dt_bounds(self):
+        with self.assertRaisesRegex(ValueError, 'Invalid combination of earliest='):
+            Date(earliest=date(2005, 1, 1), latest=date(2000, 1, 1))
+
+    def test_dt_too_early(self):
+        earliest_vals = (datetime(2010, 1, 1, 3), timedelta(days=-10))
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                for earliest in earliest_vals:
+                    with self.assertRaisesRegex(InputValidationError, 'after .* is required'):
+                        input_cls(earliest=earliest)(dt_str)
+
+    def test_dt_too_late(self):
+        dt = datetime(1999, 1, 1, 1)
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                with self.assertRaisesRegex(InputValidationError, 'before .* is required'):
+                    input_cls(latest=dt)(dt_str)
+
+    def test_dt_not_between(self):
+        earliest, latest = datetime(2002, 1, 1, 0), datetime(2010, 1, 1, 1)
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                with self.assertRaisesRegex(InputValidationError, r'between .* \(inclusive\) is required'):
+                    input_cls(earliest=earliest, latest=latest)(dt_str)
+
+    def test_dt_is_after(self):
+        earliest_vals = (datetime(1999, 1, 1, 1), datetime(2000, 1, 1, 2, 30, 45))
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                for earliest in earliest_vals:
+                    self.assertEqual(expected, input_cls(earliest=earliest)(dt_str))
+
+    def test_dt_is_before(self):
+        latest_vals = (datetime(2005, 1, 1, 3), datetime(2000, 1, 1, 2, 30, 45))
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                for latest in latest_vals:
+                    self.assertEqual(expected, input_cls(latest=latest)(dt_str))
+
+    def test_dt_is_between(self):
+        earliest, latest = datetime(1999, 1, 1, 1), datetime(2005, 1, 1, 3)
+        for input_cls, (expected, dt_str) in self._CASES.items():
+            with self.subTest(input_cls=input_cls, dt_str=dt_str):
+                input_obj = input_cls(earliest=earliest, latest=latest)
+                self.assertEqual(expected, input_obj(dt_str))
+
+    def test_metavar_no_bounds(self):
+        cases = {
+            DateTime: {(): '{%Y-%m-%d %H:%M:%S}', ('%Y',): '{%Y}', ('%Y', '%Y-%m'): '{%Y | %Y-%m}'},
+            Date: {(): '{%Y-%m-%d}', ('%Y',): '{%Y}', ('%Y', '%Y-%m'): '{%Y | %Y-%m}'},
+            Time: {(): '{%H:%M:%S}', ('%H',): '{%H}', ('%H', '%H:%M'): '{%H | %H:%M}'},
+        }
+        for input_cls, cls_cases in cases.items():
+            for args, expected in cls_cases.items():
+                with self.subTest(input_cls=input_cls, args=args, expected=expected):
+                    self.assertEqual(expected, input_cls(*args).format_metavar())
+
+    def test_metavar_bounded(self):
+        earliest, latest = datetime(2000, 1, 1), datetime(2005, 12, 31)
+        self.assertEqual('[2000-01-01 <= {%Y-%m-%d}]', Date(earliest=earliest).format_metavar())
+        self.assertEqual('[{%Y-%m-%d} <= 2005-12-31]', Date(latest=latest).format_metavar())
+        expected = '[2000-01-01 <= {%Y-%m-%d} <= 2005-12-31]'
+        self.assertEqual(expected, Date(earliest=earliest, latest=latest).format_metavar())
 
 
 if __name__ == '__main__':

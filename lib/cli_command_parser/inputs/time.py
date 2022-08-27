@@ -18,11 +18,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from calendar import day_name, day_abbr, month_name, month_abbr
-from datetime import datetime
+from datetime import datetime, date, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import TYPE_CHECKING, Union, Iterator, Collection, Sequence, Optional, overload, Tuple, Dict
+from typing import TYPE_CHECKING, Union, Iterator, Collection, Sequence, Optional, Generic, TypeVar, Type, overload
+from typing import Tuple, Dict
 
 from ..utils import MissingMixin
 from .base import InputType
@@ -31,9 +32,15 @@ from .exceptions import InputValidationError, InvalidChoiceError
 if TYPE_CHECKING:
     from ..utils import Bool
 
-__all__ = ['FormatMode', 'Day', 'Month']
+__all__ = ['DTFormatMode', 'Day', 'Month', 'DateTime', 'Date', 'Time']
 
 Locale = Union[str, Tuple[Optional[str], Optional[str]]]
+TimeBound = Union[datetime, date, time, timedelta, None]
+DT = TypeVar('DT')
+
+DEFAULT_DATE_FMT = '%Y-%m-%d'
+DEFAULT_TIME_FMT = '%H:%M:%S'
+DEFAULT_DT_FMT = '%Y-%m-%d %H:%M:%S'
 
 
 class different_locale:
@@ -68,44 +75,33 @@ class different_locale:
         self._lock.release()
 
 
-class DateTimeInput(InputType, ABC):
+class DTInput(InputType, ABC):
     dt_type: str
-    formats: Collection[str]
     locale: Optional[Locale]
 
     def __init_subclass__(cls, dt_type: str = None):  # noqa
         cls.dt_type = dt_type
 
-    def __init__(self, formats: Collection[str] = (), locale: Locale = None):
-        self.formats = formats
+    def __init__(self, locale: Locale = None):
         self.locale = locale
 
     @abstractmethod
     def choice_str(self, choice_delim: str = ',') -> str:
         raise NotImplementedError
 
-    def format_metavar(self, choice_delim: str = ',') -> str:
-        return '{' + self.choice_str(choice_delim) + '}'
 
-    def parse_dt(self, value: str) -> datetime:
-        with different_locale(self.locale):
-            for fmt in self.formats:
-                try:
-                    return datetime.strptime(value, fmt)
-                except ValueError:
-                    pass
-        raise ValueError(f'Expected a {self.dt_type} matching the following: {self.choice_str()}')
+# region Calendar Unit Inputs
 
 
-class FormatMode(MissingMixin, Enum):
+class DTFormatMode(MissingMixin, Enum):
     FULL = 'full'                   #: The full name of a given date/time unit
     ABBREVIATION = 'abbreviation'   #: The abbreviation of a given date/time unit
     NUMERIC = 'numeric'             #: The numeric representation of a given date/time unit
     NUMERIC_ISO = 'numeric_iso'     #: The ISO numeric representation of a given date/time unit
 
 
-class _DatetimeUnitInput(DateTimeInput, ABC):
-    _formats: Dict[FormatMode, Sequence[Union[str, int]]]
+class CalendarUnitInput(DTInput, ABC):
+    _formats: Dict[DTFormatMode, Sequence[Union[str, int]]]
     _min_index: int = 0
 
     def __init_subclass__(cls, min_index: int = 0, **kwargs):
@@ -119,7 +115,7 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
         abbreviation: Bool = True,
         numeric: Bool = False,
         locale: Locale = None,
-        out_format: Union[str, FormatMode] = FormatMode.FULL,
+        out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
     ):
         """
@@ -129,7 +125,7 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
         :param abbreviation: Allow abbreviations of unit names to be provided
         :param numeric: Allow unit values to be specified as a decimal number
         :param locale: An alternate locale to use when parsing input
-        :param out_format: A :class:`FormatMode` or str that matches a format mode.  Defaults to full weekday name.
+        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
         """
         if not (full or abbreviation or numeric):
@@ -138,7 +134,7 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
         self.full = full
         self.abbreviation = abbreviation
         self.numeric = numeric
-        self.out_format = FormatMode(out_format)
+        self.out_format = DTFormatMode(out_format)
         self.out_locale = out_locale or self.locale
         if self.out_format not in self._formats:
             raise ValueError(f'Unsupported out_format={self.out_format} for {self.__class__.__name__} inputs')
@@ -149,14 +145,14 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
         min_index = self._min_index
         with different_locale(self.locale):
             if self.full:
-                yield from enumerate(self._formats[FormatMode.FULL][min_index:], min_index)
+                yield from enumerate(self._formats[DTFormatMode.FULL][min_index:], min_index)
             if self.abbreviation:
-                yield from enumerate(self._formats[FormatMode.ABBREVIATION][min_index:], min_index)
+                yield from enumerate(self._formats[DTFormatMode.ABBREVIATION][min_index:], min_index)
 
     def choices(self) -> Sequence[str]:
         choices = [dow for _, dow in self._values()]
         if self.numeric:
-            mode = FormatMode.NUMERIC_ISO if getattr(self, 'iso', False) else FormatMode.NUMERIC
+            mode = DTFormatMode.NUMERIC_ISO if getattr(self, 'iso', False) else DTFormatMode.NUMERIC
             # fmt: off
             choices.extend(map(str, self._formats[mode][self._min_index:]))
             # fmt: on
@@ -164,6 +160,9 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
 
     def choice_str(self, choice_delim: str = ',') -> str:
         return choice_delim.join(self.choices())
+
+    def format_metavar(self, choice_delim: str = ',') -> str:
+        return '{' + self.choice_str(choice_delim) + '}'
 
     @abstractmethod
     def parse_numeric(self, value: str) -> int:
@@ -201,7 +200,7 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
             raise InvalidChoiceError(value, self.choices(), self.dt_type)
 
         out_mode = self.out_format
-        if out_mode in (FormatMode.NUMERIC, FormatMode.NUMERIC_ISO):
+        if out_mode in (DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO):
             return self._formats[out_mode][normalized]
 
         try:
@@ -215,12 +214,12 @@ class _DatetimeUnitInput(DateTimeInput, ABC):
         raise ValueError(f'Unexpected output format={out_mode!r} for {self.dt_type}={normalized}')
 
 
-class Day(_DatetimeUnitInput, dt_type='day of the week'):
+class Day(CalendarUnitInput, dt_type='day of the week'):
     _formats = {
-        FormatMode.FULL: day_name,
-        FormatMode.ABBREVIATION: day_abbr,
-        FormatMode.NUMERIC: range(7),
-        FormatMode.NUMERIC_ISO: range(1, 8),
+        DTFormatMode.FULL: day_name,
+        DTFormatMode.ABBREVIATION: day_abbr,
+        DTFormatMode.NUMERIC: range(7),
+        DTFormatMode.NUMERIC_ISO: range(1, 8),
     }
 
     @overload
@@ -232,7 +231,7 @@ class Day(_DatetimeUnitInput, dt_type='day of the week'):
         numeric: Bool = False,
         iso: Bool = False,
         locale: Locale = None,
-        out_format: Union[str, FormatMode] = FormatMode.FULL,
+        out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
     ):
         """
@@ -244,7 +243,7 @@ class Day(_DatetimeUnitInput, dt_type='day of the week'):
         :param iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,
           where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.
         :param locale: An alternate locale to use when parsing input
-        :param out_format: A :class:`FormatMode` or str that matches a format mode.  Defaults to full weekday name.
+        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
         """
         ...
@@ -270,11 +269,11 @@ class Day(_DatetimeUnitInput, dt_type='day of the week'):
             )
 
 
-class Month(_DatetimeUnitInput, dt_type='month', min_index=1):
+class Month(CalendarUnitInput, dt_type='month', min_index=1):
     _formats = {
-        FormatMode.FULL: month_name,
-        FormatMode.ABBREVIATION: month_abbr,
-        FormatMode.NUMERIC: range(13),
+        DTFormatMode.FULL: month_name,
+        DTFormatMode.ABBREVIATION: month_abbr,
+        DTFormatMode.NUMERIC: range(13),
     }
 
     @overload
@@ -285,7 +284,7 @@ class Month(_DatetimeUnitInput, dt_type='month', min_index=1):
         abbreviation: Bool = True,
         numeric: Bool = True,
         locale: Locale = None,
-        out_format: Union[str, FormatMode] = FormatMode.FULL,
+        out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
     ):
         """
@@ -295,7 +294,7 @@ class Month(_DatetimeUnitInput, dt_type='month', min_index=1):
         :param abbreviation: Allow abbreviations of month names to be provided
         :param numeric: Allow months to be specified as a decimal number
         :param locale: An alternate locale to use when parsing input
-        :param out_format: A :class:`FormatMode` or str that matches a format mode.  Defaults to full month name.
+        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full month name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
         """
         ...
@@ -316,3 +315,150 @@ class Month(_DatetimeUnitInput, dt_type='month', min_index=1):
             raise InputValidationError(
                 f'Invalid month={month} - expected a value between 1 ({month_name[1]}) and 12 ({month_name[12]})'
             )
+
+
+# endregion
+
+
+# region Date/Time Parse Inputs
+
+
+class DateTimeInput(Generic[DT], DTInput, ABC):
+    formats: Collection[str]
+    _type: Type[DT]
+    _earliest: TimeBound = None
+    _latest: TimeBound = None
+
+    def __init_subclass__(cls, type: Type[DT]):  # noqa
+        super().__init_subclass__(dt_type=type.__name__)
+        cls._type = type
+
+    def __init__(
+        self, formats: Collection[str], locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None
+    ):
+        super().__init__(locale=locale)
+        self.formats = formats
+        self.earliest = earliest
+        self.latest = latest
+
+    @classmethod
+    def _fix_type(cls, dt: datetime) -> DT:
+        try:
+            return getattr(dt, cls.dt_type)()
+        except AttributeError:
+            return dt
+
+    @property
+    def earliest(self) -> Optional[DT]:
+        return self._fix_type(normalize_dt(self._earliest))
+
+    @earliest.setter
+    def earliest(self, value: TimeBound):
+        self._validate_bound_combo(value, self._latest)
+        self._earliest = value
+
+    @property
+    def latest(self) -> Optional[DT]:
+        return self._fix_type(normalize_dt(self._latest))
+
+    @latest.setter
+    def latest(self, value: TimeBound):
+        self._validate_bound_combo(self._earliest, value)
+        self._latest = value
+
+    @classmethod
+    def _validate_bound_combo(cls, raw_earliest: TimeBound, raw_latest: TimeBound):
+        earliest = cls._fix_type(normalize_dt(raw_earliest))
+        latest = cls._fix_type(normalize_dt(raw_latest))
+        if earliest is not None and latest is not None and earliest >= latest:
+            raise ValueError(
+                f'Invalid combination of earliest={raw_earliest!r} and latest={raw_latest!r} values'
+                f' - {dt_repr(earliest, False)} >= {dt_repr(latest, False)}'
+            )
+
+    def parse_dt(self, value: str) -> datetime:
+        with different_locale(self.locale):
+            for fmt in self.formats:
+                try:
+                    return datetime.strptime(value, fmt)
+                except ValueError:
+                    pass
+
+        raise InputValidationError(
+            f'Expected a {self.dt_type} matching one of the following formats: {self.choice_str()}'
+        )
+
+    def parse(self, value: str) -> DT:
+        return self._fix_type(self.parse_dt(value))
+
+    def choice_str(self, choice_delim: str = ' | ') -> str:
+        return choice_delim.join(self.formats)
+
+    def format_metavar(self, choice_delim: str = ' | ') -> str:
+        choices = '{' + self.choice_str(choice_delim) + '}'
+        earliest, latest = self.earliest, self.latest
+        prefix = f'{dt_repr(earliest, False)} <= ' if earliest is not None else ''
+        suffix = f' <= {dt_repr(latest, False)}' if latest is not None else ''
+        return f'[{prefix}{choices}{suffix}]' if prefix or suffix else choices
+
+    def _validate_bounds(self, dt: DT):
+        earliest, latest = self.earliest, self.latest
+        check_earliest = earliest is not None
+        check_latest = latest is not None
+        if not (check_earliest or check_latest):
+            return
+        elif (check_earliest and dt < earliest) or (check_latest and dt > latest):
+            if check_earliest and check_latest:
+                msg = f'between {dt_repr(earliest)} and {dt_repr(latest)} (inclusive)'
+            else:
+                msg = f'after {dt_repr(earliest)}' if check_earliest else f'before {dt_repr(latest)}'
+            raise InputValidationError(f'Invalid {self.dt_type}={dt_repr(dt)} - a {self.dt_type} {msg} is required')
+
+    def __call__(self, value: str) -> DT:
+        parsed = self.parse(value)
+        self._validate_bounds(parsed)
+        return parsed
+
+
+class DateTime(DateTimeInput[datetime], type=datetime):
+    def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+        super().__init__(formats or (DEFAULT_DT_FMT,), locale=locale, earliest=earliest, latest=latest)
+
+
+class Date(DateTimeInput[date], type=date):
+    def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+        super().__init__(formats or (DEFAULT_DATE_FMT,), locale=locale, earliest=earliest, latest=latest)
+
+
+class Time(DateTimeInput[time], type=time):
+    def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+        super().__init__(formats or (DEFAULT_TIME_FMT,), locale=locale, earliest=earliest, latest=latest)
+
+
+# endregion
+
+
+def dt_repr(dt: Union[datetime, date, time], use_repr: bool = True) -> str:
+    try:
+        dt_str = dt.isoformat(' ')
+    except (TypeError, ValueError):  # TypeError for date objects, ValueError for time objects
+        dt_str = dt.isoformat()
+    return repr(dt_str) if use_repr else dt_str
+
+
+def normalize_dt(value: TimeBound, now: datetime = None) -> Optional[datetime]:
+    if value is None or isinstance(value, datetime):
+        return value
+    elif isinstance(value, timedelta):
+        if now is None:
+            now = datetime.now()
+        return now + value
+    elif isinstance(value, date):
+        return datetime.combine(value, time())
+    elif isinstance(value, time):
+        today = date.today() if now is None else now.date()
+        return datetime.combine(today, value)
+    raise TypeError(
+        f'Unexpected datetime specifier type={value.__class__.__name__} for value={value!r}'
+        ' (expected datetime, date, time, timedelta, or None)'
+    )
