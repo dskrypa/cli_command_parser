@@ -116,7 +116,9 @@ def get_next_version(old_ver: str, force_suffix: bool = False):
     old_date = datetime.strptime(old_date_str, '%Y.%m.%d').date()
     today = datetime.utcnow().date()
     today_str = today.strftime('%Y.%m.%d')
-    if old_date < today and not force_suffix:
+    if old_date < today:
+        if force_suffix:
+            return f'{today_str}-1'
         return today_str
     else:
         return f'{today_str}-{new_suffix}'
