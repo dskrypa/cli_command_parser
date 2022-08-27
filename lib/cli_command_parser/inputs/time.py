@@ -66,8 +66,9 @@ class different_locale:
         # containing all of the current locale settings as `key1=val1;key2=val2;...;keyN=valN`
         self.original = setlocale(LC_ALL)
         # The calendar.different_locale implementation only calls setlocale with LC_TIME, which caused LC_CTYPE
-        # to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results
-        # setlocale(LC_ALL, f'LC_CTYPE={locale};LC_TIME={locale}')  # a subset of vars only affects the specified ones
+        # to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results.
+        # Using f'LC_CTYPE={locale};LC_TIME={locale}' seemed cleaner than setting LC_ALL in its entirety, but it
+        # resulted in `locale.Error: unsupported locale setting` on Ubuntu/WSL.
         setlocale(LC_ALL, locale)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
