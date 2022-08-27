@@ -15,8 +15,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11.0-beta.3"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11.0rc1"]
     steps:
+    - name: Add test locales
+      run: |
+        sudo apt-get update
+        sudo apt install locales -y
+        sudo locale-gen en_US.UTF-8 fr_FR.UTF-8 ko_KR.UTF-8
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
