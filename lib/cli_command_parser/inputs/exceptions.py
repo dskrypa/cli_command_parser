@@ -18,14 +18,15 @@ class InputValidationError(CommandParserException, ValueError):
 class InvalidChoiceError(InputValidationError):
     """Error raised when a value that does not match one of the pre-defined choices was provided"""
 
-    def __init__(self, invalid: Any, choices: Collection[Any]):  # pylint: disable=W0231
+    def __init__(self, invalid: Any, choices: Collection[Any], type_str: str = 'choice'):  # pylint: disable=W0231
         self.invalid = invalid
         self.choices = choices
+        self.type_str = type_str
 
     def __str__(self) -> str:
         if isinstance(self.invalid, Collection) and not isinstance(self.invalid, str):
-            bad_str = 'choices: {}'.format(', '.join(map(repr, self.invalid)))
+            bad_str = '{}s: {}'.format(self.type_str, ', '.join(map(repr, self.invalid)))
         else:
-            bad_str = f'choice: {self.invalid!r}'
+            bad_str = f'{self.type_str}: {self.invalid!r}'
         choices_str = ', '.join(map(repr, self.choices))
         return f'invalid {bad_str} (choose from: {choices_str})'

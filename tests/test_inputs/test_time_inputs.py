@@ -3,10 +3,7 @@
 from unittest import main, TestCase
 from unittest.mock import patch
 
-from cli_command_parser import Command, Option
-from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import UsageError
-from cli_command_parser.inputs.time import Day, different_locale
+from cli_command_parser.inputs.time import different_locale, Day, Month
 from cli_command_parser.inputs.exceptions import InvalidChoiceError, InputValidationError
 from cli_command_parser.testing import ParserTest
 
@@ -17,10 +14,14 @@ ISO_DAYS = {
 NON_ISO_DAYS = {
     '0': 'Monday', '1': 'Tuesday', '2': 'Wednesday', '3': 'Thursday', '4': 'Friday', '5': 'Saturday', '6': 'Sunday'
 }
+MONTHS = {
+    '1': 'January', '2': 'February', '3': 'March', '4': 'April', '5': 'May', '6': 'June',
+    '7': 'July', '8': 'August', '9': 'September', '10': 'October', '11': 'November', '12': 'December',
+}
 # fmt: on
 
 
-class DayInputTest(TestCase):
+class DateTimeInputTest(TestCase):
     def test_setlocale_not_called_without_locale(self):
         with patch('cli_command_parser.inputs.time.setlocale') as setlocale:
             with different_locale(None):
@@ -28,6 +29,8 @@ class DayInputTest(TestCase):
 
         self.assertFalse(setlocale.called)
 
+
+class DayInputTest(TestCase):
     # region Alternate Locale Handling
 
     def test_ko_in_en_out(self):
@@ -50,7 +53,7 @@ class DayInputTest(TestCase):
 
     def test_invalid_numeric_input(self):
         with self.assertRaisesRegex(InputValidationError, 'Invalid weekday=9'):
-            Day(numeric=True).parse_dow('9')
+            Day(numeric=True).parse_numeric('9')
 
     def test_numeric_output_iso(self):
         day = Day(locale='en_US', out_format='numeric_iso')
@@ -70,7 +73,7 @@ class DayInputTest(TestCase):
 
     def test_full_rejected_on_abbr_only(self):
         for kwargs in ({}, {'numeric': True}):
-            with self.assertRaisesRegex(InputValidationError, 'Expected a day of the week matching the following'):
+            with self.assertRaises(InvalidChoiceError):
                 Day(locale='en_US', full=False, **kwargs)('Monday')
 
     def test_bad_output_format_value(self):
@@ -105,6 +108,54 @@ class DayInputTest(TestCase):
     def test_num_iso_choices(self):
         expected = '{1,2,3,4,5,6,7}'
         self.assertEqual(expected, Day(numeric=True, full=False, abbreviation=False, iso=True).format_metavar())
+
+    # endregion
+
+
+class MonthInputTest(TestCase):
+    def test_invalid_output_format(self):
+        with self.assertRaisesRegex(ValueError, 'Unsupported out_format='):
+            Month(out_format='numeric_iso')
+
+    def test_invalid_parsed_number(self):
+        with patch.object(Month, 'parse', return_value=0):
+            with self.assertRaisesRegex(InvalidChoiceError, 'invalid month:'):
+                Month(numeric=True)('0')
+
+    def test_invalid_number(self):
+        for case in ('0', '13', '-1'):
+            with self.subTest(case=case), self.assertRaisesRegex(InputValidationError, 'expected a value between'):
+                Month(numeric=True).parse(case)
+
+    def test_numeric_output(self):
+        month = Month(out_format='numeric', locale='en_US')
+        self.assertDictEqual(MONTHS, {str(month(m)): m for m in MONTHS.values()})
+
+    def test_numeric_input(self):
+        month = Month(out_locale='en_US')
+        self.assertDictEqual(MONTHS, {n: month(n) for n in MONTHS})
+
+    # region Help Formatting
+
+    def test_all_choices(self):
+        expected = (
+            '{January,February,March,April,May,June,July,August,September,October,November,December'
+            ',Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'
+            ',1,2,3,4,5,6,7,8,9,10,11,12}'
+        )
+        self.assertEqual(expected, Month().format_metavar())
+
+    def test_full_choices(self):
+        expected = '{January,February,March,April,May,June,July,August,September,October,November,December}'
+        self.assertEqual(expected, Month(abbreviation=False, numeric=False).format_metavar())
+
+    def test_abbr_choices(self):
+        expected = '{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec}'
+        self.assertEqual(expected, Month(full=False, numeric=False).format_metavar())
+
+    def test_num_choices(self):
+        expected = '{1,2,3,4,5,6,7,8,9,10,11,12}'
+        self.assertEqual(expected, Month(full=False, abbreviation=False).format_metavar())
 
     # endregion
 
