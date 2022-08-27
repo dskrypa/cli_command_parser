@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cli_command_parser.inputs.time &mdash; CLI Command Parser 2022.08.12 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> CLI Command Parser
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>cli_command_parser.inputs.time</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cli_command_parser.inputs.time</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Custom date/time input handlers for Parameters.</span>
+
+<span class="sd">.. warning::</span>
+
+<span class="sd">    Uses :func:`python:locale.setlocale` if alternate locales are specified, which may cause problems on some systems.</span>
+<span class="sd">    Using alternate locales in this manner should not be used in a multi-threaded application, as it will lead to</span>
+<span class="sd">    unexpected output from other parts of the program.</span>
+
+<span class="sd">    If you need to handle multiple locales and this is a problem for your application, then you should leave the</span>
+<span class="sd">    ``locale`` parameters empty / ``None`` and use a proper i18n library like `babel &lt;https://babel.pocoo.org/&gt;`__</span>
+<span class="sd">    for localization.</span>
+
+<span class="sd">:author: Doug Skrypa</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">calendar</span> <span class="kn">import</span> <span class="n">day_name</span><span class="p">,</span> <span class="n">day_abbr</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">locale</span> <span class="kn">import</span> <span class="n">LC_ALL</span><span class="p">,</span> <span class="n">setlocale</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">RLock</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">MissingMixin</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Bool</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Day&#39;</span><span class="p">,</span> <span class="s1">&#39;FormatMode&#39;</span><span class="p">]</span>
+
+<span class="n">Locale</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+
+
+<span class="k">class</span> <span class="nc">different_locale</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager that allows the temporary use of an alternate locale for date/time parsing/formatting.</span>
+
+<span class="sd">    Not using :class:`python:calendar.different_locale` because it results in incorrect string encoding for some</span>
+<span class="sd">    locales (at least on Windows).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_lock</span> <span class="o">=</span> <span class="n">RLock</span><span class="p">()</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;locale&#39;</span><span class="p">,</span> <span class="s1">&#39;original&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Locale</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locale</span> <span class="o">=</span> <span class="n">locale</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">locale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">locale</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">locale</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># locale.getlocale does not support LC_ALL, but `setlocale(LC_ALL)` with no locale to set will return a str</span>
+        <span class="c1"># containing all of the current locale settings as `key1=val1;key2=val2;...;keyN=valN`</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">)</span>
+        <span class="c1"># The calendar.different_locale implementation only calls setlocale with LC_TIME, which caused LC_CTYPE</span>
+        <span class="c1"># to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results</span>
+        <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;LC_CTYPE=</span><span class="si">{</span><span class="n">locale</span><span class="si">}</span><span class="s1">;LC_TIME=</span><span class="si">{</span><span class="n">locale</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># a subset of vars only affects the specified ones</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">:</span>
+            <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">DateTimeInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">locale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Locale</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">dt_type</span> <span class="o">=</span> <span class="n">dt_type</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locale</span> <span class="o">=</span> <span class="n">locale</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+
+    <span class="k">def</span> <span class="nf">parse_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> matching the following: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FormatMode"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.FormatMode">[docs]</a><span class="k">class</span> <span class="nc">FormatMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">FULL</span> <span class="o">=</span> <span class="s1">&#39;full&#39;</span>                   <span class="c1">#: The full name of a given date/time unit</span>
+    <span class="n">ABBREVIATION</span> <span class="o">=</span> <span class="s1">&#39;abbreviation&#39;</span>   <span class="c1">#: The abbreviation of a given date/time unit</span>
+    <span class="n">NUMERIC</span> <span class="o">=</span> <span class="s1">&#39;numeric&#39;</span>             <span class="c1">#: The numeric representation of a given date/time unit</span>
+    <span class="n">NUMERIC_ISO</span> <span class="o">=</span> <span class="s1">&#39;numeric_iso&#39;</span>     <span class="c1">#: The ISO numeric representation of a given date/time unit</span></div>
+
+
+<div class="viewcode-block" id="Day"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day">[docs]</a><span class="k">class</span> <span class="nc">Day</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;day of the week&#39;</span><span class="p">):</span>
+    <span class="n">_outputs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">FormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">day_name</span><span class="p">,</span>
+        <span class="n">FormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">:</span> <span class="n">day_abbr</span><span class="p">,</span>
+        <span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+        <span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">abbreviation</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">iso</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_format</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FormatMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">FormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
+        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Input type representing a day of the week.</span>
+
+<span class="sd">        :param full: Allow the full day name to be provided</span>
+<span class="sd">        :param abbreviation: Allow abbreviations of day names to be provided</span>
+<span class="sd">        :param numeric: Allow weekdays to be specified as a decimal number</span>
+<span class="sd">        :param iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,</span>
+<span class="sd">          where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.</span>
+<span class="sd">        :param locale: An alternate locale to use when parsing input</span>
+<span class="sd">        :param out_format: A :class:`FormatMode` or str that matches a format mode.  Defaults to full weekday name.</span>
+<span class="sd">        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">full</span> <span class="ow">or</span> <span class="n">abbreviation</span> <span class="ow">or</span> <span class="n">numeric</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one of full, abbreviation, or numeric must be True&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">locale</span><span class="o">=</span><span class="n">locale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="o">=</span> <span class="n">full</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span> <span class="o">=</span> <span class="n">abbreviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span> <span class="o">=</span> <span class="n">numeric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="o">=</span> <span class="n">iso</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span> <span class="o">=</span> <span class="n">FormatMode</span><span class="p">(</span><span class="n">out_format</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span> <span class="o">=</span> <span class="n">out_locale</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">locale</span>
+
+    <span class="k">def</span> <span class="nf">_weekdays</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">day_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">day_abbr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Day.choice_str"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.choice_str">[docs]</a>    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">dow</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weekdays</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+            <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse_dow_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dow_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid numeric weekday=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">dow_num</span> <span class="o">&lt;=</span> <span class="n">stop</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">dow_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="n">dow_num</span>
+
+        <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid weekday=</span><span class="si">{</span><span class="n">dow_num</span><span class="si">}</span><span class="s1"> - expected a value&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; between </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">day_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">) and </span><span class="si">{</span><span class="n">stop</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">day_name</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="Day.parse_dow"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_dow">[docs]</a>    <span class="k">def</span> <span class="nf">parse_dow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the day of week from the given value.</span>
+
+<span class="sd">        This method does not use :meth:`python:datetime.strptime` because it is not accurate for standalone numeric</span>
+<span class="sd">        weekdays.</span>
+
+<span class="sd">        :param value: The value provided as input</span>
+<span class="sd">        :return: The numeric weekday (non-ISO)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_dow_num</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">InputValidationError</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="n">choice_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">dow</span><span class="o">.</span><span class="n">casefold</span><span class="p">():</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weekdays</span><span class="p">()}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">choice_map</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> matching the following: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Day.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">day_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_dow</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">out_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span>
+        <span class="k">if</span> <span class="n">out_mode</span> <span class="ow">in</span> <span class="p">(</span><span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">,</span> <span class="n">FormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="n">out_mode</span><span class="p">][</span><span class="n">day_num</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">weekdays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="n">out_mode</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">weekdays</span><span class="p">[</span><span class="n">day_num</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected output format=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_format</span><span class="si">!r}</span><span class="s1"> for weekday=</span><span class="si">{</span><span class="n">day_num</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

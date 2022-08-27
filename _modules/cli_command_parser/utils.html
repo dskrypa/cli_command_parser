@@ -90,6 +90,8 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
@@ -193,6 +195,17 @@
 
 
 <span class="c1"># endregion</span>
+
+
+<div class="viewcode-block" id="MissingMixin"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin">[docs]</a><span class="k">class</span> <span class="nc">MissingMixin</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>  <span class="c1"># noqa</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
 <div class="viewcode-block" id="FixedFlag"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag">[docs]</a><span class="k">class</span> <span class="nc">FixedFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
