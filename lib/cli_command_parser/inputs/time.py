@@ -67,7 +67,8 @@ class different_locale:
         self.original = setlocale(LC_ALL)
         # The calendar.different_locale implementation only calls setlocale with LC_TIME, which caused LC_CTYPE
         # to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results
-        setlocale(LC_ALL, f'LC_CTYPE={locale};LC_TIME={locale}')  # a subset of vars only affects the specified ones
+        # setlocale(LC_ALL, f'LC_CTYPE={locale};LC_TIME={locale}')  # a subset of vars only affects the specified ones
+        setlocale(LC_ALL, locale)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.locale:
@@ -422,16 +423,46 @@ class DateTimeInput(Generic[DT], DTInput, ABC):
 
 class DateTime(DateTimeInput[datetime], type=datetime):
     def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+        """
+        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+        a :class:`python:datetime.datetime` object.
+
+        :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
+          :data:`DEFAULT_DT_FMT`.
+        :param locale: An alternate locale to use when parsing input
+        :param earliest: If specified, the parsed value must be later than or equal to this
+        :param latest: If specified, the parsed value must be earlier than or equal to this
+        """
         super().__init__(formats or (DEFAULT_DT_FMT,), locale=locale, earliest=earliest, latest=latest)
 
 
 class Date(DateTimeInput[date], type=date):
     def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+        """
+        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+        a :class:`python:datetime.date` object.
+
+        :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
+          :data:`DEFAULT_DT_FMT`.
+        :param locale: An alternate locale to use when parsing input
+        :param earliest: If specified, the parsed value must be later than or equal to this
+        :param latest: If specified, the parsed value must be earlier than or equal to this
+        """
         super().__init__(formats or (DEFAULT_DATE_FMT,), locale=locale, earliest=earliest, latest=latest)
 
 
 class Time(DateTimeInput[time], type=time):
     def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+        """
+        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+        a :class:`python:datetime.time` object.
+
+        :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
+          :data:`DEFAULT_DT_FMT`.
+        :param locale: An alternate locale to use when parsing input
+        :param earliest: If specified, the parsed value must be later than or equal to this
+        :param latest: If specified, the parsed value must be earlier than or equal to this
+        """
         super().__init__(formats or (DEFAULT_TIME_FMT,), locale=locale, earliest=earliest, latest=latest)
 
 
