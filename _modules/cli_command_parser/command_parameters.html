@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.08.28-1 documentation</title>
+  <title>cli_command_parser.command_parameters &mdash; CLI Command Parser 2022.08.28-2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -323,9 +323,16 @@
                 <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No function was registered for param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">grouped_ordered_flags</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">before_main</span><span class="p">][</span><span class="n">param</span><span class="o">.</span><span class="n">order</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 
+        <span class="n">found_non_always</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">invalid</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">before_main</span><span class="p">,</span> <span class="n">prio_params</span> <span class="ow">in</span> <span class="n">grouped_ordered_flags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">prio</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">prio_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">param</span><span class="p">:</span> <span class="n">ActionFlag</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Don&#39;t pop and check `if params` - all are needed for the group check</span>
+                <span class="k">if</span> <span class="n">found_non_always</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">always_available</span><span class="p">:</span>
+                    <span class="n">invalid</span><span class="p">[(</span><span class="n">before_main</span><span class="p">,</span> <span class="n">prio</span><span class="p">)]</span> <span class="o">=</span> <span class="n">param</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">always_available</span><span class="p">:</span>
+                    <span class="n">found_non_always</span> <span class="o">=</span> <span class="kc">True</span>
+
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">group</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">group</span> <span class="ow">and</span> <span class="n">group</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
@@ -337,7 +344,8 @@
         <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;ActionFlag parameters with the same before/after main setting must either have different order values&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39; or be in a mutually exclusive ParamGroup - invalid parameters: </span><span class="si">{</span><span class="n">invalid</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; or be in a mutually exclusive ParamGroup, and always_available ActionFlags must all be ordered&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; before any that are not always available - invalid parameters: </span><span class="si">{</span><span class="n">invalid</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
 
         <span class="n">n_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouped_ordered_flags</span><span class="p">[</span><span class="kc">True</span><span class="p">])</span>
