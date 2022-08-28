@@ -10,12 +10,12 @@ from __future__ import annotations
 from collections import deque
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
+from .context import ActionPhase, Context
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
-    from .context import Context
     from .core import CommandType
     from .command_parameters import CommandParameters
 
@@ -41,7 +41,7 @@ class CommandParser:
             return cls.__parse_args(ctx)
         except UsageError:
             ctx.failed = True
-            if not ctx.parsed_always_available_action_flags:
+            if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise
             return None
         except Exception:
@@ -63,7 +63,7 @@ class CommandParser:
             missing = cls._missing(params, ctx)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.failed = True
-                if ctx.parsed_always_available_action_flags:
+                if ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                     return None
                 raise ParamsMissing(missing)
             return next_cmd
@@ -71,7 +71,7 @@ class CommandParser:
         missing = cls._missing(params, ctx)
         if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
             # Action is excluded because it provides a better error message
-            if not ctx.parsed_always_available_action_flags:
+            if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.config.ignore_unknown:
             raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))

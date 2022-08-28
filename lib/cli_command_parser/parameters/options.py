@@ -260,6 +260,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
             raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
         elif always_available and not before_main:
             raise ParameterDefinitionError('always_available=True cannot be combined with before_main=False')
+        # TODO: Validate that no `always_available` flags are ordered after ones that are not always_available
         super().__init__(*option_strs, **kwargs)
         self.func = func
         self.order = order

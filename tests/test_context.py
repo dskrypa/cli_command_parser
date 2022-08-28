@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from cli_command_parser import Command, CommandConfig
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.context import Context, get_current_context, ctx, get_context, get_parsed
+from cli_command_parser.context import Context, get_current_context, ctx, get_context, get_parsed, ActionPhase
 from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.parameters import Flag
 
@@ -44,7 +44,7 @@ class ContextTest(TestCase):
 
     def test_parsed_action_flags_with_no_cmd(self):
         expected = (0, [], [])
-        self.assertEqual(expected, Context().parsed_action_flags)
+        self.assertEqual(expected, Context()._parsed_action_flags)
 
     def test_entered_context_is_active_context(self):
         with Context() as c1:
@@ -60,7 +60,7 @@ class ContextTest(TestCase):
 
     def test_empty_parsed_always_available_action_flags(self):
         with Context() as c:
-            self.assertEqual((), c.parsed_always_available_action_flags)
+            self.assertEqual(0, len(c.categorized_action_flags[ActionPhase.PRE_INIT]))
 
     def test_double_config_rejected(self):
         with self.assertRaisesRegex(ValueError, 'Cannot combine config='):

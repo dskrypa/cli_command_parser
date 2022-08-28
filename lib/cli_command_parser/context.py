@@ -11,6 +11,7 @@ import sys
 from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
+from enum import Enum
 from inspect import Signature, Parameter as _Parameter
 from typing import TYPE_CHECKING, Any, Callable, Union, Sequence, Optional, Iterator, Collection, cast
 from typing import Dict, Tuple, List
@@ -188,7 +189,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     # region Actions
 
     @cached_property
-    def parsed_action_flags(self) -> Tuple[int, List[ActionFlag], List[ActionFlag]]:
+    def _parsed_action_flags(self) -> Tuple[int, List[ActionFlag], List[ActionFlag]]:
         """
         Not intended to be accessed by users.  Returns a tuple containing the total number of action flags provided, the
         action flags to run before main, and the action flags to run after main.
@@ -204,37 +205,46 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return len(before_main) + len(after_main), before_main, after_main
 
     @property
-    def before_main_actions(self) -> Iterator[ActionFlag]:
-        """
-        Not intended to be accessed by users.  Iterator that yields action flags to be executed before main while
-        incrementing the counter of actions taken.
-        """
-        flags = self.parsed_always_available_action_flags if self.failed else self.parsed_action_flags[1]
-        for action_flag in flags:
-            self.actions_taken += 1
-            yield action_flag
-
-    @property
-    def after_main_actions(self) -> Iterator[ActionFlag]:
-        """
-        Not intended to be accessed by users.  Iterator that yields action flags to be executed after main while
-        incrementing the counter of actions taken.
-        """
-        for action_flag in self.parsed_action_flags[2]:
-            self.actions_taken += 1
-            yield action_flag
+    def action_flag_count(self) -> int:
+        """Not intended to be accessed by users.  Returns the count of parsed action flags."""
+        return self._parsed_action_flags[0]
 
     @cached_property
-    def parsed_always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
+    def all_action_flags(self) -> List[ActionFlag]:
+        """Not intended to be accessed by users.  Returns all parsed action flags."""
+        before_main, after_main = self._parsed_action_flags[1:]
+        return before_main + after_main
+
+    @cached_property
+    def categorized_action_flags(self) -> Dict[ActionPhase, Sequence[ActionFlag]]:
         """
-        Not intended to be accessed by users.  The action flags like the one for ``--help`` that should be executed
-        regardless of whether errors were encountered during parsing.
+        Not intended to be accessed by users.  Returns a dict of parsed action flags, categorized by the
+        :class:`ActionPhase` during which they will run.
         """
-        parsing = self._parsing
-        try:
-            return tuple(p for p in self.params.always_available_action_flags if p in parsing)
-        except AttributeError:  # self.command is None
-            return ()
+        before_main, after_main = self._parsed_action_flags[1:]
+        init_actions, before_actions = [], []
+        for flag in before_main:
+            if flag.always_available:
+                init_actions.append(flag)
+            else:
+                before_actions.append(flag)
+
+        return {
+            ActionPhase.PRE_INIT: init_actions,
+            ActionPhase.BEFORE_MAIN: before_actions,
+            ActionPhase.AFTER_MAIN: after_main,
+        }
+
+    def iter_action_flags(self, phase: ActionPhase) -> Iterator[ActionFlag]:
+        """
+        Not intended to be called by users.  Iterator that yields action flags to be executed during the specified
+        phase while incrementing the counter of actions taken.
+
+        :param phase: The current :class:`ActionPhase`
+        """
+        for action_flag in self.categorized_action_flags[phase]:
+            self.actions_taken += 1
+            yield action_flag
 
     # endregion
 
@@ -258,6 +268,18 @@ def _normalize_config(
             parents.append(cmd_cfg)
 
     return CommandConfig(parents=parents, **kwargs)
+
+
+class ActionPhase(Enum):
+    PRE_INIT = 0
+    BEFORE_MAIN = 1
+    AFTER_MAIN = 2
+
+    # def __next__(self) -> ActionPhase:
+    #     try:
+    #         return self._value2member_map_[self._value_ + 1]  # noqa
+    #     except KeyError:
+    #         raise StopIteration
 
 
 class ContextProxy:

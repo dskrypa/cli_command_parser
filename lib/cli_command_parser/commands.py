@@ -10,7 +10,7 @@ from contextlib import ExitStack
 from typing import TypeVar, Sequence, Optional
 
 from .core import CommandMeta, CommandType, get_top_level_commands, get_params
-from .context import Context, get_or_create_context
+from .context import Context, ActionPhase, get_or_create_context
 from .exceptions import ParamConflict
 from .parser import CommandParser
 
@@ -92,13 +92,20 @@ class Command(ABC, metaclass=CommandMeta):
         via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class initialization.
         To skip error handling, define the class with ``error_handler=None``.
 
-        Calls 3 methods in order: :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`.
+        Calls the following methods in order:
+            1. :meth:`._pre_init_actions_`
+            1. :meth:`._init_command_`
+            1. :meth:`._before_main_`
+            1. :meth:`.main`
+            1. :meth:`._after_main_`.
 
-        :param args: Positional arguments to pass to :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`
-        :param kwargs: Keyword arguments to pass to :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`
+        :param args: Positional arguments to pass to the methods listed above
+        :param kwargs: Keyword arguments to pass to the methods listed above
         :return: The total number of actions that were taken
         """
         with self.__ctx as ctx, ctx.get_error_handler():
+            self._pre_init_actions_(*args, **kwargs)
+            self._init_command_(*args, **kwargs)
             self._before_main_(*args, **kwargs)
             try:
                 self.main(*args, **kwargs)
@@ -112,28 +119,59 @@ class Command(ABC, metaclass=CommandMeta):
 
         return ctx.actions_taken
 
-    def _before_main_(self, *args, **kwargs):
+    def _pre_init_actions_(self, *args, **kwargs):
         """
-        Called by :meth:`.__call__` before :meth:`.main` is called.  Validates the number of ActionFlags that were
-        specified, and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag`
-        actions that were defined with ``before_main=True`` in their configured order.
+        The first method called by :meth:`.__call__` (before :meth:`.main` and others).
+
+        Validates the number of ActionFlags that were specified, and calls all of the specified
+        :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions such as ``--help`` that were
+        defined with ``before_main=True`` and ``always_available=True`` in their configured order.
 
         :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
         :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
         """
         ctx = self.__ctx
-        n_flags, before, after = ctx.parsed_action_flags
+        n_flags = ctx.action_flag_count
         if n_flags and not ctx.config.multiple_action_flags and n_flags > 1:
-            raise ParamConflict(before + after, 'combining multiple action flags is disabled')
+            raise ParamConflict(ctx.all_action_flags, 'combining multiple action flags is disabled')
 
+        before = ctx.categorized_action_flags[ActionPhase.BEFORE_MAIN]
         if before:
             action = get_params(self).action
             if action is not None and not ctx.config.action_after_action_flags:
                 raise ParamConflict([action, *before], 'combining an action with action flags is disabled')
 
-        # TODO: Add a way to handle things like logging initialization only after finding that --help was not specified
-        #  but before processing other before-main actions
-        for param in ctx.before_main_actions:
+        for param in ctx.iter_action_flags(ActionPhase.PRE_INIT):
+            param.func(self, *args, **kwargs)
+
+    def _init_command_(self, *args, **kwargs):
+        """
+        Called by :meth:`.__call__` after :meth:`._pre_init_actions_` and before :meth:`._before_main_`.
+
+        Safe to override without calling ``super()._init_command_()`` - the base implementation is a placeholder
+        intended to allow subclasses to perform initialization tasks.  This method is called after actions like
+        ``--help`` have been processed, so more resource-intensive initialization operations or those that may have
+        side effects that should not occur when the application does nothing should be placed here instead of in
+        ``__init__``.
+
+        Actions like initializing logging are recommended to be placed in this method.
+
+        :param args: Positional arguments that were passed to :meth:`.__call__`
+        :param kwargs: Keyword arguments that were passed to :meth:`.__call__`
+        """
+        pass
+
+    def _before_main_(self, *args, **kwargs):
+        """
+        Called by :meth:`.__call__` after :meth:`._init_command_` and before :meth:`.main` is called.
+
+        Calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions that were
+        defined with ``before_main=True`` and ``always_available=False`` in their configured order.
+
+        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
+        """
+        for param in self.__ctx.iter_action_flags(ActionPhase.BEFORE_MAIN):
             param.func(self, *args, **kwargs)
 
     def main(self, *args, **kwargs) -> Optional[int]:
@@ -170,7 +208,7 @@ class Command(ABC, metaclass=CommandMeta):
         :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
         :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
         """
-        for param in self.__ctx.after_main_actions:
+        for param in self.__ctx.iter_action_flags(ActionPhase.AFTER_MAIN):
             param.func(self, *args, **kwargs)
 
 
