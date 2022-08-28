@@ -236,8 +236,8 @@ class CommandParameters:
             grouped_ordered_flags[param.before_main][param.order].append(param)
 
         invalid = {}
-        for before_main, prio_params in grouped_ordered_flags.items():  # noqa  # pycharm forgets dict has .items...
-            for prio, params in prio_params.items():  # noqa
+        for before_main, prio_params in grouped_ordered_flags.items():
+            for prio, params in prio_params.items():
                 if len(params) > 1:
                     group = next((p.group for p in params if p.group), None)
                     if group and group.mutually_exclusive:

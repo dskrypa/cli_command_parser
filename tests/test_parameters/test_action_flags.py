@@ -138,18 +138,29 @@ class ActionFlagTest(ParserTest):
                 self.call_order = {}
                 self.counter = count()
 
-            @action_flag('-f', order=1)
-            def foo(self):
-                self.call_order['foo'] = next(self.counter)
-
             @action_flag('-b', order=2)
             def bar(self):
                 self.call_order['bar'] = next(self.counter)
 
-        for case, args in {'combined': ['-fb'], 'split': ['-b', '-f']}.items():
+            @action_flag('-a', order=1)
+            def foo(self):
+                self.call_order['foo'] = next(self.counter)
+
+            @action_flag('-c', order=3)
+            def baz(self):
+                self.call_order['baz'] = next(self.counter)
+
+        # fmt: off
+        cases = (
+            ['-abc'], ['-acb'], ['-cab'], ['-bac'], ['-bca'],
+            ['-b', '-a', '-c'], ['-b', '-c', '-a'], ['-a', '-b', '-c'],
+        )
+        # fmt: on
+        for case in cases:
             with self.subTest(case=case):
-                foo = Foo.parse_and_run(args)
+                foo = Foo.parse_and_run(case)
                 self.assertLess(foo.call_order['foo'], foo.call_order['bar'])
+                self.assertLess(foo.call_order['bar'], foo.call_order['baz'])
 
     def test_before_and_after_flags(self):
         class Foo(Command, multiple_action_flags=True):

@@ -195,7 +195,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         """
         parsing = self._parsing
         try:
-            action_flags = sorted(p for p in self.params.action_flags if p in parsing)
+            action_flags = [p for p in self.params.action_flags if p in parsing]  # already sorted in CommandParameters
         except AttributeError:  # self.command is None
             return 0, [], []
 
