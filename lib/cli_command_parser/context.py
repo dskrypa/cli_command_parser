@@ -1,4 +1,6 @@
 """
+The parsing Context used internally for tracking parsed arguments and configuration overrides.
+
 :author: Doug Skrypa
 """
 # pylint: disable=R0801
@@ -80,12 +82,17 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     @cached_property
     def params(self) -> Optional[CommandParameters]:
+        """
+        The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated
+        with this Context.
+        """
         try:
             return self.command.__class__.params(self.command)
         except AttributeError:  # self.command is None
             return None
 
     def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
+        """Returns the :class:`.ErrorHandler` configured to be used."""
         error_handler = self.config.error_handler
         if error_handler is _NotSet:
             return extended_error_handler
@@ -100,7 +107,17 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self.__class__(argv, command, parent=self, **kwargs)
 
     def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
-        # TODO: Document that this can provide a dict of name:value
+        """
+        Returns all of the parsed arguments as a dictionary.
+
+        The :ref:`get_parsed() <advanced:Parsed Args as a Dictionary>` helper function provides an easier way to access
+        this functionality.
+
+        :param exclude: Parameter objects that should be excluded from the returned results
+        :param recursive: Whether parsed arguments should be recursively gathered from parent Commands
+        :return: A dictionary containing all of the arguments that were parsed.  The keys in the returned dict match
+          the names assigned to the Parameters in the Command associated with this Context.
+        """
         with self:
             if recursive and self.parent:
                 parsed = self.parent.get_parsed(exclude, recursive)
@@ -117,6 +134,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return parsed
 
     def get_parsing_value(self, param: Parameter):
+        """Not intended to be called by users.  Used by Parameters to access their parsed values."""
         try:
             return self._parsing[param]
         except KeyError:
@@ -124,6 +142,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return value
 
     def set_parsing_value(self, param: Parameter, value: Any):
+        """Not intended to be called by users.  Used by Parameters during parsing to store parsed values."""
         self._parsing[param] = value
 
     def __contains__(self, param: Union[ParamOrGroup, str, Any]) -> bool:
@@ -142,13 +161,21 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return True
 
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
+        """
+        Not intended to be called by users.  Used by Parameters during parsing to indicate that they were provided.
+        """
         self._provided[param] += val_count
 
     def num_provided(self, param: ParamOrGroup) -> int:
+        """Not intended to be called by users.  Used by Parameters during parsing to handle nargs."""
         return self._provided[param]
 
     @cached_property
     def parsed_action_flags(self) -> Tuple[int, List[ActionFlag], List[ActionFlag]]:
+        """
+        Not intended to be accessed by users.  Returns a tuple containing the total number of action flags provided, the
+        action flags to run before main, and the action flags to run after main.
+        """
         parsing = self._parsing
         try:
             action_flags = sorted(p for p in self.params.action_flags if p in parsing)
@@ -166,6 +193,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     @property
     def before_main_actions(self) -> Iterator[ActionFlag]:
+        """
+        Not intended to be accessed by users.  Iterator that yields action flags to be executed before main while
+        incrementing the counter of actions taken.
+        """
         flags = self.parsed_always_available_action_flags if self.failed else self.parsed_action_flags[1]
         for action_flag in flags:
             self.actions_taken += 1
@@ -173,12 +204,20 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     @property
     def after_main_actions(self) -> Iterator[ActionFlag]:
+        """
+        Not intended to be accessed by users.  Iterator that yields action flags to be executed after main while
+        incrementing the counter of actions taken.
+        """
         for action_flag in self.parsed_action_flags[2]:
             self.actions_taken += 1
             yield action_flag
 
     @cached_property
     def parsed_always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
+        """
+        Not intended to be accessed by users.  The action flags like the one for ``--help`` that should be executed
+        regardless of whether errors were encountered during parsing.
+        """
         parsing = self._parsing
         try:
             return tuple(p for p in self.params.always_available_action_flags if p in parsing)
@@ -187,6 +226,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     @property
     def terminal_width(self) -> int:
+        """Returns the current terminal width as the number of characters that fit on a single line."""
         if self._terminal_width is not None:
             return self._terminal_width
         return _TERMINAL.width
@@ -230,6 +270,10 @@ def get_current_context(silent: bool = False) -> Optional[Context]:
 
 
 def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, **kwargs) -> Context:
+    """
+    Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
+    no active Context.
+    """
     try:
         context = get_current_context()
     except NoActiveContext:
@@ -287,6 +331,10 @@ ctx: Context = cast(Context, ContextProxy())
 
 
 def get_context(command: Command) -> Context:
+    """
+    :param command: An initialized Command object
+    :return: The Context associated with the given Command
+    """
     try:
         return command._Command__ctx  # noqa
     except AttributeError as e:
@@ -294,6 +342,27 @@ def get_context(command: Command) -> Context:
 
 
 def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
+    """
+    Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.
+
+    If the parsed arguments are intended to be used to call a particular function/method, or to initialize a particular
+    class, then that callable can be provided as the ``to_call`` parameter to filter the parsed arguments to only the
+    ones that would be accepted by it.  It will not be called by this function.
+
+    If the callable accepts any :attr:`VAR_KEYWORD <python:inspect.Parameter.kind>` parameters (i.e., ``**kwargs``),
+    then those param names will not be used for filtering.  That is, if the command has a Parameter named ``kwargs``
+    and the callable accepts ``**kwargs``, the ``kwargs`` key will not be included in the argument dict returned by
+    this function.  If any of the parameters of the given callable cannot be passed as a keyword argument (i.e.,
+    :attr:`POSITIONAL_ONLY or VAR_POSITIONAL <python:inspect.Parameter.kind>`), then they must be handled after calling
+    this function.  They will be included in the returned dict.
+
+    :param command: An initialized Command object for which arguments were already parsed.
+    :param to_call: A :class:`callable <python:collections.abc.Callable>` (function, method, class, etc.) that should
+      be used to filter the parsed arguments.  If provided, then only the keys that match the callable's signature will
+      be included in the returned dictionary of parsed arguments.
+    :return: A dictionary containing all of the (optionally filtered) arguments that were parsed.  The keys in the
+      returned dict match the names assigned to the Parameters in the given Command.
+    """
     parsed = get_context(command).get_parsed()
     if to_call is not None:
         sig = Signature.from_callable(to_call)

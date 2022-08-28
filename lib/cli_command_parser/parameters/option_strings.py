@@ -40,7 +40,7 @@ class OptionStrings:
             return
 
         mode = self.name_mode if self.name_mode is not None else param._config(command).option_name_mode
-        mode_val: int = mode.value  # noqa  # This Flag doesn't subclass int due to breakage in 3.11
+        mode_val: int = mode._value_  # This Flag doesn't subclass int due to breakage in 3.11
         if mode_val & 4:
             self._display_long = self._display_long.copy()
         if mode & OptionNameMode.DASH:
@@ -84,7 +84,7 @@ class TriFlagOptionStrings(OptionStrings):
             return
 
         mode = self.name_mode if self.name_mode is not None else param._config(command).option_name_mode
-        mode_val: int = mode.value  # noqa  # This Flag doesn't subclass int due to breakage in 3.11
+        mode_val: int = mode._value_  # This Flag doesn't subclass int due to breakage in 3.11
         if mode & OptionNameMode.DASH:
             option = '--{}-{}'.format(self._alt_prefix, name.replace('_', '-'))
             self._alt_long.add(option)

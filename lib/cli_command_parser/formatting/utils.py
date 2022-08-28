@@ -99,7 +99,7 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
     elif param_show_default is not None:
         return param_show_default
     sd = ctx.config.show_defaults
-    if sd.value < 2 or (sd & ShowDefaults.MISSING and help_text and 'default:' in help_text):
+    if sd._value_ < 2 or (sd & ShowDefaults.MISSING and help_text and 'default:' in help_text):
         return False
     elif sd & ShowDefaults.ANY:
         return True
