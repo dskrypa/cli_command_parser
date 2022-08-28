@@ -32,6 +32,7 @@ extensions = [
 autosectionlabel_prefix_document = True
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
+    'wcwidth': ('https://wcwidth.readthedocs.io/en/latest/', None),
 }
 viewcode_follow_imported_members = False
 

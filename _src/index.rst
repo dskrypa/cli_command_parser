@@ -36,6 +36,13 @@ CLI Command Parser is available on PyPI::
     $ pip install cli-command-parser
 
 
+There are no required dependencies.  Support for formatting wide characters correctly in help text descriptions can
+be included by adding `wcwidth <https://wcwidth.readthedocs.io>`__ to your project's requirements, and/or by installing
+with optional dependencies::
+
+    $ pip install cli-command-parser[wcwidth]
+
+
 User Guide
 **********
 
