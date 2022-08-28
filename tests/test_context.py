@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from cli_command_parser import Command, CommandConfig
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.context import Context, get_current_context, ctx, get_context, get_parsed, ActionPhase
+from cli_command_parser.context import Context, ActionPhase, ctx, get_current_context, get_context, get_parsed
 from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.parameters import Flag
 
@@ -143,6 +143,14 @@ class ContextTest(TestCase):
         with Context(terminal_width=30) as c1:
             c2 = c1._sub_context(None)  # noqa
             self.assertEqual(30, c2.terminal_width)
+
+    def test_auto_sub_context(self):
+        class Foo(Command):
+            pass
+
+        with Context() as c1:
+            foo = Foo.parse_and_run([])
+            self.assertIs(c1, foo.ctx.parent)
 
 
 if __name__ == '__main__':

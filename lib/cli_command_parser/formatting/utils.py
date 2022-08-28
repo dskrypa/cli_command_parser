@@ -6,9 +6,14 @@ Utils for usage / help text formatters
 
 from __future__ import annotations
 
-from textwrap import TextWrapper
 from typing import Optional, Union, Any, Collection, Sequence, Iterator, Iterable, Tuple, List
 
+try:
+    from wcwidth import wcswidth
+except ImportError:
+    wcswidth = len
+
+from ..compat import WCTextWrapper
 from ..config import ShowDefaults
 from ..context import ctx
 from ..utils import Bool, _NotSet
@@ -17,7 +22,6 @@ __all__ = ['format_help_entry', 'line_iter']
 
 Strs = Union[str, Sequence[str]]
 OptStrs = Optional[Strs]
-# TODO: wcwidth?
 
 
 def format_help_entry(
@@ -50,7 +54,7 @@ def format_help_entry(
 
 
 def _description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
-    widths = [len(line) for line in usage]
+    widths = [wcswidth(line) for line in usage]
     if max(widths, default=0) <= max_usage_width:
         return 0
 
@@ -70,14 +74,14 @@ def _single_line_strs(lines: Strs) -> List[str]:
 
 
 def _norm_column(lines: Sequence[str], column_width: int, cont_indent: int = 0) -> Sequence[str]:
-    max_width = max(map(len, lines)) + cont_indent
+    max_width = max(map(wcswidth, lines)) + cont_indent
     if max_width <= column_width:
         return lines
 
-    tw = TextWrapper(column_width, break_long_words=True, break_on_hyphens=True)
+    tw = WCTextWrapper(column_width, break_long_words=True, break_on_hyphens=True)
     fixed = []
     for line in lines:
-        if len(line) + cont_indent >= column_width:
+        if wcswidth(line) + cont_indent >= column_width:
             fixed.extend(tw.wrap(line))
         else:
             fixed.append(line)

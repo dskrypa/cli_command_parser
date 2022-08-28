@@ -2,12 +2,12 @@
 
 from abc import ABC
 from textwrap import dedent
-from typing import Sequence, Type, Union, Iterable, Any, Tuple
+from typing import Sequence, Iterable, Any, Tuple
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
-from cli_command_parser.core import get_params, CommandMeta, CommandType
+from cli_command_parser.core import CommandMeta, CommandType
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
@@ -270,6 +270,17 @@ class HelpTextTest(ParserTest):
             spam = TriFlag('-s', name_mode='-')
 
         self.assertIn('--spam, -s\n    --no-spam\n', get_help_text(Foo))
+
+    def test_wide_text_line_wrap(self):
+        class Foo(Command):
+            bar = Option('-b', help='하나, 둘, 셋, 넷, 다섯, 여섯, 일곱, 여덟, 아홉, 열')
+
+        expected = (
+            '  --bar BAR, -b BAR           하나, 둘, 셋, 넷, 다섯,\n'
+            '                              여섯, 일곱, 여덟, 아홉,\n'
+            '                              열'
+        )
+        self.assert_str_contains(expected, get_help_text(Foo, 53))
 
     # TODO
     # def test_subcommand_local_choices_map(self):

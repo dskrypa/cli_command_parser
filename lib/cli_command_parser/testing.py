@@ -241,11 +241,11 @@ def get_usage_text(cmd: Type[Command]) -> str:
         return get_params(cmd).formatter.format_usage()
 
 
-def get_help_text(cmd: Union[Type[Command], Command]) -> str:
+def get_help_text(cmd: Union[Type[Command], Command], terminal_width: int = 199) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
 
-    cmd.ctx._terminal_width = 199
+    cmd.ctx._terminal_width = terminal_width
     with cmd.ctx:
         return get_params(cmd).formatter.format_help()
 

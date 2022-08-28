@@ -36,4 +36,5 @@ setup(
     python_requires='~=3.7',
     install_requires=[],
     tests_require=['testtools', 'coverage'],
+    extras_require={'wcwidth': ['wcwidth']},
 )
