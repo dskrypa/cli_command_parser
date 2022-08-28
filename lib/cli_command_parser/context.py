@@ -73,6 +73,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             self._provided = defaultdict(int)
         self.actions_taken = 0
 
+    # region Internal Methods
+
+    def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
+        if argv is None:
+            argv = self.remaining
+        return self.__class__(argv, command, parent=self, **kwargs)
+
     def __enter__(self) -> Context:
         _context_stack.get().append(self)
         return self
@@ -80,31 +87,29 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def __exit__(self, exc_type, exc_val, exc_tb):
         _context_stack.get().pop()
 
-    @cached_property
-    def params(self) -> Optional[CommandParameters]:
-        """
-        The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated
-        with this Context.
-        """
+    def __contains__(self, param: Union[ParamOrGroup, str, Any]) -> bool:
         try:
-            return self.command.__class__.params(self.command)
-        except AttributeError:  # self.command is None
-            return None
-
-    def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
-        """Returns the :class:`.ErrorHandler` configured to be used."""
-        error_handler = self.config.error_handler
-        if error_handler is _NotSet:
-            return extended_error_handler
-        elif error_handler is None:
-            return NullErrorHandler()
+            self._parsing[param]
+        except KeyError:
+            if isinstance(param, str):
+                try:
+                    next((v for p, v in self._parsing.items() if p.name == param))
+                except StopIteration:
+                    return False
+                else:
+                    return True
+            return False
         else:
-            return error_handler
+            return True
 
-    def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
-        if argv is None:
-            argv = self.remaining
-        return self.__class__(argv, command, parent=self, **kwargs)
+    # endregion
+
+    @property
+    def terminal_width(self) -> int:
+        """Returns the current terminal width as the number of characters that fit on a single line."""
+        if self._terminal_width is not None:
+            return self._terminal_width
+        return _TERMINAL.width
 
     def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
         """
@@ -133,6 +138,29 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
         return parsed
 
+    @cached_property
+    def params(self) -> Optional[CommandParameters]:
+        """
+        The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated
+        with this Context.
+        """
+        try:
+            return self.command.__class__.params(self.command)
+        except AttributeError:  # self.command is None
+            return None
+
+    def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
+        """Returns the :class:`.ErrorHandler` configured to be used."""
+        error_handler = self.config.error_handler
+        if error_handler is _NotSet:
+            return extended_error_handler
+        elif error_handler is None:
+            return NullErrorHandler()
+        else:
+            return error_handler
+
+    # region Parsing
+
     def get_parsing_value(self, param: Parameter):
         """Not intended to be called by users.  Used by Parameters to access their parsed values."""
         try:
@@ -145,21 +173,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         """Not intended to be called by users.  Used by Parameters during parsing to store parsed values."""
         self._parsing[param] = value
 
-    def __contains__(self, param: Union[ParamOrGroup, str, Any]) -> bool:
-        try:
-            self._parsing[param]
-        except KeyError:
-            if isinstance(param, str):
-                try:
-                    next((v for p, v in self._parsing.items() if p.name == param))
-                except StopIteration:
-                    return False
-                else:
-                    return True
-            return False
-        else:
-            return True
-
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
         """
         Not intended to be called by users.  Used by Parameters during parsing to indicate that they were provided.
@@ -169,6 +182,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def num_provided(self, param: ParamOrGroup) -> int:
         """Not intended to be called by users.  Used by Parameters during parsing to handle nargs."""
         return self._provided[param]
+
+    # endregion
+
+    # region Actions
 
     @cached_property
     def parsed_action_flags(self) -> Tuple[int, List[ActionFlag], List[ActionFlag]]:
@@ -224,12 +241,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         except AttributeError:  # self.command is None
             return ()
 
-    @property
-    def terminal_width(self) -> int:
-        """Returns the current terminal width as the number of characters that fit on a single line."""
-        if self._terminal_width is not None:
-            return self._terminal_width
-        return _TERMINAL.width
+    # endregion
 
 
 def _normalize_config(
@@ -251,38 +263,6 @@ def _normalize_config(
             parents.append(cmd_cfg)
 
     return CommandConfig(parents=parents, **kwargs)
-
-
-def get_current_context(silent: bool = False) -> Optional[Context]:
-    """
-    Get the currently active parsing context.
-
-    :param silent: If True, allow this function to return ``None`` if there is no active :class:`Context`
-    :return: The active :class:`Context` object
-    :raises: :class:`~.exceptions.NoActiveContext` if there is no active Context and ``silent=False`` (default)
-    """
-    try:
-        return _context_stack.get()[-1]
-    except (AttributeError, IndexError):
-        if silent:
-            return None
-        raise NoActiveContext('There is no active context') from None
-
-
-def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, **kwargs) -> Context:
-    """
-    Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
-    no active Context.
-    """
-    try:
-        context = get_current_context()
-    except NoActiveContext:
-        return Context(argv, command_cls, **kwargs)
-    else:
-        if argv is None and context.command is command_cls and not kwargs:
-            return context
-        else:
-            return context._sub_context(command_cls, argv=argv, **kwargs)
 
 
 class ContextProxy:
@@ -330,6 +310,41 @@ class ContextProxy:
 ctx: Context = cast(Context, ContextProxy())
 
 
+# region Public / Semi-Public Functions
+
+
+def get_current_context(silent: bool = False) -> Optional[Context]:
+    """
+    Get the currently active parsing context.
+
+    :param silent: If True, allow this function to return ``None`` if there is no active :class:`Context`
+    :return: The active :class:`Context` object
+    :raises: :class:`~.exceptions.NoActiveContext` if there is no active Context and ``silent=False`` (default)
+    """
+    try:
+        return _context_stack.get()[-1]
+    except (AttributeError, IndexError):
+        if silent:
+            return None
+        raise NoActiveContext('There is no active context') from None
+
+
+def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, **kwargs) -> Context:
+    """
+    Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
+    no active Context.
+    """
+    try:
+        context = get_current_context()
+    except NoActiveContext:
+        return Context(argv, command_cls, **kwargs)
+    else:
+        if argv is None and context.command is command_cls and not kwargs:
+            return context
+        else:
+            return context._sub_context(command_cls, argv=argv, **kwargs)
+
+
 def get_context(command: Command) -> Context:
     """
     :param command: An initialized Command object
@@ -370,3 +385,6 @@ def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
         parsed = {k: v for k, v in parsed.items() if k in keys}
 
     return parsed
+
+
+# endregion
