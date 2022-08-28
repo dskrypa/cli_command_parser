@@ -294,6 +294,14 @@ class ActionFlagTest(ParserTest):
         with self.assertRaises(TypeError):
             ActionFlag(choices=(1, 2))
 
+    def test_always_available_must_come_first(self):
+        class Foo(Command):
+            foo = before_main(order=1)(Mock(__doc__=''))
+            bar = before_main(order=2, always_available=True)(Mock(__doc__=''))
+
+        with self.assertRaisesRegex(CommandDefinitionError, r'invalid parameters: \{\(True, 2\): ActionFlag\(\'bar\','):
+            Foo.parse([])
+
 
 if __name__ == '__main__':
     try:

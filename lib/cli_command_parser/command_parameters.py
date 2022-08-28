@@ -237,9 +237,16 @@ class CommandParameters:
                 raise ParameterDefinitionError(f'No function was registered for param={param!r}')
             grouped_ordered_flags[param.before_main][param.order].append(param)
 
+        found_non_always = False
         invalid = {}
         for before_main, prio_params in grouped_ordered_flags.items():
             for prio, params in prio_params.items():
+                param: ActionFlag = params[0]  # Don't pop and check `if params` - all are needed for the group check
+                if found_non_always and param.always_available:
+                    invalid[(before_main, prio)] = param
+                elif not param.always_available:
+                    found_non_always = True
+
                 if len(params) > 1:
                     group = next((p.group for p in params if p.group), None)
                     if group and group.mutually_exclusive:
@@ -251,7 +258,8 @@ class CommandParameters:
         if invalid:
             raise CommandDefinitionError(
                 f'ActionFlag parameters with the same before/after main setting must either have different order values'
-                f' or be in a mutually exclusive ParamGroup - invalid parameters: {invalid}'
+                f' or be in a mutually exclusive ParamGroup, and always_available ActionFlags must all be ordered'
+                f' before any that are not always available - invalid parameters: {invalid}'
             )
 
         n_before = len(grouped_ordered_flags[True])
