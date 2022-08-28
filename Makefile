@@ -1,5 +1,5 @@
 init:
-	pip install -e .[dev]
+	pip install -r requirements-dev.txt
 	pre-commit install --install-hooks
 
 .PHONY: docs
