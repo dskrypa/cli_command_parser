@@ -93,11 +93,12 @@ class Command(ABC, metaclass=CommandMeta):
         To skip error handling, define the class with ``error_handler=None``.
 
         Calls the following methods in order:
-            1. :meth:`._pre_init_actions_`
-            1. :meth:`._init_command_`
-            1. :meth:`._before_main_`
-            1. :meth:`.main`
-            1. :meth:`._after_main_`.
+
+            #. :meth:`._pre_init_actions_`
+            #. :meth:`._init_command_`
+            #. :meth:`._before_main_`
+            #. :meth:`.main`
+            #. :meth:`._after_main_`.
 
         :param args: Positional arguments to pass to the methods listed above
         :param kwargs: Keyword arguments to pass to the methods listed above

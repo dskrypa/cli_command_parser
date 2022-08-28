@@ -102,6 +102,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         if not self._ran_backup:
             self.backup_rsts()
 
+        log.info('Updating auto-generated RST files')
         self.document_api()
         self.document_examples()
 

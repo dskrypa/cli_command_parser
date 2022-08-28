@@ -150,6 +150,9 @@ class ActionFlagTest(ParserTest):
             def baz(self):
                 self.call_order['baz'] = next(self.counter)
 
+            def main(self):
+                self.call_order['main'] = next(self.counter)
+
         # fmt: off
         cases = (
             ['-abc'], ['-acb'], ['-cab'], ['-bac'], ['-bca'],
@@ -158,9 +161,9 @@ class ActionFlagTest(ParserTest):
         # fmt: on
         for case in cases:
             with self.subTest(case=case):
-                foo = Foo.parse_and_run(case)
-                self.assertLess(foo.call_order['foo'], foo.call_order['bar'])
-                self.assertLess(foo.call_order['bar'], foo.call_order['baz'])
+                order = Foo.parse_and_run(case).call_order
+                a, b, c, d = order['foo'], order['bar'], order['baz'], order['main']
+                self.assertTrue(a < b < c < d, f'Bad order: {a}, {b}, {c}, {d}')
 
     def test_before_and_after_flags(self):
         class Foo(Command, multiple_action_flags=True):

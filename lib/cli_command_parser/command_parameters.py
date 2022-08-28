@@ -254,7 +254,7 @@ class CommandParameters:
                 f' or be in a mutually exclusive ParamGroup - invalid parameters: {invalid}'
             )
 
-        n_before = len(grouped_ordered_flags)
+        n_before = len(grouped_ordered_flags[True])
         self.action_flags = action_flags
         self.split_action_flags = action_flags[:n_before], action_flags[n_before:]
 
