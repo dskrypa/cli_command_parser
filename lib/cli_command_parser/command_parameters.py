@@ -31,22 +31,24 @@ if TYPE_CHECKING:
 __all__ = ['CommandParameters']
 
 OptionMap = Dict[str, BaseOption]
+ActionFlags = List[ActionFlag]
 
 
 class CommandParameters:
-    command: CommandType                            #: The Command associated with this CommandParameters object
-    formatter: CommandHelpFormatter                 #: The formatter used for this Command's help text
-    command_parent: Optional[CommandType] = None    #: The parent Command, if any
-    parent: Optional[CommandParameters] = None      #: The parent Command's CommandParameters
-    action: Optional[Action] = None                 #: An Action Parameter, if specified
-    _pass_thru: Optional[PassThru] = None           #: A PassThru Parameter, if specified
-    sub_command: Optional[SubCommand] = None        #: A SubCommand Parameter, if specified
-    action_flags: List[ActionFlag]                  #: List of action flags
-    options: List[BaseOption]                       #: List of optional Parameters
-    combo_option_map: OptionMap                     #: Mapping of {short opt: Parameter} (no dash characters)
-    groups: List[ParamGroup]                        #: List of ParamGroup objects
-    positionals: List[BasePositional]               #: List of positional Parameters
-    option_map: OptionMap                           #: Mapping of {--opt / -opt: Parameter}
+    command: CommandType                                 #: The Command associated with this CommandParameters object
+    formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
+    command_parent: Optional[CommandType] = None         #: The parent Command, if any
+    parent: Optional[CommandParameters] = None           #: The parent Command's CommandParameters
+    action: Optional[Action] = None                      #: An Action Parameter, if specified
+    _pass_thru: Optional[PassThru] = None                #: A PassThru Parameter, if specified
+    sub_command: Optional[SubCommand] = None             #: A SubCommand Parameter, if specified
+    action_flags: ActionFlags                            #: List of action flags
+    split_action_flags: Tuple[ActionFlags, ActionFlags]  #: Action flags split by before/after main
+    options: List[BaseOption]                            #: List of optional Parameters
+    combo_option_map: OptionMap                          #: Mapping of {short opt: Parameter} (no dash characters)
+    groups: List[ParamGroup]                             #: List of ParamGroup objects
+    positionals: List[BasePositional]                    #: List of positional Parameters
+    option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
 
     def __init__(self, command: CommandType, command_parent: Optional[CommandType], config: CommandConfig):
         self.command = command
@@ -252,7 +254,9 @@ class CommandParameters:
                 f' or be in a mutually exclusive ParamGroup - invalid parameters: {invalid}'
             )
 
+        n_before = len(grouped_ordered_flags)
         self.action_flags = action_flags
+        self.split_action_flags = action_flags[:n_before], action_flags[n_before:]
 
     # endregion
 

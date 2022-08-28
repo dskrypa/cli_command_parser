@@ -193,20 +193,15 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         Not intended to be accessed by users.  Returns a tuple containing the total number of action flags provided, the
         action flags to run before main, and the action flags to run after main.
         """
-        parsing = self._parsing
         try:
-            action_flags = [p for p in self.params.action_flags if p in parsing]  # already sorted in CommandParameters
+            before_main, after_main = self.params.split_action_flags  # Each part is already sorted
         except AttributeError:  # self.command is None
             return 0, [], []
 
-        if not action_flags:
-            return 0, [], []
-
-        num_flags = len(action_flags)
-        for i, flag in enumerate(action_flags):
-            if not flag.before_main:
-                return num_flags, action_flags[:i], action_flags[i:]
-        return num_flags, action_flags, []
+        parsing = self._parsing
+        before_main = [p for p in before_main if p in parsing]
+        after_main = [p for p in after_main if p in parsing]
+        return len(before_main) + len(after_main), before_main, after_main
 
     @property
     def before_main_actions(self) -> Iterator[ActionFlag]:
