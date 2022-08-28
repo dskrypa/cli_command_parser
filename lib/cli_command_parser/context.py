@@ -79,6 +79,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
         if argv is None:
             argv = self.remaining
+        kwargs.setdefault('terminal_width', self._terminal_width)
         return self.__class__(argv, command, parent=self, **kwargs)
 
     def __enter__(self) -> Context:

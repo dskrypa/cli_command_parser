@@ -139,6 +139,11 @@ class ContextTest(TestCase):
         self.assertDictEqual({'a': True}, get_parsed(foo, baz))
         self.assertDictEqual({'a': True}, get_parsed(foo, zab))
 
+    def test_sub_context_terminal_width(self):
+        with Context(terminal_width=30) as c1:
+            c2 = c1._sub_context(None)  # noqa
+            self.assertEqual(30, c2.terminal_width)
+
 
 if __name__ == '__main__':
     try:
