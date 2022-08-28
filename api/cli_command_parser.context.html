@@ -109,6 +109,7 @@
              
   <section id="module-cli_command_parser.context">
 <span id="context-module"></span><h1>Context Module<a class="headerlink" href="#module-cli_command_parser.context" title="Permalink to this heading"></a></h1>
+<p>The parsing Context used internally for tracking parsed arguments and configuration overrides.</p>
 <dl class="field-list simple">
 <dt class="field-odd">author</dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
@@ -129,62 +130,93 @@ affect parser behavior.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.params">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><span class="pre">CommandParameters</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.params" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>The <a class="reference internal" href="cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object that contains the categorized Parameters from the Command associated
+with this Context.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.get_error_handler">
 <span class="sig-name descname"><span class="pre">get_error_handler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.10)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><span class="pre">ErrorHandler</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="cli_command_parser.error_handling.html#cli_command_parser.error_handling.NullErrorHandler" title="cli_command_parser.error_handling.NullErrorHandler"><span class="pre">NullErrorHandler</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.get_error_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.get_error_handler" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the <a class="reference internal" href="cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> configured to be used.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.get_parsed">
 <span class="sig-name descname"><span class="pre">get_parsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.get_parsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.get_parsed" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns all of the parsed arguments as a dictionary.</p>
+<p>The <a class="reference internal" href="../advanced.html#parsed-args-as-a-dictionary"><span class="std std-ref">get_parsed()</span></a> helper function provides an easier way to access
+this functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.context.Context.get_parsed.params.exclude"></span><strong>exclude</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.context.Context.get_parsed.params.exclude">¶</a> – Parameter objects that should be excluded from the returned results</p></li>
+<li><p><span class="target" id="cli_command_parser.context.Context.get_parsed.params.recursive"></span><strong>recursive</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.context.Context.get_parsed.params.recursive">¶</a> – Whether parsed arguments should be recursively gathered from parent Commands</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing all of the arguments that were parsed.  The keys in the returned dict match
+the names assigned to the Parameters in the Command associated with this Context.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.get_parsing_value">
 <span class="sig-name descname"><span class="pre">get_parsing_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.get_parsing_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.get_parsing_value" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be called by users.  Used by Parameters to access their parsed values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.set_parsing_value">
 <span class="sig-name descname"><span class="pre">set_parsing_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.set_parsing_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.set_parsing_value" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be called by users.  Used by Parameters during parsing to store parsed values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.record_action">
 <span class="sig-name descname"><span class="pre">record_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParamOrGroup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.record_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.record_action" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be called by users.  Used by Parameters during parsing to indicate that they were provided.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.num_provided">
 <span class="sig-name descname"><span class="pre">num_provided</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParamOrGroup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.num_provided"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.num_provided" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be called by users.  Used by Parameters during parsing to handle nargs.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.parsed_action_flags">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parsed_action_flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.parsed_action_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.parsed_action_flags" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be accessed by users.  Returns a tuple containing the total number of action flags provided, the
+action flags to run before main, and the action flags to run after main.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.before_main_actions">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">before_main_actions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.before_main_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.before_main_actions" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be accessed by users.  Iterator that yields action flags to be executed before main while
+incrementing the counter of actions taken.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.after_main_actions">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">after_main_actions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.after_main_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.after_main_actions" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be accessed by users.  Iterator that yields action flags to be executed after main while
+incrementing the counter of actions taken.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.parsed_always_available_action_flags">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parsed_always_available_action_flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><span class="pre">ActionFlag</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.parsed_always_available_action_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.parsed_always_available_action_flags" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Not intended to be accessed by users.  The action flags like the one for <code class="docutils literal notranslate"><span class="pre">--help</span></code> that should be executed
+regardless of whether errors were encountered during parsing.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.terminal_width">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">terminal_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.terminal_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.terminal_width" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current terminal width as the number of characters that fit on a single line.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -208,17 +240,51 @@ affect parser behavior.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cli_command_parser.context.get_or_create_context">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.context.</span></span><span class="sig-name descname"><span class="pre">get_or_create_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cli_command_parser.context.Context" title="cli_command_parser.context.Context"><span class="pre">Context</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#get_or_create_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.get_or_create_context" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
+no active Context.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cli_command_parser.context.get_context">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.context.</span></span><span class="sig-name descname"><span class="pre">get_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><span class="pre">Command</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cli_command_parser.context.Context" title="cli_command_parser.context.Context"><span class="pre">Context</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#get_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.get_context" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><span class="target" id="cli_command_parser.context.get_context.params.command"></span><strong>command</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.context.get_context.params.command">¶</a> – An initialized Command object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Context associated with the given Command</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cli_command_parser.context.get_parsed">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.context.</span></span><span class="sig-name descname"><span class="pre">get_parsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><span class="pre">Command</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_call</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#get_parsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.get_parsed" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.</p>
+<p>If the parsed arguments are intended to be used to call a particular function/method, or to initialize a particular
+class, then that callable can be provided as the <code class="docutils literal notranslate"><span class="pre">to_call</span></code> parameter to filter the parsed arguments to only the
+ones that would be accepted by it.  It will not be called by this function.</p>
+<p>If the callable accepts any <a class="reference external" href="https://docs.python.org/3/library/inspect.html#inspect.Parameter.kind" title="(in Python v3.10)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VAR_KEYWORD</span></code></a> parameters (i.e., <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>),
+then those param names will not be used for filtering.  That is, if the command has a Parameter named <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>
+and the callable accepts <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>, the <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> key will not be included in the argument dict returned by
+this function.  If any of the parameters of the given callable cannot be passed as a keyword argument (i.e.,
+<a class="reference external" href="https://docs.python.org/3/library/inspect.html#inspect.Parameter.kind" title="(in Python v3.10)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">POSITIONAL_ONLY</span> <span class="pre">or</span> <span class="pre">VAR_POSITIONAL</span></code></a>), then they must be handled after calling
+this function.  They will be included in the returned dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.context.get_parsed.params.command"></span><strong>command</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.context.get_parsed.params.command">¶</a> – An initialized Command object for which arguments were already parsed.</p></li>
+<li><p><span class="target" id="cli_command_parser.context.get_parsed.params.to_call"></span><strong>to_call</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.context.get_parsed.params.to_call">¶</a> – A <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code></a> (function, method, class, etc.) that should
+be used to filter the parsed arguments.  If provided, then only the keys that match the callable’s signature will
+be included in the returned dictionary of parsed arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing all of the (optionally filtered) arguments that were parsed.  The keys in the
+returned dict match the names assigned to the Parameters in the given Command.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
