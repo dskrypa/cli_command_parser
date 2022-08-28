@@ -96,7 +96,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_top_level_commands</span><span class="p">,</span> <span class="n">get_params</span>
-<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">get_or_create_context</span>
+<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">get_or_create_context</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
 
@@ -178,13 +178,21 @@
 <span class="sd">        via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class initialization.</span>
 <span class="sd">        To skip error handling, define the class with ``error_handler=None``.</span>
 
-<span class="sd">        Calls 3 methods in order: :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`.</span>
+<span class="sd">        Calls the following methods in order:</span>
 
-<span class="sd">        :param args: Positional arguments to pass to :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`</span>
-<span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`._before_main_`, :meth:`.main`, and :meth:`._after_main_`</span>
+<span class="sd">            #. :meth:`._pre_init_actions_`</span>
+<span class="sd">            #. :meth:`._init_command_`</span>
+<span class="sd">            #. :meth:`._before_main_`</span>
+<span class="sd">            #. :meth:`.main`</span>
+<span class="sd">            #. :meth:`._after_main_`.</span>
+
+<span class="sd">        :param args: Positional arguments to pass to the methods listed above</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the methods listed above</span>
 <span class="sd">        :return: The total number of actions that were taken</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_error_handler</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pre_init_actions_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_command_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_before_main_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -198,28 +206,59 @@
 
         <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
 
-<div class="viewcode-block" id="Command._before_main_"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_">[docs]</a>    <span class="k">def</span> <span class="nf">_before_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Command._pre_init_actions_"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._pre_init_actions_">[docs]</a>    <span class="k">def</span> <span class="nf">_pre_init_actions_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Called by :meth:`.__call__` before :meth:`.main` is called.  Validates the number of ActionFlags that were</span>
-<span class="sd">        specified, and calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag`</span>
-<span class="sd">        actions that were defined with ``before_main=True`` in their configured order.</span>
+<span class="sd">        The first method called by :meth:`.__call__` (before :meth:`.main` and others).</span>
+
+<span class="sd">        Validates the number of ActionFlags that were specified, and calls all of the specified</span>
+<span class="sd">        :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions such as ``--help`` that were</span>
+<span class="sd">        defined with ``before_main=True`` and ``always_available=True`` in their configured order.</span>
 
 <span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span>
-        <span class="n">n_flags</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">parsed_action_flags</span>
+        <span class="n">n_flags</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">action_flag_count</span>
         <span class="k">if</span> <span class="n">n_flags</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="n">n_flags</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">before</span> <span class="o">+</span> <span class="n">after</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">all_action_flags</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
 
+        <span class="n">before</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">categorized_action_flags</span><span class="p">[</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">before</span><span class="p">:</span>
             <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
             <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">([</span><span class="n">action</span><span class="p">,</span> <span class="o">*</span><span class="n">before</span><span class="p">],</span> <span class="s1">&#39;combining an action with action flags is disabled&#39;</span><span class="p">)</span>
 
-        <span class="c1"># TODO: Add a way to handle things like logging initialization only after finding that --help was not specified</span>
-        <span class="c1">#  but before processing other before-main actions</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">before_main_actions</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">PRE_INIT</span><span class="p">):</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Command._init_command_"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._init_command_">[docs]</a>    <span class="k">def</span> <span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by :meth:`.__call__` after :meth:`._pre_init_actions_` and before :meth:`._before_main_`.</span>
+
+<span class="sd">        Safe to override without calling ``super()._init_command_()`` - the base implementation is a placeholder</span>
+<span class="sd">        intended to allow subclasses to perform initialization tasks.  This method is called after actions like</span>
+<span class="sd">        ``--help`` have been processed, so more resource-intensive initialization operations or those that may have</span>
+<span class="sd">        side effects that should not occur when the application does nothing should be placed here instead of in</span>
+<span class="sd">        ``__init__``.</span>
+
+<span class="sd">        Actions like initializing logging are recommended to be placed in this method.</span>
+
+<span class="sd">        :param args: Positional arguments that were passed to :meth:`.__call__`</span>
+<span class="sd">        :param kwargs: Keyword arguments that were passed to :meth:`.__call__`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Command._before_main_"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_">[docs]</a>    <span class="k">def</span> <span class="nf">_before_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by :meth:`.__call__` after :meth:`._init_command_` and before :meth:`.main` is called.</span>
+
+<span class="sd">        Calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions that were</span>
+<span class="sd">        defined with ``before_main=True`` and ``always_available=False`` in their configured order.</span>
+
+<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">):</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Command.main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
@@ -256,7 +295,7 @@
 <span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">after_main_actions</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">AFTER_MAIN</span><span class="p">):</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
