@@ -110,7 +110,7 @@ class CommandParameters:
         groups = set()
 
         for attr, param in self.command.__dict__.items():
-            if attr.startswith('__') or not isinstance(param, ParamBase):
+            if attr.startswith('__') or not isinstance(param, ParamBase):  # Name mangled Parameters are still processed
                 continue
 
             name = param.name
