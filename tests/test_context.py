@@ -139,10 +139,21 @@ class ContextTest(TestCase):
         self.assertDictEqual({'a': True}, get_parsed(foo, baz))
         self.assertDictEqual({'a': True}, get_parsed(foo, zab))
 
-    def test_sub_context_terminal_width(self):
+    def test_sub_context_terminal_width_from_parent(self):
         with Context(terminal_width=30) as c1:
             c2 = c1._sub_context(None)  # noqa
+            self.assertEqual(30, c2._terminal_width)
             self.assertEqual(30, c2.terminal_width)
+
+    def test_sub_context_terminal_width_none(self):
+        with Context() as c1:
+            c2 = c1._sub_context(None)  # noqa
+            self.assertEqual(None, c2._terminal_width)
+
+    def test_sub_context_terminal_width_override(self):
+        with Context(terminal_width=30) as c1:
+            c2 = c1._sub_context(None, terminal_width=40)  # noqa
+            self.assertEqual(40, c2.terminal_width)
 
     def test_auto_sub_context(self):
         class Foo(Command):

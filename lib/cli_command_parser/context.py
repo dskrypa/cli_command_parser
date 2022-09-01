@@ -63,15 +63,17 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.parent = parent
         self.failed = False
         self.config = _normalize_config(config, kwargs, parent, command)
-        self._terminal_width = terminal_width
         if parent is not None:
-            self._parsing = parent._parsing.copy()
+            self._parsed = parent._parsed.copy()
             self.unknown = parent.unknown.copy()
             self._provided = parent._provided.copy()
+            if terminal_width is None:
+                terminal_width = parent._terminal_width  # noqa
         else:
-            self._parsing = {}
+            self._parsed = {}
             self.unknown = {}
             self._provided = defaultdict(int)
+        self._terminal_width = terminal_width
         self.actions_taken = 0
 
     # region Internal Methods
@@ -79,7 +81,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
         if argv is None:
             argv = self.remaining
-        kwargs.setdefault('terminal_width', self._terminal_width)
         return self.__class__(argv, command, parent=self, **kwargs)
 
     def __enter__(self) -> Context:
@@ -91,11 +92,11 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def __contains__(self, param: Union[ParamOrGroup, str, Any]) -> bool:
         try:
-            self._parsing[param]
+            self._parsed[param]
         except KeyError:
             if isinstance(param, str):
                 try:
-                    next((v for p, v in self._parsing.items() if p.name == param))
+                    next((v for p, v in self._parsed.items() if p.name == param))
                 except StopIteration:
                     return False
                 else:
@@ -163,17 +164,17 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     # region Parsing
 
-    def get_parsing_value(self, param: Parameter):
+    def get_parsed_value(self, param: Parameter):
         """Not intended to be called by users.  Used by Parameters to access their parsed values."""
         try:
-            return self._parsing[param]
+            return self._parsed[param]
         except KeyError:
-            self._parsing[param] = value = param._init_value_factory()
+            self._parsed[param] = value = param._init_value_factory()
             return value
 
-    def set_parsing_value(self, param: Parameter, value: Any):
+    def set_parsed_value(self, param: Parameter, value: Any):
         """Not intended to be called by users.  Used by Parameters during parsing to store parsed values."""
-        self._parsing[param] = value
+        self._parsed[param] = value
 
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
         """
@@ -200,9 +201,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         except AttributeError:  # self.command is None
             return 0, [], []
 
-        parsing = self._parsing
-        before_main = [p for p in before_main if p in parsing]
-        after_main = [p for p in after_main if p in parsing]
+        parsed = self._parsed
+        before_main = [p for p in before_main if p in parsed]
+        after_main = [p for p in after_main if p in parsed]
         return len(before_main) + len(after_main), before_main, after_main
 
     @property

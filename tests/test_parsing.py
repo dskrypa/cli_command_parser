@@ -582,7 +582,7 @@ class OptionTest(ParserTest):
 
             @parameter_action
             def store(self, value):
-                ctx.set_parsing_value(self, value)
+                ctx.set_parsed_value(self, value)
 
         class Foo(Command):
             bar = CustomOption('-b')

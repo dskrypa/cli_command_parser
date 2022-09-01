@@ -319,7 +319,7 @@ class Parameter(ParamBase, ABC):
 
     def _nargs_max_reached(self) -> bool:
         try:
-            return len(ctx.get_parsing_value(self)) >= self.nargs.max
+            return len(ctx.get_parsed_value(self)) >= self.nargs.max
         except TypeError:
             return False
 
@@ -328,12 +328,12 @@ class Parameter(ParamBase, ABC):
     ):
         action = self.action
         if action == 'append' and self._nargs_max_reached():
-            val_count = len(ctx.get_parsing_value(self))
+            val_count = len(ctx.get_parsed_value(self))
             raise ParamUsageError(
                 self, f'cannot accept any additional args with nargs={self.nargs}: val_count={val_count!r}'
             )
         elif action == 'store':
-            val = ctx.get_parsing_value(self)
+            val = ctx.get_parsed_value(self)
             if val is not _NotSet:
                 raise ParamUsageError(self, f'received value={value!r} but a stored value={val!r} already exists')
 
@@ -345,7 +345,7 @@ class Parameter(ParamBase, ABC):
 
     def would_accept(self, value: str, short_combo: bool = False) -> bool:
         action = self.action
-        if action in {'store', 'store_all'} and ctx.get_parsing_value(self) is not _NotSet:
+        if action in {'store', 'store_all'} and ctx.get_parsed_value(self) is not _NotSet:
             return False
         elif action == 'append' and self._nargs_max_reached():
             return False
@@ -391,7 +391,7 @@ class Parameter(ParamBase, ABC):
             return True
 
     def result_value(self) -> Any:
-        value = ctx.get_parsing_value(self)
+        value = ctx.get_parsed_value(self)
         if value is _NotSet:
             if self.required:
                 raise MissingArgument(self)
@@ -449,17 +449,17 @@ class BasicActionMixin:
 
     @parameter_action
     def store(self: Parameter, value: Any):
-        ctx.set_parsing_value(self, value)
+        ctx.set_parsed_value(self, value)
 
     @parameter_action
     def append(self: Parameter, value: Any):
-        ctx.get_parsing_value(self).append(value)
+        ctx.get_parsed_value(self).append(value)
 
     def _pre_pop_values(self: Parameter):
         if self.action != 'append' or not self.nargs.variable or self.type not in (None, str):
             return []
 
-        return ctx.get_parsing_value(self)
+        return ctx.get_parsed_value(self)
 
     def can_pop_counts(self) -> List[int]:
         values = self._pre_pop_values()
@@ -473,11 +473,11 @@ class BasicActionMixin:
         if self.action != 'append' or self.type not in (None, str):
             raise UnsupportedAction
 
-        values = ctx.get_parsing_value(self)
+        values = ctx.get_parsed_value(self)
         if not values:
             return values
 
-        ctx.set_parsing_value(self, self._init_value_factory())
+        ctx.set_parsed_value(self, self._init_value_factory())
         ctx._provided[self] = 0
         return values
 
@@ -486,7 +486,7 @@ class BasicActionMixin:
         if not values or count >= len(values) or not self.nargs.satisfied(len(values) - count):
             raise UnsupportedAction
 
-        ctx.set_parsing_value(self, values[:-count])
+        ctx.set_parsed_value(self, values[:-count])
         ctx.record_action(self, -count)
         return values[-count:]
 

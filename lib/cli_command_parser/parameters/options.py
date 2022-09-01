@@ -8,12 +8,7 @@ from __future__ import annotations
 
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Iterator, Tuple, List, Set
-
-try:
-    from functools import cached_property  # pylint: disable=C0412
-except ImportError:
-    from ..compat import cached_property
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Tuple
 
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
@@ -115,7 +110,7 @@ class _Flag(BaseOption):
         return value is None
 
     def result_value(self) -> Any:
-        return ctx.get_parsing_value(self)
+        return ctx.get_parsed_value(self)
 
     result = result_value
 
@@ -154,11 +149,11 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
 
     @parameter_action
     def store_const(self):
-        ctx.set_parsing_value(self, self.const)
+        ctx.set_parsed_value(self, self.const)
 
     @parameter_action
     def append_const(self):
-        ctx.get_parsing_value(self).append(self.const)
+        ctx.get_parsed_value(self).append(self.const)
 
 
 class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
@@ -223,7 +218,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
             const = self.consts[1]
         else:
             const = self.consts[0]
-        ctx.set_parsing_value(self, const)
+        ctx.set_parsed_value(self, const)
 
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
@@ -383,8 +378,8 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
     def append(self, value: Optional[int]):
         if value is None:
             value = self.const
-        current = ctx.get_parsing_value(self)
-        ctx.set_parsing_value(self, current + value)
+        current = ctx.get_parsed_value(self)
+        ctx.set_parsed_value(self, current + value)
 
     def validate(self, value: Any):
         if value is None or isinstance(value, self.type):
@@ -397,6 +392,6 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
             return
 
     def result_value(self) -> int:
-        return ctx.get_parsing_value(self)
+        return ctx.get_parsed_value(self)
 
     result = result_value

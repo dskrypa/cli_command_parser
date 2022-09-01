@@ -36,12 +36,12 @@ class PassThru(Parameter):
 
     @parameter_action
     def store_all(self, values: Collection[str]):
-        ctx.set_parsing_value(self, values)
+        ctx.set_parsed_value(self, values)
 
     def take_action(  # pylint: disable=W0237
         self, values: Collection[str], short_combo: bool = False, opt_str: str = None
     ):
-        value = ctx.get_parsing_value(self)
+        value = ctx.get_parsed_value(self)
         if value is not _NotSet:
             raise ParamUsageError(self, f'received values={values!r} but a stored value={value!r} already exists')
 
@@ -51,7 +51,7 @@ class PassThru(Parameter):
         return action_method(normalized)
 
     def result_value(self) -> Any:
-        value = ctx.get_parsing_value(self)
+        value = ctx.get_parsed_value(self)
         if value is _NotSet:
             if self.required:
                 raise MissingArgument(self)

@@ -166,7 +166,7 @@ def get_usage_sub_cmds(command: CommandType):
         return cmd_chain
 
     try:
-        parsed = ctx.get_parsing_value(sub_cmd_param)
+        parsed = ctx.get_parsed_value(sub_cmd_param)
     except NoActiveContext:
         parsed = []
 

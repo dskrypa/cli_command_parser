@@ -137,13 +137,13 @@ class ChoiceMap(BasePositional):
         if not self.is_valid_arg(' '.join(values)):
             raise InvalidChoice(self, value, self.choices)
 
-        ctx.get_parsing_value(self).extend(values)
+        ctx.get_parsed_value(self).extend(values)
         n_values = len(values)
         ctx.record_action(self, n_values - 1)  # - 1 because it was already called before dispatching to this method
         return n_values
 
     def validate(self, value: str):
-        values = ctx.get_parsing_value(self).copy()
+        values = ctx.get_parsed_value(self).copy()
         values.append(value)
         choices = self.choices
         if choices:
@@ -163,7 +163,7 @@ class ChoiceMap(BasePositional):
         if not choices:
             raise CommandDefinitionError(f'No choices were registered for {self}')
 
-        values = ctx.get_parsing_value(self)
+        values = ctx.get_parsed_value(self)
         if not values:
             if None in choices:
                 return None
