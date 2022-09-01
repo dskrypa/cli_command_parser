@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from .commands import Command
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed']
+__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 _TERMINAL = Terminal()
@@ -404,6 +404,11 @@ def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
         parsed = {k: v for k, v in parsed.items() if k in keys}
 
     return parsed
+
+
+def get_raw_arg(command: Command, parameter: Parameter) -> Any:
+    """Retrieve the raw parsed argument value(s) provided for the given Parameter"""
+    return get_context(command).get_parsed_value(parameter)
 
 
 # endregion

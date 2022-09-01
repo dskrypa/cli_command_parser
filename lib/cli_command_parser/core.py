@@ -28,8 +28,6 @@ T = TypeVar('T')
 # TODO: Subcommands thru intermediary non-subcommand parent, possibly ABC, for common args?
 #  Document recipe if already possible
 
-# TODO: Provide a way to get value for param overwritten by a subclass Command in parent Command (i.e., sub_cmd)
-
 
 class CommandMeta(ABCMeta, type):
     # noinspection PyUnresolvedReferences
