@@ -128,7 +128,7 @@ class ConfigItem(Generic[_ConfigValue]):
 
     def __set_name__(self, owner: Type[CommandConfig], name: str):
         self.name = name
-        owner._fields.add(name)
+        owner.FIELDS.add(name)
 
     def get_value(self, instance: CommandConfig) -> ConfigValue:
         try:
@@ -185,7 +185,7 @@ class ConfigItem(Generic[_ConfigValue]):
 class CommandConfig:
     """Configuration options for Commands."""
 
-    _fields = set()
+    FIELDS = set()
 
     # region Error Handling Options
 
@@ -272,7 +272,7 @@ class CommandConfig:
         self._read_only = read_only
         bad = {}
         for key, val in kwargs.items():
-            if key in self._fields:
+            if key in self.FIELDS:
                 setattr(self, key, val)
             else:
                 bad[key] = val
@@ -287,8 +287,8 @@ class CommandConfig:
     def as_dict(self, full: Bool = True) -> Dict[str, Any]:
         """Return a dict representing the configured options."""
         if full:
-            return {key: getattr(self, key) for key in self._fields}
-        return {key: val for key, val in self.__dict__.items() if key in self._fields}
+            return {key: getattr(self, key) for key in self.FIELDS}
+        return {key: val for key, val in self.__dict__.items() if key in self.FIELDS}
 
 
 DEFAULT_CONFIG = CommandConfig(read_only=True)

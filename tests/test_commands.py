@@ -111,6 +111,23 @@ class TestCommandMeta(TestCase):
         self.assertIs(Command, get_parent(Foo))
         self.assertIs(Command, get_parent(Foo()))
 
+    def test_init_subclass_kwargs_allowed(self):
+        class Foo(Command):
+            def __init_subclass__(cls, test123, **kwargs):  # noqa
+                super().__init_subclass__(**kwargs)
+                cls.test123 = test123
+
+        class Bar(Foo, test123='test'):
+            pass
+
+        self.assertEqual('test', Bar.test123)  # noqa
+
+    def test_extra_kwargs_rejected(self):
+        with self.assertRaises(TypeError):
+
+            class Foo(Command, test123='test'):
+                pass
+
 
 class TestErrorHandling(TestCase):
     def test_no_error_handler_run(self):

@@ -28,6 +28,8 @@ T = TypeVar('T')
 # TODO: Subcommands thru intermediary non-subcommand parent, possibly ABC, for common args?
 #  Document recipe if already possible
 
+# TODO: Provide a way to get value for param overwritten by a subclass Command in parent Command (i.e., sub_cmd)
+
 
 class CommandMeta(ABCMeta, type):
     # noinspection PyUnresolvedReferences
@@ -78,7 +80,7 @@ class CommandMeta(ABCMeta, type):
         if config:
             namespace['_CommandMeta__config'] = config
 
-        cls = super().__new__(mcs, name, bases, namespace)
+        cls = super().__new__(mcs, name, bases, namespace, **kwargs)
         mcs._commands.add(cls)
         mcs._maybe_register_sub_cmd(cls, choice, choices, help)
         if metadata:  # If no overrides were provided, then initialize lazily later
@@ -130,7 +132,8 @@ class CommandMeta(ABCMeta, type):
 
         parent = mcs._from_parent(mcs.config, bases)
         if kwargs or (not parent and ABC not in bases):
-            return CommandConfig(parents=(parent,) if parent else (), **kwargs)
+            cfg_kwargs = {k: kwargs.pop(k) for k in CommandConfig.FIELDS.intersection(kwargs)}
+            return CommandConfig(parents=(parent,) if parent else (), **cfg_kwargs)
 
         return None
 
