@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Context Module &mdash; CLI Command Parser 2022.08.28-2 documentation</title>
+  <title>Context Module &mdash; CLI Command Parser 2022.09.01 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -167,14 +167,14 @@ with this Context.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cli_command_parser.context.Context.get_parsing_value">
-<span class="sig-name descname"><span class="pre">get_parsing_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.get_parsing_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.get_parsing_value" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="cli_command_parser.context.Context.get_parsed_value">
+<span class="sig-name descname"><span class="pre">get_parsed_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.get_parsed_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.get_parsed_value" title="Permalink to this definition"></a></dt>
 <dd><p>Not intended to be called by users.  Used by Parameters to access their parsed values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cli_command_parser.context.Context.set_parsing_value">
-<span class="sig-name descname"><span class="pre">set_parsing_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.set_parsing_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.set_parsing_value" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="cli_command_parser.context.Context.set_parsed_value">
+<span class="sig-name descname"><span class="pre">set_parsed_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.set_parsed_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.set_parsed_value" title="Permalink to this definition"></a></dt>
 <dd><p>Not intended to be called by users.  Used by Parameters during parsing to store parsed values.</p>
 </dd></dl>
 
@@ -287,6 +287,12 @@ be included in the returned dictionary of parsed arguments.</p></li>
 returned dict match the names assigned to the Parameters in the given Command.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.context.get_raw_arg">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.context.</span></span><span class="sig-name descname"><span class="pre">get_raw_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><span class="pre">Command</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#get_raw_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.get_raw_arg" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the raw parsed argument value(s) provided for the given Parameter</p>
 </dd></dl>
 
 </section>

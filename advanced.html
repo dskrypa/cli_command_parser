@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Usage &mdash; CLI Command Parser 2022.08.28-2 documentation</title>
+  <title>Advanced Usage &mdash; CLI Command Parser 2022.09.01 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -51,8 +51,10 @@
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameters-with-overridden-names">Parameters with Overridden Names</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
@@ -153,6 +155,9 @@ will not always have the same number in the name.</p>
 <p>Since its <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.order" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">ActionFlag.order</span></code></a> is negative infinity, the <a class="reference internal" href="api/cli_command_parser.actions.html#cli_command_parser.actions.help_action" title="cli_command_parser.actions.help_action"><code class="xref py py-func docutils literal notranslate"><span class="pre">help_action()</span></code></a> will always
 take precedence over any other ActionFlag.  There is special handling in the parser for specifically allowing that
 action to be processed when parsing would otherwise fail.</p>
+</section>
+<section id="accessing-raw-argument-values">
+<h2>Accessing Raw Argument Values<a class="headerlink" href="#accessing-raw-argument-values" title="Permalink to this heading"></a></h2>
 <section id="parsed-args-as-a-dictionary">
 <h3>Parsed Args as a Dictionary<a class="headerlink" href="#parsed-args-as-a-dictionary" title="Permalink to this heading"></a></h3>
 <p>A <a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed" title="cli_command_parser.context.get_parsed"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_parsed()</span></code></a> helper function exists for retrieving a dictionary of parsed arguments without needing to deal
@@ -178,6 +183,69 @@ calling get_parsed.</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">get_parsed</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
 <span class="go">{&#39;bar&#39;: False}</span>
+</pre></div>
+</div>
+</section>
+<section id="parameters-with-overridden-names">
+<h3>Parameters with Overridden Names<a class="headerlink" href="#parameters-with-overridden-names" title="Permalink to this heading"></a></h3>
+<p>In some cases, subcommands may have Parameters with names that override those defined in parent Commands.  A common
+example of this occurs when multiple levels of subcommands exist, where each level has a <code class="docutils literal notranslate"><span class="pre">sub_cmd</span> <span class="pre">=</span> <span class="pre">SubCommand()</span></code>.</p>
+<p>In such cases, it is sometimes necessary for a parent Command to know the raw parsed value for that Parameter.  The
+<a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.get_raw_arg" title="cli_command_parser.context.get_raw_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_raw_arg()</span></code></a> function simplifies the process of accessing that value.</p>
+<p>Given the following simplified example Commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We can see that accessing the <code class="docutils literal notranslate"><span class="pre">sub_cmd</span></code> attribute directly returns the parsed subcommand’s result:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmd</span><span class="o">.</span><span class="n">sub_cmd</span>
+<span class="go">&#39;baz&#39;</span>
+</pre></div>
+</div>
+<p>The raw parsed value for both levels can be retrieved using <a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.get_raw_arg" title="cli_command_parser.context.get_raw_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_raw_arg()</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_raw_arg</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">Foo</span><span class="o">.</span><span class="n">sub_cmd</span><span class="p">)</span>
+<span class="go">[&#39;bar&#39;]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_raw_arg</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">Bar</span><span class="o">.</span><span class="n">sub_cmd</span><span class="p">)</span>
+<span class="go">&#39;baz&#39;</span>
+</pre></div>
+</div>
+<p>Note that the raw value for some Parameters like SubCommand may be a list instead of a string.  This is due to the way
+that values containing spaces are supported.</p>
+<p>From within a Command instance method, <code class="docutils literal notranslate"><span class="pre">self</span></code> would be used instead of the <code class="docutils literal notranslate"><span class="pre">cmd</span></code> variable from the above examples.
+E.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">get_raw_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Foo</span><span class="o">.</span><span class="n">sub_cmd</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, it is possible to define Parameters with double-underscore names to take advantage of native name
+mangling.  Doing do results in direct access within a given Command returning the raw value that was parsed at that
+level.  Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">__sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Foo: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__sub_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">__sub_cmd</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Bar: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__sub_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">])</span>
+<span class="go">Foo: bar</span>
+<span class="go">Bar: baz</span>
+</pre></div>
+</div>
+<p>In the above example, if <code class="docutils literal notranslate"><span class="pre">__sub_cmd</span></code> had been named <code class="docutils literal notranslate"><span class="pre">sub_cmd</span></code> instead, then the output would have been:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span><span class="p">:</span> <span class="n">baz</span>
+<span class="n">Bar</span><span class="p">:</span> <span class="n">baz</span>
 </pre></div>
 </div>
 </section>

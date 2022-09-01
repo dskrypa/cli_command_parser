@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.base &mdash; CLI Command Parser 2022.08.28-2 documentation</title>
+  <title>cli_command_parser.parameters.base &mdash; CLI Command Parser 2022.09.01 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -405,7 +405,7 @@
 
     <span class="k">def</span> <span class="nf">_nargs_max_reached</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">max</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">max</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -414,12 +414,12 @@
     <span class="p">):</span>
         <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nargs_max_reached</span><span class="p">():</span>
-            <span class="n">val_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="n">val_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
             <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cannot accept any additional args with nargs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="si">}</span><span class="s1">: val_count=</span><span class="si">{</span><span class="n">val_count</span><span class="si">!r}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span><span class="p">:</span>
-            <span class="n">val</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;received value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> but a stored value=</span><span class="si">{</span><span class="n">val</span><span class="si">!r}</span><span class="s1"> already exists&#39;</span><span class="p">)</span>
 
@@ -431,7 +431,7 @@
 
 <div class="viewcode-block" id="Parameter.would_accept"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.would_accept">[docs]</a>    <span class="k">def</span> <span class="nf">would_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">short_combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;store_all&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;store_all&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nargs_max_reached</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -477,7 +477,7 @@
             <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Parameter.result_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.result_value">[docs]</a>    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -535,17 +535,17 @@
 
     <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_pre_pop_values</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">!=</span> <span class="s1">&#39;append&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">can_pop_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_pop_values</span><span class="p">()</span>
@@ -559,11 +559,11 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">!=</span> <span class="s1">&#39;append&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UnsupportedAction</span>
 
-        <span class="n">values</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">values</span>
 
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">())</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">())</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">_provided</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">values</span>
 
@@ -572,7 +572,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span> <span class="ow">or</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">satisfied</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="n">count</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">UnsupportedAction</span>
 
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="n">count</span><span class="p">])</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="n">count</span><span class="p">])</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">-</span><span class="n">count</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="n">count</span><span class="p">:]</span>
 

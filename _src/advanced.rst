@@ -68,6 +68,9 @@ take precedence over any other ActionFlag.  There is special handling in the par
 action to be processed when parsing would otherwise fail.
 
 
+Accessing Raw Argument Values
+=============================
+
 Parsed Args as a Dictionary
 ---------------------------
 
@@ -98,6 +101,79 @@ Example::
 
     >>> get_parsed(foo, test)
     {'bar': False}
+
+
+Parameters with Overridden Names
+--------------------------------
+
+In some cases, subcommands may have Parameters with names that override those defined in parent Commands.  A common
+example of this occurs when multiple levels of subcommands exist, where each level has a ``sub_cmd = SubCommand()``.
+
+In such cases, it is sometimes necessary for a parent Command to know the raw parsed value for that Parameter.  The
+:func:`.get_raw_arg` function simplifies the process of accessing that value.
+
+Given the following simplified example Commands::
+
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo):
+            sub_cmd = Positional()
+
+
+We can see that accessing the ``sub_cmd`` attribute directly returns the parsed subcommand's result::
+
+    >>> cmd = Foo.parse(['bar', 'baz'])
+
+    >>> cmd.sub_cmd
+    'baz'
+
+
+The raw parsed value for both levels can be retrieved using :func:`.get_raw_arg`::
+
+    >>> get_raw_arg(cmd, Foo.sub_cmd)
+    ['bar']
+
+    >>> get_raw_arg(cmd, Bar.sub_cmd)
+    'baz'
+
+
+Note that the raw value for some Parameters like SubCommand may be a list instead of a string.  This is due to the way
+that values containing spaces are supported.
+
+From within a Command instance method, ``self`` would be used instead of the ``cmd`` variable from the above examples.
+E.g.::
+
+    def main(self):
+        value = get_raw_arg(self, Foo.sub_cmd)
+        print(value)
+
+
+Alternatively, it is possible to define Parameters with double-underscore names to take advantage of native name
+mangling.  Doing do results in direct access within a given Command returning the raw value that was parsed at that
+level.  Example::
+
+    >>> class Foo(Command):
+    ...     __sub_cmd = SubCommand()
+    ...     def _init_command_(self):
+    ...         print(f'Foo: {self.__sub_cmd}')
+    ...
+    ... class Bar(Foo):
+    ...     __sub_cmd = Positional()
+    ...     def main(self):
+    ...         print(f'Bar: {self.__sub_cmd}')
+    ...
+
+    >>> Foo.parse_and_run(['bar', 'baz'])
+    Foo: bar
+    Bar: baz
+
+
+In the above example, if ``__sub_cmd`` had been named ``sub_cmd`` instead, then the output would have been::
+
+    Foo: baz
+    Bar: baz
+
 
 
 Mixing Actions & ActionFlags

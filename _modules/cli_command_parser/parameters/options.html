@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.options &mdash; CLI Command Parser 2022.08.28-2 documentation</title>
+  <title>cli_command_parser.parameters.options &mdash; CLI Command Parser 2022.09.01 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -94,12 +94,7 @@
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span><span class="p">,</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">xor</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>  <span class="c1"># pylint: disable=C0412</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span>
@@ -201,7 +196,7 @@
         <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">result_value</span>
 
@@ -240,11 +235,11 @@
 
 <div class="viewcode-block" id="Flag.store_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.store_const">[docs]</a>    <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store_const</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span><span class="p">)</span></div>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Flag.append_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.append_const">[docs]</a>    <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">append_const</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">const</span><span class="p">)</span></div></div>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">const</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TriFlag"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">[docs]</a><span class="k">class</span> <span class="nc">TriFlag</span><span class="p">(</span><span class="n">_Flag</span><span class="p">,</span> <span class="n">accepts_values</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">accepts_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_opt_str</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -309,7 +304,7 @@
             <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span></div></div>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="ActionFlag"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag">[docs]</a><span class="k">class</span> <span class="nc">ActionFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">)):</span>
@@ -469,8 +464,8 @@
     <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span>
-        <span class="n">current</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span></div>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Counter.validate"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">):</span>
@@ -483,7 +478,7 @@
             <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Counter.result_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.result_value">[docs]</a>    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">result_value</span></div>
 </pre></div>

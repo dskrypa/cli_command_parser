@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.formatting.commands &mdash; CLI Command Parser 2022.08.28-2 documentation</title>
+  <title>cli_command_parser.formatting.commands &mdash; CLI Command Parser 2022.09.01 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -252,7 +252,7 @@
         <span class="k">return</span> <span class="n">cmd_chain</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsing_value</span><span class="p">(</span><span class="n">sub_cmd_param</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="n">sub_cmd_param</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="p">[]</span>
 
