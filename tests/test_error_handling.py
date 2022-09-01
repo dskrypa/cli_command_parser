@@ -6,16 +6,10 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 import cli_command_parser.error_handling
-from cli_command_parser.error_handling import ErrorHandler
-from cli_command_parser.exceptions import (
-    CommandParserException,
-    ParserExit,
-    ParamUsageError,
-    InvalidChoice,
-    ParamConflict,
-    ParamsMissing,
-)
-from cli_command_parser.parameters import Flag
+from cli_command_parser.error_handling import ErrorHandler, no_exit_handler
+from cli_command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
+from cli_command_parser.exceptions import ParamConflict, ParamsMissing
+from cli_command_parser import Command, Flag
 from cli_command_parser.testing import RedirectStreams
 
 
@@ -57,6 +51,34 @@ class ErrorHandlingTest(TestCase):
 
     def test_error_handler_repr(self):
         self.assertIn('handlers=', repr(ErrorHandler()))
+
+
+class TestCommandErrorHandling(TestCase):
+    def test_no_error_handler_run(self):
+        class Foo(Command, error_handler=None):
+            bar = Flag()
+            __call__ = Mock()
+
+        Foo.parse_and_run([])
+        self.assertTrue(Foo.__call__.called)
+
+    def test_no_error_handler_main(self):
+        class Foo(Command, error_handler=None):
+            bar = Flag()
+            main = Mock()
+
+        Foo.parse_and_run([])
+        self.assertTrue(Foo.main.called)
+
+    def test_no_run_after_parse_error(self):
+        class Foo(Command, error_handler=no_exit_handler):
+            bar = Flag()
+            __call__ = Mock()
+
+        with RedirectStreams():
+            Foo.parse_and_run(['-B'])
+
+        self.assertFalse(Foo.__call__.called)
 
 
 class ExceptionTest(TestCase):

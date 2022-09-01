@@ -5,10 +5,8 @@ from unittest.mock import Mock
 
 from cli_command_parser import Command, CommandConfig, Context
 from cli_command_parser.core import CommandMeta, get_config, get_parent, get_params
-from cli_command_parser.error_handling import no_exit_handler
 from cli_command_parser.exceptions import CommandDefinitionError, ParamConflict
-from cli_command_parser.parameters import Action, ActionFlag, Flag
-from cli_command_parser.testing import RedirectStreams
+from cli_command_parser.parameters import Action, ActionFlag
 
 _get_config = CommandMeta.config
 
@@ -127,34 +125,6 @@ class TestCommandMeta(TestCase):
 
             class Foo(Command, test123='test'):
                 pass
-
-
-class TestErrorHandling(TestCase):
-    def test_no_error_handler_run(self):
-        class Foo(Command, error_handler=None):
-            bar = Flag()
-            __call__ = Mock()
-
-        Foo.parse_and_run([])
-        self.assertTrue(Foo.__call__.called)
-
-    def test_no_error_handler_main(self):
-        class Foo(Command, error_handler=None):
-            bar = Flag()
-            main = Mock()
-
-        Foo.parse_and_run([])
-        self.assertTrue(Foo.main.called)
-
-    def test_no_run_after_parse_error(self):
-        class Foo(Command, error_handler=no_exit_handler):
-            bar = Flag()
-            __call__ = Mock()
-
-        with RedirectStreams():
-            Foo.parse_and_run(['-B'])
-
-        self.assertFalse(Foo.__call__.called)
 
 
 class TestCommands(TestCase):
