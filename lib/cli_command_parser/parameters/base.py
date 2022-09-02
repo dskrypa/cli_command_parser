@@ -198,8 +198,6 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     :param required: Whether this parameter is required or not.  If it is required, then an exception will be
       raised if the user did not provide a value for this parameter.  Defaults to ``False``.
     :param metavar: The name to use as a placeholder for values in usage / help messages.
-    :param choices: A container that holds the specific values that users must pick from.  By default, any value is
-      allowed.
     :param help: A brief description of this parameter that will appear in ``--help`` text.
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     :param show_default: Override the :attr:`.CommandConfig.show_defaults` setting for this parameter to always or

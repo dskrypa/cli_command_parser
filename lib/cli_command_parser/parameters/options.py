@@ -12,7 +12,7 @@ from os import environ
 from typing import TYPE_CHECKING, Any, Optional, Callable, Sequence, Union, Tuple
 
 from ..context import ctx, ParseState
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, NoEnvVar
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import Bool, T_co, ChoicesType, InputTypeFunc
@@ -47,6 +47,13 @@ class Option(BasicActionMixin, BaseOption[T_co]):
       on every value for this parameter to transform the value.  By default, no transformation is performed, and
       values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
       used as if it was provided here.  When both are present, this argument takes precedence.
+    :param choices: A container that holds the specific values that users must pick from.  By default, any value is
+      allowed.
+    :param env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
+      be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
+      will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
+      that they were provided.  When enabled, values from env variables take precedence over the default value.  When
+      enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
@@ -77,10 +84,10 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         if env_var:
             self.env_var = env_var
 
-    def _init_value_factory(self, state: ParseState):
+    def _from_env(self) -> T_co:
         env_var = self.env_var
-        if not env_var or not state.done:
-            return super()._init_value_factory(state)
+        if not env_var:
+            raise NoEnvVar(self)
 
         env_vars = (env_var,) if isinstance(env_var, str) else env_var
         for env_var in env_vars:
@@ -89,10 +96,15 @@ class Option(BasicActionMixin, BaseOption[T_co]):
             except KeyError:
                 pass
             else:
-                normalized = self.prepare_and_validate(value)
-                return [normalized] if self.action == 'append' else normalized
+                return self.prepare_and_validate(value)
 
-        return super()._init_value_factory(state)
+        raise NoEnvVar(self)
+
+    def _set_from_env(self):
+        value = self._from_env()
+        ctx.record_action(self)
+        action_method = getattr(self, self.action)
+        return action_method(value)
 
 
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value

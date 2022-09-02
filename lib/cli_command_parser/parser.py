@@ -12,12 +12,13 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
+from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction, NoEnvVar
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
     from .core import CommandType
     from .command_parameters import CommandParameters
+    from .parameters import Option
 
 __all__ = ['CommandParser']
 # log = logging.getLogger(__name__)
@@ -71,6 +72,13 @@ class CommandParser:
                     return None
                 raise ParamsMissing(missing)
             return next_cmd
+
+        try_env = [p for p in params.try_env_params(ctx)]
+        for param in try_env:
+            try:
+                param._set_from_env()
+            except NoEnvVar:
+                pass
 
         missing = cls._missing(params, ctx)
         if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):

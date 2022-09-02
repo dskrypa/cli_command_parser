@@ -39,6 +39,8 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
     :param default: Only supported when 0 values are allowed by the specified ``nargs``.  If not specified and
       ``action='store'``, then this will default to ``None``; if ``action='append'``, and no values are provided, then
       an empty list will be returned for this Parameter.
+    :param choices: A container that holds the specific values that users must pick from.  By default, any value is
+      allowed.
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
