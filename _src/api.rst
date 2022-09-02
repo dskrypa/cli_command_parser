@@ -20,4 +20,5 @@ API Documentation
     api/cli_command_parser.parameters
     api/cli_command_parser.parser
     api/cli_command_parser.testing
+    api/cli_command_parser.typing
     api/cli_command_parser.utils

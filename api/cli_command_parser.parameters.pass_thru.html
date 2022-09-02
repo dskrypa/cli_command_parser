@@ -76,11 +76,11 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.options.html">Options Module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Pass_Thru Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.positionals.html">Positionals Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.typing.html">Typing Module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.utils.html">Utils Module</a></li>
 </ul>
 </li>
@@ -128,7 +128,7 @@
 </dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.pass_thru.PassThru">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.pass_thru.</span></span><span class="sig-name descname"><span class="pre">PassThru</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'store_all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default:</span> <span class="pre">~typing.Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required:</span> <span class="pre">~typing.Union[bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/pass_thru.html#PassThru"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.pass_thru.PassThru" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.parameters.pass_thru.</span></span><span class="sig-name descname"><span class="pre">PassThru</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'store_all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default:</span> <span class="pre">Any</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required:</span> <span class="pre">Bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/pass_thru.html#PassThru"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.pass_thru.PassThru" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
 <p>Collects all remaining arguments, without processing them.  Must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a space.</p>
 <dl class="field-list simple">

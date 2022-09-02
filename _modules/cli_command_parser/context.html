@@ -110,18 +110,38 @@
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">DEFAULT_CONFIG</span>
 <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NoActiveContext</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Terminal</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Terminal</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">AnyConfig</span>
     <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
     <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
-    <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">ActionFlag</span>
+    <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ActionFlag</span>
+    <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_parsed&#39;</span><span class="p">,</span> <span class="s1">&#39;get_raw_arg&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;Context&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ctx&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_context&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_parsed&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_raw_arg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ParseState&#39;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="n">_context_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.context.stack&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
 <span class="n">_TERMINAL</span> <span class="o">=</span> <span class="n">Terminal</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ParseState"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ParseState">[docs]</a><span class="k">class</span> <span class="nc">ParseState</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">INITIAL</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">COMPLETE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">FAILED</span> <span class="o">=</span> <span class="mi">3</span>
+
+<div class="viewcode-block" id="ParseState.done"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ParseState.done">[docs]</a>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_</span> <span class="o">&gt;</span> <span class="mi">1</span></div></div>
 
 
 <div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>  <span class="c1"># Extending AbstractContextManager to make PyCharm&#39;s type checker happy</span>
@@ -147,7 +167,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ParseState</span><span class="o">.</span><span class="n">INITIAL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">_normalize_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_parsed</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -255,7 +275,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">value</span></div>
 
 <div class="viewcode-block" id="Context.set_parsed_value"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.set_parsed_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>

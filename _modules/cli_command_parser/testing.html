@@ -93,6 +93,7 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">AbstractContextManager</span>
 <span class="kn">from</span> <span class="nn">difflib</span> <span class="kn">import</span> <span class="n">unified_diff</span>
@@ -105,7 +106,15 @@
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_params</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UsageError</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParserTest&#39;</span><span class="p">,</span> <span class="s1">&#39;RedirectStreams&#39;</span><span class="p">,</span> <span class="s1">&#39;format_diff&#39;</span><span class="p">,</span> <span class="s1">&#39;get_rst_text&#39;</span><span class="p">,</span> <span class="s1">&#39;get_help_text&#39;</span><span class="p">,</span> <span class="s1">&#39;get_usage_text&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;ParserTest&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;RedirectStreams&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Environment&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;format_diff&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_rst_text&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_help_text&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_usage_text&#39;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="n">Argv</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="n">Expected</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
@@ -320,6 +329,22 @@
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="p">:</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">orig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;original&#39;</span><span class="p">,</span> <span class="s1">&#39;overrides&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">env</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overrides</span> <span class="o">=</span> <span class="n">env</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overrides</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_usage_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_usage_text">[docs]</a><span class="k">def</span> <span class="nf">get_usage_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

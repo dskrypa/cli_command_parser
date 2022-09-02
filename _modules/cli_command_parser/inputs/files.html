@@ -95,17 +95,13 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">_Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">T</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">InputParam</span><span class="p">,</span> <span class="n">StatMode</span><span class="p">,</span> <span class="n">FileWrapper</span><span class="p">,</span> <span class="n">Converter</span><span class="p">,</span> <span class="n">allows_write</span>
-
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Bool</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Converter</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">InputParam</span><span class="p">,</span> <span class="n">StatMode</span><span class="p">,</span> <span class="n">FileWrapper</span><span class="p">,</span> <span class="n">allows_write</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Path&#39;</span><span class="p">,</span> <span class="s1">&#39;File&#39;</span><span class="p">,</span> <span class="s1">&#39;Serialized&#39;</span><span class="p">,</span> <span class="s1">&#39;Json&#39;</span><span class="p">,</span> <span class="s1">&#39;Pickle&#39;</span><span class="p">]</span>
-
-<span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_Path</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">FileInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
