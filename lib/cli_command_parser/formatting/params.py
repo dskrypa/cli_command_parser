@@ -66,9 +66,12 @@ class ParamHelpFormatter:
         t = param.type
         if t is not None:
             try:
-                return t.format_metavar(ctx.config.choice_delim)
+                metavar = t.format_metavar(ctx.config.choice_delim)
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
+            else:
+                if metavar is not NotImplemented:
+                    return metavar
 
         if ctx.config.use_type_metavar and t is not None:
             try:

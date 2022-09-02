@@ -5,17 +5,17 @@ Custom input handlers for Parameters
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar, Generic, Optional
 
 __all__ = ['InputType']
 
 TypeFunc = Callable[[str], Any]
-# TODO: Accept a tuple of types to apply to nargs=>1 in order
+T = TypeVar('T')
 
 
-class InputType(ABC):
+class InputType(Generic[T], ABC):
     @abstractmethod
-    def __call__(self, value: str) -> Any:
+    def __call__(self, value: str) -> T:
         """Process the parsed argument and convert it to the desired type"""
         raise NotImplementedError
 
@@ -33,6 +33,9 @@ class InputType(ABC):
         """
         return True
 
+    def fix_default(self, value: Any) -> Optional[T]:
+        return value
+
     def format_metavar(self, choice_delim: str = ',') -> str:
         # TODO: Optional/required arg, or handle wrapping in []/{} in formatter
-        raise NotImplementedError
+        return NotImplemented
