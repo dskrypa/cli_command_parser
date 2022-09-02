@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements-docs.txt
+        pip install -e . -r docs/requirements.txt
     - name: Generate docs
       run: python bin/build_docs.py -cu
     - name: GitHub Pages action

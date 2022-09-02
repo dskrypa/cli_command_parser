@@ -8,13 +8,14 @@ from pathlib import Path
 from subprocess import check_call
 from typing import Collection, List
 
-from cli_command_parser import Command, Counter, after_main, before_main, Action, Flag
+from cli_command_parser import Command, Counter, after_main, before_main, Action, Flag, main
 from cli_command_parser.__version__ import __description__, __title__
 from cli_command_parser.documentation import render_script_rst
 from cli_command_parser.formatting.restructured_text import rst_header, _rst_directive
 
 log = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SKIP_FILES = {'requirements.txt'}
 SKIP_MODULES = {'cli_command_parser.compat'}
 DOCS_AUTO = {  # values: (content_is_auto, content), where everything else is treated as the opposite
     '_build': True,
@@ -41,16 +42,16 @@ MODULE_TEMPLATE = """
 
 
 class BuildDocs(Command, description='Build documentation using Sphinx'):
+    _ran_backup = False
     action = Action()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
     dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
 
-    def __init__(self):
+    def _init_command_(self):
         self.title = __description__
         self.package = __title__
         self.package_path = PROJECT_ROOT.joinpath('lib', self.package)
         self.docs_src_path = PROJECT_ROOT.joinpath('docs', '_src')
-        self._ran_backup = False
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
         level = logging.DEBUG if self.verbose else logging.INFO
         logging.basicConfig(level=level, format=log_fmt)
@@ -74,6 +75,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         log.info('Cleaning up old generated files')
         for path in docs_dir.iterdir():
             if path.is_file():
+                if path.name in SKIP_FILES:
+                    continue
                 log.debug(f'{prefix} {path.as_posix()}')
                 if not self.dry_run:
                     path.unlink()
@@ -235,4 +238,4 @@ def _build_index(name: str, content_fmt: str, contents: Collection[str], caption
 
 
 if __name__ == '__main__':
-    BuildDocs.parse_and_run()
+    main()
