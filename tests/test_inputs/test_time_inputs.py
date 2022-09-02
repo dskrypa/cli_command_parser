@@ -4,8 +4,10 @@ from datetime import datetime, date, timedelta, time
 from unittest import main, TestCase
 from unittest.mock import patch
 
+from cli_command_parser import Command, Option
 from cli_command_parser.inputs.time import Day, Month, DateTime, Date, Time, different_locale, normalize_dt, dt_repr
 from cli_command_parser.inputs.exceptions import InvalidChoiceError, InputValidationError
+from cli_command_parser.testing import ParserTest
 
 # fmt: off
 ISO_DAYS = {
@@ -291,6 +293,79 @@ class DateTimeInputTest(TestCase):
         self.assertEqual('[{%Y-%m-%d} <= 2005-12-31]', Date(latest=latest).format_metavar())
         expected = '[2000-01-01 <= {%Y-%m-%d} <= 2005-12-31]'
         self.assertEqual(expected, Date(earliest=earliest, latest=latest).format_metavar())
+
+
+class ParseInputTest(ParserTest):
+    def test_date_default_type_fix(self):
+        class Foo(Command):
+            start = Option('-s', type=Date(), default='2022-01-01')
+            end = Option('-e', type=Date(), default=date(2022, 1, 1))
+
+        cases = {date(2022, 1, 1): [], date(2022, 2, 2): ['-s', '2022-02-02', '-e', '2022-02-02']}
+        for expected, argv in cases.items():
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertEqual(expected, foo.start)
+                self.assertEqual(expected, foo.end)
+
+    def test_date_default_collection_type_fix_tuple(self):
+        class Foo(Command):
+            bar = Option('-b', type=Date(), nargs='+', default=('2022-01-01', date(2022, 1, 1)))
+
+        cases = [
+            ([], (date(2022, 1, 1), date(2022, 1, 1))),
+            (['-b', '2022-02-02', '2022-03-03'], [date(2022, 2, 2), date(2022, 3, 3)]),
+        ]
+        for argv, expected in cases:
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertEqual(expected, foo.bar)
+
+    def test_date_default_collection_type_fix_single(self):
+        class Foo(Command):
+            bar = Option('-b', type=Date(), nargs='+', default=date(2022, 1, 1))
+
+        cases = [
+            ([], [date(2022, 1, 1)]),
+            (['-b', '2022-02-02', '2022-03-03'], [date(2022, 2, 2), date(2022, 3, 3)]),
+        ]
+        for argv, expected in cases:
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertEqual(expected, foo.bar)
+
+    def test_date_default_collection_type_fix_custom(self):
+        class Custom:
+            __slots__ = ('data',)
+
+            def __init__(self, data):
+                self.data = data
+
+            def __iter__(self):
+                yield from self.data
+
+            def __getitem__(self, item):
+                return self.data[item]
+
+            def __len__(self):
+                return len(self.data)
+
+            def __contains__(self, item):
+                return item in self.data
+
+        default = Custom((date(2022, 1, 1),))
+
+        class Foo(Command):
+            bar = Option('-b', type=Date(), nargs='+', default=default)
+
+        cases = [
+            ([], default),
+            (['-b', '2022-02-02', '2022-03-03'], [date(2022, 2, 2), date(2022, 3, 3)]),
+        ]
+        for argv, expected in cases:
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertEqual(expected, foo.bar)
 
 
 if __name__ == '__main__':

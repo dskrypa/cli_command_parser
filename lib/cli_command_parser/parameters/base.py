@@ -390,13 +390,25 @@ class Parameter(ParamBase, ABC):
         else:
             return True
 
+    def _fix_default(self, value):
+        type_func = self.type
+        if type_func is not None and isinstance(type_func, InputType):
+            return type_func.fix_default(value)
+        return value
+
+    def _fix_default_collection(self, values):
+        type_func = self.type
+        if type_func is None or not isinstance(type_func, InputType) or not isinstance(values, (list, tuple, set)):
+            return values
+        return values.__class__(map(type_func.fix_default, values))
+
     def result_value(self) -> Any:
         value = ctx.get_parsed_value(self)
         if value is _NotSet:
             if self.required:
                 raise MissingArgument(self)
             else:
-                return self.default
+                return self._fix_default(self.default)
 
         if self.action == 'store':
             return value
@@ -406,9 +418,9 @@ class Parameter(ParamBase, ABC):
             default = self.default
             if default is not _NotSet:
                 if isinstance(default, Collection) and not isinstance(default, str):
-                    value = default
+                    value = self._fix_default_collection(default)
                 else:
-                    value.append(default)
+                    value.append(self._fix_default(default))
 
         nargs = self.nargs
         val_count = len(value)

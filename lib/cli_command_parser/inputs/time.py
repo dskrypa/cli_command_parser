@@ -22,11 +22,11 @@ from datetime import datetime, date, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import TYPE_CHECKING, Union, Iterator, Collection, Sequence, Optional, Generic, TypeVar, Type, overload
+from typing import TYPE_CHECKING, Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, overload
 from typing import Tuple, Dict
 
 from ..utils import MissingMixin
-from .base import InputType
+from .base import InputType, T
 from .exceptions import InputValidationError, InvalidChoiceError
 
 if TYPE_CHECKING:
@@ -77,7 +77,7 @@ class different_locale:
         self._lock.release()
 
 
-class DTInput(InputType, ABC):
+class DTInput(InputType[T], ABC):
     dt_type: str
     locale: Optional[Locale]
 
@@ -91,6 +91,11 @@ class DTInput(InputType, ABC):
     def choice_str(self, choice_delim: str = ',') -> str:
         raise NotImplementedError
 
+    def fix_default(self, value: Union[str, T, None]) -> Optional[T]:
+        if value is None or not isinstance(value, str):
+            return value
+        return self(value)
+
 
 # region Calendar Unit Inputs
 
@@ -102,7 +107,7 @@ class DTFormatMode(MissingMixin, Enum):
     NUMERIC_ISO = 'numeric_iso'     #: The ISO numeric representation of a given date/time unit
 
 
-class CalendarUnitInput(DTInput, ABC):
+class CalendarUnitInput(DTInput[Union[str, int]], ABC):
     _formats: Dict[DTFormatMode, Sequence[Union[str, int]]]
     _min_index: int = 0
 
@@ -325,7 +330,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
 # region Date/Time Parse Inputs
 
 
-class DateTimeInput(Generic[DT], DTInput, ABC):
+class DateTimeInput(DTInput[DT], ABC):
     formats: Collection[str]
     _type: Type[DT]
     _earliest: TimeBound = None
