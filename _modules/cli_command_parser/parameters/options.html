@@ -98,7 +98,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ParseState</span>
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoEnvVar</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
 <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span>
@@ -133,6 +133,13 @@
 <span class="sd">      on every value for this parameter to transform the value.  By default, no transformation is performed, and</span>
 <span class="sd">      values will be strings.  If not specified, but a type annotation is detected, then that annotation will be</span>
 <span class="sd">      used as if it was provided here.  When both are present, this argument takes precedence.</span>
+<span class="sd">    :param choices: A container that holds the specific values that users must pick from.  By default, any value is</span>
+<span class="sd">      allowed.</span>
+<span class="sd">    :param env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should</span>
+<span class="sd">      be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables</span>
+<span class="sd">      will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order</span>
+<span class="sd">      that they were provided.  When enabled, values from env variables take precedence over the default value.  When</span>
+<span class="sd">      enabled and the Parameter is required, then either a CLI value or an env var value must be provided.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -163,10 +170,10 @@
         <span class="k">if</span> <span class="n">env_var</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span> <span class="o">=</span> <span class="n">env_var</span>
 
-    <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ParseState</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_from_env</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
         <span class="n">env_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">env_var</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">state</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">env_var</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoEnvVar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="n">env_vars</span> <span class="o">=</span> <span class="p">(</span><span class="n">env_var</span><span class="p">,)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env_var</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">env_var</span>
         <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="n">env_vars</span><span class="p">:</span>
@@ -175,10 +182,15 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_and_validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                <span class="k">return</span> <span class="p">[</span><span class="n">normalized</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span> <span class="k">else</span> <span class="n">normalized</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_and_validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">NoEnvVar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_from_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_env</span><span class="p">()</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">action_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">action_method</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
 <span class="c1"># TODO: 1/2 flag, 1/2 option, like Counter, but for any value</span>

@@ -39,7 +39,6 @@ Common parameters that are supported when initializing most Parameters:
   used if the Parameter is required.  Some specialized Parameters have different defaults.
 :required: Whether a Parameter must be provided or not.  Generally defaults to ``False``, but Positionals, for
   example, default to ``True``.
-:choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
 :nargs: The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
   When multiple arguments are accepted, they are collected in a list.  When only 0 - 1 arguments are accepted, they
   will be stored / returned as-is.  Supported values:
@@ -95,7 +94,19 @@ Options support two additional initialization parameters:
 Option
 ------
 
-The generic :class:`~cli_command_parser.parameters.Option` parameter, that accepts arbitrary values or lists of values.
+The generic :class:`.Option` parameter that accepts arbitrary values or lists of values.
+
+.. _option_init_params:
+
+**Unique Option initialization parameters:**
+
+:choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
+:env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
+  be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
+  will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
+  that they were provided.  When enabled, values from env variables take precedence over the default value.  When
+  enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
+
 
 Given the following example Command::
 
@@ -137,7 +148,6 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
   and to ``False`` when ``default`` is ``True``.
 :nargs: Not supported.
 :type: Not supported.
-:choices: Not supported.
 
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py>`__::
@@ -174,9 +184,9 @@ Example usage::
 TriFlag
 -------
 
-A trinary / ternary Flag.  While :ref:`parameters:Flag` only supports 1 constant when provided, with 1 default if not
-provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
-separate default.
+:class:`.TriFlag` is a trinary / ternary Flag.  While :ref:`parameters:Flag` only supports 1 constant when provided,
+with 1 default if not provided, this class accepts a pair of constants for the primary and alternate values to store,
+along with a separate default.
 
 A typical use case is that there is some functionality that may be automatically enabled or disabled, but users
 should be able to explicitly enable / disable it as well.  To support this, the default behavior results in None being
@@ -241,7 +251,6 @@ is for verbosity levels, where logging verbosity would increase with the number 
   will be added verbatim - it will NOT be multiplied by ``const``.
 :nargs: Not supported.
 :type: Not supported.
-:choices: Not supported.
 
 
 Given the following example Command::
@@ -284,8 +293,7 @@ the order in which they must be provided; i.e., the top-most positional paramete
 Positional
 ----------
 
-The generic :class:`~cli_command_parser.parameters.Positional` parameter, that accepts arbitrary values or lists of
-values.
+The generic :class:`.Positional` parameter that accepts arbitrary values or lists of values.
 
 .. _positional_init_params:
 
@@ -297,6 +305,7 @@ values.
   variable / unbound number of arguments.
 :default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.  Defaults
   to ``None`` under those conditions.
+:choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
 
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py>`__::
@@ -344,7 +353,6 @@ parameters, then using a :class:`.SubCommand` with separate sub :class:`.Command
 :description: The description to be used in help text for the Parameter.
 :nargs: Not supported.  Automatically calculated / maintained based on registered choices (target methods).
 :type: Not supported.
-:choices: Not supported.
 
 
 After creating an Action in a Command, it should be used as a decorator for the target methods that will be called,
@@ -440,7 +448,6 @@ space.
 
 :nargs: Not supported.
 :type: Not supported.
-:choices: Not supported.
 
 
 `Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py>`__::
@@ -484,7 +491,7 @@ Actions, they allow methods in :class:`.Command` classes to be registered as exe
 When ActionFlag arguments are provided, the associated methods are called in the order that was specified when marking
 those methods as ActionFlags.  Execution order is also customizable relative to when the :meth:`.Command.main`
 method is called, so each ActionFlag must indicate whether it should run before or after main.  Helper decorators
-are provided to simplify this distinction: :data:`~.parameters.before_main` and :data:`~.parameters.after_main`.
+are provided to simplify this distinction: :func:`.before_main` and :func:`.after_main`.
 
 .. _actionflag_init_params:
 
@@ -502,7 +509,6 @@ are provided to simplify this distinction: :data:`~.parameters.before_main` and 
   allowed when ``before_main=True``.  The intended use case is for actions like ``--help`` text.
 :nargs: Not supported.
 :type: Not supported.
-:choices: Not supported.
 
 
 Example command::

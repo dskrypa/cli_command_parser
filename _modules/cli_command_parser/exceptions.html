@@ -114,6 +114,7 @@
     <span class="s1">&#39;ParamConflict&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParamsMissing&#39;</span><span class="p">,</span>
     <span class="s1">&#39;NoActiveContext&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NoEnvVar&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -262,6 +263,10 @@
 
 <span class="k">class</span> <span class="nc">Backtrack</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raised when backtracking took place&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="NoEnvVar"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoEnvVar">[docs]</a><span class="k">class</span> <span class="nc">NoEnvVar</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that no environment variable was available for a given Parameter.&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># endregion</span>

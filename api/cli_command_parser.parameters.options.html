@@ -150,6 +150,13 @@ raised if the user did not provide a value for this parameter.  Defaults to <cod
 on every value for this parameter to transform the value.  By default, no transformation is performed, and
 values will be strings.  If not specified, but a type annotation is detected, then that annotation will be
 used as if it was provided here.  When both are present, this argument takes precedence.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.choices"></span><strong>choices</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.choices">¶</a> – A container that holds the specific values that users must pick from.  By default, any value is
+allowed.</p></li>
+<li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.env_var"></span><strong>env_var</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.env_var">¶</a> – A string or sequence (tuple, list, etc) of strings representing environment variables that should
+be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
+will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
+that they were provided.  When enabled, values from env variables take precedence over the default value.  When
+enabled and the Parameter is required, then either a CLI value or an env var value must be provided.</p></li>
 <li><p><span class="target" id="cli_command_parser.parameters.options.Option.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Option.params.kwargs">¶</a> – Additional keyword arguments to pass to <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption" title="cli_command_parser.parameters.base.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOption</span></code></a>.</p></li>
 </ul>
 </dd>
