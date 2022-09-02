@@ -103,9 +103,12 @@ def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_fun
 
 
 def import_module(path: PathLike):
-    """Import the module from the given path"""
+    """Import the module / package from the given path"""
     path = Path(path)
-    spec = spec_from_file_location(path.stem, path)
+    name = path.stem
+    if path.is_dir():
+        path /= '__init__.py'
+    spec = spec_from_file_location(name, path)
     try:
         module = module_from_spec(spec)
     except AttributeError as e:

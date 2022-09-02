@@ -565,6 +565,6 @@ if __name__ == '__main__':
     # import logging
     # logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2, exit=False)
     except KeyboardInterrupt:
         print()
