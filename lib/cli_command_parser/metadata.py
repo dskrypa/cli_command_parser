@@ -7,6 +7,7 @@ Program metadata introspection for use in usage, help text, and documentation.
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass, fields
 from inspect import getmodule
 from pathlib import Path
@@ -57,7 +58,7 @@ class ProgramMetadata:
     package: str = Metadata(None)
     module: str = Metadata(None)
     command: str = Metadata(None)
-    prog: str = Metadata(None)  # TODO: handle cmd defined as package, with different top level name
+    prog: str = Metadata(None)
     url: str = Metadata(None)
     docs_url: str = Metadata(None)
     email: str = Metadata(None)
@@ -142,13 +143,22 @@ def _repr(obj, indent=0) -> str:
     return f'<{obj.__class__.__name__}(\n{fields_str}\n{prev_str})>'
 
 
-def _prog(prog: Optional[str], path: Path, parent: Optional[ProgramMetadata]):
+def _prog(prog: Optional[str], cmd_path: Path, meta: Optional[ProgramMetadata]) -> Optional[str]:
     if prog:
         return prog
-    if parent:
-        if parent.prog != parent.path.name:
-            return parent.prog
-    return path.name
+    if meta:
+        if meta.prog != meta.path.name:
+            return meta.prog
+    try:
+        path = Path(sys.argv[0])
+    except IndexError:
+        return cmd_path.name
+
+    # Windows allows invocation without .exe - assume a file with an extension is a match
+    if path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None:
+        return path.name
+
+    return cmd_path.name
 
 
 def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Dict[str, Any]]:

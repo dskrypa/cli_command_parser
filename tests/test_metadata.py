@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase, main
+from unittest.mock import patch
 
 from cli_command_parser import Command
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.metadata import ProgramMetadata, _path_and_globals, _description, _doc_name
+from cli_command_parser.metadata import ProgramMetadata, _path_and_globals, _description, _doc_name, _prog
 
 
 class Foo(Command):
@@ -70,9 +72,23 @@ class MetadataTest(TestCase):
         path = Path('.')
         self.assertEqual(path, _path_and_globals(Foo, path)[0])
 
+    def test_prog_from_path_on_no_sys_argv(self):
+        path = Path(__file__)
+        with patch('sys.argv', []):
+            self.assertEqual(path.name, _prog(None, path, None))
+
+    def test_prog_from_sys_argv(self):
+        path = Path(__file__)
+        name = 'example_test_123.py'
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir).joinpath(name)
+            tmp_path.touch()
+            with patch('sys.argv', [tmp_path.as_posix()]):
+                self.assertEqual(name, _prog(None, path, None))
+
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2, exit=False)
     except KeyboardInterrupt:
         print()
