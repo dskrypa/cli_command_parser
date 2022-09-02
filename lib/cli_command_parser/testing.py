@@ -7,6 +7,7 @@ Helpers for unit tests
 
 from __future__ import annotations
 
+import os
 import sys
 from contextlib import AbstractContextManager
 from difflib import unified_diff
@@ -19,7 +20,15 @@ from .commands import Command
 from .core import CommandType, get_params
 from .exceptions import UsageError
 
-__all__ = ['ParserTest', 'RedirectStreams', 'format_diff', 'get_rst_text', 'get_help_text', 'get_usage_text']
+__all__ = [
+    'ParserTest',
+    'RedirectStreams',
+    'Environment',
+    'format_diff',
+    'get_rst_text',
+    'get_help_text',
+    'get_usage_text',
+]
 
 Argv = List[str]
 Expected = Dict[str, Any]
@@ -234,6 +243,22 @@ class RedirectStreams(AbstractContextManager):
         while self._old:
             name, orig = self._old.popitem()
             setattr(sys, name, orig)
+
+
+class Environment(AbstractContextManager):
+    __slots__ = ('original', 'overrides')
+
+    def __init__(self, **env):
+        self.overrides = env
+
+    def __enter__(self):
+        self.original = os.environ.copy()
+        os.environ.clear()
+        os.environ.update(self.overrides)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        os.environ.clear()
+        os.environ.update(self.original)
 
 
 def get_usage_text(cmd: Type[Command]) -> str:

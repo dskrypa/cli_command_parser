@@ -15,7 +15,7 @@ from cli_command_parser.exceptions import (
     BadArgument,
 )
 from cli_command_parser.parameters import Counter, Flag, Option, TriFlag
-from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
+from cli_command_parser.testing import ParserTest, Environment, get_help_text, get_usage_text
 
 STANDALONE_DASH_B = re.compile(r'(?<!-)-b\b')
 
@@ -184,6 +184,30 @@ class OptionTest(ParserTest):
         exp = {'foo_bar': 'baz'}
         success_cases = [(['--foo-bar', 'baz'], exp), (['--foo_bar', 'baz'], exp), (['-b', 'baz'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_env_var(self):
+        class Foo(Command):
+            bar: int = Option('-b', default=123, env_var='TEST_VAR_123')
+
+        with self.subTest(case='param default'), Environment():
+            self.assertEqual(123, Foo.parse([]).bar)
+        with self.subTest(case='cli override'), Environment(TEST_VAR_123='234'):
+            self.assertEqual(987, Foo.parse(['-b', '987']).bar)
+        with self.subTest(case='env override'), Environment(TEST_VAR_123='234'):
+            self.assertEqual(234, Foo.parse([]).bar)
+
+    def test_env_vars(self):
+        class Foo(Command):
+            bar: int = Option('-b', default=123, env_var=('TEST_VAR_123', 'TEST_VAR_234'))
+
+        with self.subTest(case='param default'), Environment():
+            self.assertEqual(123, Foo.parse([]).bar)
+        with self.subTest(case='cli override'), Environment(TEST_VAR_123='234'):
+            self.assertEqual(987, Foo.parse(['-b', '987']).bar)
+        with self.subTest(case='env override 1'), Environment(TEST_VAR_123='234', TEST_VAR_234='345'):
+            self.assertEqual(234, Foo.parse([]).bar)
+        with self.subTest(case='env override 2'), Environment(TEST_VAR_234='345'):
+            self.assertEqual(345, Foo.parse([]).bar)
 
 
 class FlagTest(ParserTest):
