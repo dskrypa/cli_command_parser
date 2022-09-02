@@ -11,7 +11,8 @@ import sys
 from typing import TYPE_CHECKING, Any, Collection
 
 if TYPE_CHECKING:
-    from .parameters import Parameter, ParamOrGroup
+    from .parameters import Parameter
+    from .typing import ParamOrGroup
 
 __all__ = [
     'CommandParserException',

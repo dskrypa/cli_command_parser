@@ -4,13 +4,18 @@ PassThru Parameters
 :author: Doug Skrypa
 """
 
-from typing import Collection, Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Collection, Any
 
 from ..context import ctx
 from ..exceptions import ParamUsageError, MissingArgument
 from ..nargs import Nargs
-from ..utils import _NotSet, Bool
+from ..utils import _NotSet
 from .base import Parameter, parameter_action
+
+if TYPE_CHECKING:
+    from ..typing import Bool
 
 __all__ = ['PassThru']
 

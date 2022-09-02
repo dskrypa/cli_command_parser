@@ -17,7 +17,7 @@ from .exceptions import ParamConflict
 from .parser import CommandParser
 
 if TYPE_CHECKING:
-    from .utils import Bool
+    from .typing import Bool
 
 __all__ = ['Command', 'CommandType', 'main']
 log = logging.getLogger(__name__)

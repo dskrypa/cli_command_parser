@@ -15,11 +15,12 @@ from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
-from ..utils import _NotSet, Bool, camel_to_snake_case
+from ..utils import _NotSet, camel_to_snake_case
 from .base import BasePositional, parameter_action
 
 if TYPE_CHECKING:
     from ..core import CommandType
+    from ..typing import Bool
 
 __all__ = ['SubCommand', 'Action']
 

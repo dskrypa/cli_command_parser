@@ -10,7 +10,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Type, TypeVar, Collection, Iterator, Optional, Set, Mapping
 
-from .base import InputType, TypeFunc, T
+from ..typing import TypeFunc, T
+from .base import InputType
 from .exceptions import InvalidChoiceError
 
 if TYPE_CHECKING:

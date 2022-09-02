@@ -24,13 +24,14 @@ except ImportError:
 from .config import CommandConfig, DEFAULT_CONFIG
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
-from .utils import Bool, _NotSet, Terminal
+from .utils import _NotSet, Terminal
 
 if TYPE_CHECKING:
     from .core import CommandType, AnyConfig
     from .command_parameters import CommandParameters
     from .commands import Command
-    from .parameters import Parameter, ParamOrGroup, ActionFlag
+    from .parameters import Parameter, ActionFlag
+    from .typing import Bool, ParamOrGroup
 
 __all__ = [
     'Context',

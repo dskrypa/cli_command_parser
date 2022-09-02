@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, overload, Generic, Sequence, Dict
 
-from .utils import Bool, FixedFlag, _NotSet
+from .utils import FixedFlag, _NotSet
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from .error_handling import ErrorHandler
     from .formatting.commands import CommandHelpFormatter
     from .formatting.params import ParamHelpFormatter
-    from .parameters import ParamOrGroup
+    from .typing import Bool, ParamOrGroup
 
 __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'DEFAULT_CONFIG']
 

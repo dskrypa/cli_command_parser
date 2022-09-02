@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional, 
 
 from ..context import ctx, NoActiveContext
 from ..parameters.groups import ParamGroup
-from ..utils import Bool, camel_to_snake_case
+from ..utils import camel_to_snake_case
 from .restructured_text import rst_header, RstTable
 
 if TYPE_CHECKING:
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from ..commands import Command
     from ..metadata import ProgramMetadata
     from ..parameters import Parameter, BasePositional, BaseOption, SubCommand
+    from ..typing import Bool
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 

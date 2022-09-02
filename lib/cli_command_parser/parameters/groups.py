@@ -14,8 +14,7 @@ from .base import ParamBase, BasePositional, BaseOption, _group_stack
 from .pass_thru import PassThru
 
 if TYPE_CHECKING:
-    from ..utils import Bool
-    from .typing import ParamList, ParamOrGroup
+    from ..typing import Bool, ParamList, ParamOrGroup
 
 __all__ = ['ParamGroup']
 

@@ -10,19 +10,12 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from operator import le, lt, ge, gt
-from typing import TYPE_CHECKING, TypeVar, Union, Callable, Optional, Sequence
+from typing import Union, Optional
 
-from .base import InputType, T
-
-if TYPE_CHECKING:
-    from ..utils import Bool
+from ..typing import Bool, NT, Number, NumType, RngType
+from .base import InputType
 
 __all__ = ['Range', 'NumRange']
-
-NT = TypeVar('NT', bound=float, covariant=True)
-Number = Union[NT, None]
-NumType = Callable[[str], NT]
-RngType = Union[builtins.range, int, Sequence[int]]
 
 
 class NumericInput(InputType[NT], ABC):

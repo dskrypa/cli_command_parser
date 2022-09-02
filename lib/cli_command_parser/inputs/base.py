@@ -5,12 +5,11 @@ Custom input handlers for Parameters
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, TypeVar, Generic, Optional
+from typing import Any, Generic, Optional
+
+from ..typing import T
 
 __all__ = ['InputType']
-
-T = TypeVar('T')
-TypeFunc = Callable[[str], T]
 
 
 class InputType(Generic[T], ABC):

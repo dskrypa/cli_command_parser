@@ -9,17 +9,13 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
-from typing import TYPE_CHECKING, Union, Optional
+from typing import Union, Optional
 
-from .base import InputType, T
-from .utils import InputParam, StatMode, FileWrapper, Converter, allows_write
-
-if TYPE_CHECKING:
-    from ..utils import Bool
+from ..typing import Bool, T, PathLike, Converter
+from .base import InputType
+from .utils import InputParam, StatMode, FileWrapper, allows_write
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
-
-PathLike = Union[str, _Path]
 
 
 class FileInput(InputType[T], ABC):

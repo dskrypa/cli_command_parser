@@ -6,7 +6,7 @@ Utils for usage / help text formatters
 
 from __future__ import annotations
 
-from typing import Optional, Union, Any, Collection, Sequence, Iterator, Iterable, Tuple, List
+from typing import TYPE_CHECKING, Optional, Any, Collection, Sequence, Iterator, Iterable, Tuple, List
 
 try:
     from wcwidth import wcswidth
@@ -16,12 +16,12 @@ except ImportError:
 from ..compat import WCTextWrapper
 from ..config import ShowDefaults
 from ..context import ctx
-from ..utils import Bool, _NotSet
+from ..utils import _NotSet
+
+if TYPE_CHECKING:
+    from ..typing import Bool, Strs, OptStrs
 
 __all__ = ['format_help_entry', 'line_iter']
-
-Strs = Union[str, Sequence[str]]
-OptStrs = Optional[Strs]
 
 
 def format_help_entry(

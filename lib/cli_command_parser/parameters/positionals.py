@@ -4,13 +4,18 @@ Positional Parameters
 :author: Doug Skrypa
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from ..exceptions import ParameterDefinitionError
-from ..inputs import InputTypeFunc, normalize_input_type, ChoicesType
+from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet
 from .base import BasicActionMixin, BasePositional
+
+if TYPE_CHECKING:
+    from ..typing import InputTypeFunc, ChoicesType
 
 __all__ = ['Positional']
 

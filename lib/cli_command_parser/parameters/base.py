@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Collection, Union, List, FrozenSet
+from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, List, FrozenSet
 
 try:
     from functools import cached_property  # pylint: disable=C0412
@@ -27,7 +27,8 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
-from ..utils import _NotSet, Bool, get_descriptor_value_type
+from ..typing import Bool, T_co
+from ..utils import _NotSet, get_descriptor_value_type
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
@@ -182,7 +183,7 @@ class ParamBase(ABC):
     # endregion
 
 
-class Parameter(ParamBase, ABC):
+class Parameter(ParamBase, Generic[T_co], ABC):
     """
     Base class for all other parameters.  It is not meant to be used directly.
 
@@ -216,7 +217,7 @@ class Parameter(ParamBase, ABC):
     # Instance attributes with class defaults
     metavar: str = None
     nargs: Nargs = Nargs(1)                         # Set in subclasses
-    type: Optional[Callable[[str], Any]] = None     # Only set here if not set by __init__ in Option/Positional
+    type: Optional[Callable[[str], T_co]] = None    # Only set here if not set by __init__ in Option/Positional
     show_default: bool = None
 
     def __init_subclass__(
@@ -343,9 +344,7 @@ class Parameter(ParamBase, ABC):
 
         ctx.record_action(self)
         action_method = getattr(self, action)
-        normalized = self.prepare_value(value, short_combo) if value is not None else value
-        self.validate(normalized)
-        return action_method(normalized)
+        return action_method(self.prepare_and_validate(value, short_combo))
 
     def would_accept(self, value: str, short_combo: bool = False) -> bool:
         action = self.action
@@ -359,9 +358,15 @@ class Parameter(ParamBase, ABC):
             return False
         return self.is_valid_arg(normalized)
 
+    def prepare_and_validate(self, value: str, short_combo: bool = False) -> T_co:
+        if value is not None:
+            value = self.prepare_value(value, short_combo)
+        self.validate(value)
+        return value
+
     def prepare_value(  # pylint: disable=W0613
         self, value: str, short_combo: bool = False, pre_action: bool = False
-    ) -> Any:
+    ) -> T_co:
         type_func = self.type
         if type_func is None or (pre_action and isinstance(type_func, InputType) and type_func.is_valid_type(value)):
             return value
@@ -376,7 +381,7 @@ class Parameter(ParamBase, ABC):
         except Exception as e:
             raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e
 
-    def validate(self, value: Any):
+    def validate(self, value: Optional[T_co]):
         if isinstance(value, str) and value.startswith('-'):
             if len(value) > 1 and not _is_numeric(value):
                 raise BadArgument(self, f'invalid value={value!r}')
@@ -394,19 +399,19 @@ class Parameter(ParamBase, ABC):
         else:
             return True
 
-    def _fix_default(self, value):
+    def _fix_default(self, value) -> Optional[T_co]:
         type_func = self.type
         if type_func is not None and isinstance(type_func, InputType):
             return type_func.fix_default(value)
         return value
 
-    def _fix_default_collection(self, values):
+    def _fix_default_collection(self, values) -> Optional[T_co]:
         type_func = self.type
         if type_func is None or not isinstance(type_func, InputType) or not isinstance(values, (list, tuple, set)):
             return values
         return values.__class__(map(type_func.fix_default, values))
 
-    def result_value(self) -> Any:
+    def result_value(self) -> Optional[T_co]:
         value = ctx.get_parsed_value(self)
         if value is _NotSet:
             if self.required:
@@ -469,11 +474,11 @@ class BasicActionMixin:
         return super()._init_value_factory(state)  # noqa
 
     @parameter_action
-    def store(self: Parameter, value: Any):
+    def store(self: Parameter, value: T_co):
         ctx.set_parsed_value(self, value)
 
     @parameter_action
-    def append(self: Parameter, value: Any):
+    def append(self: Parameter, value: T_co):
         ctx.get_parsed_value(self).append(value)
 
     def _pre_pop_values(self: Parameter):
@@ -512,7 +517,7 @@ class BasicActionMixin:
         return values[-count:]
 
 
-class BasePositional(Parameter, ABC):
+class BasePositional(Parameter[T_co], ABC):
     """
     Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are
     provided positionally, without prefixes.  It is not meant to be used directly.
@@ -552,7 +557,7 @@ class BasePositional(Parameter, ABC):
         super().__init__(action, default=default, required=required, **kwargs)
 
 
-class BaseOption(Parameter, ABC):
+class BaseOption(Parameter[T_co], ABC):
     """
     Base class for :class:`.Option`, :class:`.Flag`, :class:`.Counter`, and any other keyword-like parameters that have
     ``--long`` and ``-short`` prefixes before values.

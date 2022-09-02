@@ -4,17 +4,22 @@ Custom input handlers for Parameters
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 import typing as _t
 from enum import Enum as _Enum
 
-from ..exceptions import ParameterDefinitionError
+from ..exceptions import ParameterDefinitionError as _ParameterDefinitionError
 from .exceptions import InputValidationError, InvalidChoiceError
 from .utils import StatMode, FileWrapper
-from .base import InputType, TypeFunc
+from .base import InputType
 from .choices import Choices, ChoiceMap, EnumChoices
 from .files import Path, File, Serialized, Json, Pickle
 from .numeric import Range, NumRange
 from .time import Day, Month, DateTime, Date, Time, DTFormatMode
+
+if _t.TYPE_CHECKING:
+    from ..typing import TypeFunc, InputTypeFunc, ChoicesType
 
 # fmt: off
 __all__ = [
@@ -26,15 +31,12 @@ __all__ = [
 ]
 # fmt: on
 
-InputTypeFunc = _t.Union[None, TypeFunc, InputType, range, _t.Type[_Enum]]
-ChoicesType = _t.Optional[_t.Collection[_t.Any]]
-
 
 def normalize_input_type(type_func: InputTypeFunc, param_choices: ChoicesType) -> _t.Optional[TypeFunc]:
     choices_provided = param_choices is not None
     if choices_provided:
         if not param_choices:
-            raise ParameterDefinitionError(
+            raise _ParameterDefinitionError(
                 f'Invalid choices={param_choices!r} - when specified, choices cannot be empty'
             )
         elif isinstance(param_choices, range):

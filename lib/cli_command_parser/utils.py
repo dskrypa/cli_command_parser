@@ -11,7 +11,7 @@ from enum import Flag
 from inspect import isclass
 from shutil import get_terminal_size
 from time import monotonic
-from typing import Any, Union, Optional, TypeVar, get_type_hints, List
+from typing import Union, Optional, TypeVar, get_type_hints, List
 
 try:
     from typing import get_origin, get_args as _get_args  # pylint: disable=C0412
@@ -25,7 +25,6 @@ except ImportError:  # Added in 3.10
 
 from .compat import decompose_flag, missing_flag
 
-Bool = Union[bool, Any]
 FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
 

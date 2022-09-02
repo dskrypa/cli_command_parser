@@ -12,13 +12,12 @@ from typing import TYPE_CHECKING, Union, Type, Callable, Tuple, Dict
 from ..context import ctx
 from ..parameters.base import BasePositional, BaseOption
 from ..parameters.choice_map import ChoiceMap
-from ..parameters import ParamOrGroup, ParamGroup, PassThru, TriFlag
+from ..parameters import ParamGroup, PassThru, TriFlag
 from .restructured_text import RstTable
 from .utils import format_help_entry, _should_add_default
 
 if TYPE_CHECKING:
-    from ..utils import Bool
-
+    from ..typing import Bool, ParamOrGroup
 
 BoolFormatterMap = Dict[bool, Callable[[str], str]]
 

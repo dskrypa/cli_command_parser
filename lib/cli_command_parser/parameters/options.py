@@ -8,13 +8,15 @@ from __future__ import annotations
 
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Tuple
+from os import environ
+from typing import TYPE_CHECKING, Any, Optional, Callable, Sequence, Union, Tuple
 
 from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
-from ..inputs import InputTypeFunc, normalize_input_type, ChoicesType
+from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..utils import _NotSet, Bool
+from ..typing import Bool, T_co, ChoicesType, InputTypeFunc
+from ..utils import _NotSet
 from .base import BasicActionMixin, BaseOption, parameter_action
 from .option_strings import TriFlagOptionStrings
 
@@ -23,10 +25,9 @@ if TYPE_CHECKING:
     from ..commands import Command
 
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
-# TODO: envvar param to pull value from an env var (or tuple of vars, in order) if no value given, but env var is set?
 
 
-class Option(BasicActionMixin, BaseOption):
+class Option(BasicActionMixin, BaseOption[T_co]):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -49,6 +50,8 @@ class Option(BasicActionMixin, BaseOption):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
+    env_var: Union[str, Sequence[str]] = None
+
     def __init__(
         self,
         *option_strs: str,
@@ -58,6 +61,7 @@ class Option(BasicActionMixin, BaseOption):
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
         choices: ChoicesType = None,
+        env_var: Union[str, Sequence[str]] = None,
         **kwargs,
     ):
         if nargs is not None:
@@ -70,6 +74,25 @@ class Option(BasicActionMixin, BaseOption):
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
+        if env_var:
+            self.env_var = env_var
+
+    def _init_value_factory(self, state: ParseState):
+        env_var = self.env_var
+        if not env_var or not state.done:
+            return super()._init_value_factory(state)
+
+        env_vars = (env_var,) if isinstance(env_var, str) else env_var
+        for env_var in env_vars:
+            try:
+                value = environ[env_var]
+            except KeyError:
+                pass
+            else:
+                normalized = self.prepare_and_validate(value)
+                return [normalized] if self.action == 'append' else normalized
+
+        return super()._init_value_factory(state)
 
 
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value

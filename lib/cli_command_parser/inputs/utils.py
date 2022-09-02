@@ -4,23 +4,23 @@ Utils for input types
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S_IFSOCK
-from typing import Union, Callable, Any, TextIO, BinaryIO, ContextManager
+from typing import TYPE_CHECKING, Union, Any, TextIO, BinaryIO, ContextManager
 from weakref import finalize
 
-from ..utils import Bool, FixedFlag
+from ..utils import FixedFlag
 from .exceptions import InputValidationError
 
-__all__ = ['InputParam', 'StatMode', 'FileWrapper']
+if TYPE_CHECKING:
+    from ..typing import Bool, FP, Converter
 
-FP = Union[TextIO, BinaryIO]
-Deserializer = Callable[[Union[str, bytes, FP]], Any]
-Serializer = Callable[..., Union[str, bytes, None]]
-Converter = Union[Deserializer, Serializer]
+__all__ = ['InputParam', 'StatMode', 'FileWrapper']
 
 
 class InputParam:

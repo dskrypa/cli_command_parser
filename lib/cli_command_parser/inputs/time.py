@@ -22,20 +22,16 @@ from datetime import datetime, date, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import TYPE_CHECKING, Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, overload
+from typing import Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, overload
 from typing import Tuple, Dict
 
+from ..typing import T, Bool, Locale, TimeBound
 from ..utils import MissingMixin
-from .base import InputType, T
+from .base import InputType
 from .exceptions import InputValidationError, InvalidChoiceError
-
-if TYPE_CHECKING:
-    from ..utils import Bool
 
 __all__ = ['DTFormatMode', 'Day', 'Month', 'DateTime', 'Date', 'Time']
 
-Locale = Union[str, Tuple[Optional[str], Optional[str]]]
-TimeBound = Union[datetime, date, time, timedelta, None]
 DT = TypeVar('DT')
 
 DEFAULT_DATE_FMT = '%Y-%m-%d'

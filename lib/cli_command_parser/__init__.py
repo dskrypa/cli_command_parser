@@ -39,8 +39,7 @@ from .parameters import (
     action_flag,
     before_main,
     after_main,
-    Param,
     ParamGroup,
-    ParamOrGroup,
     TriFlag,
 )
+from .typing import Param, ParamOrGroup
