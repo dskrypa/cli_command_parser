@@ -4,15 +4,20 @@ The core Command classes that are intended as the entry point for a given progra
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TypeVar, Sequence, Optional
+from typing import TYPE_CHECKING, TypeVar, Sequence, Optional
 
 from .core import CommandMeta, CommandType, get_top_level_commands, get_params
 from .context import Context, ActionPhase, get_or_create_context
 from .exceptions import ParamConflict
 from .parser import CommandParser
+
+if TYPE_CHECKING:
+    from .utils import Bool
 
 __all__ = ['Command', 'CommandType', 'main']
 log = logging.getLogger(__name__)
@@ -47,7 +52,7 @@ class Command(ABC, metaclass=CommandMeta):
         To be able to store a reference to the (possibly resolved subcommand) command instance, you should instead use
         the above-mentioned methods separately.
 
-        :param argv: The arguments to parse (defaults to :data:`sys.argv`)
+        :param argv: The arguments to parse (defaults to :data:`python:sys.argv`)
         :param kwargs: Keyword arguments to pass to :meth:`.__call__`
         :return: The Command instance with parsed arguments for which :meth:`.__call__` was already called.
         """
@@ -213,7 +218,7 @@ class Command(ABC, metaclass=CommandMeta):
             param.func(self, *args, **kwargs)
 
 
-def main(argv: Sequence[str] = None, **kwargs):
+def main(argv: Sequence[str] = None, return_command: Bool = False, **kwargs):
     """
     Convenience function that can be used as the main entry point for a program.
 
@@ -225,8 +230,9 @@ def main(argv: Sequence[str] = None, **kwargs):
     will be raised.  In such cases, you must explicitly call :meth:`~Command.parse_and_run` on the command that is
     intended to be the primary entry point.
 
-    All arguments are passed through to :meth:`~Command.parse_and_run`
-
+    :param argv: The sequence of arguments to parse.  Defaults to :data:`python:sys.argv` if not specified.
+    :param return_command: Whether the parsed Command that ran should be returned.
+    :param kwargs: Keyword arguments to pass through to :meth:`~Command.parse_and_run`
     :raises: :class:`RuntimeError` if multiple subclasses are detected, or if no subclasses could be found.
     """
     commands = get_top_level_commands()
@@ -244,4 +250,5 @@ def main(argv: Sequence[str] = None, **kwargs):
                 'Verify that the intended command has been imported, or call <MyCommand>.parse_and_run() explicitly.'
             )
 
-    return commands[0].parse_and_run(argv, **kwargs)
+    command = commands[0].parse_and_run(argv, **kwargs)
+    return command if return_command else None

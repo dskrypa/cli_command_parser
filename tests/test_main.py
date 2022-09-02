@@ -43,6 +43,18 @@ class MainTest(TestCase):
         cmd_main([])
         self.assertTrue(Foo.parse_and_run.called)
 
+    def test_main_returns_none(self):
+        class Foo(Command):
+            pass
+
+        self.assertIs(None, cmd_main([]))
+
+    def test_main_returns_command(self):
+        class Foo(Command):
+            pass
+
+        self.assertIsInstance(cmd_main([], return_command=True), Foo)
+
 
 if __name__ == '__main__':
     try:
