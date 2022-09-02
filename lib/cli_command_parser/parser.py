@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections import deque
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
-from .context import ActionPhase, Context
+from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
@@ -38,15 +38,19 @@ class CommandParser:
     @classmethod
     def parse_args(cls, ctx: Context) -> Optional[CommandType]:
         try:
-            return cls.__parse_args(ctx)
+            parsed = cls.__parse_args(ctx)
         except UsageError:
-            ctx.failed = True
+            ctx.state = ParseState.FAILED
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise
             return None
         except Exception:
-            ctx.failed = True
+            ctx.state = ParseState.FAILED
             raise
+        else:
+            if ctx.state == ParseState.INITIAL:
+                ctx.state = ParseState.COMPLETE
+            return parsed
 
     @classmethod
     def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
@@ -62,7 +66,7 @@ class CommandParser:
             next_cmd = sub_cmd_param.target()  # type: CommandType
             missing = cls._missing(params, ctx)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
-                ctx.failed = True
+                ctx.state = ParseState.FAILED
                 if ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                     return None
                 raise ParamsMissing(missing)

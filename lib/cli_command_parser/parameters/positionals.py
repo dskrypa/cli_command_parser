@@ -64,5 +64,3 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)
         self.type = normalize_input_type(type, choices)
-        if action == 'append':
-            self._init_value_factory = list

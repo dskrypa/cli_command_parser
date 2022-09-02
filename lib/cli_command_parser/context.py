@@ -32,10 +32,29 @@ if TYPE_CHECKING:
     from .commands import Command
     from .parameters import Parameter, ParamOrGroup, ActionFlag
 
-__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
+__all__ = [
+    'Context',
+    'ctx',
+    'get_current_context',
+    'get_or_create_context',
+    'get_context',
+    'get_parsed',
+    'get_raw_arg',
+    'ParseState',
+]
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 _TERMINAL = Terminal()
+
+
+class ParseState(Enum):
+    INITIAL = 1
+    COMPLETE = 2
+    FAILED = 3
+
+    @property
+    def done(self) -> bool:
+        return self._value_ > 1
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -61,7 +80,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.remaining = list(self.argv)
         self.command = command
         self.parent = parent
-        self.failed = False
+        self.state = ParseState.INITIAL
         self.config = _normalize_config(config, kwargs, parent, command)
         if parent is not None:
             self._parsed = parent._parsed.copy()
@@ -169,7 +188,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         try:
             return self._parsed[param]
         except KeyError:
-            self._parsed[param] = value = param._init_value_factory()
+            self._parsed[param] = value = param._init_value_factory(self.state)
             return value
 
     def set_parsed_value(self, param: Parameter, value: Any):

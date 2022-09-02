@@ -11,7 +11,7 @@ from string import whitespace, printable
 from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Union, Collection, Mapping, Dict
 from types import MethodType
 
-from ..context import ctx
+from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
@@ -92,10 +92,12 @@ class ChoiceMap(BasePositional):
 
     def __init__(self, *, action: str = 'append', title: str = None, description: str = None, **kwargs):
         super().__init__(action=action, **kwargs)
-        self._init_value_factory = list
         self.title = title
         self.description = description
         self.choices = {}
+
+    def _init_value_factory(self, state: ParseState):
+        return []
 
     # region Choice Registration
 

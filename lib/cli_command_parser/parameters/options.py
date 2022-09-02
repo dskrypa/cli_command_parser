@@ -10,7 +10,7 @@ from functools import partial, update_wrapper, reduce
 from operator import xor
 from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Tuple
 
-from ..context import ctx
+from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import InputTypeFunc, normalize_input_type, ChoicesType
 from ..nargs import Nargs, NargsValue
@@ -70,8 +70,6 @@ class Option(BasicActionMixin, BaseOption):
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
-        if action == 'append':
-            self._init_value_factory = list
 
 
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value
@@ -90,7 +88,7 @@ class _Flag(BaseOption):
             raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
         super().__init__(*option_strs, **kwargs)
 
-    def _init_value_factory(self):  # pylint: disable=W0221
+    def _init_value_factory(self, state: ParseState):
         if self.action == 'store_const':
             return self.default
         else:
@@ -357,7 +355,7 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
-    def _init_value_factory(self):  # pylint: disable=W0221
+    def _init_value_factory(self, state: ParseState):
         return self.default
 
     def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:
