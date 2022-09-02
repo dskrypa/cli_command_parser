@@ -103,7 +103,7 @@
              
   <section id="custom-inputs">
 <h1>Custom Inputs<a class="headerlink" href="#custom-inputs" title="Permalink to this heading"></a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">custom_inputs</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">path</span> <span class="n">PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">in_file</span> <span class="n">IN_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">out_file</span> <span class="n">OUT_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">json</span> <span class="n">JSON</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">build_docs</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">path</span> <span class="n">PATH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">in_file</span> <span class="n">IN_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">out_file</span> <span class="n">OUT_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">json</span> <span class="n">JSON</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">simple_range</span> <span class="p">{</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">49</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">skip_range</span> <span class="p">{</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">29</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">float_range</span> <span class="p">{</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">choice_range</span> <span class="p">{</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">19</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Optional arguments</p>
@@ -123,6 +123,23 @@
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p></td>
 <td><p>Show this help message and exit (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Mutually exclusive options</p>
+<table class="colwidths-auto docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--simple_range</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">49},</span> <span class="pre">-r</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">49}</span></code></p></td>
+<td><p>Choose a number in the specified range</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--skip_range</span> <span class="pre">{1</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">29,</span> <span class="pre">step=2},</span> <span class="pre">-k</span> <span class="pre">{1</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">29,</span> <span class="pre">step=2}</span></code></p></td>
+<td><p>Choose a number in the specified range</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--float_range</span> <span class="pre">{0.0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;</span> <span class="pre">1.0},</span> <span class="pre">-F</span> <span class="pre">{0.0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;</span> <span class="pre">1.0}</span></code></p></td>
+<td><p>Choose a number in the specified range</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--choice_range</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">19},</span> <span class="pre">-c</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">19}</span></code></p></td>
+<td><p>Choose a number in the specified range</p></td>
 </tr>
 </tbody>
 </table>

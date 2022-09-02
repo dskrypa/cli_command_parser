@@ -4,7 +4,7 @@ Rest Api Wrapper
 
 ::
 
-    usage: rest_api_wrapper.py {show|sync|find} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help]
+    usage: build_docs.py {show|sync|find} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help]
 
 
 
@@ -60,7 +60,7 @@ Show an object
 
 ::
 
-    usage: rest_api_wrapper.py show {foo|bar|baz} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--ids IDS]
+    usage: build_docs.py show {foo|bar|baz} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--ids IDS]
 
 
 
@@ -105,7 +105,7 @@ Sync group members
 
 ::
 
-    usage: rest_api_wrapper.py sync [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--dry_run] [--all] [--role {all|admin|user}] [--group GROUP]
+    usage: build_docs.py sync [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--dry_run] [--all] [--role {all|admin|user}] [--group GROUP]
 
 
 
@@ -159,7 +159,7 @@ Find objects
 
 ::
 
-    usage: rest_api_wrapper.py find {foo|bar|baz|bazs} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT]
+    usage: build_docs.py find {foo|bar|baz|bazs} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT]
 
 
 

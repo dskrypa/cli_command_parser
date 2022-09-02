@@ -4,7 +4,7 @@ Shared Logging Init
 
 ::
 
-    usage: shared_logging_init.py {show} [--verbose [VERBOSE]] [--help]
+    usage: build_docs.py {show} [--verbose [VERBOSE]] [--help]
 
 
 
@@ -46,7 +46,7 @@ Show the results of an action
 
 ::
 
-    usage: shared_logging_init.py show {attrs|hello|log_test|rst} [--verbose [VERBOSE]] [--help]
+    usage: build_docs.py show {attrs|hello|log_test|rst} [--verbose [VERBOSE]] [--help]
 
 
 

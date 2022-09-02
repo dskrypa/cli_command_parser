@@ -4,7 +4,7 @@ Grouped Action Flags
 
 ::
 
-    usage: grouped_action_flags.py [--action_a] [--action_b] [--action_c] [--action_d] [--action_w] [--action_x] [--action_y] [--action_z] [--help]
+    usage: build_docs.py [--action_a] [--action_b] [--action_c] [--action_d] [--action_w] [--action_x] [--action_y] [--action_z] [--help]
 
 
 

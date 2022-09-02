@@ -109,7 +109,8 @@
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">get_current_context</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
-<span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">normalize_input_type</span><span class="p">,</span> <span class="n">Choices</span><span class="p">,</span> <span class="n">ChoiceMap</span> <span class="k">as</span> <span class="n">ChoiceMapInput</span>
+<span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">normalize_input_type</span>
+<span class="kn">from</span> <span class="nn">..inputs.choices</span> <span class="kn">import</span> <span class="n">_ChoicesBase</span><span class="p">,</span> <span class="n">Choices</span><span class="p">,</span> <span class="n">ChoiceMap</span> <span class="k">as</span> <span class="n">ChoiceMapInput</span>
 <span class="kn">from</span> <span class="nn">..inputs.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">get_descriptor_value_type</span>
@@ -292,15 +293,16 @@
 
     <span class="c1"># region Attributes &amp; Initialization</span>
 
-    <span class="n">_actions</span><span class="p">:</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
-    <span class="n">_positional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">_repr_attrs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">accepts_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">choices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Class attributes</span>
+    <span class="n">_actions</span><span class="p">:</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>          <span class="c1">#: The actions supported by this Parameter</span>
+    <span class="n">_positional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>                       <span class="c1">#: Whether this Parameter is positional or not</span>
+    <span class="n">_repr_attrs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1">#: Attributes to include in ``repr()`` output</span>
+    <span class="n">accepts_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>                      <span class="c1">#: Whether this Parameter can be provided without a value</span>
+    <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>                     <span class="c1">#: Whether this Parameter can be provided with at least 1 value</span>
+    <span class="c1"># Instance attributes with class defaults</span>
     <span class="n">metavar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                         <span class="c1"># Set in subclasses</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1"># Only set here if not set by __init__ in Option/Positional</span>
     <span class="n">show_default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Parameter.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>
@@ -336,7 +338,6 @@
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">metavar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -345,8 +346,6 @@
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> - valid actions: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">choices</span> <span class="ow">and</span> <span class="n">choices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid choices=</span><span class="si">{</span><span class="n">choices</span><span class="si">!r}</span><span class="s1"> - when specified, choices cannot be empty&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">required</span> <span class="ow">and</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid combination of required=True with default=</span><span class="si">{</span><span class="n">default</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> -&#39;</span>
@@ -354,7 +353,6 @@
             <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help</span><span class="p">,</span> <span class="n">hide</span><span class="o">=</span><span class="n">hide</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">required</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">max</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metavar</span> <span class="o">=</span> <span class="n">metavar</span>
         <span class="k">if</span> <span class="n">show_default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -368,14 +366,21 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">type_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_attr</span><span class="p">,</span> <span class="p">(</span><span class="n">ChoiceMapInput</span><span class="p">,</span> <span class="n">Choices</span><span class="p">))</span> <span class="ow">and</span> <span class="n">type_attr</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">choices</span> <span class="ow">or</span> <span class="n">type_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">annotated_type</span> <span class="o">=</span> <span class="n">get_descriptor_value_type</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">annotated_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">choices</span><span class="p">:</span>
-                    <span class="n">type_attr</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">annotated_type</span>
-                <span class="k">else</span><span class="p">:</span>  <span class="c1"># self.type must be None</span>
-                    <span class="c1"># Choices present earlier would have already been converted</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="n">annotated_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">choices</span> <span class="ow">or</span> <span class="n">type_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">annotated_type</span> <span class="o">=</span> <span class="n">get_descriptor_value_type</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">annotated_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">choices</span><span class="p">:</span>
+            <span class="n">type_attr</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">annotated_type</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># self.type must be None</span>
+            <span class="c1"># Choices present earlier would have already been converted</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="n">annotated_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Parameter.has_choices"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.has_choices">[docs]</a>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">type_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_attr</span><span class="p">,</span> <span class="n">_ChoicesBase</span><span class="p">)</span> <span class="ow">and</span> <span class="n">type_attr</span><span class="o">.</span><span class="n">choices</span></div>
 
     <span class="c1"># endregion</span>
 
@@ -476,13 +481,25 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span></div>
 
+    <span class="k">def</span> <span class="nf">_fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">type_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="n">type_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_func</span><span class="p">,</span> <span class="n">InputType</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">type_func</span><span class="o">.</span><span class="n">fix_default</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_fix_default_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="n">type_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="n">type_func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_func</span><span class="p">,</span> <span class="n">InputType</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">values</span>
+        <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">type_func</span><span class="o">.</span><span class="n">fix_default</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+
 <div class="viewcode-block" id="Parameter.result_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.result_value">[docs]</a>    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
@@ -492,9 +509,9 @@
             <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
             <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Collection</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">default</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_default_collection</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fix_default</span><span class="p">(</span><span class="n">default</span><span class="p">))</span>
 
         <span class="n">nargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span>
         <span class="n">val_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
