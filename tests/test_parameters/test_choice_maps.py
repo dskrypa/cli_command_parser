@@ -117,7 +117,7 @@ class ChoiceMapTest(ParserTest):
             SubCommand(type=int)
 
     def test_choices_not_allowed_sub_cmd(self):
-        with self.assertRaises(ParameterDefinitionError):
+        with self.assertRaises(TypeError):
             SubCommand(choices=(1, 2))
 
     def test_nargs_not_allowed_action(self):
@@ -129,7 +129,7 @@ class ChoiceMapTest(ParserTest):
             Action(type=int)
 
     def test_choices_not_allowed_action(self):
-        with self.assertRaises(ParameterDefinitionError):
+        with self.assertRaises(TypeError):
             Action(choices=(1, 2))
 
 

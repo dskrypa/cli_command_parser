@@ -10,20 +10,22 @@ from __future__ import annotations
 import builtins
 from abc import ABC, abstractmethod
 from operator import le, lt, ge, gt
-from typing import TYPE_CHECKING, Union, Callable, Optional
+from typing import TYPE_CHECKING, TypeVar, Union, Callable, Optional, Sequence
 
-from .base import InputType
+from .base import InputType, T
 
 if TYPE_CHECKING:
     from ..utils import Bool
 
 __all__ = ['Range', 'NumRange']
 
-Number = Union[int, float, None]
-NumType = Callable[[str], Union[int, float]]
+NT = TypeVar('NT', bound=float, covariant=True)
+Number = Union[NT, None]
+NumType = Callable[[str], NT]
+RngType = Union[builtins.range, int, Sequence[int]]
 
 
-class NumericInput(InputType, ABC):
+class NumericInput(InputType[NT], ABC):
     type: NumType
 
     def is_valid_type(self, value: str) -> bool:
@@ -40,8 +42,13 @@ class NumericInput(InputType, ABC):
     def format_metavar(self, choice_delim: str = ',') -> str:
         return f'{{{self._range_str()}}}'
 
+    def fix_default(self, value: Union[str, NT, None]) -> Optional[NT]:
+        if value is None or not isinstance(value, str):
+            return value
+        return self(value)
 
-class Range(NumericInput):
+
+class Range(NumericInput[NT]):
     """
     A range of integers that uses the builtin :class:`python:range`.  If a range object is passed to a
     :class:`.Parameter` as the ``type=`` value, it will automatically be wrapped by this class.
@@ -56,11 +63,19 @@ class Range(NumericInput):
     range: Optional[builtins.range]
     snap: bool
 
-    def __init__(self, range: builtins.range, snap: Bool = False, type: NumType = None):  # noqa
+    def __init__(self, range: RngType, snap: Bool = False, type: NumType = None):  # noqa
         self.snap = snap
-        self.range = range
+        if isinstance(range, int):
+            self.range = builtins.range(range)
+        elif not isinstance(range, builtins.range):
+            self.range = builtins.range(*range)
+        else:
+            self.range = range
         if type is not None:
             self.type = type
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__}({self.range!r}, snap={self.snap!r}, type={self.type!r})>'
 
     def _range_str(self, var: str = 'N') -> str:
         rng_min, rng_max = min(self.range), max(self.range)
@@ -68,7 +83,7 @@ class Range(NumericInput):
         base = f'{rng_min} <= {var} <= {rng_max}'
         return base if step == 1 else f'{base}, step={step}'
 
-    def __call__(self, value: str) -> Union[float, int]:
+    def __call__(self, value: str) -> NT:
         value = self.type(value)
         if value in self.range:
             return value
@@ -81,7 +96,7 @@ class Range(NumericInput):
         raise ValueError(f'expected a value in the range {self._range_str()}')
 
 
-class NumRange(NumericInput):
+class NumRange(NumericInput[NT]):
     """
     A range of integers or floats, optionally only bounded on one side.
 
@@ -136,10 +151,13 @@ class NumRange(NumericInput):
                 )
 
         self.snap = snap
-        self.min = min
-        self.max = max
+        self.min = self.type(min) if min is not None else min   # for floats especially, such as a range like 0~1, this
+        self.max = self.type(max) if max is not None else max   # helps to highlight the type in reprs
         self.include_min = include_min
         self.include_max = include_max
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__}({self.type!r}, snap={self.snap!r})[{self._range_str()}]>'
 
     def _range_str(self, var: str = 'N') -> str:
         if self.min is not None:
@@ -169,7 +187,7 @@ class NumRange(NumericInput):
             return bound if inclusive else (bound + snap_dir)
         raise ValueError(f'expected a value in the range {self._range_str()}')
 
-    def __call__(self, value: str) -> Union[float, int]:
+    def __call__(self, value: str) -> NT:
         value = self.type(value)
         if self.min is not None:
             below_min = lt if self.include_min else le  # Bad if < when inclusive, bad if <= when exclusive

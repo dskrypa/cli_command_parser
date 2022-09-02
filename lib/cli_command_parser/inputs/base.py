@@ -9,8 +9,8 @@ from typing import Any, Callable, TypeVar, Generic, Optional
 
 __all__ = ['InputType']
 
-TypeFunc = Callable[[str], Any]
 T = TypeVar('T')
+TypeFunc = Callable[[str], T]
 
 
 class InputType(Generic[T], ABC):

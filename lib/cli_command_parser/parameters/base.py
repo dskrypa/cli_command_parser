@@ -23,7 +23,8 @@ from ..config import CommandConfig, OptionNameMode
 from ..context import Context, ctx, get_current_context
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
 from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
-from ..inputs import InputType, normalize_input_type, Choices, ChoiceMap as ChoiceMapInput
+from ..inputs import InputType, normalize_input_type
+from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
 from ..utils import _NotSet, Bool, get_descriptor_value_type
@@ -206,15 +207,16 @@ class Parameter(ParamBase, ABC):
 
     # region Attributes & Initialization
 
-    _actions: FrozenSet[str] = frozenset()
-    _positional: bool = False
-    _repr_attrs: Optional[Collection[str]] = None
-    accepts_none: bool = False
-    accepts_values: bool = True
-    choices: Optional[Collection[Any]] = None
+    # Class attributes
+    _actions: FrozenSet[str] = frozenset()          #: The actions supported by this Parameter
+    _positional: bool = False                       #: Whether this Parameter is positional or not
+    _repr_attrs: Optional[Collection[str]] = None   #: Attributes to include in ``repr()`` output
+    accepts_none: bool = False                      #: Whether this Parameter can be provided without a value
+    accepts_values: bool = True                     #: Whether this Parameter can be provided with at least 1 value
+    # Instance attributes with class defaults
     metavar: str = None
-    nargs: Nargs = Nargs(1)
-    type: Optional[Callable[[str], Any]] = None
+    nargs: Nargs = Nargs(1)                         # Set in subclasses
+    type: Optional[Callable[[str], Any]] = None     # Only set here if not set by __init__ in Option/Positional
     show_default: bool = None
 
     def __init_subclass__(
@@ -250,7 +252,6 @@ class Parameter(ParamBase, ABC):
         default: Any = _NotSet,
         required: Bool = False,
         metavar: str = None,
-        choices: Collection[Any] = None,
         help: str = None,  # noqa
         hide: Bool = False,
         show_default: Bool = None,
@@ -259,8 +260,6 @@ class Parameter(ParamBase, ABC):
             raise ParameterDefinitionError(
                 f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
             )
-        if not choices and choices is not None:
-            raise ParameterDefinitionError(f'Invalid choices={choices!r} - when specified, choices cannot be empty')
         if required and default is not _NotSet:
             raise ParameterDefinitionError(
                 f'Invalid combination of required=True with default={default!r} for {self.__class__.__name__} -'
@@ -268,7 +267,6 @@ class Parameter(ParamBase, ABC):
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = action
-        self.choices = choices
         self.default = None if default is _NotSet and not required and self.nargs.max == 1 else default
         self.metavar = metavar
         if show_default is not None:
@@ -282,14 +280,21 @@ class Parameter(ParamBase, ABC):
         super().__set_name__(command, name)
         type_attr = self.type
         choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
-        if choices or type_attr is None:
-            annotated_type = get_descriptor_value_type(command, name)
-            if annotated_type is not None:
-                if choices:
-                    type_attr.type = annotated_type
-                else:  # self.type must be None
-                    # Choices present earlier would have already been converted
-                    self.type = normalize_input_type(annotated_type, None)
+        if not (choices or type_attr is None):
+            return
+        annotated_type = get_descriptor_value_type(command, name)
+        if annotated_type is None:
+            return
+        elif choices:
+            type_attr.type = annotated_type
+        else:  # self.type must be None
+            # Choices present earlier would have already been converted
+            self.type = normalize_input_type(annotated_type, None)
+
+    @property
+    def has_choices(self) -> bool:
+        type_attr = self.type
+        return isinstance(type_attr, _ChoicesBase) and type_attr.choices
 
     # endregion
 

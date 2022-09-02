@@ -35,15 +35,17 @@ class ExampleHelpTest(ParserTest):
                 cmd = ApiWrapper.parse([sub_cmd, '-h'])
                 self.assert_strings_equal(expected, get_help_text(cmd))
 
-    def test_echo_help(self):
-        Echo = load_example_command('echo.py', 'Echo')
-        expected = load_expected('echo_help.txt')
-        self.assert_strings_equal(expected, get_help_text(Echo()))
-
-    def test_simple_flags_help(self):
-        Example = load_example_command('simple_flags.py', 'Example')
-        expected = load_expected('simple_flags_help.txt')
-        self.assert_strings_equal(expected, get_help_text(Example()))
+    def test_example_help_texts(self):
+        cases = [
+            ('echo.py', 'Echo', 'echo_help.txt'),
+            ('simple_flags.py', 'Example', 'simple_flags_help.txt'),
+            ('custom_inputs.py', 'InputsExample', 'custom_inputs_help.txt'),
+        ]
+        for file_name, cmd_name, expected_file_name in cases:
+            with self.subTest(file=file_name, command=cmd_name):
+                command = load_example_command(file_name, cmd_name)
+                expected = load_expected(expected_file_name)
+                self.assert_strings_equal(expected, get_help_text(command()))
 
 
 if __name__ == '__main__':

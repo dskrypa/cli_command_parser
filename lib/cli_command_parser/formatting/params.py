@@ -59,9 +59,7 @@ class ParamHelpFormatter:
 
     def format_metavar(self) -> str:
         param = self.param
-        if param.choices:
-            return '{{{}}}'.format(ctx.config.choice_delim.join(map(str, param.choices)))
-        elif param.metavar:
+        if param.metavar:
             return param.metavar
         t = param.type
         if t is not None:

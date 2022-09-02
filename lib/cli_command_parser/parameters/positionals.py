@@ -7,7 +7,7 @@ Positional Parameters
 from typing import Any
 
 from ..exceptions import ParameterDefinitionError
-from ..inputs import InputTypeFunc, normalize_input_type
+from ..inputs import InputTypeFunc, normalize_input_type, ChoicesType
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet
 from .base import BasicActionMixin, BasePositional
@@ -43,6 +43,8 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         action: str = _NotSet,
         type: InputTypeFunc = None,  # noqa
         default: Any = _NotSet,
+        *,
+        choices: ChoicesType = None,
         **kwargs,
     ):
         if nargs is not None:
@@ -61,6 +63,6 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
             )
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)
-        self.type = normalize_input_type(type, self.choices)
+        self.type = normalize_input_type(type, choices)
         if action == 'append':
             self._init_value_factory = list

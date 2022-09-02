@@ -7,6 +7,7 @@ Custom input handlers for Parameters
 import typing as _t
 from enum import Enum as _Enum
 
+from ..exceptions import ParameterDefinitionError
 from .exceptions import InputValidationError, InvalidChoiceError
 from .utils import StatMode, FileWrapper
 from .base import InputType, TypeFunc
@@ -26,23 +27,23 @@ __all__ = [
 # fmt: on
 
 InputTypeFunc = _t.Union[None, TypeFunc, InputType, range, _t.Type[_Enum]]
+ChoicesType = _t.Optional[_t.Collection[_t.Any]]
 
 
-def normalize_input_type(
-    type_func: InputTypeFunc, param_choices: _t.Optional[_t.Collection[_t.Any]]
-) -> _t.Optional[TypeFunc]:
-    param_choices_provided = param_choices is not None
-
-    # TODO: If choices=range(0, 100) is used, for example, that should be turned into a Range type input
-    # TODO: Test help text with range choices/type
-    if param_choices_provided:
-        if isinstance(param_choices, range):
+def normalize_input_type(type_func: InputTypeFunc, param_choices: ChoicesType) -> _t.Optional[TypeFunc]:
+    choices_provided = param_choices is not None
+    if choices_provided:
+        if not param_choices:
+            raise ParameterDefinitionError(
+                f'Invalid choices={param_choices!r} - when specified, choices cannot be empty'
+            )
+        elif isinstance(param_choices, range):
             return Range(param_choices, type_func)
         elif isinstance(type_func, (Range, range)):
             raise ValueError(f'Cannot combine type={type_func!r} with choices={param_choices!r}')
 
     if type_func is None:
-        return Choices(param_choices) if param_choices_provided else type_func
+        return Choices(param_choices) if choices_provided else type_func
     elif isinstance(type_func, range):
         return Range(type_func)
 
@@ -53,8 +54,8 @@ def normalize_input_type(
     else:
         if is_enum:
             enum_choices = EnumChoices(type_func)
-            if param_choices_provided:
+            if choices_provided:
                 return Choices(param_choices, enum_choices)
             return enum_choices
 
-    return Choices(param_choices, type_func) if param_choices_provided else type_func
+    return Choices(param_choices, type_func) if choices_provided else type_func

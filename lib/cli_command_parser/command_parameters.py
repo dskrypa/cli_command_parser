@@ -184,10 +184,10 @@ class CommandParameters:
                     self.sub_command = param
                 else:
                     self.action = param
-                    if not param.choices:
+                    if not param.has_choices:
                         raise CommandDefinitionError(f'No choices were registered for {self.action}')
 
-            if param.nargs.variable and not param.choices:
+            if param.nargs.variable and not param.has_choices:
                 var_nargs_param = param
 
         self.positionals = params

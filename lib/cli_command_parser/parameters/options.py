@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Optional, Callable, Union, Tuple
 
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
-from ..inputs import InputTypeFunc, normalize_input_type
+from ..inputs import InputTypeFunc, normalize_input_type, ChoicesType
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet, Bool
 from .base import BasicActionMixin, BaseOption, parameter_action
@@ -57,6 +57,7 @@ class Option(BasicActionMixin, BaseOption):
         default: Any = _NotSet,
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
+        choices: ChoicesType = None,
         **kwargs,
     ):
         if nargs is not None:
@@ -68,7 +69,7 @@ class Option(BasicActionMixin, BaseOption):
         elif action == 'store' and self.nargs != 1:
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
-        self.type = normalize_input_type(type, self.choices)
+        self.type = normalize_input_type(type, choices)
         if action == 'append':
             self._init_value_factory = list
 
@@ -85,10 +86,8 @@ class _Flag(BaseOption):
         cls._use_opt_str = use_opt_str
 
     def __init__(self, *option_strs: str, **kwargs):
-        bad = ', '.join(repr(key) for key in ('choices', 'metavar') if key in kwargs)
-        if bad:
-            art, s = ('', 's') if ',' in bad else ('an ', '')
-            raise TypeError(f'{self.__class__.__name__}.__init__() got {art}unexpected keyword argument{s}: {bad}')
+        if 'metavar' in kwargs:
+            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
         super().__init__(*option_strs, **kwargs)
 
     def _init_value_factory(self):  # pylint: disable=W0221
@@ -351,8 +350,6 @@ class Counter(BaseOption, accepts_values=True, accepts_none=True):
     nargs = Nargs('?')
 
     def __init__(self, *option_strs: str, action: str = 'append', default: int = 0, const: int = 1, **kwargs):
-        if 'choices' in kwargs:
-            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         vals = {'const': const, 'default': default}
         bad_types = ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type))
         if bad_types:

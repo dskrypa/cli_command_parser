@@ -246,9 +246,13 @@ class FlagTest(ParserTest):
         with self.assertRaises(TypeError):
             Flag(type=int)
 
-    def test_bad_not_allowed(self):
-        with self.assertRaisesRegex(TypeError, 'got unexpected keyword arguments:'):
-            Flag(choices=(1, 2), metavar='foo')
+    def test_metavar_not_allowed(self):
+        with self.assertRaisesRegex(TypeError, 'got an unexpected keyword argument:'):
+            Flag(metavar='foo')
+
+    def test_choices_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Flag(choices=(1, 2))
 
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
@@ -320,7 +324,7 @@ class TriFlagTest(ParserTest):
             TriFlag(type=int)
 
     def test_choices_not_allowed(self):
-        with self.assertRaisesRegex(TypeError, 'got an unexpected keyword argument:'):
+        with self.assertRaises(TypeError):
             TriFlag(choices=(1, 2))
 
     def test_metavar_not_allowed(self):

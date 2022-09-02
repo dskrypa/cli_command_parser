@@ -28,8 +28,6 @@ class PassThru(Parameter):
     missing_hint: str = "missing pass thru args separated from others with '--'"
 
     def __init__(self, action: str = 'store_all', default: Any = _NotSet, required: Bool = False, **kwargs):
-        if 'choices' in kwargs:
-            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument 'choices'")
         if not required and default is _NotSet:
             default = None
         super().__init__(action=action, required=required, default=default, **kwargs)

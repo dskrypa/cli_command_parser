@@ -65,6 +65,9 @@ class NumericInputTest(TestCase):
         self.assertEqual('0 < N < 10', NumRange(min=0, max=10, include_min=False)._range_str())
         self.assertEqual('0 < N <= 10', NumRange(min=0, max=10, include_min=False, include_max=True)._range_str())
 
+    def test_num_range_repr(self):
+        self.assertEqual("<NumRange(<class 'int'>, snap=False)[0 <= N]>", repr(NumRange(min=0)))
+
     def test_num_range_requires_min_max(self):
         with self.assertRaisesRegex(ValueError, 'at least one of min and/or max values'):
             NumRange()
@@ -134,13 +137,17 @@ class NumericInputTest(TestCase):
         for val in (0, 1, 10, 100):
             self.assertEqual(val, rng(str(val)))
 
+    def test_init_from_tuple(self):
+        self.assertEqual(range(1, 3), Range((1, 3)).range)
+
 
 class ParseInputTest(ParserTest):
     def test_range_type_validation(self):
         class Foo(Command):
-            bar = Option('-b', type=Range(range(10)))
+            bar = Option('-b', type=Range(range(10)), default='3')
 
         success_cases = [
+            ([], {'bar': 3}),
             (['-b0'], {'bar': 0}),
             (['-b1'], {'bar': 1}),
             (['-b', '5'], {'bar': 5}),

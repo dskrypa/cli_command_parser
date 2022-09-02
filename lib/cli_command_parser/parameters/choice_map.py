@@ -91,11 +91,6 @@ class ChoiceMap(BasePositional):
             cls._choice_validation_exc = choice_validation_exc
 
     def __init__(self, *, action: str = 'append', title: str = None, description: str = None, **kwargs):
-        choices = kwargs.setdefault('choices', None)
-        if choices is not None:
-            raise ParameterDefinitionError(
-                f'Invalid choices={choices!r} - {self.__class__.__name__} choices must be added via register'
-            )
         super().__init__(action=action, **kwargs)
         self._init_value_factory = list
         self.title = title
@@ -103,6 +98,10 @@ class ChoiceMap(BasePositional):
         self.choices = {}
 
     # region Choice Registration
+
+    @property
+    def has_choices(self) -> bool:
+        return bool(self.choices)
 
     def _update_nargs(self):
         try:
