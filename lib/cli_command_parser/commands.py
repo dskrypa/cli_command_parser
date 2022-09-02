@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, TypeVar, Sequence, Optional
+from typing import TYPE_CHECKING, Type, TypeVar, Sequence, Optional
 
 from .core import CommandMeta, CommandType, get_top_level_commands, get_params
 from .context import Context, ActionPhase, get_or_create_context
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 __all__ = ['Command', 'CommandType', 'main']
 log = logging.getLogger(__name__)
 
-CommandObj = TypeVar('CommandObj', bound='Command')
+CommandObj = TypeVar('CommandObj', bound='Command', covariant=True)
 
 
 class Command(ABC, metaclass=CommandMeta):
@@ -42,7 +42,7 @@ class Command(ABC, metaclass=CommandMeta):
         return self
 
     @classmethod
-    def parse_and_run(cls, argv: Sequence[str] = None, **kwargs) -> Optional[CommandObj]:
+    def parse_and_run(cls: Type[CommandObj], argv: Sequence[str] = None, **kwargs) -> Optional[CommandObj]:
         """
         Primary entry point for parsing arguments, resolving subcommands, and running a command.
 
@@ -69,7 +69,7 @@ class Command(ABC, metaclass=CommandMeta):
             return self
 
     @classmethod
-    def parse(cls, argv: Sequence[str] = None) -> CommandObj:
+    def parse(cls: Type[CommandObj], argv: Sequence[str] = None) -> CommandObj:
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final subcommand class based on the
         parsed arguments, if necessary.  Initializes the Command, but does not call any of its other methods.
