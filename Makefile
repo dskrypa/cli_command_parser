@@ -7,10 +7,10 @@ docs:
 	bin/build_docs.py -uco
 
 publish:
-	pip install twine
-	setup.py sdist bdist_wheel
+	pip install twine build -U
+	python -m build
 	twine upload dist/*
-	rm -rf build dist lib/cli_command_parser.egg-info
+	rm -rf dist lib/cli_command_parser.egg-info
 
 tag:
 	bin/tag.py
