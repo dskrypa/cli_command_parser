@@ -4,33 +4,25 @@ Custom file / path input handlers for Parameters
 :author: Doug Skrypa
 """
 
-import os
-from pathlib import Path as _Path
-from typing import Union
+from __future__ import annotations
 
-from ..utils import Bool
-from .base import InputType
+import os
+from abc import ABC
+from pathlib import Path as _Path
+from typing import TYPE_CHECKING, Union, Optional
+
+from .base import InputType, T
 from .utils import InputParam, StatMode, FileWrapper, Converter, allows_write
+
+if TYPE_CHECKING:
+    from ..utils import Bool
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 
-# TODO: Convert default value?
+PathLike = Union[str, _Path]
 
 
-class Path(InputType):
-    """
-    :param exists: If set, then the provided path must already exist if True, or must not already exist if False.
-      Default: existence is not checked.
-    :param expand: Whether tilde (``~``) should be expanded.
-    :param resolve: Whether the path should be fully resolved to its absolute path, with symlinks resolved, or not.
-    :param type: To restrict the acceptable types of files/directories that are accepted, specify the
-      :class:`StatMode` that matches the desired type.  By default, any type is accepted.  To accept specifically
-      only regular files or directories, for example, use ``type=StatMode.DIR | StatMode.FILE``.
-    :param readable: If True, the path must be readable.
-    :param writable: If True, the path must be writable.
-    :param allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
-    """
-
+class FileInput(InputType[T], ABC):
     exists: bool = InputParam(None)
     expand: bool = InputParam(True)
     resolve: bool = InputParam(False)
@@ -62,16 +54,21 @@ class Path(InputType):
         non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
         return f'<{self.__class__.__name__}({non_defaults})>'
 
-    def __call__(self, value: str) -> _Path:
-        value = value.strip()
-        if not value:
-            raise ValueError('A valid path is required')
-        path = _Path(value)
-        if value == '-':
-            if self.allow_dash:
-                return path
-            raise ValueError('Dash (-) is not supported for this parameter')
+    def fix_default(self, value: Optional[T]) -> Optional[T]:
+        if value is None:
+            return value
+        return self(value)
 
+    def validated_path(self, path: PathLike) -> _Path:
+        if not isinstance(path, _Path):
+            path = path.strip()
+            if not path:
+                raise ValueError('A valid path is required')
+            path = _Path(path)
+        if path.parts == ('-',):
+            if not self.allow_dash:
+                raise ValueError('Dash (-) is not supported for this parameter')
+            return path
         if self.expand:
             path = path.expanduser()
         if self.resolve:
@@ -90,7 +87,26 @@ class Path(InputType):
         return path
 
 
-class File(Path):
+class Path(FileInput[_Path]):
+    # noinspection PyUnresolvedReferences
+    """
+    :param exists: If set, then the provided path must already exist if True, or must not already exist if False.
+      Default: existence is not checked.
+    :param expand: Whether tilde (``~``) should be expanded.
+    :param resolve: Whether the path should be fully resolved to its absolute path, with symlinks resolved, or not.
+    :param type: To restrict the acceptable types of files/directories that are accepted, specify the
+      :class:`StatMode` that matches the desired type.  By default, any type is accepted.  To accept specifically
+      only regular files or directories, for example, use ``type=StatMode.DIR | StatMode.FILE``.
+    :param readable: If True, the path must be readable.
+    :param writable: If True, the path must be writable.
+    :param allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
+    """
+
+    def __call__(self, value: PathLike) -> _Path:
+        return self.validated_path(value)
+
+
+class File(FileInput[Union[FileWrapper, str, bytes]]):
     """
     :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`
     :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
@@ -121,8 +137,8 @@ class File(Path):
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
         return FileWrapper(path, self.mode, self.encoding, self.errors)
 
-    def __call__(self, value: str) -> Union[FileWrapper, str, bytes]:
-        wrapper = self._prep_file_wrapper(super().__call__(value))
+    def __call__(self, value: PathLike) -> Union[FileWrapper, str, bytes]:
+        wrapper = self._prep_file_wrapper(self.validated_path(value))
         if self.lazy:
             return wrapper
         return wrapper.read()

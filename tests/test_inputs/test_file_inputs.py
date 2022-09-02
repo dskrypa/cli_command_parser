@@ -315,6 +315,20 @@ class ParseInputTest(ParserTest):
 
                 self.assertEqual(1, read_mock.call_count)
 
+    def test_path_default_type_fix(self):
+        class Foo(Command):
+            config_dir = Option('-d', type=PathInput(type='dir', expand=False), default='~/.config')
+            config_path = Option('-p', type=PathInput(type='dir', expand=False), default=Path('~/.config'))
+
+        cases = {Path('~/.config'): [], Path('test'): ['-d', 'test', '-p', 'test']}
+        for expected, argv in cases.items():
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertIsInstance(foo.config_dir, Path)
+                self.assertIsInstance(foo.config_path, Path)
+                self.assertEqual(expected, foo.config_dir)
+                self.assertEqual(expected, foo.config_path)
+
 
 if __name__ == '__main__':
     # import logging
