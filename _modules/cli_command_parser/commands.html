@@ -90,15 +90,20 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">get_top_level_commands</span><span class="p">,</span> <span class="n">get_params</span>
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">get_or_create_context</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">CommandParser</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Bool</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandType&#39;</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -133,7 +138,7 @@
 <span class="sd">        To be able to store a reference to the (possibly resolved subcommand) command instance, you should instead use</span>
 <span class="sd">        the above-mentioned methods separately.</span>
 
-<span class="sd">        :param argv: The arguments to parse (defaults to :data:`sys.argv`)</span>
+<span class="sd">        :param argv: The arguments to parse (defaults to :data:`python:sys.argv`)</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to :meth:`.__call__`</span>
 <span class="sd">        :return: The Command instance with parsed arguments for which :meth:`.__call__` was already called.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -299,7 +304,7 @@
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_command</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience function that can be used as the main entry point for a program.</span>
 
@@ -311,8 +316,9 @@
 <span class="sd">    will be raised.  In such cases, you must explicitly call :meth:`~Command.parse_and_run` on the command that is</span>
 <span class="sd">    intended to be the primary entry point.</span>
 
-<span class="sd">    All arguments are passed through to :meth:`~Command.parse_and_run`</span>
-
+<span class="sd">    :param argv: The sequence of arguments to parse.  Defaults to :data:`python:sys.argv` if not specified.</span>
+<span class="sd">    :param return_command: Whether the parsed Command that ran should be returned.</span>
+<span class="sd">    :param kwargs: Keyword arguments to pass through to :meth:`~Command.parse_and_run`</span>
 <span class="sd">    :raises: :class:`RuntimeError` if multiple subclasses are detected, or if no subclasses could be found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">commands</span> <span class="o">=</span> <span class="n">get_top_level_commands</span><span class="p">()</span>
@@ -330,7 +336,8 @@
                 <span class="s1">&#39;Verify that the intended command has been imported, or call &lt;MyCommand&gt;.parse_and_run() explicitly.&#39;</span>
             <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">command</span> <span class="k">if</span> <span class="n">return_command</span> <span class="k">else</span> <span class="kc">None</span></div>
 </pre></div>
 
            </div>
