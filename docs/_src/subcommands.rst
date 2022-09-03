@@ -353,3 +353,44 @@ without needing to escape the space or put it in quotes::
 
     $ advanced_subcommand.py run bar
     bar
+
+
+
+Shared Common Parameters
+========================
+
+In some situations, use cases arise for subcommands that are similar to each other but not to other subcommands of the
+same parent Command.  In these cases, it may be desirable to define the Parameters that are common to those similar
+subcommands in a common base class so they don't need to be repeated in each subcommand class.
+
+This can be accomplished by defining a subclass of the target parent Command (which contains the :class:`.SubCommand`
+Parameter that should be used to register the similar subcommands) that also extends :class:`python:abc.ABC` to store
+the common Parameters.
+
+A `full example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py>`__ is
+available in the examples directory, but the basic pattern is the same as the following simplified example::
+
+    from abc import ABC
+    from cli_command_parser import Command, SubCommand, Option
+
+    class Base(Command):
+        sub_cmd = SubCommand()
+
+    class Common(Base, ABC):
+        a = Option()
+        b = Option()
+
+    class Foo(Common):
+        c = Option()
+
+    class Bar(Common):
+        d = Option()
+
+
+Given the above example, ``Foo`` and ``Bar`` will be automatically registered as subcommands of ``Base``.  They will
+both inherit Options ``a`` and ``b`` from ``Common``, but ``Common`` will not be available as a subcommand choice (it
+won't be shown in help text, and it will not be selectable during parsing).
+
+.. note::
+
+    It is not currently possible to use a mixin class to define reusable common Parameters.
