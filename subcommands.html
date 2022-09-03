@@ -55,6 +55,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#nested-subcommands">Nested Subcommands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#explicit-registration">Explicit Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-common-parameters">Shared Common Parameters</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
@@ -432,6 +433,41 @@ without needing to escape the space or put it in quotes:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ advanced_subcommand.py run bar
 bar
 </pre></div>
+</div>
+</section>
+<section id="shared-common-parameters">
+<h2>Shared Common Parameters<a class="headerlink" href="#shared-common-parameters" title="Permalink to this heading"></a></h2>
+<p>In some situations, use cases arise for subcommands that are similar to each other but not to other subcommands of the
+same parent Command.  In these cases, it may be desirable to define the Parameters that are common to those similar
+subcommands in a common base class so they don’t need to be repeated in each subcommand class.</p>
+<p>This can be accomplished by defining a subclass of the target parent Command (which contains the <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a>
+Parameter that should be used to register the similar subcommands) that also extends <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code></a> to store
+the common Parameters.</p>
+<p>A <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py">full example</a> is
+available in the examples directory, but the basic pattern is the same as the following simplified example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">Option</span>
+
+<span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Common</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Common</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Common</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Given the above example, <code class="docutils literal notranslate"><span class="pre">Foo</span></code> and <code class="docutils literal notranslate"><span class="pre">Bar</span></code> will be automatically registered as subcommands of <code class="docutils literal notranslate"><span class="pre">Base</span></code>.  They will
+both inherit Options <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> from <code class="docutils literal notranslate"><span class="pre">Common</span></code>, but <code class="docutils literal notranslate"><span class="pre">Common</span></code> will not be available as a subcommand choice (it
+won’t be shown in help text, and it will not be selectable during parsing).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is not currently possible to use a mixin class to define reusable common Parameters.</p>
 </div>
 </section>
 </section>
