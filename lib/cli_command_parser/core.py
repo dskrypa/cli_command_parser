@@ -25,15 +25,14 @@ Config = Optional[CommandConfig]
 AnyConfig = Union[Config, Dict[str, Any]]
 T = TypeVar('T')
 
-# TODO: Subcommands thru intermediary non-subcommand parent, possibly ABC, for common args?
-#  Document recipe if already possible
-
 
 class CommandMeta(ABCMeta, type):
     # noinspection PyUnresolvedReferences
     """
-    :param choice: SubCommand value that maps to this command
-    :param prog: The name of the program (default: ``sys.argv[0]``)
+    :param choice: SubCommand value to map to this command.
+    :param choices: SubCommand values to map to this command.
+    :param prog: The name of the program (default: ``sys.argv[0]`` or the name of the module in which the top-level
+      Command was defined in some cases)
     :param usage: Usage message (default: auto-generated)
     :param description: Description of what the program does
     :param epilog: Text to follow parameter descriptions
@@ -80,7 +79,7 @@ class CommandMeta(ABCMeta, type):
 
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
         mcs._commands.add(cls)
-        mcs._maybe_register_sub_cmd(cls, choice, choices, help)
+        mcs._maybe_register_sub_cmd(cls, bases, choice, choices, help)
         if metadata:  # If no overrides were provided, then initialize lazily later
             cls.__metadata = ProgramMetadata.for_command(cls, parent=mcs._from_parent(mcs.meta, bases), **metadata)
 
@@ -88,9 +87,11 @@ class CommandMeta(ABCMeta, type):
 
     @classmethod
     def _maybe_register_sub_cmd(
-        mcs, cls, choice: str = None, choices: Collection[str] = None, help: str = None  # noqa
+        mcs, cls, bases: Bases, choice: str = None, choices: Collection[str] = None, help: str = None  # noqa
     ):
-        should_warn = choices or choice is not None
+        if ABC in bases:
+            return
+        has_both = choices or choice is not None
         if choices and choice:
             choices = sorted({choice, *choices})
         elif not choices:
@@ -102,12 +103,12 @@ class CommandMeta(ABCMeta, type):
             if sub_cmd is not None:
                 for choice in choices:
                     sub_cmd.register_command(choice, cls, help)
-            elif should_warn:
+            elif has_both:
                 warn(
                     f'choices={choices} were not registered for {cls} because'
                     f' its parent={parent!r} has no SubCommand parameter'
                 )
-        elif should_warn:
+        elif has_both:
             warn(f'choices={choices} were not registered for {cls} because it has no parent Command')
 
     @classmethod
@@ -160,7 +161,7 @@ class CommandMeta(ABCMeta, type):
         # Late initialization is necessary to allow late assignment of Parameters for now
         params = cls.__params
         if not params:
-            cls.__params = params = CommandParameters(cls, mcs.parent(cls, False), mcs.config(cls))
+            cls.__params = params = CommandParameters(cls, mcs.parent(cls, True), mcs.config(cls))
         return params
 
     @classmethod

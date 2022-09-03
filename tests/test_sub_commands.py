@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
+from abc import ABC
 from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument
-from cli_command_parser.testing import RedirectStreams, ParserTest
+from cli_command_parser.testing import RedirectStreams, ParserTest, get_help_text
 
 
 class SubCommandTest(ParserTest):
@@ -187,6 +188,42 @@ class SubCommandTest(ParserTest):
             (['bars', '-b'], {'baz': True, 'sub_cmd': 'bars'}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_middle_abc_subcommand(self):
+        class Base(Command):
+            sub_cmd = SubCommand()
+            foo = Option('-f')
+
+        class Mid(Base, ABC):
+            bar: int = Option('-b')
+
+        class A(Mid):
+            baz = Option('-B')
+
+        class B(Mid):
+            baz = Option('-B')
+
+        with self.subTest(case='params registered'):
+            cases = [(A(), (Base.foo, Mid.bar, A.baz)), (B(), (Base.foo, Mid.bar, B.baz))]
+            for cmd, params in cases:
+                cmd_opts = cmd.ctx.params.options
+                for param in params:
+                    self.assertIn(param, cmd_opts)
+
+        with self.subTest(case='help text'):
+            help_text = get_help_text(Base)
+            self.assertIn('Subcommands:\n  {a|b}\n', help_text)
+            self.assertNotRegex(help_text, r'\bmid\b')
+
+        with self.subTest(case='parsing'):
+            success_cases = [
+                (['a', '-b1', '-B', 'a'], {'foo': None, 'bar': 1, 'baz': 'a', 'sub_cmd': 'a'}),
+                (['b', '-b2', '-B', 'a'], {'foo': None, 'bar': 2, 'baz': 'a', 'sub_cmd': 'b'}),
+                (['a'], {'foo': None, 'bar': None, 'baz': None, 'sub_cmd': 'a'}),
+                (['b'], {'foo': None, 'bar': None, 'baz': None, 'sub_cmd': 'b'}),
+            ]
+            self.assert_parse_results_cases(Base, success_cases)
+            self.assert_parse_fails(Base, ['mid'])
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """
 Simplified example of a complex set of Commands defined across multiple modules.
 
@@ -16,3 +17,8 @@ from cli_command_parser import main  # noqa
 
 from .base import Example
 from .additional_commands import HelloWorld, Logs
+from .shared_params import Update
+
+
+if __name__ == '__main__':
+    main()

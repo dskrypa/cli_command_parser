@@ -16,7 +16,7 @@ from typing import Any, Iterable, Type, Union, Callable, IO, Dict, List, Tuple
 from unittest import TestCase
 
 from .actions import help_action
-from .commands import Command
+from .commands import Command, CommandObj
 from .core import CommandType, get_params
 from .exceptions import UsageError
 
@@ -36,6 +36,7 @@ Kwargs = Dict[str, Any]
 Case = Tuple[Argv, Expected]
 ExceptionCase = Union[Argv, Tuple[Argv, Type[Exception]], Tuple[Argv, Type[Exception], str]]
 CallExceptionCase = Union[Tuple[Kwargs, Type[Exception]], Tuple[Kwargs, Type[Exception], str]]
+CommandCls = Union[CommandType, Type[CommandObj]]
 
 
 class ParserTest(TestCase):
@@ -53,22 +54,20 @@ class ParserTest(TestCase):
             standard_msg = f'{d1} != {d2}\n{format_dict_diff(d1, d2)}'
             self.fail(self._formatMessage(msg, standard_msg))
 
-    def assert_parse_results(
-        self, cmd_cls: CommandType, argv: Argv, expected: Expected, message: str = None
-    ) -> Command:
+    def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, message: str = None) -> Command:
         cmd = cmd_cls.parse_and_run(argv)
         parsed = cmd.ctx.get_parsed((help_action,))
         self.assert_dict_equal(expected, parsed, message)
         return cmd
 
-    def assert_parse_results_cases(self, cmd_cls: CommandType, cases: Iterable[Case], message: str = None):
+    def assert_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[Case], message: str = None):
         for argv, expected in cases:
             with self.subTest(expected='results', argv=argv):
                 self.assert_parse_results(cmd_cls, argv, expected, message)
 
     def assert_parse_fails(
         self,
-        cmd_cls: CommandType,
+        cmd_cls: CommandCls,
         argv: Argv,
         expected_exc: Type[Exception] = UsageError,
         expected_pattern: str = None,
@@ -82,7 +81,7 @@ class ParserTest(TestCase):
                 cmd_cls.parse(argv)
 
     def assert_parse_fails_cases(
-        self, cmd_cls: CommandType, cases: Iterable[ExceptionCase], exc: Type[Exception] = None, message: str = None
+        self, cmd_cls: CommandCls, cases: Iterable[ExceptionCase], exc: Type[Exception] = None, message: str = None
     ):
         if exc is not None:
             for argv in cases:

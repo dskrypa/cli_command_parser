@@ -40,6 +40,7 @@ class ExampleHelpTest(ParserTest):
             ('echo.py', 'Echo', 'echo_help.txt'),
             ('simple_flags.py', 'Example', 'simple_flags_help.txt'),
             ('custom_inputs.py', 'InputsExample', 'custom_inputs_help.txt'),
+            ('complex', 'Update', 'complex_update_help.txt'),
         ]
         for file_name, cmd_name, expected_file_name in cases:
             with self.subTest(file=file_name, command=cmd_name):
