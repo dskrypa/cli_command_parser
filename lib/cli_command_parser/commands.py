@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, Type, TypeVar, Sequence, Optional
+from typing import TYPE_CHECKING, Type, TypeVar, Sequence, Optional, overload
 
 from .core import CommandMeta, CommandType, get_top_level_commands, get_params
 from .context import Context, ActionPhase, get_or_create_context
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 __all__ = ['Command', 'CommandType', 'main']
 log = logging.getLogger(__name__)
 
+Argv = Sequence[str]
 CommandObj = TypeVar('CommandObj', bound='Command', covariant=True)
 
 
@@ -42,7 +43,17 @@ class Command(ABC, metaclass=CommandMeta):
         return self
 
     @classmethod
-    def parse_and_run(cls: Type[CommandObj], argv: Sequence[str] = None, **kwargs) -> Optional[CommandObj]:
+    @overload
+    def parse_and_run(cls: Type[CommandObj], argv: Argv = None, **kwargs) -> Optional[CommandObj]:
+        ...  # These overloads indicate that an instance of the same type or another may be returned
+
+    @classmethod
+    @overload
+    def parse_and_run(cls, argv: Argv = None, **kwargs) -> Optional[CommandObj]:
+        ...
+
+    @classmethod
+    def parse_and_run(cls, argv=None, **kwargs):
         """
         Primary entry point for parsing arguments, resolving subcommands, and running a command.
 
@@ -69,7 +80,17 @@ class Command(ABC, metaclass=CommandMeta):
             return self
 
     @classmethod
-    def parse(cls: Type[CommandObj], argv: Sequence[str] = None) -> CommandObj:
+    @overload
+    def parse(cls: Type[CommandObj], argv: Argv = None) -> CommandObj:
+        ...
+
+    @classmethod
+    @overload
+    def parse(cls, argv: Argv = None) -> CommandObj:
+        ...
+
+    @classmethod
+    def parse(cls, argv=None):
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final subcommand class based on the
         parsed arguments, if necessary.  Initializes the Command, but does not call any of its other methods.
@@ -218,7 +239,7 @@ class Command(ABC, metaclass=CommandMeta):
             param.func(self, *args, **kwargs)
 
 
-def main(argv: Sequence[str] = None, return_command: Bool = False, **kwargs):
+def main(argv: Argv = None, return_command: Bool = False, **kwargs):
     """
     Convenience function that can be used as the main entry point for a program.
 
