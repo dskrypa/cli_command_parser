@@ -7,12 +7,15 @@ Type checking aliases.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, Type, Union, Optional, Collection, Sequence, TextIO, BinaryIO
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 if TYPE_CHECKING:
     from datetime import datetime, date, time, timedelta
     from enum import Enum
     from pathlib import Path
+    from .commands import Command
+    from .config import CommandConfig
+    from .core import CommandMeta
     from .inputs import InputType
     from .parameters import Parameter, ParamGroup
 
@@ -41,6 +44,14 @@ Deserializer = Callable[[Union[str, bytes, FP]], Any]
 Serializer = Callable[..., Union[str, bytes, None]]
 Converter = Union[Deserializer, Serializer]
 
+Config = Optional['CommandConfig']
+AnyConfig = Union[Config, Dict[str, Any]]
+
 Param = TypeVar('Param', bound='Parameter')
 ParamList = List[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
+
+CommandObj = TypeVar('CommandObj', bound='Command')
+CommandType = TypeVar('CommandType', bound='CommandMeta')
+CommandCls = Union[CommandType, Type[CommandObj]]
+CommandAny = Union[CommandCls, CommandObj]

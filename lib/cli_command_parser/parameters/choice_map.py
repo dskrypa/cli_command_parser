@@ -8,24 +8,24 @@ from __future__ import annotations
 
 from functools import partial
 from string import whitespace, printable
-from typing import TYPE_CHECKING, Any, Type, Optional, Callable, Union, Collection, Mapping, Dict
+from typing import Type, TypeVar, Generic, Optional, Callable, Union, Collection, Mapping, Dict
 from types import MethodType
 
 from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
+from ..typing import Bool, CommandCls
 from ..utils import _NotSet, camel_to_snake_case
 from .base import BasePositional, parameter_action
 
-if TYPE_CHECKING:
-    from ..core import CommandType
-    from ..typing import Bool
-
 __all__ = ['SubCommand', 'Action']
 
+T = TypeVar('T')
+OptStr = Optional[str]
 
-class Choice:
+
+class Choice(Generic[T]):
     """
     Used internally to store a value that can be provided as a choice for a parameter, and the target value / callable
     associated with that choice.
@@ -33,7 +33,7 @@ class Choice:
 
     __slots__ = ('choice', 'target', 'help', 'local')
 
-    def __init__(self, choice: Optional[str], target: Any = _NotSet, help: str = None, local: bool = False):  # noqa
+    def __init__(self, choice: OptStr, target: T = _NotSet, help: str = None, local: bool = False):  # noqa
         self.choice = choice
         self.target = choice if target is _NotSet else target
         self.help = help
@@ -55,7 +55,7 @@ class Choice:
         )
 
 
-class ChoiceMap(BasePositional):
+class ChoiceMap(BasePositional[T]):
     """
     Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.
 
@@ -77,9 +77,9 @@ class ChoiceMap(BasePositional):
     _choice_validation_exc = ParameterDefinitionError
     _default_title: str = 'Choices'
     nargs = Nargs('+')
-    choices: Dict[str, Choice]
-    title: Optional[str]
-    description: Optional[str]
+    choices: Dict[str, Choice[T]]
+    title: OptStr
+    description: OptStr
 
     def __init_subclass__(  # pylint: disable=W0222
         cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs
@@ -119,12 +119,12 @@ class ChoiceMap(BasePositional):
 
         self.nargs = Nargs(lengths)
 
-    def register_choice(self, choice: str, target: Any = _NotSet, help: str = None):  # noqa
+    def register_choice(self, choice: str, target: T = _NotSet, help: str = None):  # noqa
         _validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
         self._register_choice(choice, target, help)
 
     def _register_choice(
-        self, choice: Optional[str], target: Any = _NotSet, help: str = None, local: bool = False  # noqa
+        self, choice: OptStr, target: Optional[T] = _NotSet, help: str = None, local: bool = False  # noqa
     ):
         try:
             existing = self.choices[choice]
@@ -166,7 +166,7 @@ class ChoiceMap(BasePositional):
         elif value.startswith('-'):
             raise BadArgument(self, f'invalid value={value!r}')
 
-    def result_value(self) -> Optional[str]:
+    def result_value(self) -> OptStr:
         choices = self.choices
         if not choices:
             raise CommandDefinitionError(f'No choices were registered for {self}')
@@ -186,7 +186,7 @@ class ChoiceMap(BasePositional):
 
     result = result_value
 
-    def target(self):
+    def target(self) -> T:
         choice = self.result_value()
         return self.choices[choice].target
 
@@ -201,7 +201,7 @@ class ChoiceMap(BasePositional):
     # endregion
 
 
-class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDefinitionError):
+class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_exc=CommandDefinitionError):
     """
     Used to indicate the position where a choice that results in delegating execution of the program to a sub-command
     should be provided.
@@ -244,7 +244,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         for choice, help_text in choice_help_iter:
             self._register_choice(choice, None, help_text, True)
 
-    def register_command(self, choice: Optional[str], command: CommandType, help: Optional[str]) -> CommandType:  # noqa
+    def register_command(self, choice: OptStr, command: CommandCls, help: OptStr) -> CommandCls:  # noqa
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
         else:
@@ -263,8 +263,8 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
         return command
 
     def register(
-        self, command_or_choice: Union[str, CommandType] = None, *, choice: str = None, help: str = None  # noqa
-    ) -> Callable[[CommandType], CommandType]:
+        self, command_or_choice: Union[str, CommandCls] = None, *, choice: str = None, help: str = None  # noqa
+    ) -> Callable[[CommandCls], CommandCls]:
         """
         Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`.Command` as the
         subcommand class to be used for further parsing when the given choice is specified for this parameter.
@@ -303,7 +303,7 @@ class Action(ChoiceMap, title='Actions'):
     """
 
     def register_action(
-        self, choice: Optional[str], method: MethodType, help: str = None, default: Bool = False  # noqa
+        self, choice: OptStr, method: MethodType, help: str = None, default: Bool = False  # noqa
     ) -> MethodType:
         if help is None:
             try:

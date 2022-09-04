@@ -10,19 +10,19 @@ import sys
 from collections import defaultdict
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Type, Dict
+from typing import TYPE_CHECKING, Dict
 
 from .commands import Command
 from .context import get_current_context
-from .core import CommandMeta, CommandType, get_params, get_parent
+from .core import CommandMeta, get_params, get_parent
 from .formatting.commands import get_formatter, NameFunc
 
 if TYPE_CHECKING:
-    from .typing import Bool, PathLike
+    from .typing import Bool, PathLike, CommandType, CommandCls
+
+    Commands = Dict[str, CommandCls]
 
 __all__ = ['render_script_rst', 'render_command_rst', 'load_commands']
-
-Commands = Dict[str, Type[Command]]
 
 
 def render_script_rst(

@@ -13,11 +13,10 @@ from .utils import FixedFlag, MissingMixin, _NotSet
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
-    from .core import CommandType
     from .error_handling import ErrorHandler
     from .formatting.commands import CommandHelpFormatter
     from .formatting.params import ParamHelpFormatter
-    from .typing import Bool, ParamOrGroup
+    from .typing import Bool, ParamOrGroup, CommandType
 
 __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'SubcommandAliasHelpMode', 'DEFAULT_CONFIG']
 

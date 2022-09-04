@@ -12,7 +12,7 @@ from ..config import OptionNameMode
 from ..exceptions import ParameterDefinitionError
 
 if TYPE_CHECKING:
-    from ..core import CommandType
+    from ..typing import CommandCls
     from .base import BaseOption
     from .options import TriFlag
 
@@ -35,7 +35,7 @@ class OptionStrings:
     def _sort_options(cls, options: Collection[str]):
         return sorted(options, key=lambda opt: (-len(opt), opt))
 
-    def update(self, param: BaseOption, command: CommandType, name: str):
+    def update(self, param: BaseOption, command: CommandCls, name: str):
         if self._long:
             return
 
@@ -79,7 +79,7 @@ class TriFlagOptionStrings(OptionStrings):
         self._alt_long = (long,) if long else set()  # noqa
         self._alt_short = short  # noqa
 
-    def update_alts(self, param: TriFlag, command: CommandType, name: str):
+    def update_alts(self, param: TriFlag, command: CommandCls, name: str):
         if self._alt_long:
             return
 

@@ -27,7 +27,7 @@ from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Op
 if TYPE_CHECKING:
     from .config import CommandConfig
     from .context import Context
-    from .core import CommandType
+    from .typing import CommandType
 
 __all__ = ['CommandParameters']
 

@@ -8,7 +8,7 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Optional, Union, TypeVar, Type, Callable, Iterable, Collection, Any, Dict, Tuple, List
+from typing import TYPE_CHECKING, Optional, Union, TypeVar, Callable, Iterable, Collection, Any, Dict, Tuple, List
 from warnings import warn
 from weakref import WeakSet
 
@@ -18,11 +18,11 @@ from .exceptions import CommandDefinitionError
 from .metadata import ProgramMetadata
 
 if TYPE_CHECKING:
-    from .commands import Command
+    from .typing import Config, AnyConfig, CommandCls, CommandAny
+
+__all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_top_level_commands']
 
 Bases = Union[Tuple[type, ...], Iterable[type]]
-Config = Optional[CommandConfig]
-AnyConfig = Union[Config, Dict[str, Any]]
 T = TypeVar('T')
 
 
@@ -68,7 +68,7 @@ class CommandMeta(ABCMeta, type):
         help: str = None,  # noqa
         config: AnyConfig = None,
         **kwargs,
-    ):
+    ) -> CommandCls:
         meta_iter = ((k, kwargs.pop(k, None)) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name'))
         metadata = {k: v for k, v in meta_iter if v}
         namespace['_CommandMeta__params'] = None  # Prevent commands from inheriting parent params
@@ -112,7 +112,7 @@ class CommandMeta(ABCMeta, type):
             warn(f'choices={choices} were not registered for {cls} because it has no parent Command')
 
     @classmethod
-    def _from_parent(mcs, meth: Callable[[CommandMeta], T], bases: Bases) -> Optional[T]:
+    def _from_parent(mcs, meth: Callable[[CommandCls], T], bases: Bases) -> Optional[T]:
         for base in bases:
             if isinstance(base, mcs):
                 return meth(base)
@@ -137,7 +137,7 @@ class CommandMeta(ABCMeta, type):
         return None
 
     @classmethod
-    def config(mcs, cls: CommandMeta) -> Config:
+    def config(mcs, cls: CommandCls) -> Config:
         try:
             return cls.__config  # noqa
         except AttributeError:
@@ -150,14 +150,14 @@ class CommandMeta(ABCMeta, type):
     # endregion
 
     @classmethod
-    def parent(mcs, cls: CommandMeta, include_abc: bool = True) -> Optional[CommandMeta]:
+    def parent(mcs, cls: CommandCls, include_abc: bool = True) -> Optional[CommandCls]:
         for parent_cls in type.mro(cls)[1:]:
             if isinstance(parent_cls, mcs) and (include_abc or ABC not in parent_cls.__bases__):
                 return parent_cls
         return None
 
     @classmethod
-    def params(mcs, cls: CommandMeta) -> CommandParameters:
+    def params(mcs, cls: CommandCls) -> CommandParameters:
         # Late initialization is necessary to allow late assignment of Parameters for now
         params = cls.__params
         if not params:
@@ -165,7 +165,7 @@ class CommandMeta(ABCMeta, type):
         return params
 
     @classmethod
-    def meta(mcs, cls: CommandMeta) -> Optional[ProgramMetadata]:
+    def meta(mcs, cls: CommandCls) -> Optional[ProgramMetadata]:
         meta = cls.__metadata
         if not meta:
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
@@ -173,25 +173,25 @@ class CommandMeta(ABCMeta, type):
         return meta
 
 
-def get_parent(command: Union[CommandMeta, Command], include_abc: bool = True) -> Optional[CommandMeta]:
+def get_parent(command: CommandAny, include_abc: bool = True) -> Optional[CommandCls]:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.parent(command, include_abc)
 
 
-def get_config(command: Union[CommandMeta, Command]) -> CommandConfig:
+def get_config(command: CommandAny) -> CommandConfig:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.config(command)
 
 
-def get_params(command: Union[CommandMeta, Command]) -> CommandParameters:
+def get_params(command: CommandAny) -> CommandParameters:
     if not isinstance(command, CommandMeta):
         command = command.__class__
     return CommandMeta.params(command)
 
 
-def get_top_level_commands() -> List[Union[CommandMeta, Type[Command]]]:
+def get_top_level_commands() -> List[CommandCls]:
     """
     Returns a list of Command subclasses that are inferred to be direct subclasses of :class:`~commands.Command`.
 
@@ -199,6 +199,3 @@ def get_top_level_commands() -> List[Union[CommandMeta, Type[Command]]]:
     enough for tests.
     """
     return [cmd for cmd in CommandMeta._commands if sum(isinstance(cls, CommandMeta) for cls in type.mro(cmd)) == 2]
-
-
-CommandType = TypeVar('CommandType', bound=CommandMeta)  # pylint: disable=C0103

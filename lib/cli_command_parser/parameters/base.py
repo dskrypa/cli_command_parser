@@ -27,13 +27,12 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
-from ..typing import Bool, T_co
+from ..typing import Bool, CommandCls, T_co
 from ..utils import _NotSet, get_descriptor_value_type
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from types import MethodType
-    from ..core import CommandType
     from ..commands import Command
     from ..formatting.params import ParamHelpFormatter
     from .groups import ParamGroup
@@ -41,6 +40,7 @@ if TYPE_CHECKING:
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack', default=[])
+# TODO: Remove the dependency for storing self.command?
 
 
 class parameter_action:  # pylint: disable=C0103
@@ -97,7 +97,7 @@ class ParamBase(ABC):
     __name: str = None              #: Always the name of the attr that points to this object
     _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
     group: ParamGroup = None        #: The group this object is a member of, if any
-    command: CommandType = None     #: The :class:`.Command` this object is a member of
+    command: CommandCls = None      #: The :class:`.Command` this object is a member of
     required: Bool = False          #: Whether this param/group is required
     help: str = None                #: The description for this param/group that will appear in ``--help`` text
     hide: Bool = False              #: Whether this param/group should be hidden in ``--help`` text
@@ -124,7 +124,7 @@ class ParamBase(ABC):
         if value is not None:
             self._name = value
 
-    def __set_name__(self, command: CommandType, name: str):
+    def __set_name__(self, command: CommandCls, name: str):
         self.command = command
         if self._name is None:
             self.name = name
@@ -274,7 +274,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def _init_value_factory(self, state: ParseState):
         return _NotSet
 
-    def __set_name__(self, command: CommandType, name: str):
+    def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         type_attr = self.type
         choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
@@ -308,7 +308,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     # region Argument Handling
 
-    def __get__(self, command: Optional[Command], owner: CommandType):
+    def __get__(self, command: Optional[Command], owner: CommandCls):
         if command is None:
             return self
 
@@ -582,7 +582,7 @@ class BaseOption(Parameter[T_co], ABC):
         super().__init__(action, **kwargs)
         self.option_strs = self._opt_str_cls(option_strs, name_mode)
 
-    def __set_name__(self, command: CommandType, name: str):
+    def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         self.option_strs.update(self, command, name)
 

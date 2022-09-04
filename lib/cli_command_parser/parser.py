@@ -16,9 +16,8 @@ from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction, No
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
-    from .core import CommandType
     from .command_parameters import CommandParameters
-    from .parameters import Option
+    from .typing import CommandType
 
 __all__ = ['CommandParser']
 # log = logging.getLogger(__name__)

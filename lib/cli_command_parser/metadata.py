@@ -16,8 +16,7 @@ from typing import TYPE_CHECKING, Any, Type, Optional, Union, Tuple, Dict
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
-    from .core import CommandType
-    from .typing import Bool
+    from .typing import Bool, CommandType
 
 __all__ = ['ProgramMetadata']
 

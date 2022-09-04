@@ -9,21 +9,20 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, Type, TypeVar, Sequence, Optional, overload
+from typing import TYPE_CHECKING, Type, Sequence, Optional, overload
 
-from .core import CommandMeta, CommandType, get_top_level_commands, get_params
+from .core import CommandMeta, get_top_level_commands, get_params
 from .context import Context, ActionPhase, get_or_create_context
 from .exceptions import ParamConflict
 from .parser import CommandParser
 
 if TYPE_CHECKING:
-    from .typing import Bool
+    from .typing import Bool, CommandObj
 
-__all__ = ['Command', 'CommandType', 'main']
+__all__ = ['Command', 'main']
 log = logging.getLogger(__name__)
 
 Argv = Sequence[str]
-CommandObj = TypeVar('CommandObj', bound='Command', covariant=True)
 
 
 class Command(ABC, metaclass=CommandMeta):

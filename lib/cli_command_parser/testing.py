@@ -12,13 +12,16 @@ import sys
 from contextlib import AbstractContextManager
 from difflib import unified_diff
 from io import StringIO, BytesIO
-from typing import Any, Iterable, Type, Union, Callable, IO, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, Dict, List, Tuple
 from unittest import TestCase
 
 from .actions import help_action
-from .commands import Command, CommandObj
-from .core import CommandType, get_params
+from .commands import Command
+from .core import get_params
 from .exceptions import UsageError
+
+if TYPE_CHECKING:
+    from .typing import CommandCls
 
 __all__ = [
     'ParserTest',
@@ -36,7 +39,6 @@ Kwargs = Dict[str, Any]
 Case = Tuple[Argv, Expected]
 ExceptionCase = Union[Argv, Tuple[Argv, Type[Exception]], Tuple[Argv, Type[Exception], str]]
 CallExceptionCase = Union[Tuple[Kwargs, Type[Exception]], Tuple[Kwargs, Type[Exception], str]]
-CommandCls = Union[CommandType, Type[CommandObj]]
 
 
 class ParserTest(TestCase):

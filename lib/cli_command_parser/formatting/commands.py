@@ -6,7 +6,7 @@ Command usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional
 
 from ..context import ctx, NoActiveContext
 from ..parameters.groups import ParamGroup
@@ -14,12 +14,11 @@ from ..utils import camel_to_snake_case
 from .restructured_text import rst_header, RstTable
 
 if TYPE_CHECKING:
-    from ..core import CommandType, CommandMeta
+    from ..core import CommandMeta
     from ..command_parameters import CommandParameters
-    from ..commands import Command
     from ..metadata import ProgramMetadata
     from ..parameters import Parameter, BasePositional, BaseOption, SubCommand
-    from ..typing import Bool
+    from ..typing import Bool, CommandType, CommandCls, CommandAny
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -142,19 +141,19 @@ def _fix_name(name: str) -> str:
     return camel_to_snake_case(name).replace('_', ' ').title()
 
 
-def _get_params(command: CommandType) -> CommandParameters:
+def _get_params(command: CommandAny) -> CommandParameters:
     cmd_mcls: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
     if not issubclass(cmd_mcls, type):
         command, cmd_mcls = cmd_mcls, cmd_mcls.__class__
     return cmd_mcls.params(command)
 
 
-def get_formatter(command: Union[CommandType, Command]) -> CommandHelpFormatter:
+def get_formatter(command: CommandAny) -> CommandHelpFormatter:
     """Get the :class:`CommandHelpFormatter` for the given Command"""
     return _get_params(command).formatter
 
 
-def get_usage_sub_cmds(command: CommandType):
+def get_usage_sub_cmds(command: CommandCls):
     cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
     parent: CommandType = cmd_mcs.parent(command)
     if not parent:

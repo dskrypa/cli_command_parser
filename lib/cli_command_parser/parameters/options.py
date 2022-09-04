@@ -9,20 +9,16 @@ from __future__ import annotations
 from functools import partial, update_wrapper, reduce
 from operator import xor
 from os import environ
-from typing import TYPE_CHECKING, Any, Optional, Callable, Sequence, Union, Tuple
+from typing import Any, Optional, Callable, Sequence, Union, Tuple
 
 from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, NoEnvVar
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..typing import Bool, T_co, ChoicesType, InputTypeFunc
+from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj
 from ..utils import _NotSet
 from .base import BasicActionMixin, BaseOption, parameter_action
 from .option_strings import TriFlagOptionStrings
-
-if TYPE_CHECKING:
-    from ..core import CommandType
-    from ..commands import Command
 
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
 
@@ -240,7 +236,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
         self.consts = consts
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)
 
-    def __set_name__(self, command: CommandType, name: str):
+    def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         self.option_strs.update_alts(self, command, name)
 
@@ -334,7 +330,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         self.func = func
         return self
 
-    def __get__(self, command: Optional[Command], owner: CommandType) -> Union[ActionFlag, Callable]:
+    def __get__(self, command: Optional[CommandObj], owner: CommandCls) -> Union[ActionFlag, Callable]:
         # Allow the method to be called, regardless of whether it was specified
         if command is None:
             return self
