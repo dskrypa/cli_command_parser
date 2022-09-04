@@ -123,7 +123,7 @@
 <p>Configuration options for Commands.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.FIELDS">
-<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'choice_delim',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -192,6 +192,12 @@
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.show_defaults">
 <span class="sig-name descname"><span class="pre">show_defaults</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><span class="pre">ShowDefaults</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.show_defaults" title="Permalink to this definition"></a></dt>
 <dd><p>Whether the default value for Parameters should be shown in help text, and related behavior</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.cmd_alias_mode">
+<span class="sig-name descname"><span class="pre">cmd_alias_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><span class="pre">SubcommandAliasHelpMode</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.cmd_alias_mode" title="Permalink to this definition"></a></dt>
+<dd><p>How subcommand aliases should be displayed in help text.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -360,6 +366,47 @@ or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.B
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH_DASH">
 <span class="sig-name descname"><span class="pre">BOTH_DASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">23</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH_DASH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">SubcommandAliasHelpMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#SubcommandAliasHelpMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin" title="cli_command_parser.utils.MissingMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingMixin</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Options for how subcommand aliases (alternate <a class="reference internal" href="../subcommands.html#subcommand-cls-params"><span class="std std-ref">choices</span></a> specified for a given Command
+class that is registered as a subcommand / subclass of another Command) should be displayed in help text.</p>
+<p>If a given Command is defined without the <code class="docutils literal notranslate"><span class="pre">choices=</span></code> class keyword argument, or if the provided collection
+contained only one value, then this setting is ignored.</p>
+<p>The output based on each supported option:</p>
+<dl class="field-list simple">
+<dt class="field-odd">REPEAT</dt>
+<dd class="field-odd"><p>Each alias will be on a separate line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, and each alias will repeat the
+description (if defined for the target Command) as if it was a separate subcommand</p>
+</dd>
+<dt class="field-even">COMBINE</dt>
+<dd class="field-even"><p>All of the aliases will be combined on the same line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, with the values
+displayed in a way that is similar to the way that the <code class="docutils literal notranslate"><span class="pre">choices=</span></code> values for other Parameters are displayed.</p>
+</dd>
+<dt class="field-odd">ALIAS</dt>
+<dd class="field-odd"><p>Each alias will be on a separate line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, but only the first choice/value will
+have the description (if defined for the target Command).  Subsequent aliases’ descriptions will be replaced by
+<code class="docutils literal notranslate"><span class="pre">Alias</span> <span class="pre">for:</span> <span class="pre">&lt;first</span> <span class="pre">choice/alias</span> <span class="pre">value&gt;</span></code>.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.REPEAT">
+<span class="sig-name descname"><span class="pre">REPEAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'repeat'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.COMBINE">
+<span class="sig-name descname"><span class="pre">COMBINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'combine'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.COMBINE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.ALIAS">
+<span class="sig-name descname"><span class="pre">ALIAS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'alias'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

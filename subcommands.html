@@ -48,11 +48,6 @@
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Subcommands</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#automatic-registration">Automatic Registration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inheritance">Inheritance</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#using-before-main">Using _before_main_</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#using-init">Using __init__</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#nested-subcommands">Nested Subcommands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#explicit-registration">Explicit Registration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#shared-common-parameters">Shared Common Parameters</a></li>
@@ -187,52 +182,6 @@ $ basic_subcommand.py bar
 bar
 </pre></div>
 </div>
-</section>
-<section id="inheritance">
-<h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this heading"></a></h2>
-<p>One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
-Python already provides for common Parameters, methods, or initialization steps.</p>
-<section id="using-before-main">
-<h3>Using _before_main_<a class="headerlink" href="#using-before-main" title="Permalink to this heading"></a></h3>
-<p>The current recommended way to handle initializing logging, or other common initialization steps, is to do so
-in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._before_main_()</span></code></a> - example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
-    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_before_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_before_main_</span><span class="p">()</span>
-        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
-        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>It is important to make sure that <code class="docutils literal notranslate"><span class="pre">super()._before_main_()</span></code> is called from <code class="docutils literal notranslate"><span class="pre">_before_main_</span></code> if it is
-overwritten.  If the <code class="docutils literal notranslate"><span class="pre">super()...</span></code> call is missed, then <code class="docutils literal notranslate"><span class="pre">--help</span></code> or other
-<a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">before_main action flags</span></a> will not be processed.</p>
-</div>
-<p>The primary reason for this recommendation is to avoid the overhead of those initialization steps if a user specifies
-<code class="docutils literal notranslate"><span class="pre">--help</span></code> or an invalid command, to improve the user experience by providing a faster response.  Any extra work that
-is not necessary will result in a slower response, regardless of the parsing library that is used.</p>
-</section>
-<section id="using-init">
-<h3>Using __init__<a class="headerlink" href="#using-init" title="Permalink to this heading"></a></h3>
-<p>If your program uses other <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a>, or if you don’t mind the extra overhead before
-<code class="docutils literal notranslate"><span class="pre">--help</span></code>, then you can include the initialization steps in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> instead.  The base <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class
-has no <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method, so there is no need to call <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code> if you define it - example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
-    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
-        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
 </section>
 <section id="nested-subcommands">
 <h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Permalink to this heading"></a></h2>

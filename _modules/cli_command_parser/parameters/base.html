@@ -113,13 +113,12 @@
 <span class="kn">from</span> <span class="nn">..inputs.choices</span> <span class="kn">import</span> <span class="n">_ChoicesBase</span><span class="p">,</span> <span class="n">Choices</span><span class="p">,</span> <span class="n">ChoiceMap</span> <span class="k">as</span> <span class="n">ChoiceMapInput</span>
 <span class="kn">from</span> <span class="nn">..inputs.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T_co</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">T_co</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">get_descriptor_value_type</span>
 <span class="kn">from</span> <span class="nn">.option_strings</span> <span class="kn">import</span> <span class="n">OptionStrings</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
-    <span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">CommandType</span>
     <span class="kn">from</span> <span class="nn">..commands</span> <span class="kn">import</span> <span class="n">Command</span>
     <span class="kn">from</span> <span class="nn">..formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
     <span class="kn">from</span> <span class="nn">.groups</span> <span class="kn">import</span> <span class="n">ParamGroup</span>
@@ -127,6 +126,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;BasePositional&#39;</span><span class="p">,</span> <span class="s1">&#39;BaseOption&#39;</span><span class="p">]</span>
 
 <span class="n">_group_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.parameters.base.group_stack&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+<span class="c1"># TODO: Remove the dependency for storing self.command?</span>
 
 
 <span class="k">class</span> <span class="nc">parameter_action</span><span class="p">:</span>  <span class="c1"># pylint: disable=C0103</span>
@@ -183,7 +183,7 @@
     <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1">#: Always the name of the attr that points to this object</span>
     <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>               <span class="c1">#: An explicitly provided name, or the name of the attr that points to this object</span>
     <span class="n">group</span><span class="p">:</span> <span class="n">ParamGroup</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1">#: The group this object is a member of, if any</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1">#: The :class:`.Command` this object is a member of</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1">#: The :class:`.Command` this object is a member of</span>
     <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>          <span class="c1">#: Whether this param/group is required</span>
     <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>                <span class="c1">#: The description for this param/group that will appear in ``--help`` text</span>
     <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>              <span class="c1">#: Whether this param/group should be hidden in ``--help`` text</span>
@@ -210,7 +210,7 @@
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -360,7 +360,7 @@
     <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ParseState</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_NotSet</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">type_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_attr</span><span class="p">,</span> <span class="p">(</span><span class="n">ChoiceMapInput</span><span class="p">,</span> <span class="n">Choices</span><span class="p">))</span> <span class="ow">and</span> <span class="n">type_attr</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -394,7 +394,7 @@
 
     <span class="c1"># region Argument Handling</span>
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
 
@@ -668,7 +668,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opt_str_cls</span><span class="p">(</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">name_mode</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 

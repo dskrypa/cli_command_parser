@@ -101,3 +101,69 @@ also be provided::
 
     >>> Foo.parse_and_run(['test', 'one', '-B'])
     self.bar=False, self.baz=['test', 'one']
+
+
+Inheritance
+===========
+
+One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
+Python already provides for common Parameters, methods, or initialization steps.
+
+Using _init_command_
+--------------------
+
+The current recommended way to handle initializing logging, or other common initialization steps, is to do so
+in :meth:`.Command._init_command_` - example::
+
+    class BaseCommand(Command):
+        sub_cmd = SubCommand(help='The command to run')
+        verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+
+        def _init_command_(self):
+            log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
+            level = logging.DEBUG if self.verbose else logging.INFO
+            logging.basicConfig(level=level, format=log_fmt)
+
+
+There is no need to call ``super()._init_command_()`` within the method - its default implementation does nothing.  This
+method is intended to be overridden.
+
+The primary reason that this method is provided is to improve user experience when they specify ``--help`` or an
+invalid command.  Any initialization steps will incur some level of overhead, and generally no initialization
+should be necessary if the user is looking for help text or if they did not provide valid arguments.  Any extra work
+that is not necessary will result in a slower response, regardless of the parsing library that is used.
+
+This method is called after :meth:`.Command._pre_init_actions_` and before :meth:`.Command._before_main_`.
+
+
+Using _before_main_
+-------------------
+
+Before ``_init_command_`` was available, this was the recommended way to handle initialization steps.  That is no
+longer the case.
+
+.. important::
+    If ``_before_main_`` is overridden, it is important to make sure that ``super()._before_main_()`` is called from
+    within it.  If the ``super()...`` call is missed, then most :ref:`before_main action flags<parameters:ActionFlag>`
+    will not be processed.  ``--help`` and other ``always_available`` :ref:`ActionFlags<actionflag_init_params>`
+    are not affected by this method.
+
+This method is called after :meth:`.Command._init_command_` and before :meth:`.Command.main`.
+
+
+Using __init__
+--------------
+
+If you don't mind the extra overhead before ``--help``, or if you have ``always_available``
+:ref:`ActionFlags<actionflag_init_params>` that require the same initialization steps as the rest of the Command,
+then you can include those initialization steps in ``__init__`` instead.  The base :class:`.Command` class
+has no ``__init__`` method, so there is no need to call ``super().__init__()`` if you define it - example::
+
+    class Base(Command):
+        sub_cmd = SubCommand()
+        verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+
+        def __init__(self):
+            log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
+            level = logging.DEBUG if self.verbose else logging.INFO
+            logging.basicConfig(level=level, format=log_fmt)

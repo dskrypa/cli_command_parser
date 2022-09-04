@@ -88,57 +88,6 @@ Usage examples::
 
 
 
-Inheritance
-===========
-
-One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
-Python already provides for common Parameters, methods, or initialization steps.
-
-Using _before_main_
--------------------
-
-The current recommended way to handle initializing logging, or other common initialization steps, is to do so
-in :meth:`.Command._before_main_` - example::
-
-    class BaseCommand(Command):
-        sub_cmd = SubCommand(help='The command to run')
-        verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
-
-        def _before_main_(self):
-            super()._before_main_()
-            log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
-            level = logging.DEBUG if self.verbose else logging.INFO
-            logging.basicConfig(level=level, format=log_fmt)
-
-
-.. important::
-    It is important to make sure that ``super()._before_main_()`` is called from ``_before_main_`` if it is
-    overwritten.  If the ``super()...`` call is missed, then ``--help`` or other
-    :ref:`before_main action flags<parameters:ActionFlag>` will not be processed.
-
-The primary reason for this recommendation is to avoid the overhead of those initialization steps if a user specifies
-``--help`` or an invalid command, to improve the user experience by providing a faster response.  Any extra work that
-is not necessary will result in a slower response, regardless of the parsing library that is used.
-
-
-Using __init__
---------------
-
-If your program uses other :ref:`ActionFlags<parameters:ActionFlag>`, or if you don't mind the extra overhead before
-``--help``, then you can include the initialization steps in ``__init__`` instead.  The base :class:`.Command` class
-has no ``__init__`` method, so there is no need to call ``super().__init__()`` if you define it - example::
-
-    class Base(Command):
-        sub_cmd = SubCommand()
-        verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
-
-        def __init__(self):
-            log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
-            level = logging.DEBUG if self.verbose else logging.INFO
-            logging.basicConfig(level=level, format=log_fmt)
-
-
-
 Nested Subcommands
 ==================
 

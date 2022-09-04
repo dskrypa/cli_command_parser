@@ -92,19 +92,19 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">FixedFlag</span><span class="p">,</span> <span class="n">_NotSet</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">FixedFlag</span><span class="p">,</span> <span class="n">MissingMixin</span><span class="p">,</span> <span class="n">_NotSet</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
-    <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandType</span>
     <span class="kn">from</span> <span class="nn">.error_handling</span> <span class="kn">import</span> <span class="n">ErrorHandler</span>
     <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
     <span class="kn">from</span> <span class="nn">.formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
-    <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
+    <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">CommandType</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">,</span> <span class="s1">&#39;OptionNameMode&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT_CONFIG&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">,</span> <span class="s1">&#39;OptionNameMode&#39;</span><span class="p">,</span> <span class="s1">&#39;SubcommandAliasHelpMode&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT_CONFIG&#39;</span><span class="p">]</span>
 
 <span class="n">_ConfigValue</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_ConfigValue&#39;</span><span class="p">)</span>
 <span class="n">ConfigValue</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">_ConfigValue</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
@@ -200,6 +200,30 @@
     <span class="s1">&#39;*-&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH_DASH</span><span class="p">,</span>
     <span class="s1">&#39;-*&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">BOTH_DASH</span><span class="p">,</span>
 <span class="p">}</span>
+
+
+<div class="viewcode-block" id="SubcommandAliasHelpMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode">[docs]</a><span class="k">class</span> <span class="nc">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Options for how subcommand aliases (alternate :ref:`choices&lt;subcommand_cls_params&gt;` specified for a given Command</span>
+<span class="sd">    class that is registered as a subcommand / subclass of another Command) should be displayed in help text.</span>
+
+<span class="sd">    If a given Command is defined without the ``choices=`` class keyword argument, or if the provided collection</span>
+<span class="sd">    contained only one value, then this setting is ignored.</span>
+
+<span class="sd">    The output based on each supported option:</span>
+
+<span class="sd">    :REPEAT: Each alias will be on a separate line in the ``Subcommands:`` section, and each alias will repeat the</span>
+<span class="sd">      description (if defined for the target Command) as if it was a separate subcommand</span>
+<span class="sd">    :COMBINE: All of the aliases will be combined on the same line in the ``Subcommands:`` section, with the values</span>
+<span class="sd">      displayed in a way that is similar to the way that the ``choices=`` values for other Parameters are displayed.</span>
+<span class="sd">    :ALIAS: Each alias will be on a separate line in the ``Subcommands:`` section, but only the first choice/value will</span>
+<span class="sd">      have the description (if defined for the target Command).  Subsequent aliases&#39; descriptions will be replaced by</span>
+<span class="sd">      ``Alias for: &lt;first choice/alias value&gt;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">REPEAT</span> <span class="o">=</span> <span class="s1">&#39;repeat&#39;</span>       <span class="c1"># Repeat the description as if it was a separate subcommand</span>
+    <span class="n">COMBINE</span> <span class="o">=</span> <span class="s1">&#39;combine&#39;</span>     <span class="c1"># Combine aliases onto a single line</span>
+    <span class="n">ALIAS</span> <span class="o">=</span> <span class="s1">&#39;alias&#39;</span>         <span class="c1"># Indicate the subcommand that it is an alias for; do not repeat the description</span></div>
 
 
 <span class="c1"># endregion</span>
@@ -321,6 +345,9 @@
 
     <span class="c1">#: Whether the default value for Parameters should be shown in help text, and related behavior</span>
     <span class="n">show_defaults</span><span class="p">:</span> <span class="n">ShowDefaults</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">)</span>
+
+    <span class="c1">#: How subcommand aliases should be displayed in help text.</span>
+    <span class="n">cmd_alias_mode</span><span class="p">:</span> <span class="n">SubcommandAliasHelpMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">)</span>  <span class="c1"># noqa</span>
 
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
     <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>

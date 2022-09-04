@@ -47,6 +47,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#initializing-commands">Initializing Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#command-methods">Command Methods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inheritance">Inheritance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-init-command">Using _init_command_</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-before-main">Using _before_main_</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-init">Using __init__</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
@@ -177,6 +183,63 @@ also be provided:</p>
 <span class="go">self.bar=False, self.baz=[&#39;test&#39;, &#39;one&#39;]</span>
 </pre></div>
 </div>
+</section>
+<section id="inheritance">
+<h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this heading"></a></h2>
+<p>One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
+Python already provides for common Parameters, methods, or initialization steps.</p>
+<section id="using-init-command">
+<h3>Using _init_command_<a class="headerlink" href="#using-init-command" title="Permalink to this heading"></a></h3>
+<p>The current recommended way to handle initializing logging, or other common initialization steps, is to do so
+in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._init_command_" title="cli_command_parser.commands.Command._init_command_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._init_command_()</span></code></a> - example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There is no need to call <code class="docutils literal notranslate"><span class="pre">super()._init_command_()</span></code> within the method - its default implementation does nothing.  This
+method is intended to be overridden.</p>
+<p>The primary reason that this method is provided is to improve user experience when they specify <code class="docutils literal notranslate"><span class="pre">--help</span></code> or an
+invalid command.  Any initialization steps will incur some level of overhead, and generally no initialization
+should be necessary if the user is looking for help text or if they did not provide valid arguments.  Any extra work
+that is not necessary will result in a slower response, regardless of the parsing library that is used.</p>
+<p>This method is called after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._pre_init_actions_" title="cli_command_parser.commands.Command._pre_init_actions_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._pre_init_actions_()</span></code></a> and before <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._before_main_()</span></code></a>.</p>
+</section>
+<section id="using-before-main">
+<h3>Using _before_main_<a class="headerlink" href="#using-before-main" title="Permalink to this heading"></a></h3>
+<p>Before <code class="docutils literal notranslate"><span class="pre">_init_command_</span></code> was available, this was the recommended way to handle initialization steps.  That is no
+longer the case.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">_before_main_</span></code> is overridden, it is important to make sure that <code class="docutils literal notranslate"><span class="pre">super()._before_main_()</span></code> is called from
+within it.  If the <code class="docutils literal notranslate"><span class="pre">super()...</span></code> call is missed, then most <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">before_main action flags</span></a>
+will not be processed.  <code class="docutils literal notranslate"><span class="pre">--help</span></code> and other <code class="docutils literal notranslate"><span class="pre">always_available</span></code> <a class="reference internal" href="parameters.html#actionflag-init-params"><span class="std std-ref">ActionFlags</span></a>
+are not affected by this method.</p>
+</div>
+<p>This method is called after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._init_command_" title="cli_command_parser.commands.Command._init_command_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._init_command_()</span></code></a> and before <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>.</p>
+</section>
+<section id="using-init">
+<h3>Using __init__<a class="headerlink" href="#using-init" title="Permalink to this heading"></a></h3>
+<p>If you don’t mind the extra overhead before <code class="docutils literal notranslate"><span class="pre">--help</span></code>, or if you have <code class="docutils literal notranslate"><span class="pre">always_available</span></code>
+<a class="reference internal" href="parameters.html#actionflag-init-params"><span class="std std-ref">ActionFlags</span></a> that require the same initialization steps as the rest of the Command,
+then you can include those initialization steps in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> instead.  The base <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class
+has no <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method, so there is no need to call <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code> if you define it - example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
