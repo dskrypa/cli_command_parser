@@ -216,6 +216,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         self,
         *,
         required: Bool = True,
+        default_help: str = None,
         local_choices: Optional[Union[Mapping[str, str], Collection[str]]] = None,
         **kwargs,
     ):
@@ -224,6 +225,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
           raised if the user did not provide a value for this parameter.  Defaults to ``True``.  If not required and
           not provided, the :meth:`~.Command.main` method for the base :class:`.Command` that contains this
           SubCommand will be executed by default.
+        :param default_help: Help text to display for the default choice.  Only used if ``required=False``.
         :param local_choices: If some choices should be handled in the Command that this SubCommand is in, they should
           be specified here.  Supports either a mapping of ``{choice: help text}`` or a collection of choice values.
         :param kwargs: Additional keyword arguments to pass to :class:`ChoiceMap`.
@@ -231,7 +233,8 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         super().__init__(**kwargs)
         self.required = required
         if not required:
-            self._register_choice(None, None)  # Results in next_cmd=None in parse_args, so the base cmd will run
+            # This results in next_cmd=None in parse_args, so the base cmd will run
+            self._register_choice(None, None, default_help)
         if local_choices:
             self._register_local_choices(local_choices)
 

@@ -212,17 +212,12 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
 
 
 class ChoiceGroup:
-    __slots__ = ('has_default', 'choice_strs', 'choices')
+    __slots__ = ('choice_strs', 'choices')
 
     def __init__(self, choice: Choice):
         choice_str = choice.choice
         self.choices = [choice]
-        if choice_str:
-            self.has_default = False
-            self.choice_strs = [choice_str]
-        else:
-            self.has_default = True
-            self.choice_strs = []
+        self.choice_strs = [choice_str] if choice_str else []
 
     @classmethod
     def group_choices(cls, choices: Iterable[Choice]) -> Iterable[ChoiceGroup]:
@@ -241,8 +236,6 @@ class ChoiceGroup:
         choice_str = choice.choice
         if choice_str:
             self.choice_strs.append(choice_str)
-        else:
-            self.has_default = True
 
     def format(self, default_mode: SubcommandAliasHelpMode, tw_offset: int = 0) -> Iterator[str]:
         first = self.choices[0]
@@ -266,11 +259,10 @@ class ChoiceGroup:
         except ValueError:  # choice_strs is empty
             return first.format_help(lpad=4, tw_offset=tw_offset)
 
-        description = f'(default) {first.help}' if self.has_default else None
         if additional:
             usage = '{{{}}}'.format('|'.join(choice_strs))
 
-        return first.format_help(lpad=4, tw_offset=tw_offset, usage=usage, description=description)
+        return first.format_help(lpad=4, tw_offset=tw_offset, usage=usage)
 
     def format_aliases(self, tw_offset: int = 0) -> Iterator[str]:
         first = self.choices[0]
@@ -279,9 +271,7 @@ class ChoiceGroup:
         except ValueError:  # choice_strs is empty
             yield first.format_help(lpad=4, tw_offset=tw_offset)
         else:
-            description = f'(default) {first.help}' if self.has_default else None
-            yield first.format_help(lpad=4, tw_offset=tw_offset, usage=first_str, description=description)
-
+            yield first.format_help(lpad=4, tw_offset=tw_offset, usage=first_str)
             description = f'Alias of: {first_str}'
             for choice_str in choice_strs:
                 yield first.format_help(lpad=4, tw_offset=tw_offset, usage=choice_str, description=description)

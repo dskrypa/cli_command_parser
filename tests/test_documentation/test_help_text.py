@@ -12,8 +12,8 @@ from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
-from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter
-from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
+from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter, ChoiceGroup
+from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action, Choice
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
 from cli_command_parser.testing import ParserTest, RedirectStreams, get_rst_text, get_help_text, get_usage_text
 
@@ -288,21 +288,25 @@ class HelpTextTest(ParserTest):
         self.assert_str_contains(expected, get_help_text(Foo, 53))
 
     def test_sub_command_choice_alias_modes(self):
-        header = 'Subcommands:\n  {bar|bars}\n'
         f = '    {:<25s} {}\n'.format
+        header = 'Subcommands:\n  {bar|bars|baz}\n' + f('(default)', 'Foo the foo')
+        footer = f('baz', 'Foo one or more baz')
         cases = [
-            ('alias', header + f('bar', 'Foo one or more bars') + f('bars', 'Alias of: bar')),
-            ('repeat', header + f('bar', 'Foo one or more bars') + f('bars', 'Foo one or more bars')),
-            ('combine', header + f('{bar|bars}', 'Foo one or more bars')),
+            ('alias', header + f('bar', 'Foo one or more bars') + f('bars', 'Alias of: bar') + footer),
+            ('repeat', header + f('bar', 'Foo one or more bars') + f('bars', 'Foo one or more bars') + footer),
+            ('combine', header + f('{bar|bars}', 'Foo one or more bars') + footer),
         ]
         for mode, expected in cases:
             with self.subTest(mode=mode):
 
                 class Foo(Command, cmd_alias_mode=mode):
-                    sub_cmd = SubCommand()
+                    sub_cmd = SubCommand(required=False, default_help='Foo the foo')
 
                 class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars'):
-                    baz = Flag('-b')
+                    abc = Flag('-a')
+
+                class Baz(Foo, help='Foo one or more baz'):
+                    xyz = Flag('-x')
 
                 self.assert_str_contains(expected, get_help_text(Foo))
 
@@ -327,11 +331,6 @@ class HelpTextTest(ParserTest):
                     xyz = Flag('-x')
 
                 self.assert_str_contains(expected, get_help_text(Foo))
-
-    # TODO: test SubcommandAliasHelpMode on base cmd vs provided to separate subcommands within the same command
-    # TODO: test SubcommandAliasHelpMode with a default subcommand with aliases
-    # TODO: explicit test to ensure local_choices don't think they are aliases of each other
-    # TODO: Confirm no impact on Actions or other choicemap params
 
     # def test_subcommand_local_choices_map(self):  # TODO
     #     class Foo(Command):
@@ -601,6 +600,11 @@ class FormatterTest(ParserTest):
             pass
 
         self.assertIsInstance(CommandMeta.params(Foo).formatter, CommandHelpFormatter)
+
+    def test_choice_group_add_no_str(self):
+        group = ChoiceGroup(Choice(''))
+        group.add(Choice(None))
+        self.assertEqual(0, len(group.choice_strs))
 
 
 def _get_output(command: CommandCls, args: Sequence[str]) -> Tuple[str, str]:
