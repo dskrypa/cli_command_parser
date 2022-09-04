@@ -118,13 +118,13 @@ OPT_NAME_MODE_ALIASES = {
 
 class SubcommandAliasHelpMode(MissingMixin, Enum):
     """
-    Options for how subcommand aliases (alternate :ref:`choices<_subcommand_cls_params>` specified for a given Command
+    Options for how subcommand aliases (alternate :ref:`choices<subcommand_cls_params>` specified for a given Command
     class that is registered as a subcommand / subclass of another Command) should be displayed in help text.
 
     If a given Command is defined without the ``choices=`` class keyword argument, or if the provided collection
     contained only one value, then this setting is ignored.
 
-    The output based on each supported option::
+    The output based on each supported option:
 
     :REPEAT: Each alias will be on a separate line in the ``Subcommands:`` section, and each alias will repeat the
       description (if defined for the target Command) as if it was a separate subcommand
