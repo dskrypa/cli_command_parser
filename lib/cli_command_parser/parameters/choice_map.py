@@ -55,7 +55,7 @@ class Choice(Generic[T]):
         )
 
 
-class ChoiceMap(BasePositional[T]):
+class ChoiceMap(BasePositional[str], Generic[T]):
     """
     Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.
 
@@ -292,7 +292,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             return self.register_command(choice, command_or_choice, help=help)  # noqa
 
 
-class Action(ChoiceMap, title='Actions'):
+class Action(ChoiceMap[MethodType], title='Actions'):
     """
     Actions are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command` classes to
     be registered as a callable to be executed based on a user's choice instead of separate sub Commands.

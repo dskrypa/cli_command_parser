@@ -261,7 +261,7 @@ class CommandConfig:
     show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
 
     #: How subcommand aliases should be displayed in help text.
-    cmd_alias_mode: SubcommandAliasHelpMode = ConfigItem(SubcommandAliasHelpMode.ALIAS, SubcommandAliasHelpMode)
+    cmd_alias_mode: SubcommandAliasHelpMode = ConfigItem(None, SubcommandAliasHelpMode)  # noqa
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = ConfigItem(False, bool)
