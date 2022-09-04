@@ -282,13 +282,53 @@ class HelpTextTest(ParserTest):
         )
         self.assert_str_contains(expected, get_help_text(Foo, 53))
 
-    # TODO
-    # def test_subcommand_local_choices_map(self):
+    def test_sub_command_choice_aliases_alias(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars'):
+            baz = Flag('-b')
+
+        # TODO: test SubcommandAliasHelpMode on base cmd vs provided to separate subcommands within the same command
+        # TODO: test SubcommandAliasHelpMode with a default subcommand with aliases
+        # TODO: explicit test to ensure local_choices don't think they are aliases of each other
+        # TODO: Confirm no impact on Actions or other choicemap params
+        expected = (
+            'Subcommands:\n  {bar|bars}\n'
+            '    bar                       Foo one or more bars\n'
+            '    bars                      Alias of: bar\n'
+        )
+        self.assert_str_contains(expected, get_help_text(Foo))
+
+    def test_sub_command_choice_aliases_repeat(self):
+        class Foo(Command, cmd_alias_mode='repeat'):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars'):
+            baz = Flag('-b')
+
+        expected = (
+            'Subcommands:\n  {bar|bars}\n'
+            '    bar                       Foo one or more bars\n'
+            '    bars                      Foo one or more bars\n'
+        )
+        self.assert_str_contains(expected, get_help_text(Foo))
+
+    def test_sub_command_choice_aliases_combine(self):
+        class Foo(Command, cmd_alias_mode='combine'):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars'):
+            baz = Flag('-b')
+
+        expected = 'Subcommands:\n  {bar|bars}\n    {bar|bars}                Foo one or more bars\n'
+        self.assert_str_contains(expected, get_help_text(Foo))
+
+    # def test_subcommand_local_choices_map(self):  # TODO
     #     class Foo(Command):
     #         sub_cmd = SubCommand(local_choices={'a': 'Find As', 'b': 'Find Bs', 'c': 'Find Cs'})
 
-    # TODO
-    # def test_subcommand_local_choices_simple(self):
+    # def test_subcommand_local_choices_simple(self):  # TODO
     #     class Foo(Command):
     #         sub_cmd = SubCommand(local_choices=('a', 'b', 'c'))
 

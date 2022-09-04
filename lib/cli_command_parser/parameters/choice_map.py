@@ -31,12 +31,13 @@ class Choice:
     associated with that choice.
     """
 
-    __slots__ = ('choice', 'target', 'help')
+    __slots__ = ('choice', 'target', 'help', 'local')
 
-    def __init__(self, choice: Optional[str], target: Any = _NotSet, help: str = None):  # noqa
+    def __init__(self, choice: Optional[str], target: Any = _NotSet, help: str = None, local: bool = False):  # noqa
         self.choice = choice
         self.target = choice if target is _NotSet else target
         self.help = help
+        self.local = local
 
     def __repr__(self) -> str:
         help_str = f', help={self.help!r}' if self.help else ''
@@ -46,9 +47,12 @@ class Choice:
     def format_usage(self) -> str:
         return '(default)' if self.choice is None else self.choice
 
-    def format_help(self, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
-        usage = self.format_usage()
-        return format_help_entry(usage, self.help, lpad, tw_offset=tw_offset, prefix=prefix)
+    def format_help(
+        self, lpad: int = 4, tw_offset: int = 0, prefix: str = '', usage: str = None, description: str = None
+    ) -> str:
+        return format_help_entry(
+            usage or self.format_usage(), description or self.help, lpad, tw_offset=tw_offset, prefix=prefix
+        )
 
 
 class ChoiceMap(BasePositional):
@@ -119,11 +123,13 @@ class ChoiceMap(BasePositional):
         _validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
         self._register_choice(choice, target, help)
 
-    def _register_choice(self, choice: Optional[str], target: Any = _NotSet, help: str = None):  # noqa
+    def _register_choice(
+        self, choice: Optional[str], target: Any = _NotSet, help: str = None, local: bool = False  # noqa
+    ):
         try:
             existing = self.choices[choice]
         except KeyError:
-            self.choices[choice] = Choice(choice, target, help)
+            self.choices[choice] = Choice(choice, target, help, local)
             self._update_nargs()
         else:
             prefix = 'Invalid default' if choice is None else f'Invalid choice={choice!r} for'
@@ -236,7 +242,7 @@ class SubCommand(ChoiceMap, title='Subcommands', choice_validation_exc=CommandDe
             choice_help_iter = ((choice, None) for choice in local_choices)
 
         for choice, help_text in choice_help_iter:
-            self._register_choice(choice, None, help_text)
+            self._register_choice(choice, None, help_text, True)
 
     def register_command(self, choice: Optional[str], command: CommandType, help: Optional[str]) -> CommandType:  # noqa
         if choice is None:

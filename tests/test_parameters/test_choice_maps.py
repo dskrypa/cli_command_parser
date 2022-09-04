@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 from cli_command_parser import Command
 from cli_command_parser.context import Context
-from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, BadArgument, InvalidChoice
+from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice
 from cli_command_parser.parameters.choice_map import SubCommand, Action
 from cli_command_parser.testing import ParserTest
 

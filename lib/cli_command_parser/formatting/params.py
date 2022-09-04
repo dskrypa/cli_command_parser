@@ -7,11 +7,12 @@ Parameter usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Type, Callable, Tuple, Dict
+from typing import TYPE_CHECKING, Union, Type, Callable, Iterator, Iterable, Tuple, Dict
 
+from ..config import SubcommandAliasHelpMode
 from ..context import ctx
 from ..parameters.base import BasePositional, BaseOption
-from ..parameters.choice_map import ChoiceMap
+from ..parameters.choice_map import ChoiceMap, Choice
 from ..parameters import ParamGroup, PassThru, TriFlag
 from .restructured_text import RstTable
 from .utils import format_help_entry, _should_add_default
@@ -186,21 +187,98 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         usage = self.format_usage()
         help_entry = format_help_entry(usage, param.description, 2, tw_offset=tw_offset, prefix=prefix)
 
-        # TODO: Combine choices/aliases that point to the same target sub Command
-        parts = [f'{prefix}{param.title or param._default_title}:', help_entry]
-        for choice in param.choices.values():
-            parts.append(choice.format_help(lpad=4, tw_offset=tw_offset))
-
-        parts.append(prefix.rstrip())
+        parts = (
+            f'{prefix}{param.title or param._default_title}:',
+            help_entry,
+            *self._format_choices(tw_offset),
+            prefix.rstrip(),
+        )
         return '\n'.join(parts)
+
+    def _format_choices(self, tw_offset: int = 0) -> Iterator[str]:
+        param: ChoiceMap = self.param
+        mode = ctx.config.cmd_alias_mode
+        if mode == SubcommandAliasHelpMode.ALIAS:  # First since it is the default
+            for choice_group in ChoiceGroup.group_choices(param.choices.values()):
+                yield from choice_group.format_aliases(tw_offset)
+        elif mode == SubcommandAliasHelpMode.COMBINE:
+            for choice_group in ChoiceGroup.group_choices(param.choices.values()):
+                yield choice_group.format_combined(tw_offset)
+        else:  # mode == SubcommandAliasHelpMode.REPEAT
+            for choice in param.choices.values():
+                yield choice.format_help(lpad=4, tw_offset=tw_offset)
 
     def rst_table(self) -> RstTable:
         param = self.param
         table = RstTable(param.title or param._default_title, param.description)
+        # TODO: Update to work with _format_choices?
         for choice in param.choices.values():
             usage = choice.format_usage()
             table.add_row(f'``{usage}``', choice.help)
         return table
+
+
+class ChoiceGroup:
+    __slots__ = ('first', 'count', 'has_default', 'choice_strs')
+
+    def __init__(self, choice: Choice):
+        choice_str = choice.choice
+        self.first = choice
+        if choice_str:
+            self.count = 1
+            self.has_default = False
+            self.choice_strs = [choice_str]
+        else:
+            self.count = 0
+            self.has_default = True
+            self.choice_strs = []
+
+    @classmethod
+    def group_choices(cls, choices: Iterable[Choice]) -> Iterable[ChoiceGroup]:
+        target_choice_map = {}
+        for n, choice in enumerate(choices):
+            key = (choice.target, n if choice.local else None)
+            try:
+                target_choice_map[key].add(choice)
+            except KeyError:
+                target_choice_map[key] = ChoiceGroup(choice)
+
+        return target_choice_map.values()
+
+    def add(self, choice: Choice):
+        choice_str = choice.choice
+        if choice_str:
+            self.count += 1
+            self.choice_strs.append(choice_str)
+        else:
+            self.has_default = True
+
+    def format_combined(self, tw_offset: int = 0) -> str:
+        count, first = self.count, self.first
+        if not count:
+            return first.format_help(lpad=4, tw_offset=tw_offset)
+
+        choice_strs = self.choice_strs
+        description = f'(default) {first.help}' if self.has_default else None
+        if count == 1:
+            usage = choice_strs[0]
+        else:
+            usage = '{{{}}}'.format('|'.join(choice_strs))
+
+        return first.format_help(lpad=4, tw_offset=tw_offset, usage=usage, description=description)
+
+    def format_aliases(self, tw_offset: int = 0) -> Iterator[str]:
+        count, first = self.count, self.first
+        if not count:
+            yield first.format_help(lpad=4, tw_offset=tw_offset)
+        else:
+            first_str, *choice_strs = self.choice_strs
+            description = f'(default) {first.help}' if self.has_default else None
+            yield first.format_help(lpad=4, tw_offset=tw_offset, usage=first_str, description=description)
+
+            description = f'Alias of: {first_str}'
+            for choice_str in choice_strs:
+                yield first.format_help(lpad=4, tw_offset=tw_offset, usage=choice_str, description=description)
 
 
 class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):

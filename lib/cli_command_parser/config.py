@@ -6,9 +6,10 @@ Configuration options for Command behavior.
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, overload, Generic, Sequence, Dict
 
-from .utils import FixedFlag, _NotSet
+from .utils import FixedFlag, MissingMixin, _NotSet
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from .formatting.params import ParamHelpFormatter
     from .typing import Bool, ParamOrGroup
 
-__all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'DEFAULT_CONFIG']
+__all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'SubcommandAliasHelpMode', 'DEFAULT_CONFIG']
 
 _ConfigValue = TypeVar('_ConfigValue')
 ConfigValue = Union[_ConfigValue, Any]
@@ -114,6 +115,30 @@ OPT_NAME_MODE_ALIASES = {
     '*-': OptionNameMode.BOTH_DASH,
     '-*': OptionNameMode.BOTH_DASH,
 }
+
+
+class SubcommandAliasHelpMode(MissingMixin, Enum):
+    """
+    Options for how subcommand aliases (alternate :ref:`choices<_subcommand_cls_params>` specified for a given Command
+    class that is registered as a subcommand / subclass of another Command) should be displayed in help text.
+
+    If a given Command is defined without the ``choices=`` class keyword argument, or if the provided collection
+    contained only one value, then this setting is ignored.
+
+    The output based on each supported option::
+
+    :REPEAT: Each alias will be on a separate line in the ``Subcommands:`` section, and each alias will repeat the
+      description (if defined for the target Command) as if it was a separate subcommand
+    :COMBINE: All of the aliases will be combined on the same line in the ``Subcommands:`` section, with the values
+      displayed in a way that is similar to the way that the ``choices=`` values for other Parameters are displayed.
+    :ALIAS: Each alias will be on a separate line in the ``Subcommands:`` section, but only the first choice/value will
+      have the description (if defined for the target Command).  Subsequent aliases' descriptions will be replaced by
+      ``Alias for: <first choice/alias value>``.
+    """
+
+    REPEAT = 'repeat'       # Repeat the description as if it was a separate subcommand
+    COMBINE = 'combine'     # Combine aliases onto a single line
+    ALIAS = 'alias'         # Indicate the subcommand that it is an alias for; do not repeat the description
 
 
 # endregion
@@ -235,6 +260,9 @@ class CommandConfig:
 
     #: Whether the default value for Parameters should be shown in help text, and related behavior
     show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
+
+    #: How subcommand aliases should be displayed in help text.
+    cmd_alias_mode: SubcommandAliasHelpMode = ConfigItem(SubcommandAliasHelpMode.ALIAS, SubcommandAliasHelpMode)
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = ConfigItem(False, bool)
