@@ -185,7 +185,10 @@ class CommandMeta(ABCMeta, type):
     @classmethod
     def params(mcs, cls: CommandCls) -> CommandParameters:
         # Late initialization is necessary to allow late assignment of Parameters for now
-        params = cls.__params
+        try:
+            params = cls.__params
+        except AttributeError:
+            raise TypeError('CommandParameters are only available for Command subclasses') from None
         if not params:
             cls.__params = params = CommandParameters(cls, mcs.parent(cls, True), mcs.config(cls))
         return params

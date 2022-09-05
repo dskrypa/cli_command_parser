@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional
 
 from ..context import ctx, NoActiveContext
+from ..core import get_params
 from ..parameters.groups import ParamGroup
 from ..utils import camel_to_snake_case
 from .restructured_text import rst_header, RstTable
@@ -125,14 +126,20 @@ class CommandHelpFormatter:
         parts.append('')
         parts.extend(self._format_rst(True))
 
-        sub_command = _get_params(self.command).sub_command
+        sub_command = get_params(self.command).sub_command
         if sub_command and sub_command.show_in_help:
             parts += ['', rst_header('Subcommands', init_level + 1), '']
             for cmd_name, choice in sub_command.choices.items():
                 parts += ['', rst_header(f'Subcommand: {cmd_name}', init_level + 2), '']
                 if choice.help:
                     parts += [choice.help, '']
-                parts.extend(get_formatter(choice.target)._format_rst(sub_cmd_choice=cmd_name))
+
+                try:
+                    formatter = get_formatter(choice.target)
+                except TypeError:  # choice.target is None (it is the default choice, pointing back to the same Command)
+                    formatter = self
+
+                parts.extend(formatter._format_rst(sub_cmd_choice=cmd_name))
 
         return '\n'.join(parts)
 
@@ -141,16 +148,9 @@ def _fix_name(name: str) -> str:
     return camel_to_snake_case(name).replace('_', ' ').title()
 
 
-def _get_params(command: CommandAny) -> CommandParameters:
-    cmd_mcls: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
-    if not issubclass(cmd_mcls, type):
-        command, cmd_mcls = cmd_mcls, cmd_mcls.__class__
-    return cmd_mcls.params(command)
-
-
 def get_formatter(command: CommandAny) -> CommandHelpFormatter:
     """Get the :class:`CommandHelpFormatter` for the given Command"""
-    return _get_params(command).formatter
+    return get_params(command).formatter
 
 
 def get_usage_sub_cmds(command: CommandCls):

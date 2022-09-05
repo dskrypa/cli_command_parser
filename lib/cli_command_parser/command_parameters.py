@@ -20,13 +20,13 @@ except ImportError:
 
 from .actions import help_action
 from .exceptions import CommandDefinitionError, ParameterDefinitionError
-from .formatting.commands import CommandHelpFormatter
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
 from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option
 
 if TYPE_CHECKING:
     from .config import CommandConfig
     from .context import Context
+    from .formatting.commands import CommandHelpFormatter
     from .typing import CommandType
 
 __all__ = ['CommandParameters']
@@ -84,6 +84,8 @@ class CommandParameters:
 
     @cached_property
     def formatter(self) -> CommandHelpFormatter:
+        from .formatting.commands import CommandHelpFormatter
+
         if self.config is None:
             formatter_factory = CommandHelpFormatter
         else:
