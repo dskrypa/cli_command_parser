@@ -47,10 +47,10 @@ class RstFormatTest(ParserTest):
         self.assertEqual('.. math::', rst_directive('math'))
 
     def test_table_repr(self):
-        self.assertTrue(repr(RstTable()).startswith('<RstTable[header='))
+        self.assertTrue(repr(RstTable()).startswith('<RstTable[use_table_directive='))
 
     def test_table_insert(self):
-        table = RstTable(header=False)
+        table = RstTable(use_table_directive=False)
         table.add_row('x', 'y', 'z')
         table.add_row('a', 'b', 'c', index=0)
         expected = """
@@ -60,8 +60,7 @@ class RstFormatTest(ParserTest):
         | x | y | z |
         +---+---+---+
         """
-        expected = dedent(expected).lstrip()
-        self.assert_strings_equal(expected, str(table))
+        self.assert_strings_equal(dedent(expected).lstrip(), str(table))
 
     def test_basic_subcommand_no_help(self):
         expected = TEST_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
@@ -73,6 +72,38 @@ class RstFormatTest(ParserTest):
             pass
 
         self.assert_strings_equal(expected, render_command_rst(Base, fix_name=False))
+
+    def test_table_with_header_row(self):
+        rows = [{'foo': '123', 'bar': '234'}, {'foo': '345', 'bar': '456'}]
+        expected = """
+        +-----+-----+
+        | foo | bar |
+        +=====+=====+
+        | 123 | 234 |
+        +-----+-----+
+        | 345 | 456 |
+        +-----+-----+
+        """
+        expected = dedent(expected).lstrip()
+        with self.subTest(case='from_dicts'):
+            table = RstTable.from_dicts(rows, auto_headers=True, use_table_directive=False)
+            self.assert_strings_equal(expected, str(table))
+        with self.subTest(case='add_dict_rows'):
+            table = RstTable(use_table_directive=False)
+            table.add_dict_rows(rows, add_header=True)
+            self.assert_strings_equal(expected, str(table))
+
+    def test_table_with_columns(self):
+        rows = [{'foo': '123', 'bar': '234'}, {'foo': '345', 'bar': '456'}]
+        table = RstTable.from_dicts(rows, columns=('foo',), use_table_directive=False)
+        expected = """
+        +-----+
+        | 123 |
+        +-----+
+        | 345 |
+        +-----+
+        """
+        self.assert_strings_equal(dedent(expected).lstrip(), str(table))
 
 
 class ExampleRstFormatTest(ParserTest):

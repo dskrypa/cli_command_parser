@@ -4,12 +4,20 @@ Utilities for formatting data using RST markup
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 from itertools import starmap
-from typing import Union, Iterator, Iterable, Any, Dict, Tuple, List
+from typing import TYPE_CHECKING, Union, Iterator, Iterable, Any, TypeVar, Sequence, Mapping, Dict, Tuple, List
 
 from .utils import line_iter
 
+if TYPE_CHECKING:
+    from ..typing import OptStr, Bool
+
 __all__ = ['rst_bar', 'rst_list_table', 'RstTable']
+
+T = TypeVar('T')
+RowMaps = Sequence[Mapping[T, 'OptStr']]
 
 BAR_CHAR_ORDER = ('#', '*', '=', '-', '^', '"')  # parts, chapters, sections, subsections, sub-subsections, paragraphs
 
@@ -20,13 +28,13 @@ def rst_bar(text: Union[str, int], level: int = 1) -> str:
     return c * bar_len
 
 
-def rst_header(text: str, level: int = 1, overline: bool = False) -> str:
+def rst_header(text: str, level: int = 1, overline: Bool = False) -> str:
     bar = rst_bar(text, level)
     return f'{bar}\n{text}\n{bar}' if overline else f'{text}\n{bar}'
 
 
 def _rst_directive(
-    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: bool = False
+    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: Bool = False
 ) -> Iterator[str]:
     yield f'.. {directive}:: {args}' if args else f'.. {directive}::'
     if options:
@@ -37,7 +45,7 @@ def _rst_directive(
 
 
 def rst_directive(
-    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: bool = False
+    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: Bool = False
 ) -> str:
     return '\n'.join(_rst_directive(directive, args, options, indent, check))
 
@@ -59,15 +67,89 @@ def rst_list_table(data: Dict[str, str], value_pad: int = 20) -> str:
 
 
 class RstTable:
-    def __init__(self, title: str = None, subtitle: str = None, show_title: bool = True, header: bool = True):
-        self.header = header
+    """
+    :param title: The title for this table.  Only displayed if ``show_title`` is True.
+    :param subtitle: Passed as an option to the :du_directives:`table directive <table>` if ``header`` is True.
+    :param headers: Columns headers to use before the first row.
+    :param show_title: If True, and a title was provided, then that title will be emitted as a
+      :any:`sphinx:rubric` directive by :meth:`.iter_build` before the beginning of this table.
+    :param use_table_directive: If True, then the :du_directives:`table directive <table>` will be used before the
+      body of this table.
+    """
+
+    __slots__ = ('title', 'subtitle', 'show_title', 'use_table_directive', 'rows', 'widths')
+
+    def __init__(
+        self,
+        title: str = None,
+        subtitle: str = None,
+        headers: Sequence[str] = None,
+        *,
+        show_title: Bool = True,
+        use_table_directive: Bool = True,
+    ):
         self.title = title
         self.subtitle = subtitle
         self.show_title = show_title
+        self.use_table_directive = use_table_directive
         self.rows = []
         self.widths = []
+        if headers:
+            self.add_row(*headers, header=True)
 
-    def add_row(self, *columns: str, index: int = None):
+    @classmethod
+    def from_dicts(cls, rows: RowMaps, columns: Sequence[T] = None, auto_headers: Bool = False, **kwargs) -> RstTable:
+        """
+        Initialize a RstTable using the given keyword arguments, and populate its rows using the given dicts and
+        :meth:`.add_dict_rows`.
+        """
+        if not columns:
+            columns = list(rows[0])
+        if auto_headers:
+            kwargs.setdefault('headers', columns)
+        table = cls(**kwargs)
+        table.add_dict_rows(rows, columns)
+        return table
+
+    @classmethod
+    def from_dict(cls, data: Mapping[OptStr, OptStr], **kwargs) -> RstTable:
+        """
+        Initialize a RstTable using the given keyword arguments, and populate its rows using the given dict and
+        :meth:`.add_kv_rows`.
+        """
+        table = cls(**kwargs)
+        table.add_kv_rows(data)
+        return table
+
+    def add_dict_rows(self, rows: RowMaps, columns: Sequence[T] = None, add_header: Bool = False):
+        """Add a row for each dict in the given sequence of rows, where the keys represent the columns."""
+        if not columns:
+            columns = list(rows[0])
+        if add_header:
+            self.add_row(*columns, header=True)
+
+        self.add_rows((row.get(k) for k in columns) for row in rows)
+
+    def add_kv_rows(self, data: Mapping[OptStr, OptStr]):
+        """
+        Add a row for each key=value pair in the given dict, where the first column contains the key and the second
+        column contains the value.
+        """
+        self.add_rows(data.items())
+
+    def add_rows(self, rows: Iterable[Iterable[OptStr]]):
+        for row in rows:
+            self.add_row(*row)
+
+    def add_row(self, *columns: OptStr, index: int = None, header: bool = False):
+        """
+        Add a row to the table.
+
+        :param columns: The string values to use as columns in a single row
+        :param index: If specified, insert the new row at the specified index.  By default, the new row is appended to
+          the list of rows.
+        :param header: If True, this row will be treated as a header row.  Does not affect insertion order.
+        """
         any_new_line, widths = _widths(columns)
         if self.widths:
             self.widths = tuple(starmap(max, zip(self.widths, widths)))
@@ -76,20 +158,28 @@ class RstTable:
 
         columns = tuple(c or '' for c in columns)
         if index is None:
-            self.rows.append((any_new_line, columns))
+            self.rows.append((header, any_new_line, columns))
         else:
-            self.rows.insert(index, (any_new_line, columns))
+            self.rows.insert(index, (header, any_new_line, columns))
 
-    def bar(self) -> str:
-        pre = '    ' if self.header else ''
-        return '+'.join([pre, *('-' * (w + 2) for w in self.widths), ''])
+    def bar(self, char: str = '-') -> str:
+        """
+        :param char: The character to use for the bar.  Defaults to ``-`` (for normal rows).  Use ``=`` below a header
+          row.  See :du_rst:`Grid Tables<grid-tables>` for more info.
+        :return: The formatted bar string
+        """
+        pre = '    ' if self.use_table_directive else ''
+        return '+'.join([pre, *(char * (w + 2) for w in self.widths), ''])
 
     def _get_row_format(self) -> str:
-        pre = '    ' if self.header else ''
+        pre = '    ' if self.use_table_directive else ''
         return '|'.join([pre, *(f' {{:<{w}s}} ' for w in self.widths), ''])
 
     def __repr__(self) -> str:
-        return f'<RstTable[header={self.header}, rows={len(self.rows)}, title={self.title!r}, widths={self.widths}]>'
+        return (
+            f'<RstTable[use_table_directive={self.use_table_directive}, rows={len(self.rows)},'
+            f' title={self.title!r}, widths={self.widths}]>'
+        )
 
     def iter_build(self) -> Iterator[str]:
         if self.show_title and self.title:
@@ -97,36 +187,30 @@ class RstTable:
             yield f'.. rubric:: {self.title}'
             yield ''
 
-        if self.header:
-            # total_width = max(sum(self.widths), len(self.widths))
-            # width_pcts = (int(round((w or 1) / total_width * 100, 0)) for w in self.widths)
-            options = {
-                'subtitle': self.subtitle,
-                # 'width': '90%',
-                'widths': 'auto',
-                # 'widths': ' '.join(map(str, width_pcts)),
-            }
+        if self.use_table_directive:
+            options = {'subtitle': self.subtitle, 'widths': 'auto'}
             yield from _rst_directive('table', options=options, check=True)
             yield ''
 
-        bar = self.bar()
+        bar, header_bar = self.bar(), self.bar('=')
         format_row = self._get_row_format().format
-        for any_new_line, row in self.rows:
-            yield bar
+        yield bar
+        for header, any_new_line, row in self.rows:
             if any_new_line:
                 for line in line_iter(row):
                     yield format_row(*line)
             else:
                 yield format_row(*row)
 
-        yield bar
+            yield header_bar if header else bar
+
         yield ''
 
     def __str__(self) -> str:
         return '\n'.join(self.iter_build())
 
 
-def _widths(columns: Iterable[str]) -> Tuple[bool, List[int]]:
+def _widths(columns: Iterable[OptStr]) -> Tuple[bool, List[int]]:
     widths = []
     any_new_line = False
     for column in columns:

@@ -33,6 +33,7 @@ ChoicesType = Optional[Collection[Any]]
 
 Bool = Union[bool, Any]
 Strs = Union[str, Sequence[str]]
+OptStr = Optional[str]
 OptStrs = Optional[Strs]
 PathLike = Union[str, 'Path']
 
