@@ -6,7 +6,7 @@ from unittest.mock import Mock
 from cli_command_parser import Command
 from cli_command_parser.context import Context
 from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice
-from cli_command_parser.parameters.choice_map import SubCommand, Action
+from cli_command_parser.parameters.choice_map import SubCommand, Action, Choice
 from cli_command_parser.testing import ParserTest
 
 
@@ -131,6 +131,10 @@ class ChoiceMapTest(ParserTest):
     def test_choices_not_allowed_action(self):
         with self.assertRaises(TypeError):
             Action(choices=(1, 2))
+
+    def test_choice_format_help(self):
+        choice = Choice('test', help='Example choice')
+        self.assertEqual('    test                      Example choice', choice.format_help())
 
 
 if __name__ == '__main__':

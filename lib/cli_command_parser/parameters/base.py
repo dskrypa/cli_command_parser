@@ -12,7 +12,8 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, List, FrozenSet
+from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, overload
+from typing import List, FrozenSet
 
 try:
     from functools import cached_property  # pylint: disable=C0412
@@ -27,7 +28,7 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
-from ..typing import Bool, CommandCls, T_co
+from ..typing import Bool, CommandCls, CommandObj, Param, T_co
 from ..utils import _NotSet, get_descriptor_value_type
 from .option_strings import OptionStrings
 
@@ -307,7 +308,15 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     # region Argument Handling
 
-    def __get__(self, command: Optional[Command], owner: CommandCls):
+    @overload
+    def __get__(self: Param, command: None, owner: CommandCls) -> Param:
+        ...
+
+    @overload
+    def __get__(self, command: CommandObj, owner: CommandCls) -> Optional[T_co]:
+        ...
+
+    def __get__(self, command, owner):
         if command is None:
             return self
 

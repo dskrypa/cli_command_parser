@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC
+from contextlib import contextmanager
 from textwrap import dedent
-from typing import TYPE_CHECKING, Sequence, Iterable, Any, Tuple
+from typing import TYPE_CHECKING, Sequence, Iterable, Any, Callable, ContextManager, Tuple, Dict
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
@@ -13,6 +14,7 @@ from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter, ChoiceGroup
+from cli_command_parser.formatting.restructured_text import RstTable
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action, Choice
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
 from cli_command_parser.testing import ParserTest, RedirectStreams, get_rst_text, get_help_text, get_usage_text
@@ -287,20 +289,42 @@ class HelpTextTest(ParserTest):
         )
         self.assert_str_contains(expected, get_help_text(Foo, 53))
 
-    def test_sub_command_choice_alias_modes(self):
-        f = '    {:<25s} {}\n'.format
-        header = 'Subcommands:\n  {bar|bars|baz}\n' + f('(default)', 'Foo the foo')
-        footer = f('baz', 'Foo one or more baz')
-        cases = [
-            ('alias', header + f('bar', 'Foo one or more bars') + f('bars', 'Alias of: bar') + footer),
-            ('repeat', header + f('bar', 'Foo one or more bars') + f('bars', 'Foo one or more bars') + footer),
-            ('combine', header + f('{bar|bars}', 'Foo one or more bars') + footer),
-        ]
-        for mode, expected in cases:
-            with self.subTest(mode=mode):
 
-                class Foo(Command, cmd_alias_mode=mode):
-                    sub_cmd = SubCommand(required=False, default_help='Foo the foo')
+class SubcommandHelpAndRstTest(ParserTest):
+    @contextmanager
+    def assert_help_and_rst_match(
+        self,
+        mode: str,
+        param_help_map: Dict[str, str],
+        help_header: str,
+        cmd_mode: str = None,
+        sc_kwargs: Dict[str, Any] = None,
+    ) -> ContextManager[CommandCls]:
+        with self.subTest(mode=mode):
+            cmd_kwargs = {'cmd_alias_mode': cmd_mode} if cmd_mode else {}
+            if not sc_kwargs:
+                sc_kwargs = {}
+            expected_help, expected_rst = get_expected_help_and_rst(help_header, param_help_map)
+
+            class Foo(Command, **cmd_kwargs):
+                sub_cmd = SubCommand(**sc_kwargs)
+
+            yield Foo
+
+            self.assert_str_contains(expected_help, get_help_text(Foo))
+            self.assert_str_contains(expected_rst, get_rst_text(Foo))
+
+    def test_sub_command_choice_alias_modes(self):
+        help_header = 'Subcommands:\n  {bar|bars|baz}\n'
+        foo_help, bar_help, baz_help = 'Foo the foo', 'Foo one or more bars', 'Foo one or more baz'
+        cases = [
+            ('alias', {'(default)': foo_help, 'bar': bar_help, 'bars': 'Alias of: bar', 'baz': baz_help}),
+            ('repeat', {'(default)': foo_help, 'bar': bar_help, 'bars': bar_help, 'baz': baz_help}),
+            ('combine', {'(default)': foo_help, '{bar|bars}': bar_help, 'baz': baz_help}),
+        ]
+        sub_cmd_kwargs = {'required': False, 'default_help': 'Foo the foo'}
+        for mode, kvs in cases:
+            with self.assert_help_and_rst_match(mode, kvs, help_header, mode, sub_cmd_kwargs) as Foo:
 
                 class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars'):
                     abc = Flag('-a')
@@ -308,21 +332,16 @@ class HelpTextTest(ParserTest):
                 class Baz(Foo, help='Foo one or more baz'):
                     xyz = Flag('-x')
 
-                self.assert_str_contains(expected, get_help_text(Foo))
-
     def test_sub_command_choice_alias_modes_on_subcmd(self):
-        f = '    {:<25s} {}\n'.format
-        header = 'Subcommands:\n  {bar|bars|baz|bazs}\n' + f('bar', 'Foo one or more bars') + f('bars', 'Alias of: bar')
+        help_header = 'Subcommands:\n  {bar|bars|baz|bazs}\n'
+        bar_help, bars_help, baz_help = 'Foo one or more bars', 'Alias of: bar', 'Foo one or more baz'
         cases = [
-            ('alias', header + f('baz', 'Foo one or more baz') + f('bazs', 'Alias of: baz')),
-            ('repeat', header + f('baz', 'Foo one or more baz') + f('bazs', 'Foo one or more baz')),
-            ('combine', header + f('{baz|bazs}', 'Foo one or more baz')),
+            ('alias', {'bar': bar_help, 'bars': bars_help, 'baz': baz_help, 'bazs': 'Alias of: baz'}),
+            ('repeat', {'bar': bar_help, 'bars': bars_help, 'baz': baz_help, 'bazs': baz_help}),
+            ('combine', {'bar': bar_help, 'bars': bars_help, '{baz|bazs}': baz_help}),
         ]
-        for mode, expected in cases:
-            with self.subTest(mode=mode):
-
-                class Foo(Command):
-                    sub_cmd = SubCommand()
+        for mode, kvs in cases:
+            with self.assert_help_and_rst_match(mode, kvs, help_header) as Foo:
 
                 class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars', cmd_alias_mode='alias'):
                     abc = Flag('-a')
@@ -330,15 +349,39 @@ class HelpTextTest(ParserTest):
                 class Baz(Foo, choices=('baz', 'bazs'), help='Foo one or more baz', cmd_alias_mode=mode):
                     xyz = Flag('-x')
 
-                self.assert_str_contains(expected, get_help_text(Foo))
+    def test_sub_command_alias_custom_help_retained(self):
+        help_header = 'Subcommands:\n  {bar|run bar}\n'
+        expected = {'bar': 'Execute bar', 'run bar': 'Run bar'}
+        cases = [('alias', expected), ('repeat', expected), ('combine', expected)]
+        for mode, kvs in cases:
+            with self.assert_help_and_rst_match(mode, kvs, help_header, mode) as Foo:
 
-    # def test_subcommand_local_choices_map(self):  # TODO
-    #     class Foo(Command):
-    #         sub_cmd = SubCommand(local_choices={'a': 'Find As', 'b': 'Find Bs', 'c': 'Find Cs'})
+                @Foo.sub_cmd.register('run bar', help='Run bar')
+                class Bar(Foo, help='Execute bar'):
+                    pass
 
-    # def test_subcommand_local_choices_simple(self):  # TODO
-    #     class Foo(Command):
-    #         sub_cmd = SubCommand(local_choices=('a', 'b', 'c'))
+    def test_subcommand_local_choices(self):
+        help_header = 'Subcommands:\n  {a|b|c}\n'
+        choice_map = {'a': 'Find As', 'b': 'Find Bs', 'c': 'Find Cs'}
+        local_cases = [
+            (choice_map, {'local_choices': choice_map}),
+            ({'a': '', 'b': '', 'c': ''}, {'local_choices': ('a', 'b', 'c')}),
+        ]
+        for expected, sc_kwargs in local_cases:
+            cases = [('alias', expected), ('repeat', expected), ('combine', expected)]
+            for mode, kvs in cases:
+                with self.assert_help_and_rst_match(mode, kvs, help_header, mode, sc_kwargs):
+                    pass
+
+
+def get_expected_help_and_rst(help_header: str, param_help_map: Dict[str, str]) -> Tuple[str, str]:
+    kf = '    {:s}\n'.format
+    hf = '    {:<25s} {}\n'.format
+    rf = '    |             |     {:<13s} |\n'.format
+    expected_help = help_header + ''.join(hf(k, v) if v else kf(k) for k, v in param_help_map.items())
+    table = RstTable.from_dict({f'``{k}``': v for k, v in param_help_map.items()}, use_table_directive=False)
+    expected_rst = ''.join(rf(line) for line in table.iter_build() if line)
+    return expected_help, expected_rst
 
 
 class ShowDefaultsTest(TestCase):

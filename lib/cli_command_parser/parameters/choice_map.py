@@ -23,6 +23,8 @@ __all__ = ['SubCommand', 'Action']
 
 T = TypeVar('T')
 OptStr = Optional[str]
+# TODO: Combine SubCommand and Action, replacing `local_choices` with stackable decorators on the target method,
+#  optionally injecting the selected choice into positional args for the decorated method, which may be main?
 
 
 class Choice(Generic[T]):
@@ -47,12 +49,9 @@ class Choice(Generic[T]):
     def format_usage(self) -> str:
         return '(default)' if self.choice is None else self.choice
 
-    def format_help(
-        self, lpad: int = 4, tw_offset: int = 0, prefix: str = '', usage: str = None, description: str = None
-    ) -> str:
-        return format_help_entry(
-            usage or self.format_usage(), description or self.help, lpad, tw_offset=tw_offset, prefix=prefix
-        )
+    def format_help(self, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
+        # Note: no longer called by formatters
+        return format_help_entry(self.format_usage(), self.help, lpad, tw_offset=tw_offset, prefix=prefix)
 
 
 class ChoiceMap(BasePositional[str], Generic[T]):
