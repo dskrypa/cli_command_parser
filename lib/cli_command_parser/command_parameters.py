@@ -174,7 +174,6 @@ class CommandParameters:
                     f' a variable number of arguments with no specific choices defined - param={param!r} is invalid'
                 )
 
-            # if isinstance(param, (SubCommand, Action)) and param.command is self.command:
             if isinstance(param, (SubCommand, Action)):
                 if self.action:  # self.sub_command being already defined is handled above
                     raise CommandDefinitionError(

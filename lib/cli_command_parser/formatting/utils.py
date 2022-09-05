@@ -50,9 +50,6 @@ def format_help_entry(
     return '\n'.join(format_row(*row).rstrip() for row in line_iter((usage, description_lines)))
 
 
-# TODO: Generic Table where above one just has no borders?
-
-
 def _description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
     widths = [wcswidth(line) for line in usage]
     if max(widths, default=0) <= max_usage_width:

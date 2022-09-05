@@ -40,7 +40,6 @@ if TYPE_CHECKING:
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack', default=[])
-# TODO: Remove the dependency for storing self.command?
 
 
 class parameter_action:  # pylint: disable=C0103

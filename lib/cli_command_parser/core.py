@@ -73,6 +73,8 @@ class CommandMeta(ABCMeta, type):
         metadata = {k: v for k, v in meta_iter if v}
         namespace['_CommandMeta__params'] = None  # Prevent commands from inheriting parent params
         namespace['_CommandMeta__metadata'] = None  # Prevent commands from inheriting parent metadata directly
+        namespace['_CommandMeta__parents'] = None  # Prevent commands from inheriting parents directly
+
         config = mcs._prepare_config(bases, config, kwargs)
         if config:
             namespace['_CommandMeta__config'] = config
@@ -137,24 +139,48 @@ class CommandMeta(ABCMeta, type):
         return None
 
     @classmethod
-    def config(mcs, cls: CommandCls) -> Config:
+    def config(mcs, cls: CommandAny) -> Config:
         try:
-            return cls.__config  # noqa
-        except AttributeError:
-            pass
-        parent = mcs.parent(cls)
-        if parent is not None:
-            return mcs.config(parent)
-        return None
+            return cls.__config     # This attr is not overwritten for every subclass
+        except AttributeError:      # This means that the Command and all of its parents have no custom config
+            return None
 
     # endregion
 
     @classmethod
-    def parent(mcs, cls: CommandCls, include_abc: bool = True) -> Optional[CommandCls]:
-        for parent_cls in type.mro(cls)[1:]:
-            if isinstance(parent_cls, mcs) and (include_abc or ABC not in parent_cls.__bases__):
-                return parent_cls
-        return None
+    def parent(mcs, cls: CommandAny, include_abc: bool = True) -> Optional[CommandCls]:
+        """
+        :param cls: A Command class or object
+        :param include_abc: If True, the first Command parent class in the given Command's mro will be returned,
+          regardless of whether that class extends ABC or not.  If False, then the first Command parent class that does
+          NOT extend ABC will be returned.
+        :return: The given Command's parent Command, or None if no parent was found (which may depend on
+          ``include_abc``).
+        """
+        try:
+            first, parent = cls.__parents  # Works for both Command objects and classes
+        except TypeError:
+            pass
+        else:
+            return first if include_abc else parent
+
+        try:
+            mro = type.mro(cls)[1:]
+        except TypeError:  # a Command object was provided instead of a Command class
+            cls = cls.__class__
+            mro = type.mro(cls)[1:]
+
+        first = parent = None
+        for parent_cls in mro:
+            if isinstance(parent_cls, mcs):
+                if first is None:
+                    first = parent_cls
+                if ABC not in parent_cls.__bases__:
+                    parent = parent_cls
+                    break
+
+        cls.__parents = first, parent
+        return first if include_abc else parent
 
     @classmethod
     def params(mcs, cls: CommandCls) -> CommandParameters:
@@ -173,16 +199,8 @@ class CommandMeta(ABCMeta, type):
         return meta
 
 
-def get_parent(command: CommandAny, include_abc: bool = True) -> Optional[CommandCls]:
-    if not isinstance(command, CommandMeta):
-        command = command.__class__
-    return CommandMeta.parent(command, include_abc)
-
-
-def get_config(command: CommandAny) -> CommandConfig:
-    if not isinstance(command, CommandMeta):
-        command = command.__class__
-    return CommandMeta.config(command)
+get_parent = CommandMeta.parent
+get_config = CommandMeta.config
 
 
 def get_params(command: CommandAny) -> CommandParameters:
