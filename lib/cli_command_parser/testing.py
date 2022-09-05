@@ -7,7 +7,6 @@ Helpers for unit tests
 
 from __future__ import annotations
 
-import os
 import sys
 from contextlib import AbstractContextManager
 from difflib import unified_diff
@@ -26,7 +25,6 @@ if TYPE_CHECKING:
 __all__ = [
     'ParserTest',
     'RedirectStreams',
-    'Environment',
     'format_diff',
     'get_rst_text',
     'get_help_text',
@@ -246,22 +244,6 @@ class RedirectStreams(AbstractContextManager):
             setattr(sys, name, orig)
 
 
-class Environment(AbstractContextManager):
-    __slots__ = ('original', 'overrides')
-
-    def __init__(self, **env):
-        self.overrides = env
-
-    def __enter__(self):
-        self.original = os.environ.copy()
-        os.environ.clear()
-        os.environ.update(self.overrides)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        os.environ.clear()
-        os.environ.update(self.original)
-
-
 def get_usage_text(cmd: Type[Command]) -> str:
     with cmd().ctx:
         return get_params(cmd).formatter.format_usage()
@@ -279,6 +261,7 @@ def get_help_text(cmd: Union[Type[Command], Command], terminal_width: int = 199)
 def get_rst_text(cmd: Union[Type[Command], Command]) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
+
     cmd.ctx._terminal_width = 199
     with cmd.ctx:
         return get_params(cmd).formatter.format_rst()

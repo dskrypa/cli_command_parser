@@ -2,7 +2,7 @@
 
 import re
 from unittest import main
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from cli_command_parser import Command
 from cli_command_parser.exceptions import (
@@ -16,9 +16,10 @@ from cli_command_parser.exceptions import (
     ParamsMissing,
 )
 from cli_command_parser.parameters import Counter, Flag, Option, TriFlag
-from cli_command_parser.testing import ParserTest, Environment, get_help_text, get_usage_text
+from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 
 STANDALONE_DASH_B = re.compile(r'(?<!-)-b\b')
+OPT_ENV_MOD = 'cli_command_parser.parameters.options.environ'
 
 
 class OptionTest(ParserTest):
@@ -190,35 +191,35 @@ class OptionTest(ParserTest):
         class Foo(Command):
             bar: int = Option('-b', default=123, env_var='TEST_VAR_123')
 
-        with self.subTest(case='param default'), Environment():
+        with self.subTest(case='param default'), patch(OPT_ENV_MOD, {}):
             self.assertEqual(123, Foo.parse([]).bar)
-        with self.subTest(case='cli override'), Environment(TEST_VAR_123='234'):
+        with self.subTest(case='cli override'), patch(OPT_ENV_MOD, {'TEST_VAR_123': '234'}):
             self.assertEqual(987, Foo.parse(['-b', '987']).bar)
-        with self.subTest(case='env override'), Environment(TEST_VAR_123='234'):
+        with self.subTest(case='env override'), patch(OPT_ENV_MOD, {'TEST_VAR_123': '234'}):
             self.assertEqual(234, Foo.parse([]).bar)
 
     def test_env_vars(self):
         class Foo(Command):
             bar: int = Option('-b', default=123, env_var=('TEST_VAR_123', 'TEST_VAR_234'))
 
-        with self.subTest(case='param default'), Environment():
+        with self.subTest(case='param default'), patch(OPT_ENV_MOD, {}):
             self.assertEqual(123, Foo.parse([]).bar)
-        with self.subTest(case='cli override'), Environment(TEST_VAR_123='234'):
+        with self.subTest(case='cli override'), patch(OPT_ENV_MOD, {'TEST_VAR_123': '234'}):
             self.assertEqual(987, Foo.parse(['-b', '987']).bar)
-        with self.subTest(case='env override 1'), Environment(TEST_VAR_123='234', TEST_VAR_234='345'):
+        with self.subTest(case='env override 1'), patch(OPT_ENV_MOD, {'TEST_VAR_123': '234', 'TEST_VAR_234': '345'}):
             self.assertEqual(234, Foo.parse([]).bar)
-        with self.subTest(case='env override 2'), Environment(TEST_VAR_234='345'):
+        with self.subTest(case='env override 2'), patch(OPT_ENV_MOD, {'TEST_VAR_234': '345'}):
             self.assertEqual(345, Foo.parse([]).bar)
 
     def test_env_var_required(self):
         class Foo(Command):
             bar: int = Option('-b', env_var='TEST_VAR_123', required=True)
 
-        with self.subTest(case='no value'), Environment(), self.assertRaises(ParamsMissing):
+        with self.subTest(case='no value'), patch(OPT_ENV_MOD, {}), self.assertRaises(ParamsMissing):
             Foo.parse([])
-        with self.subTest(case='cli override'), Environment(TEST_VAR_123='234'):
+        with self.subTest(case='cli override'), patch(OPT_ENV_MOD, {'TEST_VAR_123': '234'}):
             self.assertEqual(987, Foo.parse(['-b', '987']).bar)
-        with self.subTest(case='env override'), Environment(TEST_VAR_123='234'):
+        with self.subTest(case='env override'), patch(OPT_ENV_MOD, {'TEST_VAR_123': '234'}):
             self.assertEqual(234, Foo.parse([]).bar)
 
 
