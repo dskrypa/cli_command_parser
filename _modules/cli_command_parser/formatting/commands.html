@@ -95,6 +95,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">NoActiveContext</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">get_params</span>
 <span class="kn">from</span> <span class="nn">..parameters.groups</span> <span class="kn">import</span> <span class="n">ParamGroup</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">camel_to_snake_case</span>
 <span class="kn">from</span> <span class="nn">.restructured_text</span> <span class="kn">import</span> <span class="n">rst_header</span><span class="p">,</span> <span class="n">RstTable</span>
@@ -211,14 +212,20 @@
         <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_rst</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
 
-        <span class="n">sub_command</span> <span class="o">=</span> <span class="n">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span>
+        <span class="n">sub_command</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span>
         <span class="k">if</span> <span class="n">sub_command</span> <span class="ow">and</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">:</span>
             <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">(</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">init_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Subcommand: </span><span class="si">{</span><span class="n">cmd_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">init_level</span> <span class="o">+</span> <span class="mi">2</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
                     <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="n">choice</span><span class="o">.</span><span class="n">help</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
-                <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_formatter</span><span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">_format_rst</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">cmd_name</span><span class="p">))</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">formatter</span> <span class="o">=</span> <span class="n">get_formatter</span><span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># choice.target is None (it is the default choice, pointing back to the same Command)</span>
+                    <span class="n">formatter</span> <span class="o">=</span> <span class="bp">self</span>
+
+                <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">_format_rst</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">cmd_name</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div></div>
 
@@ -227,16 +234,9 @@
     <span class="k">return</span> <span class="n">camel_to_snake_case</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>
-    <span class="n">cmd_mcls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandMeta</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>  <span class="c1"># Using metaclass to avoid potentially overwritten attrs</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">cmd_mcls</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-        <span class="n">command</span><span class="p">,</span> <span class="n">cmd_mcls</span> <span class="o">=</span> <span class="n">cmd_mcls</span><span class="p">,</span> <span class="n">cmd_mcls</span><span class="o">.</span><span class="vm">__class__</span>
-    <span class="k">return</span> <span class="n">cmd_mcls</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="get_formatter"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.get_formatter">[docs]</a><span class="k">def</span> <span class="nf">get_formatter</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHelpFormatter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Get the :class:`CommandHelpFormatter` for the given Command&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_get_params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span></div>
+    <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span></div>
 
 
 <span class="k">def</span> <span class="nf">get_usage_sub_cmds</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">):</span>

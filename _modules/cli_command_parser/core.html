@@ -159,6 +159,8 @@
         <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">meta_iter</span> <span class="k">if</span> <span class="n">v</span><span class="p">}</span>
         <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prevent commands from inheriting parent params</span>
         <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prevent commands from inheriting parent metadata directly</span>
+        <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__parents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prevent commands from inheriting parents directly</span>
+
         <span class="n">config</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_prepare_config</span><span class="p">(</span><span class="n">bases</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
             <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span>
@@ -223,29 +225,56 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="CommandMeta.config"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Config</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Config</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__config</span>  <span class="c1"># noqa</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="n">parent</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">mcs</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__config</span>     <span class="c1"># This attr is not overwritten for every subclass</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>      <span class="c1"># This means that the Command and all of its parents have no custom config</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
     <span class="c1"># endregion</span>
 
 <div class="viewcode-block" id="CommandMeta.parent"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">parent_cls</span> <span class="ow">in</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_cls</span><span class="p">,</span> <span class="n">mcs</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_abc</span> <span class="ow">or</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">parent_cls</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param cls: A Command class or object</span>
+<span class="sd">        :param include_abc: If True, the first Command parent class in the given Command&#39;s mro will be returned,</span>
+<span class="sd">          regardless of whether that class extends ABC or not.  If False, then the first Command parent class that does</span>
+<span class="sd">          NOT extend ABC will be returned.</span>
+<span class="sd">        :return: The given Command&#39;s parent Command, or None if no parent was found (which may depend on</span>
+<span class="sd">          ``include_abc``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">first</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__parents</span>  <span class="c1"># Works for both Command objects and classes</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">first</span> <span class="k">if</span> <span class="n">include_abc</span> <span class="k">else</span> <span class="n">parent</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mro</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># a Command object was provided instead of a Command class</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span>
+            <span class="n">mro</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="n">first</span> <span class="o">=</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">parent_cls</span> <span class="ow">in</span> <span class="n">mro</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_cls</span><span class="p">,</span> <span class="n">mcs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">first</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">first</span> <span class="o">=</span> <span class="n">parent_cls</span>
+                <span class="k">if</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">:</span>
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">parent_cls</span>
+                    <span class="k">break</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__parents</span> <span class="o">=</span> <span class="n">first</span><span class="p">,</span> <span class="n">parent</span>
+        <span class="k">return</span> <span class="n">first</span> <span class="k">if</span> <span class="n">include_abc</span> <span class="k">else</span> <span class="n">parent</span></div>
 
 <div class="viewcode-block" id="CommandMeta.params"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>
         <span class="c1"># Late initialization is necessary to allow late assignment of Parameters for now</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;CommandParameters are only available for Command subclasses&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="o">=</span> <span class="n">params</span> <span class="o">=</span> <span class="n">CommandParameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">mcs</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">params</span></div>
@@ -259,16 +288,8 @@
         <span class="k">return</span> <span class="n">meta</span></div></div>
 
 
-<div class="viewcode-block" id="get_parent"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_parent">[docs]</a><span class="k">def</span> <span class="nf">get_parent</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">):</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>
-    <span class="k">return</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">):</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>
-    <span class="k">return</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></div>
+<span class="n">get_parent</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">get_config</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">config</span>
 
 
 <div class="viewcode-block" id="get_params"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_params">[docs]</a><span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>

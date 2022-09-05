@@ -106,13 +106,13 @@
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
-<span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
 <span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">ParamBase</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">Action</span><span class="p">,</span> <span class="n">Option</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
     <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span>
+    <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
     <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">CommandType</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandParameters&#39;</span><span class="p">]</span>
@@ -170,6 +170,8 @@
 
 <div class="viewcode-block" id="CommandParameters.formatter"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHelpFormatter</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">CommandHelpFormatter</span>
         <span class="k">else</span><span class="p">:</span>
@@ -260,7 +262,6 @@
                     <span class="sa">f</span><span class="s1">&#39; a variable number of arguments with no specific choices defined - param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> is invalid&#39;</span>
                 <span class="p">)</span>
 
-            <span class="c1"># if isinstance(param, (SubCommand, Action)) and param.command is self.command:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">SubCommand</span><span class="p">,</span> <span class="n">Action</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">:</span>  <span class="c1"># self.sub_command being already defined is handled above</span>
                     <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>

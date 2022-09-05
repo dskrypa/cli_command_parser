@@ -18,14 +18,15 @@ author = __author__
 copyright = '{}, {}'.format(datetime.now().strftime('%Y'), author)
 
 extensions = [
-    'sphinx.ext.intersphinx',
+    'field_list_refs',
+    'show_on_github',
     'sphinx.ext.autodoc',  # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
-    'sphinx.ext.viewcode',
     'sphinx.ext.autosectionlabel',
     # 'sphinx.ext.autosummary',  # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
+    'sphinx.ext.extlinks',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode',
     'sphinx_paramlinks',  # https://github.com/sqlalchemyorg/sphinx-paramlinks
-    'show_on_github',
-    'field_list_refs',
 ]
 
 # Extension options
@@ -33,6 +34,11 @@ autosectionlabel_prefix_document = True
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'wcwidth': ('https://wcwidth.readthedocs.io/en/latest/', None),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+}
+extlinks = {
+    'du_directives': ('https://docutils.sourceforge.io/docs/ref/rst/directives.html#%s', '%s'),
+    'du_rst': ('https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#%s', '%s'),
 }
 viewcode_follow_imported_members = False
 
