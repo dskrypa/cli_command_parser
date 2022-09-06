@@ -13,11 +13,13 @@ Here's a basic example of a program that uses CLI Command Parser::
 
     from cli_command_parser import Command, Option, main
 
-    class HelloWorld(Command, description='Simple greeting example'):
+    class Hello(Command, description='Simple greeting example'):
         name = Option('-n', default='World', help='The person to say hello to')
+        count: int = Option('-c', default=1, help='Number of times to repeat the message')
 
         def main(self):
-            print(f'Hello {self.name}!')
+            for _ in range(self.count):
+                print(f'Hello {self.name}!')
 
     if __name__ == '__main__':
         main()
@@ -38,19 +40,33 @@ After saving the example above as ``hello_world.py``, we can run it with multipl
 Parameters
 ==========
 
-Even without explicitly specifying the long form for the ``name`` :ref:`parameters:Option` in the example above, it
-was automatically added based on the name of the attribute in which that Parameter was stored.  Short forms are not
-automatically generated to avoid conflicts.
+Types
+-----
 
-The ``Option(...)`` Parameter above would be equivalent to the following if you were using argparse::
+Rather than needing to infer the type of parameter that will result from a combination of arguments when defining it,
+each distinct type has its own :doc:`Parameter<parameters>` class.  Commands may contain any number of Parameters to
+define how they will parse CLI arguments.
+
+The basic types are :ref:`parameters:Positional`, :ref:`parameters:Option`, and :ref:`parameters:Flag`, but there are
+:doc:`others<parameters>` as well, including :doc:`groups<groups>` that can be mutually exclusive or dependent.
+
+Names
+-----
+
+Even without explicitly specifying the long form for the ``name`` :ref:`parameters:Option` in the example above, it was
+automatically added based on the name of that Parameter attribute.  Following the
+`DRY principle <https://en.wikipedia.org/wiki/Don%27t_repeat_yourself>`__, the ``--long`` form for Options,
+Flags, etc. is generated automatically.  To avoid conflicts, short forms are not automatically generated.
+
+The ``Option(...)`` Parameters above would be equivalent to the following if you were using argparse::
 
     parser.add_argument('--name', '-n', default='World', help='The person to say hello to')
+    parser.add_argument('--count', '-c', type=int, default=1, help='Number of times to repeat the message')
 
+If an explicit long form is provided, then it will be used instead of the default name-based one.  Any number of long
+and/or short forms may be provided::
 
-A Command may contain any number of Parameters to define how it will parse CLI arguments.  To better differentiate
-between Parameter types, they are defined as separate classes.  The basics are :ref:`parameters:Positional`,
-:ref:`parameters:Option`, and :ref:`parameters:Flag`, but there are :doc:`others<parameters>` as well, including
-:doc:`groups<groups>` that can be mutually exclusive or dependent.
+    example = Option('--foo', '-f', '--FOO')
 
 
 Entry Points

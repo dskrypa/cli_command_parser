@@ -6,7 +6,7 @@ Example ``Hello World`` implementation using CLI Command Parser.
 
 ::
 
-    usage: hello_world.py [--name NAME] [--help]
+    usage: hello_world.py [--name NAME] [--count COUNT] [--help]
 
 
 Simple greeting example
@@ -17,10 +17,12 @@ Simple greeting example
 .. table::
     :widths: auto
 
-    +--------------------------+------------------------------------------------------+
-    | ``--name NAME, -n NAME`` | The person to say hello to (default: ``'World'``)    |
-    +--------------------------+------------------------------------------------------+
-    | ``--help, -h``           | Show this help message and exit (default: ``False``) |
-    +--------------------------+------------------------------------------------------+
+    +-----------------------------+--------------------------------------------------------+
+    | ``--name NAME, -n NAME``    | The person to say hello to (default: ``'World'``)      |
+    +-----------------------------+--------------------------------------------------------+
+    | ``--count COUNT, -c COUNT`` | Number of times to repeat the message (default: ``1``) |
+    +-----------------------------+--------------------------------------------------------+
+    | ``--help, -h``              | Show this help message and exit (default: ``False``)   |
+    +-----------------------------+--------------------------------------------------------+
 
 Contact <example@fake.org> with any issues

@@ -1,6 +1,5 @@
-******************
 CLI Command Parser
-******************
+##################
 
 |downloads| |py_version| |coverage_badge| |build_status| |Blue|
 
@@ -20,7 +19,9 @@ CLI Command Parser
     :target: https://pypistats.org/packages/cli-command-parser
 
 
-Command Parser is a class-based CLI argument parser that defines parameters with descriptors.
+Command Parser is a class-based CLI argument parser that defines parameters with descriptors.  It provides the
+tools to quickly and easily get started with basic CLIs, and it scales well to support even very large and complex
+CLIs while remaining readable and easy to maintain.
 
 The primary goals of this project:
   - Make it easy to define subcommands and actions in an clean and organized manner
@@ -29,25 +30,63 @@ The primary goals of this project:
   - Reduce the amount of boilerplate code that is necessary for setting up parsing and handling argument values
 
 
+Example Program
+***************
+
+.. code-block:: python
+
+    from cli_command_parser import Command, Option, main
+
+    class Hello(Command, description='Simple greeting example'):
+        name = Option('-n', default='World', help='The person to say hello to')
+        count: int = Option('-c', default=1, help='Number of times to repeat the message')
+
+        def main(self):
+            for _ in range(self.count):
+                print(f'Hello {self.name}!')
+
+    if __name__ == '__main__':
+        main()
+
+
+.. code-block:: shell-session
+
+    $ hello_world.py --name Bob -c 3
+    Hello Bob!
+    Hello Bob!
+    Hello Bob!
+
+    $ hello_world.py -h
+    usage: hello_world.py [--name NAME] [--count COUNT] [--help]
+
+    Simple greeting example
+
+    Optional arguments:
+      --name NAME, -n NAME        The person to say hello to (default: 'World')
+      --count COUNT, -c COUNT     Number of times to repeat the message (default: 1)
+      --help, -h                  Show this help message and exit (default: False)
+
+
 Installing CLI Command Parser
------------------------------
+*****************************
 
-CLI Command Parser is available on PyPI::
+CLI Command Parser can be installed and updated via `pip <https://pip.pypa.io/en/stable/getting-started/>`__::
 
-    $ pip install cli-command-parser
+    $ pip install -U cli-command-parser
 
 
 There are no required dependencies.  Support for formatting wide characters correctly in help text descriptions can
 be included by adding `wcwidth <https://wcwidth.readthedocs.io>`__ to your project's requirements, and/or by installing
 with optional dependencies::
 
-    $ pip install cli-command-parser[wcwidth]
+    $ pip install -U cli-command-parser[wcwidth]
 
 
-Documentation & Examples
-------------------------
+Links
+*****
 
-User & API `documentation <https://dskrypa.github.io/cli_command_parser/index.html>`_ is available.
-
-Example scripts using CLI Command Parser can be found in the `examples
-<https://github.com/dskrypa/cli_command_parser/tree/main/examples>`_ directory.
+- Documentation: https://dskrypa.github.io/cli_command_parser/
+- Example Scripts: https://github.com/dskrypa/cli_command_parser/tree/main/examples
+- PyPI Releases: https://pypi.org/project/cli-command-parser/
+- Source Code: https://github.com/dskrypa/cli_command_parser
+- Issue Tracker: https://github.com/dskrypa/cli_command_parser/issues
