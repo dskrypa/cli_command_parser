@@ -43,7 +43,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#types">Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#names">Names</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#entry-points">Entry Points</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#help-text">Help Text</a></li>
 </ul>
@@ -100,11 +104,13 @@ arguments and running the Command.</p>
 <p>Here’s a basic example of a program that uses CLI Command Parser:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span>
 
-<span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Hello</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
@@ -123,17 +129,31 @@ Hello John!
 </div>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
-<p>Even without explicitly specifying the long form for the <code class="docutils literal notranslate"><span class="pre">name</span></code> <a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a> in the example above, it
-was automatically added based on the name of the attribute in which that Parameter was stored.  Short forms are not
-automatically generated to avoid conflicts.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Option(...)</span></code> Parameter above would be equivalent to the following if you were using argparse:</p>
+<section id="types">
+<h3>Types<a class="headerlink" href="#types" title="Permalink to this heading"></a></h3>
+<p>Rather than needing to infer the type of parameter that will result from a combination of arguments when defining it,
+each distinct type has its own <a class="reference internal" href="parameters.html"><span class="doc">Parameter</span></a> class.  Commands may contain any number of Parameters to
+define how they will parse CLI arguments.</p>
+<p>The basic types are <a class="reference internal" href="parameters.html#positional"><span class="std std-ref">Positional</span></a>, <a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a>, and <a class="reference internal" href="parameters.html#flag"><span class="std std-ref">Flag</span></a>, but there are
+<a class="reference internal" href="parameters.html"><span class="doc">others</span></a> as well, including <a class="reference internal" href="groups.html"><span class="doc">groups</span></a> that can be mutually exclusive or dependent.</p>
+</section>
+<section id="names">
+<h3>Names<a class="headerlink" href="#names" title="Permalink to this heading"></a></h3>
+<p>Even without explicitly specifying the long form for the <code class="docutils literal notranslate"><span class="pre">name</span></code> <a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a> in the example above, it was
+automatically added based on the name of that Parameter attribute.  Following the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY principle</a>, the <code class="docutils literal notranslate"><span class="pre">--long</span></code> form for Options,
+Flags, etc. is generated automatically.  To avoid conflicts, short forms are not automatically generated.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Option(...)</span></code> Parameters above would be equivalent to the following if you were using argparse:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--count&#39;</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A Command may contain any number of Parameters to define how it will parse CLI arguments.  To better differentiate
-between Parameter types, they are defined as separate classes.  The basics are <a class="reference internal" href="parameters.html#positional"><span class="std std-ref">Positional</span></a>,
-<a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a>, and <a class="reference internal" href="parameters.html#flag"><span class="std std-ref">Flag</span></a>, but there are <a class="reference internal" href="parameters.html"><span class="doc">others</span></a> as well, including
-<a class="reference internal" href="groups.html"><span class="doc">groups</span></a> that can be mutually exclusive or dependent.</p>
+<p>If an explicit long form is provided, then it will be used instead of the default name-based one.  Any number of long
+and/or short forms may be provided:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">example</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;--foo&#39;</span><span class="p">,</span> <span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--FOO&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="entry-points">
 <h2>Entry Points<a class="headerlink" href="#entry-points" title="Permalink to this heading"></a></h2>

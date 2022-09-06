@@ -89,7 +89,9 @@
   <section id="cli-command-parser">
 <h1>CLI Command Parser<a class="headerlink" href="#cli-command-parser" title="Permalink to this heading"></a></h1>
 <p><a class="reference external" href="https://pypistats.org/packages/cli-command-parser"><img alt="downloads" src="https://img.shields.io/pypi/dm/cli-command-parser" /></a> <a class="reference external" href="https://pypi.org/project/cli-command-parser/"><img alt="py_version" src="https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20-blue" /></a> <a class="reference external" href="https://codecov.io/gh/dskrypa/cli_command_parser"><img alt="coverage_badge" src="https://codecov.io/gh/dskrypa/cli_command_parser/branch/main/graph/badge.svg" /></a> <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/actions/workflows/run-tests.yml"><img alt="build_status" src="https://github.com/dskrypa/cli_command_parser/actions/workflows/run-tests.yml/badge.svg" /></a> <a class="reference external" href="https://blue.readthedocs.io/"><img alt="Blue" src="https://img.shields.io/badge/code%20style-blue-blue.svg" /></a></p>
-<p>CLI Command Parser is a class-based CLI argument parser that defines parameters with descriptors.</p>
+<p>CLI Command Parser is a class-based CLI argument parser that defines parameters with descriptors.  It provides the
+tools to quickly and easily get started with basic CLIs, and it scales well to support even very large and complex
+CLIs while remaining readable and easy to maintain.</p>
 <dl class="simple">
 <dt>The primary goals of this project:</dt><dd><ul class="simple">
 <li><p>Make it easy to define subcommands and actions in an clean and organized manner</p></li>
@@ -99,25 +101,72 @@
 </ul>
 </dd>
 </dl>
+<section id="example-program">
+<h2>Example Program<a class="headerlink" href="#example-program" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span>
+
+<span class="k">class</span> <span class="nc">Hello</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hello_world.py --name Bob -c <span class="m">3</span>
+<span class="go">Hello Bob!</span>
+<span class="go">Hello Bob!</span>
+<span class="go">Hello Bob!</span>
+
+<span class="gp">$ </span>hello_world.py -h
+<span class="go">usage: hello_world.py [--name NAME] [--count COUNT] [--help]</span>
+
+<span class="go">Simple greeting example</span>
+
+<span class="go">Optional arguments:</span>
+<span class="go">  --name NAME, -n NAME        The person to say hello to (default: &#39;World&#39;)</span>
+<span class="go">  --count COUNT, -c COUNT     Number of times to repeat the message (default: 1)</span>
+<span class="go">  --help, -h                  Show this help message and exit (default: False)</span>
+</pre></div>
+</div>
+</section>
 <section id="installing-cli-command-parser">
 <h2>Installing CLI Command Parser<a class="headerlink" href="#installing-cli-command-parser" title="Permalink to this heading"></a></h2>
-<p>CLI Command Parser is available on PyPI:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install cli-command-parser
+<p>CLI Command Parser can be installed and updated via <a class="reference external" href="https://pip.pypa.io/en/stable/getting-started/">pip</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U cli-command-parser
 </pre></div>
 </div>
 <p>There are no required dependencies.  Support for formatting wide characters correctly in help text descriptions can
 be included by adding <a class="reference external" href="https://wcwidth.readthedocs.io">wcwidth</a> to your project’s requirements, and/or by installing
 with optional dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install cli-command-parser[wcwidth]
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U cli-command-parser[wcwidth]
 </pre></div>
 </div>
+</section>
+<section id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Documentation: <a class="reference external" href="https://dskrypa.github.io/cli_command_parser/">https://dskrypa.github.io/cli_command_parser/</a></p></li>
+<li><p>Example Scripts: <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/tree/main/examples">https://github.com/dskrypa/cli_command_parser/tree/main/examples</a></p></li>
+<li><p>PyPI Releases: <a class="reference external" href="https://pypi.org/project/cli-command-parser/">https://pypi.org/project/cli-command-parser/</a></p></li>
+<li><p>Source Code: <a class="reference external" href="https://github.com/dskrypa/cli_command_parser">https://github.com/dskrypa/cli_command_parser</a></p></li>
+<li><p>Issue Tracker: <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/issues">https://github.com/dskrypa/cli_command_parser/issues</a></p></li>
+</ul>
 </section>
 <section id="user-guide">
 <h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic.html#parameters">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="basic.html#types">Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="basic.html#names">Names</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="basic.html#entry-points">Entry Points</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic.html#help-text">Help Text</a></li>
 </ul>
