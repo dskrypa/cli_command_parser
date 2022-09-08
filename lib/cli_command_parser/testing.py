@@ -55,7 +55,7 @@ class ParserTest(TestCase):
             self.fail(self._formatMessage(msg, standard_msg))
 
     def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, message: str = None) -> Command:
-        cmd = cmd_cls.parse_and_run(argv)
+        cmd = cmd_cls.parse(argv)
         parsed = cmd.ctx.get_parsed((help_action,))
         self.assert_dict_equal(expected, parsed, message)
         return cmd

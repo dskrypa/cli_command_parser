@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from abc import ABC
-from unittest import main
+from unittest import main, skip
 from unittest.mock import Mock
 
 from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag
@@ -224,6 +224,48 @@ class SubCommandTest(ParserTest):
             ]
             self.assert_parse_results_cases(Base, success_cases)
             self.assert_parse_fails(Base, ['mid'])
+
+    @skip('Cross-param positional conflict detection needs to be implemented')  # TODO #8
+    def test_cross_param_positional_conflict_partial_1(self):
+        with self.assertRaises(CommandDefinitionError):
+
+            class Base(Command):
+                sub_cmd = SubCommand()
+
+            class Show(Base):
+                type = Positional(choices=('foo', 'bar'))
+
+            class ShowBaz(Base, choice='show baz'):
+                pass
+
+            class ShowFooBars(Base, choice='show foo bars'):
+                pass
+
+    @skip('Cross-param positional conflict detection needs to be implemented')  # TODO #8
+    def test_cross_param_positional_conflict_partial_2(self):
+        with self.assertRaises(CommandDefinitionError):
+
+            class Base(Command):
+                sub_cmd = SubCommand()
+
+            class Show(Base):
+                type = Positional(choices=('foo', 'bar'))
+
+            class ShowFooBaz(Base, choice='show foo baz'):
+                pass
+
+    @skip('Cross-param positional conflict detection needs to be implemented')  # TODO #8
+    def test_cross_param_positional_conflict_exact(self):
+        with self.assertRaises(CommandDefinitionError):
+
+            class Base(Command):
+                sub_cmd = SubCommand()
+
+            class Show(Base):
+                type = Positional(choices=('foo', 'foo bar'))
+
+            class ShowFooBar(Base, choice='show foo bar'):
+                pass
 
 
 if __name__ == '__main__':

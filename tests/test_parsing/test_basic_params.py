@@ -255,6 +255,18 @@ class PositionalTest(ParserTest):
         fail_cases = [[], ['--', 'x']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    def test_seemingly_overlapping_choices(self):
+        class Show(Command):
+            type = Positional(choices=('foo', 'foo bar'))
+
+        success_cases = [
+            (['foo'], {'type': 'foo'}),
+            (['foo bar'], {'type': 'foo bar'}),
+        ]
+        self.assert_parse_results_cases(Show, success_cases)
+        # Only ChoiceMap splits/combines on space - `foo bar` must be provided as a single/quoted argument here
+        self.assert_parse_fails(Show, ['foo', 'bar'])
+
 
 class PassThruTest(ParserTest):
     def test_sub_cmd_pass_thru_accepted(self):
