@@ -56,13 +56,13 @@ class CommandParser:
     def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
         params = ctx.params
         sub_cmd_param = params.sub_command
-        if sub_cmd_param is not None and not sub_cmd_param.choices:
+        if sub_cmd_param and not sub_cmd_param.choices:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls(ctx)._parse_args(ctx)
         cls._validate_groups(params)
 
-        if sub_cmd_param is not None:
+        if sub_cmd_param:
             next_cmd = sub_cmd_param.target()  # type: CommandType
             missing = cls._missing(params, ctx)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:

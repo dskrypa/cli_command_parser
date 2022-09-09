@@ -8,7 +8,8 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Optional, Union, TypeVar, Callable, Iterable, Collection, Any, Dict, Tuple, List
+from typing import TYPE_CHECKING, Optional, Union, TypeVar, Callable, Iterable, Collection, Any, Mapping, Sequence
+from typing import Dict, Tuple, List
 from warnings import warn
 from weakref import WeakSet
 
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_top_level_commands']
 
 Bases = Union[Tuple[type, ...], Iterable[type]]
+Choices = Union[Mapping[str, Optional[str]], Collection[str]]
 T = TypeVar('T')
 
 
@@ -30,7 +32,8 @@ class CommandMeta(ABCMeta, type):
     # noinspection PyUnresolvedReferences
     """
     :param choice: SubCommand value to map to this command.
-    :param choices: SubCommand values to map to this command.
+    :param choices: SubCommand values to map to this command.  Optionally, a mapping of ``{choice: help text}`` may be
+      provided to customize the help text displayed for each choice.
     :param prog: The name of the program (default: ``sys.argv[0]`` or the name of the module in which the top-level
       Command was defined in some cases)
     :param usage: Usage message (default: auto-generated)
@@ -64,7 +67,7 @@ class CommandMeta(ABCMeta, type):
         namespace: Dict[str, Any],
         *,
         choice: str = None,
-        choices: Collection[str] = None,
+        choices: Choices = None,
         help: str = None,  # noqa
         config: AnyConfig = None,
         **kwargs,
@@ -89,22 +92,17 @@ class CommandMeta(ABCMeta, type):
 
     @classmethod
     def _maybe_register_sub_cmd(
-        mcs, cls, bases: Bases, choice: str = None, choices: Collection[str] = None, help: str = None  # noqa
+        mcs, cls, bases: Bases, choice: str = None, choices: Choices = None, help: str = None  # noqa
     ):
         if ABC in bases:
             return
         has_both = choices or choice is not None
-        if choices and choice:
-            choices = sorted({choice, *choices})
-        elif not choices:
-            choices = (choice,)
-
         parent = mcs.parent(cls, False)
         if parent:
             sub_cmd = mcs.params(parent).sub_command
-            if sub_cmd is not None:
-                for choice in choices:
-                    sub_cmd.register_command(choice, cls, help)
+            if sub_cmd:
+                for choice, choice_help in _choice_items(choice, choices):
+                    sub_cmd.register_command(choice, cls, choice_help or help)
             elif has_both:
                 warn(
                     f'choices={choices} were not registered for {cls} because'
@@ -200,6 +198,28 @@ class CommandMeta(ABCMeta, type):
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
             cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta)
         return meta
+
+
+def _choice_items(choice: Optional[str], choices: Optional[Choices]) -> Sequence[Tuple[Optional[str], Optional[str]]]:
+    if not choices:
+        return ((choice, None),)  # noqa
+
+    try:
+        items = choices.items()
+    except AttributeError:
+        items = ((c, None) for c in choices)
+
+    if choice:
+        try:
+            return sorted({(choice, None), *items})
+        except TypeError as e:  # Most likely caused by `choice` matching a key in the `choices` dict
+            raise CommandDefinitionError(
+                f'Conflicting choice={choice!r} cannot be combined with choices={choices!r} because it contains a'
+                ' duplicate key or an invalid choice type (expected str).'
+            ) from e
+
+    else:
+        return sorted({*items})
 
 
 get_parent = CommandMeta.parent

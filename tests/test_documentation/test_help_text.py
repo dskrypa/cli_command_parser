@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC
 from contextlib import contextmanager
 from textwrap import dedent
-from typing import TYPE_CHECKING, Sequence, Iterable, Any, Callable, ContextManager, Tuple, Dict
+from typing import TYPE_CHECKING, Sequence, Iterable, Any, ContextManager, Tuple, Dict
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
@@ -323,8 +323,8 @@ class SubcommandHelpAndRstTest(ParserTest):
             ('combine', {'(default)': foo_help, '{bar|bars}': bar_help, 'baz': baz_help}),
         ]
         sub_cmd_kwargs = {'required': False, 'default_help': 'Foo the foo'}
-        for mode, kvs in cases:
-            with self.assert_help_and_rst_match(mode, kvs, help_header, mode, sub_cmd_kwargs) as Foo:
+        for mode, param_help_map in cases:
+            with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode, sub_cmd_kwargs) as Foo:
 
                 class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars'):
                     abc = Flag('-a')
@@ -340,8 +340,8 @@ class SubcommandHelpAndRstTest(ParserTest):
             ('repeat', {'bar': bar_help, 'bars': bars_help, 'baz': baz_help, 'bazs': baz_help}),
             ('combine', {'bar': bar_help, 'bars': bars_help, '{baz|bazs}': baz_help}),
         ]
-        for mode, kvs in cases:
-            with self.assert_help_and_rst_match(mode, kvs, help_header) as Foo:
+        for mode, param_help_map in cases:
+            with self.assert_help_and_rst_match(mode, param_help_map, help_header) as Foo:
 
                 class Bar(Foo, choices=('bar', 'bars'), help='Foo one or more bars', cmd_alias_mode='alias'):
                     abc = Flag('-a')
@@ -353,8 +353,8 @@ class SubcommandHelpAndRstTest(ParserTest):
         help_header = 'Subcommands:\n  {bar|run bar}\n'
         expected = {'bar': 'Execute bar', 'run bar': 'Run bar'}
         cases = [('alias', expected), ('repeat', expected), ('combine', expected)]
-        for mode, kvs in cases:
-            with self.assert_help_and_rst_match(mode, kvs, help_header, mode) as Foo:
+        for mode, param_help_map in cases:
+            with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode) as Foo:
 
                 @Foo.sub_cmd.register('run bar', help='Run bar')
                 class Bar(Foo, help='Execute bar'):
@@ -369,9 +369,26 @@ class SubcommandHelpAndRstTest(ParserTest):
         ]
         for expected, sc_kwargs in local_cases:
             cases = [('alias', expected), ('repeat', expected), ('combine', expected)]
-            for mode, kvs in cases:
-                with self.assert_help_and_rst_match(mode, kvs, help_header, mode, sc_kwargs):
+            for mode, param_help_map in cases:
+                with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode, sc_kwargs):
                     pass
+
+    def test_subcommand_choices_map(self):
+        help_header = 'Subcommands:\n  {a|b|c|d}\n'
+        a, b, bar = 'Find As', 'Find Bs', 'Execute bar'
+        choice_map = {'a': a, 'b': b, 'c': None, 'd': ''}
+        for bar_help, bar_exp in ((None, ''), (bar, bar)):
+            cases = [
+                ('alias', {'a': a, 'b': b, 'c': bar_exp, 'd': 'Alias of: c'}),
+                ('repeat', {'a': a, 'b': b, 'c': bar_exp, 'd': bar_exp}),
+                ('combine', {'a': a, 'b': b, '{c|d}': bar_exp}),
+            ]
+            for mode, param_help_map in cases:
+                with self.subTest(bar_help=bar_help):
+                    with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode) as Foo:
+
+                        class Bar(Foo, choices=choice_map, help=bar_help):
+                            pass
 
 
 def get_expected_help_and_rst(help_header: str, param_help_map: Dict[str, str]) -> Tuple[str, str]:
