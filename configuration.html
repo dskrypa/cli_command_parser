@@ -110,7 +110,8 @@ keyword arguments when defining a Command subclass.  All of these options are op
 name.  Only used when the Command is a subcommand of another Command.</p>
 </dd>
 <dt class="field-even" id="command metadata:choices">choices</dt>
-<dd class="field-even"><p>SubCommand values to map to this command.  Similar to <code class="docutils literal notranslate"><span class="pre">choice</span></code>, but accepts multiple values.</p>
+<dd class="field-even"><p>SubCommand values to map to this command.  Similar to <code class="docutils literal notranslate"><span class="pre">choice</span></code>, but accepts multiple values.  A mapping
+of <code class="docutils literal notranslate"><span class="pre">{choice:</span> <span class="pre">help</span> <span class="pre">text}</span></code> may be provided to customize the help text displayed for each choice.</p>
 </dd>
 <dt class="field-odd" id="command metadata:prog">prog</dt>
 <dd class="field-odd"><p>The name of the program (default: <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code>)</p>

@@ -14,7 +14,8 @@ keyword arguments when defining a Command subclass.  All of these options are op
 
 :choice: SubCommand value that should be mapped to this command, if different than this class's (lower case)
   name.  Only used when the Command is a subcommand of another Command.
-:choices: SubCommand values to map to this command.  Similar to ``choice``, but accepts multiple values.
+:choices: SubCommand values to map to this command.  Similar to ``choice``, but accepts multiple values.  A mapping
+  of ``{choice: help text}`` may be provided to customize the help text displayed for each choice.
 :prog: The name of the program (default: ``sys.argv[0]``)
 :usage: Usage message to be printed with help text or when incorrect arguments are provided (default:
   auto-generated)
