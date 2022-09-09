@@ -9,7 +9,7 @@ import logging
 from cli_command_parser import Command, Counter, SubCommand
 
 
-class Example(Command, prog='complex_example.py', option_name_mode='-'):
+class Example(Command, prog='complex_example.py', option_name_mode='-', show_group_tree=True):
     sub_cmd = SubCommand()
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 

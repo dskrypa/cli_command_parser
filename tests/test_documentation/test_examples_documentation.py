@@ -16,7 +16,7 @@ def load_example_command(name: str, cmd_name: str):
 
 
 def load_expected(name: str) -> str:
-    return TEST_DATA_DIR.joinpath(name).read_text('utf-8')
+    return TEST_DATA_DIR.joinpath(name).read_text('utf-8').rstrip()
 
 
 class ExampleHelpTest(ParserTest):
@@ -33,7 +33,7 @@ class ExampleHelpTest(ParserTest):
             expected = load_expected(f'rest_api_wrapper__{sub_cmd}.txt')
             with self.subTest(sub_cmd=sub_cmd):
                 cmd = ApiWrapper.parse([sub_cmd, '-h'])
-                self.assert_strings_equal(expected, get_help_text(cmd))
+                self.assert_strings_equal(expected, get_help_text(cmd).rstrip())
 
     def test_example_help_texts(self):
         cases = [
@@ -46,7 +46,7 @@ class ExampleHelpTest(ParserTest):
             with self.subTest(file=file_name, command=cmd_name):
                 command = load_example_command(file_name, cmd_name)
                 expected = load_expected(expected_file_name)
-                self.assert_strings_equal(expected, get_help_text(command()))
+                self.assert_strings_equal(expected, get_help_text(command()).rstrip())
 
 
 if __name__ == '__main__':

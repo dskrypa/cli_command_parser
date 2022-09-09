@@ -191,15 +191,16 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         parts = (
             f'{prefix}{param.title or param._default_title}:',
             help_entry,
-            *self._format_choices(tw_offset),
+            *self._format_choices(tw_offset, prefix),
             prefix.rstrip(),
         )
         return '\n'.join(parts)
 
-    def _format_choices(self, tw_offset: int = 0) -> Iterator[str]:
+    def _format_choices(self, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
+        # TODO: Handle the alias detection, but make it possible to sort keys
         mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
         for choice_group in ChoiceGroup.group_choices(self.param.choices.values()):
-            yield from choice_group.format(mode, tw_offset)
+            yield from choice_group.format(mode, tw_offset, prefix)
 
     def rst_table(self) -> RstTable:
         param = self.param
@@ -244,9 +245,9 @@ class ChoiceGroup:
         if choice_str:
             self.choice_strs.append(choice_str)
 
-    def format(self, default_mode: SubcommandAliasHelpMode, tw_offset: int = 0) -> Iterator[str]:
+    def format(self, default_mode: SubcommandAliasHelpMode, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
         for choice, usage, description in self.prepare(default_mode):
-            yield format_help_entry(usage, description, lpad=4, tw_offset=tw_offset)
+            yield format_help_entry(usage, description, lpad=4, tw_offset=tw_offset, prefix=prefix)
 
     def prepare(self, default_mode: SubcommandAliasHelpMode) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
         first = self.choices[0]
