@@ -386,10 +386,11 @@ class CommandParameters:
 
     def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand
-        yield from (p for p in self.positionals if not isinstance(p, ignore))
-        yield from self.options
-        if self._pass_thru:
-            yield self._pass_thru
+        yield from (p for p in self.positionals if p.required and not p.group and not isinstance(p, ignore))
+        yield from (p for p in self.options if p.required and not p.group)
+        pass_thru = self._pass_thru
+        if pass_thru and pass_thru.required and not pass_thru.group:
+            yield pass_thru
 
 
 def _get_groups(param: ParamBase) -> Set[ParamGroup]:

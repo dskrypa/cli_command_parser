@@ -188,6 +188,50 @@ class MutuallyExclusiveGroupTest(_GroupTest):
         fail_cases = [['-bB'], ['-B', '-b'], ['-fbB'], ['-f', '-B', '-b']]
         self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2, exc=UsageError)
 
+    def test_required_param_in_nested_groups_doesnt_block_other_group(self):
+        class Foo(Command):
+            with ParamGroup(mutually_exclusive=True):
+                with ParamGroup():
+                    a = Option('-a', required=True)
+                    b = Option('-b')
+                with ParamGroup():
+                    c = Option('-c', required=True)
+                    d = Option('-d', required=True)
+                    e = Option('-e')
+                f = Option('-f')
+
+        success_cases = [
+            ([], {'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': None}),
+            (['-f', '1'], {'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': '1'}),
+            (['-a', '1'], {'a': '1', 'b': None, 'c': None, 'd': None, 'e': None, 'f': None}),
+            (['-a', '1', '-b', '2'], {'a': '1', 'b': '2', 'c': None, 'd': None, 'e': None, 'f': None}),
+            (['-c', '1', '-d', '2'], {'a': None, 'b': None, 'c': '1', 'd': '2', 'e': None, 'f': None}),
+            (['-c', '1', '-d', '2', '-e', '3'], {'a': None, 'b': None, 'c': '1', 'd': '2', 'e': '3', 'f': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            ['-a', '1', '-c', '3'],
+            ['-a', '1', '-f', '3'],
+            ['-b', '1', '-f', '3'],
+            ['-a', '1', '-d', '3'],
+            ['-a', '1', '-e', '3'],
+            ['-a', '1', '-b', '2', '-c', '3'],
+            ['-a', '1', '-b', '2', '-d', '3'],
+            ['-a', '1', '-b', '2', '-e', '3'],
+            ['-a', '1', '-b', '2', '-f', '3'],
+            ['-a', '1', '-b', '2', '-f', '3'],
+            ['-a', '1', '-b', '2', '-f', '3'],
+            ['-c', '3'],
+            ['-d', '3'],
+            ['-c', '3', '-e', '5'],
+            ['-d', '3', '-e', '5'],
+            ['-c', '3', '-d', '5', '-f', '6'],
+            ['-d', '3', '-e', '5', '-f', '6'],
+            ['-c', '3', '-f', '5'],
+            ['-d', '3', '-f', '5'],
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
 
 class MutuallyDependentGroupTest(_GroupTest):
     def test_mutually_dependent(self):

@@ -84,6 +84,7 @@ class ParamGroup(ParamBase):
         return False
 
     def __lt__(self, other: ParamGroup) -> bool:
+        # Sort order places nested groups before their parent groups
         if not isinstance(other, ParamGroup):
             return NotImplemented
         elif self in other.members:
@@ -195,14 +196,25 @@ class ParamGroup(ParamBase):
         elif self.mutually_exclusive and not 0 <= len(provided) < 2:
             raise ParamConflict(provided, 'they are mutually exclusive - only one is allowed')
 
+    @property
+    def in_mutually_exclusive_group(self) -> bool:
+        parent = self.group
+        if not parent:
+            return False
+        return parent.mutually_exclusive
+
     def validate(self):
         provided, missing = self._categorize_params()
         ctx.record_action(self, len(provided))
         self._check_conflicts(provided, missing)
-
-        required = self.required or (self.mutually_dependent and any(p.required for p in self.members))
-        if required and not ctx.num_provided(self):
+        if not missing:
+            return
+        elif not provided and (self.required or (self.mutually_dependent and any(p.required for p in self.members))):
             raise ParamsMissing(missing)
+        elif provided or not self.in_mutually_exclusive_group:
+            req_missing = [p for p in missing if p.required]
+            if req_missing:
+                raise ParamsMissing(req_missing)
 
     # endregion
 

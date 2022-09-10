@@ -91,7 +91,7 @@ class CommandParser:
 
     @classmethod
     def _missing(cls, params: CommandParameters, ctx: Context) -> List[Parameter]:
-        return [p for p in params.required_check_params() if p.required and ctx.num_provided(p) == 0]
+        return [p for p in params.required_check_params() if ctx.num_provided(p) == 0]
 
     @classmethod
     def _validate_groups(cls, params: CommandParameters):

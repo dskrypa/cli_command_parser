@@ -23,7 +23,7 @@ except ImportError:
 
 from .config import CommandConfig, DEFAULT_CONFIG
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
-from .exceptions import NoActiveContext
+from .exceptions import NoActiveContext, MissingArgument
 from .utils import _NotSet, Terminal
 
 if TYPE_CHECKING:
@@ -156,7 +156,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
                 for group in (params.positionals, params.options, (params.pass_thru,)):
                     for param in group:
                         if param and param not in exclude:
-                            parsed[param.name] = param.result_value()
+                            try:
+                                parsed[param.name] = param.result_value()
+                            except MissingArgument:
+                                parsed[param.name] = None
 
         return parsed
 
