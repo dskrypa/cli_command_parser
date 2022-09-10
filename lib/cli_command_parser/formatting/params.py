@@ -216,8 +216,11 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
 
 class ChoiceGroup:
     """
-    A group of :class:`.Choice` objects from a given :class:`.ChoiceMap` that point to the same target.  Used for
-    formatting help text based on the configured :attr:`.CommandConfig.cmd_alias_mode`.
+    A group of :class:`.Choice` objects from a given :class:`~.choice_map.ChoiceMap` that point to the same target.
+    The first discovered Choice for a given target is considered the canonical one.  Subsequent Choices for that target
+    are considered aliases.
+
+    Used for formatting help text based on the configured :attr:`.CommandConfig.cmd_alias_mode`.
     """
 
     __slots__ = ('choice_strs', 'choices')
@@ -229,6 +232,13 @@ class ChoiceGroup:
 
     @classmethod
     def group_choices(cls, choices: Iterable[Choice]) -> Iterable[ChoiceGroup]:
+        """
+        Processes the given Choices to group them by target and configured help text.  If two choices have the same
+        target but different help text values, then they are considered different, so they are not grouped together.
+
+        :param choices: The :class:`.Choice` objects that may contain aliases of each other.
+        :return: The :class:`.ChoiceGroup` objects containing the grouped Choices.
+        """
         target_choice_map = {}
         for n, choice in enumerate(choices):
             key = (choice.target, n if choice.local else None, choice.help)
@@ -246,10 +256,24 @@ class ChoiceGroup:
             self.choice_strs.append(choice_str)
 
     def format(self, default_mode: SubcommandAliasHelpMode, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
+        """
+        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.
+        :param tw_offset: Terminal width offset for text width calculations.
+        :param prefix: Prefix to add to every line (primarily intended for use with nested groups).
+        :return: Generator that yields formatted help text entries (strings) for the Choices in this group.
+        """
         for choice, usage, description in self.prepare(default_mode):
             yield format_help_entry(usage, description, lpad=4, tw_offset=tw_offset, prefix=prefix)
 
     def prepare(self, default_mode: SubcommandAliasHelpMode) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+        """
+        Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias
+        mode.
+
+        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.
+        :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and
+          the help text / description for that choice / alias.
+        """
         first = self.choices[0]
         config = get_config(first.target)  # If it's not a Command, get_config will return None
         if config:
@@ -261,10 +285,16 @@ class ChoiceGroup:
             yield from self.prepare_aliases()
         elif mode == SubcommandAliasHelpMode.REPEAT:
             yield from self.prepare_repeated()
-        else:  # mode == SubcommandAliasHelpMode.COMBINE
+        elif mode == SubcommandAliasHelpMode.COMBINE:
             yield self.prepare_combined()
+        else:  # Treat as a format string
+            yield from self.prepare_aliases(mode)
 
     def prepare_combined(self) -> Tuple[Choice, OptStr, OptStr]:
+        """
+        Prepare this group's Choices for inclusion in help text / documentation by combining all aliases into a single
+        entry.
+        """
         first, choice_strs = self.choices[0], self.choice_strs
         try:
             usage, *additional = choice_strs
@@ -276,19 +306,43 @@ class ChoiceGroup:
 
         return first, usage, first.help
 
-    def prepare_aliases(self) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+    def prepare_aliases(self, format_str: str = 'Alias of: {choice}') -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+        """
+        Prepare this group's Choices for inclusion in help text / documentation using an alternate description for
+        aliases.
+
+        Variables supported in the :paramref:`.format_str`:
+
+        - ``{choice}``: The first ("canonical") choice string for this group
+        - ``{alias}``: The alias choice string
+        - ``{help}``: The original help text for this Choice / group
+
+        To append a suffix to alias descriptions instead of the default prefix, a mode / format string like the
+        following could be used::
+
+            cmd_alias_mode='{help} [Alias of: {choice}]'
+
+        :param format_str: The :ref:`format string <python:formatstrings>` to use as the help text / description for
+          aliases.
+        :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and
+          the help text / description for that choice / alias.
+        """
         first = self.choices[0]
         try:
             first_str, *choice_strs = self.choice_strs
         except ValueError:  # choice_strs is empty
             yield first, first.format_usage(), first.help
         else:
-            yield first, first_str, first.help
-            description = f'Alias of: {first_str}'
+            help_str = first.help
+            yield first, first_str, help_str
             for choice_str in choice_strs:
-                yield first, choice_str, description
+                yield first, choice_str, format_str.format(choice=first_str, alias=choice_str, help=help_str)
 
     def prepare_repeated(self) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+        """
+        Prepare this group's Choices for inclusion in help text / documentation with no modifications.  Choices that
+        are considered aliases are simply repeated as if they were not aliases.
+        """
         for choice in self.choices:
             yield choice, choice.format_usage(), choice.help
 

@@ -132,12 +132,22 @@ class SubcommandAliasHelpMode(MissingMixin, Enum):
       displayed in a way that is similar to the way that the ``choices=`` values for other Parameters are displayed.
     :ALIAS: Each alias will be on a separate line in the ``Subcommands:`` section, but only the first choice/value will
       have the description (if defined for the target Command).  Subsequent aliases' descriptions will be replaced by
-      ``Alias for: <first choice/alias value>``.
+      ``Alias of: <first choice/alias value>``.
     """
 
     REPEAT = 'repeat'       # Repeat the description as if it was a separate subcommand
     COMBINE = 'combine'     # Combine aliases onto a single line
     ALIAS = 'alias'         # Indicate the subcommand that it is an alias for; do not repeat the description
+
+
+CmdAliasMode = Union[SubcommandAliasHelpMode, str]
+
+
+def _cmd_alias_mode(mode: CmdAliasMode) -> CmdAliasMode:
+    try:
+        return SubcommandAliasHelpMode(mode)
+    except ValueError:
+        return mode
 
 
 # endregion
@@ -261,7 +271,7 @@ class CommandConfig:
     show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
 
     #: How subcommand aliases should be displayed in help text.
-    cmd_alias_mode: SubcommandAliasHelpMode = ConfigItem(None, SubcommandAliasHelpMode)  # noqa
+    cmd_alias_mode: CmdAliasMode = ConfigItem(None, _cmd_alias_mode)  # noqa
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = ConfigItem(False, bool)

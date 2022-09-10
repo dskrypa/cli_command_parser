@@ -390,6 +390,21 @@ class SubcommandHelpAndRstTest(ParserTest):
                         class Bar(Foo, choices=choice_map, help=bar_help):
                             pass
 
+    def test_subcommand_choices_map_custom_format(self):
+        help_header = 'Subcommands:\n  {a|b|c|d}\n'
+        a, b, c, bar = 'Find As', 'Find Bs', 'Find Cs', 'Execute bar'
+        fmt_a, fmt_b = '{help} [Alias of: {choice}]', 'Test {alias}'
+        cases = [
+            (fmt_a, {'a': a, 'b': b, 'c': None, 'd': ''}, {'a': a, 'b': b, 'c': bar, 'd': f'{bar} [Alias of: c]'}),
+            (fmt_a, {'a': a, 'b': b, 'c': c, 'd': c}, {'a': a, 'b': b, 'c': c, 'd': f'{c} [Alias of: c]'}),
+            (fmt_b, {'a': a, 'b': b, 'c': c, 'd': c}, {'a': a, 'b': b, 'c': c, 'd': 'Test d'}),
+        ]
+        for fmt_str, choice_map, param_help_map in cases:
+            with self.assert_help_and_rst_match('alias', param_help_map, help_header) as Foo:
+
+                class Bar(Foo, choices=choice_map, help=bar, cmd_alias_mode=fmt_str):
+                    pass
+
 
 def get_expected_help_and_rst(help_header: str, param_help_map: Dict[str, str]) -> Tuple[str, str]:
     kf = '    {:s}\n'.format

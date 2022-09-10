@@ -19,7 +19,7 @@ from ..typing import Bool, CommandCls
 from ..utils import _NotSet, camel_to_snake_case
 from .base import BasePositional, parameter_action
 
-__all__ = ['SubCommand', 'Action']
+__all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
 
 T = TypeVar('T')
 OptStr = Optional[str]
