@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.groups &mdash; CLI Command Parser 2022.09.09 documentation</title>
+  <title>cli_command_parser.parameters.groups &mdash; CLI Command Parser 2022.09.10 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -170,6 +170,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamGroup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># Sort order places nested groups before their parent groups</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="k">elif</span> <span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
@@ -281,14 +282,25 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="ow">and</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="s1">&#39;they are mutually exclusive - only one is allowed&#39;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="ParamGroup.in_mutually_exclusive_group"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.in_mutually_exclusive_group">[docs]</a>    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">in_mutually_exclusive_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">mutually_exclusive</span></div>
+
 <div class="viewcode-block" id="ParamGroup.validate"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categorize_params</span><span class="p">()</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_conflicts</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="n">missing</span><span class="p">)</span>
-
-        <span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">provided</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">provided</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_mutually_exclusive_group</span><span class="p">:</span>
+            <span class="n">req_missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">missing</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">req_missing</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">req_missing</span><span class="p">)</span></div>
 
     <span class="c1"># endregion</span>
 

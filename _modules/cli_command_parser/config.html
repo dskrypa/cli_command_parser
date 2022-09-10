@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.09.09 documentation</title>
+  <title>cli_command_parser.config &mdash; CLI Command Parser 2022.09.10 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
@@ -358,6 +358,9 @@
 
     <span class="c1">#: How subcommand aliases should be displayed in help text.</span>
     <span class="n">cmd_alias_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_cmd_alias_mode</span><span class="p">)</span>  <span class="c1"># noqa</span>
+
+    <span class="c1">#: Whether Parameter `choices` values and Action / Subcommand choices should be sorted</span>
+    <span class="n">sort_choices</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
     <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>

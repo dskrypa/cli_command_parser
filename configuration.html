@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Configuration &mdash; CLI Command Parser 2022.09.09 documentation</title>
+  <title>Configuration &mdash; CLI Command Parser 2022.09.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
@@ -212,39 +212,42 @@ given Command class that is registered as a subcommand / subclass of another Com
 text and documentation.  Supports <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a> values (or string equivalents).  Alternatively,
 a <a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases" title="cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases"><code class="xref py py-meth docutils literal notranslate"><span class="pre">format</span> <span class="pre">string</span></code></a> for aliases may be provided here.</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:show_group_tree">show_group_tree</dt>
-<dd class="field-odd"><p>Whether there should be a visual indicator in help text for the parameters that are members
+<dt class="field-odd" id="usage &amp; help text options:sort_choices">sort_choices</dt>
+<dd class="field-odd"><p>Whether Parameter <cite>choices</cite> values and Action / Subcommand choices should be sorted (default: False)</p>
+</dd>
+<dt class="field-even" id="usage &amp; help text options:show_group_tree">show_group_tree</dt>
+<dd class="field-even"><p>Whether there should be a visual indicator in help text for the parameters that are members
 of a given group.  See <a class="reference internal" href="documentation.html#group-formatting"><span class="std std-ref">Group Formatting</span></a> for more info.  (default: False)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:show_group_type">show_group_type</dt>
-<dd class="field-even"><p>Whether mutually exclusive / dependent groups should include that fact in their
+<dt class="field-odd" id="usage &amp; help text options:show_group_type">show_group_type</dt>
+<dd class="field-odd"><p>Whether mutually exclusive / dependent groups should include that fact in their
 descriptions (default: True)</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:command_formatter">command_formatter</dt>
-<dd class="field-odd"><p>A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
+<dt class="field-even" id="usage &amp; help text options:command_formatter">command_formatter</dt>
+<dd class="field-even"><p>A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
 <a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
 same methods).</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:param_formatter">param_formatter</dt>
-<dd class="field-even"><p>A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
+<dt class="field-odd" id="usage &amp; help text options:param_formatter">param_formatter</dt>
+<dd class="field-odd"><p>A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
 <a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:extended_epilog">extended_epilog</dt>
-<dd class="field-odd"><p>Whether the program version, author email, and documentation URL should be included in the
+<dt class="field-even" id="usage &amp; help text options:extended_epilog">extended_epilog</dt>
+<dd class="field-even"><p>Whether the program version, author email, and documentation URL should be included in the
 help text epilog, if they were successfully detected (default: True)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:show_docstring">show_docstring</dt>
-<dd class="field-even"><p>Whether the top level script’s docstring should be included in generated documentation
+<dt class="field-odd" id="usage &amp; help text options:show_docstring">show_docstring</dt>
+<dd class="field-odd"><p>Whether the top level script’s docstring should be included in generated documentation
 (default: True)</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:choice_delim">choice_delim</dt>
-<dd class="field-odd"><p>Delimiter to use between choices in usage / help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p>
+<dt class="field-even" id="usage &amp; help text options:choice_delim">choice_delim</dt>
+<dd class="field-even"><p>Delimiter to use between choices in usage / help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:usage_column_width">usage_column_width</dt>
-<dd class="field-even"><p>Width (in characters) for the usage column in help text.  Defaults to 30.</p>
+<dt class="field-odd" id="usage &amp; help text options:usage_column_width">usage_column_width</dt>
+<dd class="field-odd"><p>Width (in characters) for the usage column in help text.  Defaults to 30.</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:min_usage_column_width">min_usage_column_width</dt>
-<dd class="field-odd"><p>Minimum width (in characters) for the usage column in help text after adjusting for group
+<dt class="field-even" id="usage &amp; help text options:min_usage_column_width">min_usage_column_width</dt>
+<dd class="field-even"><p>Minimum width (in characters) for the usage column in help text after adjusting for group
 indentation / terminal width.  Defaults to 20.</p>
 </dd>
 </dl>
