@@ -302,8 +302,11 @@
 
 <div class="viewcode-block" id="ChoiceGroup"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup">[docs]</a><span class="k">class</span> <span class="nc">ChoiceGroup</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A group of :class:`.Choice` objects from a given :class:`.ChoiceMap` that point to the same target.  Used for</span>
-<span class="sd">    formatting help text based on the configured :attr:`.CommandConfig.cmd_alias_mode`.</span>
+<span class="sd">    A group of :class:`.Choice` objects from a given :class:`~.choice_map.ChoiceMap` that point to the same target.</span>
+<span class="sd">    The first discovered Choice for a given target is considered the canonical one.  Subsequent Choices for that target</span>
+<span class="sd">    are considered aliases.</span>
+
+<span class="sd">    Used for formatting help text based on the configured :attr:`.CommandConfig.cmd_alias_mode`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;choice_strs&#39;</span><span class="p">,</span> <span class="s1">&#39;choices&#39;</span><span class="p">)</span>
@@ -315,6 +318,13 @@
 
 <div class="viewcode-block" id="ChoiceGroup.group_choices"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.group_choices">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">group_choices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Choice</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ChoiceGroup</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes the given Choices to group them by target and configured help text.  If two choices have the same</span>
+<span class="sd">        target but different help text values, then they are considered different, so they are not grouped together.</span>
+
+<span class="sd">        :param choices: The :class:`.Choice` objects that may contain aliases of each other.</span>
+<span class="sd">        :return: The :class:`.ChoiceGroup` objects containing the grouped Choices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">target_choice_map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">choices</span><span class="p">):</span>
             <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">n</span> <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">local</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">choice</span><span class="o">.</span><span class="n">help</span><span class="p">)</span>
@@ -332,10 +342,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice_str</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.format"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.</span>
+<span class="sd">        :param tw_offset: Terminal width offset for text width calculations.</span>
+<span class="sd">        :param prefix: Prefix to add to every line (primarily intended for use with nested groups).</span>
+<span class="sd">        :return: Generator that yields formatted help text entries (strings) for the Choices in this group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">default_mode</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">format_help_entry</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">tw_offset</span><span class="o">=</span><span class="n">tw_offset</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias</span>
+<span class="sd">        mode.</span>
+
+<span class="sd">        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.</span>
+<span class="sd">        :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and</span>
+<span class="sd">          the help text / description for that choice / alias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>  <span class="c1"># If it&#39;s not a Command, get_config will return None</span>
         <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
@@ -347,10 +371,16 @@
             <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_aliases</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">SubcommandAliasHelpMode</span><span class="o">.</span><span class="n">REPEAT</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_repeated</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># mode == SubcommandAliasHelpMode.COMBINE</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_combined</span><span class="p">()</span></div>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">SubcommandAliasHelpMode</span><span class="o">.</span><span class="n">COMBINE</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_combined</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Treat as a format string</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_aliases</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_combined"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_combined">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation by combining all aliases into a single</span>
+<span class="sd">        entry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first</span><span class="p">,</span> <span class="n">choice_strs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">usage</span><span class="p">,</span> <span class="o">*</span><span class="n">additional</span> <span class="o">=</span> <span class="n">choice_strs</span>
@@ -362,19 +392,43 @@
 
         <span class="k">return</span> <span class="n">first</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">first</span><span class="o">.</span><span class="n">help</span></div>
 
-<div class="viewcode-block" id="ChoiceGroup.prepare_aliases"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+<div class="viewcode-block" id="ChoiceGroup.prepare_aliases"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation using an alternate description for</span>
+<span class="sd">        aliases.</span>
+
+<span class="sd">        Variables supported in the :paramref:`.format_str`:</span>
+
+<span class="sd">        - ``{choice}``: The first (&quot;canonical&quot;) choice string for this group</span>
+<span class="sd">        - ``{alias}``: The alias choice string</span>
+<span class="sd">        - ``{help}``: The original help text for this Choice / group</span>
+
+<span class="sd">        To append a suffix to alias descriptions instead of the default prefix, a mode / format string like the</span>
+<span class="sd">        following could be used::</span>
+
+<span class="sd">            cmd_alias_mode=&#39;{help} [Alias of: {choice}]&#39;</span>
+
+<span class="sd">        :param format_str: The :ref:`format string &lt;python:formatstrings&gt;` to use as the help text / description for</span>
+<span class="sd">          aliases.</span>
+<span class="sd">        :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and</span>
+<span class="sd">          the help text / description for that choice / alias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">first_str</span><span class="p">,</span> <span class="o">*</span><span class="n">choice_strs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># choice_strs is empty</span>
             <span class="k">yield</span> <span class="n">first</span><span class="p">,</span> <span class="n">first</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(),</span> <span class="n">first</span><span class="o">.</span><span class="n">help</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">first</span><span class="p">,</span> <span class="n">first_str</span><span class="p">,</span> <span class="n">first</span><span class="o">.</span><span class="n">help</span>
-            <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Alias of: </span><span class="si">{</span><span class="n">first_str</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">help_str</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">help</span>
+            <span class="k">yield</span> <span class="n">first</span><span class="p">,</span> <span class="n">first_str</span><span class="p">,</span> <span class="n">help_str</span>
             <span class="k">for</span> <span class="n">choice_str</span> <span class="ow">in</span> <span class="n">choice_strs</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">first</span><span class="p">,</span> <span class="n">choice_str</span><span class="p">,</span> <span class="n">description</span></div>
+                <span class="k">yield</span> <span class="n">first</span><span class="p">,</span> <span class="n">choice_str</span><span class="p">,</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">choice</span><span class="o">=</span><span class="n">first_str</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">choice_str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_str</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_repeated"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_repeated">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation with no modifications.  Choices that</span>
+<span class="sd">        are considered aliases are simply repeated as if they were not aliases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">choice</span><span class="p">,</span> <span class="n">choice</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(),</span> <span class="n">choice</span><span class="o">.</span><span class="n">help</span></div></div>
 

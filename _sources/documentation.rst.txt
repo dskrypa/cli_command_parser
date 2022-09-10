@@ -28,6 +28,14 @@ Using the `grouped_action_flags example <https://github.com/dskrypa/cli_command_
 we can see an example of the resulting help text:
 
 .. image:: images/show_group_tree_example.png
+  :alt: Group tree example output showing the difference between visual indicators for each type of group
+
+If the output appears garbled compared to the above example, it is likely due to lack of correct UTF-8 support in the
+terminal.  When using PuTTY, make sure the ``Remote character set`` (in the ``Window`` > ``Translation`` config
+category) is configured to use ``UTF-8``:
+
+.. image:: images/putty_utf-8.png
+  :alt: Screenshot of the "Remote character set" setting location in a PuTTY configuration window
 
 
 reStructuredText

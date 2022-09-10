@@ -207,9 +207,10 @@ per-Parameter level by using the <a class="reference internal" href="parameters.
 more info.</p>
 </dd>
 <dt class="field-even" id="usage &amp; help text options:cmd_alias_mode">cmd_alias_mode</dt>
-<dd class="field-even"><p>Options for how subcommand aliases (alternate <a class="reference internal" href="subcommands.html#subcommand-cls-params"><span class="std std-ref">choices</span></a> specified for a
+<dd class="field-even"><p>Controls how subcommand aliases (alternate <a class="reference internal" href="subcommands.html#subcommand-cls-params"><span class="std std-ref">choices</span></a> specified for a
 given Command class that is registered as a subcommand / subclass of another Command) should be displayed in help
-text.</p>
+text and documentation.  Supports <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a> values (or string equivalents).  Alternatively,
+a <a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases" title="cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases"><code class="xref py py-meth docutils literal notranslate"><span class="pre">format</span> <span class="pre">string</span></code></a> for aliases may be provided here.</p>
 </dd>
 <dt class="field-odd" id="usage &amp; help text options:show_group_tree">show_group_tree</dt>
 <dd class="field-odd"><p>Whether there should be a visual indicator in help text for the parameters that are members

@@ -78,9 +78,10 @@ Usage & Help Text Options
   `enum flags <https://docs.python.org/3/library/enum.html#flag>`__ that can be combined.  May be overridden on a
   per-Parameter level by using the :ref:`parameters:parameters:show_default` param. See :class:`.ShowDefaults` for
   more info.
-:cmd_alias_mode: Options for how subcommand aliases (alternate :ref:`choices<subcommand_cls_params>` specified for a
+:cmd_alias_mode: Controls how subcommand aliases (alternate :ref:`choices<subcommand_cls_params>` specified for a
   given Command class that is registered as a subcommand / subclass of another Command) should be displayed in help
-  text.
+  text and documentation.  Supports :class:`.SubcommandAliasHelpMode` values (or string equivalents).  Alternatively,
+  a :meth:`format string<.ChoiceGroup.prepare_aliases>` for aliases may be provided here.
 :show_group_tree: Whether there should be a visual indicator in help text for the parameters that are members
   of a given group.  See :ref:`documentation:Group Formatting` for more info.  (default: False)
 :show_group_type: Whether mutually exclusive / dependent groups should include that fact in their

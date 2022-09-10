@@ -218,12 +218,22 @@
 <span class="sd">      displayed in a way that is similar to the way that the ``choices=`` values for other Parameters are displayed.</span>
 <span class="sd">    :ALIAS: Each alias will be on a separate line in the ``Subcommands:`` section, but only the first choice/value will</span>
 <span class="sd">      have the description (if defined for the target Command).  Subsequent aliases&#39; descriptions will be replaced by</span>
-<span class="sd">      ``Alias for: &lt;first choice/alias value&gt;``.</span>
+<span class="sd">      ``Alias of: &lt;first choice/alias value&gt;``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">REPEAT</span> <span class="o">=</span> <span class="s1">&#39;repeat&#39;</span>       <span class="c1"># Repeat the description as if it was a separate subcommand</span>
     <span class="n">COMBINE</span> <span class="o">=</span> <span class="s1">&#39;combine&#39;</span>     <span class="c1"># Combine aliases onto a single line</span>
     <span class="n">ALIAS</span> <span class="o">=</span> <span class="s1">&#39;alias&#39;</span>         <span class="c1"># Indicate the subcommand that it is an alias for; do not repeat the description</span></div>
+
+
+<span class="n">CmdAliasMode</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">SubcommandAliasHelpMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_cmd_alias_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CmdAliasMode</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mode</span>
 
 
 <span class="c1"># endregion</span>
@@ -347,7 +357,7 @@
     <span class="n">show_defaults</span><span class="p">:</span> <span class="n">ShowDefaults</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">)</span>
 
     <span class="c1">#: How subcommand aliases should be displayed in help text.</span>
-    <span class="n">cmd_alias_mode</span><span class="p">:</span> <span class="n">SubcommandAliasHelpMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">)</span>  <span class="c1"># noqa</span>
+    <span class="n">cmd_alias_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_cmd_alias_mode</span><span class="p">)</span>  <span class="c1"># noqa</span>
 
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
     <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
