@@ -9,6 +9,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union, Type, Callable, Iterator, Iterable, Tuple, Dict
 
+try:
+    from functools import cached_property
+except ImportError:
+    from ..compat import cached_property
+
 from ..config import SubcommandAliasHelpMode
 from ..context import ctx
 from ..core import get_config
@@ -65,7 +70,8 @@ class ParamHelpFormatter:
         t = param.type
         if t is not None:
             try:
-                metavar = t.format_metavar(ctx.config.choice_delim)
+                config = ctx.config
+                metavar = t.format_metavar(config.choice_delim, config.sort_choices)
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
             else:
@@ -173,10 +179,18 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
 
 
 class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
+    @cached_property
+    def choice_groups(self) -> Iterable[ChoiceGroup]:
+        return ChoiceGroup.group_choices(self.param.choices.values())
+
     def format_metavar(self) -> str:
-        param = self.param
+        param: ChoiceMap = self.param
         if param.choices:
-            return '{{{}}}'.format(ctx.config.choice_delim.join(map(str, filter(None, param.choices))))
+            config = ctx.config
+            choices = (str(c) for c in (c.choice for cg in self.choice_groups for c in cg.choices) if c is not None)
+            if config.sort_choices:
+                choices = sorted(choices)
+            return '{{{}}}'.format(config.choice_delim.join(choices))
         else:
             return param.metavar or param.name.upper()
 
@@ -188,30 +202,38 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         usage = self.format_usage()
         help_entry = format_help_entry(usage, param.description, 2, tw_offset=tw_offset, prefix=prefix)
 
+        choices = self._format_choices(tw_offset, prefix)
+        if ctx.config.sort_choices:
+            choices = sorted(choices)
+
         parts = (
             f'{prefix}{param.title or param._default_title}:',
             help_entry,
-            *self._format_choices(tw_offset, prefix),
+            *choices,
             prefix.rstrip(),
         )
         return '\n'.join(parts)
 
     def _format_choices(self, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
-        # TODO: Handle the alias detection, but make it possible to sort keys
         mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
-        for choice_group in ChoiceGroup.group_choices(self.param.choices.values()):
+        for choice_group in self.choice_groups:
             yield from choice_group.format(mode, tw_offset, prefix)
 
     def rst_table(self) -> RstTable:
+        rows = self._format_rst_rows()
+        if ctx.config.sort_choices:
+            rows = sorted(rows)
+
         param = self.param
         table = RstTable(param.title or param._default_title, param.description)
-
-        mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
-        for choice_group in ChoiceGroup.group_choices(param.choices.values()):
-            for choice, usage, description in choice_group.prepare(mode):
-                table.add_row(f'``{usage}``', description)
-
+        table.add_rows(rows)
         return table
+
+    def _format_rst_rows(self) -> Iterator[Tuple[str, OptStr]]:
+        mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
+        for choice_group in self.choice_groups:
+            for choice, usage, description in choice_group.prepare(mode):
+                yield f'``{usage}``', description
 
 
 class ChoiceGroup:
@@ -275,7 +297,10 @@ class ChoiceGroup:
           the help text / description for that choice / alias.
         """
         first = self.choices[0]
-        config = get_config(first.target)  # If it's not a Command, get_config will return None
+        config = get_config(first.target)
+        # If it's not a Command, get_config will return None.  If it is a Command, then it will use its config.  If the
+        # alias mode is not set on that target Command, but it is set on its parent, then this will use that parent's
+        # setting.
         if config:
             mode = config.cmd_alias_mode or default_mode
         else:
@@ -365,8 +390,8 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         choice_delim = self._get_choice_delim()
-        choices = choice_delim.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
-        return self.wrap_usage(choices)
+        members = choice_delim.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
+        return self.wrap_usage(choice_delim.join(members))
 
     def format_description(self, rst: Bool = False) -> str:
         group = self.param

@@ -82,6 +82,7 @@ Usage & Help Text Options
   given Command class that is registered as a subcommand / subclass of another Command) should be displayed in help
   text and documentation.  Supports :class:`.SubcommandAliasHelpMode` values (or string equivalents).  Alternatively,
   a :meth:`format string<.ChoiceGroup.prepare_aliases>` for aliases may be provided here.
+:sort_choices: Whether Parameter `choices` values and Action / Subcommand choices should be sorted (default: False)
 :show_group_tree: Whether there should be a visual indicator in help text for the parameters that are members
   of a given group.  See :ref:`documentation:Group Formatting` for more info.  (default: False)
 :show_group_type: Whether mutually exclusive / dependent groups should include that fact in their

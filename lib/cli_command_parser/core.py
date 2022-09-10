@@ -19,7 +19,7 @@ from .exceptions import CommandDefinitionError
 from .metadata import ProgramMetadata
 
 if TYPE_CHECKING:
-    from .typing import Config, AnyConfig, CommandCls, CommandAny
+    from .typing import Config, AnyConfig, CommandCls, CommandAny, OptStr
 
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_top_level_commands']
 
@@ -200,26 +200,19 @@ class CommandMeta(ABCMeta, type):
         return meta
 
 
-def _choice_items(choice: Optional[str], choices: Optional[Choices]) -> Sequence[Tuple[Optional[str], Optional[str]]]:
+def _choice_items(choice: OptStr, choices: Optional[Choices]) -> Sequence[Tuple[OptStr, OptStr]]:
     if not choices:
         return ((choice, None),)  # noqa
 
     try:
-        items = choices.items()
+        items = {kv: None for kv in choices.items()}
     except AttributeError:
-        items = ((c, None) for c in choices)
+        items = {(c, None): None for c in choices}
 
     if choice:
-        try:
-            return sorted({(choice, None), *items})
-        except TypeError as e:  # Most likely caused by `choice` matching a key in the `choices` dict
-            raise CommandDefinitionError(
-                f'Conflicting choice={choice!r} cannot be combined with choices={choices!r} because it contains a'
-                ' duplicate key or an invalid choice type (expected str).'
-            ) from e
-
+        return {(choice, None): None, **items}
     else:
-        return sorted({*items})
+        return items
 
 
 get_parent = CommandMeta.parent

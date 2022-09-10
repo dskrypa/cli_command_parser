@@ -126,23 +126,19 @@ class TestCommandMeta(TestCase):
             class Foo(Command, test123='test'):
                 pass
 
-    def test_choice_items_bad_combo(self):
-        with self.assertRaises(CommandDefinitionError):
-            _choice_items('foo', {'foo': 'bar'})
-
     def test_choice_items_results(self):
         cases = [
-            ((None, None), ((None, None),)),
-            (('a', None), (('a', None),)),
-            (('a', ['c', 'b']), [('a', None), ('b', None), ('c', None)]),
-            (('a', ['b', 'b']), [('a', None), ('b', None)]),
-            (('a', {'a': None, 'b': 'foo'}), [('a', None), ('b', 'foo')]),
-            ((None, {'a': None, 'b': 'foo'}), [('a', None), ('b', 'foo')]),
-            (('', {'a': None, 'b': 'foo'}), [('a', None), ('b', 'foo')]),
+            ((None, None), {(None, None)}),
+            (('a', None), {('a', None)}),
+            (('a', ['c', 'b']), {('a', None), ('b', None), ('c', None)}),
+            (('a', ['b', 'b']), {('a', None), ('b', None)}),
+            (('a', {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
+            ((None, {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
+            (('', {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
         ]
         for args, expected in cases:
             with self.subTest(args=args, expected=expected):
-                self.assertEqual(expected, _choice_items(*args))
+                self.assertSetEqual(expected, set(_choice_items(*args)))
 
 
 class TestCommands(TestCase):

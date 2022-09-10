@@ -15,6 +15,7 @@ from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
 from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter, ChoiceGroup
 from cli_command_parser.formatting.restructured_text import RstTable
+from cli_command_parser.inputs import Date, Day
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action, Choice
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
 from cli_command_parser.testing import ParserTest, RedirectStreams, get_rst_text, get_help_text, get_usage_text
@@ -289,6 +290,20 @@ class HelpTextTest(ParserTest):
         )
         self.assert_str_contains(expected, get_help_text(Foo, 53))
 
+    def test_date_input_metavar_sort_order(self):
+        cases = [
+            (False, '[--dow {Mon|Tue|Wed|Thu|Fri|Sat|Sun|0|1|2|3|4|5|6}] [--date {%Y-%m-%d|%Y-%m}]'),
+            (True, '[--dow {0|1|2|3|4|5|6|Fri|Mon|Sat|Sun|Thu|Tue|Wed}] [--date {%Y-%m|%Y-%m-%d}]'),
+        ]
+        for sort_choices, expected in cases:
+            with self.subTest(sort_choices=sort_choices):
+
+                class Foo(Command, sort_choices=sort_choices):
+                    dow = Option('-w', type=Day(numeric=True, full=False))
+                    date = Option('-d', type=Date('%Y-%m-%d', '%Y-%m'))
+
+                self.assert_str_contains(expected, get_usage_text(Foo))
+
 
 class SubcommandHelpAndRstTest(ParserTest):
     @contextmanager
@@ -299,11 +314,16 @@ class SubcommandHelpAndRstTest(ParserTest):
         help_header: str,
         cmd_mode: str = None,
         sc_kwargs: Dict[str, Any] = None,
+        cmd_kwargs: Dict[str, Any] = None,
     ) -> ContextManager[CommandCls]:
-        with self.subTest(mode=mode):
-            cmd_kwargs = {'cmd_alias_mode': cmd_mode} if cmd_mode else {}
-            if not sc_kwargs:
-                sc_kwargs = {}
+        if not cmd_kwargs:
+            cmd_kwargs = {}
+        if cmd_mode:
+            cmd_kwargs['cmd_alias_mode'] = cmd_mode
+        if not sc_kwargs:
+            sc_kwargs = {}
+
+        with self.subTest(mode=mode, **cmd_kwargs):
             expected_help, expected_rst = get_expected_help_and_rst(help_header, param_help_map)
 
             class Foo(Command, **cmd_kwargs):
@@ -317,11 +337,11 @@ class SubcommandHelpAndRstTest(ParserTest):
     def test_sub_command_choice_alias_modes(self):
         help_header = 'Subcommands:\n  {bar|bars|baz}\n'
         foo_help, bar_help, baz_help = 'Foo the foo', 'Foo one or more bars', 'Foo one or more baz'
-        cases = [
+        cases = (
             ('alias', {'(default)': foo_help, 'bar': bar_help, 'bars': 'Alias of: bar', 'baz': baz_help}),
             ('repeat', {'(default)': foo_help, 'bar': bar_help, 'bars': bar_help, 'baz': baz_help}),
             ('combine', {'(default)': foo_help, '{bar|bars}': bar_help, 'baz': baz_help}),
-        ]
+        )
         sub_cmd_kwargs = {'required': False, 'default_help': 'Foo the foo'}
         for mode, param_help_map in cases:
             with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode, sub_cmd_kwargs) as Foo:
@@ -335,11 +355,11 @@ class SubcommandHelpAndRstTest(ParserTest):
     def test_sub_command_choice_alias_modes_on_subcmd(self):
         help_header = 'Subcommands:\n  {bar|bars|baz|bazs}\n'
         bar_help, bars_help, baz_help = 'Foo one or more bars', 'Alias of: bar', 'Foo one or more baz'
-        cases = [
+        cases = (
             ('alias', {'bar': bar_help, 'bars': bars_help, 'baz': baz_help, 'bazs': 'Alias of: baz'}),
             ('repeat', {'bar': bar_help, 'bars': bars_help, 'baz': baz_help, 'bazs': baz_help}),
             ('combine', {'bar': bar_help, 'bars': bars_help, '{baz|bazs}': baz_help}),
-        ]
+        )
         for mode, param_help_map in cases:
             with self.assert_help_and_rst_match(mode, param_help_map, help_header) as Foo:
 
@@ -352,7 +372,7 @@ class SubcommandHelpAndRstTest(ParserTest):
     def test_sub_command_alias_custom_help_retained(self):
         help_header = 'Subcommands:\n  {bar|run bar}\n'
         expected = {'bar': 'Execute bar', 'run bar': 'Run bar'}
-        cases = [('alias', expected), ('repeat', expected), ('combine', expected)]
+        cases = (('alias', expected), ('repeat', expected), ('combine', expected))
         for mode, param_help_map in cases:
             with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode) as Foo:
 
@@ -363,12 +383,12 @@ class SubcommandHelpAndRstTest(ParserTest):
     def test_subcommand_local_choices(self):
         help_header = 'Subcommands:\n  {a|b|c}\n'
         choice_map = {'a': 'Find As', 'b': 'Find Bs', 'c': 'Find Cs'}
-        local_cases = [
+        local_cases = (
             (choice_map, {'local_choices': choice_map}),
             ({'a': '', 'b': '', 'c': ''}, {'local_choices': ('a', 'b', 'c')}),
-        ]
+        )
         for expected, sc_kwargs in local_cases:
-            cases = [('alias', expected), ('repeat', expected), ('combine', expected)]
+            cases = (('alias', expected), ('repeat', expected), ('combine', expected))
             for mode, param_help_map in cases:
                 with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode, sc_kwargs):
                     pass
@@ -378,11 +398,11 @@ class SubcommandHelpAndRstTest(ParserTest):
         a, b, bar = 'Find As', 'Find Bs', 'Execute bar'
         choice_map = {'a': a, 'b': b, 'c': None, 'd': ''}
         for bar_help, bar_exp in ((None, ''), (bar, bar)):
-            cases = [
+            cases = (
                 ('alias', {'a': a, 'b': b, 'c': bar_exp, 'd': 'Alias of: c'}),
                 ('repeat', {'a': a, 'b': b, 'c': bar_exp, 'd': bar_exp}),
                 ('combine', {'a': a, 'b': b, '{c|d}': bar_exp}),
-            ]
+            )
             for mode, param_help_map in cases:
                 with self.subTest(bar_help=bar_help):
                     with self.assert_help_and_rst_match(mode, param_help_map, help_header, mode) as Foo:
@@ -394,15 +414,29 @@ class SubcommandHelpAndRstTest(ParserTest):
         help_header = 'Subcommands:\n  {a|b|c|d}\n'
         a, b, c, bar = 'Find As', 'Find Bs', 'Find Cs', 'Execute bar'
         fmt_a, fmt_b = '{help} [Alias of: {choice}]', 'Test {alias}'
-        cases = [
+        cases = (
             (fmt_a, {'a': a, 'b': b, 'c': None, 'd': ''}, {'a': a, 'b': b, 'c': bar, 'd': f'{bar} [Alias of: c]'}),
             (fmt_a, {'a': a, 'b': b, 'c': c, 'd': c}, {'a': a, 'b': b, 'c': c, 'd': f'{c} [Alias of: c]'}),
             (fmt_b, {'a': a, 'b': b, 'c': c, 'd': c}, {'a': a, 'b': b, 'c': c, 'd': 'Test d'}),
-        ]
+        )
         for fmt_str, choice_map, param_help_map in cases:
             with self.assert_help_and_rst_match('alias', param_help_map, help_header) as Foo:
 
                 class Bar(Foo, choices=choice_map, help=bar, cmd_alias_mode=fmt_str):
+                    pass
+
+    def test_subcommand_choices_sort_order(self):
+        a, b, c, bar = 'Find As', 'Find Bs', 'Find Cs', 'Execute bar'
+        choice_map = {'d': c, 'b': b, 'a': a, 'c': c}
+        cases = (
+            (False, 'Subcommands:\n  {d|c|b|a}\n', {'d': c, 'c': c, 'b': b, 'a': a}),  # c moves due to group
+            (True, 'Subcommands:\n  {a|b|c|d}\n', {'a': a, 'b': b, 'c': c, 'd': c}),
+        )
+        for sort_choices, help_header, param_help_map in cases:
+            cmd_kwargs = {'sort_choices': sort_choices, 'cmd_alias_mode': 'repeat'}
+            with self.assert_help_and_rst_match('repeat', param_help_map, help_header, cmd_kwargs=cmd_kwargs) as Foo:
+
+                class Bar(Foo, choices=choice_map, help=bar):
                     pass
 
 

@@ -15,7 +15,7 @@ from .base import InputType
 from .exceptions import InvalidChoiceError
 
 if TYPE_CHECKING:
-    from ..utils import Bool
+    from ..typing import Bool
 
 __all__ = ['Choices', 'ChoiceMap', 'EnumChoices']
 
@@ -68,8 +68,11 @@ class _ChoicesBase(InputType[T], ABC):
 
         raise InvalidChoiceError(value, self.choices)
 
-    def format_metavar(self, choice_delim: str = ',') -> str:
-        return '{{{}}}'.format(choice_delim.join(map(str, self.choices)))
+    def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
+        choices = map(str, self.choices)
+        if sort_choices:
+            choices = sorted(choices)
+        return '{{{}}}'.format(choice_delim.join(choices))
 
 
 class Choices(_ChoicesBase[T]):

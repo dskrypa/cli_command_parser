@@ -84,7 +84,7 @@ class DTInput(InputType[T], ABC):
         self.locale = locale
 
     @abstractmethod
-    def choice_str(self, choice_delim: str = ',') -> str:
+    def choice_str(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         raise NotImplementedError
 
     def fix_default(self, value: Union[str, T, None]) -> Optional[T]:
@@ -152,20 +152,22 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
             if self.abbreviation:
                 yield from enumerate(self._formats[DTFormatMode.ABBREVIATION][min_index:], min_index)
 
-    def choices(self) -> Sequence[str]:
+    def choices(self, sort: bool = False) -> Sequence[str]:
         choices = [dow for _, dow in self._values()]
         if self.numeric:
             mode = DTFormatMode.NUMERIC_ISO if getattr(self, 'iso', False) else DTFormatMode.NUMERIC
             # fmt: off
             choices.extend(map(str, self._formats[mode][self._min_index:]))
             # fmt: on
+        if sort:
+            choices.sort()
         return choices
 
-    def choice_str(self, choice_delim: str = ',') -> str:
-        return choice_delim.join(self.choices())
+    def choice_str(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
+        return choice_delim.join(self.choices(sort_choices))
 
-    def format_metavar(self, choice_delim: str = ',') -> str:
-        return '{' + self.choice_str(choice_delim) + '}'
+    def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
+        return '{' + self.choice_str(choice_delim, sort_choices) + '}'
 
     @abstractmethod
     def parse_numeric(self, value: str) -> int:
@@ -394,11 +396,11 @@ class DateTimeInput(DTInput[DT], ABC):
     def parse(self, value: str) -> DT:
         return self._fix_type(self.parse_dt(value))
 
-    def choice_str(self, choice_delim: str = ' | ') -> str:
-        return choice_delim.join(self.formats)
+    def choice_str(self, choice_delim: str = ' | ', sort_choices: bool = False) -> str:
+        return choice_delim.join(sorted(self.formats) if sort_choices else self.formats)
 
-    def format_metavar(self, choice_delim: str = ' | ') -> str:
-        choices = '{' + self.choice_str(choice_delim) + '}'
+    def format_metavar(self, choice_delim: str = ' | ', sort_choices: bool = False) -> str:
+        choices = '{' + self.choice_str(choice_delim, sort_choices) + '}'
         earliest, latest = self.earliest, self.latest
         prefix = f'{dt_repr(earliest, False)} <= ' if earliest is not None else ''
         suffix = f' <= {dt_repr(latest, False)}' if latest is not None else ''

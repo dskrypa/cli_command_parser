@@ -273,6 +273,9 @@ class CommandConfig:
     #: How subcommand aliases should be displayed in help text.
     cmd_alias_mode: CmdAliasMode = ConfigItem(None, _cmd_alias_mode)  # noqa
 
+    #: Whether Parameter `choices` values and Action / Subcommand choices should be sorted
+    sort_choices: Bool = ConfigItem(False, bool)
+
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = ConfigItem(False, bool)
 

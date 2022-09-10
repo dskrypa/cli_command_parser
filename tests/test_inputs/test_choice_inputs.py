@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 from enum import Enum
-from unittest import main, TestCase
+from unittest import main
 
 from cli_command_parser import Command, Option
-from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import UsageError
 from cli_command_parser.inputs.choices import Choices, ChoiceMap, EnumChoices
 from cli_command_parser.inputs.exceptions import InvalidChoiceError
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest, get_help_text
 
 
 class EnumExample(Enum):
@@ -17,7 +16,7 @@ class EnumExample(Enum):
     baz = '3'
 
 
-class ChoiceInputTest(TestCase):
+class ChoiceInputTest(ParserTest):
     def test_invalid_choice_multi(self):
         e = InvalidChoiceError(('y', 'z'), ('a', 'b', 'c'))
         self.assertEqual("invalid choices: 'y', 'z' (choose from: 'a', 'b', 'c')", str(e))
@@ -41,13 +40,12 @@ class ChoiceInputTest(TestCase):
         self.assertEqual(expected, repr(EnumChoices(EnumExample)))
 
     def test_enum_help_text(self):
-        class Foo(Command):
-            bar = Option('-b', type=EnumExample)
+        for sort_choices, expected in ((False, '{FOO|Bar|baz}'), (True, '{Bar|FOO|baz}')):
 
-        foo = Foo()
-        foo.ctx._terminal_width = 199
-        with foo.ctx:
-            self.assertIn('{FOO|Bar|baz}', get_params(foo).formatter.format_help())
+            class Foo(Command, sort_choices=sort_choices):
+                bar = Option('-b', type=EnumExample)
+
+            self.assert_str_contains(expected, get_help_text(Foo))
 
     def test_enum_case_sensitive(self):
         # fmt: off

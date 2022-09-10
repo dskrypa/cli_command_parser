@@ -32,7 +32,7 @@ class NumericInput(InputType[NT], ABC):
     def _range_str(self, var: str = 'N') -> str:
         raise NotImplementedError
 
-    def format_metavar(self, choice_delim: str = ',') -> str:
+    def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         return f'{{{self._range_str()}}}'
 
     def fix_default(self, value: Union[str, NT, None]) -> Optional[NT]:
