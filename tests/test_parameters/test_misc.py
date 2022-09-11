@@ -332,6 +332,7 @@ class TypeCastTest(ParserTest):
             (list[Optional[int]], ['1', '2'], [1, 2]),
             (Optional[list[int]], ['1', '2'], [1, 2]),
             (tuple[int, ...], ['1', '2'], [1, 2]),
+            (tuple[int, int], ['1', '2'], [1, 2]),
             (Sequence[int], ['1', '2'], [1, 2]),
             (Collection[int], ['1', '2'], [1, 2]),
             (Iterable[int], ['1', '2'], [1, 2]),
@@ -340,6 +341,8 @@ class TypeCastTest(ParserTest):
             (list[Union[int, str, None]], ['12', '3'], ['12', '3']),
             (tuple[int, str, None], ['12', '3'], ['12', '3']),
             (list[_resolved_path], ['test_parser.py', 'test_commands.py'], ['test_parser.py', 'test_commands.py']),
+            (dict[str, int, str], ['1', '2'], ['1', '2']),  # Not really a valid annotation, but it hits a branch
+            (list[str, int, str], ['1', '2'], ['1', '2']),  # Not really a valid annotation, but it hits a branch
         ]
         for annotation, argv, expected in cases:
             with self.subTest(annotation=annotation):
@@ -357,6 +360,7 @@ class TypeCastTest(ParserTest):
             (List[Optional[int]], ['1', '2'], [1, 2]),
             (Optional[List[int]], ['1', '2'], [1, 2]),
             (Tuple[int, ...], ['1', '2'], [1, 2]),
+            (Tuple[int, int], ['1', '2'], [1, 2]),
             (Sequence[int], ['1', '2'], [1, 2]),
             (Collection[int], ['1', '2'], [1, 2]),
             (Iterable[int], ['1', '2'], [1, 2]),

@@ -95,7 +95,7 @@ def _type_from_collection(origin, annotation) -> Optional[type]:
         return origin
 
     n_args = len(args)
-    if n_args > 2 or (n_args > 1 and (origin is not tuple or args[1] is not Ellipsis)):
+    if n_args > 1 and (origin is not tuple or not ((n_args == 2 and args[1] is Ellipsis) or len(set(args)) == 1)):
         return None
 
     origin = get_origin(annotation)
