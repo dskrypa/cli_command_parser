@@ -6,9 +6,9 @@ Helpers for handling ``nargs=...`` for Parameters.
 
 from __future__ import annotations
 
-from typing import Union, Optional, Sequence, Tuple, Set
+from typing import Union, Optional, Sequence, Collection, Tuple, Set, FrozenSet
 
-NargsValue = Union[str, int, Tuple[int, Optional[int]], Sequence[int], Set[int], range]
+NargsValue = Union[str, int, Tuple[int, Optional[int]], Sequence[int], Set[int], FrozenSet[int], range]
 
 NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None)}
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
@@ -25,6 +25,12 @@ class Nargs:
     """
 
     __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable')
+    _orig: NargsValue
+    range: Optional[range]
+    min: Optional[int]
+    max: Optional[int]
+    allowed: Collection[int]
+    variable: bool
 
     def __init__(self, nargs: NargsValue):  # pylint: disable=R0912
         self._orig = nargs
