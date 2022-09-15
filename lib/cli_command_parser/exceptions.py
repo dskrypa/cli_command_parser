@@ -13,11 +13,13 @@ from typing import TYPE_CHECKING, Any, Collection
 if TYPE_CHECKING:
     from .parameters import Parameter
     from .typing import ParamOrGroup
+    from .parse_tree import PosNode, Word, Target
 
 __all__ = [
     'CommandParserException',
     'CommandDefinitionError',
     'ParameterDefinitionError',
+    'AmbiguousParseTree',
     'UsageError',
     'ParamUsageError',
     'BadArgument',
@@ -67,6 +69,19 @@ class CommandDefinitionError(CommandParserException):
 
 class ParameterDefinitionError(CommandParserException):
     """An error caused by providing invalid options for a Parameter"""
+
+
+class AmbiguousParseTree(CommandDefinitionError):
+    """Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments"""
+
+    def __init__(self, node: PosNode, word: Word, target: Target):
+        self.node = node
+        self.word = word
+        self.target = target
+
+    def __str__(self) -> str:
+        node_path = ' '.join(self.node.path)
+        return f'Conflicting targets for parse path={node_path!r}: {self.node.target!r}, {self.target!r}'
 
 
 # endregion

@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction, NoEnvVar
+
+# from .parse_tree import ParseTree
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
@@ -54,6 +56,7 @@ class CommandParser:
 
     @classmethod
     def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
+        # tree = ParseTree(ctx.command)
         params = ctx.params
         sub_cmd_param = params.sub_command
         if sub_cmd_param and not sub_cmd_param.choices:
