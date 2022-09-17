@@ -256,6 +256,9 @@ class CommandConfig:
     #: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes
     option_name_mode: OptionNameMode = ConfigItem(OptionNameMode.UNDERSCORE, OptionNameMode)
 
+    #: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error
+    reject_ambiguous_pos_combos: Bool = ConfigItem(True, bool)
+
     # endregion
 
     # region Usage & Help Text Options

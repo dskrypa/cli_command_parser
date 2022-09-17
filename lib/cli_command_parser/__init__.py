@@ -21,6 +21,7 @@ from .exceptions import (
     ParamConflict,
     ParamsMissing,
     NoActiveContext,
+    AmbiguousParseTree,
 )
 from .error_handling import ErrorHandler, error_handler, no_exit_handler
 from .formatting.commands import get_formatter

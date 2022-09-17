@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union, Optional, Collection, Iterable, Iterator, MutableMapping, Dict, Set, Tuple
 
 from .exceptions import AmbiguousParseTree
+from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
     from .nargs import Nargs
@@ -32,10 +33,6 @@ class AnyWord:
         else:
             self.remaining = remaining
 
-    def __str__(self) -> str:
-        # return '[[AnyWord]]'
-        return '*'
-
     def __repr__(self) -> str:
         return f'AnyWord({self.nargs!r}, remaining={self.remaining}, n={self.n})'
 
@@ -46,7 +43,10 @@ class AnyWord:
         return AnyWord(self.nargs, remaining, self.n + other)
 
     def __eq__(self, other: AnyWord) -> bool:
-        return self.nargs == other.nargs and self.remaining == other.remaining and self.n == other.n
+        try:
+            return self.nargs == other.nargs and self.remaining == other.remaining and self.n == other.n
+        except AttributeError:
+            return False
 
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self.nargs) ^ hash(self.remaining) ^ hash(self.n)
@@ -54,13 +54,6 @@ class AnyWord:
 
 Word = Union[str, AnyWord, None]
 Target = Union['BasePositional', 'CommandCls', None]
-
-
-def target_repr(target: Target) -> str:
-    try:
-        return target.__name__
-    except AttributeError:
-        return repr(target)
 
 
 class PosNode(MutableMapping[Word, 'PosNode']):
@@ -86,10 +79,19 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             pass
 
     def link_params(self, recursive: bool = False) -> Set[BasePositional]:
-        params = {node.param for node in self.values()}
+        return set(self._link_params(recursive))
+
+    def _link_params(self, recursive: bool = False) -> Iterator[BasePositional]:
+        for node in self.values():
+            yield node.param
         if recursive:
-            params.update(p for node in self.values() for p in node.link_params(True))
-        return params
+            for node in self.values():
+                try:
+                    unbound = node.word.nargs.max is None
+                except AttributeError:  # node.word is not an AnyWord
+                    yield from node._link_params(True)
+                else:
+                    yield from node._link_params(not unbound)
 
     def nargs_min(self) -> int:
         return sum(p.nargs.min for p in self.link_params(True))
@@ -142,45 +144,28 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     # region Introspection
 
     @property
-    def root(self) -> PosNode:
-        parent = self.parent
-        return parent.root if parent else self
-
-    @property
     def raw_path(self) -> Tuple[Word, ...]:
         word = self.word
         if not word:
             return ()
-        try:
-            return (*self.parent.raw_path, word)  # noqa
-        except AttributeError:
-            return (word,)  # noqa
+        return (*self.parent.raw_path, word)  # noqa
 
     def path_repr(self) -> str:
         return '({})'.format(', '.join(str(n) if isinstance(n, AnyWord) else repr(n) for n in self.raw_path))
-
-    @property
-    def is_terminal(self) -> bool:
-        word = self.word
-        try:
-            return word.n in word.nargs
-        except AttributeError:
-            return bool(self.target)
 
     # endregion
 
     # region Dunder Methods
 
     def __repr__(self) -> str:
-        target = target_repr(self.target)
         if self.param == self.target:
-            pt_str = f'param=target={target}'
+            pt_str = f'param=target={_parse_tree_target_repr(self.target)}'
         else:
-            pt_str = f'param={self.param}, target={target}'
+            pt_str = f'param={self.param}, target={_parse_tree_target_repr(self.target)}'
         return f'<PosNode[{self.path_repr()}: {self.word!r}, links: {len(self)}, {pt_str}]>'
 
     def __hash__(self) -> int:
-        return hash(self.__class__) ^ hash(self.parent) ^ hash(self.word) ^ hash(self.param)
+        return hash(self.__class__) ^ hash(self.parent) ^ hash(self.word) ^ hash(self.param) ^ hash(self.target)
 
     def __eq__(self, other: PosNode) -> bool:
         return (
@@ -248,6 +233,8 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             del self.links[word]
         except KeyError:
             pass
+        else:
+            return
         try:
             any_word = self._any_word
         except AttributeError:
@@ -272,7 +259,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
 
     @classmethod
     def build_tree(cls, command: CommandCls) -> PosNode:
-        root = cls(None, None)
+        root = cls(None, None, target=command)
         process_params(command, [root], command.__class__.params(command).positionals)
         return root
 
@@ -293,7 +280,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     def _set_target(self, target: Target) -> PosNode:
         if not target:
             return self
-        elif self.target:
+        elif self.target and self.word:
             raise AmbiguousParseTree(self, target)
         else:
             self.target = target
@@ -330,12 +317,19 @@ class PosNode(MutableMapping[Word, 'PosNode']):
 
     # endregion
 
-    def print_tree(self, indent: int = 0):
+    def print_tree(self, indent: int = 0, recursive: bool = True):
         prefix = ' ' * indent
         print(f'{prefix}- <PosNode[{self.word!r}, links: {len(self)}, target={self.target!r}]>')
+        if not recursive:
+            return
         indent += 2
         for node in self.values():
-            node.print_tree(indent)
+            try:
+                unbound = node.word.nargs.max is None
+            except AttributeError:  # node.word is not an AnyWord
+                node.print_tree(indent, True)
+            else:
+                node.print_tree(indent, not unbound)
 
 
 def process_params(command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> Set[PosNode]:

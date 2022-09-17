@@ -44,6 +44,13 @@ def short_repr(obj: Any, max_len: int = 100, sep: str = '...', func: Callable[[A
     return obj_repr
 
 
+def _parse_tree_target_repr(target) -> str:
+    try:
+        return target.__name__
+    except AttributeError:
+        return repr(target)
+
+
 # endregion
 
 # region Annotation Inspection

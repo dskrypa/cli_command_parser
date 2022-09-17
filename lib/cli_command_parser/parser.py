@@ -28,15 +28,19 @@ __all__ = ['CommandParser']
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    arg_deque: Optional[Deque[str]] = None
-    deferred: Optional[List[str]] = None
-    _last: Optional[Parameter] = None
+    __slots__ = ('_last', 'arg_deque', 'ctx', 'deferred', 'node', 'params', 'positionals')
+
+    arg_deque: Optional[Deque[str]]
+    deferred: Optional[List[str]]
+    _last: Optional[Parameter]
 
     def __init__(self, ctx: Context):
+        self._last = None
         self.ctx = ctx
         self.params = ctx.params
         self.positionals = ctx.params.positionals.copy()
-        self.tree = PosNode.build_tree(ctx.command)
+        if ctx.config.reject_ambiguous_pos_combos:
+            PosNode.build_tree(ctx.command)
 
     @classmethod
     def parse_args(cls, ctx: Context) -> Optional[CommandType]:

@@ -10,6 +10,8 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any, Optional, Collection
 
+from .utils import _parse_tree_target_repr
+
 if TYPE_CHECKING:
     from .parameters import Parameter
     from .typing import ParamOrGroup
@@ -80,12 +82,10 @@ class AmbiguousParseTree(CommandDefinitionError):
 
     def __str__(self) -> str:
         node, word = self.node, self.word
+        nt, st = _parse_tree_target_repr(node.target), _parse_tree_target_repr(self.target)
         if not word or word == node.word:
-            return f'Conflicting targets for parse path={node.path_repr()}: {node.target!r}, {self.target!r}'
-        return (
-            f'Conflicting choices after parse path={node.parent.path_repr()}:'
-            f' {node.word}=>{node.target!r}, {word}=>{self.target!r}'
-        )
+            return f'Conflicting targets for parse path={node.path_repr()}: {nt}, {st}'
+        return f'Conflicting choices after parse path={node.parent.path_repr()}: {node.word}=>{nt}, {word}=>{st}'
 
 
 # endregion
