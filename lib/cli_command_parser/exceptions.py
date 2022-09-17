@@ -8,7 +8,7 @@ Exceptions for Command Parser
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Collection
+from typing import TYPE_CHECKING, Any, Optional, Collection
 
 if TYPE_CHECKING:
     from .parameters import Parameter
@@ -102,7 +102,7 @@ class ParamUsageError(UsageError):
 
     message: str = None
 
-    def __init__(self, param: ParamOrGroup, message: str = None):
+    def __init__(self, param: Optional[ParamOrGroup], message: str = None):
         self.param = param
         self.usage_str = param.format_usage(full=True, delim=' / ') if param else ''
         if message:
@@ -162,7 +162,7 @@ class BadArgument(ParamUsageError):
 class InvalidChoice(BadArgument):
     """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
 
-    def __init__(self, param: Parameter, invalid: Any, choices: Collection[Any]):
+    def __init__(self, param: Optional[Parameter], invalid: Any, choices: Collection[Any]):
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
             bad_str = 'choices: {}'.format(', '.join(map(repr, invalid)))
         else:
