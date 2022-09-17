@@ -19,7 +19,7 @@ except ImportError:
     from .compat import cached_property
 
 from .actions import help_action
-from .exceptions import CommandDefinitionError, ParameterDefinitionError
+from .exceptions import CommandDefinitionError, ParameterDefinitionError, ParamsMissing
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
 from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option
 
@@ -373,6 +373,18 @@ class CommandParameters:
         return None
 
     # endregion
+
+    def validate_groups(self):
+        exc = None
+        for group in self.groups:
+            try:
+                group.validate()
+            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
+                if exc is None:
+                    exc = e
+
+        if exc is not None:
+            raise exc
 
     def try_env_params(self, ctx: Context) -> Iterator[Option]:
         for param in self.options:

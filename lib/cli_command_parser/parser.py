@@ -63,7 +63,7 @@ class CommandParser:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls(ctx)._parse_args(ctx)
-        cls._validate_groups(params)
+        params.validate_groups()
 
         if sub_cmd_param:
             next_cmd = sub_cmd_param.target()  # type: CommandType
@@ -95,19 +95,6 @@ class CommandParser:
     @classmethod
     def _missing(cls, params: CommandParameters, ctx: Context) -> List[Parameter]:
         return [p for p in params.required_check_params() if ctx.num_provided(p) == 0]
-
-    @classmethod
-    def _validate_groups(cls, params: CommandParameters):
-        exc = None
-        for group in params.groups:
-            try:
-                group.validate()
-            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
-                if exc is None:
-                    exc = e
-
-        if exc is not None:
-            raise exc
 
     def _parse_args(self, ctx: Context):
         self.arg_deque = arg_deque = self.handle_pass_thru(ctx)
