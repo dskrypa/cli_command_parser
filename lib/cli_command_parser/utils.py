@@ -11,7 +11,7 @@ from enum import Flag
 from inspect import isclass
 from shutil import get_terminal_size
 from time import monotonic
-from typing import Union, Optional, TypeVar, get_type_hints, List
+from typing import Any, Callable, Union, Optional, TypeVar, get_type_hints, List
 
 try:
     from typing import get_origin, get_args as _get_args  # pylint: disable=C0412
@@ -29,9 +29,29 @@ FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
 
 
+# region Text Processing / Formatting
+
+
 def camel_to_snake_case(text: str, delim: str = '_') -> str:
     return ''.join(f'{delim}{c}' if i and c.isupper() else c for i, c in enumerate(text)).lower()
 
+
+def short_repr(obj: Any, max_len: int = 100, sep: str = '...', func: Callable[[Any], str] = repr) -> str:
+    obj_repr = func(obj)
+    if len(obj_repr) > max_len:
+        part_len = (max_len - len(sep)) // 2
+        return '{}{}{}'.format(obj_repr[:part_len], sep, obj_repr[-part_len:])
+    return obj_repr
+
+
+def _parse_tree_target_repr(target) -> str:
+    try:
+        return target.__name__
+    except AttributeError:
+        return repr(target)
+
+
+# endregion
 
 # region Annotation Inspection
 

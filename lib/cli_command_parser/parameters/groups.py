@@ -204,6 +204,14 @@ class ParamGroup(ParamBase):
         return parent.mutually_exclusive
 
     def validate(self):
+        """
+        Validate mutual dependency / exclusivity of members and that required members have been provided when they are
+        expected to be (based on mutual dependence/exclusivity and nesting).
+
+        This method is called during parsing, after initially parsing arguments, before evaluating whether a subcommand
+        choice was provided.  Groups are validated in order, starting from the inner-most groups and working outward so
+        that nested groups are validated before any group that they are a member of.
+        """
         provided, missing = self._categorize_params()
         ctx.record_action(self, len(provided))
         self._check_conflicts(provided, missing)

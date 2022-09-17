@@ -65,6 +65,11 @@ Parsing Options
 :option_name_mode: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle
   underscores/dashes.  See :class:`.OptionNameMode` for more details.  Defaults to using underscores to match the
   attribute name.  May be overridden on a per-Parameter basis with :ref:`parameters:Options:name_mode`.
+:reject_ambiguous_pos_combos: Whether ambiguous combinations of positional choices should result in an
+  :class:`.AmbiguousParseTree` error.  Defaults to True.  Some combinations of positional parameter choices may pass
+  this check, but still be problematic during parsing.  If a false positive is detected, this can be set to ``False``
+  to disable the check (please report it in the `issue tracker <https://github.com/dskrypa/cli_command_parser/issues>`__
+  so it can be fixed!).
 
 
 Usage & Help Text Options

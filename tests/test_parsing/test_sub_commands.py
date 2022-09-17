@@ -8,24 +8,6 @@ from cli_command_parser.testing import ParserTest
 
 class SubCmdParsingTest(ParserTest):
     @skip('Cross-param positional conflict detection needs to be implemented')  # TODO #8
-    def test_ambiguous_positional_vs_subcommand_single(self):
-        class Base(Command):
-            sub_cmd = SubCommand()
-
-        class Show(Base):
-            type = Positional(choices=('foo', 'bar'))
-
-        class ShowFooBaz(Base, choice='show foo baz'):
-            pass
-
-        success_cases = [
-            (['show', 'foo'], {'sub_cmd': 'show', 'type': 'foo'}),
-            (['show', 'bar'], {'sub_cmd': 'show', 'type': 'bar'}),
-            (['show', 'foo', 'baz'], {'sub_cmd': 'show foo baz'}),
-        ]
-        self.assert_parse_results_cases(Base, success_cases)
-
-    @skip('Cross-param positional conflict detection needs to be implemented')  # TODO #8
     def test_ambiguous_positional_vs_subcommand_multiple(self):
         class Base(Command):
             sub_cmd = SubCommand()

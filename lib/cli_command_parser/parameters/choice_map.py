@@ -16,7 +16,7 @@ from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument,
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
 from ..typing import Bool, CommandCls
-from ..utils import _NotSet, camel_to_snake_case
+from ..utils import _NotSet, camel_to_snake_case, short_repr
 from .base import BasePositional, parameter_action
 
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
@@ -42,7 +42,7 @@ class Choice(Generic[T]):
         self.local = local
 
     def __repr__(self) -> str:
-        help_str = f', help={self.help!r}' if self.help else ''
+        help_str = f', help={short_repr(self.help)}' if self.help else ''
         target_str = f', target={self.target}' if self.choice != self.target else ''
         return f'{self.__class__.__name__}({self.choice!r}{target_str}{help_str})'
 

@@ -2,7 +2,7 @@
 
 from itertools import count
 from unittest import main
-from unittest.mock import Mock
+from unittest.mock import Mock, seal
 
 from cli_command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
 from cli_command_parser.actions import help_action
@@ -15,6 +15,7 @@ from cli_command_parser.testing import ParserTest, RedirectStreams
 class ActionFlagTest(ParserTest):
     def test_help_action(self):
         mock = Mock(__name__='bar')
+        seal(mock)
 
         class Foo(Command, error_handler=no_exit_handler):
             action = Action()
@@ -24,7 +25,7 @@ class ActionFlagTest(ParserTest):
             Foo.parse(['bar', '-h'])()
 
         self.assertTrue(streams.stdout.startswith('usage: '))
-        self.assertEqual(mock.call_count, 0)
+        mock.assert_not_called()
 
     def test_af_func_missing(self):
         class Foo(Command):

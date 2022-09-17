@@ -19,7 +19,7 @@ except ImportError:
     from .compat import cached_property
 
 from .actions import help_action
-from .exceptions import CommandDefinitionError, ParameterDefinitionError
+from .exceptions import CommandDefinitionError, ParameterDefinitionError, ParamsMissing
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
 from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from .config import CommandConfig
     from .context import Context
     from .formatting.commands import CommandHelpFormatter
-    from .typing import CommandType
+    from .typing import CommandCls
 
 __all__ = ['CommandParameters']
 
@@ -36,9 +36,9 @@ ActionFlags = List[ActionFlag]
 
 
 class CommandParameters:
-    command: CommandType                                 #: The Command associated with this CommandParameters object
+    command: CommandCls                                  #: The Command associated with this CommandParameters object
     formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
-    command_parent: Optional[CommandType] = None         #: The parent Command, if any
+    command_parent: Optional[CommandCls] = None          #: The parent Command, if any
     parent: Optional[CommandParameters] = None           #: The parent Command's CommandParameters
     action: Optional[Action] = None                      #: An Action Parameter, if specified
     _pass_thru: Optional[PassThru] = None                #: A PassThru Parameter, if specified
@@ -51,7 +51,7 @@ class CommandParameters:
     positionals: List[BasePositional]                    #: List of positional Parameters
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
 
-    def __init__(self, command: CommandType, command_parent: Optional[CommandType], config: CommandConfig):
+    def __init__(self, command: CommandCls, command_parent: Optional[CommandCls], config: CommandConfig):
         self.command = command
         if command_parent is not None:
             self.command_parent = command_parent
@@ -373,6 +373,18 @@ class CommandParameters:
         return None
 
     # endregion
+
+    def validate_groups(self):
+        exc = None
+        for group in self.groups:
+            try:
+                group.validate()
+            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
+                if exc is None:
+                    exc = e
+
+        if exc is not None:
+            raise exc
 
     def try_env_params(self, ctx: Context) -> Iterator[Option]:
         for param in self.options:

@@ -8,16 +8,20 @@ Exceptions for Command Parser
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Collection
+from typing import TYPE_CHECKING, Any, Optional, Collection
+
+from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
     from .parameters import Parameter
     from .typing import ParamOrGroup
+    from .parse_tree import PosNode, Word, Target
 
 __all__ = [
     'CommandParserException',
     'CommandDefinitionError',
     'ParameterDefinitionError',
+    'AmbiguousParseTree',
     'UsageError',
     'ParamUsageError',
     'BadArgument',
@@ -28,7 +32,6 @@ __all__ = [
     'ParamConflict',
     'ParamsMissing',
     'NoActiveContext',
-    'NoEnvVar',
 ]
 
 
@@ -69,6 +72,22 @@ class ParameterDefinitionError(CommandParserException):
     """An error caused by providing invalid options for a Parameter"""
 
 
+class AmbiguousParseTree(CommandDefinitionError):
+    """Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments"""
+
+    def __init__(self, node: PosNode, target: Target, word: Word = None):
+        self.node = node
+        self.target = target
+        self.word = word
+
+    def __str__(self) -> str:
+        node, word = self.node, self.word
+        nt, st = _parse_tree_target_repr(node.target), _parse_tree_target_repr(self.target)
+        if not word or word == node.word:
+            return f'Conflicting targets for parse path={node.path_repr()}: {nt}, {st}'
+        return f'Conflicting choices after parse path={node.parent.path_repr()}: {node.word}=>{nt}, {word}=>{st}'
+
+
 # endregion
 
 # region User Errors
@@ -83,7 +102,7 @@ class ParamUsageError(UsageError):
 
     message: str = None
 
-    def __init__(self, param: ParamOrGroup, message: str = None):
+    def __init__(self, param: Optional[ParamOrGroup], message: str = None):
         self.param = param
         self.usage_str = param.format_usage(full=True, delim=' / ') if param else ''
         if message:
@@ -143,7 +162,7 @@ class BadArgument(ParamUsageError):
 class InvalidChoice(BadArgument):
     """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
 
-    def __init__(self, param: Parameter, invalid: Any, choices: Collection[Any]):
+    def __init__(self, param: Optional[Parameter], invalid: Any, choices: Collection[Any]):
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
             bad_str = 'choices: {}'.format(', '.join(map(repr, invalid)))
         else:
@@ -177,10 +196,6 @@ class UnsupportedAction(CommandParserException):
 
 class Backtrack(CommandParserException):
     """Raised when backtracking took place"""
-
-
-class NoEnvVar(CommandParserException):
-    """Indicates that no environment variable was available for a given Parameter."""
 
 
 # endregion

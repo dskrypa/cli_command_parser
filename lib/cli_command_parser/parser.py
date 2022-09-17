@@ -8,11 +8,13 @@ from __future__ import annotations
 
 # import logging
 from collections import deque
+from os import environ
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction, NoEnvVar
+from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
+from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
@@ -26,14 +28,19 @@ __all__ = ['CommandParser']
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    arg_deque: Optional[Deque[str]] = None
-    deferred: Optional[List[str]] = None
-    _last: Optional[Parameter] = None
+    __slots__ = ('_last', 'arg_deque', 'ctx', 'deferred', 'node', 'params', 'positionals')
+
+    arg_deque: Optional[Deque[str]]
+    deferred: Optional[List[str]]
+    _last: Optional[Parameter]
 
     def __init__(self, ctx: Context):
+        self._last = None
         self.ctx = ctx
         self.params = ctx.params
         self.positionals = ctx.params.positionals.copy()
+        if ctx.config.reject_ambiguous_pos_combos:
+            PosNode.build_tree(ctx.command)
 
     @classmethod
     def parse_args(cls, ctx: Context) -> Optional[CommandType]:
@@ -60,7 +67,7 @@ class CommandParser:
             raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls(ctx)._parse_args(ctx)
-        cls._validate_groups(params)
+        params.validate_groups()
 
         if sub_cmd_param:
             next_cmd = sub_cmd_param.target()  # type: CommandType
@@ -71,13 +78,6 @@ class CommandParser:
                     return None
                 raise ParamsMissing(missing)
             return next_cmd
-
-        try_env = [p for p in params.try_env_params(ctx)]
-        for param in try_env:
-            try:
-                param._set_from_env()
-            except NoEnvVar:
-                pass
 
         missing = cls._missing(params, ctx)
         if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
@@ -92,19 +92,6 @@ class CommandParser:
     @classmethod
     def _missing(cls, params: CommandParameters, ctx: Context) -> List[Parameter]:
         return [p for p in params.required_check_params() if ctx.num_provided(p) == 0]
-
-    @classmethod
-    def _validate_groups(cls, params: CommandParameters):
-        exc = None
-        for group in params.groups:
-            try:
-                group.validate()
-            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
-                if exc is None:
-                    exc = e
-
-        if exc is not None:
-            raise exc
 
     def _parse_args(self, ctx: Context):
         self.arg_deque = arg_deque = self.handle_pass_thru(ctx)
@@ -136,6 +123,21 @@ class CommandParser:
                         self.deferred.append(arg)
             else:
                 self.handle_positional(arg)
+
+        self._parse_env_vars(ctx)
+
+    def _parse_env_vars(self, ctx: Context):
+        # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
+        #  mutually exclusive params when they were provided via env
+        for param in self.params.try_env_params(ctx):
+            for env_var in param.env_vars():
+                try:
+                    value = environ[env_var]
+                except KeyError:
+                    pass
+                else:
+                    param.take_action(value)
+                    break
 
     def handle_pass_thru(self, ctx: Context) -> Deque[str]:
         remaining = ctx.remaining

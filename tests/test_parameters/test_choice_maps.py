@@ -16,13 +16,22 @@ class ChoiceMapTest(ParserTest):
 
             class Foo(Command):
                 action = Action()
-                action('foo')(Mock())
-                action('foo')(Mock())
+
+                @action
+                def foo(self):
+                    pass
+
+                @action('foo')
+                def _foo(self):
+                    pass
 
     def test_bad_choice_append_rejected(self):
         class Foo(Command):
             action = Action()
-            action('foo bar')(Mock())
+
+            @action('foo bar')
+            def foo(self):
+                pass
 
         with Context():
             Foo.action.take_action('foo')
@@ -47,7 +56,10 @@ class ChoiceMapTest(ParserTest):
     def test_choice_map_too_many(self):
         class Foo(Command):
             action = Action()
-            action('foo')(Mock())
+
+            @action
+            def foo(self):
+                pass
 
         with Context():
             Foo.action.take_action('foo')
@@ -57,7 +69,10 @@ class ChoiceMapTest(ParserTest):
     def test_no_choices_result_forced(self):
         class Foo(Command):
             action = Action()
-            action('foo')(Mock())
+
+            @action
+            def foo(self):
+                pass
 
         with self.assertRaises(CommandDefinitionError):
             foo = Foo.parse([])
@@ -67,7 +82,10 @@ class ChoiceMapTest(ParserTest):
     def test_unexpected_nargs(self):
         class Foo(Command):
             action = Action()
-            action('foo bar')(Mock())
+
+            @action('foo bar')
+            def foo(self):
+                pass
 
         with Context():
             Foo.action.take_action('foo')
@@ -77,8 +95,14 @@ class ChoiceMapTest(ParserTest):
     def test_unexpected_choice(self):
         class Foo(Command):
             action = Action()
-            action('foo bar')(Mock())
-            action('foo baz')(Mock())
+
+            @action('foo bar')
+            def foo(self):
+                pass
+
+            @action('foo baz')
+            def bar(self):
+                pass
 
         with Context():
             Foo.action.take_action('foo bar')
@@ -104,7 +128,10 @@ class ChoiceMapTest(ParserTest):
     def test_custom_action_choice(self):
         class Foo(Command):
             action = Action()
-            action(choice='foo')(Mock(__name__='bar'))
+
+            @action('foo')
+            def bar(self):
+                pass
 
         self.assertIn('foo', Foo.action.choices)
 
