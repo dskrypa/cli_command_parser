@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .parameters.choice_map import Choice
     from .typing import OptStr, CommandCls
 
-__all__ = ['ParseTree']
+__all__ = ['PosNode']
 
 
 class AnyWord:
@@ -198,37 +198,13 @@ class PosNode:
         except AttributeError:
             return bool(self.target)
 
-    def _set_target(self, target: Target) -> PosNode:
-        if not target:
-            return self
-        elif self.target:
-            raise AmbiguousParseTree(self, target)
-        else:
-            self.target = target
-            return self
+    # region Build Tree
 
-    def _update_any(self, word: AnyWord, target: Target) -> PosNode:
-        try:
-            self.links[word]
-        except KeyError:
-            pass
-        else:
-            raise AmbiguousParseTree(self, target, word)
-
-        self.links[word] = node = PosNode(word, target, self)
-        return node
-
-    def _update(self, word: str, target: Target) -> PosNode:
-        links = self.links
-        try:
-            node = links.data[word]
-        except KeyError:
-            if links.has_any():
-                raise AmbiguousParseTree(self, target, word) from None
-            links[word] = node = PosNode(word, target, self)
-            return node
-        else:
-            return node._set_target(target)
+    @classmethod
+    def build_tree(cls, command: CommandCls) -> PosNode:
+        root = cls(None)
+        process_params(command, [root], command.__class__.params(command).positionals)
+        return root
 
     def update(self, word: Word, target: Target) -> PosNode:
         try:
@@ -244,6 +220,40 @@ class PosNode:
                 node = node._update(part, None)
             return node._update(last, target)
 
+    def _set_target(self, target: Target) -> PosNode:
+        if not target:
+            return self
+        elif self.target:
+            raise AmbiguousParseTree(self, target)
+        else:
+            self.target = target
+            return self
+
+    def _update(self, word: str, target: Target) -> PosNode:
+        links = self.links
+        try:
+            node = links.data[word]
+        except KeyError:
+            if links.has_any():
+                raise AmbiguousParseTree(self, target, word) from None
+            links[word] = node = PosNode(word, target, self)
+            return node
+        else:
+            return node._set_target(target)
+
+    def _update_any(self, word: AnyWord, target: Target) -> PosNode:
+        try:
+            self.links[word]
+        except KeyError:
+            pass
+        else:
+            raise AmbiguousParseTree(self, target, word)
+
+        self.links[word] = node = PosNode(word, target, self)
+        return node
+
+    # endregion
+
     def print_tree(self, indent: int = 0):
         prefix = ' ' * indent
         print(f'{prefix}- <PosNode[{self.word!r}, links: {len(self.links)}, target={self.target!r}]>')
@@ -252,53 +262,42 @@ class PosNode:
             node.print_tree(indent)
 
 
-class ParseTree:
-    def __init__(self, command: CommandCls):
-        self.command = command
-        self.root = PosNode(None)
-        self._build([self.root], command.__class__.params(command).positionals)
+def process_params(command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> Set[PosNode]:
+    for param in params:
+        nodes = process_param(command, nodes, param)
 
-    def __repr__(self) -> str:
-        return f'<{self.__class__.__name__}({self.command!r})[root={self.root!r}]>'
+    return nodes
 
-    def _build(self, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> Set[PosNode]:
-        for param in params:
-            nodes = self._process_param(nodes, param)
 
-        return nodes
+def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePositional) -> Set[PosNode]:
+    # At each step, the number of branches grows
+    try:
+        choices: Dict[OptStr, Choice] = param.choices  # noqa
+    except AttributeError:  # It was not a ChoiceMap param
+        pass
+    else:
+        get_params = command.__class__.params
 
-    def _process_param(self, nodes: Iterable[PosNode], param: BasePositional) -> Set[PosNode]:
-        # At each step, the number of branches grows
-        try:
-            choices: Dict[OptStr, Choice] = param.choices  # noqa
-        except AttributeError:  # It was not a ChoiceMap param
-            pass
-        else:
-            get_params = self.command.__class__.params
+        new_nodes = set()
+        for choice in choices.values():
+            target = choice.target
+            try:
+                params = get_params(target)
+            except TypeError:
+                new_nodes.update(node.update(choice.choice, target) for node in nodes)
+            else:
+                choice_nodes = {node.update(choice.choice, target) for node in nodes}
+                new_nodes.update(process_params(target, choice_nodes, params.positionals))
 
-            new_nodes = set()
-            for choice in choices.values():
-                target = choice.target
-                try:
-                    params = get_params(target)
-                except TypeError:
-                    new_nodes.update(node.update(choice.choice, target) for node in nodes)
-                else:
-                    choice_nodes = {node.update(choice.choice, target) for node in nodes}
-                    new_nodes.update(self._build(choice_nodes, params.positionals))
+        return new_nodes
 
-            return new_nodes
+    try:
+        choices: Collection[str] = param.type.choices  # noqa
+    except AttributeError:  # It was not a _ChoicesBase input type
+        pass
+    else:
+        return {node.update(choice, param) for choice in choices for node in nodes}
 
-        try:
-            choices: Collection[str] = param.type.choices  # noqa
-        except AttributeError:  # It was not a _ChoicesBase input type
-            pass
-        else:
-            return {node.update(choice, param) for choice in choices for node in nodes}
-
-        # At this point, the param will take any word
-        word = AnyWord(param.nargs)
-        return {node.update(word, param) for node in nodes}
-
-    def print_tree(self):
-        self.root.print_tree()
+    # At this point, the param will take any word
+    word = AnyWord(param.nargs)
+    return {node.update(word, param) for node in nodes}
