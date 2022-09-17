@@ -8,11 +8,10 @@ from __future__ import annotations
 
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from os import environ
-from typing import Any, Optional, Callable, Sequence, Union, Tuple
+from typing import Any, Optional, Callable, Sequence, Iterator, Union, Tuple
 
 from ..context import ctx, ParseState
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, NoEnvVar
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj
@@ -80,27 +79,13 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         if env_var:
             self.env_var = env_var
 
-    def _from_env(self) -> T_co:
+    def env_vars(self) -> Iterator[str]:
         env_var = self.env_var
-        if not env_var:
-            raise NoEnvVar(self)
-
-        env_vars = (env_var,) if isinstance(env_var, str) else env_var
-        for env_var in env_vars:
-            try:
-                value = environ[env_var]
-            except KeyError:
-                pass
+        if env_var:
+            if isinstance(env_var, str):
+                yield env_var
             else:
-                return self.prepare_and_validate(value)
-
-        raise NoEnvVar(self)
-
-    def _set_from_env(self):
-        value = self._from_env()
-        ctx.record_action(self)
-        action_method = getattr(self, self.action)
-        return action_method(value)
+                yield from env_var
 
 
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value

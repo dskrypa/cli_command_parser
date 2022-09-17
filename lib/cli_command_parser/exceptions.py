@@ -30,7 +30,6 @@ __all__ = [
     'ParamConflict',
     'ParamsMissing',
     'NoActiveContext',
-    'NoEnvVar',
 ]
 
 
@@ -192,10 +191,6 @@ class UnsupportedAction(CommandParserException):
 
 class Backtrack(CommandParserException):
     """Raised when backtracking took place"""
-
-
-class NoEnvVar(CommandParserException):
-    """Indicates that no environment variable was available for a given Parameter."""
 
 
 # endregion

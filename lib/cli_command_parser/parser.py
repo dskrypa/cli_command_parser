@@ -8,11 +8,12 @@ from __future__ import annotations
 
 # import logging
 from collections import deque
+from os import environ
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction, NoEnvVar
+from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
 
 # from .parse_tree import ParseTree
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
@@ -36,6 +37,7 @@ class CommandParser:
         self.ctx = ctx
         self.params = ctx.params
         self.positionals = ctx.params.positionals.copy()
+        # self.tree = ParseTree(ctx.command)
 
     @classmethod
     def parse_args(cls, ctx: Context) -> Optional[CommandType]:
@@ -56,7 +58,6 @@ class CommandParser:
 
     @classmethod
     def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
-        # tree = ParseTree(ctx.command)
         params = ctx.params
         sub_cmd_param = params.sub_command
         if sub_cmd_param and not sub_cmd_param.choices:
@@ -74,13 +75,6 @@ class CommandParser:
                     return None
                 raise ParamsMissing(missing)
             return next_cmd
-
-        try_env = [p for p in params.try_env_params(ctx)]
-        for param in try_env:
-            try:
-                param._set_from_env()
-            except NoEnvVar:
-                pass
 
         missing = cls._missing(params, ctx)
         if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
@@ -126,6 +120,19 @@ class CommandParser:
                         self.deferred.append(arg)
             else:
                 self.handle_positional(arg)
+
+        self._parse_env_vars(ctx)
+
+    def _parse_env_vars(self, ctx: Context):
+        for param in self.params.try_env_params(ctx):
+            for env_var in param.env_vars():
+                try:
+                    value = environ[env_var]
+                except KeyError:
+                    pass
+                else:
+                    param.take_action(value)
+                    break
 
     def handle_pass_thru(self, ctx: Context) -> Deque[str]:
         remaining = ctx.remaining
