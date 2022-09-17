@@ -83,7 +83,6 @@ class ParseTreeTestOk(ParserTest):
         self.assert_parse_results_cases(Base, success_cases)
 
 
-@skip('Implementation is incomplete and not working yet')
 class ParseTreeTestBad(ParserTest):
     def test_overlap_choice_conflict_bad(self):
         class Show(Command):
@@ -95,7 +94,7 @@ class ParseTreeTestBad(ParserTest):
         class ShowFooBar(Show, choice='foo bar'):
             pass
 
-        with self.assertRaises(AmbiguousParseTree):
+        with self.assertRaisesRegex(AmbiguousParseTree, 'Conflicting targets'):
             Show.parse([])
 
     def test_overlap_choice_open_bad(self):
@@ -108,7 +107,7 @@ class ParseTreeTestBad(ParserTest):
         class ShowFooBar(Show, choice='foo bar'):
             pass
 
-        with self.assertRaises(AmbiguousParseTree):
+        with self.assertRaisesRegex(AmbiguousParseTree, 'Conflicting choices'):
             Show.parse([])
 
     def test_overlap_deep_choice_conflict_bad(self):

@@ -4,57 +4,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Optional, Collection, Generic, TypeVar, Iterable, Callable, overload, Dict, Set
+from typing import TYPE_CHECKING, Union, Optional, Collection, Iterable, Iterator, MutableMapping, Dict, Set, Tuple
 
-# from .core import get_params
 from .exceptions import AmbiguousParseTree
 
 if TYPE_CHECKING:
-    from types import MethodType
     from .nargs import Nargs
     from .parameters.base import BasePositional
     from .parameters.choice_map import Choice
     from .typing import OptStr, CommandCls
 
 __all__ = ['ParseTree']
-
-T = TypeVar('T')
-
-
-class cached_slot_property(Generic[T]):
-    __slots__ = ('func', 'name', '__doc__')
-
-    def __init__(self, func: Callable[[MethodType], T]):
-        self.func = func
-        self.name = None
-        self.__doc__ = func.__doc__
-
-    def __set_name__(self, owner, name: str):
-        self.name = f'_{name}'
-        if self.name not in owner.__slots__:
-            raise TypeError(f'Missing attr {name!r} in {owner.__name__}.__slots__')
-
-    @overload
-    def __get__(self, instance: None, owner) -> cached_slot_property:
-        ...
-
-    @overload
-    def __get__(self, instance, owner) -> T:
-        ...
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        try:
-            return getattr(instance, self.name)
-        except AttributeError:
-            pass
-        value = self.func(instance)
-        setattr(instance, self.name, value)
-        return value
-
-    def __set__(self, instance, value: T):
-        setattr(instance, self.name, value)
 
 
 class AnyWord:
@@ -90,76 +50,145 @@ Word = Union[str, AnyWord, None]
 Target = Union['BasePositional', 'CommandCls', None]
 
 
+class NodeLinkMap(MutableMapping[Word, 'PosNode']):
+    __slots__ = ('data', 'any_word', 'any_node')
+
+    def __init__(self):
+        self.data = {}
+
+    def has_any(self) -> bool:
+        try:
+            self.any_word
+        except AttributeError:
+            return False
+        else:
+            return True
+
+    def __repr__(self) -> str:
+        try:
+            any_str = f'{self.any_word!r}: {self.any_node!r}'
+        except AttributeError:
+            any_str = 'None'
+        return f'<{self.__class__.__name__}[{any_str}, {self.data!r}]>'
+
+    def __len__(self) -> int:
+        try:
+            self.any_word
+        except AttributeError:
+            extra = 0
+        else:
+            extra = 1
+        return len(self.data) + extra
+
+    def __contains__(self, word: Word) -> bool:
+        try:
+            self.data[word]
+        except KeyError:
+            pass
+        else:
+            return True
+        try:
+            return self.any_word == word
+        except AttributeError:
+            return False
+
+    def __setitem__(self, word: Word, node: PosNode):
+        if isinstance(word, AnyWord):
+            try:
+                self.any_word
+            except AttributeError:
+                self.any_word = word
+                self.any_node = node
+            else:
+                raise KeyError(f'Choice conflict: {word!r} cannot replace {self.any_word!r}')
+        else:
+            self.data[word] = node
+
+    def __getitem__(self, word: Word) -> PosNode:
+        try:
+            return self.data[word]
+        except KeyError:
+            pass
+        try:
+            return self.any_node
+        except AttributeError:
+            pass
+        raise KeyError(word)
+
+    def __delitem__(self, word: Word):
+        try:
+            del self.data[word]
+        except KeyError:
+            pass
+        try:
+            any_word = self.any_word
+        except AttributeError:
+            raise KeyError(word) from None
+
+        if any_word == word:
+            del self.any_word
+            del self.any_node
+        else:
+            raise KeyError(word)
+
+    def __iter__(self) -> Iterator[Word]:
+        yield from self.data
+        try:
+            yield self.any_word
+        except AttributeError:
+            pass
+
+    def items(self) -> Iterator[Tuple[Word, PosNode]]:
+        yield from self.data.items()
+        try:
+            yield self.any_word, self.any_node
+        except AttributeError:
+            pass
+
+
+def target_repr(target: Target) -> str:
+    try:
+        return target.__name__
+    except AttributeError:
+        return repr(target)
+
+
 class PosNode:
-    __slots__ = ('parent', 'word', 'links', '_any_link', 'target', '_root', '_path')
+    __slots__ = ('parent', 'word', 'links', 'target')
 
     parent: Optional[PosNode]
     word: Word
-    links: Dict[OptStr, PosNode]
-    _any_link: Optional[PosNode]
+    links: NodeLinkMap
     target: Target
 
     def __init__(self, word: Word, target: Target = None, parent: Optional[PosNode] = None):
         self.parent = parent
         self.word = word
-        self.links = {}
-        # self.any_link = None
+        self.links = NodeLinkMap()
         self.target = target
 
     def __repr__(self) -> str:
         root = self.parent is None
-        return f'<PosNode[{self.word!r}, links: {len(self.links)}, root: {root}, target={self.target!r}]>'
+        target = target_repr(self.target)
+        return f'<PosNode[{self.path_repr()}: {self.word!r}, links: {len(self.links)}, root: {root}, target={target}]>'
 
-    def __getitem__(self, word: str) -> PosNode:
-        try:
-            return self.links[word]
-        except KeyError:
-            pass
-        any_link = self.any_link
-        if any_link:
-            return any_link
-        raise KeyError(word)
-
-    @cached_slot_property
-    def any_link(self) -> Optional[PosNode]:
-        try:
-            next_word = self.word + 1
-        except (TypeError, ValueError):  # TypeError for None or str, ValueError for no remaining
-            return None
-        return PosNode(next_word, self.target, self)
-        # word = self.word
-        # try:
-        #     remaining = word.remaining
-        # except AttributeError:  # it was a string or None, not AnyWord
-        #     return None
-        # if not remaining:
-        #     return None
-        # return PosNode(AnyWord(word.nargs, remaining - 1, word.n + 1), self.target, self)
-
-    @cached_slot_property
+    @property
     def root(self) -> PosNode:
         parent = self.parent
         return parent.root if parent else self
 
-    # @cached_slot_property
-    # def path(self) -> tuple[str, ...]:
-    #     parts = []
-    #     node = self
-    #     while node:
-    #         parts.append(node.word)
-    #         node = node.parent
-    #     return tuple(parts[:-1][::-1])
-
-    @cached_slot_property
-    def path(self) -> tuple[str, ...]:
+    @property
+    def raw_path(self) -> Tuple[Word, ...]:
         word = self.word
         if not word:
             return ()
-        word = str(word)
         try:
-            return (*self.parent.path, word)  # noqa
+            return (*self.parent.raw_path, word)  # noqa
         except AttributeError:
             return (word,)  # noqa
+
+    def path_repr(self) -> str:
+        return '({})'.format(', '.join(str(n) if isinstance(n, AnyWord) else repr(n) for n in self.raw_path))
 
     @property
     def is_terminal(self) -> bool:
@@ -169,43 +198,50 @@ class PosNode:
         except AttributeError:
             return bool(self.target)
 
-    def _update(self, word: Word, target: Target) -> PosNode:
-        if word:
-            any_link, own_word = self.any_link, self.word
-            if any_link and self.is_terminal:
-                raise AmbiguousParseTree(self, word, target)
-            elif isinstance(word, AnyWord):
-                if any_link or self.links:
-                    raise AmbiguousParseTree(self, word, target)
-                else:
-                    self.any_link = node = PosNode(word, target, self)  # noqa
-                    return node
-            else:
-                try:
-                    node = self.links[word]
-                except KeyError:
-                    self.links[word] = node = PosNode(word, target, self)
-                    return node
-                else:
-                    return node._update(None, target)
-        # Below this point, word is None
-        elif not target:
+    def _set_target(self, target: Target) -> PosNode:
+        if not target:
             return self
         elif self.target:
-            raise AmbiguousParseTree(self, word, target)
+            raise AmbiguousParseTree(self, target)
         else:
             self.target = target
             return self
+
+    def _update_any(self, word: AnyWord, target: Target) -> PosNode:
+        try:
+            self.links[word]
+        except KeyError:
+            pass
+        else:
+            raise AmbiguousParseTree(self, target, word)
+
+        self.links[word] = node = PosNode(word, target, self)
+        return node
+
+    def _update(self, word: str, target: Target) -> PosNode:
+        links = self.links
+        try:
+            node = links.data[word]
+        except KeyError:
+            if links.has_any():
+                raise AmbiguousParseTree(self, target, word) from None
+            links[word] = node = PosNode(word, target, self)
+            return node
+        else:
+            return node._set_target(target)
 
     def update(self, word: Word, target: Target) -> PosNode:
         try:
             *parts, last = word.split()
         except AttributeError:  # The choice is None or Any
-            return self._update(word, target)
+            if word:
+                return self._update_any(word, target)
+            else:
+                return self._set_target(target)
         else:
             node = self
             for part in parts:
-                node = node.update(part, None)
+                node = node._update(part, None)
             return node._update(last, target)
 
     def print_tree(self, indent: int = 0):
@@ -214,11 +250,6 @@ class PosNode:
         indent += 2
         for node in self.links.values():
             node.print_tree(indent)
-
-        try:
-            self.any_link.print_tree(indent)
-        except AttributeError:  # any_link is None
-            pass
 
 
 class ParseTree:

@@ -73,14 +73,19 @@ class ParameterDefinitionError(CommandParserException):
 class AmbiguousParseTree(CommandDefinitionError):
     """Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments"""
 
-    def __init__(self, node: PosNode, word: Word, target: Target):
+    def __init__(self, node: PosNode, target: Target, word: Word = None):
         self.node = node
-        self.word = word
         self.target = target
+        self.word = word
 
     def __str__(self) -> str:
-        node_path = ' '.join(self.node.path)
-        return f'Conflicting targets for parse path={node_path!r}: {self.node.target!r}, {self.target!r}'
+        node, word = self.node, self.word
+        if not word or word == node.word:
+            return f'Conflicting targets for parse path={node.path_repr()}: {node.target!r}, {self.target!r}'
+        return (
+            f'Conflicting choices after parse path={node.parent.path_repr()}:'
+            f' {node.word}=>{node.target!r}, {word}=>{self.target!r}'
+        )
 
 
 # endregion

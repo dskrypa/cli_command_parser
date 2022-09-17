@@ -14,8 +14,7 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
-
-# from .parse_tree import ParseTree
+from .parse_tree import ParseTree
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
@@ -37,7 +36,7 @@ class CommandParser:
         self.ctx = ctx
         self.params = ctx.params
         self.positionals = ctx.params.positionals.copy()
-        # self.tree = ParseTree(ctx.command)
+        self.tree = ParseTree(ctx.command)
 
     @classmethod
     def parse_args(cls, ctx: Context) -> Optional[CommandType]:
@@ -124,6 +123,8 @@ class CommandParser:
         self._parse_env_vars(ctx)
 
     def _parse_env_vars(self, ctx: Context):
+        # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
+        #  mutually exclusive params when they were provided via env
         for param in self.params.try_env_params(ctx):
             for env_var in param.env_vars():
                 try:
