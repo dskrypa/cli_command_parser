@@ -33,6 +33,9 @@
         <div class="wy-side-nav-search" >
             <a href="../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -69,6 +72,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.metadata.html">Metadata Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parse_tree.html">Parse_Tree Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a></li>
@@ -123,7 +127,7 @@
 <p>Configuration options for Commands.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.FIELDS">
-<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'sort_choices',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'reject_ambiguous_pos_combos',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'sort_choices',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -173,6 +177,12 @@
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.option_name_mode">
 <span class="sig-name descname"><span class="pre">option_name_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><span class="pre">OptionNameMode</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.option_name_mode" title="Permalink to this definition"></a></dt>
 <dd><p>How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos">
+<span class="sig-name descname"><span class="pre">reject_ambiguous_pos_combos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Bool</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos" title="Permalink to this definition"></a></dt>
+<dd><p>Whether ambiguous combinations of positional choices should result in an <a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree" title="cli_command_parser.exceptions.AmbiguousParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousParseTree</span></code></a> error</p>
 </dd></dl>
 
 <dl class="py attribute">

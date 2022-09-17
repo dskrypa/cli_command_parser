@@ -30,6 +30,9 @@
         <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -341,6 +344,9 @@
 
     <span class="c1">#: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes</span>
     <span class="n">option_name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="p">)</span>
+
+    <span class="c1">#: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error</span>
+    <span class="n">reject_ambiguous_pos_combos</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 

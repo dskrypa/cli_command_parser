@@ -30,6 +30,9 @@
         <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -99,6 +102,7 @@
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span><span class="p">,</span> <span class="n">BytesIO</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">seal</span>
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
 <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
@@ -115,6 +119,7 @@
     <span class="s1">&#39;get_rst_text&#39;</span><span class="p">,</span>
     <span class="s1">&#39;get_help_text&#39;</span><span class="p">,</span>
     <span class="s1">&#39;get_usage_text&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sealed_mock&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">Argv</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -351,6 +356,13 @@
     <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="o">=</span> <span class="mi">199</span>
     <span class="k">with</span> <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_rst</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="sealed_mock"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.sealed_mock">[docs]</a><span class="k">def</span> <span class="nf">sealed_mock</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;return_value&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">mock</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">seal</span><span class="p">(</span><span class="n">mock</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mock</span></div>
 </pre></div>
 
            </div>

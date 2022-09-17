@@ -30,6 +30,9 @@
         <div class="wy-side-nav-search" >
             <a href="../../../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -290,6 +293,14 @@
         <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">mutually_exclusive</span></div>
 
 <div class="viewcode-block" id="ParamGroup.validate"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate mutual dependency / exclusivity of members and that required members have been provided when they are</span>
+<span class="sd">        expected to be (based on mutual dependence/exclusivity and nesting).</span>
+
+<span class="sd">        This method is called during parsing, after initially parsing arguments, before evaluating whether a subcommand</span>
+<span class="sd">        choice was provided.  Groups are validated in order, starting from the inner-most groups and working outward so</span>
+<span class="sd">        that nested groups are validated before any group that they are a member of.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categorize_params</span><span class="p">()</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_conflicts</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="n">missing</span><span class="p">)</span>

@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Testing Module" href="cli_command_parser.testing.html" />
-    <link rel="prev" title="Positionals Module" href="cli_command_parser.parameters.positionals.html" />
+    <link rel="prev" title="Parse_Tree Module" href="cli_command_parser.parse_tree.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -33,6 +33,9 @@
         <div class="wy-side-nav-search" >
             <a href="../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -69,6 +72,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.metadata.html">Metadata Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parse_tree.html">Parse_Tree Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parser Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a></li>
@@ -123,12 +127,27 @@
 <p>Stateful parser used for a single pass of argument parsing</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.arg_deque">
-<span class="sig-name descname"><span class="pre">arg_deque</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Deque" title="(in Python v3.10)"><span class="pre">Deque</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.arg_deque" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">arg_deque</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Deque" title="(in Python v3.10)"><span class="pre">Deque</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.arg_deque" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.deferred">
-<span class="sig-name descname"><span class="pre">deferred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.deferred" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">deferred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.deferred" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.ctx">
+<span class="sig-name descname"><span class="pre">ctx</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.ctx" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.params">
+<span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.positionals">
+<span class="sig-name descname"><span class="pre">positionals</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.positionals" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -173,6 +192,11 @@
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.node">
+<span class="sig-name descname"><span class="pre">node</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.node" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -181,7 +205,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cli_command_parser.parameters.positionals.html" class="btn btn-neutral float-left" title="Positionals Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.parse_tree.html" class="btn btn-neutral float-left" title="Parse_Tree Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="cli_command_parser.testing.html" class="btn btn-neutral float-right" title="Testing Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -18,6 +18,7 @@ API Documentation
     api/cli_command_parser.metadata
     api/cli_command_parser.nargs
     api/cli_command_parser.parameters
+    api/cli_command_parser.parse_tree
     api/cli_command_parser.parser
     api/cli_command_parser.testing
     api/cli_command_parser.typing

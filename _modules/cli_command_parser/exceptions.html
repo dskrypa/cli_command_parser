@@ -30,6 +30,9 @@
         <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -94,16 +97,20 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_parse_tree_target_repr</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span>
     <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">ParamOrGroup</span>
+    <span class="kn">from</span> <span class="nn">.parse_tree</span> <span class="kn">import</span> <span class="n">PosNode</span><span class="p">,</span> <span class="n">Word</span><span class="p">,</span> <span class="n">Target</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;CommandParserException&#39;</span><span class="p">,</span>
     <span class="s1">&#39;CommandDefinitionError&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParameterDefinitionError&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AmbiguousParseTree&#39;</span><span class="p">,</span>
     <span class="s1">&#39;UsageError&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParamUsageError&#39;</span><span class="p">,</span>
     <span class="s1">&#39;BadArgument&#39;</span><span class="p">,</span>
@@ -114,7 +121,6 @@
     <span class="s1">&#39;ParamConflict&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ParamsMissing&#39;</span><span class="p">,</span>
     <span class="s1">&#39;NoActiveContext&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;NoEnvVar&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -155,6 +161,22 @@
     <span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Parameter&quot;&quot;&quot;</span></div>
 
 
+<div class="viewcode-block" id="AmbiguousParseTree"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousParseTree</span><span class="p">(</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">PosNode</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="n">Word</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">word</span> <span class="o">=</span> <span class="n">word</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">node</span><span class="p">,</span> <span class="n">word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">word</span>
+        <span class="n">nt</span><span class="p">,</span> <span class="n">st</span> <span class="o">=</span> <span class="n">_parse_tree_target_repr</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="p">),</span> <span class="n">_parse_tree_target_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">word</span> <span class="ow">or</span> <span class="n">word</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">word</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Conflicting targets for parse path=</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">path_repr</span><span class="p">()</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">nt</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">st</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Conflicting choices after parse path=</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">path_repr</span><span class="p">()</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">word</span><span class="si">}</span><span class="s1">=&gt;</span><span class="si">{</span><span class="n">nt</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s1">=&gt;</span><span class="si">{</span><span class="n">st</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
 <span class="c1"># endregion</span>
 
 <span class="c1"># region User Errors</span>
@@ -169,7 +191,7 @@
 
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">usage_str</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s1">&#39; / &#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">param</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
@@ -229,7 +251,7 @@
 <div class="viewcode-block" id="InvalidChoice"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">[docs]</a><span class="k">class</span> <span class="nc">InvalidChoice</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameter</span><span class="p">],</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="n">Collection</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">bad_str</span> <span class="o">=</span> <span class="s1">&#39;choices: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">invalid</span><span class="p">)))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -263,10 +285,6 @@
 
 <span class="k">class</span> <span class="nc">Backtrack</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raised when backtracking took place&quot;&quot;&quot;</span>
-
-
-<div class="viewcode-block" id="NoEnvVar"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoEnvVar">[docs]</a><span class="k">class</span> <span class="nc">NoEnvVar</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Indicates that no environment variable was available for a given Parameter.&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># endregion</span>

@@ -30,6 +30,9 @@
         <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> CLI Command Parser
           </a>
+              <div class="version">
+                2022.09.11
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -94,11 +97,13 @@
 
 <span class="c1"># import logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Deque</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ParseState</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoSuchOption</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">ParamsMissing</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">Backtrack</span><span class="p">,</span> <span class="n">UnsupportedAction</span><span class="p">,</span> <span class="n">NoEnvVar</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">Backtrack</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
+<span class="kn">from</span> <span class="nn">.parse_tree</span> <span class="kn">import</span> <span class="n">PosNode</span>
 <span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BaseOption</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -112,14 +117,19 @@
 <div class="viewcode-block" id="CommandParser"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser">[docs]</a><span class="k">class</span> <span class="nc">CommandParser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Stateful parser used for a single pass of argument parsing&quot;&quot;&quot;</span>
 
-    <span class="n">arg_deque</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">deferred</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_last</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_last&#39;</span><span class="p">,</span> <span class="s1">&#39;arg_deque&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;deferred&#39;</span><span class="p">,</span> <span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="s1">&#39;positionals&#39;</span><span class="p">)</span>
+
+    <span class="n">arg_deque</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">deferred</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">_last</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">positionals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reject_ambiguous_pos_combos</span><span class="p">:</span>
+            <span class="n">PosNode</span><span class="o">.</span><span class="n">build_tree</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandParser.parse_args"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
@@ -146,7 +156,7 @@
             <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">command</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">sub_cmd_param</span><span class="si">}</span><span class="s1"> has no sub Commands&#39;</span><span class="p">)</span>
 
         <span class="bp">cls</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span><span class="o">.</span><span class="n">_parse_args</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">_validate_groups</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">validate_groups</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">sub_cmd_param</span><span class="p">:</span>
             <span class="n">next_cmd</span> <span class="o">=</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">target</span><span class="p">()</span>  <span class="c1"># type: CommandType</span>
@@ -157,13 +167,6 @@
                     <span class="k">return</span> <span class="kc">None</span>
                 <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">next_cmd</span>
-
-        <span class="n">try_env</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">try_env_params</span><span class="p">(</span><span class="n">ctx</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">try_env</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">_set_from_env</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">NoEnvVar</span><span class="p">:</span>
-                <span class="k">pass</span>
 
         <span class="n">missing</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_missing</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">missing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">allow_missing</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">action</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">):</span>
@@ -178,19 +181,6 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_missing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">required_check_params</span><span class="p">()</span> <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_validate_groups</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span><span class="p">):</span>
-        <span class="n">exc</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">group</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">ParamsMissing</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># Let ParamConflict propagate before ParamsMissing</span>
-                <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">exc</span> <span class="o">=</span> <span class="n">e</span>
-
-        <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">exc</span>
 
     <span class="k">def</span> <span class="nf">_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arg_deque</span> <span class="o">=</span> <span class="n">arg_deque</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_pass_thru</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
@@ -222,6 +212,21 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">handle_positional</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_env_vars</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+        <span class="c1"># TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between</span>
+        <span class="c1">#  mutually exclusive params when they were provided via env</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">try_env_params</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">env_vars</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="n">env_var</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">break</span>
 
 <div class="viewcode-block" id="CommandParser.handle_pass_thru"><a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_pass_thru">[docs]</a>    <span class="k">def</span> <span class="nf">handle_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">remaining</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span>
