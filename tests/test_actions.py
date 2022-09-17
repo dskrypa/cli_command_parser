@@ -5,7 +5,7 @@ from unittest.mock import Mock, PropertyMock
 
 from cli_command_parser import Command, Action, Positional, action_flag, ParameterDefinitionError
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, InvalidChoice
-from cli_command_parser.testing import RedirectStreams
+from cli_command_parser.testing import RedirectStreams, sealed_mock
 
 # TODO: Test multi-word actions; multi-word actions combined with subcommands (with multiple words)
 # TODO: Test space/-/_ switch for multi-word?
@@ -35,7 +35,7 @@ class ActionTest(TestCase):
         self.assertEqual(call_count, 1)
 
     def test_action_called_mock(self):
-        mock = Mock(__name__='bar')
+        mock = sealed_mock(__name__='bar')
 
         class Foo(Command):
             action = Action()
@@ -50,7 +50,7 @@ class ActionTest(TestCase):
     def test_action_wrong_missing_choices(self):
         class Foo(Command):
             action = Action()
-            action(Mock(__name__='bar'))
+            action(sealed_mock(__name__='bar'))
 
         with self.assertRaises(InvalidChoice):
             Foo.parse(['baz']).main()
@@ -80,13 +80,13 @@ class ActionTest(TestCase):
 
                 class Foo(Command):
                     action = Action()
-                    action(name)(Mock(__name__='bar'))
+                    action(name)(sealed_mock(__name__='bar'))
 
     def test_positional_allowed_after_action(self):
         class Foo(Command):
             action = Action(help='The action to take')
             text = Positional(nargs='+')
-            action(Mock(__name__='foo'))
+            action(sealed_mock(__name__='foo'))
 
         foo = Foo.parse(['foo', 'bar'])
         self.assertTrue(foo.ctx.get_parsed()['action'])
@@ -97,7 +97,7 @@ class ActionTest(TestCase):
 
             class Foo(Command):
                 action = Action()
-                action('foo', choice='foo')(Mock(__name__='foo'))
+                action('foo', choice='foo')(sealed_mock(__name__='foo'))
 
     def test_stacked_action_flag_action_as_action(self):
         BuildDocs, build_mock, clean_mock = make_build_docs_command()
@@ -155,21 +155,21 @@ class ActionTest(TestCase):
     def test_default_default_help_text(self):
         class Foo(Command):
             action = Action()
-            action(default=True)(Mock(__name__='main', __doc__=None))
+            action(default=True)(sealed_mock(__name__='main', __doc__=None))
 
         self.assertEqual('Default action if no other action is specified', Foo.action.choices[None].help)
 
     def test_default_doc_help_text(self):
         class Foo(Command):
             action = Action()
-            action(default=True)(Mock(__name__='main', __doc__='test'))
+            action(default=True)(sealed_mock(__name__='main', __doc__='test'))
 
         self.assertEqual('test', Foo.action.choices[None].help)
 
     def test_doc_help_text(self):
         class Foo(Command):
             action = Action()
-            action(Mock(__name__='main', __doc__='test'))
+            action(sealed_mock(__name__='main', __doc__='test'))
 
         self.assertEqual('test', Foo.action.choices['main'].help)
 
@@ -198,7 +198,7 @@ class ActionTest(TestCase):
 
 
 def make_build_docs_command(explicit_build: bool = False):
-    build_mock, clean_mock = Mock(__name__='sphinx_build'), Mock()
+    build_mock, clean_mock = sealed_mock(__name__='sphinx_build'), sealed_mock()
 
     class BuildDocs(Command, description='Build documentation using Sphinx'):
         action = Action()

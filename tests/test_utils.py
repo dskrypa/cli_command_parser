@@ -3,7 +3,7 @@
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-from cli_command_parser.utils import camel_to_snake_case, get_args, Terminal
+from cli_command_parser.utils import camel_to_snake_case, get_args, Terminal, short_repr
 from cli_command_parser.formatting.utils import _description_start_line, _norm_column, _single_line_strs
 
 
@@ -38,6 +38,17 @@ class UtilsTest(TestCase):
         self.assertListEqual(['a', 'b'], _single_line_strs(['a\nb']))
         self.assertListEqual(['a', 'b'], _single_line_strs(['a', 'b']))
         self.assertListEqual(['a', 'b', 'c'], _single_line_strs(['a', 'b\nc']))
+
+    def test_short_repr(self):
+        for case in (20, 97, 98):
+            with self.subTest(len=case):
+                text = 'x' * case
+                self.assertEqual(repr(text), short_repr(text))
+
+        expected = repr('x' * 47 + '...' + 'x' * 47)
+        for case in (99, 200):
+            with self.subTest(len=case):
+                self.assertEqual(expected, short_repr('x' * case))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import main, skipIf
-from unittest.mock import Mock
 
 from cli_command_parser import Command
 from cli_command_parser.context import Context
@@ -32,7 +31,7 @@ from cli_command_parser.parameters.base import parameter_action, Parameter, Base
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
 from cli_command_parser.parser import CommandParser
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest, sealed_mock
 
 
 class PassThruTest(ParserTest):
@@ -161,7 +160,7 @@ class MiscParameterTest(ParserTest):
 
     def test_unexpected_prep_value_error(self):
         class Foo(Command):
-            bar = Positional(type=Mock(side_effect=OSError))
+            bar = Positional(type=sealed_mock(side_effect=OSError))
 
         self.assert_parse_fails(Foo, ['a'], BadArgument, 'unable to cast value=.* to type=')
 

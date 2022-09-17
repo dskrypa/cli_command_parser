@@ -19,6 +19,7 @@ from cli_command_parser.inputs import Date, Day
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action, Choice
 from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
 from cli_command_parser.testing import ParserTest, RedirectStreams, get_rst_text, get_help_text, get_usage_text
+from cli_command_parser.testing import sealed_mock
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import CommandCls
@@ -31,7 +32,7 @@ class MetadataTest(ParserTest):
     def test_prog(self):
         class Foo(Command, error_handler=no_exit_handler, prog='foo.py', add_help=True):
             action = Action()
-            action(Mock(__name__='bar'))
+            action(sealed_mock(__name__='bar'))
 
         stdout, stderr = _get_output(Foo, ['-h'])
         self.assertTrue(stdout.startswith('usage: foo.py {bar}'), f'Unexpected stdout: {stdout}')
@@ -44,7 +45,7 @@ class MetadataTest(ParserTest):
     def test_explicit_usage(self):
         class Foo(Command, error_handler=no_exit_handler, usage='this is a test'):
             action = Action()
-            action(Mock(__name__='bar'))
+            action(sealed_mock(__name__='bar'))
 
         stdout, stderr = _get_output(Foo, ['-h'])
         self.assertTrue(stdout.startswith('this is a test'), f'Unexpected stdout: {stdout}')
@@ -53,7 +54,7 @@ class MetadataTest(ParserTest):
     def test_description(self):
         class Foo(Command, error_handler=no_exit_handler, prog='foo.py', description=TEST_DESCRIPTION):
             action = Action()
-            action(Mock(__name__='bar'))
+            action(sealed_mock(__name__='bar'))
 
         stdout, stderr = _get_output(Foo, ['-h'])
         self.assertTrue(stdout.startswith('usage: foo.py {bar}'), f'Unexpected stdout: {stdout}')
@@ -62,7 +63,7 @@ class MetadataTest(ParserTest):
     def test_epilog(self):
         class Foo(Command, error_handler=no_exit_handler, prog='foo.py', epilog=TEST_EPILOG):
             action = Action()
-            action(Mock(__name__='bar'))
+            action(sealed_mock(__name__='bar'))
 
         stdout, stderr = _get_output(Foo, ['-h'])
         self.assertTrue(stdout.startswith('usage: foo.py {bar}'), f'Unexpected stdout: {stdout}')

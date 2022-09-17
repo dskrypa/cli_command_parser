@@ -13,6 +13,7 @@ from difflib import unified_diff
 from io import StringIO, BytesIO
 from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, Dict, List, Tuple
 from unittest import TestCase
+from unittest.mock import Mock, seal
 
 from .actions import help_action
 from .commands import Command
@@ -29,6 +30,7 @@ __all__ = [
     'get_rst_text',
     'get_help_text',
     'get_usage_text',
+    'sealed_mock',
 ]
 
 Argv = List[str]
@@ -265,3 +267,10 @@ def get_rst_text(cmd: Union[Type[Command], Command]) -> str:
     cmd.ctx._terminal_width = 199
     with cmd.ctx:
         return get_params(cmd).formatter.format_rst()
+
+
+def sealed_mock(*args, **kwargs):
+    kwargs.setdefault('return_value', None)
+    mock = Mock(*args, **kwargs)
+    seal(mock)
+    return mock

@@ -7,6 +7,7 @@ from cli_command_parser import Command, CommandConfig, Context
 from cli_command_parser.core import CommandMeta, get_config, get_parent, get_params, _choice_items
 from cli_command_parser.exceptions import CommandDefinitionError, ParamConflict
 from cli_command_parser.parameters import Action, ActionFlag
+from cli_command_parser.testing import sealed_mock
 
 _get_config = CommandMeta.config
 
@@ -143,7 +144,7 @@ class TestCommandMeta(TestCase):
 
 class TestCommands(TestCase):
     def test_true_on_action_handled(self):
-        mock = Mock(__name__='foo')
+        mock = sealed_mock(__name__='foo')
 
         class Foo(Command):
             action = Action()
@@ -179,7 +180,7 @@ class TestCommands(TestCase):
             self.assertFalse(mock.called)
 
     def test_parse_and_run(self):
-        mock = Mock(__name__='bar')
+        mock = sealed_mock(__name__='bar')
 
         class Foo(Command):
             action = Action()
@@ -245,7 +246,7 @@ class TestCommands(TestCase):
 
     def test_action_after_action_flags_exc(self):
         act_flag_mock = Mock()
-        action_mock = Mock(__name__='b')
+        action_mock = sealed_mock(__name__='b')
 
         class Foo(Command, action_after_action_flags=False, error_handler=None):
             a = ActionFlag('-a')(act_flag_mock)
@@ -260,7 +261,7 @@ class TestCommands(TestCase):
 
     def test_action_after_action_flags_ok(self):
         act_flag_mock = Mock()
-        action_mock = Mock(__name__='b')
+        action_mock = sealed_mock(__name__='b')
 
         class Foo(Command):
             a = ActionFlag('-a')(act_flag_mock)
