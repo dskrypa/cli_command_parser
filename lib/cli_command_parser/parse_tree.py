@@ -50,102 +50,6 @@ Word = Union[str, AnyWord, None]
 Target = Union['BasePositional', 'CommandCls', None]
 
 
-class NodeLinkMap(MutableMapping[Word, 'PosNode']):
-    __slots__ = ('data', 'any_word', 'any_node')
-
-    def __init__(self):
-        self.data = {}
-
-    def has_any(self) -> bool:
-        try:
-            self.any_word
-        except AttributeError:
-            return False
-        else:
-            return True
-
-    def __repr__(self) -> str:
-        try:
-            any_str = f'{self.any_word!r}: {self.any_node!r}'
-        except AttributeError:
-            any_str = 'None'
-        return f'<{self.__class__.__name__}[{any_str}, {self.data!r}]>'
-
-    def __len__(self) -> int:
-        try:
-            self.any_word
-        except AttributeError:
-            extra = 0
-        else:
-            extra = 1
-        return len(self.data) + extra
-
-    def __contains__(self, word: Word) -> bool:
-        try:
-            self.data[word]
-        except KeyError:
-            pass
-        else:
-            return True
-        try:
-            return self.any_word == word
-        except AttributeError:
-            return False
-
-    def __setitem__(self, word: Word, node: PosNode):
-        if isinstance(word, AnyWord):
-            try:
-                self.any_word
-            except AttributeError:
-                self.any_word = word
-                self.any_node = node
-            else:
-                raise KeyError(f'Choice conflict: {word!r} cannot replace {self.any_word!r}')
-        else:
-            self.data[word] = node
-
-    def __getitem__(self, word: Word) -> PosNode:
-        try:
-            return self.data[word]
-        except KeyError:
-            pass
-        try:
-            return self.any_node
-        except AttributeError:
-            pass
-        raise KeyError(word)
-
-    def __delitem__(self, word: Word):
-        try:
-            del self.data[word]
-        except KeyError:
-            pass
-        try:
-            any_word = self.any_word
-        except AttributeError:
-            raise KeyError(word) from None
-
-        if any_word == word:
-            del self.any_word
-            del self.any_node
-        else:
-            raise KeyError(word)
-
-    def __iter__(self) -> Iterator[Word]:
-        yield from self.data
-        try:
-            yield self.any_word
-        except AttributeError:
-            pass
-
-    def items(self) -> Iterator[Tuple[Word, PosNode]]:
-        yield from self.data.items()
-        try:
-            yield self.any_word, self.any_node
-        except AttributeError:
-            pass
-
-
 def target_repr(target: Target) -> str:
     try:
         return target.__name__
@@ -153,24 +57,37 @@ def target_repr(target: Target) -> str:
         return repr(target)
 
 
-class PosNode:
-    __slots__ = ('parent', 'word', 'links', 'target')
+class PosNode(MutableMapping[Word, 'PosNode']):
+    __slots__ = ('parent', 'word', 'links', 'target', 'any_word', 'any_node')
 
     parent: Optional[PosNode]
     word: Word
-    links: NodeLinkMap
+    links: Dict[Word, PosNode]
     target: Target
 
     def __init__(self, word: Word, target: Target = None, parent: Optional[PosNode] = None):
         self.parent = parent
         self.word = word
-        self.links = NodeLinkMap()
+        self.links = {}
         self.target = target
 
     def __repr__(self) -> str:
         root = self.parent is None
         target = target_repr(self.target)
-        return f'<PosNode[{self.path_repr()}: {self.word!r}, links: {len(self.links)}, root: {root}, target={target}]>'
+        return f'<PosNode[{self.path_repr()}: {self.word!r}, links: {len(self)}, root: {root}, target={target}]>'
+
+    def __hash__(self) -> int:
+        return hash(self.__class__) ^ hash(self.parent) ^ hash(self.word)
+
+    def __eq__(self, other: PosNode) -> bool:
+        return (
+            self.parent == other.parent
+            and self.word == other.word
+            and self.target == other.target
+            and self.links == other.links
+        )
+
+    # region Introspection
 
     @property
     def root(self) -> PosNode:
@@ -198,6 +115,94 @@ class PosNode:
         except AttributeError:
             return bool(self.target)
 
+    # endregion
+
+    # region Mapping Methods
+
+    def has_any(self) -> bool:
+        try:
+            self.any_word
+        except AttributeError:
+            return False
+        else:
+            return True
+
+    def __len__(self) -> int:
+        try:
+            self.any_word
+        except AttributeError:
+            extra = 0
+        else:
+            extra = 1
+        return len(self.links) + extra
+
+    def __contains__(self, word: Word) -> bool:
+        try:
+            self.links[word]
+        except KeyError:
+            pass
+        else:
+            return True
+        try:
+            return self.any_word == word
+        except AttributeError:
+            return False
+
+    def __setitem__(self, word: Word, node: PosNode):
+        if isinstance(word, AnyWord):
+            try:
+                self.any_word
+            except AttributeError:
+                self.any_word = word
+                self.any_node = node
+            else:
+                raise KeyError(f'Choice conflict: {word!r} cannot replace {self.any_word!r}')
+        else:
+            self.links[word] = node
+
+    def __getitem__(self, word: Word) -> PosNode:
+        try:
+            return self.links[word]
+        except KeyError:
+            pass
+        try:
+            return self.any_node
+        except AttributeError:
+            pass
+        raise KeyError(word)
+
+    def __delitem__(self, word: Word):
+        try:
+            del self.links[word]
+        except KeyError:
+            pass
+        try:
+            any_word = self.any_word
+        except AttributeError:
+            raise KeyError(word) from None
+
+        if any_word == word:
+            del self.any_word
+            del self.any_node
+        else:
+            raise KeyError(word)
+
+    def __iter__(self) -> Iterator[Word]:
+        yield from self.links
+        try:
+            yield self.any_word
+        except AttributeError:
+            pass
+
+    # def items(self) -> Iterator[Tuple[Word, PosNode]]:
+    #     yield from self.links.items()
+    #     try:
+    #         yield self.any_word, self.any_node
+    #     except AttributeError:
+    #         pass
+
+    # endregion
+
     # region Build Tree
 
     @classmethod
@@ -206,7 +211,7 @@ class PosNode:
         process_params(command, [root], command.__class__.params(command).positionals)
         return root
 
-    def update(self, word: Word, target: Target) -> PosNode:
+    def update_node(self, word: Word, target: Target) -> PosNode:
         try:
             *parts, last = word.split()
         except AttributeError:  # The choice is None or Any
@@ -232,33 +237,33 @@ class PosNode:
     def _update(self, word: str, target: Target) -> PosNode:
         links = self.links
         try:
-            node = links.data[word]
+            node = links[word]
         except KeyError:
-            if links.has_any():
+            if self.has_any():
                 raise AmbiguousParseTree(self, target, word) from None
-            links[word] = node = PosNode(word, target, self)
+            self[word] = node = PosNode(word, target, self)
             return node
         else:
             return node._set_target(target)
 
     def _update_any(self, word: AnyWord, target: Target) -> PosNode:
         try:
-            self.links[word]
+            self[word]
         except KeyError:
             pass
         else:
             raise AmbiguousParseTree(self, target, word)
 
-        self.links[word] = node = PosNode(word, target, self)
+        self[word] = node = PosNode(word, target, self)
         return node
 
     # endregion
 
     def print_tree(self, indent: int = 0):
         prefix = ' ' * indent
-        print(f'{prefix}- <PosNode[{self.word!r}, links: {len(self.links)}, target={self.target!r}]>')
+        print(f'{prefix}- <PosNode[{self.word!r}, links: {len(self)}, target={self.target!r}]>')
         indent += 2
-        for node in self.links.values():
+        for node in self.values():
             node.print_tree(indent)
 
 
@@ -284,9 +289,9 @@ def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePosi
             try:
                 params = get_params(target)
             except TypeError:
-                new_nodes.update(node.update(choice.choice, target) for node in nodes)
+                new_nodes.update(node.update_node(choice.choice, target) for node in nodes)
             else:
-                choice_nodes = {node.update(choice.choice, target) for node in nodes}
+                choice_nodes = {node.update_node(choice.choice, target) for node in nodes}
                 new_nodes.update(process_params(target, choice_nodes, params.positionals))
 
         return new_nodes
@@ -296,8 +301,8 @@ def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePosi
     except AttributeError:  # It was not a _ChoicesBase input type
         pass
     else:
-        return {node.update(choice, param) for choice in choices for node in nodes}
+        return {node.update_node(choice, param) for choice in choices for node in nodes}
 
     # At this point, the param will take any word
     word = AnyWord(param.nargs)
-    return {node.update(word, param) for node in nodes}
+    return {node.update_node(word, param) for node in nodes}
