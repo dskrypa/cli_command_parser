@@ -12,14 +12,35 @@ from typing import TYPE_CHECKING, Union, Iterator, Iterable, Any, TypeVar, Seque
 from .utils import line_iter
 
 if TYPE_CHECKING:
-    from ..typing import OptStr, Bool
+    from ..typing import OptStr, Bool, Strings
 
 __all__ = ['rst_bar', 'rst_list_table', 'RstTable']
 
 T = TypeVar('T')
 RowMaps = Sequence[Mapping[T, 'OptStr']]
 
+# region Constants & Templates
+
 BAR_CHAR_ORDER = ('#', '*', '=', '-', '^', '"')  # parts, chapters, sections, subsections, sub-subsections, paragraphs
+
+LIST_TABLE_TMPL = """
+.. list-table::
+    :widths: {widths}
+
+{entries}
+"""
+MODULE_TEMPLATE = """
+{header}
+
+.. currentmodule:: {module}
+
+.. automodule:: {module}
+   :members:
+   :undoc-members:
+   :show-inheritance:
+""".lstrip()
+
+# endregion
 
 
 def rst_bar(text: Union[str, int], level: int = 1) -> str:
@@ -50,12 +71,17 @@ def rst_directive(
     return '\n'.join(_rst_directive(directive, args, options, indent, check))
 
 
-TABLE_TMPL = """
-.. list-table::
-    :widths: {widths}
+def _rst_toc_tree(name: str, content_fmt: str, contents: Strings, max_depth: int = 4, **kwargs) -> Iterator[str]:
+    options = {'maxdepth': max_depth, **kwargs}
+    yield rst_header(name, 1)
+    yield ''
+    yield from _rst_directive('toctree', options=options, check=True)
+    yield ''
+    yield from map(content_fmt.format, sorted(contents))
 
-{entries}
-"""
+
+def rst_toc_tree(name: str, content_fmt: str, contents: Strings, max_depth: int = 4, **kwargs) -> str:
+    return '\n'.join(_rst_toc_tree(name, content_fmt, contents, max_depth, **kwargs))
 
 
 def rst_list_table(data: Dict[str, str], value_pad: int = 20) -> str:
@@ -63,7 +89,7 @@ def rst_list_table(data: Dict[str, str], value_pad: int = 20) -> str:
     max_val = max(map(len, data.values()))
     widths = f'{max_key} {max_val + value_pad}'
     entries = '\n'.join(f'    * - | {key}\n      - | {value}' for key, value in data.items())
-    return TABLE_TMPL.format(widths=widths, entries=entries)
+    return LIST_TABLE_TMPL.format(widths=widths, entries=entries)
 
 
 class RstTable:

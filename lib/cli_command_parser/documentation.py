@@ -6,23 +6,26 @@ Utilities for generating documentation for Commands
 
 from __future__ import annotations
 
+import logging
 import sys
 from collections import defaultdict
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Iterable, Mapping, List, Dict
 
 from .commands import Command
 from .context import get_current_context
 from .core import CommandMeta, get_params, get_parent
 from .formatting.commands import get_formatter, NameFunc
+from .formatting.restructured_text import MODULE_TEMPLATE, rst_header, rst_toc_tree
 
 if TYPE_CHECKING:
-    from .typing import Bool, PathLike, CommandType, CommandCls
+    from .typing import Bool, PathLike, CommandCls, Strings
 
     Commands = Dict[str, CommandCls]
 
-__all__ = ['render_script_rst', 'render_command_rst', 'load_commands']
+__all__ = ['render_script_rst', 'render_command_rst', 'load_commands', 'RstWriter']
+log = logging.getLogger(__name__)
 
 
 def render_script_rst(
@@ -33,7 +36,7 @@ def render_script_rst(
     return _render_commands_rst(commands, fix_name, fix_name_func)
 
 
-def render_command_rst(command: CommandType, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
+def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
     """
     :param command: The :class:`.Command` to document
     :param fix_name: Whether the file name should be re-formatted from CamelCase / snake_case to separate Title Case
@@ -43,7 +46,10 @@ def render_command_rst(command: CommandType, fix_name: Bool = True, fix_name_fun
     """
     ctx = get_current_context(True) or command()._Command__ctx
     with ctx:
-        return get_formatter(command).format_rst(fix_name, fix_name_func)
+        return get_formatter(command).format_rst(fix_name, fix_name_func, no_sys_argv=True)
+
+
+# region Import and Load Commands
 
 
 def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
@@ -124,3 +130,147 @@ def import_module(path: PathLike):
 
 def _is_command(obj) -> bool:
     return isinstance(obj, CommandMeta) and obj is not Command
+
+
+# endregion
+
+
+class RstWriter:
+    def __init__(
+        self,
+        output_dir: PathLike,
+        *,
+        dry_run: Bool = False,
+        encoding: str = 'utf-8',
+        newline: str = '\n',
+        ext: str = '.rst',
+        module_template: str = MODULE_TEMPLATE,
+        skip_modules: Strings = None,
+    ):
+        self.output_dir = Path(output_dir)
+        self.dry_run = dry_run
+        self.encoding = encoding
+        self.newline = newline
+        self.ext = ext
+        self.module_template = module_template
+        self.skip_modules = set(skip_modules) if skip_modules else set()
+
+    def document_script(
+        self, path: Path, subdir: str = None, name: str = None, replacements: Mapping[str, str] = None, **kwargs
+    ) -> str:
+        if name:
+            kwargs['fix_name_func'] = lambda n: name
+            rst_name = Path(name).stem
+        else:
+            rst_name = path.stem
+
+        rst_str = render_script_rst(path, **kwargs)
+        if replacements:
+            for key, val in replacements.items():
+                rst_str = rst_str.replace(key, val)
+
+        self.write_rst(rst_name, rst_str, subdir)
+        return rst_name
+
+    def document_scripts(
+        self,
+        paths: Iterable[Path],
+        subdir: str = None,
+        *,
+        index_name: str = None,
+        index_header: str = None,
+        index_subdir: str = None,
+        caption: str = None,
+        **kwargs,
+    ):
+        names = [self.document_script(path, subdir, **kwargs) for path in paths]
+        if index_name or index_header or index_subdir:
+            name = index_name or subdir
+            self.write_index(name, index_header or name.title(), names, subdir, caption, index_subdir)
+
+    def document_module(self, module: str, subdir: str = None):
+        name = module.split('.')[-1].title()
+        rendered = MODULE_TEMPLATE.format(header=rst_header(f'{name} Module', 2), module=module)
+        self.write_rst(module, rendered, subdir)
+
+    def document_package(
+        self,
+        pkg_name: str,
+        pkg_path: Path,
+        subdir: str = None,
+        *,
+        name: str = None,
+        header: str = None,
+        index: Bool = True,
+        empty: Bool = False,
+        caption: str = None,
+    ) -> List[str]:
+        """
+        :param pkg_name: The name of the package to document
+        :param pkg_path: The path to the package
+        :param subdir: The output subdirectory for package contents
+        :param name: The name to use for the index file
+        :param header: Header text to use in the index (default is based on the package name)
+        :param index: Whether the index file should be created
+        :param empty: Whether an index file should be created if the package had no modules to document
+        :param caption: A caption to use for the index
+        :return: List of the names from the contents of the package
+        """
+        if name:
+            index_subdir = content_subdir = f'{subdir}/{name}' if subdir else name
+        else:
+            index_subdir = None
+            content_subdir = subdir
+
+        contents = self._generate_code_rsts(pkg_name, pkg_path, content_subdir)
+        if (not contents and not empty) or not index:
+            return contents
+
+        if not header:
+            header = '{} Package'.format(pkg_name.split('.')[-1].title())
+
+        self.write_index(name or pkg_name, header, contents, index_subdir, caption=caption, subdir=subdir)
+        return contents
+
+    def _generate_code_rsts(self, pkg_name: str, pkg_path: Path, subdir: str = None) -> List[str]:
+        contents = []
+        for path in pkg_path.iterdir():
+            if path.is_dir():
+                sub_pkg_name = f'{pkg_name}.{path.name}'
+                pkg_modules = self.document_package(sub_pkg_name, path, subdir)
+                if pkg_modules:
+                    contents.append(sub_pkg_name)
+            elif path.is_file() and path.suffix == '.py' and not path.name.startswith('__'):
+                name = f'{pkg_name}.{path.stem}'
+                if name in self.skip_modules:
+                    continue
+                contents.append(name)
+                self.document_module(name, subdir)
+
+        return contents
+
+    def write_index(
+        self,
+        name: str,
+        header: str,
+        contents: Strings,
+        content_subdir: str = None,
+        caption: str = None,
+        subdir: str = None,
+    ):
+        content_fmt = '    {}' if content_subdir is None else f'    {content_subdir}/{{}}'
+        rendered = rst_toc_tree(header, content_fmt, contents, caption=caption)
+        self.write_rst(name, rendered, subdir)
+
+    def write_rst(self, name: str, content: str, subdir: str = None):
+        target_dir = self.output_dir.joinpath(subdir) if subdir else self.output_dir
+        if not self.dry_run and not target_dir.exists():
+            target_dir.mkdir(parents=True)
+
+        prefix = '[DRY RUN] Would write' if self.dry_run else 'Writing'
+        path = target_dir.joinpath(name + self.ext)
+        log.debug(f'{prefix} {path.as_posix()}')
+        if not self.dry_run:
+            # Path.write_text on 3.7 does not support `newline`
+            with path.open('w', encoding=self.encoding, newline=self.newline) as f:
+                f.write(content)

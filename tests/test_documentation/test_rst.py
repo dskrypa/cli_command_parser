@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from textwrap import dedent
 from unittest import main
 
@@ -8,10 +9,12 @@ from cli_command_parser import Command, SubCommand
 from cli_command_parser.formatting.restructured_text import rst_bar, rst_header, rst_list_table, rst_directive, RstTable
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.documentation import load_commands, render_command_rst, render_script_rst, top_level_commands
+from cli_command_parser.documentation import RstWriter
 
 THIS_FILE = Path(__file__).resolve()
 TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data', 'test_rst')
 EXAMPLES_DIR = THIS_FILE.parents[2].joinpath('examples')
+LIB_DIR = THIS_FILE.parents[2].joinpath('lib', 'cli_command_parser')
 
 
 class RstFormatTest(ParserTest):
@@ -104,6 +107,91 @@ class RstFormatTest(ParserTest):
         +-----+
         """
         self.assert_strings_equal(dedent(expected).lstrip(), str(table))
+
+    def test_write_package_rsts(self):
+        commands_expected = """
+Commands Module
+===============
+
+.. currentmodule:: cli_command_parser.commands
+
+.. automodule:: cli_command_parser.commands
+   :members:
+   :undoc-members:
+   :show-inheritance:
+        """
+        index_prefix_expected = 'API Documentation\n*****************\n\n.. toctree::\n    :maxdepth: 4\n\n'
+        index_middle_expected = '\n    api/cli_command_parser.commands\n    api/cli_command_parser.config\n'
+
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            writer = RstWriter(tmp_path, skip_modules={'cli_command_parser.compat'})
+            writer.document_package(LIB_DIR.name, LIB_DIR, name='api', header='API Documentation')
+
+            index_path = tmp_path.joinpath('api.rst')
+            self.assertTrue(index_path.is_file())
+            index_content = index_path.read_text()
+            self.assertTrue(index_content.startswith(index_prefix_expected))
+            self.assert_str_contains(index_middle_expected, index_content)
+
+            api_dir = tmp_path.joinpath('api')
+            self.assertTrue(api_dir.is_dir())
+            self.assertFalse(api_dir.joinpath('cli_command_parser.compat.rst').exists())
+
+            commands_path = api_dir.joinpath('cli_command_parser.commands.rst')
+            self.assertTrue(commands_path.is_file())
+            self.assert_strings_equal(commands_expected.strip(), commands_path.read_text().strip())
+
+    def test_write_script_rsts(self):
+        index_prefix_expected = 'Example Scripts\n***************\n\n.. toctree::\n    :maxdepth: 4\n\n'
+        index_middle_expected = '\n    examples/custom_inputs\n    examples/echo\n'
+
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            writer = RstWriter(tmp_path)
+            writer.document_scripts(EXAMPLES_DIR.glob('*.py'), 'examples', index_header='Example Scripts')
+
+            index_path = tmp_path.joinpath('examples.rst')
+            self.assertTrue(index_path.is_file())
+            index_content = index_path.read_text()
+            self.assertTrue(index_content.startswith(index_prefix_expected))
+            self.assert_str_contains(index_middle_expected, index_content)
+
+            scripts_dir = tmp_path.joinpath('examples')
+            self.assertTrue(scripts_dir.is_dir())
+
+            echo_exp_rst_path = TEST_DATA_DIR.joinpath('echo.rst')
+            echo_path = scripts_dir.joinpath('echo.rst')
+            self.assertTrue(echo_path.is_file())
+            self.assert_strings_equal(echo_exp_rst_path.read_text().strip(), echo_path.read_text().strip())
+
+    def test_write_script_rst_with_replacements(self):
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            RstWriter(tmp_path).document_script(
+                EXAMPLES_DIR.joinpath('echo.py'), name='ECHOECHOECHO', replacements={'echo.py': 'test/echo/test.py'}
+            )
+            echo_path = tmp_path.joinpath('ECHOECHOECHO.rst')
+            self.assertTrue(echo_path.is_file())
+            rst = echo_path.read_text()
+            self.assertTrue(rst.startswith('ECHOECHOECHO\n************\n\n'))
+            self.assert_str_contains('::\n\n    usage: test/echo/test.py [TEXT] [--help]', rst)
+
+    def test_write_script_rsts_no_index(self):
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            writer = RstWriter(tmp_path)
+            writer.document_scripts(EXAMPLES_DIR.glob('*.py'), 'examples')
+            self.assertFalse(tmp_path.joinpath('examples.rst').is_file())
+
+    def test_write_rst_dry_run(self):
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            with self.assertLogs('cli_command_parser.documentation', 'DEBUG') as log_ctx:
+                RstWriter(tmp_path, dry_run=True).write_rst('test', 'test')
+
+            self.assertTrue(any('[DRY RUN] Would write' in line for line in log_ctx.output))
+            self.assertFalse(tmp_path.joinpath('test.rst').exists())
 
 
 class ExampleRstFormatTest(ParserTest):
