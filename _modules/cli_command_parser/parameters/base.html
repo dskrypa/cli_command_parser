@@ -41,8 +41,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../groups.html">Parameter Groups</a></li>
@@ -53,9 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
 </ul>
@@ -344,6 +347,8 @@
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="c1"># TODO: Help text for RST documentation contains the *full* Parameter docstrings (including init params)</span>
+        <span class="c1">#  - should replace with param type + help text?</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> - valid actions: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_actions</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>

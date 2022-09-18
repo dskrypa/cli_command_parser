@@ -44,8 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../groups.html">Parameter Groups</a></li>
@@ -56,9 +57,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Example Scripts</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="action_with_args.html">Action With Args</a></li>
@@ -112,36 +115,36 @@
 <p class="rubric">Optional arguments</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--path</span> <span class="pre">PATH,</span> <span class="pre">-p</span> <span class="pre">PATH</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--path</span> <span class="pre">PATH</span></code>, <code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">PATH</span></code></p></td>
 <td><p>The path to a file</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--in_file</span> <span class="pre">IN_FILE,</span> <span class="pre">-f</span> <span class="pre">IN_FILE</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--in_file</span> <span class="pre">IN_FILE</span></code>, <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">IN_FILE</span></code></p></td>
 <td><p>The path to a file to read</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--out_file</span> <span class="pre">OUT_FILE,</span> <span class="pre">-o</span> <span class="pre">OUT_FILE</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--out_file</span> <span class="pre">OUT_FILE</span></code>, <code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUT_FILE</span></code></p></td>
 <td><p>The path to a file to write</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--json</span> <span class="pre">JSON,</span> <span class="pre">-j</span> <span class="pre">JSON</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--json</span> <span class="pre">JSON</span></code>, <code class="docutils literal notranslate"><span class="pre">-j</span> <span class="pre">JSON</span></code></p></td>
 <td><p>The path to a file containing json</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p></td>
-<td><p>Show this help message and exit (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Mutually exclusive options</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--simple_range</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">49},</span> <span class="pre">-r</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">49}</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--simple_range</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">49}</span></code>, <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">49}</span></code></p></td>
 <td><p>Choose a number in the specified range</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--skip_range</span> <span class="pre">{1</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">29,</span> <span class="pre">step=2},</span> <span class="pre">-k</span> <span class="pre">{1</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">29,</span> <span class="pre">step=2}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--skip_range</span> <span class="pre">{1</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">29,</span> <span class="pre">step=2}</span></code>, <code class="docutils literal notranslate"><span class="pre">-k</span> <span class="pre">{1</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">29,</span> <span class="pre">step=2}</span></code></p></td>
 <td><p>Choose a number in the specified range</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--float_range</span> <span class="pre">{0.0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;</span> <span class="pre">1.0},</span> <span class="pre">-F</span> <span class="pre">{0.0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;</span> <span class="pre">1.0}</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--float_range</span> <span class="pre">{0.0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;</span> <span class="pre">1.0}</span></code>, <code class="docutils literal notranslate"><span class="pre">-F</span> <span class="pre">{0.0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;</span> <span class="pre">1.0}</span></code></p></td>
 <td><p>Choose a number in the specified range</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--choice_range</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">19},</span> <span class="pre">-c</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">19}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--choice_range</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">19}</span></code>, <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">{0</span> <span class="pre">&lt;=</span> <span class="pre">N</span> <span class="pre">&lt;=</span> <span class="pre">19}</span></code></p></td>
 <td><p>Choose a number in the specified range</p></td>
 </tr>
 </tbody>

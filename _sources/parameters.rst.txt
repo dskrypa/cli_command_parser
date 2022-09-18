@@ -150,7 +150,7 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
 :type: Not supported.
 
 
-`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py>`__::
+:gh_examples:`Example command <simple_flags.py>`::
 
     class Example(Command):
         foo = Flag('-f')  # the default ``default`` value is False
@@ -308,7 +308,7 @@ The generic :class:`.Positional` parameter that accepts arbitrary values or list
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
 
 
-`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py>`__::
+:gh_examples:`Example command <echo.py>`::
 
     class Echo(Command):
         text = Positional(nargs='*', help='The text to print')
@@ -369,8 +369,7 @@ registering a method, the following keyword-only parameters are supported:
   registered as the default for a given Action.
 
 
-`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py>`__ that uses
-actions::
+:gh_examples:`Example command <action_with_args.py>` that uses actions::
 
     class Example(Command):
         action = Action(help='The action to take')
@@ -450,7 +449,7 @@ space.
 :type: Not supported.
 
 
-`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py>`__::
+:gh_examples:`Example command <command_wrapper.py>`::
 
     class Wrapper(Command):
         hosts = Positional(nargs='+', help='The hosts on which the given command should be run')

@@ -44,8 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parameters</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#options">Options</a><ul>
@@ -76,9 +77,11 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
@@ -493,8 +496,7 @@ must be specified - the method name is not automatically used when <code class="
 registered as the default for a given Action.</p>
 </dd>
 </dl>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses
-actions:</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses actions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The action to take&#39;</span><span class="p">)</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>

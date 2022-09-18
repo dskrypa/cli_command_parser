@@ -82,6 +82,57 @@ with optional dependencies::
     $ pip install -U cli-command-parser[wcwidth]
 
 
+User Guide
+**********
+
+Building Commands
+=================
+
+:doc:`intro`
+    Introduction to Commands, Parameters, and main functions.
+
+:doc:`commands`
+    Explanation of special Command methods and Command inheritance.
+
+:doc:`parameters`
+    Introduces each Parameter type and their supported options.
+
+:doc:`groups`
+    How to group Parameters for help text organization or to enforce or prevent Parameter combinations.
+
+:doc:`subcommands`
+    How to define, use, and customize subcommands.
+
+:doc:`inputs`
+    Custom input types.
+
+
+Configuring & Documenting Commands
+==================================
+
+:doc:`configuration`
+    Configuration options for parsing, help text formatting, and more.
+
+:doc:`documentation`
+    How to generate and customize documentation and help text.
+
+:doc:`examples`
+    Automatically generated documentation for the :gh_proj_url:`example scripts <tree/main/examples>` in this project.
+
+
+Advanced
+========
+
+:doc:`advanced`
+    Advanced usage patterns.
+
+:doc:`testing`
+    How to unit test Commands.
+
+:doc:`api`
+    Lower level API documentation.
+
+
 Links
 *****
 
@@ -92,13 +143,22 @@ Links
 - Issue Tracker: https://github.com/dskrypa/cli_command_parser/issues
 
 
-User Guide
-**********
+Indices and Tables
+******************
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
+.. Table of Contents (navigation)
 
 .. toctree::
+   :caption: User Guide
    :maxdepth: 3
+   :hidden:
 
-   basic
+   intro
    commands
    parameters
    groups
@@ -109,28 +169,16 @@ User Guide
    advanced
    testing
 
-
-API Documentation
-*****************
-
 .. toctree::
+   :caption: API Documentation
    :maxdepth: 4
+   :hidden:
 
    api
 
-
-Documentation from Example Scripts
-**********************************
-
 .. toctree::
+   :caption: Example Script Docs
    :maxdepth: 2
+   :hidden:
 
    examples
-
-
-Indices and Tables
-******************
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

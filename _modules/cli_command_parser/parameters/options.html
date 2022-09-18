@@ -41,8 +41,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../groups.html">Parameter Groups</a></li>
@@ -53,9 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
 </ul>
@@ -103,7 +106,7 @@
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">OptStr</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">parameter_action</span>
 <span class="kn">from</span> <span class="nn">.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
@@ -246,6 +249,8 @@
                 <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing parameter=&#39;const&#39; for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2"> with default=</span><span class="si">{</span><span class="n">default</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_const_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>  <span class="c1"># will be True, False, or None</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># Avoid surprises for custom non-truthy values</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;show_default&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="o">=</span> <span class="n">const</span>
 
@@ -271,6 +276,7 @@
 <span class="sd">      specified.  Defaults to ``no`` if ``alt_long`` is not specified.</span>
 <span class="sd">    :param alt_long: The alternate long form to use.</span>
 <span class="sd">    :param alt_short: The alternate short form to use.</span>
+<span class="sd">    :param alt_help: The help text to display with the alternate option strings.</span>
 <span class="sd">    :param action: The action to take on individual parsed values.  Only ``store_const`` (the default) is supported.</span>
 <span class="sd">    :param default: The default value to use if neither the primary or alternate options are provided.  Defaults</span>
 <span class="sd">      to None.</span>
@@ -280,6 +286,7 @@
 
     <span class="n">_opt_str_cls</span> <span class="o">=</span> <span class="n">TriFlagOptionStrings</span>
     <span class="n">option_strs</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span>
+    <span class="n">alt_help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -288,6 +295,7 @@
         <span class="n">alt_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alt_long</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alt_short</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">alt_help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -309,6 +317,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="o">*</span><span class="n">alt_opt_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">consts</span> <span class="o">=</span> <span class="n">consts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">add_alts</span><span class="p">(</span><span class="n">alt_prefix</span><span class="p">,</span> <span class="n">alt_long</span><span class="p">,</span> <span class="n">alt_short</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">alt_help</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alt_help</span> <span class="o">=</span> <span class="n">alt_help</span>
 
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>

@@ -31,8 +31,7 @@ available.
 :allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
 
 
-Given the following (truncated)
-`example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py>`__::
+Given the following (truncated) :gh_examples:`example <custom_inputs.py>`::
 
     from cli_command_parser import Command, Option, main, inputs as i
 
@@ -74,8 +73,7 @@ functionality for directly reading or writing to the provided path.
   read immediately upon parsing of the path argument.
 
 
-Using another snippet from the above
-`example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py>`__::
+Using another snippet from the above :gh_examples:`example <custom_inputs.py>`::
 
     class InputsExample(Command):
         in_file = Option('-f', type=i.File(allow_dash=True, lazy=False), help='The path to a file to read')
@@ -133,8 +131,7 @@ The JSON and Pickle handlers do not accept the above 2 parameters.  The converte
 option will be overridden if provided.
 
 
-Adding another snippet to the above
-`example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py>`__::
+Adding another snippet to the above :gh_examples:`example <custom_inputs.py>`::
 
     class InputsExample(Command):
         json: i.FileWrapper = Option('-j', type=i.Json(allow_dash=True), help='The path to a file containing json')

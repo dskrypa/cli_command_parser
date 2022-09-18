@@ -44,8 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
@@ -89,9 +90,11 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
@@ -159,8 +162,7 @@ directories, for example, use <code class="docutils literal notranslate"><span c
 <dd class="field-odd"><p>Allow a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) to be provided to indicate stdin/stdout (default: False).</p>
 </dd>
 </dl>
-<p>Given the following (truncated)
-<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
+<p>Given the following (truncated) <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">inputs</span> <span class="k">as</span> <span class="n">i</span>
 
 <span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -204,8 +206,7 @@ see <a class="reference external" href="https://docs.python.org/3/library/functi
 read immediately upon parsing of the path argument.</p>
 </dd>
 </dl>
-<p>Using another snippet from the above
-<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
+<p>Using another snippet from the above <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">in_file</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file to read&#39;</span><span class="p">)</span>
     <span class="n">out_file</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">FileWrapper</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file to write&#39;</span><span class="p">)</span>
@@ -257,8 +258,7 @@ the content from the file; when writing, the converter will be called before wri
 <p>The JSON and Pickle handlers do not accept the above 2 parameters.  The converter is automatically picked to be
 <code class="docutils literal notranslate"><span class="pre">dump</span></code> or <code class="docutils literal notranslate"><span class="pre">load</span></code> based on whether the provided <code class="docutils literal notranslate"><span class="pre">mode</span></code> is for reading or writing, and the <code class="docutils literal notranslate"><span class="pre">pass_file</span></code>
 option will be overridden if provided.</p>
-<p>Adding another snippet to the above
-<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
+<p>Adding another snippet to the above <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">json</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">FileWrapper</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">Json</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file containing json&#39;</span><span class="p">)</span>
 

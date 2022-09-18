@@ -8,7 +8,7 @@ The ``--help`` / ``-h`` option is automatically added to Commands by default.  W
 any other parameters.  The usage / help text that it prints is automatically generated based on the Command in use,
 the file it is in, the Parameters in that Command, and any subcommands that are present.
 
-The content of the help text can be configured when :ref:`initializing the Command <commands:Initializing Commands>`.
+The content of the help text can be configured when :ref:`initializing the Command <commands:Defining Commands>`.
 It is also possible to :ref:`disable <configuration:Usage & Help Text Options>` the ``--help`` parameter by specifying
 ``add_help=False``, if desired.  If ``add_help`` is disabled, it is possible to define a different
 :ref:`parameters:ActionFlag` to replace it, using a combination of
@@ -24,8 +24,8 @@ To add a visual indicator for groups of parameters, specify ``show_group_tree=Tr
     class Foo(Command, show_group_tree=True):
         ...
 
-Using the `grouped_action_flags example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py>`__,
-we can see an example of the resulting help text:
+Using the :gh_examples:`grouped_action_flags example <grouped_action_flags.py>`, we can see an example of the
+resulting help text:
 
 .. image:: images/show_group_tree_example.png
   :alt: Group tree example output showing the difference between visual indicators for each type of group
@@ -67,9 +67,9 @@ If you want more fine-grained control over RST generation than :func:`.render_sc
 :func:`.render_command_rst` for a single command.  In the same module, a helper for
 :func:`loading all Commands<.load_commands>` from a given file is also provided.
 
-The `build_docs.py <https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py>`__ script used to
-generate this documentation uses :func:`.render_script_rst` to generate the :doc:`examples` documentation based on the
-`examples <https://github.com/dskrypa/cli_command_parser/tree/main/examples>`__ in this project.
+The :gh_proj_url:`build_docs.py <blob/main/bin/build_docs.py>` script used to generate this documentation uses
+:func:`.render_script_rst` to generate the :doc:`examples` documentation based on the
+:gh_proj_url:`examples <tree/main/examples>` in this project.
 
 Building HTML documentation from the output is possible with ``sphinx-build`` and other tools, but that is out of scope
 for this guide.

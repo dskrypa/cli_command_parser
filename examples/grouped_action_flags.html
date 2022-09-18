@@ -44,8 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../groups.html">Parameter Groups</a></li>
@@ -56,9 +57,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Example Scripts</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="action_with_args.html">Action With Args</a></li>
@@ -112,28 +115,28 @@
 <p class="rubric">Optional arguments</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help,</span> <span class="pre">-h</span></code></p></td>
-<td><p>Show this help message and exit (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Mutually exclusive options</p>
+<p class="rubric">Mutually dependent options</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_a,</span> <span class="pre">-a</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_w</span></code>, <code class="docutils literal notranslate"><span class="pre">-w</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_b,</span> <span class="pre">-b</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_x</span></code>, <code class="docutils literal notranslate"><span class="pre">-x</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><p>Mutually dependent options</p></td>
+<tr class="row-odd"><td><p>Mutually exclusive options</p></td>
 <td><table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_c,</span> <span class="pre">-c</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_y</span></code>, <code class="docutils literal notranslate"><span class="pre">-y</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_d,</span> <span class="pre">-d</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_z</span></code>, <code class="docutils literal notranslate"><span class="pre">-z</span></code></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -141,23 +144,23 @@
 </tr>
 </tbody>
 </table>
-<p class="rubric">Mutually dependent options</p>
+<p class="rubric">Mutually exclusive options</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_w,</span> <span class="pre">-w</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_a</span></code>, <code class="docutils literal notranslate"><span class="pre">-a</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_x,</span> <span class="pre">-x</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_b</span></code>, <code class="docutils literal notranslate"><span class="pre">-b</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><p>Mutually exclusive options</p></td>
+<tr class="row-odd"><td><p>Mutually dependent options</p></td>
 <td><table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_y,</span> <span class="pre">-y</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--action_c</span></code>, <code class="docutils literal notranslate"><span class="pre">-c</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_z,</span> <span class="pre">-z</span></code></p></td>
-<td><p>(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--action_d</span></code>, <code class="docutils literal notranslate"><span class="pre">-d</span></code></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>

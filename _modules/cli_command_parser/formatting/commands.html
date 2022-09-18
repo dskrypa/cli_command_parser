@@ -41,8 +41,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../groups.html">Parameter Groups</a></li>
@@ -53,9 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
 </ul>
@@ -184,7 +187,7 @@
     <span class="k">def</span> <span class="nf">_format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Generate the RST content for the specific Command associated with this formatter&quot;&quot;&quot;</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta</span><span class="p">()</span>
-        <span class="k">yield from</span> <span class="p">(</span><span class="s1">&#39;::&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">sub_cmd_choice</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="k">yield from</span> <span class="p">(</span><span class="s1">&#39;::&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">sub_cmd_choice</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span>
             <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
@@ -201,6 +204,7 @@
 
 <div class="viewcode-block" id="CommandHelpFormatter.format_rst"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_rst">[docs]</a>    <span class="k">def</span> <span class="nf">format_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">init_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Generate the RST content for the Command associated with this formatter and all of its subcommands&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Nested subcommands do not have full sections, but they should</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_meta</span><span class="p">()</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">doc_name</span>
         <span class="k">if</span> <span class="n">fix_name</span><span class="p">:</span>

@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting Started" href="basic.html" />
+    <link rel="next" title="Getting Started" href="intro.html" />
     <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -43,8 +43,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
@@ -55,9 +56,11 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
@@ -150,6 +153,48 @@ with optional dependencies:</p>
 </pre></div>
 </div>
 </section>
+<section id="user-guide">
+<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h2>
+<section id="building-commands">
+<h3>Building Commands<a class="headerlink" href="#building-commands" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt><a class="reference internal" href="intro.html"><span class="doc">Getting Started</span></a></dt><dd><p>Introduction to Commands, Parameters, and main functions.</p>
+</dd>
+<dt><a class="reference internal" href="commands.html"><span class="doc">Commands</span></a></dt><dd><p>Explanation of special Command methods and Command inheritance.</p>
+</dd>
+<dt><a class="reference internal" href="parameters.html"><span class="doc">Parameters</span></a></dt><dd><p>Introduces each Parameter type and their supported options.</p>
+</dd>
+<dt><a class="reference internal" href="groups.html"><span class="doc">Parameter Groups</span></a></dt><dd><p>How to group Parameters for help text organization or to enforce or prevent Parameter combinations.</p>
+</dd>
+<dt><a class="reference internal" href="subcommands.html"><span class="doc">Subcommands</span></a></dt><dd><p>How to define, use, and customize subcommands.</p>
+</dd>
+<dt><a class="reference internal" href="inputs.html"><span class="doc">Input Types</span></a></dt><dd><p>Custom input types.</p>
+</dd>
+</dl>
+</section>
+<section id="configuring-documenting-commands">
+<h3>Configuring &amp; Documenting Commands<a class="headerlink" href="#configuring-documenting-commands" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt><a class="reference internal" href="configuration.html"><span class="doc">Configuration</span></a></dt><dd><p>Configuration options for parsing, help text formatting, and more.</p>
+</dd>
+<dt><a class="reference internal" href="documentation.html"><span class="doc">Documentation</span></a></dt><dd><p>How to generate and customize documentation and help text.</p>
+</dd>
+<dt><a class="reference internal" href="examples.html"><span class="doc">Example Scripts</span></a></dt><dd><p>Automatically generated documentation for the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/tree/main/examples">example scripts</a> in this project.</p>
+</dd>
+</dl>
+</section>
+<section id="advanced">
+<h3>Advanced<a class="headerlink" href="#advanced" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt><a class="reference internal" href="advanced.html"><span class="doc">Advanced Usage</span></a></dt><dd><p>Advanced usage patterns.</p>
+</dd>
+<dt><a class="reference internal" href="testing.html"><span class="doc">Testing Commands</span></a></dt><dd><p>How to unit test Commands.</p>
+</dd>
+<dt><a class="reference internal" href="api.html"><span class="doc">API Documentation</span></a></dt><dd><p>Lower level API documentation.</p>
+</dd>
+</dl>
+</section>
+</section>
 <section id="links">
 <h2>Links<a class="headerlink" href="#links" title="Permalink to this heading"></a></h2>
 <ul class="simple">
@@ -160,207 +205,6 @@ with optional dependencies:</p>
 <li><p>Issue Tracker: <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/issues">https://github.com/dskrypa/cli_command_parser/issues</a></p></li>
 </ul>
 </section>
-<section id="user-guide">
-<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#parameters">Parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="basic.html#types">Types</a></li>
-<li class="toctree-l3"><a class="reference internal" href="basic.html#names">Names</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#entry-points">Entry Points</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic.html#help-text">Help Text</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#initializing-commands">Initializing Commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#command-methods">Command Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#parse-run">Parse &amp; Run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commands.html#inheritance">Inheritance</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="commands.html#using-init-command">Using _init_command_</a></li>
-<li class="toctree-l3"><a class="reference internal" href="commands.html#using-before-main">Using _before_main_</a></li>
-<li class="toctree-l3"><a class="reference internal" href="commands.html#using-init">Using __init__</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="parameters.html#options">Options</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#option">Option</a></li>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#flag">Flag</a></li>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#triflag">TriFlag</a></li>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#counter">Counter</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="parameters.html#positionals">Positionals</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#positional">Positional</a></li>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#subcommand">SubCommand</a></li>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#action">Action</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="parameters.html#others">Others</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#passthru">PassThru</a></li>
-<li class="toctree-l3"><a class="reference internal" href="parameters.html#actionflag">ActionFlag</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="groups.html#mutually-exclusive">Mutually Exclusive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="groups.html#mutually-dependent">Mutually Dependent</a></li>
-<li class="toctree-l2"><a class="reference internal" href="groups.html#combining-group-types">Combining Group Types</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="groups.html#how-it-works">How it Works</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="subcommands.html#automatic-registration">Automatic Registration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="subcommands.html#nested-subcommands">Nested Subcommands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="subcommands.html#explicit-registration">Explicit Registration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="subcommands.html#shared-common-parameters">Shared Common Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#paths-files">Paths &amp; Files</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#path">Path</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#file">File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#serialized-files">Serialized Files</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#numeric-ranges">Numeric Ranges</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#range">Range</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#numrange">NumRange</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#choice-inputs">Choice Inputs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#choices">Choices</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#choicemap">ChoiceMap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#enumchoices">EnumChoices</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="inputs.html#date-time">Date &amp; Time</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#day-month">Day &amp; Month</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html#full-date-time-parsing">Full Date / Time Parsing</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html#command-metadata">Command Metadata</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-options">Configuration Options</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#error-handling-options">Error Handling Options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#actionflag-options">ActionFlag Options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#parsing-options">Parsing Options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#usage-help-text-options">Usage &amp; Help Text Options</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="documentation.html#help-text">Help Text</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="documentation.html#group-formatting">Group Formatting</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="documentation.html#restructuredtext">reStructuredText</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="documentation.html#generating-rst-documentation">Generating RST Documentation</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#post-run-context">Post-Run &amp; Context</a></li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
-<li class="toctree-l3"><a class="reference internal" href="advanced.html#parameters-with-overridden-names">Parameters with Overridden Names</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#test-helpers">Test Helpers</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="api-documentation">
-<h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.actions.html">Actions Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.commands.html">Commands Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.config.html">Config Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.context.html">Context Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.core.html">Core Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.documentation.html">Documentation Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.error_handling.html">Error_Handling Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.exceptions.html">Exceptions Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.formatting.html">Formatting Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.commands.html">Commands Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.params.html">Params Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html">Restructured_Text Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html">Utils Module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.base.html">Base Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.choices.html">Choices Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.exceptions.html">Exceptions Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.files.html">Files Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.numeric.html">Numeric Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.time.html">Time Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.utils.html">Utils Module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.metadata.html">Metadata Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.nargs.html">Nargs Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.parameters.html">Parameters Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.base.html">Base Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.groups.html">Groups Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.option_strings.html">Option_Strings Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.options.html">Options Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.pass_thru.html">Pass_Thru Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.positionals.html">Positionals Module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.parse_tree.html">Parse_Tree Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.parser.html">Parser Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.testing.html">Testing Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.utils.html">Utils Module</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="documentation-from-example-scripts">
-<h2>Documentation from Example Scripts<a class="headerlink" href="#documentation-from-example-scripts" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/action_with_args.html">Action With Args</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/advanced_subcommand.html">Advanced Subcommand</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/basic_subcommand.html">Basic Subcommand</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/command_wrapper.html">Command Wrapper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/custom_inputs.html">Custom Inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/echo.html">Echo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/grouped_action_flags.html">Grouped Action Flags</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/hello_world.html">Hello World</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/rest_api_wrapper.html">Rest Api Wrapper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/shared_logging_init.html">Shared Logging Init</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/simple_flags.html">Simple Flags</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
 <section id="indices-and-tables">
 <h2>Indices and Tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
 <ul class="simple">
@@ -368,6 +212,12 @@ with optional dependencies:</p>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 </section>
 
@@ -375,7 +225,7 @@ with optional dependencies:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="basic.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="intro.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

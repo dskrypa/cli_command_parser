@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Parameters" href="parameters.html" />
-    <link rel="prev" title="Getting Started" href="basic.html" />
+    <link rel="prev" title="Getting Started" href="intro.html" />
     <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -44,13 +44,15 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#initializing-commands">Initializing Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#command-methods">Command Methods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#parse-run">Parse &amp; Run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inheritance">Inheritance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#inheritance">Inheritance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initialization-methods">Initialization Methods</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#using-init-command">Using _init_command_</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-before-main">Using _before_main_</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#using-init">Using __init__</a></li>
@@ -67,9 +69,11 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
@@ -101,7 +105,7 @@
              
   <section id="commands">
 <h1>Commands<a class="headerlink" href="#commands" title="Permalink to this heading"></a></h1>
-<p>Commands provide a way to organize CLI applications intuitively.</p>
+<p>Commands provide a way to organize CLI applications in an intuitively object-oriented way.</p>
 <p>Having parameters defined as attributes in the class results in a better developer experience when writing code that
 references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
 Changing the name of a parameter can take advantage of builtin renaming tools, instead of needing to hunt for
@@ -111,14 +115,13 @@ defined in decorators.</p>
 the parsed input.  Any other attribute or method can be defined and used without affecting functionality.</p>
 <p>Since subcommands can extend their parent command, they can take advantage of standard class inheritance to share
 common parameters, methods, and initialization steps with minimal extra work or code.</p>
-<section id="initializing-commands">
-<h2>Initializing Commands<a class="headerlink" href="#initializing-commands" title="Permalink to this heading"></a></h2>
+<section id="defining-commands">
+<h2>Defining Commands<a class="headerlink" href="#defining-commands" title="Permalink to this heading"></a></h2>
 <p>All commands must extend the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class.</p>
 <p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some
 options provide a way to include additional <a class="reference internal" href="configuration.html#command-metadata"><span class="std std-ref">Command Metadata</span></a> in help text / documentation, while
 other <a class="reference internal" href="configuration.html#configuration-options"><span class="std std-ref">Configuration Options</span></a> exist to control error handling and parsing / formatting.</p>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of
-those options:</p>
+<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of those options:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span>
     <span class="n">Command</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span>
@@ -191,6 +194,32 @@ also be provided:</p>
 <h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this heading"></a></h2>
 <p>One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
 Python already provides for common Parameters, methods, or initialization steps.</p>
+<p>The preferred way to define a subcommand takes advantage of this in that it can be defined by
+<a class="reference internal" href="subcommands.html#automatic-registration"><span class="std std-ref">extending a parent Command</span></a>.  This helps to avoid parameter name conflicts,
+and it enables users to provide common options anywhere in their CLI arguments without needing to be aware of parser
+behavior or how nested commands were defined.</p>
+<p>Some of the benefits of being able to use inheritance for Commands, and some of the patterns that it enables, that
+may require more work with other parsers:</p>
+<ul>
+<li><p>Logger configuration and other common initialization tasks can be handled once, automatically for all subcommands.</p></li>
+<li><p>Parent Commands can define common properties and methods used (or overridden) by its subcommands.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A parent Command may define a <code class="docutils literal notranslate"><span class="pre">main</span></code> method that calls a method that each subcommand is expected to implement
+for subcommand-specific implementations.</p></li>
+<li><p>If a parent Command’s <code class="docutils literal notranslate"><span class="pre">main</span></code> implementation is able to do what is necessary for all subcommands except for one,
+only that one needs to override its parent’s implementation.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>If multiple subcommands share a set of common Parameters between each other that would not make sense to be defined
+on the parent Command, and are not shared by other subcommands, then an intermediate subclass of their parent Command
+<a class="reference internal" href="subcommands.html#shared-common-parameters"><span class="std std-ref">can be defined with those common Parameters</span></a>, which those subcommands
+would then extend instead.</p></li>
+</ul>
+</section>
+<section id="initialization-methods">
+<h2>Initialization Methods<a class="headerlink" href="#initialization-methods" title="Permalink to this heading"></a></h2>
 <section id="using-init-command">
 <h3>Using _init_command_<a class="headerlink" href="#using-init-command" title="Permalink to this heading"></a></h3>
 <p>The current recommended way to handle initializing logging, or other common initialization steps, is to do so
@@ -250,7 +279,7 @@ has no <code class="docutils literal notranslate"><span class="pre">__init__</sp
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="basic.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="intro.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="parameters.html" class="btn btn-neutral float-right" title="Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -1,7 +1,7 @@
 Commands
 ********
 
-Commands provide a way to organize CLI applications intuitively.
+Commands provide a way to organize CLI applications in an intuitively object-oriented way.
 
 Having parameters defined as attributes in the class results in a better developer experience when writing code that
 references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
@@ -16,8 +16,8 @@ Since subcommands can extend their parent command, they can take advantage of st
 common parameters, methods, and initialization steps with minimal extra work or code.
 
 
-Initializing Commands
-=====================
+Defining Commands
+=================
 
 All commands must extend the :class:`.Command` class.
 
@@ -25,8 +25,7 @@ Multiple keyword-only arguments are supported when defining a subclass of Comman
 options provide a way to include additional :ref:`configuration:Command Metadata` in help text / documentation, while
 other :ref:`configuration:Configuration Options` exist to control error handling and parsing / formatting.
 
-`Example command <https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py>`__ that uses some of
-those options::
+:gh_examples:`Example command <hello_world.py>` that uses some of those options::
 
     class HelloWorld(
         Command,
@@ -108,6 +107,30 @@ Inheritance
 
 One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
 Python already provides for common Parameters, methods, or initialization steps.
+
+The preferred way to define a subcommand takes advantage of this in that it can be defined by
+:ref:`extending a parent Command <subcommands:Automatic Registration>`.  This helps to avoid parameter name conflicts,
+and it enables users to provide common options anywhere in their CLI arguments without needing to be aware of parser
+behavior or how nested commands were defined.
+
+Some of the benefits of being able to use inheritance for Commands, and some of the patterns that it enables, that
+may require more work with other parsers:
+
+- Logger configuration and other common initialization tasks can be handled once, automatically for all subcommands.
+- Parent Commands can define common properties and methods used (or overridden) by its subcommands.
+
+    - A parent Command may define a ``main`` method that calls a method that each subcommand is expected to implement
+      for subcommand-specific implementations.
+    - If a parent Command's ``main`` implementation is able to do what is necessary for all subcommands except for one,
+      only that one needs to override its parent's implementation.
+- If multiple subcommands share a set of common Parameters between each other that would not make sense to be defined
+  on the parent Command, and are not shared by other subcommands, then an intermediate subclass of their parent Command
+  :ref:`can be defined with those common Parameters <subcommands:Shared Common Parameters>`, which those subcommands
+  would then extend instead.
+
+
+Initialization Methods
+======================
 
 Using _init_command_
 --------------------

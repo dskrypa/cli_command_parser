@@ -44,8 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
@@ -55,13 +56,16 @@
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Testing Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#testing-parsing">Testing Parsing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-helpers">Test Helpers</a></li>
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
@@ -97,21 +101,47 @@
 Command runs normally, it does not call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> on a successful run, but it may do so if an unhandled
 exception is propagated.  Error handling <a class="reference internal" href="configuration.html#error-handling-options"><span class="std std-ref">can be disabled</span></a>, but sometimes
 you may still need to use <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">self.assertRaises(SystemExit)</span></code> in a test case if it is intentional / expected.</p>
-<section id="test-helpers">
-<h2>Test Helpers<a class="headerlink" href="#test-helpers" title="Permalink to this heading"></a></h2>
-<p>A <a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams" title="cli_command_parser.testing.RedirectStreams"><code class="xref py py-class docutils literal notranslate"><span class="pre">RedirectStreams</span></code></a> <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#context-managers" title="(in Python v3.10)"><span class="xref std std-ref">context manager</span></a> is available to temporarily override
-<code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, and optionally to provide input for <code class="docutils literal notranslate"><span class="pre">stdin</span></code>.  It’s also possible to use
-<a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stdout()</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stderr" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stderr()</span></code></a>, but this does both at once.</p>
-<p>Using the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">hello_world.py</a> script
-that has been used in other examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<section id="testing-parsing">
+<h2>Testing Parsing<a class="headerlink" href="#testing-parsing" title="Permalink to this heading"></a></h2>
+<p>To ensure that particular combinations of arguments are parsed as expected, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse" title="cli_command_parser.commands.Command.parse"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse()</span></code></a> method can be
+used to parse arguments without running <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> or triggering any actions.  Parsed attributes may be
+accessed directly (as they would be from within the Command when running normally), or gathered in a dict via
+<a class="reference internal" href="advanced.html#parsed-args-as-a-dictionary"><span class="std std-ref">get_parsed</span></a>.</p>
+<p>Using the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">hello_world.py</a> script that has been used in other examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Contact &lt;example@fake.org&gt; with any issues&#39;</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>We can test it like this:</p>
+<p>We can write these example test cases:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">get_parsed</span>
+<span class="kn">from</span> <span class="nn">hello_world</span> <span class="kn">import</span> <span class="n">HelloWorld</span>
+
+<span class="k">class</span> <span class="nc">HelloWorldTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_parse_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">HelloWorld</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">cmd</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_parse_name_and_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">HelloWorld</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">])</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Bob&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">get_parsed</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="test-helpers">
+<h2>Test Helpers<a class="headerlink" href="#test-helpers" title="Permalink to this heading"></a></h2>
+<p>A <a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams" title="cli_command_parser.testing.RedirectStreams"><code class="xref py py-class docutils literal notranslate"><span class="pre">RedirectStreams</span></code></a> <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#context-managers" title="(in Python v3.10)"><span class="xref std std-ref">context manager</span></a> is available to temporarily override both
+<code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, and optionally to provide input for <code class="docutils literal notranslate"><span class="pre">stdin</span></code>.  It’s also possible to use
+<a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stdout()</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stderr" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stderr()</span></code></a>, but this does both at once.</p>
+<p>To test the result of actually executing the program, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a> method can be used.  Using
+the same <code class="docutils literal notranslate"><span class="pre">hello_world.py</span></code> script as the above test, we can define some additional example test cases that check
+the output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">cli_command_parser.testing</span> <span class="kn">import</span> <span class="n">RedirectStreams</span>
 <span class="kn">from</span> <span class="nn">hello_world</span> <span class="kn">import</span> <span class="n">HelloWorld</span>
@@ -129,9 +159,8 @@ that has been used in other examples:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;Hello test!</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">streams</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Using InputsExample from the
-<a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">custom_inputs.py</a> script
-as the example Command being tested, we can see how it works to provide <code class="docutils literal notranslate"><span class="pre">stdin</span></code>:</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">InputsExample</span></code> from the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">custom_inputs.py</a> script as the example Command being tested, we can see
+how it works to provide <code class="docutils literal notranslate"><span class="pre">stdin</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_custom_input_json_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">RedirectStreams</span><span class="p">(</span><span class="s1">&#39;{&quot;a&quot;: 1, &quot;b&quot;: 2}&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">streams</span><span class="p">:</span>
         <span class="n">InputsExample</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([</span><span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">])</span>

@@ -44,8 +44,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parameter Groups</a><ul>
@@ -69,9 +70,11 @@
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
@@ -139,8 +142,8 @@ will be raised if the user did not provide a value for any Parameters in the gro
 text.</p>
 </dd>
 </dl>
-<p>One <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> use case for
-a basic group is to indicate that common arguments are accepted by all subcommands:</p>
+<p>One <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> use case for a basic group is to indicate that common arguments are
+accepted by all subcommands:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="s1">&#39;Common&#39;</span><span class="p">):</span>
@@ -313,9 +316,9 @@ then <code class="docutils literal notranslate"><span class="pre">x</span></code
 </section>
 <section id="examples">
 <h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h4>
-<p>The following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py">example</a>
-demonstrates combinations in both directions for nested mutually exclusive / dependent groups using
-<a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a> that simply print their corresponding letter:</p>
+<p>The following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py">example</a> demonstrates combinations in both directions for
+nested mutually exclusive / dependent groups using <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a> that simply print their
+corresponding letter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GroupedFlags</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">mutually_exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>

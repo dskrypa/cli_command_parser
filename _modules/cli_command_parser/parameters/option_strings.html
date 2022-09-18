@@ -41,8 +41,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../basic.html">Getting Started</a></li>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../groups.html">Parameter Groups</a></li>
@@ -53,9 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
 </ul>
@@ -226,7 +229,13 @@
 
 <div class="viewcode-block" id="TriFlagOptionStrings.alt_option_strs"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.alt_option_strs">[docs]</a>    <span class="k">def</span> <span class="nf">alt_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_long_alt</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_alt</span></div></div>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_alt</span></div>
+
+<div class="viewcode-block" id="TriFlagOptionStrings.option_strs"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.option_strs">[docs]</a>    <span class="k">def</span> <span class="nf">option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">alt</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt_option_strs</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_option_strs</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
