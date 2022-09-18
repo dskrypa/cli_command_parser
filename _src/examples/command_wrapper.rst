@@ -4,7 +4,7 @@ Command Wrapper
 
 ::
 
-    usage: build_docs.py HOSTS [--help] [-- COMMAND]
+    usage: command_wrapper.py HOSTS [--help] [-- COMMAND]
 
 
 

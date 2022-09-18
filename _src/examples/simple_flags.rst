@@ -4,7 +4,7 @@ Simple Flags
 
 ::
 
-    usage: build_docs.py [--foo] [--no-bar] [--spam | --no-spam] [--help]
+    usage: simple_flags.py [--foo] [--no-bar] [--spam | --no-spam] [--help]
 
 
 

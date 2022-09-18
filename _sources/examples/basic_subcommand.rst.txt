@@ -4,7 +4,7 @@ Basic Subcommand
 
 ::
 
-    usage: build_docs.py {foo|bar} [--help]
+    usage: basic_subcommand.py {foo|bar} [--help]
 
 
 
@@ -46,7 +46,7 @@ Print foo
 
 ::
 
-    usage: build_docs.py foo [--help]
+    usage: basic_subcommand.py foo [--help]
 
 
 
@@ -67,7 +67,7 @@ Print bar
 
 ::
 
-    usage: build_docs.py bar [--help]
+    usage: basic_subcommand.py bar [--help]
 
 
 

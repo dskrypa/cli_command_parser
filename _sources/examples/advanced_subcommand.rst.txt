@@ -4,7 +4,7 @@ Advanced Subcommand
 
 ::
 
-    usage: build_docs.py {foo|run foo|run bar|baz} [--verbose [VERBOSE]] [--help]
+    usage: advanced_subcommand.py {foo|run foo|run bar|baz} [--verbose [VERBOSE]] [--help]
 
 
 
@@ -52,7 +52,7 @@ Print foo
 
 ::
 
-    usage: build_docs.py foo [--verbose [VERBOSE]] [--help]
+    usage: advanced_subcommand.py foo [--verbose [VERBOSE]] [--help]
 
 
 
@@ -75,7 +75,7 @@ Run foo
 
 ::
 
-    usage: build_docs.py run foo [--verbose [VERBOSE]] [--help]
+    usage: advanced_subcommand.py run foo [--verbose [VERBOSE]] [--help]
 
 
 
@@ -98,7 +98,7 @@ Print bar
 
 ::
 
-    usage: build_docs.py run bar [--verbose [VERBOSE]] [--help]
+    usage: advanced_subcommand.py run bar [--verbose [VERBOSE]] [--help]
 
 
 
@@ -121,7 +121,7 @@ Print baz
 
 ::
 
-    usage: build_docs.py baz [--help]
+    usage: advanced_subcommand.py baz [--help]
 
 
 

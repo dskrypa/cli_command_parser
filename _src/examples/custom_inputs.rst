@@ -4,7 +4,7 @@ Custom Inputs
 
 ::
 
-    usage: build_docs.py [--path PATH] [--in_file IN_FILE] [--out_file OUT_FILE] [--json JSON] [--simple_range {0 <= N <= 49}] [--skip_range {1 <= N <= 29, step=2}] [--float_range {0.0 <= N < 1.0}] [--choice_range {0 <= N <= 19}] [--help]
+    usage: custom_inputs.py [--path PATH] [--in_file IN_FILE] [--out_file OUT_FILE] [--json JSON] [--simple_range {0 <= N <= 49}] [--skip_range {1 <= N <= 29, step=2}] [--float_range {0.0 <= N < 1.0}] [--choice_range {0 <= N <= 19}] [--help]
 
 
 

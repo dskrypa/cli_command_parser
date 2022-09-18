@@ -4,7 +4,7 @@ Action With Args
 
 ::
 
-    usage: build_docs.py {echo|split|double|reverse} TEXT [--help]
+    usage: action_with_args.py {echo|split|double|reverse} TEXT [--help]
 
 
 

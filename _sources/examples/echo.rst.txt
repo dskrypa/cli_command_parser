@@ -4,7 +4,7 @@ Echo
 
 ::
 
-    usage: build_docs.py [TEXT] [--help]
+    usage: echo.py [TEXT] [--help]
 
 
 Write all of the provided arguments to stdout
