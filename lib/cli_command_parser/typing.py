@@ -35,6 +35,7 @@ Bool = Union[bool, Any]
 Strs = Union[str, Sequence[str]]
 OptStr = Optional[str]
 OptStrs = Optional[Strs]
+Strings = Collection[str]
 PathLike = Union[str, 'Path']
 
 Locale = Union[str, Tuple[Optional[str], Optional[str]]]

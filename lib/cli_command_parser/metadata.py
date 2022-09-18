@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Type, Optional, Union, Tuple, Dict
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
-    from .typing import Bool, CommandType
+    from .typing import Bool, CommandType, OptStr
 
 __all__ = ['ProgramMetadata']
 
@@ -58,6 +58,7 @@ class ProgramMetadata:
     module: str = Metadata(None)
     command: str = Metadata(None)
     prog: str = Metadata(None)
+    prog_from_sys_argv: bool = Metadata(None)
     url: str = Metadata(None)
     docs_url: str = Metadata(None)
     email: str = Metadata(None)
@@ -84,6 +85,7 @@ class ProgramMetadata:
         description: str = None,
         epilog: str = None,
         doc_name: str = None,
+        no_sys_argv: Bool = False,
     ) -> ProgramMetadata:
         path, g = _path_and_globals(command, path)
         if command.__module__ != 'cli_command_parser.commands':
@@ -93,13 +95,15 @@ class ProgramMetadata:
         else:
             doc = doc_str = None
 
+        prog, prog_from_sys_argv = _prog(prog, path, parent, no_sys_argv)
         return cls(
             parent=parent,
             path=path,
             package=g.get('__package__'),
             module=g.get('__module__'),
             command=command.__qualname__,
-            prog=_prog(prog, path, parent),
+            prog=prog,
+            prog_from_sys_argv=prog_from_sys_argv,
             url=url or g.get('__url__'),
             docs_url=docs_url or _docs_url_from_repo_url(url) or _docs_url_from_repo_url(g.get('__url__')),
             email=email or g.get('__author_email__'),
@@ -142,22 +146,22 @@ def _repr(obj, indent=0) -> str:
     return f'<{obj.__class__.__name__}(\n{fields_str}\n{prev_str})>'
 
 
-def _prog(prog: Optional[str], cmd_path: Path, meta: Optional[ProgramMetadata]) -> Optional[str]:
+def _prog(prog: OptStr, cmd_path: Path, parent: Optional[ProgramMetadata], no_sys_argv: Bool) -> Tuple[OptStr, bool]:
     if prog:
-        return prog
-    if meta:
-        if meta.prog != meta.path.name:
-            return meta.prog
-    try:
-        path = Path(sys.argv[0])
-    except IndexError:
-        return cmd_path.name
+        return prog, False
+    elif parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
+        return parent.prog, parent.prog_from_sys_argv
+    elif not no_sys_argv:
+        try:
+            path = Path(sys.argv[0])
+        except IndexError:
+            return cmd_path.name, False
 
-    # Windows allows invocation without .exe - assume a file with an extension is a match
-    if (path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None) and path.name != 'pytest':
-        return path.name
+        # Windows allows invocation without .exe - assume a file with an extension is a match
+        if (path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None) and path.name != 'pytest':
+            return path.name, True
 
-    return cmd_path.name
+    return cmd_path.name, False
 
 
 def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Dict[str, Any]]:

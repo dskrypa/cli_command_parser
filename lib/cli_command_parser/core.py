@@ -19,7 +19,7 @@ from .exceptions import CommandDefinitionError
 from .metadata import ProgramMetadata
 
 if TYPE_CHECKING:
-    from .typing import Config, AnyConfig, CommandCls, CommandAny, OptStr
+    from .typing import Config, AnyConfig, CommandCls, CommandAny, OptStr, Bool
 
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_top_level_commands']
 
@@ -192,11 +192,11 @@ class CommandMeta(ABCMeta, type):
         return params
 
     @classmethod
-    def meta(mcs, cls: CommandCls) -> Optional[ProgramMetadata]:
+    def meta(mcs, cls: CommandCls, no_sys_argv: Bool = False) -> Optional[ProgramMetadata]:
         meta = cls.__metadata
         if not meta:
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
-            cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta)
+            cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta, no_sys_argv=no_sys_argv)
         return meta
 
 

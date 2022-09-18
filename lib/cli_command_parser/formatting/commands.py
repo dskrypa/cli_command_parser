@@ -53,9 +53,9 @@ class CommandHelpFormatter:
     def maybe_add_options(self, params: Iterable[BaseOption]):
         self.opt_group.extend(param for param in params if not param.group)
 
-    def _get_meta(self) -> ProgramMetadata:
+    def _get_meta(self, no_sys_argv: Bool = False) -> ProgramMetadata:
         cmd_mcls: Type[CommandMeta] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
-        return cmd_mcls.meta(self.command)
+        return cmd_mcls.meta(self.command, no_sys_argv=no_sys_argv)
 
     def format_usage(self, delim: str = ' ', sub_cmd_choice: str = None) -> str:
         meta = self._get_meta()
@@ -92,9 +92,11 @@ class CommandHelpFormatter:
 
         return '\n'.join(parts)
 
-    def _format_rst(self, include_epilog: Bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
+    def _format_rst(
+        self, include_epilog: Bool = False, sub_cmd_choice: str = None, no_sys_argv: Bool = False
+    ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
-        meta = self._get_meta()
+        meta = self._get_meta(no_sys_argv)
         yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')
         if meta.description:
             yield meta.description
@@ -110,10 +112,12 @@ class CommandHelpFormatter:
             if epilog:
                 yield epilog
 
-    def format_rst(self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1) -> str:
+    def format_rst(
+        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, no_sys_argv: Bool = False
+    ) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         # TODO: Nested subcommands do not have full sections, but they should
-        meta = self._get_meta()
+        meta = self._get_meta(no_sys_argv)
         name = meta.doc_name
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)
@@ -125,7 +129,7 @@ class CommandHelpFormatter:
                 parts += [doc_str, '']
 
         parts.append('')
-        parts.extend(self._format_rst(True))
+        parts.extend(self._format_rst(True, no_sys_argv=no_sys_argv))
 
         sub_command = get_params(self.command).sub_command
         if sub_command and sub_command.show_in_help:
@@ -140,7 +144,7 @@ class CommandHelpFormatter:
                 except TypeError:  # choice.target is None (it is the default choice, pointing back to the same Command)
                     formatter = self
 
-                parts.extend(formatter._format_rst(sub_cmd_choice=cmd_name))
+                parts.extend(formatter._format_rst(sub_cmd_choice=cmd_name, no_sys_argv=no_sys_argv))
 
         return '\n'.join(parts)
 

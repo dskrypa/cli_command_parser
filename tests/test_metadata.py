@@ -75,7 +75,7 @@ class MetadataTest(TestCase):
     def test_prog_from_path_on_no_sys_argv(self):
         path = Path(__file__)
         with patch('sys.argv', []):
-            self.assertEqual(path.name, _prog(None, path, None))
+            self.assertEqual(path.name, _prog(None, path, None, False)[0])
 
     def test_prog_from_sys_argv(self):
         path = Path(__file__)
@@ -84,7 +84,7 @@ class MetadataTest(TestCase):
             tmp_path = Path(tmp_dir).joinpath(name)
             tmp_path.touch()
             with patch('sys.argv', [tmp_path.as_posix()]):
-                self.assertEqual(name, _prog(None, path, None))
+                self.assertEqual(name, _prog(None, path, None, False)[0])
 
 
 if __name__ == '__main__':
