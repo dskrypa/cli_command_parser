@@ -2,7 +2,7 @@ Configuration
 *************
 
 Configuration options can be specified as keyword arguments when
-:ref:`initializing Commands<commands:Initializing Commands>`.  It is also possible to provide either a dictionary of
+:ref:`initializing Commands<commands:Defining Commands>`.  It is also possible to provide either a dictionary of
 options or an instance of :class:`.CommandConfig`.
 
 

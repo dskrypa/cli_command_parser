@@ -37,7 +37,7 @@ automatically be registered as subcommands of the Command that they extend.
 .. _subcommand_cls_params:
 
 When defining a subcommand class that extends a base Command, in addition to the other options that are supported when
-:ref:`initializing Commands<commands:Initializing Commands>`, the following keyword-only parameters may also be
+:ref:`initializing Commands<commands:Defining Commands>`, the following keyword-only parameters may also be
 provided along with the class that it extends:
 
 :choice: The value a user must provide to choose the target subcommand.  Spaces are supported.  By default, the
@@ -49,8 +49,7 @@ provided along with the class that it extends:
 :help: The help text to display for the subcommand when viewing the parent Command's help text.
 
 
-Given the following overly-simplistic
-`basic example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py>`__::
+Given the following overly-simplistic :gh_examples:`basic example <basic_subcommand.py>`::
 
     class Base(Command):
         sub_cmd = SubCommand()
@@ -91,9 +90,8 @@ Usage examples::
 Nested Subcommands
 ==================
 
-Using the example script that is a `fake wrapper around a hypothetical REST API
-<https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py>`__, we can see an example of
-two levels of subcommands, and another way that we can take advantage of inheritance::
+Using the example script that is a :gh_examples:`fake wrapper around a hypothetical REST API <rest_api_wrapper.py>`,
+we can see an example of two levels of subcommands, and another way that we can take advantage of inheritance::
 
     class ApiWrapper(Command):
         sub_cmd = SubCommand(help='The command to run')
@@ -193,7 +191,7 @@ Explicit Registration
 While subcommands will be automatically registered with their parent class as long as the parent class has a
 :ref:`parameters:SubCommand` parameter, it is also possible to have more control over that process.
 
-`Example commands <https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py>`__::
+:gh_examples:`Example commands <advanced_subcommand.py>`::
 
     class Base(Command):
         sub_cmd = SubCommand()
@@ -316,8 +314,8 @@ This can be accomplished by defining a subclass of the target parent Command (wh
 Parameter that should be used to register the similar subcommands) that also extends :class:`python:abc.ABC` to store
 the common Parameters.
 
-A `full example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py>`__ is
-available in the examples directory, but the basic pattern is the same as the following simplified example::
+A :gh_examples:`full example <complex/shared_params.py>` is available in the examples directory, but the basic
+pattern is the same as the following simplified example::
 
     from abc import ABC
     from cli_command_parser import Command, SubCommand, Option

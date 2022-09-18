@@ -31,8 +31,8 @@ inside the ``with`` block.
   text.
 
 
-One `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py>`__ use case for
-a basic group is to indicate that common arguments are accepted by all subcommands::
+One :gh_examples:`example <rest_api_wrapper.py>` use case for a basic group is to indicate that common arguments are
+accepted by all subcommands::
 
     class ApiWrapper(Command):
         sub_cmd = SubCommand(help='The command to run')
@@ -77,7 +77,7 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
 
 
 By making a group both mutually exclusive and required, we can ensure that one argument is always provided.  Given the
-following `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py>`__ snippet::
+following :gh_examples:`example <rest_api_wrapper.py>` snippet::
 
     class FindBaz(Find, choices=('baz', 'bazs'), help='Find baz objects'):
         with ParamGroup(description='Filter Choices', mutually_exclusive=True, required=True):
@@ -119,7 +119,7 @@ Combining Group Types
 
 When nesting a basic group inside of a mutually exclusive group, the members of the basic group can be combined, but
 none of the inner basic group members can be combined with the members of the outer exclusive group.  Given the
-following `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py>`__ snippet::
+following :gh_examples:`example <rest_api_wrapper.py>` snippet::
 
     class Sync(ApiWrapper, help='Sync group members'):
         dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
@@ -228,9 +228,9 @@ then ``x`` and ``y`` must always be provided, and one or both of ``c`` and ``d``
 Examples
 ^^^^^^^^
 
-The following `example <https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py>`__
-demonstrates combinations in both directions for nested mutually exclusive / dependent groups using
-:ref:`ActionFlags<parameters:ActionFlag>` that simply print their corresponding letter::
+The following :gh_examples:`example <grouped_action_flags.py>` demonstrates combinations in both directions for
+nested mutually exclusive / dependent groups using :ref:`ActionFlags<parameters:ActionFlag>` that simply print their
+corresponding letter::
 
     class GroupedFlags(Command):
         with ParamGroup(mutually_exclusive=True):

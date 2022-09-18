@@ -39,6 +39,8 @@ intersphinx_mapping = {
 extlinks = {
     'du_directives': ('https://docutils.sourceforge.io/docs/ref/rst/directives.html#%s', '%s'),
     'du_rst': ('https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#%s', '%s'),
+    'gh_examples': ('https://github.com/dskrypa/cli_command_parser/blob/main/examples/%s', '%s'),
+    'gh_proj_url': ('https://github.com/dskrypa/cli_command_parser/%s', '%s'),
 }
 viewcode_follow_imported_members = False
 
