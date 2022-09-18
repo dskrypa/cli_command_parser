@@ -95,7 +95,7 @@ class CommandHelpFormatter:
     def _format_rst(self, include_epilog: Bool = False, sub_cmd_choice: str = None) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         meta = self._get_meta()
-        yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')  # noqa
+        yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')
         if meta.description:
             yield meta.description
             yield ''
@@ -112,6 +112,7 @@ class CommandHelpFormatter:
 
     def format_rst(self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
+        # TODO: Nested subcommands do not have full sections, but they should
         meta = self._get_meta()
         name = meta.doc_name
         if fix_name:

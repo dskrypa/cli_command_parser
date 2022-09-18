@@ -65,7 +65,7 @@ class RstFormatTest(ParserTest):
     def test_basic_subcommand_no_help(self):
         expected = TEST_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
 
-        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', show_docstring=False):
+        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', show_docstring=False, add_help=False):
             sub_cmd = SubCommand()
 
         class Foo(Base):

@@ -138,3 +138,9 @@ class TriFlagOptionStrings(OptionStrings):
     def alt_option_strs(self) -> Iterator[str]:
         yield from self.display_long_alt
         yield from self.short_alt
+
+    def option_strs(self, alt: bool = False) -> Iterator[str]:
+        if alt:
+            yield from self.alt_option_strs()
+        else:
+            yield from self.primary_option_strs()

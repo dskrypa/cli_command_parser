@@ -51,7 +51,7 @@ class Choice(Generic[T]):
 
     def format_help(self, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
         # Note: no longer called by formatters
-        return format_help_entry(self.format_usage(), self.help, lpad, tw_offset=tw_offset, prefix=prefix)
+        return format_help_entry((self.format_usage(),), self.help, prefix, tw_offset, lpad=lpad)
 
 
 class ChoiceMap(BasePositional[str], Generic[T]):

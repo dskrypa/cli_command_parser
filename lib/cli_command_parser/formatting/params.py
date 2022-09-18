@@ -30,6 +30,7 @@ BoolFormatterMap = Dict[bool, Callable[[str], str]]
 
 
 class ParamHelpFormatter:
+    __slots__ = ('param',)
     _param_cls_fmt_cls_map = {}
     required_formatter_map: BoolFormatterMap = {False: '[{}]'.format}
 
@@ -57,7 +58,11 @@ class ParamHelpFormatter:
     def __init__(self, param: ParamOrGroup):
         self.param = param
 
-    def wrap_usage(self, text: str) -> str:
+    def maybe_wrap_usage(self, text: str) -> str:
+        """
+        Wraps the provided text in parentheses / brackets / etc based on whether the associated Parameter is required,
+        if supported.
+        """
         try:
             return self.required_formatter_map[self.param.required](text)
         except KeyError:
@@ -91,15 +96,19 @@ class ParamHelpFormatter:
 
     def format_basic_usage(self) -> str:
         """Format the Parameter for use in the ``usage:`` line"""
-        return self.wrap_usage(self.format_usage(True))
+        return self.maybe_wrap_usage(self.format_usage(True))
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         """Format the Parameter for use in both the ``usage:`` line and in the list of Parameters"""
         return self.format_metavar()
 
-    def format_description(self, rst: Bool = False) -> str:
+    def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:
+        yield self.format_usage(include_meta=include_meta, full=full)
+
+    def format_description(self, rst: Bool = False, description: str = None) -> str:
         param = self.param
-        description = param.help or ''
+        if description is None:
+            description = param.help or ''
         if _should_add_default(param.default, description, param.show_default):
             pad = ' ' if description else ''
             quote = '``' if rst else ''
@@ -108,13 +117,24 @@ class ParamHelpFormatter:
         return description
 
     def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
-        usage = self.format_usage(include_meta=True, full=True)
+        usage_iter = self.iter_usage_parts(include_meta=True, full=True)
         description = self.format_description()
-        return format_help_entry(usage, description, tw_offset=tw_offset, prefix=prefix)
+        return format_help_entry(usage_iter, description, prefix, tw_offset)
+
+    # region RST
+
+    def rst_usage(self) -> str:
+        usage = self.format_usage(include_meta=True, full=True)
+        return f'``{usage}``'
 
     def rst_row(self) -> Tuple[str, str]:
-        usage = self.format_usage(include_meta=True, full=True)
-        return f'``{usage}``', self.format_description(rst=True)
+        """Returns a tuple of (usage, description)"""
+        return self.rst_usage(), self.format_description(rst=True)
+
+    def rst_rows(self) -> Iterator[Tuple[str, str]]:
+        yield self.rst_row()
+
+    # endregion
 
 
 class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
@@ -130,26 +150,18 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             metavar = f'[{metavar}]'
         return metavar
 
-    def format_usage_parts(self, delim: str = ', ') -> Union[str, Tuple[str, ...]]:
+    def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:
         param: BaseOption = self.param
         opts = param.option_strs
         if param.nargs == 0:
-            return delim.join(opts.option_strs())
-
-        metavar = self._format_usage_metavar()
-        option_strs = tuple(opts.option_strs())
-        usage_iter = (f'{opt} {metavar}' for opt in option_strs)
-        options = len(option_strs)
-        if options > 1 and (options * len(metavar) + 2) > max(78, ctx.terminal_width - 2) / 2:
-            last = options - 1
-            return tuple(f'{us}{delim}' if i < last else us for i, us in enumerate(usage_iter))
-
-        return delim.join(usage_iter)
+            yield from opts.option_strs()
+        else:
+            metavar = self._format_usage_metavar()
+            yield from (f'{opt} {metavar}' for opt in opts.option_strs())
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if full:
-            parts = self.format_usage_parts(delim)
-            return parts if isinstance(parts, str) else ''.join(parts)
+            return delim.join(self.iter_usage_parts())
 
         param: BaseOption = self.param
         opt = param.option_strs.display_long[0]
@@ -157,25 +169,41 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             return opt
         return f'{opt} {self._format_usage_metavar()}'
 
-    def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
-        usage = self.format_usage_parts()
-        description = self.format_description()
-        return format_help_entry(usage, description, tw_offset=tw_offset, prefix=prefix)
+    def rst_usage(self) -> str:
+        return ', '.join(f'``{part}``' for part in self.iter_usage_parts())
 
 
 class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
-    def format_usage_parts(self, delim: str = ', ') -> Union[str, Tuple[str, ...]]:
-        opts = self.param.option_strs
-        primary = delim.join(opts.primary_option_strs())
-        alts = delim.join(opts.alt_option_strs())
-        return primary, alts
-
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        opts = self.param.option_strs
         if full:
-            return '{} | {}'.format(*self.format_usage_parts(delim))
+            primary = delim.join(opts.primary_option_strs())
+            alts = delim.join(opts.alt_option_strs())
+            return f'{primary} | {alts}'
         else:
-            opts = self.param.option_strs
             return f'{opts.display_long_primary[0]} | {opts.display_long_alt[0]}'
+
+    def format_description(self, rst: Bool = False, alt: bool = False) -> str:
+        if not alt:
+            return super().format_description(rst=rst)
+        alt_help = self.param.alt_help
+        if alt_help:
+            return super().format_description(rst=rst, description=alt_help)
+        return ''
+
+    def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
+        opts = self.param.option_strs
+        primary = format_help_entry(opts.primary_option_strs(), self.format_description(), prefix, tw_offset)
+        alt_desc = self.format_description(alt=True)
+        alt_entry = format_help_entry(opts.alt_option_strs(), alt_desc, prefix, tw_offset, lpad=2 if alt_desc else 4)
+        return f'{primary}\n{alt_entry}'
+
+    def rst_rows(self) -> Iterator[Tuple[str, str]]:
+        opts = self.param.option_strs
+        for alt in (False, True):
+            usage = ', '.join(f'``{part}``' for part in opts.option_strs(alt))
+            description = self.format_description(rst=True, alt=alt)
+            yield usage, description
 
 
 class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
@@ -199,10 +227,8 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
 
     def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
         param: ChoiceMap = self.param
-        usage = self.format_usage()
-        help_entry = format_help_entry(usage, param.description, 2, tw_offset=tw_offset, prefix=prefix)
-
-        choices = self._format_choices(tw_offset, prefix)
+        help_entry = format_help_entry(self.iter_usage_parts(), param.description, prefix, tw_offset, lpad=2)
+        choices = self._format_choices(prefix, tw_offset)
         if ctx.config.sort_choices:
             choices = sorted(choices)
 
@@ -214,7 +240,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         )
         return '\n'.join(parts)
 
-    def _format_choices(self, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
+    def _format_choices(self, prefix: str = '', tw_offset: int = 0) -> Iterator[str]:
         mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
         for choice_group in self.choice_groups:
             yield from choice_group.format(mode, tw_offset, prefix)
@@ -285,7 +311,7 @@ class ChoiceGroup:
         :return: Generator that yields formatted help text entries (strings) for the Choices in this group.
         """
         for choice, usage, description in self.prepare(default_mode):
-            yield format_help_entry(usage, description, lpad=4, tw_offset=tw_offset, prefix=prefix)
+            yield format_help_entry((usage,), description, lpad=4, tw_offset=tw_offset, prefix=prefix)
 
     def prepare(self, default_mode: SubcommandAliasHelpMode) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
         """
@@ -391,9 +417,11 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         choice_delim = self._get_choice_delim()
         members = choice_delim.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
-        return self.wrap_usage(choice_delim.join(members))
+        return self.maybe_wrap_usage(choice_delim.join(members))
 
-    def format_description(self, rst: Bool = False) -> str:
+    def format_description(self, rst: Bool = False, description: str = None) -> str:
+        if description:
+            return description
         group = self.param
         if not group.description and not group._name:
             if ctx.config.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
@@ -459,10 +487,12 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         # TODO: non-nested when config.show_group_tree is False; maybe separate options for rst vs help
         for member in self.param.members:
             if member.show_in_help:
+                formatter = member.formatter
                 try:
-                    sub_table: RstTable = member.formatter.rst_table()  # noqa
+                    sub_table: RstTable = formatter.rst_table()  # noqa
                 except AttributeError:
-                    table.add_row(*member.formatter.rst_row())
+                    table.add_rows(formatter.rst_rows())
+                    # table.add_row(*formatter.rst_row())
                 else:
                     sub_table.show_title = False
                     table.add_row(sub_table.title, str(sub_table))

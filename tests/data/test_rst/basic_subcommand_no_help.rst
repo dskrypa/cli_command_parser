@@ -4,7 +4,7 @@ basic_subcommand_no_help
 
 ::
 
-    usage: foo.py {foo} [--help]
+    usage: foo.py {foo}
 
 
 
@@ -23,16 +23,6 @@ basic_subcommand_no_help
     +-------------+--------------------+
 
 
-.. rubric:: Optional arguments
-
-.. table::
-    :widths: auto
-
-    +----------------+------------------------------------------------------+
-    | ``--help, -h`` | Show this help message and exit (default: ``False``) |
-    +----------------+------------------------------------------------------+
-
-
 Subcommands
 ===========
 
@@ -42,15 +32,5 @@ Subcommand: foo
 
 ::
 
-    usage: foo.py foo [--help]
+    usage: foo.py foo
 
-
-
-.. rubric:: Optional arguments
-
-.. table::
-    :widths: auto
-
-    +----------------+------------------------------------------------------+
-    | ``--help, -h`` | Show this help message and exit (default: ``False``) |
-    +----------------+------------------------------------------------------+

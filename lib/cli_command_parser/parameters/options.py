@@ -14,7 +14,7 @@ from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj
+from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr
 from ..utils import _NotSet
 from .base import BasicActionMixin, BaseOption, parameter_action
 from .option_strings import TriFlagOptionStrings
@@ -157,6 +157,8 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
                 raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with default={default!r}") from e
         if default is _NotSet:
             default = self.__default_const_map.get(const)  # will be True, False, or None
+        if default is False:  # Avoid surprises for custom non-truthy values
+            kwargs.setdefault('show_default', False)
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
@@ -182,6 +184,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
       specified.  Defaults to ``no`` if ``alt_long`` is not specified.
     :param alt_long: The alternate long form to use.
     :param alt_short: The alternate short form to use.
+    :param alt_help: The help text to display with the alternate option strings.
     :param action: The action to take on individual parsed values.  Only ``store_const`` (the default) is supported.
     :param default: The default value to use if neither the primary or alternate options are provided.  Defaults
       to None.
@@ -191,6 +194,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
 
     _opt_str_cls = TriFlagOptionStrings
     option_strs: TriFlagOptionStrings
+    alt_help: OptStr = None
 
     def __init__(
         self,
@@ -199,6 +203,7 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
         alt_prefix: str = None,
         alt_long: str = None,
         alt_short: str = None,
+        alt_help: str = None,
         action: str = 'store_const',
         default: Any = None,
         **kwargs,
@@ -220,6 +225,8 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
         self.consts = consts
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)
+        if alt_help:
+            self.alt_help = alt_help
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)

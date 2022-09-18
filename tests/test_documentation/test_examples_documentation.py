@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest import main
 
 from cli_command_parser.documentation import load_commands
-from cli_command_parser.testing import ParserTest, get_help_text
+from cli_command_parser.testing import ParserTest, get_help_text, get_rst_text
 
 THIS_FILE = Path(__file__).resolve()
 EXAMPLES_DIR = THIS_FILE.parents[2].joinpath('examples')
@@ -47,6 +47,16 @@ class ExampleHelpTest(ParserTest):
                 command = load_example_command(file_name, cmd_name)
                 expected = load_expected(expected_file_name)
                 self.assert_strings_equal(expected, get_help_text(command()).rstrip())
+
+    def test_example_rst_tests(self):
+        cases = [
+            ('action_with_args.py', 'Example', 'action_with_args.rst'),
+        ]
+        for file_name, cmd_name, expected_file_name in cases:
+            with self.subTest(file=file_name, command=cmd_name):
+                command = load_example_command(file_name, cmd_name)
+                expected = load_expected(expected_file_name)
+                self.assert_strings_equal(expected, get_rst_text(command()).rstrip())
 
 
 if __name__ == '__main__':

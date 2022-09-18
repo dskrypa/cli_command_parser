@@ -198,10 +198,10 @@ class HelpTextTest(ParserTest):
             xl = Option('-x', choices=printer_formats, help=','.join(f'{i} extra long help text' for i in range(10)))
 
         expected = """Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
+  --help, -h                  Show this help message and exit
   --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: '()')
-  --allow_inst, -I            Allow search results that include instrumental versions of songs (default: False)
-  --full_info, -F             Print all available info about the discovered objects (default: False)
+  --allow_inst, -I            Allow search results that include instrumental versions of songs
+  --full_info, -F             Print all available info about the discovered objects
   --format {json|json-pretty|json-compact|text|yaml|pprint|csv|table|pseudo-yaml|json-lines|plain|pseudo-json},
     -f {json|json-pretty|json-compact|text|yaml|pprint|csv|table|pseudo-yaml|json-lines|plain|pseudo-json}
                               Output format to use for --full_info (default: 'yaml')
@@ -232,8 +232,8 @@ class HelpTextTest(ParserTest):
                 baz
 
             Optional arguments:
-              --abc                       (default: False)
-              --help, -h                  Show this help message and exit (default: False)
+              --abc
+              --help, -h                  Show this help message and exit
             """
         ).lstrip()
         help_text = get_help_text(Foo)
@@ -280,6 +280,23 @@ class HelpTextTest(ParserTest):
 
         self.assertIn('--spam, -s\n    --no-spam\n', get_help_text(Foo))
 
+    def test_tri_flag_alt_help(self):
+        class Foo(Command):
+            spam = TriFlag('-s', alt_short='-S', name_mode='-', help='Spam me', alt_help='Do not spam me')
+
+        expected_help = '  --spam, -s                  Spam me\n  --no-spam, -S               Do not spam me\n'
+        self.assert_str_contains(expected_help, get_help_text(Foo))
+        expected_rst = """
+    +-----------------------+---------------------------------+
+    | ``--spam``, ``-s``    | Spam me                         |
+    +-----------------------+---------------------------------+
+    | ``--no-spam``, ``-S`` | Do not spam me                  |
+    +-----------------------+---------------------------------+
+    | ``--help``, ``-h``    | Show this help message and exit |
+    +-----------------------+---------------------------------+
+        """
+        self.assert_str_contains(expected_rst.strip(), get_rst_text(Foo))
+
     def test_wide_text_line_wrap(self):
         class Foo(Command):
             bar = Option('-b', help='하나, 둘, 셋, 넷, 다섯, 여섯, 일곱, 여덟, 아홉, 열')
@@ -304,6 +321,20 @@ class HelpTextTest(ParserTest):
                     date = Option('-d', type=Date('%Y-%m-%d', '%Y-%m'))
 
                 self.assert_str_contains(expected, get_usage_text(Foo))
+
+    def test_flag_show_default_override(self):
+        cases = [
+            ({}, '--bar, -b\n'),
+            ({'show_default': False}, '--bar, -b\n'),
+            ({'show_default': True}, '--bar, -b                   (default: False)\n'),
+        ]
+        for kwargs, expected_text in cases:
+            with self.subTest(kwargs=kwargs):
+
+                class Foo(Command):
+                    bar = Flag('-b', **kwargs)
+
+            self.assert_str_contains(expected_text, get_help_text(Foo))
 
 
 class SubcommandHelpAndRstTest(ParserTest):
@@ -527,7 +558,7 @@ class GroupHelpTextTest(ParserTest):
             action(Mock(__name__='hello'))
             action(Mock(__name__='log_test'))
 
-        help_line = '  --help, -h                  Show this help message and exit (default: False)'
+        help_line = '  --help, -h                  Show this help message and exit'
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
         verbose_desc = 'Increase logging verbosity (can specify multiple times) (default: 0)'
 
@@ -592,12 +623,12 @@ class GroupHelpTextTest(ParserTest):
           --attr {bold|dim}, -a {bold|dim}
                                       Background color to use (default: None)
           --limit LIMIT, -L LIMIT     Range limit (default: 256)
-          --help, -h                  Show this help message and exit (default: False)
+          --help, -h                  Show this help message and exit
 
         Mutually exclusive options:
-          --basic, -B                 Display colors without the 38;5; prefix (cannot be combined with other args) (default: False)
-          --hex, -H                   Display colors by hex value (cannot be combined with other args) (default: False)
-          --all, -A                   Show all foreground and background colors (only when no color/bg is specified) (default: False)
+          --basic, -B                 Display colors without the 38;5; prefix (cannot be combined with other args)
+          --hex, -H                   Display colors by hex value (cannot be combined with other args)
+          --all, -A                   Show all foreground and background colors (only when no color/bg is specified)
 
         Optional arguments:
           --color COLOR, -c COLOR     Text color to use (default: cycle through 0-256)
@@ -627,7 +658,7 @@ class GroupHelpTextTest(ParserTest):
 
         Optional arguments:
         │ --foo FOO, -f FOO         Do foo
-        │ --help, -h                Show this help message and exit (default: False)
+        │ --help, -h                Show this help message and exit
         │
         Mutually exclusive options:
         ¦ --arg_a ARG_A, -a ARG_A   A
@@ -641,8 +672,8 @@ class GroupHelpTextTest(ParserTest):
         ¦ ║
         ¦
         ¦ Optional arguments:
-        ¦ │ --bar                   (default: False)
-        ¦ │ --baz                   (default: False)
+        ¦ │ --bar
+        ¦ │ --baz
         ¦ │
         ¦
         """
@@ -715,6 +746,13 @@ class FormatterTest(ParserTest):
         group = ChoiceGroup(Choice(''))
         group.add(Choice(None))
         self.assertEqual(0, len(group.choice_strs))
+
+    def test_group_desc_override(self):
+        class Foo(Command):
+            with ParamGroup() as group:
+                bar = Option()
+
+        self.assertEqual('test 12345', Foo.group.formatter.format_description(description='test 12345'))
 
 
 def _get_output(command: CommandCls, args: Sequence[str]) -> Tuple[str, str]:

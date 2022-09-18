@@ -197,7 +197,7 @@ class RstTable:
         yield bar
         for header, any_new_line, row in self.rows:
             if any_new_line:
-                for line in line_iter(row):
+                for line in line_iter(*row):
                     yield format_row(*line)
             else:
                 yield format_row(*row)

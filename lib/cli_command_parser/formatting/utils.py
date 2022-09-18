@@ -25,29 +25,73 @@ __all__ = ['format_help_entry', 'line_iter']
 
 
 def format_help_entry(
-    usage: Strs,
+    usage_parts: Iterable[str],
     description: OptStrs,
-    lpad: int = 2,
-    tw_offset: int = 0,
     prefix: str = '',
+    tw_offset: int = 0,
+    *,
+    lpad: int = 2,
     cont_indent: int = 2,
+    usage_delim: str = ', ',
 ) -> str:
+    if prefix:
+        line_prefix = prefix + ' ' * (lpad - len(prefix))
+    else:
+        line_prefix = ' ' * lpad
+
     config = ctx.config
-    usage_width = max(config.min_usage_column_width, config.usage_column_width - tw_offset - 2)
-    after_pad_width = usage_width - lpad
     term_width = ctx.terminal_width - tw_offset
-    pad_prefix = prefix + ' ' * (lpad - len(prefix)) if prefix else ' ' * lpad
-
-    usage = tuple(
-        _indented(_norm_column((usage,) if isinstance(usage, str) else usage, term_width, cont_indent), cont_indent)
-    )
+    usage_width = max(config.min_usage_column_width, config.usage_column_width - tw_offset - 2)
     if not description:
-        return '\n'.join(f'{pad_prefix}{line}' for line in usage)
+        usage_line_iter = combine_and_wrap(usage_parts, term_width, cont_indent, usage_delim)
+        return '\n'.join(line_prefix + line for line in usage_line_iter)
 
-    description_lines = [''] * _description_start_line(usage, after_pad_width)
-    description_lines.extend(_norm_column(_single_line_strs(description), term_width - usage_width - 2))
-    format_row = f'{pad_prefix}{{:<{after_pad_width}s}}  {{}}'.format
-    return '\n'.join(format_row(*row).rstrip() for row in line_iter((usage, description_lines)))
+    after_pad_width = usage_width - lpad
+    usage_lines = tuple(combine_and_wrap(usage_parts, term_width, cont_indent, usage_delim))
+    description_lines = [''] * _description_start_line(usage_lines, after_pad_width)
+    description_lines.extend(_normalize_column_width(_single_line_strs(description), term_width - usage_width - 2))
+    format_row = f'{line_prefix}{{:<{after_pad_width}s}}  {{}}'.format
+    return '\n'.join(format_row(*row).rstrip() for row in line_iter(usage_lines, description_lines))
+
+
+def combine_and_wrap(parts: Iterable[str], max_width: int, cont_indent: int = 0, delim: str = ', ') -> Iterator[str]:
+    """Combine the given strings using the given delimiter, wrapping to a new line at max_width."""
+    delim_end = delim.rstrip()
+    delim_len = len(delim)
+    line_len = delim_end_len = len(delim_end)
+    line_parts = []
+    last = None
+    for part in parts:
+        part_len = len(part)
+        line_len += part_len + delim_len
+        if line_len >= max_width:
+            if last:
+                yield last + delim_end
+                prefix = ' ' * cont_indent
+            else:
+                prefix = ''
+
+            if line_parts and line_len > max_width:
+                last = prefix + delim.join(line_parts)
+                line_parts = [part]
+                line_len = delim_end_len + cont_indent + part_len
+            else:
+                line_parts.append(part)
+                last = prefix + delim.join(line_parts)
+                line_parts = []
+                line_len = delim_end_len + cont_indent - delim_len
+        else:
+            line_parts.append(part)
+
+    if line_parts:
+        if last:
+            yield last + delim_end
+            prefix = ' ' * cont_indent
+        else:
+            prefix = ''
+        yield prefix + delim.join(line_parts)
+    elif last:
+        yield last
 
 
 def _description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
@@ -70,7 +114,7 @@ def _single_line_strs(lines: Strs) -> List[str]:
     return [line for full_line in lines for line in full_line.splitlines()]
 
 
-def _norm_column(lines: Sequence[str], column_width: int, cont_indent: int = 0) -> Sequence[str]:
+def _normalize_column_width(lines: Sequence[str], column_width: int, cont_indent: int = 0) -> Sequence[str]:
     max_width = max(map(wcswidth, lines)) + cont_indent
     if max_width <= column_width:
         return lines
@@ -84,14 +128,6 @@ def _norm_column(lines: Sequence[str], column_width: int, cont_indent: int = 0) 
             fixed.append(line)
 
     return fixed
-
-
-def _indented(lines: Iterable[str], cont_indent: int = 2) -> Iterator[str]:
-    i_lines = iter(lines)
-    yield next(i_lines)  # pylint: disable=R1708
-    prefix = ' ' * cont_indent
-    for line in i_lines:
-        yield prefix + line
 
 
 def _should_add_default(default: Any, help_text: Optional[str], param_show_default: Optional[Bool]) -> bool:
@@ -110,7 +146,7 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
         return bool(default)
 
 
-def line_iter(columns: Sequence[Strs]) -> Iterator[Tuple[str, ...]]:
+def line_iter(*columns: Strs) -> Iterator[Tuple[str, ...]]:
     """More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+"""
     exhausted = 0
     column_count = len(columns)

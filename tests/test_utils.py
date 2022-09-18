@@ -4,10 +4,12 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 from cli_command_parser.utils import camel_to_snake_case, get_args, Terminal, short_repr
-from cli_command_parser.formatting.utils import _description_start_line, _norm_column, _single_line_strs
+from cli_command_parser.formatting.utils import _description_start_line, _normalize_column_width, _single_line_strs
+from cli_command_parser.formatting.utils import combine_and_wrap
+from cli_command_parser.testing import ParserTest
 
 
-class UtilsTest(TestCase):
+class UtilsTest(ParserTest):
     def test_camel_to_snake(self):
         self.assertEqual('foo_bar', camel_to_snake_case('FooBar'))
         self.assertEqual('foo bar', camel_to_snake_case('FooBar', ' '))
@@ -30,7 +32,7 @@ class UtilsTest(TestCase):
         self.assertEqual(0, _description_start_line((), -5))
 
     def test_normalize_column_uneven(self):
-        result = _norm_column(('a' * 10, 'b' * 3), 5)
+        result = _normalize_column_width(('a' * 10, 'b' * 3), 5)
         self.assertListEqual(['aaaaa', 'aaaaa', 'bbb'], result)  # noqa
 
     def test_single_line_strs_split(self):
@@ -50,9 +52,39 @@ class UtilsTest(TestCase):
             with self.subTest(len=case):
                 self.assertEqual(expected, short_repr('x' * case))
 
+    def test_combine_and_wrap(self):
+        parts = [f'--{chr(c) * 3}' for c in range(97, 123)]  # --aaa ~ --zzz
+        expected_43_5 = """
+--aaa, --bbb, --ccc, --ddd, --eee, --fff,
+     --ggg, --hhh, --iii, --jjj, --kkk,
+     --lll, --mmm, --nnn, --ooo, --ppp,
+     --qqq, --rrr, --sss, --ttt, --uuu,
+     --vvv, --www, --xxx, --yyy, --zzz
+        """
+        expected_40_5 = """
+--aaa, --bbb, --ccc, --ddd, --eee,
+     --fff, --ggg, --hhh, --iii, --jjj,
+     --kkk, --lll, --mmm, --nnn, --ooo,
+     --ppp, --qqq, --rrr, --sss, --ttt,
+     --uuu, --vvv, --www, --xxx, --yyy,
+     --zzz
+        """
+        expected_80 = """
+--aaa, --bbb, --ccc, --ddd, --eee, --fff, --ggg, --hhh, --iii, --jjj, --kkk,
+--lll, --mmm, --nnn, --ooo, --ppp, --qqq, --rrr, --sss, --ttt, --uuu, --vvv,
+--www, --xxx, --yyy, --zzz
+        """
+        expected_full = """
+--aaa, --bbb, --ccc, --ddd, --eee, --fff, --ggg, --hhh, --iii, --jjj, --kkk, --lll, --mmm, --nnn, --ooo, --ppp, --qqq, --rrr, --sss, --ttt, --uuu, --vvv, --www, --xxx, --yyy, --zzz
+        """
+        cases = [(43, 5, expected_43_5), (40, 5, expected_40_5), (80, 0, expected_80), (183, 0, expected_full)]
+        for width, indent, expected in cases:
+            with self.subTest(width=width, indent=indent):
+                self.assert_strings_equal(expected.strip(), '\n'.join(combine_and_wrap(parts, width, indent)))
+
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2, exit=False)
     except KeyboardInterrupt:
         print()

@@ -255,6 +255,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         hide: Bool = False,
         show_default: Bool = None,
     ):
+        # TODO: Help text for RST documentation contains the *full* Parameter docstrings (including init params)
+        #  - should replace with param type + help text?
         if action not in self._actions:
             raise ParameterDefinitionError(
                 f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
