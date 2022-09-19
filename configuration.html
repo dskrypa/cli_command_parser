@@ -194,11 +194,11 @@ underscores/dashes.  See <a class="reference internal" href="api/cli_command_par
 attribute name.  May be overridden on a per-Parameter basis with <a class="reference internal" href="parameters.html#options:name_mode"><span class="std std-ref">name_mode</span></a>.</p>
 </dd>
 <dt class="field-odd" id="parsing options:reject_ambiguous_pos_combos">reject_ambiguous_pos_combos</dt>
-<dd class="field-odd"><p>Whether ambiguous combinations of positional choices should result in an
-<a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree" title="cli_command_parser.exceptions.AmbiguousParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousParseTree</span></code></a> error.  Defaults to True.  Some combinations of positional parameter choices may pass
-this check, but still be problematic during parsing.  If a false positive is detected, this can be set to <code class="docutils literal notranslate"><span class="pre">False</span></code>
-to disable the check (please report it in the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/issues">issue tracker</a>
-so it can be fixed!).</p>
+<dd class="field-odd"><p>[EXPERIMENTAL] Whether ambiguous combinations of positional choices should result in an
+<a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree" title="cli_command_parser.exceptions.AmbiguousParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousParseTree</span></code></a> error.  Defaults to False.  Some combinations of positional parameter choices may pass
+this check, but still be problematic during parsing.  Since this is still experimental, there may be false positives.
+If a false positive is detected, this should be set back to <code class="docutils literal notranslate"><span class="pre">False</span></code> to disable the check (and please report it in
+the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/issues">issue tracker</a> so it can be fixed!).</p>
 </dd>
 </dl>
 </section>
