@@ -6,7 +6,7 @@ Example ``Hello World`` implementation using CLI Command Parser.
 
 ::
 
-    usage: build_docs.py [--name NAME] [--count COUNT] [--help]
+    usage: hello_world.py [--name NAME] [--count COUNT] [--help]
 
 
 Simple greeting example
