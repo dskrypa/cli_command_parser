@@ -169,7 +169,8 @@ def _prog(prog: OptStr, cmd_path: Path, parent: Optional[ProgramMetadata], no_sy
             return cmd_path.name, False
 
         # Windows allows invocation without .exe - assume a file with an extension is a match
-        if path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None:
+        if (path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None) and path.name != 'pytest':
+            # TODO: Apply the allow_argv_prog via context manager in the tests that pytest runs differently
             return path.name, True
 
     return cmd_path.name, False
