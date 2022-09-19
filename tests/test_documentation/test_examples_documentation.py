@@ -51,6 +51,8 @@ class ExampleHelpTest(ParserTest):
     def test_example_rst_tests(self):
         cases = [
             ('action_with_args.py', 'Example', 'action_with_args.rst'),
+            ('hello_world.py', 'HelloWorld', 'hello_world.rst'),
+            ('advanced_subcommand.py', 'Base', 'advanced_subcommand.rst'),
         ]
         for file_name, cmd_name, expected_file_name in cases:
             with self.subTest(file=file_name, command=cmd_name):

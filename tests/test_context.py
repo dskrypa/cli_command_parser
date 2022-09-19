@@ -64,6 +64,10 @@ class ContextTest(TestCase):
         self.assertEqual(0, len(context.config.parents))
         self.assertFalse(context.config.show_docstring)
 
+    def test_allow_argv_prog_from_parent(self):
+        context = Context(allow_argv_prog=True)
+        self.assertFalse(context._sub_context(None, allow_argv_prog=False).allow_argv_prog)  # noqa
+
     # endregion
 
     # region Active Context / Context Proxy

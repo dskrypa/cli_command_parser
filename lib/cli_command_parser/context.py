@@ -66,6 +66,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     """
 
     config: CommandConfig
+    _terminal_width: Optional[int]
+    allow_argv_prog: Bool = True
 
     def __init__(
         self,
@@ -74,6 +76,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         parent: Optional[Context] = None,
         config: AnyConfig = None,
         terminal_width: int = None,
+        allow_argv_prog: Bool = None,
         **kwargs,
     ):
         self.argv = sys.argv[1:] if argv is None else argv
@@ -87,12 +90,17 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             self.unknown = parent.unknown.copy()
             self._provided = parent._provided.copy()
             if terminal_width is None:
-                terminal_width = parent._terminal_width  # noqa
+                terminal_width = parent._terminal_width
+            if allow_argv_prog is None:
+                allow_argv_prog = parent.allow_argv_prog
         else:
             self._parsed = {}
             self.unknown = {}
             self._provided = defaultdict(int)
+
         self._terminal_width = terminal_width
+        if allow_argv_prog is not None:
+            self.allow_argv_prog = allow_argv_prog
         self.actions_taken = 0
 
     # region Internal Methods

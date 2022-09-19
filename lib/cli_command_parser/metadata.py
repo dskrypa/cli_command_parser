@@ -15,6 +15,8 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Type, Optional, Union, Tuple, Dict
 from urllib.parse import urlparse
 
+from .context import ctx, NoActiveContext
+
 if TYPE_CHECKING:
     from .typing import Bool, CommandType, OptStr
 
@@ -48,6 +50,9 @@ class Metadata:
         # Workaround for initial setting via dataclass + don't store None
         if not isinstance(value, Metadata) and value is not None:
             instance.__dict__[self.name] = value
+
+    def __repr__(self) -> str:
+        return f'Metadata(default={self.default!r})'
 
 
 @dataclass
@@ -85,7 +90,7 @@ class ProgramMetadata:
         description: str = None,
         epilog: str = None,
         doc_name: str = None,
-        no_sys_argv: Bool = False,
+        no_sys_argv: Bool = None,
     ) -> ProgramMetadata:
         path, g = _path_and_globals(command, path)
         if command.__module__ != 'cli_command_parser.commands':
@@ -147,6 +152,12 @@ def _repr(obj, indent=0) -> str:
 
 
 def _prog(prog: OptStr, cmd_path: Path, parent: Optional[ProgramMetadata], no_sys_argv: Bool) -> Tuple[OptStr, bool]:
+    if no_sys_argv is None:
+        try:
+            no_sys_argv = not ctx.allow_argv_prog
+        except NoActiveContext:
+            no_sys_argv = False
+
     if prog:
         return prog, False
     elif parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
@@ -158,7 +169,7 @@ def _prog(prog: OptStr, cmd_path: Path, parent: Optional[ProgramMetadata], no_sy
             return cmd_path.name, False
 
         # Windows allows invocation without .exe - assume a file with an extension is a match
-        if (path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None) and path.name != 'pytest':
+        if path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None:
             return path.name, True
 
     return cmd_path.name, False

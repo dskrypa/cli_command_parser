@@ -8,7 +8,7 @@ from unittest import main
 from cli_command_parser import Command, SubCommand
 from cli_command_parser.formatting.restructured_text import rst_bar, rst_header, rst_list_table, rst_directive, RstTable
 from cli_command_parser.testing import ParserTest
-from cli_command_parser.documentation import load_commands, render_command_rst, render_script_rst, top_level_commands
+from cli_command_parser.documentation import load_commands, render_command_rst, top_level_commands
 from cli_command_parser.documentation import RstWriter
 
 THIS_FILE = Path(__file__).resolve()
@@ -208,18 +208,11 @@ class ExampleRstFormatTest(ParserTest):
             rendered = render_command_rst(commands['Base'], fix_name=False)
             self.assertTrue(rendered.startswith('shared_logging_init\n*******************\n'))
 
-    def test_examples_hello_world(self):
-        expected = TEST_DATA_DIR.joinpath('hello_world.rst').read_text('utf-8')
-        script_path = EXAMPLES_DIR.joinpath('hello_world.py')
-        self.assert_strings_equal(expected, render_script_rst(script_path), trim=True)
-
     def test_examples_advanced_subcommand(self):
-        expected = TEST_DATA_DIR.joinpath('advanced_subcommand.rst').read_text('utf-8')
         script_path = EXAMPLES_DIR.joinpath('advanced_subcommand.py')
         commands = load_commands(script_path)
         self.assertSetEqual({'Base', 'Foo', 'Bar', 'Baz'}, set(commands))
         self.assertSetEqual({'Base'}, set(top_level_commands(commands)))
-        self.assert_strings_equal(expected, render_command_rst(commands['Base']), trim=True)
 
 
 if __name__ == '__main__':

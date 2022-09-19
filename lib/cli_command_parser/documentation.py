@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Iterable, Mapping, List, Dict
 
 from .commands import Command
-from .context import get_current_context
+from .context import get_current_context, Context
 from .core import CommandMeta, get_params, get_parent
 from .formatting.commands import get_formatter, NameFunc
 from .formatting.restructured_text import MODULE_TEMPLATE, rst_header, rst_toc_tree
@@ -64,7 +64,8 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     :param top_only: If True, then only top-level commands are returned (default: all)
     :return: Dict containing the Commands loaded from the given file
     """
-    module = import_module(path)
+    with Context(allow_argv_prog=False):
+        module = import_module(path)
     commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
     return top_level_commands(commands) if top_only else commands
 
