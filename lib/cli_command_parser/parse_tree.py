@@ -306,6 +306,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             raise AmbiguousParseTree(self, target, word)
 
         node = PosNode(word, param, target, self)
+        # TODO: This needs to be converted to be lazy instead
         if word.nargs.max is not None:
             while True:
                 try:
@@ -319,7 +320,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
 
     def print_tree(self, indent: int = 0, recursive: bool = True):
         prefix = ' ' * indent
-        print(f'{prefix}- <PosNode[{self.word!r}, links: {len(self)}, target={self.target!r}]>')
+        print(f'{prefix}- <PosNode[{self.word!r}, links: {len(self)}, target={_parse_tree_target_repr(self.target)}]>')
         if not recursive:
             return
         indent += 2

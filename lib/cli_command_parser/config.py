@@ -257,7 +257,7 @@ class CommandConfig:
     option_name_mode: OptionNameMode = ConfigItem(OptionNameMode.UNDERSCORE, OptionNameMode)
 
     #: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error
-    reject_ambiguous_pos_combos: Bool = ConfigItem(True, bool)
+    reject_ambiguous_pos_combos: Bool = ConfigItem(False, bool)  # EXPERIMENTAL
 
     # endregion
 

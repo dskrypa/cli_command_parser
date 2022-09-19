@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from unittest import TestCase, main
-from unittest.mock import Mock, PropertyMock
+from unittest.mock import Mock, PropertyMock, patch
 
 from cli_command_parser import Command, Action, Positional, action_flag, ParameterDefinitionError
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, InvalidChoice
@@ -11,6 +11,7 @@ from cli_command_parser.testing import RedirectStreams, sealed_mock
 # TODO: Test space/-/_ switch for multi-word?
 
 
+@patch('cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos.default', True)
 class ActionTest(TestCase):
     def test_action_requires_targets(self):
         class Foo(Command):

@@ -17,7 +17,7 @@ SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b
 
 class Nargs:
     """
-    Helper class for validating the number of values provided for a given :class:`~.parameters.Parameter`.  Unifies the
+    Helper class for validating the number of values provided for a given :class:`.Parameter`.  Unifies the
     handling of different ways of specifying the required number of values.
 
     Acceptable values include ``?``, ``*``, and ``+``, and they have the same meaning that they have in argparse.

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+import sys
 from unittest import main, skip
+from unittest.mock import patch
 
 from cli_command_parser import Command, Positional, SubCommand, AmbiguousParseTree
 from cli_command_parser.core import get_config
@@ -9,6 +11,7 @@ from cli_command_parser.parse_tree import PosNode, AnyWord
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 
+@patch('cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos.default', True)
 class TestPosNode(ParserTest):
     def test_get_link_params(self):
         class Foo(Command):
@@ -19,6 +22,8 @@ class TestPosNode(ParserTest):
         self.assertEqual({Foo.foo}, node.link_params())
         self.assertEqual({Foo.foo, Foo.bar}, node.link_params(True))
 
+    # region Nargs Tests
+
     def test_nargs_min_max_unbound(self):
         class Foo(Command):
             foo = Positional(nargs=2)
@@ -26,6 +31,26 @@ class TestPosNode(ParserTest):
 
         node = PosNode.build_tree(Foo)
         self.assertEqual(3, node.nargs_min())
+        self.assertEqual(float('inf'), node.nargs_max())
+
+    def test_nargs_variable_then_fixed(self):
+        # Note: Positionals accepting any value with variable nargs can't be followed by ones with a fixed # of args
+        class Foo(Command):
+            foo = Positional(nargs=range(1, 5), choices=('a', 'b'))
+            bar = Positional()
+
+        node = PosNode.build_tree(Foo)
+        self.assertEqual(2, node.nargs_min())
+        self.assertEqual(5, node.nargs_max())
+
+    @skip('This case needs to be handled')
+    def test_nargs_pair_extreme(self):
+        class Foo(Command):
+            foo = Positional(nargs=sys.maxsize)
+            bar = Positional(nargs='+')
+
+        node = PosNode.build_tree(Foo)
+        self.assertEqual(sys.maxsize, node.nargs_min())
         self.assertEqual(float('inf'), node.nargs_max())
 
     def test_nargs_min_max_bound(self):
@@ -36,6 +61,8 @@ class TestPosNode(ParserTest):
         node = PosNode.build_tree(Foo)
         self.assertEqual(2, node.nargs_min())
         self.assertEqual(2, node.nargs_max())
+
+    # endregion
 
     def test_repr(self):
         class Foo(Command):
@@ -124,7 +151,7 @@ class TestPosNode(ParserTest):
             PosNode.build_tree(Foo).print_tree()
 
         expected = """
-- <PosNode[None, links: 2, target=<class 'tests.test_parse_tree.TestPosNode.test_print_tree.<locals>.Foo'>]>
+- <PosNode[None, links: 2, target=Foo]>
   - <PosNode['a', links: 1, target=Positional('bar', action='store', type=<Choices[case_sensitive=True, choices=('a','b')]>, required=True)]>
     - <PosNode[AnyWord(Nargs('+'), remaining=inf, n=1), links: 1, target=Positional('baz', action='append', required=True)]>
   - <PosNode['b', links: 1, target=Positional('bar', action='store', type=<Choices[case_sensitive=True, choices=('a','b')]>, required=True)]>
@@ -141,6 +168,7 @@ class TestPosNode(ParserTest):
             node._update_any(AnyWord(Nargs('+')), Foo.bar, None)
 
 
+@patch('cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos.default', True)
 class ParseTreeTestOk(ParserTest):
     def test_sub_cmd_choices_overlap_ok(self):
         class Show(Command):
@@ -219,6 +247,7 @@ class ParseTreeTestOk(ParserTest):
         self.assert_parse_results_cases(Base, success_cases)
 
 
+@patch('cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos.default', True)
 class ParseTreeTestBad(ParserTest):
     def test_overlap_choice_conflict_bad(self):
         class Show(Command):
