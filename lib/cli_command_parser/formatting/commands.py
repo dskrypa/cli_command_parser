@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Optional
 
 from ..context import ctx, NoActiveContext
-from ..core import get_params
+from ..core import get_params, get_metadata
 from ..parameters.groups import ParamGroup
 from ..utils import camel_to_snake_case
 from .restructured_text import rst_header, RstTable
@@ -17,7 +17,6 @@ from .restructured_text import rst_header, RstTable
 if TYPE_CHECKING:
     from ..core import CommandMeta
     from ..command_parameters import CommandParameters
-    from ..metadata import ProgramMetadata
     from ..parameters import Parameter, BasePositional, BaseOption, SubCommand
     from ..typing import Bool, CommandType, CommandCls, CommandAny
 
@@ -53,12 +52,8 @@ class CommandHelpFormatter:
     def maybe_add_options(self, params: Iterable[BaseOption]):
         self.opt_group.extend(param for param in params if not param.group)
 
-    def _get_meta(self, no_sys_argv: Bool = False) -> ProgramMetadata:
-        cmd_mcls: Type[CommandMeta] = self.command.__class__  # Using metaclass to avoid potentially overwritten attrs
-        return cmd_mcls.meta(self.command, no_sys_argv=no_sys_argv)
-
     def format_usage(self, delim: str = ' ', sub_cmd_choice: str = None) -> str:
-        meta = self._get_meta()
+        meta = get_metadata(self.command)
         if meta.usage:
             return meta.usage
 
@@ -77,7 +72,7 @@ class CommandHelpFormatter:
         return delim.join(parts)
 
     def format_help(self) -> str:
-        meta = self._get_meta()
+        meta = get_metadata(self.command)
         parts = [self.format_usage(), '']
         if meta.description:
             parts += [meta.description, '']
@@ -96,7 +91,7 @@ class CommandHelpFormatter:
         self, include_epilog: Bool = False, sub_cmd_choice: str = None, no_sys_argv: Bool = False
     ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
-        meta = self._get_meta(no_sys_argv)
+        meta = get_metadata(self.command, no_sys_argv=no_sys_argv)
         yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')
         if meta.description:
             yield meta.description
@@ -117,14 +112,14 @@ class CommandHelpFormatter:
     ) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         # TODO: Nested subcommands do not have full sections, but they should
-        meta = self._get_meta(no_sys_argv)
+        meta = get_metadata(self.command, no_sys_argv=no_sys_argv)
         name = meta.doc_name
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)
 
         parts = [rst_header(name, init_level), '']
         if ctx.config.show_docstring:
-            doc_str = meta.doc_str.strip() if meta.doc_str else None
+            doc_str = meta.get_doc_str()
             if doc_str:
                 parts += [doc_str, '']
 

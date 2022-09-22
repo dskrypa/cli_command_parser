@@ -7,7 +7,6 @@ Program metadata introspection for use in usage, help text, and documentation.
 
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass, fields
 from inspect import getmodule
 from pathlib import Path
@@ -73,6 +72,7 @@ class ProgramMetadata:
     epilog: str = Metadata(None)
     doc_name: str = Metadata(None)
     doc_str: str = Metadata('')
+    pkg_doc_str: str = Metadata('')  # Set by :func:`~.documentation.load_commands` to capture package docstrings
 
     @classmethod
     def for_command(  # pylint: disable=R0914
@@ -138,6 +138,16 @@ class ProgramMetadata:
             parts.append(f'Online documentation: {url}')
         return '\n\n'.join(parts)
 
+    def get_doc_str(self, strip: bool = True) -> OptStr:
+        doc_str = self.pkg_doc_str
+        if doc_str and strip:
+            doc_str = doc_str.strip()
+        if not doc_str:
+            doc_str = self.doc_str
+            if doc_str and strip:
+                doc_str = doc_str.strip()
+        return doc_str
+
 
 def _repr(obj, indent=0) -> str:
     if not isinstance(obj, ProgramMetadata):
@@ -152,26 +162,29 @@ def _repr(obj, indent=0) -> str:
 
 
 def _prog(prog: OptStr, cmd_path: Path, parent: Optional[ProgramMetadata], no_sys_argv: Bool) -> Tuple[OptStr, bool]:
+    # TODO: Attempt to detect the name to use via importlib.metadata.entry_points?  3.8+, with return value changes
+    #  after 3.9
+    if prog:
+        return prog, False
     if no_sys_argv is None:
         try:
             no_sys_argv = not ctx.allow_argv_prog
         except NoActiveContext:
             no_sys_argv = False
 
-    if prog:
-        return prog, False
-    elif parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
+    if parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
         return parent.prog, parent.prog_from_sys_argv
     elif not no_sys_argv:
         try:
-            path = Path(sys.argv[0])
-        except IndexError:
-            return cmd_path.name, False
+            ctx_prog = ctx.prog
+        except NoActiveContext:
+            ctx_prog = None
 
-        # Windows allows invocation without .exe - assume a file with an extension is a match
-        if (path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None) and path.name != 'pytest':
-            # TODO: Apply the allow_argv_prog via context manager in the tests that pytest runs differently
-            return path.name, True
+        if ctx_prog:
+            path = Path(ctx_prog)
+            # Windows allows invocation without .exe - assume a file with an extension is a match
+            if path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None:
+                return path.name, True
 
     return cmd_path.name, False
 
@@ -219,7 +232,4 @@ def _docs_url_from_repo_url(repo_url: Optional[str]) -> Optional[str]:
 def _doc_name(doc_name: Optional[str], path: Path, prog: str) -> str:
     if doc_name:
         return doc_name
-    elif path.name != DEFAULT_FILE_NAME:
-        return path.stem
-    else:
-        return prog
+    return Path(prog).stem

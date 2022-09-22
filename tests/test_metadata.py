@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from cli_command_parser import Command
+from cli_command_parser import Command, Context
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.metadata import ProgramMetadata, _path_and_globals, _description, _doc_name, _prog
 
@@ -83,8 +83,18 @@ class MetadataTest(TestCase):
         with TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir).joinpath(name)
             tmp_path.touch()
-            with patch('sys.argv', [tmp_path.as_posix()]):
+            with patch('sys.argv', [tmp_path.as_posix()]), Context():
                 self.assertEqual(name, _prog(None, path, None, False)[0])
+
+    def test_doc_str_non_pkg(self):
+        meta = ProgramMetadata(doc_str=' test ')
+        self.assertEqual('test', meta.get_doc_str())
+        self.assertEqual(' test ', meta.get_doc_str(False))
+
+    def test_doc_str_pkg(self):
+        meta = ProgramMetadata(doc_str=' test ', pkg_doc_str=' pkg test ')
+        self.assertEqual('pkg test', meta.get_doc_str())
+        self.assertEqual(' pkg test ', meta.get_doc_str(False))
 
 
 if __name__ == '__main__':

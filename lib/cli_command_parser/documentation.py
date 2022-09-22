@@ -14,8 +14,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Iterable, Mapping, List, Dict
 
 from .commands import Command
-from .context import get_current_context, Context
-from .core import CommandMeta, get_params, get_parent
+from .context import Context
+from .core import CommandMeta, get_params, get_parent, get_metadata
 from .formatting.commands import get_formatter, NameFunc
 from .formatting.restructured_text import MODULE_TEMPLATE, rst_header, rst_toc_tree
 
@@ -26,6 +26,9 @@ if TYPE_CHECKING:
 
 __all__ = ['render_script_rst', 'render_command_rst', 'load_commands', 'RstWriter']
 log = logging.getLogger(__name__)
+
+
+# region Render Script / Command RST
 
 
 def render_script_rst(
@@ -44,9 +47,26 @@ def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func
     :param fix_name_func: The function to call if ``fix_name`` is True instead of the default one.
     :return: The help text for the given Command, formatted using RST
     """
-    ctx = get_current_context(True) or command()._Command__ctx
-    with ctx:
+    with Context([], command, allow_argv_prog=False):
         return get_formatter(command).format_rst(fix_name, fix_name_func, no_sys_argv=True)
+
+
+def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
+    # This could be better, but it's relatively unlikely to have multiple top level commands in a script...
+    # For the same reason that main() does not try to pick one, this will just combine all of them.
+    parts = []
+    for i, (_name, command) in enumerate(sorted(commands.items())):
+        if i:
+            parts.append('\n--------\n')
+
+        parts.append(render_command_rst(command, fix_name, fix_name_func))
+
+    if len(parts) == 1:
+        return parts[0]
+    return '\n'.join(parts)
+
+
+# endregion
 
 
 # region Import and Load Commands
@@ -67,7 +87,15 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     with Context(allow_argv_prog=False):
         module = import_module(path)
     commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
-    return top_level_commands(commands) if top_only else commands
+    if top_only:
+        commands = top_level_commands(commands)
+
+    doc_str = module.__doc__
+    if doc_str:
+        for command in commands.values():
+            get_metadata(command).pkg_doc_str = doc_str
+
+    return commands
 
 
 def top_level_commands(commands: Commands) -> Commands:
@@ -91,21 +119,6 @@ def top_level_commands(commands: Commands) -> Commands:
             filtered[name] = command
 
     return filtered
-
-
-def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
-    # This could be better, but it's relatively unlikely to have multiple top level commands in a script...
-    # For the same reason that main() does not try to pick one, this will just combine all of them.
-    parts = []
-    for i, (_name, command) in enumerate(sorted(commands.items())):
-        if i:
-            parts.append('\n--------\n')
-
-        parts.append(render_command_rst(command, fix_name, fix_name_func))
-
-    if len(parts) == 1:
-        return parts[0]
-    return '\n'.join(parts)
 
 
 def import_module(path: PathLike):
@@ -157,7 +170,13 @@ class RstWriter:
         self.skip_modules = set(skip_modules) if skip_modules else set()
 
     def document_script(
-        self, path: Path, subdir: str = None, name: str = None, replacements: Mapping[str, str] = None, **kwargs
+        self,
+        path: Path,
+        subdir: str = None,
+        name: str = None,
+        replacements: Mapping[str, str] = None,
+        top_only: Bool = True,
+        **kwargs,
     ) -> str:
         if name:
             kwargs['fix_name_func'] = lambda n: name
@@ -165,7 +184,7 @@ class RstWriter:
         else:
             rst_name = path.stem
 
-        rst_str = render_script_rst(path, **kwargs)
+        rst_str = render_script_rst(path, top_only=top_only, **kwargs)
         if replacements:
             for key, val in replacements.items():
                 rst_str = rst_str.replace(key, val)
@@ -177,6 +196,7 @@ class RstWriter:
         self,
         paths: Iterable[Path],
         subdir: str = None,
+        top_only: Bool = True,
         *,
         index_name: str = None,
         index_header: str = None,
@@ -184,7 +204,7 @@ class RstWriter:
         caption: str = None,
         **kwargs,
     ):
-        names = [self.document_script(path, subdir, **kwargs) for path in paths]
+        names = [self.document_script(path, subdir, top_only=top_only, **kwargs) for path in paths]
         if index_name or index_header or index_subdir:
             name = index_name or subdir
             self.write_index(name, index_header or name.title(), names, subdir, caption, index_subdir)

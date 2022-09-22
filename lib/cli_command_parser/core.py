@@ -21,7 +21,7 @@ from .metadata import ProgramMetadata
 if TYPE_CHECKING:
     from .typing import Config, AnyConfig, CommandCls, CommandAny, OptStr, Bool
 
-__all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_top_level_commands']
+__all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadata', 'get_top_level_commands']
 
 Bases = Union[Tuple[type, ...], Iterable[type]]
 Choices = Union[Mapping[str, Optional[str]], Collection[str]]
@@ -217,6 +217,7 @@ def _choice_items(choice: OptStr, choices: Optional[Choices]) -> Sequence[Tuple[
 
 get_parent = CommandMeta.parent
 get_config = CommandMeta.config
+get_metadata = CommandMeta.meta
 
 
 def get_params(command: CommandAny) -> CommandParameters:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock, patch
 
 from cli_command_parser.utils import camel_to_snake_case, get_args, Terminal, short_repr

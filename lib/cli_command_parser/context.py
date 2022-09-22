@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
     from .parameters import Parameter, ActionFlag
-    from .typing import Bool, ParamOrGroup, CommandType, AnyConfig
+    from .typing import Bool, ParamOrGroup, CommandType, AnyConfig, OptStr, PathLike
 
 __all__ = [
     'Context',
@@ -66,6 +66,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     """
 
     config: CommandConfig
+    prog: OptStr = None
     _terminal_width: Optional[int]
     allow_argv_prog: Bool = True
 
@@ -79,13 +80,12 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         allow_argv_prog: Bool = None,
         **kwargs,
     ):
-        self.argv = sys.argv[1:] if argv is None else argv
-        self.remaining = list(self.argv)
         self.command = command
         self.parent = parent
         self.state = ParseState.INITIAL
         self.config = _normalize_config(config, kwargs, parent, command)
         if parent is not None:
+            self._set_argv(parent.prog, argv)
             self._parsed = parent._parsed.copy()
             self.unknown = parent.unknown.copy()
             self._provided = parent._provided.copy()
@@ -94,6 +94,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             if allow_argv_prog is None:
                 allow_argv_prog = parent.allow_argv_prog
         else:
+            self._set_argv(None, argv)
             self._parsed = {}
             self.unknown = {}
             self._provided = defaultdict(int)
@@ -104,6 +105,22 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.actions_taken = 0
 
     # region Internal Methods
+
+    @classmethod
+    def for_prog(cls, prog: PathLike, *args, **kwargs) -> Context:
+        self = cls(*args, **kwargs)
+        self.prog = getattr(prog, 'name', prog)
+        return self
+
+    def _set_argv(self, prog: OptStr, argv: Optional[Sequence[str]]):
+        if prog:
+            self.prog = prog
+            self.argv = sys.argv[1:] if argv is None else argv
+        elif argv is None:
+            self.prog, *self.argv = sys.argv
+        else:
+            self.argv = argv
+        self.remaining = list(self.argv)
 
     def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
         if argv is None:
