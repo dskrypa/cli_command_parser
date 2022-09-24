@@ -77,7 +77,7 @@ class parameter_action:  # pylint: disable=C0103
         result = self.method(*args, **kwargs)
         return 1 if result is None else result
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: Optional[Parameter], owner: Type[Parameter]):
         if instance is None:
             return self
         return partial(self.__call__, instance)
@@ -584,7 +584,7 @@ class BaseOption(Parameter[T_co], ABC):
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
-    _opt_str_cls = OptionStrings
+    _opt_str_cls: Type[OptionStrings] = OptionStrings
     option_strs: OptionStrings
 
     def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str] = None, **kwargs):

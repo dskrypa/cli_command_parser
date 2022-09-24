@@ -6,9 +6,10 @@ Optional Parameters
 
 from __future__ import annotations
 
+from abc import ABC
 from functools import partial, update_wrapper, reduce
 from operator import xor
-from typing import Any, Optional, Callable, Sequence, Iterator, Union, Tuple
+from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
 
 from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
@@ -20,6 +21,10 @@ from .base import BasicActionMixin, BaseOption, parameter_action
 from .option_strings import TriFlagOptionStrings
 
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
+
+TD = TypeVar('TD')
+TC = TypeVar('TC')
+TA = TypeVar('TA')
 
 
 class Option(BasicActionMixin, BaseOption[T_co]):
@@ -91,7 +96,7 @@ class Option(BasicActionMixin, BaseOption[T_co]):
 # TODO: 1/2 flag, 1/2 option, like Counter, but for any value
 
 
-class _Flag(BaseOption):
+class _Flag(BaseOption[T_co], ABC):
     nargs = Nargs(0)
     _use_opt_str: bool = False
 
@@ -128,7 +133,7 @@ class _Flag(BaseOption):
     result = result_value
 
 
-class Flag(_Flag, accepts_values=False, accepts_none=True):
+class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -145,9 +150,11 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
     """
 
     __default_const_map = {True: False, False: True, _NotSet: True}
+    default: TD
+    const: TC
 
     def __init__(
-        self, *option_strs: str, action: str = 'store_const', default: Any = _NotSet, const: Any = _NotSet, **kwargs
+        self, *option_strs: str, action: str = 'store_const', default: TD = _NotSet, const: TC = _NotSet, **kwargs
     ):
         if const is _NotSet:
             try:
@@ -171,7 +178,7 @@ class Flag(_Flag, accepts_values=False, accepts_none=True):
         ctx.get_parsed_value(self).append(self.const)
 
 
-class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
+class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True, use_opt_str=True):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -195,17 +202,19 @@ class TriFlag(_Flag, accepts_values=False, accepts_none=True, use_opt_str=True):
     _opt_str_cls = TriFlagOptionStrings
     option_strs: TriFlagOptionStrings
     alt_help: OptStr = None
+    default: TD
+    consts: Tuple[TC, TA]
 
     def __init__(
         self,
         *option_strs: str,
-        consts: Tuple[Any, Any] = (True, False),
+        consts: Tuple[TC, TA] = (True, False),
         alt_prefix: str = None,
         alt_long: str = None,
         alt_short: str = None,
         alt_help: str = None,
         action: str = 'store_const',
-        default: Any = None,
+        default: TD = None,
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -350,7 +359,7 @@ def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable =
     return ActionFlag(*option_strs, order=order, func=func, before_main=False, **kwargs)
 
 
-class Counter(BaseOption, accepts_values=True, accepts_none=True):
+class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
     """
     A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
     to explicitly increase the stored value by that amount.
