@@ -5,11 +5,16 @@ from pathlib import Path
 from unittest import main
 
 from cli_command_parser import Command
+from cli_command_parser.config import OptionNameMode
+from cli_command_parser.core import get_config
 from cli_command_parser.testing import ParserTest
-from cli_command_parser.documentation import top_level_commands, _render_commands_rst, import_module
+from cli_command_parser.typing import CommandCls
+from cli_command_parser.documentation import top_level_commands, _render_commands_rst, import_module, load_commands
 
 THIS_FILE = Path(__file__).resolve()
-TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data', 'test_rst')
+TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data')
+THIS_DATA_DIR = TEST_DATA_DIR.joinpath('test_documentation_utils')
+CMD_CASES_DIR = TEST_DATA_DIR.joinpath('command_test_cases')
 EXAMPLES_DIR = THIS_FILE.parents[2].joinpath('examples')
 
 
@@ -25,7 +30,7 @@ class DocumentationUtilsTest(ParserTest):
         self.assertEqual(commands, top_level_commands(commands))
 
     def test_multi_command_rst(self):
-        expected = TEST_DATA_DIR.joinpath('basic_command_multi.rst').read_text('utf-8')
+        expected = THIS_DATA_DIR.joinpath('basic_command_multi.rst').read_text('utf-8')
 
         class Foo(Command, doc_name='basic_command_multi', prog='foo.py', show_docstring=False):
             pass
@@ -36,19 +41,34 @@ class DocumentationUtilsTest(ParserTest):
         commands = {'Foo': Foo, 'Bar': Bar}
         self.assert_strings_equal(expected, _render_commands_rst(commands, fix_name=False), trim=True)
 
+    def test_file_not_found(self):
+        with self.assertRaises(FileNotFoundError):
+            import_module(CMD_CASES_DIR.joinpath('non_existant_file.py'))
+
     def test_import_error(self):
-        with self.assertRaises(ImportError):
-            import_module(TEST_DATA_DIR.joinpath('hello_world.rst'))
+        with self.assertRaises(ImportError):  # Ensure this is raised for non-py files and similar
+            import_module(THIS_DATA_DIR.joinpath('basic_command_multi.rst'))
 
     def test_remove_from_sys_modules_on_error(self):
         with self.assertRaises(RuntimeError):
-            import_module(TEST_DATA_DIR.joinpath('runtime_error.py'))
+            import_module(CMD_CASES_DIR.joinpath('runtime_error.py'))
         self.assertNotIn('runtime_error', sys.modules)
 
     def test_import_package(self):
         package = import_module(EXAMPLES_DIR.joinpath('complex'))
         expected = {'Example', 'HelloWorld', 'Logs', 'main'}
         self.assertSetEqual(expected, expected.intersection(dir(package)))
+
+    def test_loaded_command_option_name_mode(self):
+        commands = load_commands(TEST_DATA_DIR.joinpath('command_test_cases', 'opt_name_mode.py'))
+        Base: CommandCls = commands['Base']
+        Foo: CommandCls = commands['Foo']
+        self.assertEqual(OptionNameMode.DASH, get_config(Base).option_name_mode)
+        self.assertEqual(OptionNameMode.DASH, get_config(Foo).option_name_mode)
+        self.assertEqual(['--a-b'], Foo.a_b.option_strs.long)
+        self.assertEqual(['--a-b'], Foo.a_b.option_strs.display_long)
+        self.assertEqual(['--a-c'], Foo.a_c.option_strs.display_long_primary)
+        self.assertEqual(['--no-a-c'], Foo.a_c.option_strs.display_long_alt)
 
 
 if __name__ == '__main__':

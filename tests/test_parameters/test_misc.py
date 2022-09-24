@@ -7,6 +7,7 @@ from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import main, skipIf
 
 from cli_command_parser import Command
+from cli_command_parser.config import CommandConfig
 from cli_command_parser.context import Context
 from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import (
@@ -18,6 +19,7 @@ from cli_command_parser.exceptions import (
     BadArgument,
     UnsupportedAction,
     ParamsMissing,
+    NoActiveContext,
 )
 from cli_command_parser.formatting.params import (
     ParamHelpFormatter,
@@ -191,6 +193,12 @@ class MiscParameterTest(ParserTest):
 
         with self.assertRaises(CommandDefinitionError):
             Foo.parse([])
+
+    def test_config_no_context_explicit_command(self):
+        class Foo(Command):
+            bar = Option()
+
+        self.assertIsInstance(Foo.bar._ParamBase__config(Foo), CommandConfig)
 
     # TODO: Conflict check issues
     # def test_short_conflict_in_subcommand(self):

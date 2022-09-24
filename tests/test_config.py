@@ -70,6 +70,6 @@ class ConfigTest(TestCase):
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2, exit=False)
     except KeyboardInterrupt:
         print()

@@ -28,13 +28,12 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
-from ..typing import Bool, CommandCls, CommandObj, Param, T_co
+from ..typing import Bool, CommandCls, CommandObj, CommandAny, Param, T_co
 from ..utils import _NotSet, get_descriptor_value_type
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from types import MethodType
-    from ..commands import Command
     from ..formatting.params import ParamHelpFormatter
     from .groups import ParamGroup
 
@@ -133,7 +132,7 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self.__name) ^ hash(self.name) ^ hash(self.command)
 
-    def _ctx(self, command: Command = None) -> Context:
+    def _ctx(self, command: CommandAny = None) -> Context:
         try:
             return get_current_context()
         except NoActiveContext:
@@ -146,12 +145,12 @@ class ParamBase(ABC):
             pass
         raise NoActiveContext('There is no active context')
 
-    def _config(self, command: Command = None) -> CommandConfig:
-        if command is None:
-            command = self.command
+    def __config(self, command: CommandAny = None) -> CommandConfig:
         try:
             return self._ctx(command).config
         except NoActiveContext:
+            if command is None:
+                command = self.command
             return command.__class__.config(command)
 
     # region Usage / Help Text
@@ -161,7 +160,7 @@ class ParamBase(ABC):
         from ..formatting.params import ParamHelpFormatter  # Here due to circular dependency
 
         try:
-            formatter_factory = self._config().param_formatter or ParamHelpFormatter
+            formatter_factory = self.__config().param_formatter or ParamHelpFormatter
         except AttributeError:  # self.command is None
             formatter_factory = ParamHelpFormatter
 
@@ -594,7 +593,9 @@ class BaseOption(Parameter[T_co], ABC):
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
-        self.option_strs.update(self, command, name)
+        if not self.option_strs.name_mode:
+            self.option_strs.name_mode = command.__class__.config(command).option_name_mode
+        self.option_strs.update(name)
 
 
 def get_active_param_group() -> Optional[ParamGroup]:

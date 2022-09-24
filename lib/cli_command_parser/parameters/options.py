@@ -239,7 +239,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
-        self.option_strs.update_alts(self, command, name)
+        self.option_strs.update_alts(name)
 
     @parameter_action
     def store_const(self, opt_str: str):

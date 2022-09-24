@@ -179,6 +179,15 @@ class OptionTest(ParserTest):
         success_cases = [(['--foo-bar', 'baz'], exp), (['--foo_bar', 'baz'], exp), (['-b', 'baz'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    def test_option_strs_repr(self):
+        class Foo(Command, option_name_mode='-'):
+            a_b = Flag()
+            a_c = TriFlag()
+
+        self.assertEqual('<OptionStrings[name_mode=OptionNameMode.DASH][--a-b]>', repr(Foo.a_b.option_strs))
+        expected = '<TriFlagOptionStrings[name_mode=OptionNameMode.DASH][--a-c, --no-a-c]>'
+        self.assertEqual(expected, repr(Foo.a_c.option_strs))
+
 
 class EnvVarTest(ParserTest):
     @contextmanager

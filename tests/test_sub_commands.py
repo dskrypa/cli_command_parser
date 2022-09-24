@@ -4,8 +4,9 @@ from abc import ABC
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag
+from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag, TriFlag
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument
+from cli_command_parser.formatting.commands import get_formatter
 from cli_command_parser.testing import RedirectStreams, ParserTest, get_help_text
 
 
@@ -224,6 +225,26 @@ class SubCommandTest(ParserTest):
             ]
             self.assert_parse_results_cases(Base, success_cases)
             self.assert_parse_fails(Base, ['mid'])
+
+    def test_config_inherited(self):
+        class Base(Command, option_name_mode='-'):
+            sub_cmd = SubCommand()
+
+        class Foo(Base):
+            a_b = Flag()
+            a_c = TriFlag()
+
+        self.assertEqual(['--a-b'], Foo.a_b.option_strs.long)
+        self.assertEqual(['--a-b'], Foo.a_b.option_strs.display_long)
+        self.assertEqual(['--a-c'], Foo.a_c.option_strs.display_long_primary)
+        self.assertEqual(['--no-a-c'], Foo.a_c.option_strs.display_long_alt)
+        formatter = get_formatter(Foo)
+        help_text = formatter.format_help()
+        rst_text = formatter.format_rst(no_sys_argv=True)
+        for expected in ('--a-b', '--a-c', '--no-a-c'):
+            with self.subTest(expected=expected):
+                self.assertIn(expected, help_text)
+                self.assertIn(expected, rst_text)
 
 
 if __name__ == '__main__':

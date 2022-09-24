@@ -96,8 +96,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
         pkg_path = self.package_path
         self.rst_writer.document_package(pkg_path.name, pkg_path, name='api', header='API Documentation')
         examples_dir = PROJECT_ROOT.joinpath('examples')
-        # paths = (examples_dir.joinpath('complex'), *examples_dir.glob('*.py'))
-        paths = examples_dir.glob('*.py')  # TODO: Fix rst file naming for scripts from packages
+        paths = (examples_dir.joinpath('complex'), *examples_dir.glob('*.py'))
         self.rst_writer.document_scripts(paths, 'examples', index_header='Example Scripts')
 
     @after_main('-o', help='Open the docs in the default web browser after running sphinx-build')

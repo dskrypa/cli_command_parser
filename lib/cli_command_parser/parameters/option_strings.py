@@ -6,15 +6,10 @@ Containers for option strings
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Collection, Union, Iterator, List, Set
+from typing import Optional, Collection, Union, Iterator, List, Set
 
-from ..config import OptionNameMode
+from ..config import OptionNameMode, DEFAULT_CONFIG
 from ..exceptions import ParameterDefinitionError
-
-if TYPE_CHECKING:
-    from ..typing import CommandCls
-    from .base import BaseOption
-    from .options import TriFlag
 
 __all__ = ['OptionStrings', 'TriFlagOptionStrings']
 
@@ -31,15 +26,22 @@ class OptionStrings:
         if bad_opts:
             raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
 
+    def __repr__(self) -> str:
+        options = ', '.join(self.all_option_strs())
+        return f'<{self.__class__.__name__}[name_mode={self.name_mode}][{options}]>'
+
     @classmethod
     def _sort_options(cls, options: Collection[str]):
         return sorted(options, key=lambda opt: (-len(opt), opt))
 
-    def update(self, param: BaseOption, command: CommandCls, name: str):
-        if self._long:
+    def update(self, name: str):
+        """
+        Called by :meth:`.BaseOption.__set_name__` to add the assigned name to the long option strings for this param.
+        """
+        if self._long:  # Explicit values were provided during param init
             return
 
-        mode = self.name_mode if self.name_mode is not None else param._config(command).option_name_mode
+        mode = self.name_mode or DEFAULT_CONFIG.option_name_mode
         mode_val: int = mode._value_  # This Flag doesn't subclass int due to breakage in 3.11
         if mode_val & 4:
             self._display_long = self._display_long.copy()
@@ -70,6 +72,8 @@ class OptionStrings:
         yield from self.display_long
         yield from self.short
 
+    all_option_strs = option_strs
+
 
 class TriFlagOptionStrings(OptionStrings):
     __slots__ = ('_alt_prefix', '_alt_long', '_alt_short')
@@ -79,11 +83,14 @@ class TriFlagOptionStrings(OptionStrings):
         self._alt_long = (long,) if long else set()  # noqa
         self._alt_short = short  # noqa
 
-    def update_alts(self, param: TriFlag, command: CommandCls, name: str):
+    def update_alts(self, name: str):
+        """
+        Called by :meth:`.TriFlag.__set_name__` to add the assigned name to the alt long option strings for this param.
+        """
         if self._alt_long:
             return
 
-        mode = self.name_mode if self.name_mode is not None else param._config(command).option_name_mode
+        mode = self.name_mode or DEFAULT_CONFIG.option_name_mode
         mode_val: int = mode._value_  # This Flag doesn't subclass int due to breakage in 3.11
         if mode & OptionNameMode.DASH:
             option = '--{}-{}'.format(self._alt_prefix, name.replace('_', '-'))
@@ -144,3 +151,7 @@ class TriFlagOptionStrings(OptionStrings):
             yield from self.alt_option_strs()
         else:
             yield from self.primary_option_strs()
+
+    def all_option_strs(self) -> Iterator[str]:
+        yield from self.option_strs(False)
+        yield from self.option_strs(True)
