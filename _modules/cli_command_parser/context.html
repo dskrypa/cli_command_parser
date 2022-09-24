@@ -122,7 +122,7 @@
     <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
     <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
     <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">ActionFlag</span>
-    <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">AnyConfig</span>
+    <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">AnyConfig</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">PathLike</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;Context&#39;</span><span class="p">,</span>
@@ -158,6 +158,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_terminal_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="n">allow_argv_prog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -171,13 +172,12 @@
         <span class="n">allow_argv_prog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">argv</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ParseState</span><span class="o">.</span><span class="n">INITIAL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">_normalize_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_argv</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">prog</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_parsed</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unknown</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">unknown</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_provided</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -186,6 +186,7 @@
             <span class="k">if</span> <span class="n">allow_argv_prog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">allow_argv_prog</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">allow_argv_prog</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_argv</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unknown</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -196,6 +197,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="c1"># region Internal Methods</span>
+
+<div class="viewcode-block" id="Context.for_prog"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.for_prog">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">for_prog</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">prog</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prog</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">prog</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_argv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prog</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
+        <span class="k">if</span> <span class="n">prog</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prog</span> <span class="o">=</span> <span class="n">prog</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">argv</span>
+        <span class="k">elif</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prog</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">argv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_sub_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

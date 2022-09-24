@@ -98,15 +98,10 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span>
 
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">OptionNameMode</span>
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">OptionNameMode</span><span class="p">,</span> <span class="n">DEFAULT_CONFIG</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
-
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">CommandCls</span>
-    <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseOption</span>
-    <span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">TriFlag</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OptionStrings&#39;</span><span class="p">,</span> <span class="s1">&#39;TriFlagOptionStrings&#39;</span><span class="p">]</span>
 
@@ -123,15 +118,22 @@
         <span class="k">if</span> <span class="n">bad_opts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bad short option(s) - may not contain &#39;-&#39;: </span><span class="si">{</span><span class="n">bad_opts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_option_strs</span><span class="p">())</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[name_mode=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span><span class="si">}</span><span class="s1">][</span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s1">]&gt;&#39;</span>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_sort_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">opt</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">opt</span><span class="p">),</span> <span class="n">opt</span><span class="p">))</span>
 
-<div class="viewcode-block" id="OptionStrings.update"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.OptionStrings.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_long</span><span class="p">:</span>
+<div class="viewcode-block" id="OptionStrings.update"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.OptionStrings.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by :meth:`.BaseOption.__set_name__` to add the assigned name to the long option strings for this param.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_long</span><span class="p">:</span>  <span class="c1"># Explicit values were provided during param init</span>
             <span class="k">return</span>
 
-        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">param</span><span class="o">.</span><span class="n">_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="ow">or</span> <span class="n">DEFAULT_CONFIG</span><span class="o">.</span><span class="n">option_name_mode</span>
         <span class="n">mode_val</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">_value_</span>  <span class="c1"># This Flag doesn&#39;t subclass int due to breakage in 3.11</span>
         <span class="k">if</span> <span class="n">mode_val</span> <span class="o">&amp;</span> <span class="mi">4</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_display_long</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_long</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -160,7 +162,9 @@
 
 <div class="viewcode-block" id="OptionStrings.option_strs"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.OptionStrings.option_strs">[docs]</a>    <span class="k">def</span> <span class="nf">option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_long</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">short</span></div></div>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">short</span></div>
+
+    <span class="n">all_option_strs</span> <span class="o">=</span> <span class="n">option_strs</span></div>
 
 
 <div class="viewcode-block" id="TriFlagOptionStrings"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings">[docs]</a><span class="k">class</span> <span class="nc">TriFlagOptionStrings</span><span class="p">(</span><span class="n">OptionStrings</span><span class="p">):</span>
@@ -171,11 +175,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span> <span class="o">=</span> <span class="p">(</span><span class="n">long</span><span class="p">,)</span> <span class="k">if</span> <span class="n">long</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span> <span class="o">=</span> <span class="n">short</span>  <span class="c1"># noqa</span></div>
 
-<div class="viewcode-block" id="TriFlagOptionStrings.update_alts"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.update_alts">[docs]</a>    <span class="k">def</span> <span class="nf">update_alts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">TriFlag</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="TriFlagOptionStrings.update_alts"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.update_alts">[docs]</a>    <span class="k">def</span> <span class="nf">update_alts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by :meth:`.TriFlag.__set_name__` to add the assigned name to the alt long option strings for this param.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">param</span><span class="o">.</span><span class="n">_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="ow">or</span> <span class="n">DEFAULT_CONFIG</span><span class="o">.</span><span class="n">option_name_mode</span>
         <span class="n">mode_val</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">_value_</span>  <span class="c1"># This Flag doesn&#39;t subclass int due to breakage in 3.11</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;--</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alt_prefix</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">))</span>
@@ -235,7 +242,11 @@
         <span class="k">if</span> <span class="n">alt</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt_option_strs</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_option_strs</span><span class="p">()</span></div></div>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_option_strs</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TriFlagOptionStrings.all_option_strs"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.all_option_strs">[docs]</a>    <span class="k">def</span> <span class="nf">all_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

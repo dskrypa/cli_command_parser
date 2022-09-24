@@ -106,8 +106,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">get_current_context</span><span class="p">,</span> <span class="n">Context</span>
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">get_params</span><span class="p">,</span> <span class="n">get_parent</span>
+<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">get_params</span><span class="p">,</span> <span class="n">get_parent</span><span class="p">,</span> <span class="n">get_metadata</span>
 <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">get_formatter</span><span class="p">,</span> <span class="n">NameFunc</span>
 <span class="kn">from</span> <span class="nn">.formatting.restructured_text</span> <span class="kn">import</span> <span class="n">MODULE_TEMPLATE</span><span class="p">,</span> <span class="n">rst_header</span><span class="p">,</span> <span class="n">rst_toc_tree</span>
 
@@ -118,6 +118,9 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;render_script_rst&#39;</span><span class="p">,</span> <span class="s1">&#39;render_command_rst&#39;</span><span class="p">,</span> <span class="s1">&#39;load_commands&#39;</span><span class="p">,</span> <span class="s1">&#39;RstWriter&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># region Render Script / Command RST</span>
 
 
 <div class="viewcode-block" id="render_script_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">[docs]</a><span class="k">def</span> <span class="nf">render_script_rst</span><span class="p">(</span>
@@ -136,9 +139,26 @@
 <span class="sd">    :param fix_name_func: The function to call if ``fix_name`` is True instead of the default one.</span>
 <span class="sd">    :return: The help text for the given Command, formatted using RST</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_current_context</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="ow">or</span> <span class="n">command</span><span class="p">()</span><span class="o">.</span><span class="n">_Command__ctx</span>
-    <span class="k">with</span> <span class="n">ctx</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">Context</span><span class="p">([],</span> <span class="n">command</span><span class="p">,</span> <span class="n">allow_argv_prog</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_formatter</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">format_rst</span><span class="p">(</span><span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">,</span> <span class="n">no_sys_argv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_render_commands_rst</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># This could be better, but it&#39;s relatively unlikely to have multiple top level commands in a script...</span>
+    <span class="c1"># For the same reason that main() does not try to pick one, this will just combine all of them.</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">())):</span>
+        <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">render_command_rst</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="c1"># endregion</span>
 
 
 <span class="c1"># region Import and Load Commands</span>
@@ -159,7 +179,15 @@
     <span class="k">with</span> <span class="n">Context</span><span class="p">(</span><span class="n">allow_argv_prog</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_is_command</span><span class="p">(</span><span class="n">val</span><span class="p">)}</span>
-    <span class="k">return</span> <span class="n">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">if</span> <span class="n">top_only</span> <span class="k">else</span> <span class="n">commands</span></div>
+    <span class="k">if</span> <span class="n">top_only</span><span class="p">:</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="n">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+
+    <span class="n">doc_str</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__doc__</span>
+    <span class="k">if</span> <span class="n">doc_str</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">get_metadata</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">pkg_doc_str</span> <span class="o">=</span> <span class="n">doc_str</span>
+
+    <span class="k">return</span> <span class="n">commands</span></div>
 
 
 <span class="k">def</span> <span class="nf">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
@@ -183,21 +211,6 @@
             <span class="n">filtered</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
 
     <span class="k">return</span> <span class="n">filtered</span>
-
-
-<span class="k">def</span> <span class="nf">_render_commands_rst</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="c1"># This could be better, but it&#39;s relatively unlikely to have multiple top level commands in a script...</span>
-    <span class="c1"># For the same reason that main() does not try to pick one, this will just combine all of them.</span>
-    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">())):</span>
-        <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">render_command_rst</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
@@ -249,7 +262,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_modules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">skip_modules</span><span class="p">)</span> <span class="k">if</span> <span class="n">skip_modules</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
 
 <div class="viewcode-block" id="RstWriter.document_script"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script">[docs]</a>    <span class="k">def</span> <span class="nf">document_script</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">replacements</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">replacements</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fix_name_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">name</span>
@@ -257,7 +276,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">rst_name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span>
 
-        <span class="n">rst_str</span> <span class="o">=</span> <span class="n">render_script_rst</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">rst_str</span> <span class="o">=</span> <span class="n">render_script_rst</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">top_only</span><span class="o">=</span><span class="n">top_only</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">replacements</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">rst_str</span> <span class="o">=</span> <span class="n">rst_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
@@ -269,6 +288,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">paths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
         <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">index_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">index_header</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -276,7 +296,7 @@
         <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document_script</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document_script</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">top_only</span><span class="o">=</span><span class="n">top_only</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">index_name</span> <span class="ow">or</span> <span class="n">index_header</span> <span class="ow">or</span> <span class="n">index_subdir</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">index_name</span> <span class="ow">or</span> <span class="n">subdir</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">index_header</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="n">names</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">index_subdir</span><span class="p">)</span></div>

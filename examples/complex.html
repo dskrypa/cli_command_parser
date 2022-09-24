@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Subcommand &mdash; CLI Command Parser 2022.09.19-2 documentation</title>
+  <title>Complex Example &mdash; CLI Command Parser 2022.09.19-2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Basic Subcommand" href="basic_subcommand.html" />
-    <link rel="prev" title="Action With Args" href="action_with_args.html" />
+    <link rel="next" title="Custom Inputs" href="custom_inputs.html" />
+    <link rel="prev" title="Command Wrapper" href="command_wrapper.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -65,19 +65,18 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Example Scripts</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="action_with_args.html">Action With Args</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced Subcommand</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#subcommands">Subcommands</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#subcommand-foo">Subcommand: foo</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#subcommand-run-foo">Subcommand: run foo</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#subcommand-run-bar">Subcommand: run bar</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#subcommand-baz">Subcommand: baz</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_subcommand.html">Advanced Subcommand</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic_subcommand.html">Basic Subcommand</a></li>
 <li class="toctree-l2"><a class="reference internal" href="command_wrapper.html">Command Wrapper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="complex.html">Complex Example</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Complex Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subcommands">Subcommands</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-hello">Subcommand: hello</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-logs">Subcommand: logs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-update">Subcommand: update</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="custom_inputs.html">Custom Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="echo.html">Echo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="grouped_action_flags.html">Grouped Action Flags</a></li>
@@ -104,10 +103,10 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../examples.html">Example Scripts</a> &raquo;</li>
-      <li>Advanced Subcommand</li>
+      <li>Complex Example</li>
     <li class="wy-breadcrumbs-aside">
         
-            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py" target="_blank" class="fa fa-github"> View on GitHub</a>
+            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex" target="_blank" class="fa fa-github"> View on GitHub</a>
         
     </li>
 
@@ -117,9 +116,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="advanced-subcommand">
-<h1>Advanced Subcommand<a class="headerlink" href="#advanced-subcommand" title="Permalink to this heading"></a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">advanced_subcommand</span><span class="o">.</span><span class="n">py</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">run</span> <span class="n">foo</span><span class="o">|</span><span class="n">run</span> <span class="n">bar</span><span class="o">|</span><span class="n">baz</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+  <section id="complex-example">
+<h1>Complex Example<a class="headerlink" href="#complex-example" title="Permalink to this heading"></a></h1>
+<p>Simplified example of a complex set of Commands defined across multiple modules.</p>
+<p>The expected / intended use case would be for a program that would define an entry point like the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">complex</span><span class="p">:</span><span class="n">main</span>
+</pre></div>
+</div>
+<p>Any number of additional modules could be used, as long as they are imported in the package’s <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> with the
+base Command so that the base Command is made aware of the presence of the subcommands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>Doug Skrypa</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="p">{</span><span class="n">hello</span><span class="o">|</span><span class="n">logs</span><span class="o">|</span><span class="n">update</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Positional arguments</p>
@@ -128,17 +139,14 @@
 <tr class="row-odd"><td><p>Subcommands</p></td>
 <td><table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">foo</span></code></p></td>
-<td><p>Print foo</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hello</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">foo</span></code></p></td>
-<td><p>Run foo</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">logs</span></code></p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">bar</span></code></p></td>
-<td><p>Print bar</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">baz</span></code></p></td>
-<td><p>Print baz</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">update</span></code></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -159,10 +167,29 @@
 </table>
 <section id="subcommands">
 <h2>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h2>
-<section id="subcommand-foo">
-<h3>Subcommand: foo<a class="headerlink" href="#subcommand-foo" title="Permalink to this heading"></a></h3>
-<p>Print foo</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">advanced_subcommand</span><span class="o">.</span><span class="n">py</span> <span class="n">foo</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+<section id="subcommand-hello">
+<h3>Subcommand: hello<a class="headerlink" href="#subcommand-hello" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">hello</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Optional arguments</p>
+<table class="colwidths-auto docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">NAME</span></code></p></td>
+<td><p>The person to say hello to (default: <code class="docutils literal notranslate"><span class="pre">'World'</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-logs">
+<h3>Subcommand: logs<a class="headerlink" href="#subcommand-logs" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">logs</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
 <p class="rubric">Optional arguments</p>
@@ -177,12 +204,35 @@
 </tbody>
 </table>
 </section>
-<section id="subcommand-run-foo">
-<h3>Subcommand: run foo<a class="headerlink" href="#subcommand-run-foo" title="Permalink to this heading"></a></h3>
-<p>Run foo</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">advanced_subcommand</span><span class="o">.</span><span class="n">py</span> <span class="n">run</span> <span class="n">foo</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+<section id="subcommand-update">
+<h3>Subcommand: update<a class="headerlink" href="#subcommand-update" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">user</span><span class="o">|</span><span class="n">group</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span>
 </pre></div>
 </div>
+<p class="rubric">Positional arguments</p>
+<table class="colwidths-auto docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Subcommands</p></td>
+<td><table class="colwidths-auto docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">foo</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bar</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">user</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">group</span></code></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Optional arguments</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
@@ -192,38 +242,30 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
 <td><p>Show this help message and exit</p></td>
 </tr>
-</tbody>
-</table>
-</section>
-<section id="subcommand-run-bar">
-<h3>Subcommand: run bar<a class="headerlink" href="#subcommand-run-bar" title="Permalink to this heading"></a></h3>
-<p>Print bar</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">advanced_subcommand</span><span class="o">.</span><span class="n">py</span> <span class="n">run</span> <span class="n">bar</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
-</pre></div>
-</div>
-<p class="rubric">Optional arguments</p>
-<table class="colwidths-auto docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
-<td><p>Show this help message and exit</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code></p></td>
+<td><p>Print the actions that would be taken instead of taking them</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="subcommand-baz">
-<h3>Subcommand: baz<a class="headerlink" href="#subcommand-baz" title="Permalink to this heading"></a></h3>
-<p>Print baz</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">advanced_subcommand</span><span class="o">.</span><span class="n">py</span> <span class="n">baz</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
-</pre></div>
-</div>
-<p class="rubric">Optional arguments</p>
+<p class="rubric">Common Fields options</p>
 <table class="colwidths-auto docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
-<td><p>Show this help message and exit</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">NAME</span></code></p></td>
+<td><p>The new name for the specified item(s)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--description</span> <span class="pre">DESCRIPTION</span></code>, <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">DESCRIPTION</span></code></p></td>
+<td><p>The new description to use for the specified item(s)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Mutually exclusive options</p>
+<table class="colwidths-auto docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--ids</span> <span class="pre">IDS</span></code>, <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">IDS</span></code></p></td>
+<td><p>The IDs of the item to update</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all</span></code>, <code class="docutils literal notranslate"><span class="pre">-A</span></code></p></td>
+<td><p>Update all items</p></td>
 </tr>
 </tbody>
 </table>
@@ -235,8 +277,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="action_with_args.html" class="btn btn-neutral float-left" title="Action With Args" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="basic_subcommand.html" class="btn btn-neutral float-right" title="Basic Subcommand" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="command_wrapper.html" class="btn btn-neutral float-left" title="Command Wrapper" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="custom_inputs.html" class="btn btn-neutral float-right" title="Custom Inputs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

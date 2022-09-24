@@ -8,6 +8,7 @@ Example Scripts
     examples/advanced_subcommand
     examples/basic_subcommand
     examples/command_wrapper
+    examples/complex
     examples/custom_inputs
     examples/echo
     examples/grouped_action_flags
