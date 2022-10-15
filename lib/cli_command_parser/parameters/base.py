@@ -20,6 +20,7 @@ try:
 except ImportError:
     from ..compat import cached_property
 
+from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode
 from ..context import Context, ctx, get_current_context, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
@@ -29,7 +30,7 @@ from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs
 from ..typing import Bool, CommandCls, CommandObj, CommandAny, Param, T_co
-from ..utils import _NotSet, get_descriptor_value_type
+from ..utils import _NotSet
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 from unittest import main
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
-from cli_command_parser.utils import camel_to_snake_case, get_args, Terminal, short_repr
+from cli_command_parser.utils import camel_to_snake_case, Terminal, short_repr
 from cli_command_parser.formatting.utils import _description_start_line, _normalize_column_width, _single_line_strs
 from cli_command_parser.formatting.utils import combine_and_wrap
 from cli_command_parser.testing import ParserTest
@@ -14,10 +14,6 @@ class UtilsTest(ParserTest):
         self.assertEqual('foo_bar', camel_to_snake_case('FooBar'))
         self.assertEqual('foo bar', camel_to_snake_case('FooBar', ' '))
         self.assertEqual('foo', camel_to_snake_case('Foo'))
-
-    def test_get_args(self):
-        # This is for coverage in 3.9+ for the get_args compatibility wrapper, to mock the attr present in 3.8 & below
-        self.assertEqual((), get_args(Mock(_special=True)))
 
     def test_terminal_width_refresh(self):
         with patch('cli_command_parser.utils.get_terminal_size', return_value=(123, 1)):
