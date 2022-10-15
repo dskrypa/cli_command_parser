@@ -9,5 +9,5 @@ if TYPE_CHECKING:
 
 
 class AnnotatedCommand(Command):
-    paths_a: list['Path'] = Option(nargs=2)
-    paths_b: list['Path'] = Option(nargs=2, type=inputs.Path(type='file', exists=True))
+    paths_a: 'Path' = Option()
+    paths_b: 'Path' = Option(type=inputs.Path(type='file', exists=True))
