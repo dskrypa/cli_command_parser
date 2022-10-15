@@ -17,6 +17,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,10 +62,44 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.annotations.html">Annotations Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Context Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Context Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.prog"><code class="docutils literal notranslate"><span class="pre">Context.prog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.config"><code class="docutils literal notranslate"><span class="pre">Context.config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.allow_argv_prog"><code class="docutils literal notranslate"><span class="pre">Context.allow_argv_prog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.for_prog"><code class="docutils literal notranslate"><span class="pre">Context.for_prog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.terminal_width"><code class="docutils literal notranslate"><span class="pre">Context.terminal_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.get_parsed"><code class="docutils literal notranslate"><span class="pre">Context.get_parsed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.params"><code class="docutils literal notranslate"><span class="pre">Context.params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.get_error_handler"><code class="docutils literal notranslate"><span class="pre">Context.get_error_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.get_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.get_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.set_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.set_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.record_action"><code class="docutils literal notranslate"><span class="pre">Context.record_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.num_provided"><code class="docutils literal notranslate"><span class="pre">Context.num_provided()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.action_flag_count"><code class="docutils literal notranslate"><span class="pre">Context.action_flag_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.all_action_flags"><code class="docutils literal notranslate"><span class="pre">Context.all_action_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.categorized_action_flags"><code class="docutils literal notranslate"><span class="pre">Context.categorized_action_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.iter_action_flags"><code class="docutils literal notranslate"><span class="pre">Context.iter_action_flags()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_current_context"><code class="docutils literal notranslate"><span class="pre">get_current_context()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_or_create_context"><code class="docutils literal notranslate"><span class="pre">get_or_create_context()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_context"><code class="docutils literal notranslate"><span class="pre">get_context()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_parsed"><code class="docutils literal notranslate"><span class="pre">get_parsed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_raw_arg"><code class="docutils literal notranslate"><span class="pre">get_raw_arg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.ParseState"><code class="docutils literal notranslate"><span class="pre">ParseState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.INITIAL"><code class="docutils literal notranslate"><span class="pre">ParseState.INITIAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.COMPLETE"><code class="docutils literal notranslate"><span class="pre">ParseState.COMPLETE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.FAILED"><code class="docutils literal notranslate"><span class="pre">ParseState.FAILED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.done"><code class="docutils literal notranslate"><span class="pre">ParseState.done</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.core.html">Core Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.documentation.html">Documentation Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.error_handling.html">Error_Handling Module</a></li>

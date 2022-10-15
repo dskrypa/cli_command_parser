@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exceptions Module &mdash; CLI Command Parser 2022.09.24 documentation</title>
+  <title>Annotations Module &mdash; CLI Command Parser 2022.09.24 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Files Module" href="cli_command_parser.inputs.files.html" />
-    <link rel="prev" title="Choices Module" href="cli_command_parser.inputs.choices.html" />
+    <link rel="next" title="Command_Parameters Module" href="cli_command_parser.command_parameters.html" />
+    <link rel="prev" title="Actions Module" href="cli_command_parser.actions.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -62,7 +62,10 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.annotations.html">Annotations Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Annotations Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
@@ -72,20 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.error_handling.html">Error_Handling Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.exceptions.html">Exceptions Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.base.html">Base Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.choices.html">Choices Module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Exceptions Module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.inputs.exceptions.InputValidationError"><code class="docutils literal notranslate"><span class="pre">InputValidationError</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.inputs.exceptions.InvalidChoiceError"><code class="docutils literal notranslate"><span class="pre">InvalidChoiceError</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html">Files Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html">Numeric Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html">Time Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.utils.html">Utils Module</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.metadata.html">Metadata Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a></li>
@@ -117,11 +107,10 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
-          <li><a href="cli_command_parser.inputs.html">Inputs Package</a> &raquo;</li>
-      <li>Exceptions Module</li>
+      <li>Annotations Module</li>
     <li class="wy-breadcrumbs-aside">
         
-            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/inputs/exceptions.py" target="_blank" class="fa fa-github"> View on GitHub</a>
+            <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/annotations.py" target="_blank" class="fa fa-github"> View on GitHub</a>
         
     </li>
 
@@ -131,27 +120,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-cli_command_parser.inputs.exceptions">
-<span id="exceptions-module"></span><h1>Exceptions Module<a class="headerlink" href="#module-cli_command_parser.inputs.exceptions" title="Permalink to this heading"></a></h1>
-<p>Exceptions for custom input types / validators.</p>
+  <section id="module-cli_command_parser.annotations">
+<span id="annotations-module"></span><h1>Annotations Module<a class="headerlink" href="#module-cli_command_parser.annotations" title="Permalink to this heading"></a></h1>
+<p>Utilities for extracting types from annotations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">author</dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
-<dl class="py exception">
-<dt class="sig sig-object py" id="cli_command_parser.inputs.exceptions.InputValidationError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.exceptions.</span></span><span class="sig-name descname"><span class="pre">InputValidationError</span></span><a class="reference internal" href="../_modules/cli_command_parser/inputs/exceptions.html#InputValidationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.exceptions.InputValidationError" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException" title="cli_command_parser.exceptions.CommandParserException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParserException</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a></p>
-<p>Raised when a custom InputType’s conversion/validation fails</p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="cli_command_parser.inputs.exceptions.InvalidChoiceError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidChoiceError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invalid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Collection" title="(in Python v3.10)"><span class="pre">Collection</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'choice'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/exceptions.html#InvalidChoiceError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.exceptions.InvalidChoiceError" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#cli_command_parser.inputs.exceptions.InputValidationError" title="cli_command_parser.inputs.exceptions.InputValidationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputValidationError</span></code></a></p>
-<p>Error raised when a value that does not match one of the pre-defined choices was provided</p>
-</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.annotations.get_descriptor_value_type">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.annotations.</span></span><span class="sig-name descname"><span class="pre">get_descriptor_value_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/annotations.html#get_descriptor_value_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.annotations.get_descriptor_value_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 
@@ -159,8 +139,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cli_command_parser.inputs.choices.html" class="btn btn-neutral float-left" title="Choices Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cli_command_parser.inputs.files.html" class="btn btn-neutral float-right" title="Files Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cli_command_parser.actions.html" class="btn btn-neutral float-left" title="Actions Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.command_parameters.html" class="btn btn-neutral float-right" title="Command_Parameters Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

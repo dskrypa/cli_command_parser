@@ -17,6 +17,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,6 +62,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.annotations.html">Annotations Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
@@ -71,7 +73,32 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.exceptions.html">Exceptions Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Metadata Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Metadata Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.parent"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.parent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.path"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.package"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.package</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.module</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.prog_from_sys_argv"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog_from_sys_argv</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.epilog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.pkg_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.pkg_doc_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.for_command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.for_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parse_tree.html">Parse_Tree Module</a></li>

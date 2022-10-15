@@ -17,11 +17,12 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Commands Module" href="cli_command_parser.commands.html" />
-    <link rel="prev" title="Actions Module" href="cli_command_parser.actions.html" />
+    <link rel="prev" title="Annotations Module" href="cli_command_parser.annotations.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
@@ -61,7 +62,37 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Command_Parameters Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.annotations.html">Annotations Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Command_Parameters Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters"><code class="docutils literal notranslate"><span class="pre">CommandParameters</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.action"><code class="docutils literal notranslate"><span class="pre">CommandParameters.action</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.sub_command"><code class="docutils literal notranslate"><span class="pre">CommandParameters.sub_command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.action_flags"><code class="docutils literal notranslate"><span class="pre">CommandParameters.action_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.split_action_flags"><code class="docutils literal notranslate"><span class="pre">CommandParameters.split_action_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.combo_option_map"><code class="docutils literal notranslate"><span class="pre">CommandParameters.combo_option_map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.groups"><code class="docutils literal notranslate"><span class="pre">CommandParameters.groups</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.positionals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.option_map"><code class="docutils literal notranslate"><span class="pre">CommandParameters.option_map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.command"><code class="docutils literal notranslate"><span class="pre">CommandParameters.command</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.command_parent"><code class="docutils literal notranslate"><span class="pre">CommandParameters.command_parent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.parent"><code class="docutils literal notranslate"><span class="pre">CommandParameters.parent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParameters.pass_thru</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.always_available_action_flags"><code class="docutils literal notranslate"><span class="pre">CommandParameters.always_available_action_flags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_option_param_value_pairs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.long_option_to_param_value_pair"><code class="docutils literal notranslate"><span class="pre">CommandParameters.long_option_to_param_value_pair()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values"><code class="docutils literal notranslate"><span class="pre">CommandParameters.find_option_that_accepts_values()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.find_nested_option_that_accepts_values"><code class="docutils literal notranslate"><span class="pre">CommandParameters.find_nested_option_that_accepts_values()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.find_nested_pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParameters.find_nested_pass_thru()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.validate_groups"><code class="docutils literal notranslate"><span class="pre">CommandParameters.validate_groups()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.try_env_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.try_env_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.context.html">Context Module</a></li>
@@ -273,7 +304,7 @@ failed (such as the one for <code class="docutils literal notranslate"><span cla
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cli_command_parser.actions.html" class="btn btn-neutral float-left" title="Actions Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_command_parser.annotations.html" class="btn btn-neutral float-left" title="Annotations Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="cli_command_parser.commands.html" class="btn btn-neutral float-right" title="Commands Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

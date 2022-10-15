@@ -17,6 +17,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,6 +62,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.annotations.html">Annotations Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
@@ -75,7 +77,24 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.nargs.html">Nargs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parse_tree.html">Parse_Tree Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Parser Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parser Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.parser.CommandParser"><code class="docutils literal notranslate"><span class="pre">CommandParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.arg_deque"><code class="docutils literal notranslate"><span class="pre">CommandParser.arg_deque</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.deferred"><code class="docutils literal notranslate"><span class="pre">CommandParser.deferred</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.ctx"><code class="docutils literal notranslate"><span class="pre">CommandParser.ctx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.params"><code class="docutils literal notranslate"><span class="pre">CommandParser.params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.positionals"><code class="docutils literal notranslate"><span class="pre">CommandParser.positionals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.parse_args"><code class="docutils literal notranslate"><span class="pre">CommandParser.parse_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.handle_pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_pass_thru()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.handle_positional"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_positional()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.handle_long"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_long()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.handle_short"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_short()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.consume_values"><code class="docutils literal notranslate"><span class="pre">CommandParser.consume_values()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.node"><code class="docutils literal notranslate"><span class="pre">CommandParser.node</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.utils.html">Utils Module</a></li>

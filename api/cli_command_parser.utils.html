@@ -17,6 +17,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,6 +62,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.annotations.html">Annotations Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a></li>
@@ -78,7 +80,17 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parser.html">Parser Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.MissingMixin"><code class="docutils literal notranslate"><span class="pre">MissingMixin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.FixedFlag"><code class="docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.Terminal"><code class="docutils literal notranslate"><span class="pre">Terminal</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.utils.Terminal.width"><code class="docutils literal notranslate"><span class="pre">Terminal.width</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -117,7 +129,7 @@
              
   <section id="module-cli_command_parser.utils">
 <span id="utils-module"></span><h1>Utils Module<a class="headerlink" href="#module-cli_command_parser.utils" title="Permalink to this heading"></a></h1>
-<p>Utilities for extracting types from annotations, finding / storing program metadata, and other misc utilities.</p>
+<p>Utilities for working with terminals, strings, and Enums.</p>
 <dl class="field-list simple">
 <dt class="field-odd">author</dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
@@ -132,22 +144,6 @@
 <dt class="sig sig-object py" id="cli_command_parser.utils.short_repr">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">short_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj:</span> <span class="pre">~typing.Any,</span> <span class="pre">max_len:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100,</span> <span class="pre">sep:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'...',</span> <span class="pre">func:</span> <span class="pre">~typing.Callable[[~typing.Any],</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">repr&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/utils.html#short_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.utils.short_repr" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cli_command_parser.utils.get_descriptor_value_type">
-<span class="sig-prename descclassname"><span class="pre">cli_command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">get_descriptor_value_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/utils.html#get_descriptor_value_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.utils.get_descriptor_value_type" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cli_command_parser.utils.get_annotation_value_type">
-<span class="sig-prename descclassname"><span class="pre">cli_command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">get_annotation_value_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/utils.html#get_annotation_value_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.utils.get_annotation_value_type" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cli_command_parser.utils.get_args">
-<span class="sig-prename descclassname"><span class="pre">cli_command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">get_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/utils.html#get_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.utils.get_args" title="Permalink to this definition"></a></dt>
-<dd><p>Wrapper around <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.get_args" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">typing.get_args()</span></code></a> for 3.7~8 compatibility, to make it behave more like it does in 3.9+</p>
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.utils.MissingMixin">

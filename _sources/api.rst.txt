@@ -5,6 +5,7 @@ API Documentation
     :maxdepth: 4
 
     api/cli_command_parser.actions
+    api/cli_command_parser.annotations
     api/cli_command_parser.command_parameters
     api/cli_command_parser.commands
     api/cli_command_parser.config
