@@ -7,7 +7,7 @@ Configuration options for Command behavior.
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, overload, Generic, Sequence, Dict
+from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, Generic, Sequence, overload, Dict
 
 from .utils import FixedFlag, MissingMixin, _NotSet
 
@@ -20,8 +20,9 @@ if TYPE_CHECKING:
 
 __all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'SubcommandAliasHelpMode', 'DEFAULT_CONFIG']
 
-_ConfigValue = TypeVar('_ConfigValue')
-ConfigValue = Union[_ConfigValue, Any]
+CV = TypeVar('CV')
+DV = TypeVar('DV')
+ConfigValue = Union[CV, DV]
 
 
 # region Config Option Enums
@@ -153,10 +154,10 @@ def _cmd_alias_mode(mode: CmdAliasMode) -> CmdAliasMode:
 # endregion
 
 
-class ConfigItem(Generic[_ConfigValue]):
+class ConfigItem(Generic[CV, DV]):
     __slots__ = ('default', 'type', 'name')
 
-    def __init__(self, default: ConfigValue, type: Callable[[Any], _ConfigValue] = None):  # noqa
+    def __init__(self, default: DV, type: Callable[[Any], CV] = None):  # noqa
         self.default = default
         self.type = type
 
@@ -179,19 +180,16 @@ class ConfigItem(Generic[_ConfigValue]):
         raise KeyError
 
     @overload
-    def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[_ConfigValue]:
+    def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[CV, DV]:
         ...
 
     @overload
     def __get__(self, instance: CommandConfig, owner: Type[CommandConfig]) -> ConfigValue:
         ...
 
-    def __get__(
-        self, instance: Optional[CommandConfig], owner: Type[CommandConfig]
-    ) -> Union[ConfigItem[_ConfigValue], ConfigValue]:
+    def __get__(self, instance, owner):
         if instance is None:
             return self
-
         try:
             return self.get_value(instance)
         except KeyError:
