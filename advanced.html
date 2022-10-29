@@ -179,7 +179,7 @@ a given command overrides the <code class="docutils literal notranslate"><span c
 <span class="go">}</span>
 </pre></div>
 </div>
-<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
+<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
 parsed dict to only the keys that match that callable’s signature.  Only VAR_KEYWORD parameters (i.e., <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>) are
 excluded - if any parameters of the given callable cannot be passed as a keyword argument, that must be handled after
 calling get_parsed.</p>

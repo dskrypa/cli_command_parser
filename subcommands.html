@@ -396,7 +396,7 @@ bar
 same parent Command.  In these cases, it may be desirable to define the Parameters that are common to those similar
 subcommands in a common base class so they don’t need to be repeated in each subcommand class.</p>
 <p>This can be accomplished by defining a subclass of the target parent Command (which contains the <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a>
-Parameter that should be used to register the similar subcommands) that also extends <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code></a> to store
+Parameter that should be used to register the similar subcommands) that also extends <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code></a> to store
 the common Parameters.</p>
 <p>A <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py">full example</a> is available in the examples directory, but the basic
 pattern is the same as the following simplified example:</p>
