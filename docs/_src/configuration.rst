@@ -70,6 +70,11 @@ Parsing Options
   this check, but still be problematic during parsing.  Since this is still experimental, there may be false positives.
   If a false positive is detected, this should be set back to ``False`` to disable the check (and please report it in
   the `issue tracker <https://github.com/dskrypa/cli_command_parser/issues>`__ so it can be fixed!).
+:ambiguous_short_combos: How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should
+  be handled.  See :class:`.AmbiguousComboMode` for more details.  Defaults to allowing potentially ambiguous combos
+  to exist as long as they are provided in their entirety.  May be configured to behave more like argparse (ignore
+  any potential problems and perform a best effort parse), or to be strict and reject potentially ambiguous short forms
+  from even being defined.
 
 
 Usage & Help Text Options

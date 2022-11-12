@@ -18,7 +18,14 @@ if TYPE_CHECKING:
     from .formatting.params import ParamHelpFormatter
     from .typing import Bool, ParamOrGroup, CommandType
 
-__all__ = ['CommandConfig', 'ShowDefaults', 'OptionNameMode', 'SubcommandAliasHelpMode', 'DEFAULT_CONFIG']
+__all__ = [
+    'CommandConfig',
+    'ShowDefaults',
+    'OptionNameMode',
+    'SubcommandAliasHelpMode',
+    'AmbiguousComboMode',
+    'DEFAULT_CONFIG',
+]
 
 CV = TypeVar('CV')
 DV = TypeVar('DV')
@@ -151,6 +158,26 @@ def _cmd_alias_mode(mode: CmdAliasMode) -> CmdAliasMode:
         return mode
 
 
+class AmbiguousComboMode(MissingMixin, Enum):
+    """
+    Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.
+
+    The behavior based on each supported option:
+
+    :IGNORE: Ignore potentially ambiguous combinations of short options entirely.  Best effort parsing will be
+      performed.
+    :PERMISSIVE: Allow multi-char short options that overlap with a single char one for exact matches, but reject any
+      user input that combines multiple short options when the combination contains a sequence that could be
+      interpreted as a multi-char short option.
+    :STRICT: Reject multi-char short options that overlap with a single char one before parsing, regardless of user
+      input.
+    """
+
+    IGNORE = 'ignore'           # Ignore potentially ambiguous combinations of short options entirely
+    PERMISSIVE = 'permissive'   # Allow multi-char short options that overlap with a single char one for exact matches
+    STRICT = 'strict'           # Reject multi-char short options that overlap with a single char one before parsing
+
+
 # endregion
 
 
@@ -256,6 +283,9 @@ class CommandConfig:
 
     #: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error
     reject_ambiguous_pos_combos: Bool = ConfigItem(False, bool)  # EXPERIMENTAL
+
+    #: How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should be handled
+    ambiguous_short_combos: AmbiguousComboMode = ConfigItem(AmbiguousComboMode.PERMISSIVE, AmbiguousComboMode)
 
     # endregion
 

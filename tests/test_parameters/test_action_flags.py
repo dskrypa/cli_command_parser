@@ -126,7 +126,7 @@ class ActionFlagTest(ParserTest):
             foo = ActionFlag('-f', order=1)(mocks[0])
             bar = ActionFlag('-b', order=2)(mocks[1])
 
-        expected_error_text = r'--foo / -f, --bar / -b \(combining multiple action flags is disabled\)'
+        expected_error_text = r'--bar / -b, --foo / -f \(combining multiple action flags is disabled\)'
         with self.assertRaisesRegex(ParamConflict, expected_error_text):
             Foo.parse_and_run(['-fb'])
 

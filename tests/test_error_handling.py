@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import cli_command_parser.error_handling
 from cli_command_parser.error_handling import ErrorHandler, no_exit_handler
 from cli_command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
-from cli_command_parser.exceptions import ParamConflict, ParamsMissing
+from cli_command_parser.exceptions import ParamConflict, ParamsMissing, MultiParamUsageError
 from cli_command_parser import Command, Flag
 from cli_command_parser.testing import RedirectStreams
 
@@ -112,6 +112,10 @@ class ExceptionTest(TestCase):
     def test_params_missing_message(self):
         exc = ParamsMissing([Flag('-a'), Flag('-b')], 'test')
         self.assertTrue(str(exc).endswith('-a, -b (test)'))
+
+    def test_multi_usage_error_message(self):
+        exc = MultiParamUsageError([Flag('-a'), Flag('-b')], 'test')
+        self.assertTrue(str(exc).endswith('combination of arguments: -a, -b (test)'))
 
 
 with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', create=True):

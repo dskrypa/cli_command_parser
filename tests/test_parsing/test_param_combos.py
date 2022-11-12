@@ -3,7 +3,10 @@
 from unittest import main, skip
 
 from cli_command_parser.commands import Command
+from cli_command_parser.config import AmbiguousComboMode
+from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import NoSuchOption, ParamsMissing, UsageError, MissingArgument, ParamUsageError
+from cli_command_parser.exceptions import AmbiguousCombo, AmbiguousShortForm
 from cli_command_parser.parameters import Positional, Option, Flag, Counter, SubCommand
 from cli_command_parser.testing import ParserTest
 
@@ -63,25 +66,33 @@ class ParamComboTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
-    def test_combined_flags_ambiguous(self):
+    def test_ambiguous_combo_message(self):
         class Foo(Command):
             a = Flag('-a')
             b = Flag('-b')
             c = Flag('-c')
             ab = Flag('-ab')
-            bc = Flag('-bc')
-            abc = Flag('-abc')
+            de = Flag('-de')
 
-        success_cases = [
+        exp_pat = "part of argument='-abc' may match multiple parameters: --a / -a, --ab / -ab, --b / -b"
+        with self.assertRaisesRegex(AmbiguousCombo, exp_pat):
+            Foo.parse(['-abc'])
+
+    def test_combined_flags_ambiguous(self):
+        exact_match_cases = [
+            (['-abc'], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': False, 'abc': True}),
+        ]
+        always_success_cases = [
             ([], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': False, 'abc': False}),
+            (['-a'], {'a': True, 'b': False, 'c': False, 'ab': False, 'bc': False, 'abc': False}),
             (['-ab'], {'a': False, 'b': False, 'c': False, 'ab': True, 'bc': False, 'abc': False}),
             (['-ba'], {'a': True, 'b': True, 'c': False, 'ab': False, 'bc': False, 'abc': False}),
             (['-bc'], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': True, 'abc': False}),
             (['-cb'], {'a': False, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
-            (['-abc'], {'a': False, 'b': False, 'c': False, 'ab': False, 'bc': False, 'abc': True}),
             (['-ac'], {'a': True, 'b': False, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
             (['-ca'], {'a': True, 'b': False, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
-            # TODO: #7 - When configured to reject ambiguous, the below combos should result in errors
+        ]
+        ambiguous_success_cases = [
             (['-cab'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
             (['-abcc'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
             (['-bbc'], {'a': False, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
@@ -91,6 +102,68 @@ class ParamComboTest(ParserTest):
             (['-bcab'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
             (['-bcaab'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
             (['-abcabc'], {'a': True, 'b': True, 'c': True, 'ab': False, 'bc': False, 'abc': False}),
+        ]
+        ambiguous_fail_cases = [(args, AmbiguousCombo) for args, _ in ambiguous_success_cases]
+
+        cases = [
+            (AmbiguousComboMode.IGNORE, always_success_cases + exact_match_cases + ambiguous_success_cases, []),
+            (AmbiguousComboMode.PERMISSIVE, always_success_cases + exact_match_cases, ambiguous_fail_cases),
+        ]
+        for mode, success_cases, fail_cases in cases:
+            with self.subTest(ambiguous_short_combos=mode):
+
+                class Foo(Command, ambiguous_short_combos=mode):
+                    a = Flag('-a')
+                    b = Flag('-b')
+                    c = Flag('-c')
+                    ab = Flag('-ab')
+                    bc = Flag('-bc')
+                    abc = Flag('-abc')
+
+                self.assert_parse_results_cases(Foo, success_cases)
+                self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_combined_flags_ambiguous_strict_rejected(self):
+        exp_error_pat = (
+            'Ambiguous short form for --ab / -ab - it conflicts with: --a / -a, --b / -b\n'
+            'Ambiguous short form for --abc / -abc - it conflicts with: --a / -a, --b / -b, --c / -c\n'
+            'Ambiguous short form for --bc / -bc - it conflicts with: --b / -b, --c / -c'
+        )
+        with self.assertRaisesRegex(AmbiguousShortForm, exp_error_pat):
+
+            class Foo(Command, ambiguous_short_combos=AmbiguousComboMode.STRICT):
+                a = Flag('-a')
+                b = Flag('-b')
+                c = Flag('-c')
+                ab = Flag('-ab')
+                bc = Flag('-bc')
+                abc = Flag('-abc')
+
+            get_params(Foo)
+
+    def test_combined_flags_ambiguous_strict_parsing(self):
+        class Foo(Command, ambiguous_short_combos=AmbiguousComboMode.STRICT):
+            a = Flag('-a')
+            b = Flag('-b')
+            c = Flag('-c')
+
+        success_cases = [
+            ([], {'a': False, 'b': False, 'c': False}),
+            (['-ab'], {'a': True, 'b': True, 'c': False}),
+            (['-ba'], {'a': True, 'b': True, 'c': False}),
+            (['-bc'], {'a': False, 'b': True, 'c': True}),
+            (['-cb'], {'a': False, 'b': True, 'c': True}),
+            (['-ac'], {'a': True, 'b': False, 'c': True}),
+            (['-ca'], {'a': True, 'b': False, 'c': True}),
+            (['-cab'], {'a': True, 'b': True, 'c': True}),
+            (['-abcc'], {'a': True, 'b': True, 'c': True}),
+            (['-bbc'], {'a': False, 'b': True, 'c': True}),
+            (['-bcc'], {'a': False, 'b': True, 'c': True}),
+            (['-aab'], {'a': True, 'b': True, 'c': False}),
+            (['-abbc'], {'a': True, 'b': True, 'c': True}),
+            (['-bcab'], {'a': True, 'b': True, 'c': True}),
+            (['-bcaab'], {'a': True, 'b': True, 'c': True}),
+            (['-abcabc'], {'a': True, 'b': True, 'c': True}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
