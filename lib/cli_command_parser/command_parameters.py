@@ -19,12 +19,13 @@ except ImportError:
     from .compat import cached_property
 
 from .actions import help_action
+from .config import CommandConfig, AmbiguousComboMode
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, ParamsMissing
+from .exceptions import AmbiguousShortForm, AmbiguousCombo
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
 from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option
 
 if TYPE_CHECKING:
-    from .config import CommandConfig
     from .context import Context
     from .formatting.commands import CommandHelpFormatter
     from .typing import CommandCls
@@ -96,6 +97,31 @@ class CommandParameters:
         formatter.maybe_add_options(self.options)
         formatter.maybe_add_groups(self.groups)
         return formatter
+
+    @cached_property
+    def _classified_combo_options(self) -> Tuple[Dict[str, BaseOption], Dict[str, BaseOption]]:
+        multi_char_combos = {}
+        single_char_combos = {}
+        for combo, param in self.combo_option_map.items():
+            if len(combo) == 1:
+                single_char_combos[combo] = param
+            else:
+                multi_char_combos[combo] = param
+        return single_char_combos, multi_char_combos
+
+    @cached_property
+    def _potentially_ambiguous_combo_options(self) -> Dict[str, Tuple[BaseOption, Dict[str, BaseOption]]]:
+        single_char_combos, multi_char_combos = self._classified_combo_options
+        if not multi_char_combos:
+            return {}
+
+        ambiguous_combo_options = {}
+        for combo, param in multi_char_combos.items():
+            singles = {c: single_char_combos[c] for c in combo if c in single_char_combos}
+            if singles:
+                ambiguous_combo_options[combo] = (param, singles)
+
+        return ambiguous_combo_options
 
     @property
     def _has_help(self) -> bool:
@@ -216,6 +242,19 @@ class CommandParameters:
         self._process_action_flags(options)
         self.combo_option_map = dict(sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0])))  # noqa
 
+        if self.config and self.config.ambiguous_short_combos == AmbiguousComboMode.STRICT:
+            self._strict_ambiguous_short_combo_check()
+
+    def _strict_ambiguous_short_combo_check(self):
+        potentially_ambiguous_combo_options = self._potentially_ambiguous_combo_options
+        if not potentially_ambiguous_combo_options:
+            return
+
+        param_conflicts_map = {
+            param: singles.values() for param, singles in potentially_ambiguous_combo_options.values()
+        }
+        raise AmbiguousShortForm(param_conflicts_map)
+
     def _process_option_strs(
         self, param: BaseOption, opt_type: str, opt_strs: List[str], option_map: OptionMap, combo_option_map: OptionMap
     ):
@@ -308,6 +347,9 @@ class CommandParameters:
         except ValueError:
             value = None
 
+        if len(option) > 2:  # 2 due to '-' prefix
+            self._ensure_combo_is_unambiguous(option)
+
         try:
             param = self.option_map[option]
         except KeyError:
@@ -319,12 +361,31 @@ class CommandParameters:
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
         combo_option_map = self.combo_option_map
-        # TODO: #7 - detect ambiguous combined options if configured to reject them
         param = combo_option_map[key]
         if param.would_accept(value, short_combo=True):
             return [(key, param, value)]
         else:
             return [(c, combo_option_map[c], None) for c in option[1:]]
+
+    def _ensure_combo_is_unambiguous(self, option: str):
+        # Called by short_option_to_param_value_pairs after ensuring the length is > 1
+        acm = AmbiguousComboMode.PERMISSIVE if not self.config else self.config.ambiguous_short_combos
+        if acm == AmbiguousComboMode.IGNORE:
+            return
+
+        to_check = option[1:]  # Strip leading '-'
+        potentially_ambiguous_combo_options = self._potentially_ambiguous_combo_options
+        if acm == AmbiguousComboMode.PERMISSIVE and to_check in potentially_ambiguous_combo_options:
+            return  # Permissive mode allows exact matches of multi-char short forms
+
+        ambiguous = set()
+        for multi, (param, singles) in potentially_ambiguous_combo_options.items():
+            if multi in to_check:
+                ambiguous.add(param)
+                ambiguous.update(p for c, p in singles.items() if c in to_check)
+
+        if ambiguous:
+            raise AmbiguousCombo(ambiguous, option)
 
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if option.startswith('--'):

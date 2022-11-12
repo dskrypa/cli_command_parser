@@ -8,29 +8,32 @@ Exceptions for Command Parser
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Optional, Collection
+from typing import TYPE_CHECKING, Any, Optional, Collection, Mapping
 
 from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
-    from .parameters import Parameter
+    from .parameters import Parameter, BaseOption
     from .typing import ParamOrGroup
     from .parse_tree import PosNode, Word, Target
 
 __all__ = [
     'CommandParserException',
+    'ParserExit',
     'CommandDefinitionError',
     'ParameterDefinitionError',
+    'AmbiguousShortForm',
     'AmbiguousParseTree',
     'UsageError',
     'ParamUsageError',
+    'MultiParamUsageError',
+    'AmbiguousCombo',
+    'ParamConflict',
+    'ParamsMissing',
     'BadArgument',
     'InvalidChoice',
     'MissingArgument',
     'NoSuchOption',
-    'ParserExit',
-    'ParamConflict',
-    'ParamsMissing',
     'NoActiveContext',
 ]
 
@@ -72,6 +75,28 @@ class ParameterDefinitionError(CommandParserException):
     """An error caused by providing invalid options for a Parameter"""
 
 
+class AmbiguousShortForm(ParameterDefinitionError):
+    """
+    Raised when a Parameter's short form contains multiple characters that would result in potentially ambiguous
+    combinations with other Parameters' short forms.
+
+    This will only be raised if ``config.ambiguous_short_combos`` is set to ``AmbiguousComboMode.STRICT``
+    """
+
+    def __init__(self, param_conflicts_map: Mapping[BaseOption, Collection[BaseOption]]):
+        self.param_conflicts_map = param_conflicts_map
+
+    def __str__(self) -> str:
+        lines = []
+        for param, conflicts in self.param_conflicts_map.items():
+            param_str = param.format_usage(full=True, delim=' / ')
+            conflicts_str = ', '.join(p.format_usage(full=True, delim=' / ') for p in conflicts)
+            lines.append(f'Ambiguous short form for {param_str} - it conflicts with: {conflicts_str}')
+
+        lines.sort()
+        return '\n'.join(lines)
+
+
 class AmbiguousParseTree(CommandDefinitionError):
     """Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments"""
 
@@ -96,11 +121,11 @@ class AmbiguousParseTree(CommandDefinitionError):
 class UsageError(CommandParserException):
     """Base exception for user errors"""
 
+    message: str = None
+
 
 class ParamUsageError(UsageError):
     """Error raised when a Parameter was not used correctly"""
-
-    message: str = None
 
     def __init__(self, param: Optional[ParamOrGroup], message: str = None):
         self.param = param
@@ -116,26 +141,47 @@ class ParamUsageError(UsageError):
             return f'argument {self.usage_str}: {message}'
 
 
-class ParamConflict(UsageError):
-    """Error raised when mutually exclusive Parameters were combined"""
-
-    message: str = None
+class MultiParamUsageError(UsageError):
+    """Error raised when a combination of Parameters was not used correctly"""
 
     def __init__(self, params: Collection[ParamOrGroup], message: str = None):
         self.params = params
-        self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
+        self.usage_str = ', '.join(sorted(param.format_usage(full=True, delim=' / ') for param in params))
         if message:
             self.message = message
 
+    def _usage_msg(self) -> str:
+        if self.message:
+            return f'{self.usage_str} ({self.message})'
+        return self.usage_str
+
     def __str__(self) -> str:
-        message = f' ({self.message})' if self.message else ''
-        return f'argument conflict - the following arguments cannot be combined: {self.usage_str}{message}'
+        return f'usage error for the following combination of arguments: {self._usage_msg()}'
+
+
+class AmbiguousCombo(MultiParamUsageError):
+    """Error raised when an ambiguous combination of short options were provided"""
+
+    def __init__(self, params: Collection[ParamOrGroup], combo: str, message: str = None):
+        super().__init__(params, message)
+        self.combo = combo
+
+    def __str__(self) -> str:
+        return (
+            f'ambiguous option combo - part of argument={self.combo!r}'
+            f' may match multiple parameters: {self._usage_msg()}'
+        )
+
+
+class ParamConflict(MultiParamUsageError):
+    """Error raised when mutually exclusive Parameters were combined"""
+
+    def __str__(self) -> str:
+        return f'argument conflict - the following arguments cannot be combined: {self._usage_msg()}'
 
 
 class ParamsMissing(UsageError):
     """Error raised when one or more required Parameters were not provided"""
-
-    message: str = None
 
     def __init__(self, params: Collection[ParamOrGroup], message: str = None):
         self.params = params
