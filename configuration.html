@@ -90,8 +90,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Configuration</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Configuration</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
@@ -200,6 +200,13 @@ attribute name.  May be overridden on a per-Parameter basis with <a class="refer
 this check, but still be problematic during parsing.  Since this is still experimental, there may be false positives.
 If a false positive is detected, this should be set back to <code class="docutils literal notranslate"><span class="pre">False</span></code> to disable the check (and please report it in
 the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/issues">issue tracker</a> so it can be fixed!).</p>
+</dd>
+<dt class="field-even" id="parsing options:ambiguous_short_combos">ambiguous_short_combos</dt>
+<dd class="field-even"><p>How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should
+be handled.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode" title="cli_command_parser.config.AmbiguousComboMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousComboMode</span></code></a> for more details.  Defaults to allowing potentially ambiguous combos
+to exist as long as they are provided in their entirety.  May be configured to behave more like argparse (ignore
+any potential problems and perform a best effort parse), or to be strict and reject potentially ambiguous short forms
+from even being defined.</p>
 </dd>
 </dl>
 </section>

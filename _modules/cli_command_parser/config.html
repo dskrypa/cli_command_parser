@@ -77,9 +77,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>cli_command_parser.config</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cli_command_parser.config</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
@@ -111,7 +111,14 @@
     <span class="kn">from</span> <span class="nn">.formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
     <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">CommandType</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">,</span> <span class="s1">&#39;OptionNameMode&#39;</span><span class="p">,</span> <span class="s1">&#39;SubcommandAliasHelpMode&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT_CONFIG&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ShowDefaults&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;OptionNameMode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SubcommandAliasHelpMode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AmbiguousComboMode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DEFAULT_CONFIG&#39;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="n">CV</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CV&#39;</span><span class="p">)</span>
 <span class="n">DV</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;DV&#39;</span><span class="p">)</span>
@@ -244,6 +251,26 @@
         <span class="k">return</span> <span class="n">mode</span>
 
 
+<div class="viewcode-block" id="AmbiguousComboMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousComboMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.</span>
+
+<span class="sd">    The behavior based on each supported option:</span>
+
+<span class="sd">    :IGNORE: Ignore potentially ambiguous combinations of short options entirely.  Best effort parsing will be</span>
+<span class="sd">      performed.</span>
+<span class="sd">    :PERMISSIVE: Allow multi-char short options that overlap with a single char one for exact matches, but reject any</span>
+<span class="sd">      user input that combines multiple short options when the combination contains a sequence that could be</span>
+<span class="sd">      interpreted as a multi-char short option.</span>
+<span class="sd">    :STRICT: Reject multi-char short options that overlap with a single char one before parsing, regardless of user</span>
+<span class="sd">      input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">IGNORE</span> <span class="o">=</span> <span class="s1">&#39;ignore&#39;</span>           <span class="c1"># Ignore potentially ambiguous combinations of short options entirely</span>
+    <span class="n">PERMISSIVE</span> <span class="o">=</span> <span class="s1">&#39;permissive&#39;</span>   <span class="c1"># Allow multi-char short options that overlap with a single char one for exact matches</span>
+    <span class="n">STRICT</span> <span class="o">=</span> <span class="s1">&#39;strict&#39;</span>           <span class="c1"># Reject multi-char short options that overlap with a single char one before parsing</span></div>
+
+
 <span class="c1"># endregion</span>
 
 
@@ -349,6 +376,9 @@
 
     <span class="c1">#: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error</span>
     <span class="n">reject_ambiguous_pos_combos</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>  <span class="c1"># EXPERIMENTAL</span>
+
+    <span class="c1">#: How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should be handled</span>
+    <span class="n">ambiguous_short_combos</span><span class="p">:</span> <span class="n">AmbiguousComboMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">PERMISSIVE</span><span class="p">,</span> <span class="n">AmbiguousComboMode</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 

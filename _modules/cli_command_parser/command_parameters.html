@@ -77,9 +77,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>cli_command_parser.command_parameters</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cli_command_parser.command_parameters</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
@@ -112,12 +112,13 @@
     <span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">help_action</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">AmbiguousComboMode</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamsMissing</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">AmbiguousShortForm</span><span class="p">,</span> <span class="n">AmbiguousCombo</span>
 <span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">ParamBase</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span>
 <span class="kn">from</span> <span class="nn">.parameters</span> <span class="kn">import</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">Action</span><span class="p">,</span> <span class="n">Option</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
     <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span>
     <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
     <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">CommandCls</span>
@@ -189,6 +190,31 @@
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_groups</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">formatter</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_classified_combo_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]]:</span>
+        <span class="n">multi_char_combos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">single_char_combos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">combo</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">combo</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">single_char_combos</span><span class="p">[</span><span class="n">combo</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">multi_char_combos</span><span class="p">[</span><span class="n">combo</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="k">return</span> <span class="n">single_char_combos</span><span class="p">,</span> <span class="n">multi_char_combos</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_potentially_ambiguous_combo_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">]]]:</span>
+        <span class="n">single_char_combos</span><span class="p">,</span> <span class="n">multi_char_combos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classified_combo_options</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">multi_char_combos</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">ambiguous_combo_options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">combo</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">multi_char_combos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">singles</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">single_char_combos</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">combo</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">single_char_combos</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">singles</span><span class="p">:</span>
+                <span class="n">ambiguous_combo_options</span><span class="p">[</span><span class="n">combo</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">singles</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ambiguous_combo_options</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_has_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -309,6 +335,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_action_flags</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">combo_option_map</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">kv</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">kv</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">kv</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>  <span class="c1"># noqa</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ambiguous_short_combos</span> <span class="o">==</span> <span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">STRICT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_strict_ambiguous_short_combo_check</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_strict_ambiguous_short_combo_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">potentially_ambiguous_combo_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_potentially_ambiguous_combo_options</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">potentially_ambiguous_combo_options</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">param_conflicts_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">param</span><span class="p">:</span> <span class="n">singles</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">singles</span> <span class="ow">in</span> <span class="n">potentially_ambiguous_combo_options</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">raise</span> <span class="n">AmbiguousShortForm</span><span class="p">(</span><span class="n">param_conflicts_map</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_process_option_strs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">opt_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_strs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">option_map</span><span class="p">:</span> <span class="n">OptionMap</span><span class="p">,</span> <span class="n">combo_option_map</span><span class="p">:</span> <span class="n">OptionMap</span>
     <span class="p">):</span>
@@ -401,6 +440,9 @@
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">option</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># 2 due to &#39;-&#39; prefix</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_combo_is_unambiguous</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_map</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -412,12 +454,31 @@
         <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
         <span class="c1"># value will never be empty if key is a valid option because by this point, option is not a short option</span>
         <span class="n">combo_option_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span>
-        <span class="c1"># TODO: #7 - detect ambiguous combined options if configured to reject them</span>
         <span class="n">param</span> <span class="o">=</span> <span class="n">combo_option_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">would_accept</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">c</span><span class="p">,</span> <span class="n">combo_option_map</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span></div>
+
+    <span class="k">def</span> <span class="nf">_ensure_combo_is_unambiguous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Called by short_option_to_param_value_pairs after ensuring the length is &gt; 1</span>
+        <span class="n">acm</span> <span class="o">=</span> <span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">PERMISSIVE</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ambiguous_short_combos</span>
+        <span class="k">if</span> <span class="n">acm</span> <span class="o">==</span> <span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">to_check</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Strip leading &#39;-&#39;</span>
+        <span class="n">potentially_ambiguous_combo_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_potentially_ambiguous_combo_options</span>
+        <span class="k">if</span> <span class="n">acm</span> <span class="o">==</span> <span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">PERMISSIVE</span> <span class="ow">and</span> <span class="n">to_check</span> <span class="ow">in</span> <span class="n">potentially_ambiguous_combo_options</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># Permissive mode allows exact matches of multi-char short forms</span>
+
+        <span class="n">ambiguous</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">multi</span><span class="p">,</span> <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">singles</span><span class="p">)</span> <span class="ow">in</span> <span class="n">potentially_ambiguous_combo_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">multi</span> <span class="ow">in</span> <span class="n">to_check</span><span class="p">:</span>
+                <span class="n">ambiguous</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+                <span class="n">ambiguous</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">singles</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">to_check</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ambiguous</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AmbiguousCombo</span><span class="p">(</span><span class="n">ambiguous</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandParameters.find_option_that_accepts_values"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">[docs]</a>    <span class="k">def</span> <span class="nf">find_option_that_accepts_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>

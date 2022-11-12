@@ -77,6 +77,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.allow_backtrack"><code class="docutils literal notranslate"><span class="pre">CommandConfig.allow_backtrack</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.option_name_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.option_name_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos"><code class="docutils literal notranslate"><span class="pre">CommandConfig.reject_ambiguous_pos_combos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.ambiguous_short_combos"><code class="docutils literal notranslate"><span class="pre">CommandConfig.ambiguous_short_combos</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
@@ -114,6 +115,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.REPEAT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.COMBINE"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.COMBINE</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.ALIAS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.IGNORE"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.IGNORE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.PERMISSIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.STRICT"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.STRICT</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -154,9 +161,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API Documentation</a> &raquo;</li>
-      <li>Config Module</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
+      <li class="breadcrumb-item active">Config Module</li>
     <li class="wy-breadcrumbs-aside">
         
             <a href="https://github.com/dskrypa/cli_command_parser/blob/main/lib/cli_command_parser/config.py" target="_blank" class="fa fa-github"> View on GitHub</a>
@@ -184,7 +191,7 @@
 <p>Configuration options for Commands.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.FIELDS">
-<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'reject_ambiguous_pos_combos',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'sort_choices',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'ambiguous_short_combos',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'reject_ambiguous_pos_combos',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'sort_choices',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -240,6 +247,12 @@
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos">
 <span class="sig-name descname"><span class="pre">reject_ambiguous_pos_combos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Bool</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos" title="Permalink to this definition"></a></dt>
 <dd><p>Whether ambiguous combinations of positional choices should result in an <a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree" title="cli_command_parser.exceptions.AmbiguousParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousParseTree</span></code></a> error</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.ambiguous_short_combos">
+<span class="sig-name descname"><span class="pre">ambiguous_short_combos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode" title="cli_command_parser.config.AmbiguousComboMode"><span class="pre">AmbiguousComboMode</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.ambiguous_short_combos" title="Permalink to this definition"></a></dt>
+<dd><p>How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should be handled</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -480,6 +493,44 @@ have the description (if defined for the target Command).  Subsequent aliases’
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.ALIAS">
 <span class="sig-name descname"><span class="pre">ALIAS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'alias'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">AmbiguousComboMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#AmbiguousComboMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin" title="cli_command_parser.utils.MissingMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingMixin</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.</p>
+<p>The behavior based on each supported option:</p>
+<dl class="field-list simple">
+<dt class="field-odd">IGNORE</dt>
+<dd class="field-odd"><p>Ignore potentially ambiguous combinations of short options entirely.  Best effort parsing will be
+performed.</p>
+</dd>
+<dt class="field-even">PERMISSIVE</dt>
+<dd class="field-even"><p>Allow multi-char short options that overlap with a single char one for exact matches, but reject any
+user input that combines multiple short options when the combination contains a sequence that could be
+interpreted as a multi-char short option.</p>
+</dd>
+<dt class="field-odd">STRICT</dt>
+<dd class="field-odd"><p>Reject multi-char short options that overlap with a single char one before parsing, regardless of user
+input.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.IGNORE">
+<span class="sig-name descname"><span class="pre">IGNORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ignore'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.IGNORE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.PERMISSIVE">
+<span class="sig-name descname"><span class="pre">PERMISSIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'permissive'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.STRICT">
+<span class="sig-name descname"><span class="pre">STRICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'strict'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.STRICT" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
