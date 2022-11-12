@@ -104,6 +104,7 @@ class ParamBase(ABC):
     missing_hint: str = None        #: Hint to provide if this param/group is missing
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
+        self.__doc__ = help  # Prevent this class's docstring from showing up for params in generated documentation
         self.required = required
         self.name = name
         self.help = help
@@ -255,8 +256,6 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         hide: Bool = False,
         show_default: Bool = None,
     ):
-        # TODO: Help text for RST documentation contains the *full* Parameter docstrings (including init params)
-        #  - should replace with param type + help text?
         if action not in self._actions:
             raise ParameterDefinitionError(
                 f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
