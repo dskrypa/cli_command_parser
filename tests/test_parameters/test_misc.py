@@ -195,33 +195,33 @@ class MiscParameterTest(ParserTest):
 
         self.assertIsInstance(Foo.bar._ParamBase__config(Foo), CommandConfig)
 
-    # TODO: Conflict check issues
-    # def test_short_conflict_in_subcommand(self):
-    #     class A(Command, description='...'):
-    #         sub_cmd = SubCommand()
-    #         verbose = Counter('-v')
-    #         with ParamGroup(description='API Options'):
-    #             env = Option('-e', choices=(), default='dev')
-    #             limit: int = Option('-L')
-    #             max: int = Option('-M')
-    #
-    #         def __init__(self):
-    #             pass
-    #
-    #     class B(A):
-    #         sub_cmd = SubCommand()
-    #         format = Option('-f', choices=(), default='')
-    #
-    #     class C(B):
-    #         with ParamGroup(mutually_exclusive=True, required=True):
-    #             tag = Option('-t')
-    #             baz = Flag('-b')
-    #
-    #         extra = Flag('-e')  # conflicts with env
-    #         # TODO: Earlier conflict check?  currently only happens when using a given subcommand
-    #
-    #     with self.assertRaises(CommandDefinitionError):
-    #         A.parse(['b', 'c'])
+    def test_short_conflict_in_subcommand(self):
+        class A(Command, description='...'):
+            sub_cmd = SubCommand()
+            verbose = Counter('-v')
+            with ParamGroup(description='API Options'):
+                env = Option('-e', choices=('a', 'b'), default='dev')
+                limit: int = Option('-L')
+                max: int = Option('-M')
+
+            def __init__(self):
+                pass
+
+        class B(A):
+            sub_cmd = SubCommand()
+            format = Option('-f', choices=('a', 'b'), default='')
+
+        class C(B):
+            with ParamGroup(mutually_exclusive=True, required=True):
+                tag = Option('-t')
+                baz = Flag('-b')
+
+            extra = Flag('-e')  # conflicts with A.env
+            # TODO: Earlier conflict check?  currently only happens when using a given subcommand
+
+        expected_error = r"short option='-e' conflict .* between Option\('env',.* and Flag\('extra'"
+        with self.assertRaisesRegex(CommandDefinitionError, expected_error):
+            A.parse(['b', 'c'])
 
 
 class UnlikelyToBeReachedParameterTest(ParserTest):
