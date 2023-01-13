@@ -198,6 +198,16 @@ class ReadWriteTest(TestCase):
             File(mode='w')(a.as_posix()).write('test')
             self.assertEqual('test', a.read_text())
 
+    def test_write_create_parent_dir(self):
+        with temp_path() as tmp_dir:
+            path = tmp_dir.joinpath('a', 'b', 'c', 'd.txt')
+            self.assertFalse(path.exists())
+            with self.assertRaises(InputValidationError):
+                File(mode='w')(path.as_posix()).write('test')
+
+            File(mode='w', parents=True)(path.as_posix()).write('test')
+            self.assertEqual('test', path.read_text())
+
     def test_json_read(self):
         with temp_path('a') as a:
             a.write_text('{"a": 1}')
