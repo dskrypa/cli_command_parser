@@ -1,24 +1,45 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>Parameters &mdash; CLI Command Parser 2022.11.12-1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Parameter Groups" href="groups.html" />
@@ -27,16 +48,33 @@
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> CLI Command Parser
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
                 2022.11.12-1
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -44,7 +82,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
@@ -87,33 +136,69 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">CLI Command Parser</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">Parameters</li>
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Parameters</li>
+    
+    
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="parameters">
-<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h1>
+<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h1>
 <p>Parameters are split into different types to simplify the initialization of each one, and to make it clearer (than,
 say, argparse) to differentiate between parameter types.  The two major categories are <a class="reference internal" href="#options">Options</a> and <a class="reference internal" href="#positionals">Positionals</a>,
 but there are <a class="reference internal" href="#others">Others</a> as well.  The base class for all Parameters is extensible, and user-defined
@@ -126,25 +211,25 @@ type will be inferred automatically from any type annotations (see <span class="
 otherwise stated.</p>
 <p>Common parameters that are supported by all Parameters:</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="parameters:action">action</dt>
+<dt class="field-odd" id="parameters:action">action<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The action to take on individual parsed values.  This usually does not need to be specified.  It is
 automatically determined based on the specified <code class="docutils literal notranslate"><span class="pre">nargs</span></code> value.  Supported values depend on the actions defined for
 each Parameter class.</p>
 </dd>
-<dt class="field-even" id="parameters:name">name</dt>
+<dt class="field-even" id="parameters:name">name<span class="colon">:</span></dt>
 <dd class="field-even"><p>The name of the Parameter.  Defaults to the name assigned to it in a Command.  Shown in usage / help text
 when no <code class="docutils literal notranslate"><span class="pre">metavar</span></code> value is specified.</p>
 </dd>
-<dt class="field-odd" id="parameters:metavar">metavar</dt>
+<dt class="field-odd" id="parameters:metavar">metavar<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The name to use as a placeholder for values in usage / help messages.</p>
 </dd>
-<dt class="field-even" id="parameters:help">help</dt>
+<dt class="field-even" id="parameters:help">help<span class="colon">:</span></dt>
 <dd class="field-even"><p>A brief description for the Parameter that will appear in <code class="docutils literal notranslate"><span class="pre">--help</span></code> text.</p>
 </dd>
-<dt class="field-odd" id="parameters:hide">hide</dt>
+<dt class="field-odd" id="parameters:hide">hide<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to prevent a Parameter from being included in usage / help text.</p>
 </dd>
-<dt class="field-even" id="parameters:show_default">show_default</dt>
+<dt class="field-even" id="parameters:show_default">show_default<span class="colon">:</span></dt>
 <dd class="field-even"><p>Override the <a class="reference internal" href="configuration.html#usage &amp; help text options:show_defaults"><span class="std std-ref">show_defaults</span></a> setting for a given
 Parameter to always or never include the default value in usage / help messages.  The default behavior is to follow
 the <code class="docutils literal notranslate"><span class="pre">show_defaults</span></code> setting.</p>
@@ -152,16 +237,16 @@ the <code class="docutils literal notranslate"><span class="pre">show_defaults</
 </dl>
 <p>Common parameters that are supported when initializing most Parameters:</p>
 <dl class="field-list">
-<dt class="field-odd" id="parameters:default">default</dt>
+<dt class="field-odd" id="parameters:default">default<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The default value to use when no argument is provided.  When a Parameter is not required, this defaults
 to <code class="docutils literal notranslate"><span class="pre">None</span></code> if <code class="docutils literal notranslate"><span class="pre">nargs</span></code> would only accept 1 value, and to an empty list if multiple values would be accepted.  Not
 used if the Parameter is required.  Some specialized Parameters have different defaults.</p>
 </dd>
-<dt class="field-even" id="parameters:required">required</dt>
+<dt class="field-even" id="parameters:required">required<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether a Parameter must be provided or not.  Generally defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>, but Positionals, for
 example, default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
-<dt class="field-odd" id="parameters:nargs">nargs</dt>
+<dt class="field-odd" id="parameters:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
 When multiple arguments are accepted, they are collected in a list.  When only 0 - 1 arguments are accepted, they
 will be stored / returned as-is.  Supported values:</p>
@@ -184,7 +269,7 @@ even number of arguments, such as <code class="docutils literal notranslate"><sp
 </ul>
 </div></blockquote>
 </dd>
-<dt class="field-even" id="parameters:type">type</dt>
+<dt class="field-even" id="parameters:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
 argument values.  It will be used before evaluating whether the value is in <code class="docutils literal notranslate"><span class="pre">choices</span></code>, if specified.  If <code class="docutils literal notranslate"><span class="pre">nargs</span></code>
 accepts multiple values, then this will be called on each value individually before appending it to the list of
@@ -194,7 +279,7 @@ argument takes precedence.</p>
 </dd>
 </dl>
 <section id="options">
-<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading"></a></h2>
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
 <p>Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
 They are typically not required by default, and often have both long and short forms, where long forms typically have
 a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.  The long form is automatically added, if not explicitly
@@ -202,7 +287,7 @@ specified, based on the name of the Parameter attribute.</p>
 <p class="rubric" id="options-init-params">Common Initialization Parameters - Options</p>
 <p>Options support two additional initialization parameters:</p>
 <dl class="field-list">
-<dt class="field-odd" id="options:*option_strs">*option_strs</dt>
+<dt class="field-odd" id="options:*option_strs">*option_strs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>One or more long or short form option strings may be provided positionally, similar to how they
 would be specified when using <code class="docutils literal notranslate"><span class="pre">argparse</span></code>.</p>
 <blockquote>
@@ -215,20 +300,20 @@ generated long form based on the Parameter’s name will not be added.</p></li>
 </ul>
 </div></blockquote>
 </dd>
-<dt class="field-even" id="options:name_mode">name_mode</dt>
+<dt class="field-even" id="options:name_mode">name_mode<span class="colon">:</span></dt>
 <dd class="field-even"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for this
 Option/Flag/Counter/etc.</p>
 </dd>
 </dl>
 <section id="option">
-<h3>Option<a class="headerlink" href="#option" title="Permalink to this heading"></a></h3>
+<h3>Option<a class="headerlink" href="#option" title="Permalink to this heading">¶</a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option" title="cli_command_parser.parameters.options.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter that accepts arbitrary values or lists of values.</p>
 <p id="option-init-params"><strong>Unique Option initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="option:choices">choices</dt>
+<dt class="field-odd" id="option:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
 </dd>
-<dt class="field-even" id="option:env_var">env_var</dt>
+<dt class="field-even" id="option:env_var">env_var<span class="colon">:</span></dt>
 <dd class="field-even"><p>A string or sequence (tuple, list, etc) of strings representing environment variables that should
 be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
 will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
@@ -255,26 +340,26 @@ $ prog.py -fbar
 inputs, respectively.</p>
 </section>
 <section id="flag">
-<h3>Flag<a class="headerlink" href="#flag" title="Permalink to this heading"></a></h3>
+<h3>Flag<a class="headerlink" href="#flag" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag" title="cli_command_parser.parameters.options.Flag"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></a> parameters typically represent boolean values, and do not accept any values.  By default, Flag
 parameters have a default value of <code class="docutils literal notranslate"><span class="pre">False</span></code>, and will change to <code class="docutils literal notranslate"><span class="pre">True</span></code> if provided by a user.  By specifying
 <code class="docutils literal notranslate"><span class="pre">default=True</span></code>, then that behavior is reversed.  It is also possible to specify any default value with a different
 <code class="docutils literal notranslate"><span class="pre">const</span></code> value to use if the flag is provided.</p>
 <p id="flag-init-params"><strong>Unique Flag initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="flag:action">action</dt>
+<dt class="field-odd" id="flag:action">action<span class="colon">:</span></dt>
 <dd class="field-odd"><p>While not specific to Flags, this is one example of a Parameter where it may be desirable to specify a
 value here.  The default action is <code class="docutils literal notranslate"><span class="pre">store_const</span></code>, but <code class="docutils literal notranslate"><span class="pre">append_const</span></code> is also supported.</p>
 </dd>
-<dt class="field-even" id="flag:const">const</dt>
+<dt class="field-even" id="flag:const">const<span class="colon">:</span></dt>
 <dd class="field-even"><p>The constant value to store / append.  If a <code class="docutils literal notranslate"><span class="pre">default</span></code> value is provided that is not a bool, then this
 must also be provided.  Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> when <code class="docutils literal notranslate"><span class="pre">default</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> (the default when it is not specified),
 and to <code class="docutils literal notranslate"><span class="pre">False</span></code> when <code class="docutils literal notranslate"><span class="pre">default</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
-<dt class="field-odd" id="flag:nargs">nargs</dt>
+<dt class="field-odd" id="flag:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-even" id="flag:type">type</dt>
+<dt class="field-even" id="flag:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
@@ -308,7 +393,7 @@ Optional arguments:
 </div>
 </section>
 <section id="triflag">
-<h3>TriFlag<a class="headerlink" href="#triflag" title="Permalink to this heading"></a></h3>
+<h3>TriFlag<a class="headerlink" href="#triflag" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag" title="cli_command_parser.parameters.options.TriFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">TriFlag</span></code></a> is a trinary / ternary Flag.  While <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> only supports 1 constant when provided,
 with 1 default if not provided, this class accepts a pair of constants for the primary and alternate values to store,
 along with a separate default.</p>
@@ -318,27 +403,27 @@ stored by default, and True / False being stored when the positive / negative (p
 provided, respectively.</p>
 <p id="triflag-init-params"><strong>Unique TriFlag initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="triflag:option_strs">option_strs</dt>
+<dt class="field-odd" id="triflag:option_strs">option_strs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The primary long and/or short option prefixes for this option.  If no long prefixes are
 specified, then one will automatically be added based on the name assigned to this parameter.</p>
 </dd>
-<dt class="field-even" id="triflag:consts">consts</dt>
+<dt class="field-even" id="triflag:consts">consts<span class="colon">:</span></dt>
 <dd class="field-even"><p>A 2-tuple containing the <code class="docutils literal notranslate"><span class="pre">(primary,</span> <span class="pre">alternate)</span></code> values to store.  Defaults to <code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">False)</span></code>.</p>
 </dd>
-<dt class="field-odd" id="triflag:alt_prefix">alt_prefix</dt>
+<dt class="field-odd" id="triflag:alt_prefix">alt_prefix<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The prefix to add to the assigned name for the alternate long form.  Ignored if <code class="docutils literal notranslate"><span class="pre">alt_long</span></code> is
 specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">no</span></code> if <code class="docutils literal notranslate"><span class="pre">alt_long</span></code> is not specified.</p>
 </dd>
-<dt class="field-even" id="triflag:alt_long">alt_long</dt>
+<dt class="field-even" id="triflag:alt_long">alt_long<span class="colon">:</span></dt>
 <dd class="field-even"><p>The alternate long form to use.</p>
 </dd>
-<dt class="field-odd" id="triflag:alt_short">alt_short</dt>
+<dt class="field-odd" id="triflag:alt_short">alt_short<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The alternate short form to use.</p>
 </dd>
-<dt class="field-even" id="triflag:default">default</dt>
+<dt class="field-even" id="triflag:default">default<span class="colon">:</span></dt>
 <dd class="field-even"><p>The default value to use if neither the primary or alternate options are provided.  Defaults to None.</p>
 </dd>
-<dt class="field-odd" id="triflag:name_mode">name_mode</dt>
+<dt class="field-odd" id="triflag:name_mode">name_mode<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for the TriFlag.</p>
 </dd>
 </dl>
@@ -365,25 +450,25 @@ specified.  Defaults to <code class="docutils literal notranslate"><span class="
 </div>
 </section>
 <section id="counter">
-<h3>Counter<a class="headerlink" href="#counter" title="Permalink to this heading"></a></h3>
+<h3>Counter<a class="headerlink" href="#counter" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter" title="cli_command_parser.parameters.options.Counter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Counter</span></code></a> parameters are similar to Flags, but they may be specified multiple times, and they support an
 optional integer value to explicitly increase their stored value by that amount.  One common use case for Counters
 is for verbosity levels, where logging verbosity would increase with the number of <code class="docutils literal notranslate"><span class="pre">-v</span></code> arguments that are provided.</p>
 <p id="counter-init-params"><strong>Unique Counter initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="counter:default">default</dt>
+<dt class="field-odd" id="counter:default">default<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The default value if the Parameter is not specified.  This value is also be used as the initial value
 that will be incremented when the flag is provided.  Defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </dd>
-<dt class="field-even" id="counter:const">const</dt>
+<dt class="field-even" id="counter:const">const<span class="colon">:</span></dt>
 <dd class="field-even"><p>The value by which the stored value should increase whenever the flag is provided. Defaults to <code class="docutils literal notranslate"><span class="pre">1</span></code>.
 If a different <code class="docutils literal notranslate"><span class="pre">const</span></code> value is used, and if an explicit value is provided by a user, the user-provided value
 will be added verbatim - it will NOT be multiplied by <code class="docutils literal notranslate"><span class="pre">const</span></code>.</p>
 </dd>
-<dt class="field-odd" id="counter:nargs">nargs</dt>
+<dt class="field-odd" id="counter:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-even" id="counter:type">type</dt>
+<dt class="field-even" id="counter:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
@@ -409,7 +494,7 @@ forms, and it must be the last parameter in the combo so that it immediately pre
 </section>
 </section>
 <section id="positionals">
-<h2>Positionals<a class="headerlink" href="#positionals" title="Permalink to this heading"></a></h2>
+<h2>Positionals<a class="headerlink" href="#positionals" title="Permalink to this heading">¶</a></h2>
 <p>Positionals are parameters that must be provided in a specific order.  They are typically required by default, and they
 do not have any prefix before values.</p>
 <p>Arguments for Positional parameters may be provided before, after, and between <a class="reference internal" href="#options">Options</a>, as long as the immediately
@@ -417,21 +502,21 @@ preceding optional parameter accepts a bounded number of arguments and those val
 <p>The order that positional parameters are defined in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> determines
 the order in which they must be provided; i.e., the top-most positional parameters must be provided first.</p>
 <section id="positional">
-<h3>Positional<a class="headerlink" href="#positional" title="Permalink to this heading"></a></h3>
+<h3>Positional<a class="headerlink" href="#positional" title="Permalink to this heading">¶</a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional" title="cli_command_parser.parameters.positionals.Positional"><code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code></a> parameter that accepts arbitrary values or lists of values.</p>
 <p id="positional-init-params"><strong>Unique Positional initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="positional:nargs">nargs</dt>
+<dt class="field-odd" id="positional:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The number of values that are expected/required for the Parameter.  Defaults to 1.  Use a value that
 allows 0 values to have the same effect as making the Parameter not required (the <code class="docutils literal notranslate"><span class="pre">required</span></code> option is not
 supported for Positional Parameters).  Only the last Positional in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> may allow a
 variable / unbound number of arguments.</p>
 </dd>
-<dt class="field-even" id="positional:default">default</dt>
+<dt class="field-even" id="positional:default">default<span class="colon">:</span></dt>
 <dd class="field-even"><p>Only supported when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code> and 0 values are allowed by the specified <code class="docutils literal notranslate"><span class="pre">nargs</span></code>.  Defaults
 to <code class="docutils literal notranslate"><span class="pre">None</span></code> under those conditions.</p>
 </dd>
-<dt class="field-odd" id="positional:choices">choices</dt>
+<dt class="field-odd" id="positional:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
 </dd>
 </dl>
@@ -450,13 +535,13 @@ Hello World
 </div>
 </section>
 <section id="subcommand">
-<h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this heading"></a></h3>
+<h3>SubCommand<a class="headerlink" href="#subcommand" title="Permalink to this heading">¶</a></h3>
 <p>The <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameter allows additional <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as subcommands of the
 Command that contains the SubCommand parameter.  A given Command may only contain one SubCommand parameter.</p>
 <p>For more information, see <a class="reference internal" href="subcommands.html"><span class="doc">Subcommands</span></a>.</p>
 </section>
 <section id="action">
-<h3>Action<a class="headerlink" href="#action" title="Permalink to this heading"></a></h3>
+<h3>Action<a class="headerlink" href="#action" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a> parameters are similar to <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> parameters, but allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>
 classes to be registered as a callable to be executed based on a user’s choice instead of separate sub Commands.  The
 order of the Action relative to any other Parameters that are provided positionally determines where arguments for it
@@ -466,17 +551,17 @@ cases where all of those functions share the same parameters.  If the target fun
 parameters, then using a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> with separate sub <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes may make more sense.</p>
 <p id="action-init-params"><strong>Unique Action initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="action:title">title</dt>
+<dt class="field-odd" id="action:title">title<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The title to use for help text sections containing the choices for the Parameter.  Defaults to
 <code class="docutils literal notranslate"><span class="pre">Actions</span></code>.</p>
 </dd>
-<dt class="field-even" id="action:description">description</dt>
+<dt class="field-even" id="action:description">description<span class="colon">:</span></dt>
 <dd class="field-even"><p>The description to be used in help text for the Parameter.</p>
 </dd>
-<dt class="field-odd" id="action:nargs">nargs</dt>
+<dt class="field-odd" id="action:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.  Automatically calculated / maintained based on registered choices (target methods).</p>
 </dd>
-<dt class="field-even" id="action:type">type</dt>
+<dt class="field-even" id="action:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
@@ -484,13 +569,13 @@ parameters, then using a <a class="reference internal" href="api/cli_command_par
 similar to the way that <code class="docutils literal notranslate"><span class="pre">&#64;property.setter</span></code> would be used to register a setter method for a given property.  When
 registering a method, the following keyword-only parameters are supported:</p>
 <dl class="field-list simple" id="action-register-params">
-<dt class="field-odd" id="action:choice">choice</dt>
+<dt class="field-odd" id="action:choice">choice<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The text that users must provide for the registered method to be called.  Defaults to the name of the method.</p>
 </dd>
-<dt class="field-even" id="action:help">help</dt>
+<dt class="field-even" id="action:help">help<span class="colon">:</span></dt>
 <dd class="field-even"><p>The help text / description to be displayed for the choice.  Defaults to the method’s docstring, if present.</p>
 </dd>
-<dt class="field-odd" id="action:default">default</dt>
+<dt class="field-odd" id="action:default">default<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If true, the method will be registered as the default action to take when no other choice is specified.  When
 marking a method as the default, if you want it to also be available as an explicit choice, then a <code class="docutils literal notranslate"><span class="pre">choice</span></code> value
 must be specified - the method name is not automatically used when <code class="docutils literal notranslate"><span class="pre">default=True</span></code>.  Only one method can be
@@ -506,13 +591,13 @@ registered as the default for a given Action.</p>
     <span class="c1"># the choice for users to provide, and the docstring will be used as the help text.</span>
     <span class="nd">@action</span>
     <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Echo the provided text&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Echo the provided text&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
 
     <span class="c1"># Keyword arguments can be provided to override the defaults - `help` here takes precedence over the docstring</span>
     <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Split the provided text so that each word is on a new line&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Print the provided text on separate lines&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the provided text on separate lines&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
 
     <span class="c1"># This choice value will be used instead of the method name</span>
@@ -559,18 +644,18 @@ two
 </section>
 </section>
 <section id="others">
-<h2>Others<a class="headerlink" href="#others" title="Permalink to this heading"></a></h2>
+<h2>Others<a class="headerlink" href="#others" title="Permalink to this heading">¶</a></h2>
 <section id="passthru">
-<h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this heading"></a></h3>
+<h3>PassThru<a class="headerlink" href="#passthru" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru" title="cli_command_parser.parameters.pass_thru.PassThru"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThru</span></code></a> is a parameter that allows all remaining arguments to be collected, without processing them.  Only
 one PassThru parameter may exist in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  When provided, it must be preceded by <code class="docutils literal notranslate"><span class="pre">--</span></code> and a
 space.</p>
 <p id="passthru-init-params"><strong>Unique PassThru initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="passthru:nargs">nargs</dt>
+<dt class="field-odd" id="passthru:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-even" id="passthru:type">type</dt>
+<dt class="field-even" id="passthru:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
@@ -604,7 +689,7 @@ Would run on two: [&#39;service&#39;, &#39;foo&#39;, &#39;restart&#39;]
 </div>
 </section>
 <section id="actionflag">
-<h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this heading"></a></h3>
+<h3>ActionFlag<a class="headerlink" href="#actionflag" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActionFlag</span></code></a> parameters act like a combination of <a class="reference internal" href="#flag"><span class="std std-ref">Flag</span></a> and <a class="reference internal" href="#action"><span class="std std-ref">Action</span></a>
 parameters.  Like Flags, they are not required, and they can be combined with other <a class="reference internal" href="#options"><span class="std std-ref">Options</span></a>.  Like
 Actions, they allow methods in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes to be registered as execution targets.</p>
@@ -614,28 +699,28 @@ method is called, so each ActionFlag must indicate whether it should run before 
 are provided to simplify this distinction: <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.before_main" title="cli_command_parser.parameters.options.before_main"><code class="xref py py-func docutils literal notranslate"><span class="pre">before_main()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.after_main" title="cli_command_parser.parameters.options.after_main"><code class="xref py py-func docutils literal notranslate"><span class="pre">after_main()</span></code></a>.</p>
 <p id="actionflag-init-params"><strong>Unique ActionFlag initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="actionflag:order">order</dt>
+<dt class="field-odd" id="actionflag:order">order<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The priority / order for execution, relative to other ActionFlags, if others would also be executed.  Two
 ActionFlags in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> may not have the same combination of <code class="docutils literal notranslate"><span class="pre">before_main</span></code> and <code class="docutils literal notranslate"><span class="pre">order</span></code> values.
 ActionFlags with lower <code class="docutils literal notranslate"><span class="pre">order</span></code> values are executed before those with higher values.  The <code class="docutils literal notranslate"><span class="pre">--help</span></code> action is
 implemented as an ActionFlag with <code class="docutils literal notranslate"><span class="pre">order=float('-inf')</span></code>.</p>
 </dd>
-<dt class="field-even" id="actionflag:func">func</dt>
+<dt class="field-even" id="actionflag:func">func<span class="colon">:</span></dt>
 <dd class="field-even"><p>The function (any callable) to call.  Instead of passing a value here, ActionFlag can be used as a
 decorator for a method that should be called.</p>
 </dd>
-<dt class="field-odd" id="actionflag:before_main">before_main</dt>
+<dt class="field-odd" id="actionflag:before_main">before_main<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the action should be executed before the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> method or after it.  Defaults
 to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
-<dt class="field-even" id="actionflag:always_available">always_available</dt>
+<dt class="field-even" id="actionflag:always_available">always_available<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether the action should always be available to be called, even if parsing failed.  Only
 allowed when <code class="docutils literal notranslate"><span class="pre">before_main=True</span></code>.  The intended use case is for actions like <code class="docutils literal notranslate"><span class="pre">--help</span></code> text.</p>
 </dd>
-<dt class="field-odd" id="actionflag:nargs">nargs</dt>
+<dt class="field-odd" id="actionflag:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-even" id="actionflag:type">type</dt>
+<dt class="field-even" id="actionflag:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
@@ -668,33 +753,50 @@ exception was raised.</p>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="commands.html" class="btn btn-neutral float-left" title="Commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="groups.html" class="btn btn-neutral float-right" title="Parameter Groups" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="commands.html" class="btn btn-neutral float-left" title="Commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Doug Skrypa.</p>
-  </div>
+    <p>
+        &#169; Copyright 2023, Doug Skrypa.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

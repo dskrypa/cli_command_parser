@@ -1,39 +1,77 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>cli_command_parser.formatting.params &mdash; CLI Command Parser 2022.11.12-1 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link href="../../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../../index.html" class="icon icon-home"> CLI Command Parser
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
                 2022.11.12-1
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -41,7 +79,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Getting Started</a></li>
@@ -64,32 +113,69 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">CLI Command Parser</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">cli_command_parser.formatting.params</li>
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>cli_command_parser.formatting.params</li>
+    
+    
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for cli_command_parser.formatting.params</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Parameter usage / help text formatters</span>
@@ -152,7 +238,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
 
 <div class="viewcode-block" id="ParamHelpFormatter.maybe_wrap_usage"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.maybe_wrap_usage">[docs]</a>    <span class="k">def</span> <span class="nf">maybe_wrap_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wraps the provided text in parentheses / brackets / etc based on whether the associated Parameter is required,</span>
 <span class="sd">        if supported.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -188,11 +274,11 @@
         <span class="k">return</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_basic_usage"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_basic_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Format the Parameter for use in the ``usage:`` line&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the Parameter for use in the ``usage:`` line&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maybe_wrap_usage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_usage"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Format the Parameter for use in both the ``usage:`` line and in the list of Parameters&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the Parameter for use in both the ``usage:`` line and in the list of Parameters&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ParamHelpFormatter.iter_usage_parts"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.iter_usage_parts">[docs]</a>    <span class="k">def</span> <span class="nf">iter_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -221,7 +307,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;``</span><span class="si">{</span><span class="n">usage</span><span class="si">}</span><span class="s1">``&#39;</span></div>
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_row"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_row">[docs]</a>    <span class="k">def</span> <span class="nf">rst_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Returns a tuple of (usage, description)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of (usage, description)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst_usage</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">rst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_rows"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_rows">[docs]</a>    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
@@ -326,7 +412,7 @@
             <span class="n">choices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
 
         <span class="n">parts</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">param</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="n">param</span><span class="o">.</span><span class="n">_default_title</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">param</span><span class="o">.</span><span class="n">title</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">param</span><span class="o">.</span><span class="n">_default_title</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">,</span>
             <span class="n">help_entry</span><span class="p">,</span>
             <span class="o">*</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">prefix</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(),</span>
@@ -356,7 +442,7 @@
 
 
 <div class="viewcode-block" id="ChoiceGroup"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup">[docs]</a><span class="k">class</span> <span class="nc">ChoiceGroup</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A group of :class:`.Choice` objects from a given :class:`~.choice_map.ChoiceMap` that point to the same target.</span>
 <span class="sd">    The first discovered Choice for a given target is considered the canonical one.  Subsequent Choices for that target</span>
 <span class="sd">    are considered aliases.</span>
@@ -373,7 +459,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.group_choices"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.group_choices">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">group_choices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Choice</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ChoiceGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes the given Choices to group them by target and configured help text.  If two choices have the same</span>
 <span class="sd">        target but different help text values, then they are considered different, so they are not grouped together.</span>
 
@@ -397,7 +483,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice_str</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.format"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.</span>
 <span class="sd">        :param tw_offset: Terminal width offset for text width calculations.</span>
 <span class="sd">        :param prefix: Prefix to add to every line (primarily intended for use with nested groups).</span>
@@ -407,7 +493,7 @@
             <span class="k">yield</span> <span class="n">format_help_entry</span><span class="p">((</span><span class="n">usage</span><span class="p">,),</span> <span class="n">description</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">tw_offset</span><span class="o">=</span><span class="n">tw_offset</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias</span>
 <span class="sd">        mode.</span>
 
@@ -435,7 +521,7 @@
             <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_aliases</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_combined"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_combined">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation by combining all aliases into a single</span>
 <span class="sd">        entry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -451,7 +537,7 @@
         <span class="k">return</span> <span class="n">first</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">first</span><span class="o">.</span><span class="n">help</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_aliases"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation using an alternate description for</span>
 <span class="sd">        aliases.</span>
 
@@ -483,7 +569,7 @@
                 <span class="k">yield</span> <span class="n">first</span><span class="p">,</span> <span class="n">choice_str</span><span class="p">,</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">choice</span><span class="o">=</span><span class="n">first_str</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">choice_str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help_str</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_repeated"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_repeated">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation with no modifications.  Choices that</span>
 <span class="sd">        are considered aliases are simply repeated as if they were not aliases.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -537,7 +623,7 @@
             <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\u2502</span><span class="s1"> &#39;</span>  <span class="c1"># BOX DRAWINGS LIGHT VERTICAL</span>
 
 <div class="viewcode-block" id="GroupHelpFormatter.format_help"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">clean</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare the help text for this group.</span>
 
 <span class="sd">        :param prefix: Prefix to add to every line (primarily intended for use with nested groups)</span>
@@ -594,30 +680,46 @@
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Doug Skrypa.</p>
-  </div>
+    <p>
+        &#169; Copyright 2023, Doug Skrypa.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

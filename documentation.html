@@ -1,24 +1,45 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>Documentation &mdash; CLI Command Parser 2022.11.12-1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Advanced Usage" href="advanced.html" />
@@ -27,16 +48,33 @@
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> CLI Command Parser
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
                 2022.11.12-1
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -44,7 +82,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
@@ -77,35 +126,71 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">CLI Command Parser</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">Documentation</li>
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Documentation</li>
+    
+    
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="documentation">
-<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h1>
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h1>
 <section id="help-text">
-<h2>Help Text<a class="headerlink" href="#help-text" title="Permalink to this heading"></a></h2>
+<h2>Help Text<a class="headerlink" href="#help-text" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> option is automatically added to Commands by default.  When specified, it takes precedence over
 any other parameters.  The usage / help text that it prints is automatically generated based on the Command in use,
 the file it is in, the Parameters in that Command, and any subcommands that are present.</p>
@@ -116,7 +201,7 @@ It is also possible to <a class="reference internal" href="configuration.html#us
 <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.always_available" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">always_available=True</span></code></a>, <code class="docutils literal notranslate"><span class="pre">before_main=True</span></code>, and <code class="docutils literal notranslate"><span class="pre">order=-1</span></code> (or another
 number that is lower than any other ActionFlag in the Command).</p>
 <section id="group-formatting">
-<h3>Group Formatting<a class="headerlink" href="#group-formatting" title="Permalink to this heading"></a></h3>
+<h3>Group Formatting<a class="headerlink" href="#group-formatting" title="Permalink to this heading">¶</a></h3>
 <p>To add a visual indicator for groups of parameters, specify <code class="docutils literal notranslate"><span class="pre">show_group_tree=True</span></code>.  Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">show_group_tree</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="o">...</span>
@@ -132,14 +217,14 @@ category) is configured to use <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="restructuredtext">
-<h2>reStructuredText<a class="headerlink" href="#restructuredtext" title="Permalink to this heading"></a></h2>
+<h2>reStructuredText<a class="headerlink" href="#restructuredtext" title="Permalink to this heading">¶</a></h2>
 <p>It is possible to easily generate <a class="reference external" href="https://docutils.sourceforge.io/rst.html">RST / reStructuredText</a> for a given
 Command or file containing one or more Commands.  The generated RST content can then be used to generate documentation
 in HTML and many other formats by using <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a> or any other tool that
 supports RST.</p>
 <p>Some of the <a class="reference internal" href="configuration.html#usage-help-text-options"><span class="std std-ref">Usage &amp; Help Text Options</span></a> also apply to RST generation.</p>
 <section id="generating-rst-documentation">
-<h3>Generating RST Documentation<a class="headerlink" href="#generating-rst-documentation" title="Permalink to this heading"></a></h3>
+<h3>Generating RST Documentation<a class="headerlink" href="#generating-rst-documentation" title="Permalink to this heading">¶</a></h3>
 <p>All you need to generate documentation for a given script that contains one or more Commands is something like
 the following:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser.documentation</span> <span class="kn">import</span> <span class="n">render_script_rst</span>
@@ -164,33 +249,50 @@ for this guide.</p>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="configuration.html" class="btn btn-neutral float-left" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="configuration.html" class="btn btn-neutral float-left" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Doug Skrypa.</p>
-  </div>
+    <p>
+        &#169; Copyright 2023, Doug Skrypa.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

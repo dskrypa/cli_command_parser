@@ -1,39 +1,77 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>cli_command_parser.context &mdash; CLI Command Parser 2022.11.12-1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link href="../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../index.html" class="icon icon-home"> CLI Command Parser
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
                 2022.11.12-1
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -41,7 +79,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Getting Started</a></li>
@@ -64,32 +113,69 @@
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Example Scripts</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">CLI Command Parser</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">cli_command_parser.context</li>
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>cli_command_parser.context</li>
+    
+    
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for cli_command_parser.context</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The parsing Context used internally for tracking parsed arguments and configuration overrides.</span>
@@ -151,7 +237,7 @@
 
 
 <div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>  <span class="c1"># Extending AbstractContextManager to make PyCharm&#39;s type checker happy</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The parsing context.</span>
 
 <span class="sd">    Holds user input while parsing, and holds the parsed values.  Handles config overrides / hierarchy for settings that</span>
@@ -246,13 +332,13 @@
 
 <div class="viewcode-block" id="Context.terminal_width"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.terminal_width">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">terminal_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns the current terminal width as the number of characters that fit on a single line.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the current terminal width as the number of characters that fit on a single line.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span>
         <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span></div>
 
 <div class="viewcode-block" id="Context.get_parsed"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed">[docs]</a>    <span class="k">def</span> <span class="nf">get_parsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all of the parsed arguments as a dictionary.</span>
 
 <span class="sd">        The :ref:`get_parsed() &lt;advanced:Parsed Args as a Dictionary&gt;` helper function provides an easier way to access</span>
@@ -283,7 +369,7 @@
 
 <div class="viewcode-block" id="Context.params"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.params">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandParameters</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated</span>
 <span class="sd">        with this Context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -293,7 +379,7 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Context.get_error_handler"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.get_error_handler">[docs]</a>    <span class="k">def</span> <span class="nf">get_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Returns the :class:`.ErrorHandler` configured to be used.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the :class:`.ErrorHandler` configured to be used.&quot;&quot;&quot;</span>
         <span class="n">error_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">error_handler</span>
         <span class="k">if</span> <span class="n">error_handler</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">extended_error_handler</span>
@@ -305,7 +391,7 @@
     <span class="c1"># region Parsing</span>
 
 <div class="viewcode-block" id="Context.get_parsed_value"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Not intended to be called by users.  Used by Parameters to access their parsed values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not intended to be called by users.  Used by Parameters to access their parsed values.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -313,17 +399,17 @@
             <span class="k">return</span> <span class="n">value</span></div>
 
 <div class="viewcode-block" id="Context.set_parsed_value"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.set_parsed_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Not intended to be called by users.  Used by Parameters during parsing to store parsed values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not intended to be called by users.  Used by Parameters during parsing to store parsed values.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
 <div class="viewcode-block" id="Context.record_action"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.record_action">[docs]</a>    <span class="k">def</span> <span class="nf">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">val_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Not intended to be called by users.  Used by Parameters during parsing to indicate that they were provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val_count</span></div>
 
 <div class="viewcode-block" id="Context.num_provided"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.num_provided">[docs]</a>    <span class="k">def</span> <span class="nf">num_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Not intended to be called by users.  Used by Parameters during parsing to handle nargs.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not intended to be called by users.  Used by Parameters during parsing to handle nargs.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_provided</span><span class="p">[</span><span class="n">param</span><span class="p">]</span></div>
 
     <span class="c1"># endregion</span>
@@ -332,7 +418,7 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_parsed_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Not intended to be accessed by users.  Returns a tuple containing the total number of action flags provided, the</span>
 <span class="sd">        action flags to run before main, and the action flags to run after main.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -348,18 +434,18 @@
 
 <div class="viewcode-block" id="Context.action_flag_count"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.action_flag_count">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">action_flag_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Not intended to be accessed by users.  Returns the count of parsed action flags.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not intended to be accessed by users.  Returns the count of parsed action flags.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_action_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Context.all_action_flags"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.all_action_flags">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">all_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Not intended to be accessed by users.  Returns all parsed action flags.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not intended to be accessed by users.  Returns all parsed action flags.&quot;&quot;&quot;</span>
         <span class="n">before_main</span><span class="p">,</span> <span class="n">after_main</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed_action_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">return</span> <span class="n">before_main</span> <span class="o">+</span> <span class="n">after_main</span></div>
 
 <div class="viewcode-block" id="Context.categorized_action_flags"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.categorized_action_flags">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">categorized_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">ActionPhase</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Not intended to be accessed by users.  Returns a dict of parsed action flags, categorized by the</span>
 <span class="sd">        :class:`ActionPhase` during which they will run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -378,7 +464,7 @@
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="Context.iter_action_flags"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.iter_action_flags">[docs]</a>    <span class="k">def</span> <span class="nf">iter_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="n">ActionPhase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Not intended to be called by users.  Iterator that yields action flags to be executed during the specified</span>
 <span class="sd">        phase while incrementing the counter of actions taken.</span>
 
@@ -425,7 +511,7 @@
 
 
 <span class="k">class</span> <span class="nc">ContextProxy</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Proxy for the currently active :class:`Context` object.  Allows usage similar to the ``request`` object in Flask.</span>
 
 <span class="sd">    This class should not be instantiated by users - use the common :data:`ctx` instance.</span>
@@ -473,7 +559,7 @@
 
 
 <div class="viewcode-block" id="get_current_context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_current_context">[docs]</a><span class="k">def</span> <span class="nf">get_current_context</span><span class="p">(</span><span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Context</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the currently active parsing context.</span>
 
 <span class="sd">    :param silent: If True, allow this function to return ``None`` if there is no active :class:`Context`</span>
@@ -489,7 +575,7 @@
 
 
 <div class="viewcode-block" id="get_or_create_context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_or_create_context">[docs]</a><span class="k">def</span> <span class="nf">get_or_create_context</span><span class="p">(</span><span class="n">command_cls</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was</span>
 <span class="sd">    no active Context.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -505,7 +591,7 @@
 
 
 <div class="viewcode-block" id="get_context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_context">[docs]</a><span class="k">def</span> <span class="nf">get_context</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param command: An initialized Command object</span>
 <span class="sd">    :return: The Context associated with the given Command</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -516,7 +602,7 @@
 
 
 <div class="viewcode-block" id="get_parsed"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_parsed">[docs]</a><span class="k">def</span> <span class="nf">get_parsed</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">,</span> <span class="n">to_call</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.</span>
 
 <span class="sd">    If the parsed arguments are intended to be used to call a particular function/method, or to initialize a particular</span>
@@ -547,7 +633,7 @@
 
 
 <div class="viewcode-block" id="get_raw_arg"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_raw_arg">[docs]</a><span class="k">def</span> <span class="nf">get_raw_arg</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Retrieve the raw parsed argument value(s) provided for the given Parameter&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the raw parsed argument value(s) provided for the given Parameter&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_context</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span></div>
 
 
@@ -555,30 +641,46 @@
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Doug Skrypa.</p>
-  </div>
+    <p>
+        &#169; Copyright 2023, Doug Skrypa.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

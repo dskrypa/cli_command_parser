@@ -1,39 +1,77 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>cli_command_parser.exceptions &mdash; CLI Command Parser 2022.11.12-1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link href="../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../index.html" class="icon icon-home"> CLI Command Parser
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
                 2022.11.12-1
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -41,7 +79,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Getting Started</a></li>
@@ -64,32 +113,69 @@
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Example Scripts</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">CLI Command Parser</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">cli_command_parser.exceptions</li>
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>cli_command_parser.exceptions</li>
+    
+    
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for cli_command_parser.exceptions</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Exceptions for Command Parser</span>
@@ -132,7 +218,7 @@
 
 
 <div class="viewcode-block" id="CommandParserException"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException">[docs]</a><span class="k">class</span> <span class="nc">CommandParserException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for all other Command Parser exceptions&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all other Command Parser exceptions&quot;&quot;&quot;</span>
 
     <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -147,7 +233,7 @@
 
 
 <div class="viewcode-block" id="ParserExit"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">[docs]</a><span class="k">class</span> <span class="nc">ParserExit</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception used to exit with the given message and status code&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception used to exit with the given message and status code&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
@@ -161,15 +247,15 @@
 
 
 <div class="viewcode-block" id="CommandDefinitionError"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandDefinitionError">[docs]</a><span class="k">class</span> <span class="nc">CommandDefinitionError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Command, or an invalid combination of Parameters&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Command, or an invalid combination of Parameters&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ParameterDefinitionError"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParameterDefinitionError">[docs]</a><span class="k">class</span> <span class="nc">ParameterDefinitionError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Parameter&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An error caused by providing invalid options for a Parameter&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="AmbiguousShortForm"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousShortForm">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousShortForm</span><span class="p">(</span><span class="n">ParameterDefinitionError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised when a Parameter&#39;s short form contains multiple characters that would result in potentially ambiguous</span>
 <span class="sd">    combinations with other Parameters&#39; short forms.</span>
 
@@ -191,7 +277,7 @@
 
 
 <div class="viewcode-block" id="AmbiguousParseTree"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousParseTree</span><span class="p">(</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a combination of parameters would result in ambiguous paths to take when parsing arguments&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">PosNode</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="n">Word</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
@@ -212,13 +298,13 @@
 
 
 <div class="viewcode-block" id="UsageError"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.UsageError">[docs]</a><span class="k">class</span> <span class="nc">UsageError</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base exception for user errors&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base exception for user errors&quot;&quot;&quot;</span>
 
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ParamUsageError"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParamUsageError">[docs]</a><span class="k">class</span> <span class="nc">ParamUsageError</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when a Parameter was not used correctly&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a Parameter was not used correctly&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
@@ -235,7 +321,7 @@
 
 
 <div class="viewcode-block" id="MultiParamUsageError"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.MultiParamUsageError">[docs]</a><span class="k">class</span> <span class="nc">MultiParamUsageError</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when a combination of Parameters was not used correctly&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a combination of Parameters was not used correctly&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
@@ -253,7 +339,7 @@
 
 
 <div class="viewcode-block" id="AmbiguousCombo"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousCombo">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousCombo</span><span class="p">(</span><span class="n">MultiParamUsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when an ambiguous combination of short options were provided&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when an ambiguous combination of short options were provided&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
@@ -267,14 +353,14 @@
 
 
 <div class="viewcode-block" id="ParamConflict"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParamConflict">[docs]</a><span class="k">class</span> <span class="nc">ParamConflict</span><span class="p">(</span><span class="n">MultiParamUsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when mutually exclusive Parameters were combined&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when mutually exclusive Parameters were combined&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;argument conflict - the following arguments cannot be combined: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_usage_msg</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span></div>
 
 
 <div class="viewcode-block" id="ParamsMissing"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParamsMissing">[docs]</a><span class="k">class</span> <span class="nc">ParamsMissing</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when one or more required Parameters were not provided&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when one or more required Parameters were not provided&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
@@ -295,11 +381,11 @@
 
 
 <div class="viewcode-block" id="BadArgument"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.BadArgument">[docs]</a><span class="k">class</span> <span class="nc">BadArgument</span><span class="p">(</span><span class="n">ParamUsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when an invalid value is provided for a Parameter&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when an invalid value is provided for a Parameter&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="InvalidChoice"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">[docs]</a><span class="k">class</span> <span class="nc">InvalidChoice</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameter</span><span class="p">],</span> <span class="n">invalid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="n">Collection</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -311,17 +397,17 @@
 
 
 <div class="viewcode-block" id="MissingArgument"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.MissingArgument">[docs]</a><span class="k">class</span> <span class="nc">MissingArgument</span><span class="p">(</span><span class="n">BadArgument</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when a value for a Parameter was not provided&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a value for a Parameter was not provided&quot;&quot;&quot;</span>
 
     <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;missing required argument value&#39;</span></div>
 
 
 <div class="viewcode-block" id="NoSuchOption"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoSuchOption">[docs]</a><span class="k">class</span> <span class="nc">NoSuchOption</span><span class="p">(</span><span class="n">UsageError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when an option that was not defined as a Parameter was provided&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when an option that was not defined as a Parameter was provided&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="NoActiveContext"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoActiveContext">[docs]</a><span class="k">class</span> <span class="nc">NoActiveContext</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when attempting to perform an action that requires an active context while no context is active.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when attempting to perform an action that requires an active context while no context is active.&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># endregion</span>
@@ -330,41 +416,57 @@
 
 
 <span class="k">class</span> <span class="nc">UnsupportedAction</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Indicates that an attempted action cannot be completed.  Only used internally.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that an attempted action cannot be completed.  Only used internally.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">Backtrack</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when backtracking took place&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when backtracking took place&quot;&quot;&quot;</span>
 
 
 <span class="c1"># endregion</span>
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Doug Skrypa.</p>
-  </div>
+    <p>
+        &#169; Copyright 2023, Doug Skrypa.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

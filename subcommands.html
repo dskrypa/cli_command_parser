@@ -1,24 +1,45 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>Subcommands &mdash; CLI Command Parser 2022.11.12-1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Input Types" href="inputs.html" />
@@ -27,16 +48,33 @@
 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> CLI Command Parser
+          
+
+          
           </a>
+
+          
+            
+            
               <div class="version">
                 2022.11.12-1
               </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -44,7 +82,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
@@ -73,33 +122,69 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">CLI Command Parser</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">Subcommands</li>
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Subcommands</li>
+    
+    
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="subcommands">
-<h1>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h1>
+<h1>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading">¶</a></h1>
 <p>Subcommands provide a way of organizing Commands by separating distinct functionalities and options that are specific
 to those functionalities.</p>
 <p>For a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> to support subcommands, it must have a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> Parameter.  If other
@@ -110,47 +195,47 @@ subcommands, and each of those subcommands can have their own SubCommand Paramet
 levels of nested subcommands.</p>
 <p id="subcommand-init-params"><strong>Initialization parameters for SubCommand Parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="subcommands:title">title</dt>
+<dt class="field-odd" id="subcommands:title">title<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The title to use for help text sections containing the choices for the Parameter.  Defaults to
 <code class="docutils literal notranslate"><span class="pre">Subcommands</span></code>.</p>
 </dd>
-<dt class="field-even" id="subcommands:description">description</dt>
+<dt class="field-even" id="subcommands:description">description<span class="colon">:</span></dt>
 <dd class="field-even"><p>The description to be used in help text for the Parameter.</p>
 </dd>
-<dt class="field-odd" id="subcommands:local_choices">local_choices</dt>
+<dt class="field-odd" id="subcommands:local_choices">local_choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If some choices should be handled in the Command that the SubCommand Parameter is in, they should
 be specified here.  Supports either a mapping of <code class="docutils literal notranslate"><span class="pre">{choice:</span> <span class="pre">help</span> <span class="pre">text}</span></code> or a collection of choice values.</p>
 </dd>
-<dt class="field-even" id="subcommands:nargs">nargs</dt>
+<dt class="field-even" id="subcommands:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
 Commands).</p>
 </dd>
-<dt class="field-odd" id="subcommands:type">type</dt>
+<dt class="field-odd" id="subcommands:type">type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-even" id="subcommands:choices">choices</dt>
+<dt class="field-even" id="subcommands:choices">choices<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported - all other choices are populated by registering subcommands.</p>
 </dd>
 </dl>
 <section id="automatic-registration">
-<h2>Automatic Registration<a class="headerlink" href="#automatic-registration" title="Permalink to this heading"></a></h2>
+<h2>Automatic Registration<a class="headerlink" href="#automatic-registration" title="Permalink to this heading">¶</a></h2>
 <p>Given a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class has a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> Parameter, any classes that extend that Command will
 automatically be registered as subcommands of the Command that they extend.</p>
 <p id="subcommand-cls-params">When defining a subcommand class that extends a base Command, in addition to the other options that are supported when
 <a class="reference internal" href="commands.html#defining-commands"><span class="std std-ref">initializing Commands</span></a>, the following keyword-only parameters may also be
 provided along with the class that it extends:</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="automatic registration:choice">choice</dt>
+<dt class="field-odd" id="automatic registration:choice">choice<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The value a user must provide to choose the target subcommand.  Spaces are supported.  By default, the
 lower-case (snake_case) name of the subcommand class is used.  I.e., if the class is called <code class="docutils literal notranslate"><span class="pre">Foo</span></code>, then the
 automatically generated choice value will be <code class="docutils literal notranslate"><span class="pre">foo</span></code>.  If the class is called <code class="docutils literal notranslate"><span class="pre">FooBar</span></code>, then the choice will be
 <code class="docutils literal notranslate"><span class="pre">foo_bar</span></code>.</p>
 </dd>
-<dt class="field-even" id="automatic registration:choices">choices</dt>
+<dt class="field-even" id="automatic registration:choices">choices<span class="colon">:</span></dt>
 <dd class="field-even"><p>If multiple choices should be supported as aliases for selecting a given target subcommand, they can be
 provided via <code class="docutils literal notranslate"><span class="pre">choices</span></code> instead of <code class="docutils literal notranslate"><span class="pre">choice</span></code>.</p>
 </dd>
-<dt class="field-odd" id="automatic registration:help">help</dt>
+<dt class="field-odd" id="automatic registration:help">help<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The help text to display for the subcommand when viewing the parent Command’s help text.</p>
 </dd>
 </dl>
@@ -190,7 +275,7 @@ bar
 </div>
 </section>
 <section id="nested-subcommands">
-<h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Permalink to this heading"></a></h2>
+<h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Permalink to this heading">¶</a></h2>
 <p>Using the example script that is a <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">fake wrapper around a hypothetical REST API</a>,
 we can see an example of two levels of subcommands, and another way that we can take advantage of inheritance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -282,7 +367,7 @@ Subcommands:
 have each subcommand define the method that is called by <code class="docutils literal notranslate"><span class="pre">main</span></code> to produce results.</p>
 </section>
 <section id="explicit-registration">
-<h2>Explicit Registration<a class="headerlink" href="#explicit-registration" title="Permalink to this heading"></a></h2>
+<h2>Explicit Registration<a class="headerlink" href="#explicit-registration" title="Permalink to this heading">¶</a></h2>
 <p>While subcommands will be automatically registered with their parent class as long as the parent class has a
 <a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a> parameter, it is also possible to have more control over that process.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
@@ -391,7 +476,7 @@ bar
 </div>
 </section>
 <section id="shared-common-parameters">
-<h2>Shared Common Parameters<a class="headerlink" href="#shared-common-parameters" title="Permalink to this heading"></a></h2>
+<h2>Shared Common Parameters<a class="headerlink" href="#shared-common-parameters" title="Permalink to this heading">¶</a></h2>
 <p>In some situations, use cases arise for subcommands that are similar to each other but not to other subcommands of the
 same parent Command.  In these cases, it may be desirable to define the Parameters that are common to those similar
 subcommands in a common base class so they don’t need to be repeated in each subcommand class.</p>
@@ -429,33 +514,50 @@ won’t be shown in help text, and it will not be selectable during parsing).</p
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="groups.html" class="btn btn-neutral float-left" title="Parameter Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="inputs.html" class="btn btn-neutral float-right" title="Input Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="groups.html" class="btn btn-neutral float-left" title="Parameter Groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Doug Skrypa.</p>
-  </div>
+    <p>
+        &#169; Copyright 2023, Doug Skrypa.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
