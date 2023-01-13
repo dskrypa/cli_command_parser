@@ -91,6 +91,7 @@ class FileWrapper:
         errors: str = None,
         converter: Converter = None,
         pass_file: Bool = False,
+        parents: Bool = False,
     ):
         self.path = path
         self.mode = mode
@@ -99,10 +100,11 @@ class FileWrapper:
         self.errors = errors
         self.converter = converter
         self.pass_file = pass_file
+        self.parents = parents
         self._fp: Union[TextIO, BinaryIO, None] = None
         self._finalizer = None
 
-    def __eq__(self, other: 'FileWrapper') -> bool:
+    def __eq__(self, other: FileWrapper) -> bool:
         attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'pass_file')
         try:
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
@@ -130,6 +132,9 @@ class FileWrapper:
         if self.path == Path('-'):
             stream = sys.stdin if 'r' in self.mode else sys.stdout
             return stream.buffer if self.binary else stream
+
+        if self.parents and allows_write(self.mode):
+            self.path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
             self._fp = fp = self.path.open(self.mode, encoding=self.encoding, errors=self.errors)
@@ -167,7 +172,7 @@ class FileWrapper:
         finally:
             self.close()
 
-    def __enter__(self) -> Union[FP, 'FileWrapper']:
+    def __enter__(self) -> Union[FP, FileWrapper]:
         if self.converter is not None:
             return self
         return self._open()

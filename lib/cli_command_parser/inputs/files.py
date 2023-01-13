@@ -104,12 +104,13 @@ class Path(FileInput[_Path]):
 
 class File(FileInput[Union[FileWrapper, str, bytes]]):
     """
-    :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`
+    :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`.
     :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
     :param errors: Error handling when reading the file in text mode.  Ignored if the parsed path is ``-``.
     :param lazy: If True, a :class:`FileWrapper` will be stored in the Parameter using this File, otherwise the
       file will be read immediately upon parsing of the path argument.
-    :param kwargs: Additional keyword arguments to pass to :class:`.Path`
+    :param parents: If True and ``mode`` implies writing, then create parent directories as needed.  Ignored otherwise.
+    :param kwargs: Additional keyword arguments to pass to :class:`.Path`.
     """
 
     mode: str = InputParam('r')
@@ -117,8 +118,18 @@ class File(FileInput[Union[FileWrapper, str, bytes]]):
     encoding: str = InputParam(None)
     errors: str = InputParam(None)
     lazy: bool = InputParam(True)
+    parents: bool = InputParam(False)
 
-    def __init__(self, mode: str = 'r', *, encoding: str = None, errors: str = None, lazy: Bool = True, **kwargs):
+    def __init__(
+        self,
+        mode: str = 'r',
+        *,
+        encoding: str = None,
+        errors: str = None,
+        lazy: Bool = True,
+        parents: Bool = False,
+        **kwargs,
+    ):
         if not lazy and allows_write(mode):
             raise ValueError(f'Cannot combine mode={mode!r} with lazy=False for {self.__class__.__name__}')
         if not allows_write(mode):
@@ -129,9 +140,10 @@ class File(FileInput[Union[FileWrapper, str, bytes]]):
         self.encoding = encoding
         self.errors = errors
         self.lazy = lazy
+        self.parents = parents
 
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
-        return FileWrapper(path, self.mode, self.encoding, self.errors)
+        return FileWrapper(path, self.mode, self.encoding, self.errors, parents=self.parents)
 
     def __call__(self, value: PathLike) -> Union[FileWrapper, str, bytes]:
         wrapper = self._prep_file_wrapper(self.validated_path(value))
@@ -160,7 +172,7 @@ class Serialized(File):
         self.pass_file = pass_file
 
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
-        return FileWrapper(path, self.mode, self.encoding, self.errors, self.converter, self.pass_file)
+        return FileWrapper(path, self.mode, self.encoding, self.errors, self.converter, self.pass_file, self.parents)
 
 
 class Json(Serialized):
