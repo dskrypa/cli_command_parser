@@ -92,6 +92,12 @@ class FileInputTest(TestCase):
         self.assertEqual('<StatMode:DIR|FILE>', repr(StatMode.DIR | StatMode.FILE))
         self.assertEqual('<StatMode:DIR|FILE|LINK>', repr(StatMode.DIR | StatMode.FILE | StatMode.LINK))
 
+    def test_no_friendly_name(self):
+        # This test is purely for coverage in Python < 3.11
+        mode = StatMode.__new_member__(StatMode, 12345)  # noqa
+        self.assertFalse(hasattr(mode, 'mode'))
+        self.assertFalse(hasattr(mode, 'friendly_name'))
+
     # endregion
 
     def test_input_param_on_cls(self):
