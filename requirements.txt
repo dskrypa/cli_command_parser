@@ -1,3 +1,6 @@
-sphinx
-sphinx_rtd_theme
+sphinx-rtd-theme
 sphinx-paramlinks
+
+# Note: As of 2023-01-14, including sphinx directly results in a later version of sphinx and docutils, which results in
+# double colons after field list keys.  Omitting sphinx results in using the latest version expected by the rtd theme,
+# which does not have this problem.

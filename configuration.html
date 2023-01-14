@@ -1,45 +1,24 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Configuration &mdash; CLI Command Parser 2023.01.13-1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Documentation" href="documentation.html" />
@@ -48,33 +27,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> CLI Command Parser
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2023.01.13-1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,18 +44,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
@@ -126,167 +77,131 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">CLI Command Parser</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>Configuration</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Configuration</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="configuration">
-<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h1>
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h1>
 <p>Configuration options can be specified as keyword arguments when
 <a class="reference internal" href="commands.html#defining-commands"><span class="std std-ref">initializing Commands</span></a>.  It is also possible to provide either a dictionary of
 options or an instance of <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.</p>
 <section id="command-metadata">
-<h2>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this heading">¶</a></h2>
+<h2>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this heading"></a></h2>
 <p>The following options cannot be provided in a CommandConfig object or <code class="docutils literal notranslate"><span class="pre">config</span></code> dictionary, and must be specified as
 keyword arguments when defining a Command subclass.  All of these options are optional:</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="command metadata:choice">choice<span class="colon">:</span></dt>
+<dt class="field-odd" id="command metadata:choice">choice</dt>
 <dd class="field-odd"><p>SubCommand value that should be mapped to this command, if different than this class’s (lower case)
 name.  Only used when the Command is a subcommand of another Command.</p>
 </dd>
-<dt class="field-even" id="command metadata:choices">choices<span class="colon">:</span></dt>
+<dt class="field-even" id="command metadata:choices">choices</dt>
 <dd class="field-even"><p>SubCommand values to map to this command.  Similar to <code class="docutils literal notranslate"><span class="pre">choice</span></code>, but accepts multiple values.  A mapping
 of <code class="docutils literal notranslate"><span class="pre">{choice:</span> <span class="pre">help</span> <span class="pre">text}</span></code> may be provided to customize the help text displayed for each choice.</p>
 </dd>
-<dt class="field-odd" id="command metadata:prog">prog<span class="colon">:</span></dt>
+<dt class="field-odd" id="command metadata:prog">prog</dt>
 <dd class="field-odd"><p>The name of the program (default: <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code>)</p>
 </dd>
-<dt class="field-even" id="command metadata:usage">usage<span class="colon">:</span></dt>
+<dt class="field-even" id="command metadata:usage">usage</dt>
 <dd class="field-even"><p>Usage message to be printed with help text or when incorrect arguments are provided (default:
 auto-generated)</p>
 </dd>
-<dt class="field-odd" id="command metadata:description">description<span class="colon">:</span></dt>
+<dt class="field-odd" id="command metadata:description">description</dt>
 <dd class="field-odd"><p>Description of what the program does.  If the Command contains a class-level docstring, then that
 value will be used unless this parameter is provided.</p>
 </dd>
-<dt class="field-even" id="command metadata:epilog">epilog<span class="colon">:</span></dt>
+<dt class="field-even" id="command metadata:epilog">epilog</dt>
 <dd class="field-even"><p>Text to follow parameter descriptions</p>
 </dd>
-<dt class="field-odd" id="command metadata:help">help<span class="colon">:</span></dt>
+<dt class="field-odd" id="command metadata:help">help</dt>
 <dd class="field-odd"><p>Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</p>
 </dd>
-<dt class="field-even" id="command metadata:config">config<span class="colon">:</span></dt>
+<dt class="field-even" id="command metadata:config">config</dt>
 <dd class="field-even"><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a> object containing the config options to use.  May not
 be combined with separate kwargs that would be stored in a CommandConfig object.</p>
 </dd>
 </dl>
 </section>
 <section id="configuration-options">
-<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Permalink to this heading">¶</a></h2>
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Permalink to this heading"></a></h2>
 <p>Configuration options supported by <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.  For convenience, they may also be specified as keyword
 arguments when defining a Command subclass:</p>
 <section id="error-handling-options">
-<h3>Error Handling Options<a class="headerlink" href="#error-handling-options" title="Permalink to this heading">¶</a></h3>
+<h3>Error Handling Options<a class="headerlink" href="#error-handling-options" title="Permalink to this heading"></a></h3>
 <dl class="field-list simple">
-<dt class="field-odd" id="error handling options:error_handler">error_handler<span class="colon">:</span></dt>
+<dt class="field-odd" id="error handling options:error_handler">error_handler</dt>
 <dd class="field-odd"><p>The <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> to be used by <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.__call__()</span></code></a> to wrap <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, or
 None to disable error handling.  Defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code>.</p>
 </dd>
-<dt class="field-even" id="error handling options:always_run_after_main">always_run_after_main<span class="colon">:</span></dt>
+<dt class="field-even" id="error handling options:always_run_after_main">always_run_after_main</dt>
 <dd class="field-even"><p>Whether <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a> should always be called, even if an exception
 was raised in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> (similar to a <code class="docutils literal notranslate"><span class="pre">finally</span></code> block) (default: False)</p>
 </dd>
 </dl>
 </section>
 <section id="actionflag-options">
-<h3>ActionFlag Options<a class="headerlink" href="#actionflag-options" title="Permalink to this heading">¶</a></h3>
+<h3>ActionFlag Options<a class="headerlink" href="#actionflag-options" title="Permalink to this heading"></a></h3>
 <dl class="field-list simple">
-<dt class="field-odd" id="actionflag options:multiple_action_flags">multiple_action_flags<span class="colon">:</span></dt>
+<dt class="field-odd" id="actionflag options:multiple_action_flags">multiple_action_flags</dt>
 <dd class="field-odd"><p>Whether multiple action_flag methods are allowed to run if they are all specified
 (default: True)</p>
 </dd>
-<dt class="field-even" id="actionflag options:action_after_action_flags">action_after_action_flags<span class="colon">:</span></dt>
+<dt class="field-even" id="actionflag options:action_after_action_flags">action_after_action_flags</dt>
 <dd class="field-even"><p>Whether action_flag methods are allowed to be combined with a positional Action
 method in a given CLI invocation (default: True)</p>
 </dd>
 </dl>
 </section>
 <section id="parsing-options">
-<h3>Parsing Options<a class="headerlink" href="#parsing-options" title="Permalink to this heading">¶</a></h3>
+<h3>Parsing Options<a class="headerlink" href="#parsing-options" title="Permalink to this heading"></a></h3>
 <dl class="field-list simple">
-<dt class="field-odd" id="parsing options:ignore_unknown">ignore_unknown<span class="colon">:</span></dt>
+<dt class="field-odd" id="parsing options:ignore_unknown">ignore_unknown</dt>
 <dd class="field-odd"><p>Whether unknown arguments should be ignored (default: False / raise an exception when unknown
 arguments are encountered)</p>
 </dd>
-<dt class="field-even" id="parsing options:allow_missing">allow_missing<span class="colon">:</span></dt>
+<dt class="field-even" id="parsing options:allow_missing">allow_missing</dt>
 <dd class="field-even"><p>Whether missing required arguments should be allowed (default: False / raise an exception when
 they are missing)</p>
 </dd>
-<dt class="field-odd" id="parsing options:allow_backtrack">allow_backtrack<span class="colon">:</span></dt>
+<dt class="field-odd" id="parsing options:allow_backtrack">allow_backtrack</dt>
 <dd class="field-odd"><p>Whether the parser is allowed to backtrack or not when a Positional parameter follows a
 parameter with variable <a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs" title="cli_command_parser.nargs.Nargs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nargs</span></code></a>, and not enough arguments are available to fulfil that Positional’s
 requirements (default: True)</p>
 </dd>
-<dt class="field-even" id="parsing options:option_name_mode">option_name_mode<span class="colon">:</span></dt>
+<dt class="field-even" id="parsing options:option_name_mode">option_name_mode</dt>
 <dd class="field-even"><p>How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle
 underscores/dashes.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a> for more details.  Defaults to using underscores to match the
 attribute name.  May be overridden on a per-Parameter basis with <a class="reference internal" href="parameters.html#options:name_mode"><span class="std std-ref">name_mode</span></a>.</p>
 </dd>
-<dt class="field-odd" id="parsing options:reject_ambiguous_pos_combos">reject_ambiguous_pos_combos<span class="colon">:</span></dt>
+<dt class="field-odd" id="parsing options:reject_ambiguous_pos_combos">reject_ambiguous_pos_combos</dt>
 <dd class="field-odd"><p>[EXPERIMENTAL] Whether ambiguous combinations of positional choices should result in an
 <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.AmbiguousParseTree" title="cli_command_parser.exceptions.AmbiguousParseTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousParseTree</span></code></a> error.  Defaults to False.  Some combinations of positional parameter choices may pass
 this check, but still be problematic during parsing.  Since this is still experimental, there may be false positives.
 If a false positive is detected, this should be set back to <code class="docutils literal notranslate"><span class="pre">False</span></code> to disable the check (and please report it in
 the <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/issues">issue tracker</a> so it can be fixed!).</p>
 </dd>
-<dt class="field-even" id="parsing options:ambiguous_short_combos">ambiguous_short_combos<span class="colon">:</span></dt>
+<dt class="field-even" id="parsing options:ambiguous_short_combos">ambiguous_short_combos</dt>
 <dd class="field-even"><p>How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should
 be handled.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode" title="cli_command_parser.config.AmbiguousComboMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">AmbiguousComboMode</span></code></a> for more details.  Defaults to allowing potentially ambiguous combos
 to exist as long as they are provided in their entirety.  May be configured to behave more like argparse (ignore
@@ -296,63 +211,63 @@ from even being defined.</p>
 </dl>
 </section>
 <section id="usage-help-text-options">
-<h3>Usage &amp; Help Text Options<a class="headerlink" href="#usage-help-text-options" title="Permalink to this heading">¶</a></h3>
+<h3>Usage &amp; Help Text Options<a class="headerlink" href="#usage-help-text-options" title="Permalink to this heading"></a></h3>
 <dl class="field-list simple">
-<dt class="field-odd" id="usage &amp; help text options:add_help">add_help<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:add_help">add_help</dt>
 <dd class="field-odd"><p>Whether the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action_flag should be added (default: True)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:use_type_metavar">use_type_metavar<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:use_type_metavar">use_type_metavar</dt>
 <dd class="field-even"><p>Whether the metavar for Parameters that accept values should default to the name of the
 specified type (default: False / the name of the parameter)</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:show_defaults">show_defaults<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:show_defaults">show_defaults</dt>
 <dd class="field-odd"><p>Whether default values for Parameters should be automatically included in help text or not,
 and related settings.  Acceptable values are defined as
 <a class="reference external" href="https://docs.python.org/3/library/enum.html#flag">enum flags</a> that can be combined.  May be overridden on a
 per-Parameter level by using the <a class="reference internal" href="parameters.html#parameters:show_default"><span class="std std-ref">show_default</span></a> param. See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults" title="cli_command_parser.config.ShowDefaults"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a> for
 more info.</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:cmd_alias_mode">cmd_alias_mode<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:cmd_alias_mode">cmd_alias_mode</dt>
 <dd class="field-even"><p>Controls how subcommand aliases (alternate <a class="reference internal" href="subcommands.html#subcommand-cls-params"><span class="std std-ref">choices</span></a> specified for a
 given Command class that is registered as a subcommand / subclass of another Command) should be displayed in help
 text and documentation.  Supports <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a> values (or string equivalents).  Alternatively,
 a <a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases" title="cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases"><code class="xref py py-meth docutils literal notranslate"><span class="pre">format</span> <span class="pre">string</span></code></a> for aliases may be provided here.</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:sort_choices">sort_choices<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:sort_choices">sort_choices</dt>
 <dd class="field-odd"><p>Whether Parameter <cite>choices</cite> values and Action / Subcommand choices should be sorted (default: False)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:show_group_tree">show_group_tree<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:show_group_tree">show_group_tree</dt>
 <dd class="field-even"><p>Whether there should be a visual indicator in help text for the parameters that are members
 of a given group.  See <a class="reference internal" href="documentation.html#group-formatting"><span class="std std-ref">Group Formatting</span></a> for more info.  (default: False)</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:show_group_type">show_group_type<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:show_group_type">show_group_type</dt>
 <dd class="field-odd"><p>Whether mutually exclusive / dependent groups should include that fact in their
 descriptions (default: True)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:command_formatter">command_formatter<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:command_formatter">command_formatter</dt>
 <dd class="field-even"><p>A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
 <a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
 same methods).</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:param_formatter">param_formatter<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:param_formatter">param_formatter</dt>
 <dd class="field-odd"><p>A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
 <a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:extended_epilog">extended_epilog<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:extended_epilog">extended_epilog</dt>
 <dd class="field-even"><p>Whether the program version, author email, and documentation URL should be included in the
 help text epilog, if they were successfully detected (default: True)</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:show_docstring">show_docstring<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:show_docstring">show_docstring</dt>
 <dd class="field-odd"><p>Whether the top level script’s docstring should be included in generated documentation
 (default: True)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:choice_delim">choice_delim<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:choice_delim">choice_delim</dt>
 <dd class="field-even"><p>Delimiter to use between choices in usage / help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:usage_column_width">usage_column_width<span class="colon">:</span></dt>
+<dt class="field-odd" id="usage &amp; help text options:usage_column_width">usage_column_width</dt>
 <dd class="field-odd"><p>Width (in characters) for the usage column in help text.  Defaults to 30.</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:min_usage_column_width">min_usage_column_width<span class="colon">:</span></dt>
+<dt class="field-even" id="usage &amp; help text options:min_usage_column_width">min_usage_column_width</dt>
 <dd class="field-even"><p>Minimum width (in characters) for the usage column in help text after adjusting for group
 indentation / terminal width.  Defaults to 20.</p>
 </dd>
@@ -363,50 +278,33 @@ indentation / terminal width.  Defaults to 20.</p>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="inputs.html" class="btn btn-neutral float-left" title="Input Types" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2023, Doug Skrypa.
-
-    </p>
+    <p>&#169; Copyright 2023, Doug Skrypa.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

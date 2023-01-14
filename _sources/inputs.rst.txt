@@ -29,6 +29,9 @@ available.
 :readable: If True, the path must be readable.
 :writable: If True, the path must be writable.
 :allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
+:use_windows_fix: If True (the default) and the program is running on Windows, then :func:`.fix_windows_path` will
+  be called to attempt to fix an issue caused by auto-completion via Git Bash where Python receives a path that begins
+  with ``/{drive}/...`` instead of ``{drive}:/...`` and doesn't understand how to handle it.
 
 
 Given the following (truncated) :gh_examples:`example <custom_inputs.py>`::
@@ -71,7 +74,7 @@ functionality for directly reading or writing to the provided path.
 :errors: Error handling when reading the file in text mode.  Ignored if the parsed path is ``-``.
 :lazy: If True, a :class:`.FileWrapper` will be stored in the Parameter using this File, otherwise the file will be
   read immediately upon parsing of the path argument.
-
+:parents: If True and ``mode`` implies writing, then create parent directories as needed.  Ignored otherwise.
 
 Using another snippet from the above :gh_examples:`example <custom_inputs.py>`::
 

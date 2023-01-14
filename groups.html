@@ -1,45 +1,24 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Parameter Groups &mdash; CLI Command Parser 2023.01.13-1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Subcommands" href="subcommands.html" />
@@ -48,33 +27,16 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> CLI Command Parser
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2023.01.13-1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,18 +44,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
@@ -129,69 +80,33 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">CLI Command Parser</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>Parameter Groups</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Parameter Groups</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
 
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="parameter-groups">
-<h1>Parameter Groups<a class="headerlink" href="#parameter-groups" title="Permalink to this heading">¶</a></h1>
+<h1>Parameter Groups<a class="headerlink" href="#parameter-groups" title="Permalink to this heading"></a></h1>
 <p>Parameters can be grouped so that they are mutually exclusive or mutually dependent, or just to organize them in help
 text.  Arbitrary levels of nesting are supported, including mutually dependent groups inside mutually exclusive groups,
 and vice versa.</p>
@@ -199,31 +114,31 @@ and vice versa.</p>
 inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
 <p class="rubric" id="group-init-params">Initialization Parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="parameter groups:name">name<span class="colon">:</span></dt>
+<dt class="field-odd" id="parameter groups:name">name</dt>
 <dd class="field-odd"><p>The name of the group to appear in help text.  Ignored if <code class="docutils literal notranslate"><span class="pre">description</span></code> is provided.</p>
 </dd>
-<dt class="field-even" id="parameter groups:description">description<span class="colon">:</span></dt>
+<dt class="field-even" id="parameter groups:description">description</dt>
 <dd class="field-even"><p>The description (header) for this group in help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">{name}</span> <span class="pre">options</span></code> if <code class="docutils literal notranslate"><span class="pre">name</span></code> is
 specified.  If <a class="reference internal" href="configuration.html#usage &amp; help text options:show_group_type"><span class="std std-ref">show_group_type</span></a> is True (the default), and the group
 is mutually exclusive/dependent, then <code class="docutils literal notranslate"><span class="pre">(mutually</span> <span class="pre">{type})</span></code> will be appended to this text.  If no description or name
 are provided, and <code class="docutils literal notranslate"><span class="pre">show_group_type</span></code> is True, then the entire description will default to
 <code class="docutils literal notranslate"><span class="pre">Mutually</span> <span class="pre">{type}</span> <span class="pre">options</span></code>, otherwise it will be <code class="docutils literal notranslate"><span class="pre">Optional</span> <span class="pre">arguments</span></code>.</p>
 </dd>
-<dt class="field-odd" id="parameter groups:mutually_exclusive">mutually_exclusive<span class="colon">:</span></dt>
+<dt class="field-odd" id="parameter groups:mutually_exclusive">mutually_exclusive</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually exclusive, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
 one Parameter in the group is provided, then no other Parameter in the group will be allowed.  Cannot be combined
 with <code class="docutils literal notranslate"><span class="pre">mutually_dependent</span></code>.</p>
 </dd>
-<dt class="field-even" id="parameter groups:mutually_dependent">mutually_dependent<span class="colon">:</span></dt>
+<dt class="field-even" id="parameter groups:mutually_dependent">mutually_dependent</dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually dependent, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
 one Parameter in the group is provided, then all other Parameters in the group must also be provided.  Cannot be
 combined with <code class="docutils literal notranslate"><span class="pre">mutually_exclusive</span></code>.</p>
 </dd>
-<dt class="field-odd" id="parameter groups:required">required<span class="colon">:</span></dt>
+<dt class="field-odd" id="parameter groups:required">required</dt>
 <dd class="field-odd"><p>Whether at least one Parameter in the group is required or not.  If it is required, then an exception
 will be raised if the user did not provide a value for any Parameters in the group.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd>
-<dt class="field-even" id="parameter groups:hide">hide<span class="colon">:</span></dt>
+<dt class="field-even" id="parameter groups:hide">hide</dt>
 <dd class="field-even"><p>Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to hide the group and all of its members so they will not be included in usage / help
 text.</p>
 </dd>
@@ -256,7 +171,7 @@ Common options:
 </pre></div>
 </div>
 <section id="mutually-exclusive">
-<h2>Mutually Exclusive<a class="headerlink" href="#mutually-exclusive" title="Permalink to this heading">¶</a></h2>
+<h2>Mutually Exclusive<a class="headerlink" href="#mutually-exclusive" title="Permalink to this heading"></a></h2>
 <p>In the following example, <code class="docutils literal notranslate"><span class="pre">wait</span></code> and <code class="docutils literal notranslate"><span class="pre">no_wait</span></code> are mutually exclusive - if both are provided, then an exception is
 raised.  The <code class="docutils literal notranslate"><span class="pre">tasks</span></code> and <code class="docutils literal notranslate"><span class="pre">verbose</span></code> parameters are not in the group:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TaskRunner</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -295,7 +210,7 @@ arguments missing - the following arguments are required: --foo / -f, --bar / -b
 </div>
 </section>
 <section id="mutually-dependent">
-<h2>Mutually Dependent<a class="headerlink" href="#mutually-dependent" title="Permalink to this heading">¶</a></h2>
+<h2>Mutually Dependent<a class="headerlink" href="#mutually-dependent" title="Permalink to this heading"></a></h2>
 <p>Mutually dependent groups provide a way to enforce that when one argument is provided for a Parameter in the group,
 then arguments for all other Parameters in that group must also be provided.  Similar to mutually exclusive groups,
 unless the group itself is marked as <code class="docutils literal notranslate"><span class="pre">required</span></code>, none of the members will be required if no arguments are provided
@@ -303,7 +218,7 @@ for any of the other members.</p>
 <p>An example can be found <a class="reference internal" href="#mutually-dependent-example"><span class="std std-ref">below</span></a>.</p>
 </section>
 <section id="combining-group-types">
-<h2>Combining Group Types<a class="headerlink" href="#combining-group-types" title="Permalink to this heading">¶</a></h2>
+<h2>Combining Group Types<a class="headerlink" href="#combining-group-types" title="Permalink to this heading"></a></h2>
 <p>When nesting a basic group inside of a mutually exclusive group, the members of the basic group can be combined, but
 none of the inner basic group members can be combined with the members of the outer exclusive group.  Given the
 following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> snippet:</p>
@@ -379,11 +294,11 @@ argument conflict - the following arguments cannot be combined: --all / -a, {--r
 </pre></div>
 </div>
 <section id="how-it-works">
-<h3>How it Works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h3>
+<h3>How it Works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h3>
 <p>The nesting of exclusive / dependent (and basic) groups can work either way, and they can be nested multiple levels
 deep.  They can also contain nested groups of the same mutual type.</p>
 <section id="mutually-exclusive-outer-group">
-<h4>Mutually Exclusive Outer Group<a class="headerlink" href="#mutually-exclusive-outer-group" title="Permalink to this heading">¶</a></h4>
+<h4>Mutually Exclusive Outer Group<a class="headerlink" href="#mutually-exclusive-outer-group" title="Permalink to this heading"></a></h4>
 <p>Given a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">A</span></code> that contains a mutually dependent group <code class="docutils literal notranslate"><span class="pre">B</span></code>, if any member of <code class="docutils literal notranslate"><span class="pre">B</span></code> is
 provided, then all members of <code class="docutils literal notranslate"><span class="pre">B</span></code> must be provided, but no other members of <code class="docutils literal notranslate"><span class="pre">A</span></code> (that are not members of <code class="docutils literal notranslate"><span class="pre">B</span></code>) may
 be provided.</p>
@@ -392,7 +307,7 @@ contains parameters <code class="docutils literal notranslate"><span class="pre"
 <code class="docutils literal notranslate"><span class="pre">c</span></code>, or <code class="docutils literal notranslate"><span class="pre">d</span></code>, but only <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span></code> can be combined.</p>
 </section>
 <section id="mutually-dependent-outer-group">
-<h4>Mutually Dependent Outer Group<a class="headerlink" href="#mutually-dependent-outer-group" title="Permalink to this heading">¶</a></h4>
+<h4>Mutually Dependent Outer Group<a class="headerlink" href="#mutually-dependent-outer-group" title="Permalink to this heading"></a></h4>
 <p>Given a mutually dependent group <code class="docutils literal notranslate"><span class="pre">C</span></code> that contains a mutually exclusive group <code class="docutils literal notranslate"><span class="pre">D</span></code>, if any member of <code class="docutils literal notranslate"><span class="pre">C</span></code> is
 provided, then all members of <code class="docutils literal notranslate"><span class="pre">C</span></code> (that are not members of <code class="docutils literal notranslate"><span class="pre">D</span></code>) must be provided, and one and only one member of
 <code class="docutils literal notranslate"><span class="pre">D</span></code> must be provided.</p>
@@ -401,7 +316,7 @@ contains parameters <code class="docutils literal notranslate"><span class="pre"
 then <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> must always be provided, and one or both of <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span></code> must be provided.</p>
 </section>
 <section id="examples">
-<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h4>
+<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h4>
 <p>The following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py">example</a> demonstrates combinations in both directions for
 nested mutually exclusive / dependent groups using <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a> that simply print their
 corresponding letter:</p>
@@ -490,50 +405,33 @@ argument conflict - the following arguments cannot be combined: --action_y / -y,
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="subcommands.html" class="btn btn-neutral float-right" title="Subcommands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="parameters.html" class="btn btn-neutral float-left" title="Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="subcommands.html" class="btn btn-neutral float-right" title="Subcommands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2023, Doug Skrypa.
-
-    </p>
+    <p>&#169; Copyright 2023, Doug Skrypa.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
