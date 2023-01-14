@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import main, skipIf
@@ -99,9 +98,12 @@ def _resolved_path(path):
     return Path(path).resolve()
 
 
-@dataclass
 class _C:
-    x: str
+    def __init__(self, x: str):
+        self.x = x
+
+    def __eq__(self, other):
+        return other.x == self.x
 
 
 if __name__ == '__main__':

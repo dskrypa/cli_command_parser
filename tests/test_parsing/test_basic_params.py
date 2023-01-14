@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from dataclasses import dataclass
 from unittest import main
 
 from cli_command_parser.commands import Command
@@ -111,9 +110,12 @@ class OptionTest(ParserTest):
         self.assert_parse_fails_cases(Foo, fail_cases)
 
     def test_custom_type_starting_with_dash(self):
-        @dataclass
         class TimeOffset:
-            value: str
+            def __init__(self, value: str):
+                self.value = value
+
+            def __eq__(self, other):
+                return self.value == other.value
 
         class Foo(Command):
             action = Positional()

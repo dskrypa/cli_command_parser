@@ -7,7 +7,6 @@ Program metadata introspection for use in usage, help text, and documentation.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
 from inspect import getmodule
 from pathlib import Path
 from textwrap import dedent
@@ -32,6 +31,7 @@ class Metadata:
 
     def __set_name__(self, owner: Type[ProgramMetadata], name: str):
         self.name = name
+        owner._fields.add(name)
 
     def __get__(self, instance: Optional[ProgramMetadata], owner: Type[ProgramMetadata]):
         if instance is None:
@@ -46,16 +46,15 @@ class Metadata:
             return self.default
 
     def __set__(self, instance: ProgramMetadata, value: Union[str, Path, None]):
-        # Workaround for initial setting via dataclass + don't store None
-        if not isinstance(value, Metadata) and value is not None:
+        if value is not None:
             instance.__dict__[self.name] = value
 
     def __repr__(self) -> str:
         return f'Metadata(default={self.default!r})'
 
 
-@dataclass
 class ProgramMetadata:
+    _fields = {'parent'}
     parent: Optional[ProgramMetadata] = None
     path: Path = Metadata(None)
     package: str = Metadata(None)
@@ -73,6 +72,17 @@ class ProgramMetadata:
     doc_name: str = Metadata(None)
     doc_str: str = Metadata('')
     pkg_doc_str: str = Metadata('')  # Set by :func:`~.documentation.load_commands` to capture package docstrings
+
+    def __init__(self, **kwargs):
+        bad = []
+        fields = self._fields
+        for key, val in kwargs.items():
+            if key in fields:
+                setattr(self, key, val)
+            else:
+                bad.append(key)
+        if bad:
+            raise TypeError(f'Invalid arguments for {self.__class__.__name__}: ' + ', '.join(sorted(bad)))
 
     @classmethod
     def for_command(  # pylint: disable=R0914
@@ -153,7 +163,7 @@ def _repr(obj, indent=0) -> str:
     if not isinstance(obj, ProgramMetadata):
         return repr(obj)
 
-    field_dict = {field.name: getattr(obj, field.name) for field in fields(obj)}
+    field_dict = {field: getattr(obj, field) for field in obj._fields}
     prev_str = ' ' * indent
     indent += 4
     indent_str = ' ' * indent
