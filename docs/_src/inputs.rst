@@ -71,7 +71,7 @@ functionality for directly reading or writing to the provided path.
 :errors: Error handling when reading the file in text mode.  Ignored if the parsed path is ``-``.
 :lazy: If True, a :class:`.FileWrapper` will be stored in the Parameter using this File, otherwise the file will be
   read immediately upon parsing of the path argument.
-
+:parents: If True and ``mode`` implies writing, then create parent directories as needed.  Ignored otherwise.
 
 Using another snippet from the above :gh_examples:`example <custom_inputs.py>`::
 
