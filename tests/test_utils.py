@@ -3,7 +3,7 @@
 from unittest import main
 from unittest.mock import patch
 
-from cli_command_parser.utils import camel_to_snake_case, Terminal, short_repr
+from cli_command_parser.utils import camel_to_snake_case, Terminal, short_repr, FixedFlag
 from cli_command_parser.formatting.utils import _description_start_line, _normalize_column_width, _single_line_strs
 from cli_command_parser.formatting.utils import combine_and_wrap
 from cli_command_parser.testing import ParserTest
@@ -77,6 +77,28 @@ class UtilsTest(ParserTest):
         for width, indent, expected in cases:
             with self.subTest(width=width, indent=indent):
                 self.assert_strings_equal(expected.strip(), '\n'.join(combine_and_wrap(parts, width, indent)))
+
+    def test_fixed_flag_no_conform(self):
+        # This test is purely for coverage in 3.11 where this would always be set
+        with patch('cli_command_parser.utils.CONFORM', None):
+
+            class Foo(FixedFlag):
+                BAR = 1
+
+            with self.assertRaises(TypeError):
+                Foo(None)
+
+    def test_fixed_flag_with_conform(self):
+        # This test is purely for coverage in Python < 3.11 where this would never be set
+        with patch('cli_command_parser.utils.CONFORM', 1), self.assertRaises(TypeError):
+
+            class Foo(FixedFlag):
+                def __new__(cls, *args, **kwargs):
+                    # This allows the test to pass on 3.11, while the TypeError will be raised due to the boundary
+                    # argument being passed in 3.7-3.10
+                    raise TypeError
+
+                BAR = 1
 
 
 if __name__ == '__main__':

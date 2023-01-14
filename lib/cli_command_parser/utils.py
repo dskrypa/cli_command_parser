@@ -6,12 +6,15 @@ Utilities for working with terminals, strings, and Enums.
 
 from __future__ import annotations
 
-from enum import Flag
+from enum import Flag, EnumMeta
 from shutil import get_terminal_size
 from time import monotonic
 from typing import Any, Callable, TypeVar, List
 
-from .compat import decompose_flag, missing_flag
+try:
+    from enum import CONFORM
+except ImportError:
+    CONFORM = None
 
 FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
@@ -53,13 +56,25 @@ class MissingMixin:
         return super()._missing_(value)  # noqa
 
 
-class FixedFlag(Flag):
+class FixedFlagMeta(EnumMeta):
+    """
+    This metaclass is only used to maintain the same behavior for Flag pseudo-members between 3.7-3.10 and 3.11 when
+    the behavior was parameterized via the ``boundary`` parameter.
+    """
+
+    def __new__(mcs, *args, **kwargs):
+        if CONFORM:
+            kwargs['boundary'] = CONFORM
+        return super().__new__(mcs, *args, **kwargs)
+
+
+class FixedFlag(Flag, metaclass=FixedFlagMeta):
     """Extends Flag to work around breaking changes in 3.11 for repr, missing, and pseudo-members."""
 
     def __repr__(self) -> str:
         # In 3.11, this needs to be declared in the parent of a Flag that actually has members - it breaks if it is
         # defined in a mixin or the class with members.
-        names = '|'.join(part._name_ for part in self._decompose())
+        names = '|'.join(part._name_ for part in self._decompose())  # noqa
         return f'<{self.__class__.__name__}:{names}>'
 
     @classmethod
@@ -78,8 +93,10 @@ class FixedFlag(Flag):
                 raise ValueError(f'Invalid {cls.__name__} value={value!r} - expected one of {expected}') from None
             else:
                 return ~member if invert else member  # pylint: disable=E1130
+        elif not isinstance(value, int):
+            raise TypeError(f'Unexpected type={value.__class__.__name__} for a {cls.__name__}')
 
-        return missing_flag(cls, value)
+        return super()._missing_(value)
 
     @classmethod
     def _missing_str(cls, value: str) -> FlagEnum:
@@ -103,7 +120,11 @@ class FixedFlag(Flag):
         raise KeyError
 
     def _decompose(self) -> List[FlagEnum]:
-        return decompose_flag(self.__class__, self._value_, self._name_)[0]
+        if self._name_ is None or '|' in self._name_:  # | check is for 3.11 where pseudo-members are assigned names
+            val = self._value_
+            members = ((mem, mem._value_) for mem in self.__class__)
+            return sorted(mem for mem, mem_val in members if mem_val & val == mem_val)
+        return [self]
 
     def __lt__(self, other: FlagEnum) -> bool:
         return self._value_ < other._value_

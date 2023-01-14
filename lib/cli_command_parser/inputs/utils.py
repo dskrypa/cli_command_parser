@@ -46,15 +46,16 @@ class InputParam:
 
 
 class StatMode(FixedFlag):
-    def __new__(cls, mode, friendly_name):
+    def __new__(cls, mode, friendly_name: str = None):
         # Defined __new__ to avoid juggling dicts for the stat mode values and names
         obj = object.__new__(cls)
-        obj.mode = mode
-        obj.friendly_name = friendly_name
-        if mode is None:  # ANY
-            obj._value_ = sum(m._value_ for m in cls.__members__.values())
-        else:
-            obj._value_ = 2 ** len(cls.__members__)
+        if friendly_name:
+            obj.mode = mode
+            obj.friendly_name = friendly_name
+            if mode is None:  # ANY
+                obj._value_ = sum(m._value_ for m in cls.__members__.values())
+            else:
+                obj._value_ = 2 ** len(cls.__members__)
         return obj
 
     DIR = S_IFDIR, 'directory'
@@ -72,9 +73,11 @@ class StatMode(FixedFlag):
 
     def __str__(self) -> str:
         try:
-            return self.friendly_name
+            name = self.friendly_name
         except AttributeError:  # Combined flags
-            pass
+            name = None
+        if name:
+            return name
         names = [part.friendly_name for part in self._decompose()]
         if len(names) == 2:
             return '{} or {}'.format(*names)
