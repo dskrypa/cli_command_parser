@@ -7,15 +7,15 @@ Custom numeric input handlers for Parameters
 
 from __future__ import annotations
 
-import builtins
 from abc import ABC, abstractmethod
-from operator import le, lt, ge, gt
 from typing import Union, Optional
 
 from ..typing import Bool, NT, Number, NumType, RngType
 from .base import InputType
 
 __all__ = ['Range', 'NumRange']
+
+_range = range
 
 
 class NumericInput(InputType[NT], ABC):
@@ -53,15 +53,15 @@ class Range(NumericInput[NT]):
     """
 
     type: NumType = int
-    range: Optional[builtins.range]
+    range: Optional[_range]
     snap: bool
 
     def __init__(self, range: RngType, snap: Bool = False, type: NumType = None):  # noqa
         self.snap = snap
         if isinstance(range, int):
-            self.range = builtins.range(range)
-        elif not isinstance(range, builtins.range):
-            self.range = builtins.range(*range)
+            self.range = _range(range)
+        elif not isinstance(range, _range):
+            self.range = _range(*range)
         else:
             self.range = range
         if type is not None:
@@ -128,7 +128,7 @@ class NumRange(NumericInput[NT]):
             raise ValueError(f'Invalid min={min} >= max={max} - min must be less than max')
 
         if type is None:
-            self.type = float if float in (builtins.type(min), builtins.type(max)) else int
+            self.type = float if isinstance(min, float) or isinstance(max, float) else int
         else:
             self.type = type
 
@@ -183,11 +183,10 @@ class NumRange(NumericInput[NT]):
     def __call__(self, value: str) -> NT:
         value = self.type(value)
         if self.min is not None:
-            below_min = lt if self.include_min else le  # Bad if < when inclusive, bad if <= when exclusive
-            if below_min(value, self.min):
+            # Bad if < when inclusive, bad if <= when exclusive
+            if (value < self.min) if self.include_min else (value <= self.min):
                 return self.handle_invalid(self.min, self.include_min, 1)
         if self.max is not None:
-            above_max = gt if self.include_max else ge
-            if above_max(value, self.max):
+            if (value > self.max) if self.include_max else (value >= self.max):
                 return self.handle_invalid(self.max, self.include_max, -1)
         return value

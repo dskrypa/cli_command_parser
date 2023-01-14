@@ -7,8 +7,7 @@ Optional Parameters
 from __future__ import annotations
 
 from abc import ABC
-from functools import partial, update_wrapper, reduce
-from operator import xor
+from functools import partial, update_wrapper
 from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
 
 from ..context import ctx, ParseState
@@ -306,8 +305,10 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
             update_wrapper(self, func)
 
     def __hash__(self) -> int:
-        attrs = (self.__class__, self.name, self.command, self.func, self.order, self.before_main)
-        return reduce(xor, map(hash, attrs))
+        result = hash(self.__class__)
+        for attr in (self.name, self.command, self.func, self.order, self.before_main):
+            result ^= hash(attr)
+        return result
 
     def __eq__(self, other: ActionFlag) -> bool:
         if not isinstance(other, ActionFlag):
