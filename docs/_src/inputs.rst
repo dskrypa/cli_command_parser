@@ -29,6 +29,9 @@ available.
 :readable: If True, the path must be readable.
 :writable: If True, the path must be writable.
 :allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
+:use_windows_fix: If True (the default) and the program is running on Windows, then :func:`.fix_windows_path` will
+  be called to attempt to fix an issue caused by auto-completion via Git Bash where Python receives a path that begins
+  with ``/{drive}/...`` instead of ``{drive}:/...`` and doesn't understand how to handle it.
 
 
 Given the following (truncated) :gh_examples:`example <custom_inputs.py>`::

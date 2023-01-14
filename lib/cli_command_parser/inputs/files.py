@@ -13,7 +13,7 @@ from typing import Union, Optional
 
 from ..typing import Bool, T, PathLike, Converter
 from .base import InputType
-from .utils import InputParam, StatMode, FileWrapper, allows_write
+from .utils import InputParam, StatMode, FileWrapper, allows_write, fix_windows_path
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 
@@ -26,6 +26,7 @@ class FileInput(InputType[T], ABC):
     readable: bool = InputParam(False)
     writable: bool = InputParam(False)
     allow_dash: bool = InputParam(False)
+    use_windows_fix: bool = InputParam(True)
 
     def __init__(
         self,
@@ -37,6 +38,7 @@ class FileInput(InputType[T], ABC):
         readable: Bool = False,
         writable: Bool = False,
         allow_dash: Bool = False,
+        use_windows_fix: Bool = True,
     ):
         self.exists = exists
         self.expand = expand
@@ -45,6 +47,7 @@ class FileInput(InputType[T], ABC):
         self.readable = readable
         self.writable = writable
         self.allow_dash = allow_dash
+        self.use_windows_fix = use_windows_fix
 
     def __repr__(self) -> str:
         non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
@@ -65,6 +68,11 @@ class FileInput(InputType[T], ABC):
             if not self.allow_dash:
                 raise ValueError('Dash (-) is not supported for this parameter')
             return path
+        if self.use_windows_fix and os.name == 'nt':
+            try:
+                path = fix_windows_path(path)
+            except OSError:
+                pass
         if self.expand:
             path = path.expanduser()
         if self.resolve:
@@ -96,6 +104,8 @@ class Path(FileInput[_Path]):
     :param readable: If True, the path must be readable.
     :param writable: If True, the path must be writable.
     :param allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
+    :param use_windows_fix: If True (the default) and the program is running on Windows, then :func:`.fix_windows_path`
+      will be called to fix issues caused by auto-completion via Git Bash.
     """
 
     def __call__(self, value: PathLike) -> _Path:

@@ -9,14 +9,17 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import ContextManager
 from unittest import main, TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock, call
 
 from cli_command_parser import Command, Positional, Option
 from cli_command_parser.exceptions import BadArgument
 from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode
 from cli_command_parser.inputs.exceptions import InputValidationError
-from cli_command_parser.inputs.utils import InputParam, FileWrapper
+from cli_command_parser.inputs.utils import InputParam, FileWrapper, fix_windows_path
 from cli_command_parser.testing import ParserTest, RedirectStreams
+
+PKG = 'cli_command_parser.inputs'
+MODULE = f'{PKG}.files'
 
 
 # region Helpers
@@ -45,10 +48,16 @@ def temp_path(file: str = None, touch: bool = False) -> ContextManager[Path]:
             yield d
 
 
+def fn_mock(return_value) -> Mock:
+    return Mock(return_value=return_value)
+
+
 # endregion
 
 
 class FileInputTest(TestCase):
+    # region Stat Mode
+
     def test_invalid_stat_modes(self):
         with self.assertRaises(TypeError):
             StatMode(None)
@@ -83,6 +92,8 @@ class FileInputTest(TestCase):
         self.assertEqual('<StatMode:DIR|FILE>', repr(StatMode.DIR | StatMode.FILE))
         self.assertEqual('<StatMode:DIR|FILE|LINK>', repr(StatMode.DIR | StatMode.FILE | StatMode.LINK))
 
+    # endregion
+
     def test_input_param_on_cls(self):
         self.assertIsInstance(PathInput.exists, InputParam)
 
@@ -95,6 +106,8 @@ class FileInputTest(TestCase):
     def test_path_resolve(self):
         with temp_path('a', True) as a, temp_chdir(a.parent):
             self.assertEqual(a, PathInput(exists=True, resolve=True, type='file', expand=False)('a'))
+
+    # region Input Validation
 
     def test_path_reject_missing(self):
         with temp_path('a') as a:
@@ -163,6 +176,8 @@ class FileInputTest(TestCase):
         self.assertEqual('r+b', Pickle(mode='r+').mode)
         self.assertEqual('wb', Pickle(mode='w').mode)
 
+    # endregion
+
     def test_close_no_fp(self):
         with temp_path('a') as a:
             fw = FileWrapper(a)
@@ -177,14 +192,72 @@ class FileInputTest(TestCase):
     def test_file_wrapper_eq_bad_type(self):
         self.assertNotEqual('test', FileWrapper(Path('test')))
 
+    # region fix_windows_path
 
-class ReadWriteTest(TestCase):
-    def test_plain_read_with(self):
-        with temp_path('a') as a:
-            a.write_text('{"a": 1}')
-            with File()(a.as_posix()) as f:
-                self.assertEqual('{"a": 1}', f.read())
+    @patch(f'{MODULE}.fix_windows_path')
+    def test_windows_fix_not_called_on_posix(self, fwp_mock: Mock):
+        # Note: The name patch must be after initializing the temp Path object, otherwise Path gets confused
+        with temp_path('a') as a, patch(f'{MODULE}.os.name', 'posix'):
+            PathInput(use_windows_fix=True).validated_path(a)
 
+        fwp_mock.assert_not_called()
+
+    @patch(f'{MODULE}.fix_windows_path')
+    def test_windows_fix_called_on_windows(self, fwp_mock: Mock):
+        with temp_path('a') as a, patch(f'{MODULE}.os.name', 'nt'):
+            PathInput(use_windows_fix=True).validated_path(a)
+
+        fwp_mock.assert_called_once()
+
+    @patch(f'{MODULE}.fix_windows_path', side_effect=OSError)
+    def test_windows_fix_error_ignored(self, fwp_mock: Mock):
+        with temp_path('a') as a, patch(f'{MODULE}.os.name', 'nt'):
+            PathInput(use_windows_fix=True).validated_path(a)
+
+        fwp_mock.assert_called_once()
+
+    def test_fix_windows_path_skips_paths_that_dont_need_fix(self):
+        parts_mock = PropertyMock(return_value=[])
+
+        path_mock = Mock(exists=fn_mock(True), parts=parts_mock)
+        self.assertIs(path_mock, fix_windows_path(path_mock))
+        parts_mock.assert_not_called()
+
+        path_mock = Mock(exists=fn_mock(False), parts=parts_mock, as_posix=fn_mock('foo/bar'))
+        self.assertIs(path_mock, fix_windows_path(path_mock))
+        parts_mock.assert_not_called()
+
+    def test_fix_windows_path_handles_value_error(self):
+        path_mock = Mock(exists=fn_mock(False), parts=['/'], as_posix=fn_mock('/'))
+        with patch(f'{PKG}.utils.len') as len_mock:
+            self.assertIs(path_mock, fix_windows_path(path_mock))
+            len_mock.assert_not_called()
+
+    def test_fix_windows_path_ignores_multi_char_base_dir(self):
+        path_mock = Mock(exists=fn_mock(False), parts=['/', 'foo'], as_posix=fn_mock('/foo'))
+        with patch(f'{PKG}.utils.Path') as path_cls_mock:
+            self.assertIs(path_mock, fix_windows_path(path_mock))
+            path_cls_mock.assert_not_called()
+
+    def test_fix_windows_path_returns_alt_path(self):
+        path_mock = Mock(exists=fn_mock(False), parts=['/', 'b', 'foo', 'bar'], as_posix=fn_mock('/b/foo/bar'))
+        alt_path_mock = Mock(exists=fn_mock(True))
+        with patch(f'{PKG}.utils.Path', return_value=alt_path_mock) as path_cls_mock:
+            self.assertIs(alt_path_mock, fix_windows_path(path_mock))
+            path_cls_mock.assert_called_once_with('B:/', 'foo', 'bar')
+
+    def test_fix_windows_path_returns_original_on_alt_not_existing(self):
+        path_mock = Mock(exists=fn_mock(False), parts=['/', 'b', 'foo', 'bar'], as_posix=fn_mock('/b/foo/bar'))
+        alt_path_mocks = [Mock(exists=fn_mock(False)), Mock(exists=fn_mock(False))]
+        with patch(f'{PKG}.utils.Path', side_effect=alt_path_mocks) as path_cls_mock:
+            self.assertIs(path_mock, fix_windows_path(path_mock))
+
+        path_cls_mock.assert_has_calls([call('B:/', 'foo', 'bar'), call('B:/')])
+
+    # endregion
+
+
+class WriteFileTest(TestCase):
     def test_plain_write_with(self):
         with temp_path('a') as a:
             a.write_text('a\n')
@@ -236,6 +309,14 @@ class ReadWriteTest(TestCase):
             with Serialized(json.dumps, mode='w')(a.as_posix()) as j:
                 j.write({'a': 1})
             self.assertEqual('{"a": 1}', a.read_text())
+
+
+class ReadFileTest(TestCase):
+    def test_plain_read_with(self):
+        with temp_path('a') as a:
+            a.write_text('{"a": 1}')
+            with File()(a.as_posix()) as f:
+                self.assertEqual('{"a": 1}', f.read())
 
     def test_serialized_pickle_read(self):
         with temp_path('a') as a:
