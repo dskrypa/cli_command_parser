@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from cli_command_parser import Command, Context
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.metadata import ProgramMetadata, _path_and_globals, _description, _doc_name, _prog
+from cli_command_parser.metadata import ProgramMetadata, Metadata, _path_and_globals, _description, _doc_name, _prog
 
 
 class Foo(Command):
@@ -95,6 +95,14 @@ class MetadataTest(TestCase):
         meta = ProgramMetadata(doc_str=' test ', pkg_doc_str=' pkg test ')
         self.assertEqual('pkg test', meta.get_doc_str())
         self.assertEqual(' pkg test ', meta.get_doc_str(False))
+
+    def test_metadata_self(self):
+        self.assertIsInstance(ProgramMetadata.prog, Metadata)
+        self.assertEqual('Metadata(default=None)', repr(ProgramMetadata.prog))
+
+    def test_bad_arg(self):
+        with self.assertRaisesRegex(TypeError, 'Invalid arguments for ProgramMetadata: bar, foo'):
+            ProgramMetadata(foo=123, bar=456)
 
 
 if __name__ == '__main__':

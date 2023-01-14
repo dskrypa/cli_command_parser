@@ -20,7 +20,7 @@ from .exceptions import InputValidationError
 if TYPE_CHECKING:
     from ..typing import Bool, FP, Converter
 
-__all__ = ['InputParam', 'StatMode', 'FileWrapper']
+__all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path']
 
 
 class InputParam:
@@ -184,3 +184,30 @@ class FileWrapper:
 def allows_write(mode: str, strict: bool = False) -> bool:
     chars = 'wxa' if strict else 'wxa+'
     return any(c in mode for c in chars)
+
+
+def fix_windows_path(path: Path) -> Path:
+    """
+    Attempts to resolve issues related to inconsistencies between the way the version of Bash that is distributed with
+    Git handles paths in some situations and the way that Python handles paths.
+
+    The use case that this function currently handles is when the given Path does not exist, and it was auto-completed
+    by Git Bash to begin with ``/{drive}/...`` instead of ``{drive}:/...``.
+    """
+    if path.exists() or not path.as_posix().startswith('/'):
+        return path
+
+    try:
+        _, drive_letter, *parts = path.parts
+    except ValueError:
+        return path
+
+    if len(drive_letter) != 1:
+        return path
+
+    drive = drive_letter.upper() + ':/'
+    alt_path = Path(drive, *parts)
+    if alt_path.exists() or (Path(drive).exists() and not Path(f'/{drive_letter}/').exists()):
+        return alt_path
+    else:
+        return path

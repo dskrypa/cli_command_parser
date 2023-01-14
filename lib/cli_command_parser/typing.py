@@ -25,7 +25,7 @@ TypeFunc = Callable[[str], T_co]
 
 NT = TypeVar('NT', bound=float, covariant=True)
 Number = Union[NT, None]
-NumType = Callable[[str], NT]
+NumType = Callable[[Union[str, float, int]], NT]
 RngType = Union[range, int, Sequence[int]]
 
 InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum']]

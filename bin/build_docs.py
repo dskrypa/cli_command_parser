@@ -2,7 +2,6 @@
 
 import logging
 import shutil
-import webbrowser
 from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
@@ -101,6 +100,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     @after_main('-o', help='Open the docs in the default web browser after running sphinx-build')
     def open(self):
+        import webbrowser
+
         index_path = PROJECT_ROOT.joinpath('docs', 'index.html').as_posix()
         if not self.dry_run:
             webbrowser.open(f'file://{index_path}')
