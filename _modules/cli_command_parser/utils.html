@@ -99,12 +99,15 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">EnumMeta</span>
 <span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">get_terminal_size</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">monotonic</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">.compat</span> <span class="kn">import</span> <span class="n">decompose_flag</span><span class="p">,</span> <span class="n">missing_flag</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">CONFORM</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">CONFORM</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="n">FlagEnum</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;FlagEnum&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;FixedFlag&#39;</span><span class="p">)</span>
 <span class="n">_NotSet</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
@@ -146,13 +149,25 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
-<div class="viewcode-block" id="FixedFlag"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag">[docs]</a><span class="k">class</span> <span class="nc">FixedFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+<div class="viewcode-block" id="FixedFlagMeta"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.FixedFlagMeta">[docs]</a><span class="k">class</span> <span class="nc">FixedFlagMeta</span><span class="p">(</span><span class="n">EnumMeta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This metaclass is only used to maintain the same behavior for Flag pseudo-members between 3.7-3.10 and 3.11 when</span>
+<span class="sd">    the behavior was parameterized via the ``boundary`` parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">CONFORM</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;boundary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CONFORM</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FixedFlag"><a class="viewcode-back" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag">[docs]</a><span class="k">class</span> <span class="nc">FixedFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">FixedFlagMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extends Flag to work around breaking changes in 3.11 for repr, missing, and pseudo-members.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># In 3.11, this needs to be declared in the parent of a Flag that actually has members - it breaks if it is</span>
         <span class="c1"># defined in a mixin or the class with members.</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">_name_</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompose</span><span class="p">())</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">_name_</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompose</span><span class="p">())</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
 
     <span class="nd">@classmethod</span>
@@ -171,8 +186,10 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected one of </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="o">~</span><span class="n">member</span> <span class="k">if</span> <span class="n">invert</span> <span class="k">else</span> <span class="n">member</span>  <span class="c1"># pylint: disable=E1130</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected type=</span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> for a </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">missing_flag</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_missing_str</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlagEnum</span><span class="p">:</span>
@@ -196,7 +213,11 @@
         <span class="k">raise</span> <span class="ne">KeyError</span>
 
     <span class="k">def</span> <span class="nf">_decompose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">FlagEnum</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">decompose_flag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s1">&#39;|&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_</span><span class="p">:</span>  <span class="c1"># | check is for 3.11 where pseudo-members are assigned names</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_</span>
+            <span class="n">members</span> <span class="o">=</span> <span class="p">((</span><span class="n">mem</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">_value_</span><span class="p">)</span> <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mem</span> <span class="k">for</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mem_val</span> <span class="ow">in</span> <span class="n">members</span> <span class="k">if</span> <span class="n">mem_val</span> <span class="o">&amp;</span> <span class="n">val</span> <span class="o">==</span> <span class="n">mem_val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">FlagEnum</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_value_</span></div>

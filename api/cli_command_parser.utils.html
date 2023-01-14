@@ -84,6 +84,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.MissingMixin"><code class="docutils literal notranslate"><span class="pre">MissingMixin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.FixedFlagMeta"><code class="docutils literal notranslate"><span class="pre">FixedFlagMeta</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.FixedFlag"><code class="docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.utils.Terminal"><code class="docutils literal notranslate"><span class="pre">Terminal</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.utils.Terminal.width"><code class="docutils literal notranslate"><span class="pre">Terminal.width</span></code></a></li>
@@ -149,6 +150,14 @@
 <dt class="sig sig-object py" id="cli_command_parser.utils.MissingMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">MissingMixin</span></span><a class="reference internal" href="../_modules/cli_command_parser/utils.html#MissingMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.utils.MissingMixin" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.utils.FixedFlagMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.utils.</span></span><span class="sig-name descname"><span class="pre">FixedFlagMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/utils.html#FixedFlagMeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.utils.FixedFlagMeta" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.EnumType" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumType</span></code></a></p>
+<p>This metaclass is only used to maintain the same behavior for Flag pseudo-members between 3.7-3.10 and 3.11 when
+the behavior was parameterized via the <code class="docutils literal notranslate"><span class="pre">boundary</span></code> parameter.</p>
 </dd></dl>
 
 <dl class="py class">
