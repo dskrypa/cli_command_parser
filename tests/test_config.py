@@ -56,7 +56,7 @@ class ConfigTest(TestCase):
         self.assertFalse(CommandConfig((CommandConfig(), CommandConfig(add_help=False))).add_help)
 
     def test_config_invalid_key(self):
-        with self.assertRaisesRegex(ValueError, 'unsupported options: bar, foo'):
+        with self.assertRaisesRegex(TypeError, 'unsupported options: bar, foo'):
             CommandConfig(foo=1, bar=2)
 
     def test_ro_set_rejected(self):

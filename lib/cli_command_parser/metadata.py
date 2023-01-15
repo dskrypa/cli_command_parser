@@ -74,15 +74,16 @@ class ProgramMetadata:
     pkg_doc_str: str = Metadata('')  # Set by :func:`~.documentation.load_commands` to capture package docstrings
 
     def __init__(self, **kwargs):
-        bad = []
         fields = self._fields
         for key, val in kwargs.items():
             if key in fields:
                 setattr(self, key, val)
             else:
-                bad.append(key)
-        if bad:
-            raise TypeError(f'Invalid arguments for {self.__class__.__name__}: ' + ', '.join(sorted(bad)))
+                # The number of times one or more invalid options will be provided is extremely low compared to how
+                # often this exception will not need to be raised, so the re-iteration over kwargs is acceptable.
+                # This also avoids creating the `bad` dict that would otherwise be thrown away on 99.9% of init calls.
+                bad = ', '.join(sorted(key for key in kwargs if key not in fields))
+                raise TypeError(f'Invalid arguments for {self.__class__.__name__}: {bad}')
 
     @classmethod
     def for_command(  # pylint: disable=R0914
