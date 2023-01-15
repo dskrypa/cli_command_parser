@@ -10,13 +10,13 @@ on:
   push:
     branches: ["main"]
     paths-ignore: [
-      "**/*.rst", "**/*.txt", "**/.flake8", "**/.gitignore", "**/.*rc", "**/*.cfg", "**/*.toml", "cli_command_parser/__version__.py"
+      "**/*.rst", "**/*.txt", "**/.flake8", "**/.gitignore", "**/.*rc", "**/*.cfg", "**/*.toml", "lib/cli_command_parser/__version__.py"
     ]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
     paths-ignore: [
-      "**/*.rst", "**/*.txt", "**/.flake8", "**/.gitignore", "**/.*rc", "**/*.cfg", "**/*.toml", "cli_command_parser/__version__.py"
+      "**/*.rst", "**/*.txt", "**/.flake8", "**/.gitignore", "**/.*rc", "**/*.cfg", "**/*.toml", "lib/cli_command_parser/__version__.py"
     ]
   schedule:
     - cron: '29 17 * * 4'
