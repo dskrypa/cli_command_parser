@@ -145,8 +145,8 @@ The number of methods defined in the base :class:`.Command` class is intentional
 freedom to define whatever attributes and methods that they need.  The :meth:`~.Command.__call__`,
 :meth:`~.Command.parse`, and :meth:`~.Command.parse_and_run` methods are not intended to be overridden.
 
-Some ``_sunder_`` methods are intended to be overridden, some are not intended to be overridden, and others may be safe
-to override in some situations, but should otherwise be called via ``super()`` to maintain normal functionality.
+Some ``_sunder_``\ [4]_ methods are intended to be overridden, some are not intended to be overridden, and others may
+be safe to override in some situations, but should otherwise be called via ``super()`` to maintain normal functionality.
 
 
 Overriding ``main``
@@ -237,3 +237,9 @@ has no ``__init__`` method, so there is no need to call ``super().__init__()`` i
             log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
             level = logging.DEBUG if self.verbose else logging.INFO
             logging.basicConfig(level=level, format=log_fmt)
+
+
+----
+
+.. [4] Why ``_sunder_`` names? Mostly for the same reason that `the Enum module uses them
+       <https://stackoverflow.com/a/52006681/19070573>`__.
