@@ -6,11 +6,8 @@ Commands provide a way to organize CLI applications in an intuitively object-ori
 Having parameters defined as attributes in the class results in a better developer experience when writing code that
 references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
 Changing the name of a parameter can take advantage of builtin renaming tools, instead of needing to hunt for
-references to ``args.foo`` to be updated.  There's no need to keep function signatures up to date with parameters
-defined in decorators.
-
-A minimal set of pre-defined methods provide the basic functionality for parsing arguments and running code based on
-the parsed input.  Any other attribute or method can be defined and used without affecting functionality.
+references to ``args.foo`` to be updated, for example.  Further, there's no need to keep function signatures up to date
+with parameters defined in decorators.
 
 Since subcommands can extend their parent command, they can take advantage of standard class inheritance to share
 common parameters, methods, and initialization steps with minimal extra work or code.
@@ -21,9 +18,9 @@ Defining Commands
 
 All commands must extend the :class:`.Command` class.
 
-Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some
-options provide a way to include additional :ref:`configuration:Command Metadata` in help text / documentation, while
-other :ref:`configuration:Configuration Options` exist to control error handling and parsing / formatting.
+Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some of
+these options provide a way to include additional :ref:`configuration:Command Metadata` in help text / documentation,
+while other :ref:`configuration:Configuration Options` exist to control error handling and parsing / formatting.
 
 :gh_examples:`Example command <hello_world.py>` that uses some of those options::
 
@@ -38,24 +35,20 @@ other :ref:`configuration:Configuration Options` exist to control error handling
             print(f'Hello {self.name}!')
 
 
-Command Methods
-===============
+Command Methods & Attributes
+============================
 
-Simple commands can define ``main`` as the primary method for that command::
+The primary method used to define what should happen when a command is run is ``main``.  Simple commands don't need
+to implement anything else::
 
     class HelloWorld(Command):
         def main(self):
             print('Hello World!')
 
 
-If, however, a command uses :ref:`parameters:Action` methods, then :meth:`.Command.main` should not be overridden (or
-it should include a call of ``super().main()``) to maintain the expected behavior.
-
-To run code before / after :meth:`.Command.main`, the :meth:`.Command._before_main_` and :meth:`.Command._after_main_`
-methods may be overridden, respectively.  Similar to the relationship between :meth:`.Command.main` and
-:ref:`parameters:Action` methods, if :ref:`parameters:ActionFlag` methods are used, the corresponding before / after
-main method must either not be overridden, or it must call the overridden method via ``super()...`` to maintain the
-expected behavior.
+The only other method names that are used by the base :class:`.Command` class\ [1]_ are ``parse`` and ``parse_and_run``,
+which are classmethods that are automatically used during parsing and Command initialization.  Any\ [2]_ other attribute
+or method can be defined and used without affecting functionality.
 
 
 Parse & Run
@@ -76,19 +69,20 @@ can be used as the primary entry point for the program::
         main()
 
 
-The primary alternative is to use :meth:`~.Command.parse_and_run` - using the same Echo command as in the above
-example::
+:func:`~.commands.main` automatically\ [3]_ finds the top-level Command that you defined, parses arguments from
+:data:`python:sys.argv`, and runs your command.
+
+There's no need to call ``parse`` or :meth:`~.Command.parse_and_run` directly, but ``parse_and_run`` can be used as
+a drop-in replacement for :func:`~.commands.main` for a specific Command.  Using the same Echo command as in the
+above example::
 
     if __name__ == '__main__':
         Echo.parse_and_run()
 
 
-When using :func:`~.commands.main`, it looks for all known Command subclasses, and calls :meth:`~.Command.parse_and_run`
-on the discovered subclass, passing along any arguments that were provided.
-
-By default, :meth:`~.Command.parse_and_run` will use :data:`sys.argv` as the source of arguments to parse.  If desired
-for testing purposes, or if there is a need to modify arguments before letting them be parsed, a list of strings may
-also be provided::
+By default, :func:`~.commands.main` and :meth:`~.Command.parse_and_run` will use :data:`python:sys.argv` as the source
+of arguments to parse.  If desired for testing purposes, or if there is a need to modify arguments before letting them
+be parsed, a list of strings may also be provided when using either approach::
 
     >>> class Foo(Command):
     ...     bar = Flag('--no-bar', '-B', default=True)
@@ -102,8 +96,23 @@ also be provided::
     self.bar=False, self.baz=['test', 'one']
 
 
+----
+
+.. [1] The only other methods that do not have ``__dunder__`` or ``_sunder_`` names.
+.. [2] Almost any.  A :ref:`ctx <advanced:Post-Run & Context>` attribute is defined for convenience, but is 100% safe
+       to override.  See :ref:`commands:Overriding Command Methods` for more info about other methods.
+.. [3] The :func:`~.commands.main` function selects the top-level class that is known to extend :class:`.Command`,
+       and calls the :meth:`~.Command.parse_and_run` classmethod on that discovered command class.  For more info
+       about how :func:`~.commands.main` picks that class and handles multiple commands, see its API documentation.
+
+----
+
+
+Advanced
+========
+
 Inheritance
-===========
+-----------
 
 One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
 Python already provides for common Parameters, methods, or initialization steps.
@@ -129,13 +138,50 @@ may require more work with other parsers:
   would then extend instead.
 
 
+Overriding Command Methods
+--------------------------
+
+The number of methods defined in the base :class:`.Command` class is intentionally low in order to allow subclasses the
+freedom to define whatever attributes and methods that they need.  The :meth:`~.Command.__call__`,
+:meth:`~.Command.parse`, and :meth:`~.Command.parse_and_run` methods are not intended to be overridden.
+
+Some ``_sunder_`` methods are intended to be overridden, some are not intended to be overridden, and others may be safe
+to override in some situations, but should otherwise be called via ``super()`` to maintain normal functionality.
+
+
+Overriding ``main``
+^^^^^^^^^^^^^^^^^^^
+
+The vast majority of commands can safely override :meth:`.Command.main` without calling ``super().main()``.
+If, however, a command uses positional :ref:`parameters:Action` methods, then that command should either not define
+a ``main`` method (i.e., it should not override :meth:`.Command.main`) or it should include a call of ``super().main()``
+to maintain the expected behavior.  The default implementation of the ``main`` method returns an int representing the
+number of :ref:`parameters:Action` methods that were called, which can be used by subclasses calling ``super().main()``
+to adjust their behavior based on that result.
+
+
+Supported ``_sunder_`` Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``_pre_init_actions_``: Not intended to be overridden.  Handles ``--help`` (and similar special actions, if defined)
+  and some :obj:`.action_flag` validation.
+- ``_init_command_``: Intended to be overridden - the base implementation does not do anything.  See
+  `Using _init_command_`_ for more info.
+- ``_before_main_``: If any ``before_main`` :obj:`action_flags<.action_flag>` are defined, the original implementation
+  should be called via ``super()._before_main_()``.  When not using any action flags, this method can safely be
+  overridden without calling the original.  See `Using _before_main_`_ for more info.
+- ``_after_main_``: Similar to ``_before_main_``, the need to call the original via ``super()`` depends on the presence
+  of ``after_main`` action flags.  This method may be used analogously to a ``finally:`` clause for a command if
+  the :ref:`always_run_after_main<configuration:Error Handling Options>` option is enabled / True.
+
+
 Initialization Methods
-======================
+^^^^^^^^^^^^^^^^^^^^^^
 
-Using _init_command_
---------------------
+Using ``_init_command_``
+""""""""""""""""""""""""
 
-The current recommended way to handle initializing logging, or other common initialization steps, is to do so
+The recommended way to handle initializing logging, or other common initialization steps, is to do so
 in :meth:`.Command._init_command_` - example::
 
     class BaseCommand(Command):
@@ -154,13 +200,14 @@ method is intended to be overridden.
 The primary reason that this method is provided is to improve user experience when they specify ``--help`` or an
 invalid command.  Any initialization steps will incur some level of overhead, and generally no initialization
 should be necessary if the user is looking for help text or if they did not provide valid arguments.  Any extra work
-that is not necessary will result in a slower response, regardless of the parsing library that is used.
+that is not necessary will result in a (potentially very perceptibly) slower response, regardless of the parsing
+library that is used.
 
 This method is called after :meth:`.Command._pre_init_actions_` and before :meth:`.Command._before_main_`.
 
 
-Using _before_main_
--------------------
+Using ``_before_main_``
+"""""""""""""""""""""""
 
 Before ``_init_command_`` was available, this was the recommended way to handle initialization steps.  That is no
 longer the case.
@@ -174,8 +221,8 @@ longer the case.
 This method is called after :meth:`.Command._init_command_` and before :meth:`.Command.main`.
 
 
-Using __init__
---------------
+Using ``__init__``
+""""""""""""""""""
 
 If you don't mind the extra overhead before ``--help``, or if you have ``always_available``
 :ref:`ActionFlags<actionflag_init_params>` that require the same initialization steps as the rest of the Command,
