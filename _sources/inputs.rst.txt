@@ -204,8 +204,8 @@ exclusive.
 
 **NumRange initialization parameters:**
 
-:type: The type for values, or any callable that returns an int/float.  Defaults to float if one or both of min or max
-  is a float, otherwise int.
+:type: The type for values, or any callable that returns an int/float.  The default depends on the provided min/max
+  values - if either is a float, then float will be used, otherwise int will be used.
 :snap: If True and a provided value is outside the allowed range, snap to the nearest bound.  Respects inclusivity
   / exclusivity of the bound.  Not supported for floats since there is not an obviously correct behavior for handling
   them in this context.
@@ -214,6 +214,9 @@ exclusive.
 :include_min: Whether the minimum is inclusive (default: True).
 :include_max: Whether the maximum is inclusive (default: False).
 
+Example use cases:
+    - Restrict input to only positive integers: ``NumRange(min=0)``
+    - Allow floats between 0 and 1, inclusive: ``NumRange(type=float, min=0, max=1, include_max=True)``
 
 
 Choice Inputs

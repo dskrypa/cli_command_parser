@@ -50,13 +50,16 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Commands</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#defining-commands">Defining Commands</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#command-methods">Command Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#parse-run">Parse &amp; Run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inheritance">Inheritance</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#initialization-methods">Initialization Methods</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#using-init-command">Using _init_command_</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#using-before-main">Using _before_main_</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#using-init">Using __init__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced">Advanced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inheritance">Inheritance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overriding-command-methods">Overriding Command Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overriding-main">Overriding <code class="docutils literal notranslate"><span class="pre">main</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supported-sunder-methods">Supported <code class="docutils literal notranslate"><span class="pre">_sunder_</span></code> Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initialization-methods">Initialization Methods</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -110,18 +113,16 @@
 <p>Having parameters defined as attributes in the class results in a better developer experience when writing code that
 references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
 Changing the name of a parameter can take advantage of builtin renaming tools, instead of needing to hunt for
-references to <code class="docutils literal notranslate"><span class="pre">args.foo</span></code> to be updated.  There’s no need to keep function signatures up to date with parameters
-defined in decorators.</p>
-<p>A minimal set of pre-defined methods provide the basic functionality for parsing arguments and running code based on
-the parsed input.  Any other attribute or method can be defined and used without affecting functionality.</p>
+references to <code class="docutils literal notranslate"><span class="pre">args.foo</span></code> to be updated, for example.  Further, there’s no need to keep function signatures up to date
+with parameters defined in decorators.</p>
 <p>Since subcommands can extend their parent command, they can take advantage of standard class inheritance to share
 common parameters, methods, and initialization steps with minimal extra work or code.</p>
 <section id="defining-commands">
 <h2>Defining Commands<a class="headerlink" href="#defining-commands" title="Permalink to this heading"></a></h2>
 <p>All commands must extend the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class.</p>
-<p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some
-options provide a way to include additional <a class="reference internal" href="configuration.html#command-metadata"><span class="std std-ref">Command Metadata</span></a> in help text / documentation, while
-other <a class="reference internal" href="configuration.html#configuration-options"><span class="std std-ref">Configuration Options</span></a> exist to control error handling and parsing / formatting.</p>
+<p>Multiple keyword-only arguments are supported when defining a subclass of Command (or a subclass thereof).  Some of
+these options provide a way to include additional <a class="reference internal" href="configuration.html#command-metadata"><span class="std std-ref">Command Metadata</span></a> in help text / documentation,
+while other <a class="reference internal" href="configuration.html#configuration-options"><span class="std std-ref">Configuration Options</span></a> exist to control error handling and parsing / formatting.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of those options:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span>
     <span class="n">Command</span><span class="p">,</span>
@@ -135,21 +136,18 @@ other <a class="reference internal" href="configuration.html#configuration-optio
 </pre></div>
 </div>
 </section>
-<section id="command-methods">
-<h2>Command Methods<a class="headerlink" href="#command-methods" title="Permalink to this heading"></a></h2>
-<p>Simple commands can define <code class="docutils literal notranslate"><span class="pre">main</span></code> as the primary method for that command:</p>
+<section id="command-methods-attributes">
+<h2>Command Methods &amp; Attributes<a class="headerlink" href="#command-methods-attributes" title="Permalink to this heading"></a></h2>
+<p>The primary method used to define what should happen when a command is run is <code class="docutils literal notranslate"><span class="pre">main</span></code>.  Simple commands don’t need
+to implement anything else:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Hello World!&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If, however, a command uses <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods, then <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> should not be overridden (or
-it should include a call of <code class="docutils literal notranslate"><span class="pre">super().main()</span></code>) to maintain the expected behavior.</p>
-<p>To run code before / after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._before_main_()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a>
-methods may be overridden, respectively.  Similar to the relationship between <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> and
-<a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods, if <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlag</span></a> methods are used, the corresponding before / after
-main method must either not be overridden, or it must call the overridden method via <code class="docutils literal notranslate"><span class="pre">super()...</span></code> to maintain the
-expected behavior.</p>
+<p>The only other method names that are used by the base <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class<a class="footnote-reference brackets" href="#id4" id="id1">1</a> are <code class="docutils literal notranslate"><span class="pre">parse</span></code> and <code class="docutils literal notranslate"><span class="pre">parse_and_run</span></code>,
+which are classmethods that are automatically used during parsing and Command initialization.  Any<a class="footnote-reference brackets" href="#id5" id="id2">2</a> other attribute
+or method can be defined and used without affecting functionality.</p>
 </section>
 <section id="parse-run">
 <h2>Parse &amp; Run<a class="headerlink" href="#parse-run" title="Permalink to this heading"></a></h2>
@@ -167,17 +165,18 @@ can be used as the primary entry point for the program:</p>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The primary alternative is to use <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> - using the same Echo command as in the above
-example:</p>
+<p><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> automatically<a class="footnote-reference brackets" href="#id6" id="id3">3</a> finds the top-level Command that you defined, parses arguments from
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a>, and runs your command.</p>
+<p>There’s no need to call <code class="docutils literal notranslate"><span class="pre">parse</span></code> or <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> directly, but <code class="docutils literal notranslate"><span class="pre">parse_and_run</span></code> can be used as
+a drop-in replacement for <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> for a specific Command.  Using the same Echo command as in the
+above example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">Echo</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>When using <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a>, it looks for all known Command subclasses, and calls <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a>
-on the discovered subclass, passing along any arguments that were provided.</p>
-<p>By default, <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> will use <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.argv</span></code></a> as the source of arguments to parse.  If desired
-for testing purposes, or if there is a need to modify arguments before letting them be parsed, a list of strings may
-also be provided:</p>
+<p>By default, <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> will use <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a> as the source
+of arguments to parse.  If desired for testing purposes, or if there is a need to modify arguments before letting them
+be parsed, a list of strings may also be provided when using either approach:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">baz</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
@@ -190,9 +189,27 @@ also be provided:</p>
 <span class="go">self.bar=False, self.baz=[&#39;test&#39;, &#39;one&#39;]</span>
 </pre></div>
 </div>
+<hr class="docutils" />
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>The only other methods that do not have <code class="docutils literal notranslate"><span class="pre">__dunder__</span></code> or <code class="docutils literal notranslate"><span class="pre">_sunder_</span></code> names.</p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Almost any.  A <a class="reference internal" href="advanced.html#post-run-context"><span class="std std-ref">ctx</span></a> attribute is defined for convenience, but is 100% safe
+to override.  See <a class="reference internal" href="#overriding-command-methods"><span class="std std-ref">Overriding Command Methods</span></a> for more info about other methods.</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>The <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> function selects the top-level class that is known to extend <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>,
+and calls the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> classmethod on that discovered command class.  For more info
+about how <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> picks that class and handles multiple commands, see its API documentation.</p>
+</dd>
+</dl>
 </section>
+<hr class="docutils" />
+<section id="advanced">
+<h2>Advanced<a class="headerlink" href="#advanced" title="Permalink to this heading"></a></h2>
 <section id="inheritance">
-<h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this heading"></a></h2>
+<h3>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this heading"></a></h3>
 <p>One of the benefits of defining Commands as classes is that we can take advantage of the standard inheritance that
 Python already provides for common Parameters, methods, or initialization steps.</p>
 <p>The preferred way to define a subcommand takes advantage of this in that it can be defined by
@@ -219,11 +236,42 @@ on the parent Command, and are not shared by other subcommands, then an intermed
 would then extend instead.</p></li>
 </ul>
 </section>
+<section id="overriding-command-methods">
+<h3>Overriding Command Methods<a class="headerlink" href="#overriding-command-methods" title="Permalink to this heading"></a></h3>
+<p>The number of methods defined in the base <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class is intentionally low in order to allow subclasses the
+freedom to define whatever attributes and methods that they need.  The <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a>,
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse" title="cli_command_parser.commands.Command.parse"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse()</span></code></a>, and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> methods are not intended to be overridden.</p>
+<p>Some <code class="docutils literal notranslate"><span class="pre">_sunder_</span></code><a class="footnote-reference brackets" href="#id8" id="id7">4</a> methods are intended to be overridden, some are not intended to be overridden, and others may
+be safe to override in some situations, but should otherwise be called via <code class="docutils literal notranslate"><span class="pre">super()</span></code> to maintain normal functionality.</p>
+<section id="overriding-main">
+<h4>Overriding <code class="docutils literal notranslate"><span class="pre">main</span></code><a class="headerlink" href="#overriding-main" title="Permalink to this heading"></a></h4>
+<p>The vast majority of commands can safely override <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> without calling <code class="docutils literal notranslate"><span class="pre">super().main()</span></code>.
+If, however, a command uses positional <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods, then that command should either not define
+a <code class="docutils literal notranslate"><span class="pre">main</span></code> method (i.e., it should not override <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>) or it should include a call of <code class="docutils literal notranslate"><span class="pre">super().main()</span></code>
+to maintain the expected behavior.  The default implementation of the <code class="docutils literal notranslate"><span class="pre">main</span></code> method returns an int representing the
+number of <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a> methods that were called, which can be used by subclasses calling <code class="docutils literal notranslate"><span class="pre">super().main()</span></code>
+to adjust their behavior based on that result.</p>
+</section>
+<section id="supported-sunder-methods">
+<h4>Supported <code class="docutils literal notranslate"><span class="pre">_sunder_</span></code> Methods<a class="headerlink" href="#supported-sunder-methods" title="Permalink to this heading"></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">_pre_init_actions_</span></code>: Not intended to be overridden.  Handles <code class="docutils literal notranslate"><span class="pre">--help</span></code> (and similar special actions, if defined)
+and some <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.action_flag" title="cli_command_parser.parameters.options.action_flag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">action_flag</span></code></a> validation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_init_command_</span></code>: Intended to be overridden - the base implementation does not do anything.  See
+<a class="reference internal" href="#using-init-command">Using _init_command_</a> for more info.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_before_main_</span></code>: If any <code class="docutils literal notranslate"><span class="pre">before_main</span></code> <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.action_flag" title="cli_command_parser.parameters.options.action_flag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">action_flags</span></code></a> are defined, the original implementation
+should be called via <code class="docutils literal notranslate"><span class="pre">super()._before_main_()</span></code>.  When not using any action flags, this method can safely be
+overridden without calling the original.  See <a class="reference internal" href="#using-before-main">Using _before_main_</a> for more info.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_after_main_</span></code>: Similar to <code class="docutils literal notranslate"><span class="pre">_before_main_</span></code>, the need to call the original via <code class="docutils literal notranslate"><span class="pre">super()</span></code> depends on the presence
+of <code class="docutils literal notranslate"><span class="pre">after_main</span></code> action flags.  This method may be used analogously to a <code class="docutils literal notranslate"><span class="pre">finally:</span></code> clause for a command if
+the <a class="reference internal" href="configuration.html#error-handling-options"><span class="std std-ref">always_run_after_main</span></a> option is enabled / True.</p></li>
+</ul>
+</section>
 <section id="initialization-methods">
-<h2>Initialization Methods<a class="headerlink" href="#initialization-methods" title="Permalink to this heading"></a></h2>
+<h4>Initialization Methods<a class="headerlink" href="#initialization-methods" title="Permalink to this heading"></a></h4>
 <section id="using-init-command">
-<h3>Using _init_command_<a class="headerlink" href="#using-init-command" title="Permalink to this heading"></a></h3>
-<p>The current recommended way to handle initializing logging, or other common initialization steps, is to do so
+<h5>Using <code class="docutils literal notranslate"><span class="pre">_init_command_</span></code><a class="headerlink" href="#using-init-command" title="Permalink to this heading"></a></h5>
+<p>The recommended way to handle initializing logging, or other common initialization steps, is to do so
 in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._init_command_" title="cli_command_parser.commands.Command._init_command_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._init_command_()</span></code></a> - example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
@@ -240,11 +288,12 @@ method is intended to be overridden.</p>
 <p>The primary reason that this method is provided is to improve user experience when they specify <code class="docutils literal notranslate"><span class="pre">--help</span></code> or an
 invalid command.  Any initialization steps will incur some level of overhead, and generally no initialization
 should be necessary if the user is looking for help text or if they did not provide valid arguments.  Any extra work
-that is not necessary will result in a slower response, regardless of the parsing library that is used.</p>
+that is not necessary will result in a (potentially very perceptibly) slower response, regardless of the parsing
+library that is used.</p>
 <p>This method is called after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._pre_init_actions_" title="cli_command_parser.commands.Command._pre_init_actions_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._pre_init_actions_()</span></code></a> and before <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._before_main_()</span></code></a>.</p>
 </section>
 <section id="using-before-main">
-<h3>Using _before_main_<a class="headerlink" href="#using-before-main" title="Permalink to this heading"></a></h3>
+<h5>Using <code class="docutils literal notranslate"><span class="pre">_before_main_</span></code><a class="headerlink" href="#using-before-main" title="Permalink to this heading"></a></h5>
 <p>Before <code class="docutils literal notranslate"><span class="pre">_init_command_</span></code> was available, this was the recommended way to handle initialization steps.  That is no
 longer the case.</p>
 <div class="admonition important">
@@ -257,7 +306,7 @@ are not affected by this method.</p>
 <p>This method is called after <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._init_command_" title="cli_command_parser.commands.Command._init_command_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._init_command_()</span></code></a> and before <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>.</p>
 </section>
 <section id="using-init">
-<h3>Using __init__<a class="headerlink" href="#using-init" title="Permalink to this heading"></a></h3>
+<h5>Using <code class="docutils literal notranslate"><span class="pre">__init__</span></code><a class="headerlink" href="#using-init" title="Permalink to this heading"></a></h5>
 <p>If you don’t mind the extra overhead before <code class="docutils literal notranslate"><span class="pre">--help</span></code>, or if you have <code class="docutils literal notranslate"><span class="pre">always_available</span></code>
 <a class="reference internal" href="parameters.html#actionflag-init-params"><span class="std std-ref">ActionFlags</span></a> that require the same initialization steps as the rest of the Command,
 then you can include those initialization steps in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> instead.  The base <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class
@@ -272,6 +321,14 @@ has no <code class="docutils literal notranslate"><span class="pre">__init__</sp
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
 </pre></div>
 </div>
+<hr class="docutils" />
+<dl class="footnote brackets">
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id7">4</a></span></dt>
+<dd><p>Why <code class="docutils literal notranslate"><span class="pre">_sunder_</span></code> names? Mostly for the same reason that <a class="reference external" href="https://stackoverflow.com/a/52006681/19070573">the Enum module uses them</a>.</p>
+</dd>
+</dl>
+</section>
+</section>
 </section>
 </section>
 </section>

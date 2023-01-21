@@ -329,8 +329,8 @@ exclusive.</p>
 <p id="numrange-init-params"><strong>NumRange initialization parameters:</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="numrange:type">type</dt>
-<dd class="field-odd"><p>The type for values, or any callable that returns an int/float.  Defaults to float if one or both of min or max
-is a float, otherwise int.</p>
+<dd class="field-odd"><p>The type for values, or any callable that returns an int/float.  The default depends on the provided min/max
+values - if either is a float, then float will be used, otherwise int will be used.</p>
 </dd>
 <dt class="field-even" id="numrange:snap">snap</dt>
 <dd class="field-even"><p>If True and a provided value is outside the allowed range, snap to the nearest bound.  Respects inclusivity
@@ -348,6 +348,13 @@ them in this context.</p>
 </dd>
 <dt class="field-even" id="numrange:include_max">include_max</dt>
 <dd class="field-even"><p>Whether the maximum is inclusive (default: False).</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Example use cases:</dt><dd><ul class="simple">
+<li><p>Restrict input to only positive integers: <code class="docutils literal notranslate"><span class="pre">NumRange(min=0)</span></code></p></li>
+<li><p>Allow floats between 0 and 1, inclusive: <code class="docutils literal notranslate"><span class="pre">NumRange(type=float,</span> <span class="pre">min=0,</span> <span class="pre">max=1,</span> <span class="pre">include_max=True)</span></code></p></li>
+</ul>
 </dd>
 </dl>
 </section>
