@@ -55,11 +55,12 @@ def get_func_params(func: Callable, skip: Collection[str] = None) -> Set[str]:
 
 class UserDocsTest(TestCase):
     def test_command_kwargs_up_to_date(self):
-        doc_params = get_doc_params('configuration.rst', 'Command Metadata', 'Configuration Options')
-        doc_ignore = {'description', 'prog', 'epilog', 'usage'}
-        doc_params = set(doc_params).difference(doc_ignore)
+        doc_params = set(get_doc_params('configuration.rst', 'Command Metadata', 'Configuration Options'))
+
+        meta_kwargs = {'prog', 'usage', 'description', 'epilog', 'doc_name'}
         cmd_params = get_func_params(CommandMeta.__new__, ('mcs', 'name', 'bases', 'namespace', 'kwargs'))
-        self.assertSetEqual(doc_params, cmd_params)
+
+        self.assertSetEqual(doc_params, cmd_params | meta_kwargs)
 
     def test_config_options_up_to_date(self):
         doc_params = get_doc_params('configuration.rst', 'Configuration Options')
