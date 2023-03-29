@@ -150,6 +150,19 @@ def _is_command(obj) -> bool:
 
 
 class RstWriter:
+    """
+    A helper class for generating RST documentation for a Python package and/or scripts containing Commands.
+
+    :param output_dir: Directory in which RST files should be written.
+    :param dry_run: If True, log the actions that would be taken instead of taking them.
+    :param encoding: The text encoding to use for output.
+    :param newline: The newline character to use for output.
+    :param ext: The file extension / suffix (including the leading ``.``) to use for output.
+    :param module_template: The format string to use when generating RST for Python modules.
+    :param skip_modules: A collection of module names (using ``package.module`` notation) that should be skipped
+      when documenting a Python package via :meth:`.document_package`.
+    """
+
     def __init__(
         self,
         output_dir: PathLike,
@@ -178,6 +191,24 @@ class RstWriter:
         top_only: Bool = True,
         **kwargs,
     ) -> str:
+        """
+        Generate an RST file to document a Python script containing one or more Command classes.
+
+        :param path: Path for a file containing one or more Command classes.
+        :param subdir: If specified, write RST output for this script in this subdirectory, relative to the specified
+          :paramref:`output_dir<RstWriter.output_dir>`.
+        :param name: Replacement name to use as the stem of the RST file name and as the title of the page.  To replace
+          the RST file name, but preserve default behavior for the page title, use ``fix_name=False`` with this param.
+          The default page title is based on the name of the file that contains the Command, but can be overridden by
+          providing a :ref:`configuration:Command Metadata:doc_name` value when defining the Command.
+        :param replacements: A mapping of simple string replacements to apply to the generated RST content before
+          saving it.  For each key=value pair, ``rst_str = rst_str.replace(key, value)`` will be performed.
+        :param top_only: If True (the default), then only top-level commands in the given file will be documented,
+          otherwise all commands will be documented.  When True, subcommands of the discovered top-level commands will
+          still be documented.
+        :param kwargs: Additional keyword arguments to pass to :func:`render_script_rst`
+        :return: The stem of the file name that was used when saving the RST content for the given script.
+        """
         if name:
             kwargs['fix_name_func'] = lambda n: name
             rst_name = Path(name).stem
@@ -210,8 +241,15 @@ class RstWriter:
             self.write_index(name, index_header or name.title(), names, subdir, caption, index_subdir)
 
     def document_module(self, module: str, subdir: str = None):
+        """
+        Generate an RST file to document a Python module.
+
+        :param module: The name of the module that should be documented, using ``package.module`` notation.
+        :param subdir: If specified, write RST output for the specified module in this subdirectory, relative to the
+          specified :paramref:`output_dir<RstWriter.output_dir>`.
+        """
         name = module.split('.')[-1].title()
-        rendered = MODULE_TEMPLATE.format(header=rst_header(f'{name} Module', 2), module=module)
+        rendered = self.module_template.format(header=rst_header(f'{name} Module', 2), module=module)
         self.write_rst(module, rendered, subdir)
 
     def document_package(

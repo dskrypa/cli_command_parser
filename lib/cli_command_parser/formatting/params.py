@@ -7,7 +7,7 @@ Parameter usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Type, Callable, Iterator, Iterable, Tuple, Dict
+from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Tuple, Dict
 
 try:
     from functools import cached_property
@@ -404,6 +404,7 @@ class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
 
 class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # pylint: disable=W0223
     required_formatter_map: BoolFormatterMap = {True: '{{{}}}'.format, False: '[{}]'.format}
+    # TODO: #18 Group order changes between invocations - should be sorted as declared or alphanumerically (config?)
 
     def _get_choice_delim(self) -> str:
         param: ParamGroup = self.param

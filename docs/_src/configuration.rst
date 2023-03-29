@@ -17,6 +17,7 @@ keyword arguments when defining a Command subclass.  All of these options are op
 :choices: SubCommand values to map to this command.  Similar to ``choice``, but accepts multiple values.  A mapping
   of ``{choice: help text}`` may be provided to customize the help text displayed for each choice.
 :prog: The name of the program (default: ``sys.argv[0]``)
+:doc_name: The name of the program / title to use in documentation
 :usage: Usage message to be printed with help text or when incorrect arguments are provided (default:
   auto-generated)
 :description: Description of what the program does.  If the Command contains a class-level docstring, then that
