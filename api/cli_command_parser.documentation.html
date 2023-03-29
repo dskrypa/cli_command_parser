@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Documentation Module &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -116,7 +117,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
       <li class="breadcrumb-item active">Documentation Module</li>
     <li class="wy-breadcrumbs-aside">
@@ -135,7 +136,7 @@
 <span id="documentation-module"></span><h1>Documentation Module<a class="headerlink" href="#module-cli_command_parser.documentation" title="Permalink to this heading"></a></h1>
 <p>Utilities for generating documentation for Commands</p>
 <dl class="field-list simple">
-<dt class="field-odd">author</dt>
+<dt class="field-odd">author<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
@@ -149,7 +150,7 @@
 <dt class="sig sig-object py" id="cli_command_parser.documentation.render_command_rst">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.documentation.</span></span><span class="sig-name descname"><span class="pre">render_command_rst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandCls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_name_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NameFunc</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#render_command_rst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.render_command_rst" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.documentation.render_command_rst.params.command"></span><strong>command</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.render_command_rst.params.command">¶</a> – The <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> to document</p></li>
 <li><p><span class="target" id="cli_command_parser.documentation.render_command_rst.params.fix_name"></span><strong>fix_name</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.render_command_rst.params.fix_name">¶</a> – Whether the file name should be re-formatted from CamelCase / snake_case to separate Title Case
@@ -157,7 +158,7 @@ words or not (default: True)</p></li>
 <li><p><span class="target" id="cli_command_parser.documentation.render_command_rst.params.fix_name_func"></span><strong>fix_name_func</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.render_command_rst.params.fix_name_func">¶</a> – The function to call if <code class="docutils literal notranslate"><span class="pre">fix_name</span></code> is True instead of the default one.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The help text for the given Command, formatted using RST</p>
 </dd>
 </dl>
@@ -171,13 +172,13 @@ words or not (default: True)</p></li>
 path not existing, or a permission error, etc), it will be allowed to propagate.  An <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">ImportError</span></code></a>
 may be raised by <code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code> if the specified path cannot be imported.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.documentation.load_commands.params.path"></span><strong>path</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.load_commands.params.path">¶</a> – The path to a file containing one or more <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> classes</p></li>
 <li><p><span class="target" id="cli_command_parser.documentation.load_commands.params.top_only"></span><strong>top_only</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.load_commands.params.top_only">¶</a> – If True, then only top-level commands are returned (default: all)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dict containing the Commands loaded from the given file</p>
 </dd>
 </dl>
@@ -187,10 +188,48 @@ may be raised by <code class="xref py py-func docutils literal notranslate"><spa
 <dt class="sig sig-object py" id="cli_command_parser.documentation.RstWriter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.documentation.</span></span><span class="sig-name descname"><span class="pre">RstWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.rst'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{header}\n\n..</span> <span class="pre">currentmodule::</span> <span class="pre">{module}\n\n..</span> <span class="pre">automodule::</span> <span class="pre">{module}\n</span>&#160;&#160; <span class="pre">:members:\n</span>&#160;&#160; <span class="pre">:undoc-members:\n</span>&#160;&#160; <span class="pre">:show-inheritance:\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Strings</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#RstWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.RstWriter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A helper class for generating RST documentation for a Python package and/or scripts containing Commands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.output_dir"></span><strong>output_dir</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.output_dir">¶</a> – Directory in which RST files should be written.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.dry_run"></span><strong>dry_run</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.dry_run">¶</a> – If True, log the actions that would be taken instead of taking them.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.encoding"></span><strong>encoding</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.encoding">¶</a> – The text encoding to use for output.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.newline"></span><strong>newline</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.newline">¶</a> – The newline character to use for output.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.ext"></span><strong>ext</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.ext">¶</a> – The file extension / suffix (including the leading <code class="docutils literal notranslate"><span class="pre">.</span></code>) to use for output.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.module_template"></span><strong>module_template</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.module_template">¶</a> – The format string to use when generating RST for Python modules.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.params.skip_modules"></span><strong>skip_modules</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.params.skip_modules">¶</a> – A collection of module names (using <code class="docutils literal notranslate"><span class="pre">package.module</span></code> notation) that should be skipped
+when documenting a Python package via <a class="reference internal" href="#cli_command_parser.documentation.RstWriter.document_package" title="cli_command_parser.documentation.RstWriter.document_package"><code class="xref py py-meth docutils literal notranslate"><span class="pre">document_package()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.documentation.RstWriter.document_script">
 <span class="sig-name descname"><span class="pre">document_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path" title="cli_command_parser.inputs.files.Path"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#RstWriter.document_script"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.RstWriter.document_script" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate an RST file to document a Python script containing one or more Command classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_script.params.path"></span><strong>path</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_script.params.path">¶</a> – Path for a file containing one or more Command classes.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_script.params.subdir"></span><strong>subdir</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_script.params.subdir">¶</a> – If specified, write RST output for this script in this subdirectory, relative to the specified
+<a class="reference internal" href="#cli_command_parser.documentation.RstWriter.params.output_dir" title="cli_command_parser.documentation.RstWriter"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">output_dir</span></code></a>.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_script.params.name"></span><strong>name</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_script.params.name">¶</a> – Replacement name to use as the stem of the RST file name and as the title of the page.  To replace
+the RST file name, but preserve default behavior for the page title, use <code class="docutils literal notranslate"><span class="pre">fix_name=False</span></code> with this param.
+The default page title is based on the name of the file that contains the Command, but can be overridden by
+providing a <a class="reference internal" href="../configuration.html#command metadata:doc_name"><span class="std std-ref">doc_name</span></a> value when defining the Command.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_script.params.replacements"></span><strong>replacements</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_script.params.replacements">¶</a> – A mapping of simple string replacements to apply to the generated RST content before
+saving it.  For each key=value pair, <code class="docutils literal notranslate"><span class="pre">rst_str</span> <span class="pre">=</span> <span class="pre">rst_str.replace(key,</span> <span class="pre">value)</span></code> will be performed.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_script.params.top_only"></span><strong>top_only</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_script.params.top_only">¶</a> – If True (the default), then only top-level commands in the given file will be documented,
+otherwise all commands will be documented.  When True, subcommands of the discovered top-level commands will
+still be documented.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_script.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_script.params.kwargs">¶</a> – Additional keyword arguments to pass to <a class="reference internal" href="#cli_command_parser.documentation.render_script_rst" title="cli_command_parser.documentation.render_script_rst"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_script_rst()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The stem of the file name that was used when saving the RST content for the given script.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.documentation.RstWriter.document_scripts">
@@ -200,13 +239,23 @@ may be raised by <code class="xref py py-func docutils literal notranslate"><spa
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.documentation.RstWriter.document_module">
 <span class="sig-name descname"><span class="pre">document_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#RstWriter.document_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.RstWriter.document_module" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate an RST file to document a Python module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_module.params.module"></span><strong>module</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_module.params.module">¶</a> – The name of the module that should be documented, using <code class="docutils literal notranslate"><span class="pre">package.module</span></code> notation.</p></li>
+<li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_module.params.subdir"></span><strong>subdir</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_module.params.subdir">¶</a> – If specified, write RST output for the specified module in this subdirectory, relative to the
+specified <a class="reference internal" href="#cli_command_parser.documentation.RstWriter.params.output_dir" title="cli_command_parser.documentation.RstWriter"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">output_dir</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.documentation.RstWriter.document_package">
 <span class="sig-name descname"><span class="pre">document_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pkg_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pkg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path" title="cli_command_parser.inputs.files.Path"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#RstWriter.document_package"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.RstWriter.document_package" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_package.params.pkg_name"></span><strong>pkg_name</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_package.params.pkg_name">¶</a> – The name of the package to document</p></li>
 <li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_package.params.pkg_path"></span><strong>pkg_path</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_package.params.pkg_path">¶</a> – The path to the package</p></li>
@@ -218,7 +267,7 @@ may be raised by <code class="xref py py-func docutils literal notranslate"><spa
 <li><p><span class="target" id="cli_command_parser.documentation.RstWriter.document_package.params.caption"></span><strong>caption</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.documentation.RstWriter.document_package.params.caption">¶</a> – A caption to use for the index</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of the names from the contents of the package</p>
 </dd>
 </dl>

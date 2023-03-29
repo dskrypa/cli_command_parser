@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Input Types &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -113,7 +114,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Input Types</li>
     <li class="wy-breadcrumbs-aside">
         
@@ -137,32 +138,32 @@ argument values, but some custom types are defined here to facilitate common use
 available.</p>
 <p id="path-init-params"><strong>Path initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="path:exists">exists</dt>
+<dt class="field-odd" id="path:exists">exists<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If set, then the provided path must already exist if True, or must not already exist if False.  By default,
 existence is not checked.</p>
 </dd>
-<dt class="field-even" id="path:expand">expand</dt>
+<dt class="field-even" id="path:expand">expand<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether tilde (<code class="docutils literal notranslate"><span class="pre">~</span></code>) should be expanded.  Defaults to True.</p>
 </dd>
-<dt class="field-odd" id="path:resolve">resolve</dt>
+<dt class="field-odd" id="path:resolve">resolve<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the path should be fully resolved to its absolute path, with symlinks resolved, or not.  Defaults to
 False.</p>
 </dd>
-<dt class="field-even" id="path:type">type</dt>
+<dt class="field-even" id="path:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>To restrict the acceptable types of files/directories that are accepted, specify the <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode" title="cli_command_parser.inputs.utils.StatMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatMode</span></code></a> that
 matches the desired type.  By default, any type is accepted.  To accept specifically only regular files or
 directories, for example, use <code class="docutils literal notranslate"><span class="pre">type=StatMode.DIR</span> <span class="pre">|</span> <span class="pre">StatMode.FILE</span></code>.</p>
 </dd>
-<dt class="field-odd" id="path:readable">readable</dt>
+<dt class="field-odd" id="path:readable">readable<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If True, the path must be readable.</p>
 </dd>
-<dt class="field-even" id="path:writable">writable</dt>
+<dt class="field-even" id="path:writable">writable<span class="colon">:</span></dt>
 <dd class="field-even"><p>If True, the path must be writable.</p>
 </dd>
-<dt class="field-odd" id="path:allow_dash">allow_dash</dt>
+<dt class="field-odd" id="path:allow_dash">allow_dash<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Allow a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) to be provided to indicate stdin/stdout (default: False).</p>
 </dd>
-<dt class="field-even" id="path:use_windows_fix">use_windows_fix</dt>
+<dt class="field-even" id="path:use_windows_fix">use_windows_fix<span class="colon">:</span></dt>
 <dd class="field-even"><p>If True (the default) and the program is running on Windows, then <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path" title="cli_command_parser.inputs.utils.fix_windows_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a> will
 be called to attempt to fix an issue caused by auto-completion via Git Bash where Python receives a path that begins
 with <code class="docutils literal notranslate"><span class="pre">/{drive}/...</span></code> instead of <code class="docutils literal notranslate"><span class="pre">{drive}:/...</span></code> and doesn’t understand how to handle it.</p>
@@ -197,21 +198,21 @@ argument --path / -p: bad value=&#39;examples/custom_inputs.p&#39; for type=&lt;
 functionality for directly reading or writing to the provided path.</p>
 <p id="file-init-params"><strong>Additional File initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="file:mode">mode</dt>
+<dt class="field-odd" id="file:mode">mode<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The mode in which the file should be opened.  Defaults to <code class="docutils literal notranslate"><span class="pre">r</span></code> for reading text.  For more info,
 see <a class="reference external" href="https://docs.python.org/3/library/functions.html#open" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">open()</span></code></a>.</p>
 </dd>
-<dt class="field-even" id="file:encoding">encoding</dt>
+<dt class="field-even" id="file:encoding">encoding<span class="colon">:</span></dt>
 <dd class="field-even"><p>The encoding to use when reading the file in text mode.  Ignored if the parsed path is <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
 </dd>
-<dt class="field-odd" id="file:errors">errors</dt>
+<dt class="field-odd" id="file:errors">errors<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Error handling when reading the file in text mode.  Ignored if the parsed path is <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
 </dd>
-<dt class="field-even" id="file:lazy">lazy</dt>
+<dt class="field-even" id="file:lazy">lazy<span class="colon">:</span></dt>
 <dd class="field-even"><p>If True, a <a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper" title="cli_command_parser.inputs.utils.FileWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileWrapper</span></code></a> will be stored in the Parameter using this File, otherwise the file will be
 read immediately upon parsing of the path argument.</p>
 </dd>
-<dt class="field-odd" id="file:parents">parents</dt>
+<dt class="field-odd" id="file:parents">parents<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If True and <code class="docutils literal notranslate"><span class="pre">mode</span></code> implies writing, then create parent directories as needed.  Ignored otherwise.</p>
 </dd>
 </dl>
@@ -254,10 +255,10 @@ and a generic handler (<a class="reference internal" href="api/cli_command_parse
 <a class="reference internal" href="#file"><span class="std std-ref">File</span></a>, so the same options are accepted.</p>
 <p id="serialized-init-params"><strong>Additional Serialized initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="serialized files:converter">converter</dt>
+<dt class="field-odd" id="serialized files:converter">converter<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The function to call to serialize or deserialize the content in the specified file</p>
 </dd>
-<dt class="field-even" id="serialized files:pass_file">pass_file</dt>
+<dt class="field-even" id="serialized files:pass_file">pass_file<span class="colon">:</span></dt>
 <dd class="field-even"><p>True to call the given function with the file, False to handle (de)serialization and read/write as
 separate steps.  If True, when reading, the converter will be called with the file as the only argument; when writing,
 the converter will be called as <code class="docutils literal notranslate"><span class="pre">converter(data,</span> <span class="pre">f)</span></code>.  If False, when reading, the converter will be called with
@@ -310,10 +311,10 @@ and it will automatically be wrapped in a <a class="reference internal" href="ap
 must be used directly.</p>
 <p id="range-init-params"><strong>Range initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="range:range">range</dt>
+<dt class="field-odd" id="range:range">range<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#range" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">range</span></code></a> object</p>
 </dd>
-<dt class="field-even" id="range:snap">snap</dt>
+<dt class="field-even" id="range:snap">snap<span class="colon">:</span></dt>
 <dd class="field-even"><p>If True and a provided value is outside the allowed range, snap to the nearest bound.  The min or max
 of the provided range (not necessarily the start/stop values) will be used, depending on which one the provided
 value exceeded.</p>
@@ -328,25 +329,25 @@ or only bound on one side.  At least one of min or max is required, and min must
 exclusive.</p>
 <p id="numrange-init-params"><strong>NumRange initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="numrange:type">type</dt>
+<dt class="field-odd" id="numrange:type">type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The type for values, or any callable that returns an int/float.  The default depends on the provided min/max
 values - if either is a float, then float will be used, otherwise int will be used.</p>
 </dd>
-<dt class="field-even" id="numrange:snap">snap</dt>
+<dt class="field-even" id="numrange:snap">snap<span class="colon">:</span></dt>
 <dd class="field-even"><p>If True and a provided value is outside the allowed range, snap to the nearest bound.  Respects inclusivity
 / exclusivity of the bound.  Not supported for floats since there is not an obviously correct behavior for handling
 them in this context.</p>
 </dd>
-<dt class="field-odd" id="numrange:min">min</dt>
+<dt class="field-odd" id="numrange:min">min<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The minimum allowed value, or None to have no lower bound.</p>
 </dd>
-<dt class="field-even" id="numrange:max">max</dt>
+<dt class="field-even" id="numrange:max">max<span class="colon">:</span></dt>
 <dd class="field-even"><p>The maximum allowed value, or None to have no upper bound.</p>
 </dd>
-<dt class="field-odd" id="numrange:include_min">include_min</dt>
+<dt class="field-odd" id="numrange:include_min">include_min<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the minimum is inclusive (default: True).</p>
 </dd>
-<dt class="field-even" id="numrange:include_max">include_max</dt>
+<dt class="field-even" id="numrange:include_max">include_max<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether the maximum is inclusive (default: False).</p>
 </dd>
 </dl>
@@ -373,14 +374,14 @@ Parameter will be passed through when initializing the <a class="reference inter
 another option for handling dicts.</p>
 <p id="choices-init-params"><strong>Choices initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="choices:choices">choices</dt>
+<dt class="field-odd" id="choices:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A collection of choices allowed for a given Parameter.</p>
 </dd>
-<dt class="field-even" id="choices:type">type</dt>
+<dt class="field-even" id="choices:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
 a single string argument.</p>
 </dd>
-<dt class="field-odd" id="choices:case_sensitive">case_sensitive</dt>
+<dt class="field-odd" id="choices:case_sensitive">case_sensitive<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether choices should be case-sensitive.  Defaults to True.  If the choices values are not
 all strings, then this cannot be set to False.</p>
 </dd>
@@ -391,15 +392,15 @@ all strings, then this cannot be set to False.</p>
 <p>Similar to <a class="reference internal" href="#choices"><span class="std std-ref">Choices</span></a>, but requires a mapping for allowed values.</p>
 <p id="choicemap-init-params"><strong>ChoiceMap initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="choicemap:choices">choices</dt>
+<dt class="field-odd" id="choicemap:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Mapping (dict) where for a given key=value pair, the key is the value that is expected to be
 provided as an argument, and the value is what should be stored in the Parameter for that argument.</p>
 </dd>
-<dt class="field-even" id="choicemap:type">type</dt>
+<dt class="field-even" id="choicemap:type">type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
 a single string argument.</p>
 </dd>
-<dt class="field-odd" id="choicemap:case_sensitive">case_sensitive</dt>
+<dt class="field-odd" id="choicemap:case_sensitive">case_sensitive<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether choices should be case-sensitive.  Defaults to True.  If the choices keys are not
 all strings, then this cannot be set to False.</p>
 </dd>
@@ -418,10 +419,10 @@ automatically be wrapped in a <a class="reference internal" href="api/cli_comman
 <a class="reference internal" href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices" title="cli_command_parser.inputs.choices.EnumChoices"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumChoices</span></code></a> must be used directly.</p>
 <p id="enumchoices-init-params"><strong>EnumChoices initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="enumchoices:enum">enum</dt>
+<dt class="field-odd" id="enumchoices:enum">enum<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A subclass of <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">enum.Enum</span></code></a>.</p>
 </dd>
-<dt class="field-even" id="enumchoices:case_sensitive">case_sensitive</dt>
+<dt class="field-even" id="enumchoices:case_sensitive">case_sensitive<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether choices should be case-sensitive.  Defaults to False.</p>
 </dd>
 </dl>
@@ -455,26 +456,26 @@ defaults to the same locale as the input one.  By default, locale modification i
 <p>Input type representing a day of the week.</p>
 <p id="day-init-params"><strong>Day initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="day:full">full</dt>
+<dt class="field-odd" id="day:full">full<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Allow the full day name to be provided</p>
 </dd>
-<dt class="field-even" id="day:abbreviation">abbreviation</dt>
+<dt class="field-even" id="day:abbreviation">abbreviation<span class="colon">:</span></dt>
 <dd class="field-even"><p>Allow abbreviations of day names to be provided</p>
 </dd>
-<dt class="field-odd" id="day:numeric">numeric</dt>
+<dt class="field-odd" id="day:numeric">numeric<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Allow weekdays to be specified as a decimal number</p>
 </dd>
-<dt class="field-even" id="day:iso">iso</dt>
+<dt class="field-even" id="day:iso">iso<span class="colon">:</span></dt>
 <dd class="field-even"><p>Ignored if <code class="docutils literal notranslate"><span class="pre">numeric</span></code> is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,
 where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.</p>
 </dd>
-<dt class="field-odd" id="day:locale">locale</dt>
+<dt class="field-odd" id="day:locale">locale<span class="colon">:</span></dt>
 <dd class="field-odd"><p>An alternate locale to use when parsing input</p>
 </dd>
-<dt class="field-even" id="day:out_format">out_format</dt>
+<dt class="field-even" id="day:out_format">out_format<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <a class="reference internal" href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode" title="cli_command_parser.inputs.time.DTFormatMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">DTFormatMode</span></code></a> or str that matches a format mode.  Defaults to full weekday name.</p>
 </dd>
-<dt class="field-odd" id="day:out_locale">out_locale</dt>
+<dt class="field-odd" id="day:out_locale">out_locale<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Alternate locale to use for output.  Defaults to the same value as <code class="docutils literal notranslate"><span class="pre">locale</span></code>.</p>
 </dd>
 </dl>
@@ -484,22 +485,22 @@ where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.<
 <p>Input type representing a month.</p>
 <p id="month-init-params"><strong>Month initialization parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="month:full">full</dt>
+<dt class="field-odd" id="month:full">full<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Allow the full month name to be provided</p>
 </dd>
-<dt class="field-even" id="month:abbreviation">abbreviation</dt>
+<dt class="field-even" id="month:abbreviation">abbreviation<span class="colon">:</span></dt>
 <dd class="field-even"><p>Allow abbreviations of month names to be provided</p>
 </dd>
-<dt class="field-odd" id="month:numeric">numeric</dt>
+<dt class="field-odd" id="month:numeric">numeric<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Allow months to be specified as a decimal number</p>
 </dd>
-<dt class="field-even" id="month:locale">locale</dt>
+<dt class="field-even" id="month:locale">locale<span class="colon">:</span></dt>
 <dd class="field-even"><p>An alternate locale to use when parsing input</p>
 </dd>
-<dt class="field-odd" id="month:out_format">out_format</dt>
+<dt class="field-odd" id="month:out_format">out_format<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <a class="reference internal" href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode" title="cli_command_parser.inputs.time.DTFormatMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">DTFormatMode</span></code></a> or str that matches a format mode.  Defaults to full month name.</p>
 </dd>
-<dt class="field-even" id="month:out_locale">out_locale</dt>
+<dt class="field-even" id="month:out_locale">out_locale<span class="colon">:</span></dt>
 <dd class="field-even"><p>Alternate locale to use for output.  Defaults to the same value as <code class="docutils literal notranslate"><span class="pre">locale</span></code>.</p>
 </dd>
 </dl>
@@ -514,16 +515,16 @@ input, and default to formats very close to <a class="reference external" href="
 as objects of their respective <a class="reference external" href="https://docs.python.org/3/library/datetime.html#module-datetime" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">datetime</span></code></a> classes.</p>
 <p id="datetime-init-params"><strong>Common initialization parameters for DateTime, Date, and Time inputs:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="full date / time parsing:formats">formats</dt>
+<dt class="field-odd" id="full date / time parsing:formats">formats<span class="colon">:</span></dt>
 <dd class="field-odd"><p>One or more <a class="reference external" href="https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior" title="(in Python v3.11)"><span class="xref std std-ref">datetime format strings</span></a>.</p>
 </dd>
-<dt class="field-even" id="full date / time parsing:locale">locale</dt>
+<dt class="field-even" id="full date / time parsing:locale">locale<span class="colon">:</span></dt>
 <dd class="field-even"><p>An alternate locale to use when parsing input</p>
 </dd>
-<dt class="field-odd" id="full date / time parsing:earliest">earliest</dt>
+<dt class="field-odd" id="full date / time parsing:earliest">earliest<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If specified, the parsed value must be later than or equal to this</p>
 </dd>
-<dt class="field-even" id="full date / time parsing:latest">latest</dt>
+<dt class="field-even" id="full date / time parsing:latest">latest<span class="colon">:</span></dt>
 <dd class="field-even"><p>If specified, the parsed value must be earlier than or equal to this</p>
 </dd>
 </dl>

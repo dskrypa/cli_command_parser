@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Params Module &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -118,7 +119,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
           <li class="breadcrumb-item"><a href="cli_command_parser.formatting.html">Formatting Package</a></li>
       <li class="breadcrumb-item active">Params Module</li>
@@ -138,7 +139,7 @@
 <span id="params-module"></span><h1>Params Module<a class="headerlink" href="#module-cli_command_parser.formatting.params" title="Permalink to this heading"></a></h1>
 <p>Parameter usage / help text formatters</p>
 <dl class="field-list simple">
-<dt class="field-odd">author</dt>
+<dt class="field-odd">author<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
@@ -363,10 +364,10 @@ are considered aliases.</p>
 <dd><p>Processes the given Choices to group them by target and configured help text.  If two choices have the same
 target but different help text values, then they are considered different, so they are not grouped together.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="target" id="cli_command_parser.formatting.params.ChoiceGroup.group_choices.params.choices"></span><strong>choices</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup.group_choices.params.choices">¶</a> – The <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice" title="cli_command_parser.parameters.choice_map.Choice"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choice</span></code></a> objects that may contain aliases of each other.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The <a class="reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup" title="cli_command_parser.formatting.params.ChoiceGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChoiceGroup</span></code></a> objects containing the grouped Choices.</p>
 </dd>
 </dl>
@@ -381,14 +382,14 @@ target but different help text values, then they are considered different, so th
 <dt class="sig sig-object py" id="cli_command_parser.formatting.params.ChoiceGroup.format">
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><span class="pre">SubcommandAliasHelpMode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tw_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.11)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/formatting/params.html#ChoiceGroup.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.formatting.params.ChoiceGroup.format" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.formatting.params.ChoiceGroup.format.params.default_mode"></span><strong>default_mode</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup.format.params.default_mode">¶</a> – The default <a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a> to use if no mode was explicitly configured.</p></li>
 <li><p><span class="target" id="cli_command_parser.formatting.params.ChoiceGroup.format.params.tw_offset"></span><strong>tw_offset</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup.format.params.tw_offset">¶</a> – Terminal width offset for text width calculations.</p></li>
 <li><p><span class="target" id="cli_command_parser.formatting.params.ChoiceGroup.format.params.prefix"></span><strong>prefix</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup.format.params.prefix">¶</a> – Prefix to add to every line (primarily intended for use with nested groups).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Generator that yields formatted help text entries (strings) for the Choices in this group.</p>
 </dd>
 </dl>
@@ -400,10 +401,10 @@ target but different help text values, then they are considered different, so th
 <dd><p>Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias
 mode.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="target" id="cli_command_parser.formatting.params.ChoiceGroup.prepare.params.default_mode"></span><strong>default_mode</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup.prepare.params.default_mode">¶</a> – The default <a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode" title="cli_command_parser.config.SubcommandAliasHelpMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a> to use if no mode was explicitly configured.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Generator that yields 3-tuples containing the <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice" title="cli_command_parser.parameters.choice_map.Choice"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choice</span></code></a> object, the choice string value, and
 the help text / description for that choice / alias.</p>
 </dd>
@@ -434,11 +435,11 @@ following could be used:</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="target" id="cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases.params.format_str"></span><strong>format_str</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases.params.format_str">¶</a> – The <a class="reference external" href="https://docs.python.org/3/library/string.html#formatstrings" title="(in Python v3.11)"><span class="xref std std-ref">format string</span></a> to use as the help text / description for
 aliases.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Generator that yields 3-tuples containing the <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice" title="cli_command_parser.parameters.choice_map.Choice"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choice</span></code></a> object, the choice string value, and
 the help text / description for that choice / alias.</p>
 </dd>
@@ -495,7 +496,7 @@ are considered aliases are simply repeated as if they were not aliases.</p>
 <span class="sig-name descname"><span class="pre">format_help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tw_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/formatting/params.html#GroupHelpFormatter.format_help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.formatting.params.GroupHelpFormatter.format_help" title="Permalink to this definition"></a></dt>
 <dd><p>Prepare the help text for this group.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.formatting.params.GroupHelpFormatter.format_help.params.prefix"></span><strong>prefix</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.GroupHelpFormatter.format_help.params.prefix">¶</a> – Prefix to add to every line (primarily intended for use with nested groups)</p></li>
 <li><p><span class="target" id="cli_command_parser.formatting.params.GroupHelpFormatter.format_help.params.tw_offset"></span><strong>tw_offset</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.formatting.params.GroupHelpFormatter.format_help.params.tw_offset">¶</a> – Terminal width offset for text width calculations</p></li>
@@ -503,7 +504,7 @@ are considered aliases are simply repeated as if they were not aliases.</p>
 description.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The formatted help text.</p>
 </dd>
 </dl>

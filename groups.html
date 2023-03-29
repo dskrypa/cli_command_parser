@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parameter Groups &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -93,7 +94,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Parameter Groups</li>
     <li class="wy-breadcrumbs-aside">
         
@@ -114,31 +115,31 @@ and vice versa.</p>
 inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
 <p class="rubric" id="group-init-params">Initialization Parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="parameter groups:name">name</dt>
+<dt class="field-odd" id="parameter groups:name">name<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The name of the group to appear in help text.  Ignored if <code class="docutils literal notranslate"><span class="pre">description</span></code> is provided.</p>
 </dd>
-<dt class="field-even" id="parameter groups:description">description</dt>
+<dt class="field-even" id="parameter groups:description">description<span class="colon">:</span></dt>
 <dd class="field-even"><p>The description (header) for this group in help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">{name}</span> <span class="pre">options</span></code> if <code class="docutils literal notranslate"><span class="pre">name</span></code> is
 specified.  If <a class="reference internal" href="configuration.html#usage &amp; help text options:show_group_type"><span class="std std-ref">show_group_type</span></a> is True (the default), and the group
 is mutually exclusive/dependent, then <code class="docutils literal notranslate"><span class="pre">(mutually</span> <span class="pre">{type})</span></code> will be appended to this text.  If no description or name
 are provided, and <code class="docutils literal notranslate"><span class="pre">show_group_type</span></code> is True, then the entire description will default to
 <code class="docutils literal notranslate"><span class="pre">Mutually</span> <span class="pre">{type}</span> <span class="pre">options</span></code>, otherwise it will be <code class="docutils literal notranslate"><span class="pre">Optional</span> <span class="pre">arguments</span></code>.</p>
 </dd>
-<dt class="field-odd" id="parameter groups:mutually_exclusive">mutually_exclusive</dt>
+<dt class="field-odd" id="parameter groups:mutually_exclusive">mutually_exclusive<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually exclusive, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
 one Parameter in the group is provided, then no other Parameter in the group will be allowed.  Cannot be combined
 with <code class="docutils literal notranslate"><span class="pre">mutually_dependent</span></code>.</p>
 </dd>
-<dt class="field-even" id="parameter groups:mutually_dependent">mutually_dependent</dt>
+<dt class="field-even" id="parameter groups:mutually_dependent">mutually_dependent<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if Parameters in the group are mutually dependent, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.  I.e., if
 one Parameter in the group is provided, then all other Parameters in the group must also be provided.  Cannot be
 combined with <code class="docutils literal notranslate"><span class="pre">mutually_exclusive</span></code>.</p>
 </dd>
-<dt class="field-odd" id="parameter groups:required">required</dt>
+<dt class="field-odd" id="parameter groups:required">required<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether at least one Parameter in the group is required or not.  If it is required, then an exception
 will be raised if the user did not provide a value for any Parameters in the group.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd>
-<dt class="field-even" id="parameter groups:hide">hide</dt>
+<dt class="field-even" id="parameter groups:hide">hide<span class="colon">:</span></dt>
 <dd class="field-even"><p>Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to hide the group and all of its members so they will not be included in usage / help
 text.</p>
 </dd>

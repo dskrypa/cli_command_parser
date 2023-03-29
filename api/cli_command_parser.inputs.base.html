@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Base Module &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -114,7 +115,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
           <li class="breadcrumb-item"><a href="cli_command_parser.inputs.html">Inputs Package</a></li>
       <li class="breadcrumb-item active">Base Module</li>
@@ -134,7 +135,7 @@
 <span id="base-module"></span><h1>Base Module<a class="headerlink" href="#module-cli_command_parser.inputs.base" title="Permalink to this heading"></a></h1>
 <p>Custom input handlers for Parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd">author</dt>
+<dt class="field-odd">author<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
@@ -156,10 +157,10 @@ accepted later for processing / conversion via <a class="reference internal" hre
 provide actual validation, if necessary.</p>
 <p>Not called by <a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.take_action" title="cli_command_parser.parameters.base.Parameter.take_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Parameter.take_action()</span></code></a> - value validation should happen in <a class="reference internal" href="#cli_command_parser.inputs.base.InputType.__call__" title="cli_command_parser.inputs.base.InputType.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="target" id="cli_command_parser.inputs.base.InputType.is_valid_type.params.value"></span><strong>value</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.base.InputType.is_valid_type.params.value">¶</a> – A parsed argument</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if this input would accept it for processing later (where it may still be rejected), False if
 it should be rejected before attempting to process / convert / store it.</p>
 </dd>
@@ -168,7 +169,7 @@ it should be rejected before attempting to process / convert / store it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.base.InputType.fix_default">
-<span class="sig-name descname"><span class="pre">fix_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/inputs/base.html#InputType.fix_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.base.InputType.fix_default" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fix_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/inputs/base.html#InputType.fix_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.base.InputType.fix_default" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

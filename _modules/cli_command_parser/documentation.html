@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -29,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -77,7 +78,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">cli_command_parser.documentation</li>
     <li class="wy-breadcrumbs-aside">
@@ -243,6 +244,19 @@
 
 
 <div class="viewcode-block" id="RstWriter"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter">[docs]</a><span class="k">class</span> <span class="nc">RstWriter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper class for generating RST documentation for a Python package and/or scripts containing Commands.</span>
+
+<span class="sd">    :param output_dir: Directory in which RST files should be written.</span>
+<span class="sd">    :param dry_run: If True, log the actions that would be taken instead of taking them.</span>
+<span class="sd">    :param encoding: The text encoding to use for output.</span>
+<span class="sd">    :param newline: The newline character to use for output.</span>
+<span class="sd">    :param ext: The file extension / suffix (including the leading ``.``) to use for output.</span>
+<span class="sd">    :param module_template: The format string to use when generating RST for Python modules.</span>
+<span class="sd">    :param skip_modules: A collection of module names (using ``package.module`` notation) that should be skipped</span>
+<span class="sd">      when documenting a Python package via :meth:`.document_package`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
@@ -271,6 +285,24 @@
         <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate an RST file to document a Python script containing one or more Command classes.</span>
+
+<span class="sd">        :param path: Path for a file containing one or more Command classes.</span>
+<span class="sd">        :param subdir: If specified, write RST output for this script in this subdirectory, relative to the specified</span>
+<span class="sd">          :paramref:`output_dir&lt;RstWriter.output_dir&gt;`.</span>
+<span class="sd">        :param name: Replacement name to use as the stem of the RST file name and as the title of the page.  To replace</span>
+<span class="sd">          the RST file name, but preserve default behavior for the page title, use ``fix_name=False`` with this param.</span>
+<span class="sd">          The default page title is based on the name of the file that contains the Command, but can be overridden by</span>
+<span class="sd">          providing a :ref:`configuration:Command Metadata:doc_name` value when defining the Command.</span>
+<span class="sd">        :param replacements: A mapping of simple string replacements to apply to the generated RST content before</span>
+<span class="sd">          saving it.  For each key=value pair, ``rst_str = rst_str.replace(key, value)`` will be performed.</span>
+<span class="sd">        :param top_only: If True (the default), then only top-level commands in the given file will be documented,</span>
+<span class="sd">          otherwise all commands will be documented.  When True, subcommands of the discovered top-level commands will</span>
+<span class="sd">          still be documented.</span>
+<span class="sd">        :param kwargs: Additional keyword arguments to pass to :func:`render_script_rst`</span>
+<span class="sd">        :return: The stem of the file name that was used when saving the RST content for the given script.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fix_name_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">name</span>
             <span class="n">rst_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
@@ -303,8 +335,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">index_header</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="n">names</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">index_subdir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RstWriter.document_module"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_module">[docs]</a>    <span class="k">def</span> <span class="nf">document_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate an RST file to document a Python module.</span>
+
+<span class="sd">        :param module: The name of the module that should be documented, using ``package.module`` notation.</span>
+<span class="sd">        :param subdir: If specified, write RST output for the specified module in this subdirectory, relative to the</span>
+<span class="sd">          specified :paramref:`output_dir&lt;RstWriter.output_dir&gt;`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">rendered</span> <span class="o">=</span> <span class="n">MODULE_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> Module&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">)</span>
+        <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> Module&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_rst</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">rendered</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RstWriter.document_package"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package">[docs]</a>    <span class="k">def</span> <span class="nf">document_package</span><span class="p">(</span>

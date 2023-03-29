@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -29,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -77,7 +78,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Index</li>
     <li class="wy-breadcrumbs-aside">
         
@@ -940,6 +941,8 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.ParseState.done">done (cli_command_parser.context.ParseState property)</a>
 </li>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.dry_run">dry_run (cli_command_parser.documentation.RstWriter parameter)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date.dt_type">dt_type (cli_command_parser.inputs.time.Date attribute)</a>
 
       <ul>
@@ -964,9 +967,11 @@
 </li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package.params.empty">empty (cli_command_parser.documentation.RstWriter.document_package parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.encoding">encoding (cli_command_parser.inputs.files.File attribute)</a>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.encoding">encoding (cli_command_parser.documentation.RstWriter parameter)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.encoding">(cli_command_parser.inputs.files.File attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.params.encoding">(cli_command_parser.inputs.files.File parameter)</a>
 </li>
       </ul></li>
@@ -1015,6 +1020,8 @@
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.exit">exit() (cli_command_parser.exceptions.CommandParserException method)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.params.expand">expand (cli_command_parser.inputs.files.Path parameter)</a>
+</li>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.ext">ext (cli_command_parser.documentation.RstWriter parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.extend">extend() (cli_command_parser.parameters.groups.ParamGroup method)</a>
 </li>
@@ -1359,6 +1366,8 @@
 </li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.main.params.kwargs">(cli_command_parser.commands.main parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.kwargs">(cli_command_parser.documentation.RstWriter.document_script parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.params.kwargs">(cli_command_parser.inputs.files.File parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Json.params.kwargs">(cli_command_parser.inputs.files.Json parameter)</a>
@@ -1577,7 +1586,13 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module">module (cli_command_parser.metadata.ProgramMetadata attribute)</a>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_module.params.module">module (cli_command_parser.documentation.RstWriter.document_module parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.module_template">module_template (cli_command_parser.documentation.RstWriter parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month">Month (class in cli_command_parser.inputs.time)</a>
 </li>
@@ -1610,6 +1625,8 @@
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package.params.name">name (cli_command_parser.documentation.RstWriter.document_package parameter)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.name">(cli_command_parser.documentation.RstWriter.document_script parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam.name">(cli_command_parser.inputs.utils.InputParam attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.params.name">(cli_command_parser.parameters.base.Parameter parameter)</a>
@@ -1648,6 +1665,8 @@
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min">nargs_min() (cli_command_parser.parse_tree.PosNode method)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults.NEVER">NEVER (cli_command_parser.config.ShowDefaults attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.newline">newline (cli_command_parser.documentation.RstWriter parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoActiveContext">NoActiveContext</a>
 </li>
@@ -1714,6 +1733,8 @@
       <li><a href="api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.OptionStrings">OptionStrings (class in cli_command_parser.parameters.option_strings)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.order">order (cli_command_parser.parameters.options.ActionFlag parameter)</a>
+</li>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.output_dir">output_dir (cli_command_parser.documentation.RstWriter parameter)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1820,6 +1841,8 @@
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands.params.path">path (cli_command_parser.documentation.load_commands parameter)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.path">(cli_command_parser.documentation.RstWriter.document_script parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.path">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
       </ul></li>
@@ -1949,6 +1972,8 @@
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">render_script_rst() (in module cli_command_parser.documentation)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT">REPEAT (cli_command_parser.config.SubcommandAliasHelpMode attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.replacements">replacements (cli_command_parser.documentation.RstWriter.document_script parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__.params.repr_attrs">repr_attrs (cli_command_parser.parameters.base.Parameter.__init_subclass__ parameter)</a>
 </li>
@@ -2084,9 +2109,11 @@
       </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults">ShowDefaults (class in cli_command_parser.config)</a>
 </li>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_current_context.params.silent">silent (cli_command_parser.context.get_current_context parameter)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_current_context.params.silent">silent (cli_command_parser.context.get_current_context parameter)</a>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.params.skip_modules">skip_modules (cli_command_parser.documentation.RstWriter parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.snap">snap (cli_command_parser.inputs.numeric.NumRange attribute)</a>
 
@@ -2128,8 +2155,14 @@
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode">SubcommandAliasHelpMode (class in cli_command_parser.config)</a>
 </li>
-      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package.params.subdir">subdir (cli_command_parser.documentation.RstWriter.document_package parameter)</a>
+      <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_module.params.subdir">subdir (cli_command_parser.documentation.RstWriter.document_module parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package.params.subdir">(cli_command_parser.documentation.RstWriter.document_package parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.subdir">(cli_command_parser.documentation.RstWriter.document_script parameter)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.subtitle">subtitle (cli_command_parser.formatting.restructured_text.RstTable attribute)</a>
 
       <ul>
@@ -2177,11 +2210,15 @@
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed.params.to_call">to_call (cli_command_parser.context.get_parsed parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands.params.top_only">top_only (cli_command_parser.documentation.load_commands parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.top_only">(cli_command_parser.documentation.RstWriter.document_script parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">TriFlag (class in cli_command_parser.parameters.options)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">TriFlag (class in cli_command_parser.parameters.options)</a>
+</li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter">TriFlagHelpFormatter (class in cli_command_parser.formatting.params)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings">TriFlagOptionStrings (class in cli_command_parser.parameters.option_strings)</a>

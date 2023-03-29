@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subcommands &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -86,7 +87,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Subcommands</li>
     <li class="wy-breadcrumbs-aside">
         
@@ -110,25 +111,25 @@ subcommands, and each of those subcommands can have their own SubCommand Paramet
 levels of nested subcommands.</p>
 <p id="subcommand-init-params"><strong>Initialization parameters for SubCommand Parameters:</strong></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="subcommands:title">title</dt>
+<dt class="field-odd" id="subcommands:title">title<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The title to use for help text sections containing the choices for the Parameter.  Defaults to
 <code class="docutils literal notranslate"><span class="pre">Subcommands</span></code>.</p>
 </dd>
-<dt class="field-even" id="subcommands:description">description</dt>
+<dt class="field-even" id="subcommands:description">description<span class="colon">:</span></dt>
 <dd class="field-even"><p>The description to be used in help text for the Parameter.</p>
 </dd>
-<dt class="field-odd" id="subcommands:local_choices">local_choices</dt>
+<dt class="field-odd" id="subcommands:local_choices">local_choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If some choices should be handled in the Command that the SubCommand Parameter is in, they should
 be specified here.  Supports either a mapping of <code class="docutils literal notranslate"><span class="pre">{choice:</span> <span class="pre">help</span> <span class="pre">text}</span></code> or a collection of choice values.</p>
 </dd>
-<dt class="field-even" id="subcommands:nargs">nargs</dt>
+<dt class="field-even" id="subcommands:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported.  Automatically calculated / maintained based on registered choices (subcommand target
 Commands).</p>
 </dd>
-<dt class="field-odd" id="subcommands:type">type</dt>
+<dt class="field-odd" id="subcommands:type">type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Not supported.</p>
 </dd>
-<dt class="field-even" id="subcommands:choices">choices</dt>
+<dt class="field-even" id="subcommands:choices">choices<span class="colon">:</span></dt>
 <dd class="field-even"><p>Not supported - all other choices are populated by registering subcommands.</p>
 </dd>
 </dl>
@@ -140,17 +141,17 @@ automatically be registered as subcommands of the Command that they extend.</p>
 <a class="reference internal" href="commands.html#defining-commands"><span class="std std-ref">initializing Commands</span></a>, the following keyword-only parameters may also be
 provided along with the class that it extends:</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="automatic registration:choice">choice</dt>
+<dt class="field-odd" id="automatic registration:choice">choice<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The value a user must provide to choose the target subcommand.  Spaces are supported.  By default, the
 lower-case (snake_case) name of the subcommand class is used.  I.e., if the class is called <code class="docutils literal notranslate"><span class="pre">Foo</span></code>, then the
 automatically generated choice value will be <code class="docutils literal notranslate"><span class="pre">foo</span></code>.  If the class is called <code class="docutils literal notranslate"><span class="pre">FooBar</span></code>, then the choice will be
 <code class="docutils literal notranslate"><span class="pre">foo_bar</span></code>.</p>
 </dd>
-<dt class="field-even" id="automatic registration:choices">choices</dt>
+<dt class="field-even" id="automatic registration:choices">choices<span class="colon">:</span></dt>
 <dd class="field-even"><p>If multiple choices should be supported as aliases for selecting a given target subcommand, they can be
 provided via <code class="docutils literal notranslate"><span class="pre">choices</span></code> instead of <code class="docutils literal notranslate"><span class="pre">choice</span></code>.</p>
 </dd>
-<dt class="field-odd" id="automatic registration:help">help</dt>
+<dt class="field-odd" id="automatic registration:help">help<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The help text to display for the subcommand when viewing the parent Command’s help text.</p>
 </dd>
 </dl>

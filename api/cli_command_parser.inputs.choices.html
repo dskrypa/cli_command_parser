@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Choices Module &mdash; CLI Command Parser 2023.01.15 documentation</title>
@@ -13,9 +13,6 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -32,14 +29,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> CLI Command Parser
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CLI Command Parser
           </a>
               <div class="version">
                 2023.01.15
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -116,7 +117,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Documentation</a></li>
           <li class="breadcrumb-item"><a href="cli_command_parser.inputs.html">Inputs Package</a></li>
       <li class="breadcrumb-item active">Choices Module</li>
@@ -136,7 +137,7 @@
 <span id="choices-module"></span><h1>Choices Module<a class="headerlink" href="#module-cli_command_parser.inputs.choices" title="Permalink to this heading"></a></h1>
 <p>Custom input handlers for Parameters to restrict allowed values to a set of choices.</p>
 <dl class="field-list simple">
-<dt class="field-odd">author</dt>
+<dt class="field-odd">author<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
@@ -146,7 +147,7 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ChoicesBase</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
 <p>Validates that values are members of the collection of allowed values.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.inputs.choices.Choices.params.choices"></span><strong>choices</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.choices.Choices.params.choices">¶</a> – A collection of choices allowed for a given Parameter.</p></li>
 <li><p><span class="target" id="cli_command_parser.inputs.choices.Choices.params.type"></span><strong>type</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.choices.Choices.params.type">¶</a> – Called before evaluating whether a value matches one of the allowed choices, if provided.  Must accept
@@ -170,7 +171,7 @@ all strings, then this cannot be set to False.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
 <p>Similar to <a class="reference internal" href="#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a>, but requires a mapping for allowed values.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.inputs.choices.ChoiceMap.params.choices"></span><strong>choices</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.choices.ChoiceMap.params.choices">¶</a> – Mapping (dict) where for a given key=value pair, the key is the value that is expected to be
 provided as an argument, and the value is what should be stored in the Parameter for that argument.</p></li>
@@ -200,7 +201,7 @@ all strings, then this cannot be set to False.</p></li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ChoicesBase</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">EnumT</span></code>]</p>
 <p>Similar to <a class="reference internal" href="#cli_command_parser.inputs.choices.ChoiceMap" title="cli_command_parser.inputs.choices.ChoiceMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChoiceMap</span></code></a>, but uses an Enum to validate / normalize input instead of the keys in a dict.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><span class="target" id="cli_command_parser.inputs.choices.EnumChoices.params.enum"></span><strong>enum</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.choices.EnumChoices.params.enum">¶</a> – A subclass of <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">enum.Enum</span></code></a>.</p></li>
 <li><p><span class="target" id="cli_command_parser.inputs.choices.EnumChoices.params.case_sensitive"></span><strong>case_sensitive</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.choices.EnumChoices.params.case_sensitive">¶</a> – Whether choices should be case-sensitive.  Defaults to False.</p></li>
