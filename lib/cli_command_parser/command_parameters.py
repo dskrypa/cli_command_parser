@@ -158,6 +158,7 @@ class CommandParameters:
             elif isinstance(param, BaseOption):
                 options.append(param)
             elif isinstance(param, ParamGroup):
+                # Groups will only be discovered here when defined with `as` - ex: `with ParamGroup(...) as foo:`
                 groups.add(param)
             elif isinstance(param, PassThru):
                 if self.pass_thru:
@@ -172,7 +173,7 @@ class CommandParameters:
                 )
 
             if param.group:
-                groups.update(_get_groups(param))
+                _find_groups(groups, param)
 
         if self.config and self.config.add_help and (not self.parent or not self.parent._has_help):
             options.append(help_action)
@@ -466,10 +467,8 @@ class CommandParameters:
             yield pass_thru
 
 
-def _get_groups(param: ParamBase) -> Set[ParamGroup]:
-    groups = set()
+def _find_groups(groups: Set[ParamGroup], param: ParamBase):
     group = param.group
-    if group:
+    while group:
         groups.add(group)
-        groups.update(_get_groups(group))
-    return groups
+        group = group.group
