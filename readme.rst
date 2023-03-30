@@ -19,7 +19,7 @@ CLI Command Parser
     :target: https://pypistats.org/packages/cli-command-parser
 
 
-Command Parser is a class-based CLI argument parser that defines parameters with descriptors.  It provides the
+CLI Command Parser is a class-based CLI argument parser that defines parameters with descriptors.  It provides the
 tools to quickly and easily get started with basic CLIs, and it scales well to support even very large and complex
 CLIs while remaining readable and easy to maintain.
 

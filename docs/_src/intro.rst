@@ -9,6 +9,8 @@ Multiple Parameters can be specified as attributes inside the Command to define 
 The ``main()`` function that can be imported from ``cli_command_parser`` provides the main entry point for parsing
 arguments and running the Command.
 
+.. _hello_example:
+
 Here's a basic example of a program that uses CLI Command Parser::
 
     from cli_command_parser import Command, Option, main
@@ -58,7 +60,8 @@ automatically added based on the name of that Parameter attribute.  Following th
 `DRY principle <https://en.wikipedia.org/wiki/Don%27t_repeat_yourself>`__, the ``--long`` form for Options,
 Flags, etc. is generated automatically.  To avoid conflicts, short forms are not automatically generated.
 
-The ``Option(...)`` Parameters above would be equivalent to the following if you were using argparse::
+The ``Option(...)`` Parameters :ref:`in the above Hello example<hello_example>` would be equivalent to the following
+if you were using argparse::
 
     parser.add_argument('--name', '-n', default='World', help='The person to say hello to')
     parser.add_argument('--count', '-c', type=int, default=1, help='Number of times to repeat the message')
