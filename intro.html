@@ -109,7 +109,7 @@ called after arguments are parsed.</p>
 <p>Multiple Parameters can be specified as attributes inside the Command to define how CLI arguments will be parsed.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">main()</span></code> function that can be imported from <code class="docutils literal notranslate"><span class="pre">cli_command_parser</span></code> provides the main entry point for parsing
 arguments and running the Command.</p>
-<p>Here’s a basic example of a program that uses CLI Command Parser:</p>
+<p id="hello-example">Here’s a basic example of a program that uses CLI Command Parser:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span>
 
 <span class="k">class</span> <span class="nc">Hello</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">):</span>
@@ -151,7 +151,8 @@ define how they will parse CLI arguments.</p>
 automatically added based on the name of that Parameter attribute.  Following the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY principle</a>, the <code class="docutils literal notranslate"><span class="pre">--long</span></code> form for Options,
 Flags, etc. is generated automatically.  To avoid conflicts, short forms are not automatically generated.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Option(...)</span></code> Parameters above would be equivalent to the following if you were using argparse:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Option(...)</span></code> Parameters <a class="reference internal" href="#hello-example"><span class="std std-ref">in the above Hello example</span></a> would be equivalent to the following
+if you were using argparse:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--count&#39;</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
 </pre></div>
