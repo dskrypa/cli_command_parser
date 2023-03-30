@@ -229,7 +229,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
             msg = f'Invalid consts={consts!r} - expected a 2-tuple of (positive, negative) constants to store'
             raise ParameterDefinitionError(msg) from e
 
-        alt_opt_strs = tuple(filter(None, (alt_short, alt_long)))
+        alt_opt_strs = filter(None, (alt_short, alt_long))
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
         self.consts = consts
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)

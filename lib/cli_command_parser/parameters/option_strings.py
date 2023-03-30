@@ -6,16 +6,24 @@ Containers for option strings
 
 from __future__ import annotations
 
-from typing import Optional, Collection, Union, Iterator, List, Set
+from typing import TYPE_CHECKING, Optional, Collection, Union, Iterator, List, Set, Tuple
 
 from ..config import OptionNameMode, DEFAULT_CONFIG
 from ..exceptions import ParameterDefinitionError
+
+if TYPE_CHECKING:
+    from ..typing import Bool
 
 __all__ = ['OptionStrings', 'TriFlagOptionStrings']
 
 
 class OptionStrings:
     __slots__ = ('name_mode', '_long', '_short', 'combinable', '_display_long')
+    name_mode: Optional[OptionNameMode]
+    combinable: Set[str]
+    _display_long: Set[str]
+    _long: Set[str]
+    _short: Set[str]
 
     def __init__(self, option_strs: Collection[str], name_mode: Union[OptionNameMode, str] = None):
         self.name_mode = OptionNameMode(name_mode) if name_mode is not None else None
@@ -34,16 +42,20 @@ class OptionStrings:
     def _sort_options(cls, options: Collection[str]):
         return sorted(options, key=lambda opt: (-len(opt), opt))
 
+    def has_long(self) -> Bool:
+        """Whether any (primary / non-alternate, for TriFlag) long option strings were defined"""
+        return self._long  # Explicit values were provided during param init
+
     def update(self, name: str):
         """
         Called by :meth:`.BaseOption.__set_name__` to add the assigned name to the long option strings for this param.
         """
-        if self._long:  # Explicit values were provided during param init
+        if self.has_long():
             return
 
         mode = self.name_mode or DEFAULT_CONFIG.option_name_mode
-        mode_val: int = mode._value_  # This Flag doesn't subclass int due to breakage in 3.11
-        if mode_val & 4:
+        mode_val: int = mode._value_  # noqa # This Flag doesn't subclass int due to breakage in 3.11
+        if mode_val & 4:  # any option was set
             self._display_long = self._display_long.copy()
         if mode & OptionNameMode.DASH:
             option = '--{}'.format(name.replace('_', '-'))
@@ -77,11 +89,18 @@ class OptionStrings:
 
 class TriFlagOptionStrings(OptionStrings):
     __slots__ = ('_alt_prefix', '_alt_long', '_alt_short')
+    _alt_prefix: Optional[str]
+    _alt_short: Optional[str]
+    _alt_long: Union[Set[str], Tuple[str]]
+
+    def has_long(self) -> Bool:
+        """Whether any primary / non-alternate long option strings were defined"""
+        return self._long.difference(self._alt_long)
 
     def add_alts(self, prefix: Optional[str], long: Optional[str], short: Optional[str]):
-        self._alt_prefix = prefix  # noqa
-        self._alt_long = (long,) if long else set()  # noqa
-        self._alt_short = short  # noqa
+        self._alt_prefix = prefix
+        self._alt_long = (long,) if long else set()
+        self._alt_short = short
 
     def update_alts(self, name: str):
         """
@@ -91,7 +110,7 @@ class TriFlagOptionStrings(OptionStrings):
             return
 
         mode = self.name_mode or DEFAULT_CONFIG.option_name_mode
-        mode_val: int = mode._value_  # This Flag doesn't subclass int due to breakage in 3.11
+        mode_val: int = mode._value_  # noqa # This Flag doesn't subclass int due to breakage in 3.11
         if mode & OptionNameMode.DASH:
             option = '--{}-{}'.format(self._alt_prefix, name.replace('_', '-'))
             self._alt_long.add(option)
