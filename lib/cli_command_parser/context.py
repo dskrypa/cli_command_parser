@@ -127,6 +127,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             argv = self.remaining
         return self.__class__(argv, command, parent=self, **kwargs)
 
+    def __repr__(self) -> str:
+        cmd_name = getattr(self.command, '__name__', None)
+        return f'<{self.__class__.__name__}[state={self.state}, command={cmd_name}]>'
+
     def __enter__(self) -> Context:
         _context_stack.get().append(self)
         return self
