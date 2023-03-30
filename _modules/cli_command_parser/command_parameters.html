@@ -252,6 +252,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">):</span>
                 <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">):</span>
+                <span class="c1"># Groups will only be discovered here when defined with `as` - ex: `with ParamGroup(...) as foo:`</span>
                 <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">:</span>
@@ -266,7 +267,7 @@
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
-                <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_groups</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+                <span class="n">_find_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_help</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_has_help</span><span class="p">):</span>
             <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">help_action</span><span class="p">)</span>
@@ -560,13 +561,11 @@
             <span class="k">yield</span> <span class="n">pass_thru</span></div></div>
 
 
-<span class="k">def</span> <span class="nf">_get_groups</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">ParamBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]:</span>
-    <span class="n">groups</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_find_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">],</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamBase</span><span class="p">):</span>
     <span class="n">group</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span>
-    <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
+    <span class="k">while</span> <span class="n">group</span><span class="p">:</span>
         <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-        <span class="n">groups</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_get_groups</span><span class="p">(</span><span class="n">group</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">groups</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">group</span>
 </pre></div>
 
            </div>
