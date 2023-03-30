@@ -100,6 +100,7 @@ class ParamGroup(ParamBase):
             else:
                 return group < other_group
 
+        # Even if a name was not explicitly provided, an auto-generated one is returned here based on this object's id
         return self.name < other.name
 
     def __contains__(self, param: ParamOrGroup) -> bool:

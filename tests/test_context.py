@@ -208,6 +208,13 @@ class ContextTest(TestCase):
         for state, expected in zip(ParseState, (False, True, True)):
             self.assertEqual(state.done, expected)
 
+    def test_repr(self):
+        class Foo(Command):
+            pass
+
+        self.assertEqual('<Context[state=ParseState.INITIAL, command=Foo]>', repr(Foo().ctx))
+        self.assertEqual('<Context[state=ParseState.INITIAL, command=None]>', repr(Context()))
+
 
 if __name__ == '__main__':
     try:
