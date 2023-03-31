@@ -118,12 +118,15 @@ class ParamBase(ABC):
         name = self._name
         if name is not None:
             return name
-        return f'{self.__class__.__name__}#{id(self)}'
+        return self._default_name()
 
     @name.setter
     def name(self, value: Optional[str]):
         if value is not None:
             self._name = value
+
+    def _default_name(self) -> str:
+        return f'{self.__class__.__name__}#{id(self)}'
 
     def __set_name__(self, command: CommandCls, name: str):
         self.command = command
