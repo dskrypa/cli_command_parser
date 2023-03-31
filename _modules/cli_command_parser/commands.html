@@ -132,8 +132,11 @@
         <span class="c1"># call super().__init__(...) from their own __init__ for this step</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span> <span class="o">=</span> <span class="n">ctx</span>
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># region Parse &amp; Run</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@overload</span>
@@ -172,6 +175,10 @@
             <span class="bp">self</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span></div>
 
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Parse</span>
+
     <span class="nd">@classmethod</span>
     <span class="nd">@overload</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">],</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span><span class="p">:</span>
@@ -203,6 +210,8 @@
 
             <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">()</span></div>
 
+    <span class="c1"># endregion</span>
+
 <div class="viewcode-block" id="Command.__call__"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary entry point for running a command.  Subclasses generally should not override this method.</span>
@@ -217,7 +226,7 @@
 <span class="sd">            #. :meth:`._init_command_`</span>
 <span class="sd">            #. :meth:`._before_main_`</span>
 <span class="sd">            #. :meth:`.main`</span>
-<span class="sd">            #. :meth:`._after_main_`.</span>
+<span class="sd">            #. :meth:`._after_main_`</span>
 
 <span class="sd">        :param args: Positional arguments to pass to the methods listed above</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the methods listed above</span>
