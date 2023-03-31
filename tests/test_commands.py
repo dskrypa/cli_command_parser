@@ -272,6 +272,14 @@ class TestCommands(TestCase):
         self.assertTrue(act_flag_mock.called)
         self.assertTrue(action_mock.called)
 
+    def test_ctx_attr_retained(self):
+        class Foo(Command):
+            ctx = 123
+
+        self.assertEqual(123, Foo().ctx)
+        del Foo.ctx
+        self.assertIsInstance(Foo().ctx, Context)
+
 
 if __name__ == '__main__':
     try:

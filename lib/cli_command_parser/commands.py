@@ -38,8 +38,11 @@ class Command(ABC, metaclass=CommandMeta):
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
         self.__ctx = ctx
-        self.__dict__.setdefault('ctx', ctx)
+        if not hasattr(self, 'ctx'):
+            self.ctx = ctx
         return self
+
+    # region Parse & Run
 
     @classmethod
     @overload
@@ -78,6 +81,10 @@ class Command(ABC, metaclass=CommandMeta):
             self(**kwargs)
             return self
 
+    # endregion
+
+    # region Parse
+
     @classmethod
     @overload
     def parse(cls: Type[CommandObj], argv: Argv = None) -> CommandObj:
@@ -109,6 +116,8 @@ class Command(ABC, metaclass=CommandMeta):
 
             return cmd_cls()
 
+    # endregion
+
     def __call__(self, *args, **kwargs) -> int:
         """
         Primary entry point for running a command.  Subclasses generally should not override this method.
@@ -123,7 +132,7 @@ class Command(ABC, metaclass=CommandMeta):
             #. :meth:`._init_command_`
             #. :meth:`._before_main_`
             #. :meth:`.main`
-            #. :meth:`._after_main_`.
+            #. :meth:`._after_main_`
 
         :param args: Positional arguments to pass to the methods listed above
         :param kwargs: Keyword arguments to pass to the methods listed above
