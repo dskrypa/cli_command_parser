@@ -6,6 +6,7 @@ Parameter Groups
 
 from __future__ import annotations
 
+from itertools import count
 from typing import TYPE_CHECKING, Optional, Iterable, Iterator, Tuple, List
 
 from ..context import ctx
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
     from ..typing import Bool, ParamList, ParamOrGroup
 
 __all__ = ['ParamGroup']
+
+_GROUP_COUNTER = count()  # Used to track group definition order for help text sorting purposes
 
 
 class ParamGroup(ParamBase):
@@ -40,6 +43,7 @@ class ParamGroup(ParamBase):
       ``False``.
     """
 
+    _num: int
     description: Optional[str]
     members: List[ParamOrGroup]
     mutually_exclusive: Bool = False
@@ -56,6 +60,7 @@ class ParamGroup(ParamBase):
         hide: Bool = False,
     ):
         super().__init__(name=name, required=required, hide=hide)
+        self._num = next(_GROUP_COUNTER)
         self.description = description
         self.members = []
         if mutually_dependent and mutually_exclusive:
@@ -63,6 +68,10 @@ class ParamGroup(ParamBase):
             raise ParameterDefinitionError(f'group={name!r} cannot be both mutually_exclusive and mutually_dependent')
         self.mutually_exclusive = mutually_exclusive
         self.mutually_dependent = mutually_dependent
+
+    def _default_name(self) -> str:
+        # Overrides the default id(self) based name to provide a stable sort order for groups in --help text
+        return f'{self.__class__.__name__}#{self._num:06d}'
 
     # region Boilerplate Methods
 
@@ -100,7 +109,7 @@ class ParamGroup(ParamBase):
             else:
                 return group < other_group
 
-        # Even if a name was not explicitly provided, an auto-generated one is returned here based on this object's id
+        # Even if a name was not explicitly provided, the auto-generated one from self._default_name() is returned here
         return self.name < other.name
 
     def __contains__(self, param: ParamOrGroup) -> bool:
