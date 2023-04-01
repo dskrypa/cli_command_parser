@@ -17,7 +17,7 @@ inside the ``with`` block.
 :description: The description (header) for this group in help text.  Defaults to ``{name} options`` if ``name`` is
   specified.  If :ref:`configuration:Usage & Help Text Options:show_group_type` is True (the default), and the group
   is mutually exclusive/dependent, then ``(mutually {type})`` will be appended to this text.  If no description or name
-  are provided, and ``show_group_type`` is True, then the entire description will default to
+  is provided and ``show_group_type`` is True, then the entire description will default to
   ``Mutually {type} options``, otherwise it will be ``Optional arguments``.
 :mutually_exclusive: ``True`` if Parameters in the group are mutually exclusive, ``False`` otherwise.  I.e., if
   one Parameter in the group is provided, then no other Parameter in the group will be allowed.  Cannot be combined
@@ -112,6 +112,12 @@ unless the group itself is marked as ``required``, none of the members will be r
 for any of the other members.
 
 An example can be found :ref:`below <mutually_dependent_example>`.
+
+.. hint::
+    If a command has multiple required parameters, to avoid needing to repeat ``required=True`` for each parameter,
+    they can be grouped in a ``ParamGroup(mutually_dependent=True, required=True)``.  Since the group's parameters are
+    marked as mutually dependent and the group is required, the group will require arguments to be provided for ALL of
+    its parameters.
 
 
 Combining Group Types
