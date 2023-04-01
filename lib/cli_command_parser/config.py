@@ -257,6 +257,13 @@ class CommandConfig:
 
     # endregion
 
+    # region Parameter Options
+
+    #: Whether inferring Parameter types from type annotations should be enabled
+    allow_annotation_type: Bool = ConfigItem(True, bool)
+
+    # endregion
+
     # region ActionFlag Options
 
     #: Whether multiple action_flag methods are allowed to run if they are all specified

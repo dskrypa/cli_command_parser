@@ -1,23 +1,15 @@
 #!/usr/bin/env python
 
-from contextlib import contextmanager
 from pathlib import Path
 from unittest import main
 
 from cli_command_parser import Context, Command
-from cli_command_parser.documentation import load_commands, render_script_rst
-from cli_command_parser.testing import ParserTest, get_help_text
+from cli_command_parser.documentation import render_script_rst
+from cli_command_parser.testing import ParserTest, get_help_text, load_command
 
 THIS_FILE = Path(__file__).resolve()
 EXAMPLES_DIR = THIS_FILE.parents[2].joinpath('examples')
 TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data', 'test_examples_documentation')
-
-
-@contextmanager
-def load_example_command(name: str, cmd_name: str):
-    path = EXAMPLES_DIR.joinpath(name)
-    with Context.for_prog(path):
-        yield load_commands(path)[cmd_name]
 
 
 def load_expected(name: str) -> str:
@@ -26,14 +18,14 @@ def load_expected(name: str) -> str:
 
 class ExampleHelpTest(ParserTest):
     def test_advanced_subcommand(self):
-        with load_example_command('advanced_subcommand.py', 'Base') as Base:
+        with load_command(EXAMPLES_DIR, 'advanced_subcommand.py', 'Base') as Base:
             for args in ('foo', 'run foo'):
                 expected = f'usage: advanced_subcommand.py {args} [--verbose [VERBOSE]] [--help]'
                 with self.subTest(args=args):
                     self.assert_str_starts_with_line(expected, get_help_text(Base.parse(args.split())))
 
     def test_common_group_shown(self):
-        with load_example_command('rest_api_wrapper.py', 'ApiWrapper') as ApiWrapper:
+        with load_command(EXAMPLES_DIR, 'rest_api_wrapper.py', 'ApiWrapper') as ApiWrapper:
             for sub_cmd in ('show', 'find'):
                 expected = load_expected(f'rest_api_wrapper__{sub_cmd}.txt')
                 with self.subTest(sub_cmd=sub_cmd):
@@ -49,7 +41,7 @@ class ExampleHelpTest(ParserTest):
         ]
         for file_name, cmd_name, expected_file_name in cases:
             with self.subTest(file=file_name, command=cmd_name):
-                with load_example_command(file_name, cmd_name) as command:
+                with load_command(EXAMPLES_DIR, file_name, cmd_name) as command:
                     expected = load_expected(expected_file_name)
                     self.assert_strings_equal(expected, get_help_text(command()).rstrip())
 

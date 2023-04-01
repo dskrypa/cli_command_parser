@@ -8,19 +8,22 @@ Helpers for unit tests
 from __future__ import annotations
 
 import sys
-from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager, contextmanager
 from difflib import unified_diff
 from io import StringIO, BytesIO
-from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, ContextManager, Dict, List, Tuple
 from unittest import TestCase
 from unittest.mock import Mock, seal
 
 from .actions import help_action
 from .commands import Command
+from .context import Context
 from .core import get_params
+from .documentation import load_commands
 from .exceptions import UsageError
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from .typing import CommandCls
 
 __all__ = [
@@ -31,6 +34,7 @@ __all__ = [
     'get_help_text',
     'get_usage_text',
     'sealed_mock',
+    'load_command',
 ]
 
 Argv = List[str]
@@ -153,6 +157,9 @@ class ParserTest(TestCase):
             self.fail('String did not contain expected text:\n' + diff)
 
 
+# region Formatting
+
+
 def _colored(text: str, color: int, end: str = '\n'):
     return f'\x1b[38;5;{color}m{text}\x1b[0m{end}'
 
@@ -206,6 +213,9 @@ def format_dict_diff(a: Dict[str, Any], b: Dict[str, Any]) -> str:
     return f'- {{{kvs_a}}}\n+ {{{kvs_b}}}'
 
 
+# endregion
+
+
 class RedirectStreams(AbstractContextManager):
     _stdin: Union[IO, str, bytes, None] = None
 
@@ -246,6 +256,9 @@ class RedirectStreams(AbstractContextManager):
             setattr(sys, name, orig)
 
 
+# region Help / Usage / RST Text
+
+
 def get_usage_text(cmd: Type[Command]) -> str:
     with cmd().ctx:
         return get_params(cmd).formatter.format_usage()
@@ -269,8 +282,18 @@ def get_rst_text(cmd: Union[Type[Command], Command]) -> str:
         return get_params(cmd).formatter.format_rst()
 
 
+# endregion
+
+
 def sealed_mock(*args, **kwargs):
     kwargs.setdefault('return_value', None)
     mock = Mock(*args, **kwargs)
     seal(mock)
     return mock
+
+
+@contextmanager
+def load_command(directory: Path, name: str, cmd_name: str) -> ContextManager[CommandCls]:
+    path = directory.joinpath(name)
+    with Context.for_prog(path):
+        yield load_commands(path)[cmd_name]

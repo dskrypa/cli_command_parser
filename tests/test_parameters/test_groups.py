@@ -253,6 +253,23 @@ class MutuallyDependentGroupTest(_GroupTest):
         fail_cases = [(['-b'], UsageError), (['-B'], UsageError)]
         self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2)
 
+    def test_mutually_dependent_and_required(self):
+        class Foo(Command):
+            with ParamGroup(mutually_dependent=True, required=True):
+                bar = Flag('-b')
+                baz = Flag('-B')
+
+        success_cases = [
+            (['-bB'], {'bar': True, 'baz': True}),
+            (['-b', '-B'], {'bar': True, 'baz': True}),
+            (['--bar', '-B'], {'bar': True, 'baz': True}),
+            (['-b', '--baz'], {'bar': True, 'baz': True}),
+            (['--baz', '--bar'], {'bar': True, 'baz': True}),
+        ]
+        fail_cases = [([], UsageError), (['-b'], UsageError), (['-B'], UsageError)]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
 
 class NestedGroupTest(_GroupTest):
     def test_nested_me_in_md(self):

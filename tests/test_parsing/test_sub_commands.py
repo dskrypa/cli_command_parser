@@ -3,7 +3,9 @@
 from unittest import main, skip
 
 from cli_command_parser import Command, Positional, Option, Flag, SubCommand, ParamGroup
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.actions import help_action
+from cli_command_parser.exceptions import ParamsMissing, MissingArgument, ParserExit
+from cli_command_parser.testing import ParserTest, RedirectStreams
 
 
 class SubCmdParsingTest(ParserTest):
@@ -134,6 +136,39 @@ class SubCmdParsingTest(ParserTest):
             (['show', 'schedule override', '-i', '56'], {**base, 'type': 'schedule override', 'ids': ['56'], 'num': 0}),
         ]
         self.assert_parse_results_cases(Base, success_cases)
+
+    def test_alt_parent_sub_command_missing_args(self):
+        for with_option in (False, True):
+            with self.subTest(with_option=with_option):
+
+                class Foo(Command, error_handler=None):
+                    cmd = SubCommand()
+                    if with_option:
+                        foo = Option('-f', required=True)
+
+                @Foo.cmd.register
+                class Bar(Command, error_handler=None):
+                    baz = Positional()
+
+                with self.assertRaises(ParamsMissing):
+                    Foo.parse_and_run(['bar'])
+                with self.assertRaises(MissingArgument):
+                    Foo.parse_and_run([])
+                with RedirectStreams():
+                    with self.assertRaises(ParserExit):
+                        Foo.parse_and_run(['bar', '-h'])
+                    with self.assertRaises(ParserExit):
+                        Foo.parse_and_run(['-h'])
+
+    def test_arg_dict_with_parent(self):
+        class Foo(Command):
+            pass
+
+        class Bar(Foo):
+            pass
+
+        expected = {help_action.name: False}
+        self.assertDictEqual(expected, Bar.parse([]).ctx.get_parsed())
 
 
 if __name__ == '__main__':

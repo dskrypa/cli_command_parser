@@ -4,10 +4,30 @@ import sys
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import main, skipIf
+from unittest.mock import Mock
 
-from cli_command_parser import Command
-from cli_command_parser.parameters import Positional, Option
-from cli_command_parser.testing import ParserTest
+from cli_command_parser import Command, Positional, Option, inputs
+from cli_command_parser.annotations import get_args
+from cli_command_parser.testing import ParserTest, load_command
+
+THIS_FILE = Path(__file__).resolve()
+TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data', 'command_test_cases')
+
+
+class AnnotationsTest(ParserTest):
+    def test_get_args(self):
+        # This is for coverage in 3.9+ for the get_args compatibility wrapper, to mock the attr present in 3.8 & below
+        self.assertEqual((), get_args(Mock(_special=True)))
+
+    def test_annotation_using_forward_ref(self):
+        with load_command(TEST_DATA_DIR, 'annotation_using_forward_ref.py', 'AnnotatedCommand') as AnnotatedCmd:
+            self.assertIs(None, AnnotatedCmd.paths_a.type)
+            self.assertIsInstance(AnnotatedCmd.paths_b.type, inputs.Path)
+
+    def test_future_annotation_using_forward_ref(self):
+        with load_command(TEST_DATA_DIR, 'future_annotation_using_forward_ref.py', 'AnnotatedCommand') as AnnotatedCmd:
+            self.assertIs(None, AnnotatedCmd.paths_a.type)
+            self.assertIsInstance(AnnotatedCmd.paths_b.type, inputs.Path)
 
 
 class TypeCastTest(ParserTest):
@@ -92,6 +112,18 @@ class TypeCastTest(ParserTest):
                 bar: annotation = Option(type=type_val)
 
             self.assertEqual(expected, Foo.parse(argv).bar)
+
+    def test_disabled_annotation_types(self):
+        class Foo(Command, allow_annotation_type=False):
+            foo: int = Option('-f')
+            bar: Path = Option('-b')
+            baz = Option('-B', type=int)
+
+        self.assertIsNone(Foo.foo.type)  # noqa
+        self.assertIsNone(Foo.bar.type)  # noqa
+        self.assertIs(Foo.baz.type, int)
+        expected = {'foo': '1', 'bar': '/var/tmp', 'baz': 2}
+        self.assert_parse_results(Foo, ['-f', '1', '-b', '/var/tmp', '-B', '2'], expected)
 
 
 def _resolved_path(path):

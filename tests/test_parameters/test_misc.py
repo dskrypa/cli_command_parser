@@ -193,7 +193,7 @@ class MiscParameterTest(ParserTest):
         class Foo(Command):
             bar = Option()
 
-        self.assertIsInstance(Foo.bar._ParamBase__config(Foo), CommandConfig)
+        self.assertIsInstance(Foo.bar._config(Foo), CommandConfig)
 
     def test_short_conflict_in_subcommand(self):
         class A(Command, description='...'):
