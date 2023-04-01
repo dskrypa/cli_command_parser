@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#command-metadata">Command Metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuration-options">Configuration Options</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#error-handling-options">Error Handling Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-options">Parameter Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#actionflag-options">ActionFlag Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parsing-options">Parsing Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage-help-text-options">Usage &amp; Help Text Options</a></li>
@@ -161,6 +162,18 @@ None to disable error handling.  Defaults to <code class="xref py py-obj docutil
 <dt class="field-even" id="error handling options:always_run_after_main">always_run_after_main<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_" title="cli_command_parser.commands.Command._after_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a> should always be called, even if an exception
 was raised in <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> (similar to a <code class="docutils literal notranslate"><span class="pre">finally</span></code> block) (default: False)</p>
+</dd>
+</dl>
+</section>
+<section id="parameter-options">
+<h3>Parameter Options<a class="headerlink" href="#parameter-options" title="Permalink to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd" id="parameter options:allow_annotation_type">allow_annotation_type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether inferring Parameter types from type annotations should be enabled (default: True).
+When enabled/allowed, if a type annotation is detected for a given Parameter, then it will be used as if that type
+had been specified via <code class="docutils literal notranslate"><span class="pre">type=...</span></code>.  When both an annotation and an explicit <code class="docutils literal notranslate"><span class="pre">type=...</span></code> are present, then the
+<code class="docutils literal notranslate"><span class="pre">type</span></code> argument takes precedence.  When disabled, type annotations will not be inspected.  If no <code class="docutils literal notranslate"><span class="pre">type</span></code> is
+specified, then the default type (usually <code class="docutils literal notranslate"><span class="pre">str</span></code>) for that Parameter will be used.</p>
 </dd>
 </dl>
 </section>

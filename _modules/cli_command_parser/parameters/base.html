@@ -244,7 +244,7 @@
             <span class="k">pass</span>
         <span class="k">raise</span> <span class="n">NoActiveContext</span><span class="p">(</span><span class="s1">&#39;There is no active context&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">config</span>
         <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
@@ -259,7 +259,7 @@
         <span class="kn">from</span> <span class="nn">..formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>  <span class="c1"># Here due to circular dependency</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__config</span><span class="p">()</span><span class="o">.</span><span class="n">param_formatter</span> <span class="ow">or</span> <span class="n">ParamHelpFormatter</span>
+            <span class="n">formatter_factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">()</span><span class="o">.</span><span class="n">param_formatter</span> <span class="ow">or</span> <span class="n">ParamHelpFormatter</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># self.command is None</span>
             <span class="n">formatter_factory</span> <span class="o">=</span> <span class="n">ParamHelpFormatter</span>
 
@@ -376,7 +376,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">type_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_attr</span><span class="p">,</span> <span class="p">(</span><span class="n">ChoiceMapInput</span><span class="p">,</span> <span class="n">Choices</span><span class="p">))</span> <span class="ow">and</span> <span class="n">type_attr</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">choices</span> <span class="ow">or</span> <span class="n">type_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">choices</span> <span class="ow">or</span> <span class="n">type_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">allow_annotation_type</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">annotated_type</span> <span class="o">=</span> <span class="n">get_descriptor_value_type</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">annotated_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

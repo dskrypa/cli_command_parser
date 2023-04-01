@@ -122,7 +122,7 @@ inside the <code class="docutils literal notranslate"><span class="pre">with</sp
 <dd class="field-even"><p>The description (header) for this group in help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">{name}</span> <span class="pre">options</span></code> if <code class="docutils literal notranslate"><span class="pre">name</span></code> is
 specified.  If <a class="reference internal" href="configuration.html#usage &amp; help text options:show_group_type"><span class="std std-ref">show_group_type</span></a> is True (the default), and the group
 is mutually exclusive/dependent, then <code class="docutils literal notranslate"><span class="pre">(mutually</span> <span class="pre">{type})</span></code> will be appended to this text.  If no description or name
-are provided, and <code class="docutils literal notranslate"><span class="pre">show_group_type</span></code> is True, then the entire description will default to
+is provided and <code class="docutils literal notranslate"><span class="pre">show_group_type</span></code> is True, then the entire description will default to
 <code class="docutils literal notranslate"><span class="pre">Mutually</span> <span class="pre">{type}</span> <span class="pre">options</span></code>, otherwise it will be <code class="docutils literal notranslate"><span class="pre">Optional</span> <span class="pre">arguments</span></code>.</p>
 </dd>
 <dt class="field-odd" id="parameter groups:mutually_exclusive">mutually_exclusive<span class="colon">:</span></dt>
@@ -217,6 +217,13 @@ then arguments for all other Parameters in that group must also be provided.  Si
 unless the group itself is marked as <code class="docutils literal notranslate"><span class="pre">required</span></code>, none of the members will be required if no arguments are provided
 for any of the other members.</p>
 <p>An example can be found <a class="reference internal" href="#mutually-dependent-example"><span class="std std-ref">below</span></a>.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>If a command has multiple required parameters, to avoid needing to repeat <code class="docutils literal notranslate"><span class="pre">required=True</span></code> for each parameter,
+they can be grouped in a <code class="docutils literal notranslate"><span class="pre">ParamGroup(mutually_dependent=True,</span> <span class="pre">required=True)</span></code>.  Since the group’s parameters are
+marked as mutually dependent and the group is required, the group will require arguments to be provided for ALL of
+its parameters.</p>
+</div>
 </section>
 <section id="combining-group-types">
 <h2>Combining Group Types<a class="headerlink" href="#combining-group-types" title="Permalink to this heading"></a></h2>

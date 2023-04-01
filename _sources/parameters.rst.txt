@@ -27,10 +27,11 @@ Common parameters that are supported by all Parameters:
   when no ``metavar`` value is specified.
 :metavar: The name to use as a placeholder for values in usage / help messages.
 :help: A brief description for the Parameter that will appear in ``--help`` text.
-:hide: Set this to ``True`` to prevent a Parameter from being included in usage / help text.
+:hide: Set this to ``True`` to prevent a Parameter from being included in usage / help text.  This is equivalent to
+  using ``help=argparse.SUPPRESS`` with ``argparse``.
 :show_default: Override the :ref:`configuration:Usage & Help Text Options:show_defaults` setting for a given
   Parameter to always or never include the default value in usage / help messages.  The default behavior is to follow
-  the ``show_defaults`` setting.
+  the ``show_defaults`` setting (which defaults to ``True``).
 
 Common parameters that are supported when initializing most Parameters:
 
@@ -64,13 +65,17 @@ Common parameters that are supported when initializing most Parameters:
   annotation is detected, then that annotation will be used as if it was provided here.  When both are present, this
   argument takes precedence.
 
+
 Options
 =======
 
 Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
 They are typically not required by default, and often have both long and short forms, where long forms typically have
-a ``--`` prefix, and short forms have a ``-`` prefix.  The long form is automatically added, if not explicitly
-specified, based on the name of the Parameter attribute.
+a ``--`` prefix, and short forms have a ``-`` prefix.
+
+The long form is automatically added (if not explicitly specified) based on the name of the Parameter attribute.  That
+is, if a parameter is defined as ``foo = Option('-f')`` or ``foo = Option()``, then ``--foo`` will automatically be
+added as its long form option string.
 
 
 .. _options_init_params:
@@ -89,6 +94,17 @@ Options support two additional initialization parameters:
       generated long form based on the Parameter's name will not be added.
 :name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this
   Option/Flag/Counter/etc.
+
+.. note::
+    Automatically abbreviated option strings are not supported.  To accept a particular option string, it must be
+    explicitly registered (the automatically added long form based on param name counts as explicit registration).
+
+    To be clear, the following behavior of ``argparse`` is **not** supported::
+
+        >>> parser = ArgumentParser()
+        >>> parser.add_argument('--foobar')
+        >>> parser.parse_args(['--foo', 'baz'])
+        Namespace(foobar='baz')
 
 
 Option

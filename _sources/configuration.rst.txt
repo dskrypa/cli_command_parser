@@ -44,6 +44,16 @@ Error Handling Options
   was raised in :meth:`.Command.main` (similar to a ``finally`` block) (default: False)
 
 
+Parameter Options
+-----------------
+
+:allow_annotation_type: Whether inferring Parameter types from type annotations should be enabled (default: True).
+  When enabled/allowed, if a type annotation is detected for a given Parameter, then it will be used as if that type
+  had been specified via ``type=...``.  When both an annotation and an explicit ``type=...`` are present, then the
+  ``type`` argument takes precedence.  When disabled, type annotations will not be inspected.  If no ``type`` is
+  specified, then the default type (usually ``str``) for that Parameter will be used.
+
+
 ActionFlag Options
 ------------------
 

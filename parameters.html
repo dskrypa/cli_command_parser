@@ -143,12 +143,13 @@ when no <code class="docutils literal notranslate"><span class="pre">metavar</sp
 <dd class="field-even"><p>A brief description for the Parameter that will appear in <code class="docutils literal notranslate"><span class="pre">--help</span></code> text.</p>
 </dd>
 <dt class="field-odd" id="parameters:hide">hide<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to prevent a Parameter from being included in usage / help text.</p>
+<dd class="field-odd"><p>Set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> to prevent a Parameter from being included in usage / help text.  This is equivalent to
+using <code class="docutils literal notranslate"><span class="pre">help=argparse.SUPPRESS</span></code> with <code class="docutils literal notranslate"><span class="pre">argparse</span></code>.</p>
 </dd>
 <dt class="field-even" id="parameters:show_default">show_default<span class="colon">:</span></dt>
 <dd class="field-even"><p>Override the <a class="reference internal" href="configuration.html#usage &amp; help text options:show_defaults"><span class="std std-ref">show_defaults</span></a> setting for a given
 Parameter to always or never include the default value in usage / help messages.  The default behavior is to follow
-the <code class="docutils literal notranslate"><span class="pre">show_defaults</span></code> setting.</p>
+the <code class="docutils literal notranslate"><span class="pre">show_defaults</span></code> setting (which defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p>
 </dd>
 </dl>
 <p>Common parameters that are supported when initializing most Parameters:</p>
@@ -198,8 +199,10 @@ argument takes precedence.</p>
 <h2>Options<a class="headerlink" href="#options" title="Permalink to this heading"></a></h2>
 <p>Options are parameters that may be provided in any order, and are roughly equivalent to keyword arguments to functions.
 They are typically not required by default, and often have both long and short forms, where long forms typically have
-a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.  The long form is automatically added, if not explicitly
-specified, based on the name of the Parameter attribute.</p>
+a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.</p>
+<p>The long form is automatically added (if not explicitly specified) based on the name of the Parameter attribute.  That
+is, if a parameter is defined as <code class="docutils literal notranslate"><span class="pre">foo</span> <span class="pre">=</span> <span class="pre">Option('-f')</span></code> or <code class="docutils literal notranslate"><span class="pre">foo</span> <span class="pre">=</span> <span class="pre">Option()</span></code>, then <code class="docutils literal notranslate"><span class="pre">--foo</span></code> will automatically be
+added as its long form option string.</p>
 <p class="rubric" id="options-init-params">Common Initialization Parameters - Options</p>
 <p>Options support two additional initialization parameters:</p>
 <dl class="field-list">
@@ -221,6 +224,18 @@ generated long form based on the Parameter’s name will not be added.</p></li>
 Option/Flag/Counter/etc.</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Automatically abbreviated option strings are not supported.  To accept a particular option string, it must be
+explicitly registered (the automatically added long form based on param name counts as explicit registration).</p>
+<p>To be clear, the following behavior of <code class="docutils literal notranslate"><span class="pre">argparse</span></code> is <strong>not</strong> supported:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--foobar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s1">&#39;--foo&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">])</span>
+<span class="go">Namespace(foobar=&#39;baz&#39;)</span>
+</pre></div>
+</div>
+</div>
 <section id="option">
 <h3>Option<a class="headerlink" href="#option" title="Permalink to this heading"></a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option" title="cli_command_parser.parameters.options.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter that accepts arbitrary values or lists of values.</p>
