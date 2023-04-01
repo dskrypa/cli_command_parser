@@ -8,7 +8,7 @@ from subprocess import Popen, PIPE
 from typing import Tuple
 from unittest import TestCase, TestSuite as _TestSuite, main
 
-EXAMPLES_DIR = Path(__file__).resolve().parents[1].joinpath('examples')
+EXAMPLES_DIR = Path(__file__).resolve().parents[2].joinpath('examples')
 
 # region Test Setup
 

@@ -8,7 +8,7 @@ from cli_command_parser.formatting.commands import get_formatter
 from cli_command_parser.testing import RedirectStreams
 from cli_command_parser.context import get_or_create_context
 
-sys.path.append(Path(__file__).resolve().parents[1].joinpath('examples').as_posix())
+sys.path.append(Path(__file__).resolve().parents[2].joinpath('examples').as_posix())
 
 from custom_inputs import InputsExample
 from echo import Echo
