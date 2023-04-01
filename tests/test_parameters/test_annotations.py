@@ -1,26 +1,17 @@
 #!/usr/bin/env python
 
 import sys
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional, Collection, Sequence, Iterable, Union
 from unittest import main, skipIf
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Context, Positional, Option, inputs
+from cli_command_parser import Command, Positional, Option, inputs
 from cli_command_parser.annotations import get_args
-from cli_command_parser.documentation import load_commands
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.testing import ParserTest, load_command
 
 THIS_FILE = Path(__file__).resolve()
 TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data', 'command_test_cases')
-
-
-@contextmanager
-def load_command(name: str, cmd_name: str):
-    path = TEST_DATA_DIR.joinpath(name)
-    with Context.for_prog(path):
-        yield load_commands(path)[cmd_name]
 
 
 class AnnotationsTest(ParserTest):
@@ -29,14 +20,14 @@ class AnnotationsTest(ParserTest):
         self.assertEqual((), get_args(Mock(_special=True)))
 
     def test_annotation_using_forward_ref(self):
-        with load_command('annotation_using_forward_ref.py', 'AnnotatedCommand') as AnnotatedCommand:
-            self.assertIs(None, AnnotatedCommand.paths_a.type)
-            self.assertIsInstance(AnnotatedCommand.paths_b.type, inputs.Path)
+        with load_command(TEST_DATA_DIR, 'annotation_using_forward_ref.py', 'AnnotatedCommand') as AnnotatedCmd:
+            self.assertIs(None, AnnotatedCmd.paths_a.type)
+            self.assertIsInstance(AnnotatedCmd.paths_b.type, inputs.Path)
 
     def test_future_annotation_using_forward_ref(self):
-        with load_command('future_annotation_using_forward_ref.py', 'AnnotatedCommand') as AnnotatedCommand:
-            self.assertIs(None, AnnotatedCommand.paths_a.type)
-            self.assertIsInstance(AnnotatedCommand.paths_b.type, inputs.Path)
+        with load_command(TEST_DATA_DIR, 'future_annotation_using_forward_ref.py', 'AnnotatedCommand') as AnnotatedCmd:
+            self.assertIs(None, AnnotatedCmd.paths_a.type)
+            self.assertIsInstance(AnnotatedCmd.paths_b.type, inputs.Path)
 
 
 class TypeCastTest(ParserTest):
