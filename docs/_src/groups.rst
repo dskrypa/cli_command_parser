@@ -76,6 +76,11 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
         verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
 
 
+.. note::
+    Unlike using ``parser.add_mutually_exclusive_group(...)`` from ``argparse``, mutually exclusive ParamGroups can
+    have a name / description that will be displayed in ``--help`` text, just like they can for normal groups.
+
+
 By making a group both mutually exclusive and required, we can ensure that one argument is always provided.  Given the
 following :gh_examples:`example <rest_api_wrapper.py>` snippet::
 
