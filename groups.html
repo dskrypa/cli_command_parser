@@ -185,6 +185,11 @@ raised.  The <code class="docutils literal notranslate"><span class="pre">tasks<
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike using <code class="docutils literal notranslate"><span class="pre">parser.add_mutually_exclusive_group(...)</span></code> from <code class="docutils literal notranslate"><span class="pre">argparse</span></code>, mutually exclusive ParamGroups can
+have a name / description that will be displayed in <code class="docutils literal notranslate"><span class="pre">--help</span></code> text, just like they can for normal groups.</p>
+</div>
 <p>By making a group both mutually exclusive and required, we can ensure that one argument is always provided.  Given the
 following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> snippet:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="s1">&#39;bazs&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
