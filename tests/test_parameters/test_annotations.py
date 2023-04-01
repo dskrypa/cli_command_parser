@@ -113,6 +113,18 @@ class TypeCastTest(ParserTest):
 
             self.assertEqual(expected, Foo.parse(argv).bar)
 
+    def test_disabled_annotation_types(self):
+        class Foo(Command, allow_annotation_type=False):
+            foo: int = Option('-f')
+            bar: Path = Option('-b')
+            baz = Option('-B', type=int)
+
+        self.assertIsNone(Foo.foo.type)  # noqa
+        self.assertIsNone(Foo.bar.type)  # noqa
+        self.assertIs(Foo.baz.type, int)
+        expected = {'foo': '1', 'bar': '/var/tmp', 'baz': 2}
+        self.assert_parse_results(Foo, ['-f', '1', '-b', '/var/tmp', '-B', '2'], expected)
+
 
 def _resolved_path(path):
     return Path(path).resolve()

@@ -150,7 +150,7 @@ class ParamBase(ABC):
             pass
         raise NoActiveContext('There is no active context')
 
-    def __config(self, command: CommandAny = None) -> CommandConfig:
+    def _config(self, command: CommandAny = None) -> CommandConfig:
         try:
             return self._ctx(command).config
         except NoActiveContext:
@@ -165,7 +165,7 @@ class ParamBase(ABC):
         from ..formatting.params import ParamHelpFormatter  # Here due to circular dependency
 
         try:
-            formatter_factory = self.__config().param_formatter or ParamHelpFormatter
+            formatter_factory = self._config().param_formatter or ParamHelpFormatter
         except AttributeError:  # self.command is None
             formatter_factory = ParamHelpFormatter
 
@@ -282,7 +282,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         super().__set_name__(command, name)
         type_attr = self.type
         choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
-        if not (choices or type_attr is None):
+        if not (choices or type_attr is None) or not self._config(command).allow_annotation_type:
             return
         annotated_type = get_descriptor_value_type(command, name)
         if annotated_type is None:
