@@ -13,7 +13,7 @@ from cli_command_parser.documentation import load_commands
 from cli_command_parser.testing import ParserTest
 
 THIS_FILE = Path(__file__).resolve()
-TEST_DATA_DIR = THIS_FILE.parent.joinpath('data', 'command_test_cases')
+TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data', 'command_test_cases')
 
 
 @contextmanager

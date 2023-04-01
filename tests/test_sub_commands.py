@@ -11,6 +11,8 @@ from cli_command_parser.testing import RedirectStreams, ParserTest, get_help_tex
 
 
 class SubCommandTest(ParserTest):
+    # region Registration / Definition Tests
+
     def test_auto_register(self):
         class Foo(Command):
             sub_cmd = SubCommand()
@@ -59,6 +61,17 @@ class SubCommandTest(ParserTest):
         self.assertIsInstance(Foo.parse(['bar']), Bar)
         self.assertIsInstance(Foo.parse(['baz']), Baz)
 
+    def test_sub_cmd_cls_required(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        with self.assertRaises(CommandDefinitionError):
+            Foo.parse([])
+
+    # endregion
+
+    # region Parsing Behavior Tests
+
     def test_space_in_cmd(self):
         class Foo(Command):
             sub_cmd = SubCommand()
@@ -68,13 +81,6 @@ class SubCommandTest(ParserTest):
 
         self.assertIsInstance(Foo.parse(['bar', 'baz']), Bar)
         self.assertIsInstance(Foo.parse(['bar baz']), Bar)
-
-    def test_sub_cmd_cls_required(self):
-        class Foo(Command):
-            sub_cmd = SubCommand()
-
-        with self.assertRaises(CommandDefinitionError):
-            Foo.parse([])
 
     def test_sub_cmd_value_required(self):
         class Foo(Command):
@@ -131,10 +137,28 @@ class SubCommandTest(ParserTest):
         Foo.parse_and_run([])
         self.assertTrue(Foo.main.called)
 
+    # endregion
+
+    # region Handling Multiple Choices
+
+    def test_choices(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo, choices=('bar', 'bars')):
+            baz = Flag('-b')
+
+        success_cases = [
+            (['bar', '-b'], {'baz': True, 'sub_cmd': 'bar'}),
+            (['bars', '-b'], {'baz': True, 'sub_cmd': 'bars'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
     def test_local_choices(self):
         base, d, e = Mock(), Mock(), Mock()
 
         class Find(Command):
+            # TODO: Document local_choices usage with examples
             sub_cmd = SubCommand(local_choices=('a', 'b', 'c'))
             format = Option('-f', choices=('plain', 'json'))
             query = Option('-q')
@@ -161,6 +185,10 @@ class SubCommandTest(ParserTest):
             Find.parse_and_run(['e', '1'])
             self.assertEqual((1, 1, 1), (base.call_count, d.call_count, e.call_count))
 
+    # endregion
+
+    # region Nested Subcommands and Inheritance
+
     def test_2_sub_cmd_levels(self):
         class A(Command):
             sub_cmd = SubCommand()
@@ -176,19 +204,6 @@ class SubCommandTest(ParserTest):
 
         self.assertEqual('1', A.parse(['b', 'c', '1']).x)
         self.assertEqual('2', A.parse(['b', 'd', '2']).y)
-
-    def test_choices(self):
-        class Foo(Command):
-            sub_cmd = SubCommand()
-
-        class Bar(Foo, choices=('bar', 'bars')):
-            baz = Flag('-b')
-
-        success_cases = [
-            (['bar', '-b'], {'baz': True, 'sub_cmd': 'bar'}),
-            (['bars', '-b'], {'baz': True, 'sub_cmd': 'bars'}),
-        ]
-        self.assert_parse_results_cases(Foo, success_cases)
 
     def test_middle_abc_subcommand(self):
         class Base(Command):
@@ -245,6 +260,8 @@ class SubCommandTest(ParserTest):
             with self.subTest(expected=expected):
                 self.assertIn(expected, help_text)
                 self.assertIn(expected, rst_text)
+
+    # endregion
 
 
 if __name__ == '__main__':
