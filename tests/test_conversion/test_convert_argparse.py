@@ -11,7 +11,7 @@ from cli_command_parser.compat import cached_property
 from cli_command_parser.conversion.argparse_ast import Script, AstArgumentParser, AstCallable
 from cli_command_parser.conversion.argparse_ast import AddVisitedChild, visit_func
 from cli_command_parser.conversion.argparse_utils import ArgumentParser, SubParsersAction
-from cli_command_parser.conversion.command_builder import convert_script
+from cli_command_parser.conversion.command_builder import Converter, ParserConverter, convert_script
 from cli_command_parser.conversion.utils import get_name_repr
 from cli_command_parser.conversion.visitor import TrackedRefMap
 from cli_command_parser.testing import ParserTest, RedirectStreams
@@ -200,6 +200,11 @@ class Two(Command0, description='Command two'):
         """.rstrip()
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
+    def test_converter_for_ast_callable_error(self):
+        ac = AstCallable(ast.parse('foo(123, bar=456)').body[0].value, Mock(), {})  # noqa
+        with self.assertRaises(TypeError):
+            Converter.for_ast_callable(ac)
+
 
 class ArgparseConversionCustomSubclassTest(ParserTest):
     @classmethod
@@ -219,10 +224,26 @@ class ArgparseConversionCustomSubclassTest(ParserTest):
                     sp_group = self.add_subparsers(dest=dest, title='subcommands')
                 return sp_group.add_parser(name, help=help or help_desc, description=description or help_desc, **kwargs)
 
-        class AstArgParser(AstArgumentParser, represents=ArgParser):
+            def add_constant(self, key, value):
+                pass
+
+        class ParserConstant(AstCallable, represents=ArgParser.add_constant):
+            parent: AstArgParser
+
+        class AstArgParser(AstArgumentParser, represents=ArgParser, children=('constants',)):
+            add_constant = AddVisitedChild(ParserConstant, 'constants')
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.constants = []
+
             @visit_func
             def add_subparser(self, node: InitNode, call: ast.Call, tracked_refs: TrackedRefMap):
                 return self._add_subparser(node, call, tracked_refs, SubParserShortcut)
+
+            def grouped_children(self):
+                yield ParserConstant, self.constants
+                yield from super().grouped_children()
 
         class SubParserShortcut(AstArgParser, represents=ArgParser.add_subparser):
             @cached_property
@@ -233,10 +254,20 @@ class ArgparseConversionCustomSubclassTest(ParserTest):
                     kwargs.setdefault('description', help_desc)
                 return kwargs
 
-        return ArgParser, AstArgParser, SubParserShortcut
+        class ConstantConverter(Converter, converts=ParserConstant):
+            def format_lines(self, indent: int = 4):
+                try:
+                    key, val = self.ast_obj.init_func_args
+                except ValueError:
+                    pass
+                else:
+                    yield f'{" " * indent}{ast.literal_eval(key)} = {val}'
 
-    def test_custom_parser_subclass(self):
-        ArgParser, AstArgParser, SubParserShortcut = self._prepare_test_classes()
+        return ArgParser, AstArgParser, SubParserShortcut, ConstantConverter
+
+    @classmethod
+    def setUpClass(cls):
+        ArgParser, AstArgParser, SubParserShortcut, ConstantConverter = cls._prepare_test_classes()
 
         class Module:
             def __init__(self, data):
@@ -246,16 +277,26 @@ class ArgparseConversionCustomSubclassTest(ParserTest):
         with patch(f'{PACKAGE}.argparse_ast.sys.modules', modules):
             Script._register_parser('foo.bar.baz', 'ArgParser', AstArgParser)
 
+    @classmethod
+    def tearDownClass(cls):
+        ac_converter_map = Converter._ac_converter_map
+        del ac_converter_map[next(ac for ac in ac_converter_map if ac.__name__ == 'ParserConstant')]
+        for module in ('foo', 'foo.bar', 'foo.bar.baz'):
+            del Script._parser_classes[module]
+
+    def test_custom_parser_subclass(self):
         code = """
 from argparse import SUPPRESS as hide
 from foo.bar import ArgParser
 parser = ArgParser(description='Parse args')
+parser.add_constant('abc', 123)
 with parser.add_subparser('action', 'one') as sp1:
     sp1.add_argument('--foo', help=hide)
 sp2 = parser.add_subparser('action', 'two')
         """
         expected = f"""{IMPORT_LINE}\n\n
 class Command0(Command, description='Parse args'):  {DISCLAIMER}
+    abc = 123
     action = SubCommand()
 \n
 class One(Command0):
@@ -265,8 +306,12 @@ class Two(Command0):
     pass
         """.rstrip()
         self.assert_strings_equal(expected, convert_script(Script(code)))
-        for module in ('foo', 'foo.bar', 'foo.bar.baz'):
-            del Script._parser_classes[module]
+
+    def test_converter_for_ast_callable_subclass(self):
+        code = "from foo import ArgParser\np = ArgParser()\nsp = p.add_subparser(name='one')\nsp.add_argument('--foo')"
+        parser = Script(code).parsers[0]
+        converter_cls = Converter.for_ast_callable(parser)
+        self.assertEqual(converter_cls, ParserConverter)
 
 
 if __name__ == '__main__':
