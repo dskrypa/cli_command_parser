@@ -105,13 +105,13 @@ class ScriptVisitor(NodeVisitor):
     visit_AsyncFor = visit_For
 
     def _visit_for_smart(self, node: For, loop_var: str, ele_names: List[str]):
-        log.debug(f'Attempting smart for loop visit for {loop_var=} in {ele_names=}')
+        log.debug(f'Attempting smart for loop visit for loop_var={loop_var!r} in ele_names={ele_names!r}')
         refs = [ref for ref in (self.scopes.get(name) for name in ele_names) if ref]
-        log.debug(f'  > Found {len(refs)=}, {len(ele_names)=}')
+        # log.debug(f'  > Found {len(refs)=}, {len(ele_names)=}')
 
         if len(refs) == len(ele_names) and all(isinstance(ref, AstArgumentParser) for ref in refs):
             parents = set(ref.parent for ref in refs)
-            log.debug(f'  > Found {parents=}')
+            log.debug(f'  > Found parents={parents!r}')
             if len(parents) == 1:
                 parent = next(iter(parents))
                 if parent and set(parent.sub_parsers) == set(refs):

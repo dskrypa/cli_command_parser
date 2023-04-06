@@ -3,7 +3,7 @@ from __future__ import annotations
 import keyword
 import logging
 from abc import ABC, abstractmethod
-from ast import literal_eval, unparse, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp
+from ast import literal_eval, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp
 from dataclasses import dataclass, fields
 from itertools import count
 from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, TypeVar, Generic, List, Tuple
@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, Typ
 from cli_command_parser.compat import cached_property
 from cli_command_parser.nargs import Nargs
 from .argparse_ast import AC, ParserArg, ArgGroup, MutuallyExclusiveGroup, AstArgumentParser, Script
-from .utils import collection_contents
+from .utils import collection_contents, unparse
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import OptStr
@@ -22,7 +22,10 @@ log = logging.getLogger(__name__)
 
 C = TypeVar('C', bound='Converter')
 
-RESERVED = set(keyword.kwlist) | set(keyword.softkwlist)
+try:
+    RESERVED = set(keyword.kwlist) | set(keyword.softkwlist)
+except AttributeError:  # < 3.9
+    RESERVED = set(keyword.kwlist)
 
 
 def convert_script(script: Script) -> str:
@@ -244,7 +247,8 @@ class GroupConverter(CollectionConverter, converts=ArgGroup):
     def _get_args(self) -> str:
         # log.debug(f'Processing args for {self.ast_obj._init_func_bound}')
         description = self.ast_obj.init_func_kwargs.get('description')
-        if title := self.ast_obj.init_func_kwargs.get('title'):
+        title = self.ast_obj.init_func_kwargs.get('title')
+        if title:
             title_str = literal_eval(title)
             if title_str.lower().endswith(' options'):
                 if description:
@@ -345,7 +349,7 @@ class ParamConverter(Converter, converts=ParserArg):
     def get_pos_args(self) -> Iterable[str]:
         return (repr(arg) for arg in self.cmd_option_strs)
 
-    def get_cls_and_kwargs(self) -> tuple[str, BaseArgs]:
+    def get_cls_and_kwargs(self) -> Tuple[str, BaseArgs]:
         kwargs = self.ast_obj.init_func_kwargs.copy()
         help_arg = kwargs.get('help')
         if help_arg and help_arg in self.ast_obj.get_tracked_refs('argparse', 'SUPPRESS', ()):
@@ -399,7 +403,7 @@ class ParamConverter(Converter, converts=ParserArg):
     # endregion
 
     @cached_property
-    def _grouped_opt_strs(self) -> tuple[List[str], List[str], List[str]]:
+    def _grouped_opt_strs(self) -> Tuple[List[str], List[str], List[str]]:
         option_strs = (literal_eval(opt) for opt in self.ast_obj.init_func_args)
         long, short, plain = [], [], []
         for opt in option_strs:
@@ -454,7 +458,7 @@ class ParamConverterGroup(ConverterGroup[ParamConverter]):
 class BaseArgs:
     help: OptStr = None
 
-    def _to_str(self, args: tuple[str, ...], end_fields: List[str]) -> str:
+    def _to_str(self, args: Tuple[str, ...], end_fields: List[str]) -> str:
         skip = set(end_fields)
         keys = [f.name for f in fields(self) if f.name not in skip] + end_fields
         kv_iter = ((key, getattr(self, key)) for key in keys)
@@ -544,11 +548,11 @@ class OptionArgs(ParamArgs):
     @classmethod
     def init_option(cls, arg: ParserArg, action: OptStr = None, nargs: OptStr = None, const: OptStr = None, **kwargs):
         if const:
-            log.warning(f'{arg}: ignoring {const=} - it is only supported for Flag and Counter parameters')
+            log.warning(f'{arg}: ignoring const={const!r} - it is only supported for Flag and Counter parameters')
 
         if action == 'append':
             if not nargs:
-                log.debug(f"{arg}: using default nargs='+' because {action=} and no nargs value was provided")
+                log.debug(f"{arg}: using default nargs='+' because action={action!r} and no nargs value was provided")
                 nargs = "'+'"
             action = None
         elif action == 'store':

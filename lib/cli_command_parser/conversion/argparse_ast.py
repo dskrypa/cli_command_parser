@@ -13,7 +13,7 @@ from typing import List, Tuple, Dict, Set
 
 from cli_command_parser.compat import cached_property
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
-from .utils import get_name_repr, iter_module_parents
+from .utils import get_name_repr, iter_module_parents, unparse
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import PathLike
@@ -47,7 +47,7 @@ class Script:
     def __repr__(self) -> str:
         parsers = len(self.parsers)
         location = f' @ {self.path.as_posix()}' if self.path else ''
-        return f'<{self.__class__.__name__}[{parsers=}{location}]>'
+        return f'<{self.__class__.__name__}[parsers={parsers!r}{location}]>'
 
     @property
     def mod_cls_to_ast_cls_map(self) -> Dict[str, Dict[str, ParserCls]]:
@@ -73,7 +73,7 @@ class Script:
         return parser
 
     @cached_property
-    def parsers(self) -> list[ParserObj]:
+    def parsers(self) -> List[ParserObj]:
         from .visitor import ScriptVisitor, TrackedRef  # noqa: F811
 
         track_refs = (TrackedRef('argparse.REMAINDER'), TrackedRef('argparse.SUPPRESS'))
@@ -194,12 +194,12 @@ class AstCallable:
         return self.signature.bind(*args, **{kw.arg: kw.value for kw in self.call_kwargs})
 
     @cached_property
-    def init_func_args(self) -> list[str]:
+    def init_func_args(self) -> List[str]:
         try:
             args = self._init_func_bound.args[1:]
         except (TypeError, AttributeError):  # No represents func
             args = self.call_args
-        return [ast.unparse(arg) for arg in args]
+        return [unparse(arg) for arg in args]
 
     @cached_property
     def init_func_raw_kwargs(self) -> Dict[str, AST]:
@@ -217,7 +217,7 @@ class AstCallable:
             return kwargs
 
     def _init_func_kwargs(self) -> Dict[str, str]:
-        return {key: ast.unparse(val) for key, val in self.init_func_raw_kwargs.items()}
+        return {key: unparse(val) for key, val in self.init_func_raw_kwargs.items()}
 
     @cached_property
     def init_func_kwargs(self) -> Dict[str, str]:
@@ -286,7 +286,8 @@ class ArgCollection(AstCallable):
         print(f'{" " * indent} + {self!r}:')
         indent += 3
         for attr in self._children:
-            if values := getattr(self, attr):
+            values = getattr(self, attr)
+            if values:
                 for value in values:
                     value.pprint(indent)
 
@@ -324,7 +325,7 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
 
     def __repr__(self) -> str:
         sub_parsers = len(self.sub_parsers)
-        return f'<{self.__class__.__name__}[{sub_parsers=}]: ``{self.init_call_repr()}``>'
+        return f'<{self.__class__.__name__}[sub_parsers={sub_parsers!r}]: ``{self.init_call_repr()}``>'
 
     def _add_subparser(self, node: InitNode, call: Call, tracked_refs: TrackedRefMap, sub_parser_cls: ParserCls = None):
         # Using default of None since the class hasn't been defined at the time it would need to be set as default

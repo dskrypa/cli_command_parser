@@ -1,6 +1,23 @@
 from __future__ import annotations
 
-from ast import AST, expr, unparse, Call, Attribute, Name, Dict, List, Set, Tuple
+from ast import AST, expr, Call, Attribute, Name, Dict, List, Set, Tuple
+
+try:
+    from ast import unparse
+except ImportError:  # added in 3.9
+    try:
+        from astunparse import unparse as _unparse
+    except ImportError as e:
+        raise RuntimeError(
+            'Missing required dependency: astunparse (only required in Python 3.8 and below'
+            ' - upgrade to 3.9 or above to avoid this dependency)'
+        )
+    else:
+
+        def unparse(node):
+            return ''.join(_unparse(node).splitlines())
+
+
 from typing import Union, Iterator, List as _List
 
 __all__ = ['get_name_repr', 'iter_module_parents', 'collection_contents']
