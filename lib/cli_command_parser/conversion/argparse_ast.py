@@ -13,7 +13,7 @@ from typing import List, Tuple, Dict, Set
 
 from cli_command_parser.compat import cached_property
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
-from .utils import get_name_repr
+from .utils import get_name_repr, iter_parents
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import PathLike
@@ -46,29 +46,25 @@ class Script:
 
     def __repr__(self) -> str:
         parsers = len(self.parsers)
-        return f'<{self.__class__.__name__}[{parsers=} @ {self.path.as_posix()}]>'
+        location = f' @ {self.path.as_posix()}' if self.path else ''
+        return f'<{self.__class__.__name__}[{parsers=}{location}]>'
 
     @property
-    def mod_cls_to_ast_cls_map(self) -> dict[str, dict[str, ParserCls]]:
+    def mod_cls_to_ast_cls_map(self) -> Dict[str, Dict[str, ParserCls]]:
         return self._parser_classes
 
     @classmethod
-    def _register_parser(cls, real_cls: Type[ArgumentParser], ast_cls: ParserCls):
-        module, name = real_cls.__module__, real_cls.__name__
+    def _register_parser(cls, module: str, name: str, ast_cls: ParserCls):
         # Identify package-level exports that may have been defined for a custom ArgumentParser subclass
-        modules = [module]
-        while (parent := module.rsplit('.', 1)[0]) != module:
-            if name in vars(sys.modules[parent]):
-                modules.append(parent)
-            module = parent
-
+        modules = [module, *(parent for parent in iter_parents(module) if name in vars(sys.modules[parent]))]
         for module in modules:
             log.debug(f'Registering {module}.{name} -> {ast_cls}')
             cls._parser_classes.setdefault(module, {})[name] = ast_cls
 
     @classmethod
     def register_parser(cls, ast_cls: ParserCls):
-        cls._register_parser(ast_cls.represents, ast_cls)
+        real_cls = ast_cls.represents
+        cls._register_parser(real_cls.__module__, real_cls.__name__, ast_cls)
         return ast_cls
 
     def add_parser(self, ast_cls: ParserCls, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap) -> ParserObj:
@@ -102,8 +98,8 @@ class visit_func:
         self.func = func
 
     def __set_name__(self, owner: Type[AstCallable], name: str):
-        owner._add_visit_func(name)
-        setattr(owner, name, self.func)  # There's no need to keep the descriptor - replace self with func
+        if owner._add_visit_func(name):      # This check is only to enable a low-value unit test...
+            setattr(owner, name, self.func)  # There's no need to keep the descriptor - replace self with func
 
     def __get__(self, instance, owner):
         # This will never actually be called, but it makes PyCharm happy
@@ -137,7 +133,7 @@ class AstCallable:
     _sig: Signature | None = None
 
     @classmethod
-    def _add_visit_func(cls, name: str):
+    def _add_visit_func(cls, name: str) -> bool:
         try:
             parent_visit_funcs = cls.__base__.visit_funcs  # noqa
         except AttributeError:
@@ -146,6 +142,7 @@ class AstCallable:
             if parent_visit_funcs is cls.visit_funcs:
                 cls.visit_funcs = cls.visit_funcs.copy()
         cls.visit_funcs.add(name)
+        return True
 
     def __init_subclass__(cls, represents: RepresentedCallable = None, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -162,7 +159,6 @@ class AstCallable:
         self.call_kwargs = call.keywords
         self._tracked_refs = tracked_refs
         self.parent = parent
-        self.names = set()
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}[{self.init_call_repr()}]>'
@@ -205,7 +201,7 @@ class AstCallable:
             args = self.call_args
         return [ast.unparse(arg) for arg in args]
 
-    def _init_func_kwargs(self) -> dict[str, str]:
+    def _init_func_kwargs(self) -> Dict[str, str]:
         try:
             kwargs = self._init_func_bound.arguments
         except (TypeError, AttributeError):  # No represents func
@@ -220,7 +216,7 @@ class AstCallable:
         return {key: ast.unparse(val) for key, val in kwargs.items()}
 
     @cached_property
-    def init_func_kwargs(self) -> dict[str, str]:
+    def init_func_kwargs(self) -> Dict[str, str]:
         return self._init_func_kwargs()
 
     def init_call_repr(self) -> str:
@@ -260,19 +256,8 @@ class ArgCollection(AstCallable):
         self.args = []
         self.groups = []
 
-    @cached_property
-    def is_stdlib(self) -> bool:
-        parent = self.parent
-        while parent:
-            try:
-                return parent.is_stdlib
-            except AttributeError:
-                parent = parent.parent
-        return True
-
     def __repr__(self) -> str:
-        stdlib = self.is_stdlib
-        return f'<{self.__class__.__name__}[{stdlib=}]: ``{" = ".join(sorted(self.names))} = {self.init_call_repr()}``>'
+        return f'<{self.__class__.__name__}: ``{self.init_call_repr()}``>'
 
     def _add_child(self, cls: Type[AC], container: List[AC], node: InitNode, call: Call, refs: TrackedRefMap) -> AC:
         child = cls(node, self, refs, call)
@@ -324,13 +309,8 @@ class SubparsersAction(AstCallable, represents=_ArgumentParser.add_subparsers):
 
 @Script.register_parser
 class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub_parsers',)):
-    is_stdlib: bool = True
     sub_parsers: List[SubParser]
     add_subparsers = AddVisitedChild(SubparsersAction, '_subparsers_actions')
-
-    def __init_subclass__(cls, is_stdlib: bool = False, **kwargs):
-        super().__init_subclass__(**kwargs)
-        cls.is_stdlib = is_stdlib
 
     def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call = None):
         super().__init__(node, parent, tracked_refs, call)
@@ -339,23 +319,22 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
         self.sub_parsers = []
 
     def __repr__(self) -> str:
-        stdlib, sub_parsers = self.is_stdlib, len(self.sub_parsers)
-        assign_repr = f'``{" = ".join(sorted(self.names))} = {self.init_call_repr()}``'
-        return f'<{self.__class__.__name__}[{stdlib=}, {sub_parsers=}]: {assign_repr}>'
+        sub_parsers = len(self.sub_parsers)
+        return f'<{self.__class__.__name__}[{sub_parsers=}]: ``{self.init_call_repr()}``>'
 
     def _add_subparser(self, node: InitNode, call: Call, tracked_refs: TrackedRefMap, sub_parser_cls: ParserCls = None):
         # Using default of None since the class hasn't been defined at the time it would need to be set as default
         return self._add_child(sub_parser_cls or SubParser, self.sub_parsers, node, call, tracked_refs)
 
 
-class SubParser(AstArgumentParser, represents=_SubParsersAction.add_parser, is_stdlib=True):
-    sp_parent: SubparsersAction = None
+class SubParser(AstArgumentParser, represents=_SubParsersAction.add_parser):
+    sp_parent: SubparsersAction
 
     @cached_property
-    def init_func_kwargs(self) -> dict[str, str]:
-        if sp_parent := self.sp_parent:
-            return sp_parent.init_func_kwargs | self._init_func_kwargs()
-        return self._init_func_kwargs()
+    def init_func_kwargs(self) -> Dict[str, str]:
+        kwargs = self.sp_parent.init_func_kwargs.copy()
+        kwargs.update(self._init_func_kwargs())
+        return kwargs
 
 
 # endregion
