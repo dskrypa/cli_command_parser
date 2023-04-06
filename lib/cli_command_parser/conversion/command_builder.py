@@ -3,14 +3,15 @@ from __future__ import annotations
 import keyword
 import logging
 from abc import ABC, abstractmethod
-from ast import literal_eval
+from ast import literal_eval, unparse, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp
 from dataclasses import dataclass, fields
 from itertools import count
-from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, TypeVar, Generic, List, Tuple, Dict, Set
+from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, TypeVar, Generic, List, Tuple
 
 from cli_command_parser.compat import cached_property
 from cli_command_parser.nargs import Nargs
 from .argparse_ast import AC, ParserArg, ArgGroup, MutuallyExclusiveGroup, AstArgumentParser, Script
+from .utils import collection_contents
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import OptStr
@@ -43,7 +44,7 @@ class Converter(ABC):
         self.parent = parent
 
     @classmethod
-    def for_ast_callable(cls, ast_obj: Union[AC, Type[AC]]) -> Converter:
+    def for_ast_callable(cls, ast_obj: Union[AC, Type[AC]]) -> Type[Converter]:
         if not isinstance(ast_obj, type):
             ast_obj = ast_obj.__class__
         try:
@@ -95,8 +96,9 @@ class ScriptConverter(Converter, converts=Script):
             'from cli_command_parser import'
             ' Command, SubCommand, ParamGroup, Positional, Option, Flag, Counter, PassThru, main'
         )
+        counter = count()
         for parser in self.ast_obj.parsers:
-            yield from ParserConverter(parser).format_lines()
+            yield from ParserConverter(parser, counter=counter).format_lines()
 
 
 class CollectionConverter(Converter, ABC):
@@ -157,16 +159,14 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
             yield from sp_converter.format_lines()
 
     def _get_args(self) -> str:
-        # log.debug(f'Processing args for {parser._init_func_bound}')
         kwargs = self.ast_obj.init_func_kwargs.copy()
+        # log.debug(f'Processing args for {kwargs}')
         kwargs['option_name_mode'] = self._name_mode
         if self.is_sub_parser:
-            if choices := self.choices:
-                if len(choices) > 1:
-                    kwargs['choices'] = f'({", ".join(choices)})'
-                elif not self._custom_name:
-                    kwargs['choice'] = choices[0]
-        elif (add_help := kwargs.get('add_help')) and literal_eval_or_none(add_help) == 'True':
+            key, value = self._choices
+            if key:
+                kwargs[key] = value
+        elif 'add_help' in kwargs and literal_eval_or_none(kwargs['add_help']) is True:
             kwargs.pop('add_help')
 
         cmd_args = CommandArgs.from_kwargs(**kwargs)
@@ -183,25 +183,37 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
         return self._custom_name or f'Command{next(self.counter)}'
 
     @cached_property
-    def _custom_name(self) -> str | None:
-        if not self.is_sub_parser or not (name := literal_eval_or_none(self.ast_obj.init_func_kwargs.get('name'))):
+    def _custom_name(self) -> OptStr:
+        if not self.is_sub_parser:
             return None
-        if not name or ' ' in name or '-' in name or not name[0].isalpha():
+        name = literal_eval_or_none(self.ast_obj.init_func_kwargs.get('name'))
+        if not name or ' ' in name or not name[0].isalpha():
             return None
-        return name.title().replace('_', '')
+        return name.title().replace('_', '').replace('-', '')
 
     @cached_property
-    def choices(self) -> List[str]:
-        choices = []
+    def _choices(self) -> Tuple[OptStr, OptStr]:
         if not self.is_sub_parser:
-            return choices
-
-        kwargs = self.ast_obj.init_func_kwargs
-        if name := kwargs.get('name'):
-            choices.append(name)
-        if aliases := kwargs.get('aliases'):
-            choices.extend(aliases)
-        return choices
+            return None, None
+        name = self.ast_obj.init_func_kwargs.get('name')
+        aliases = self.ast_obj.init_func_raw_kwargs.get('aliases')
+        if not aliases:
+            if name and (not self._custom_name or '-' in name):
+                return 'choice', name
+            return None, None
+        elif isinstance(aliases, (Attribute, Name, Subscript, GeneratorExp, DictComp, ListComp, SetComp)):
+            value = unparse(aliases)  # noqa
+            if name:
+                return 'choices', f'({name}, *{value})'
+            return 'choices', (f'tuple{value}' if isinstance(aliases, GeneratorExp) else value)
+        else:
+            parsed = collection_contents(aliases)
+            values = [name, *parsed] if name else parsed
+            if len(values) == 1:
+                return 'choice', values[0]
+            elif values:
+                return 'choices', f'({", ".join(values)})'
+            return None, None
 
     # endregion
 

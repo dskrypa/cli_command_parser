@@ -12,7 +12,7 @@ from cli_command_parser.conversion.argparse_ast import Script, AstArgumentParser
 from cli_command_parser.conversion.argparse_ast import AddVisitedChild, visit_func
 from cli_command_parser.conversion.argparse_utils import ArgumentParser, SubParsersAction
 from cli_command_parser.conversion.command_builder import Converter, ParserConverter, convert_script
-from cli_command_parser.conversion.utils import get_name_repr
+from cli_command_parser.conversion.utils import get_name_repr, collection_contents
 from cli_command_parser.conversion.visitor import TrackedRefMap
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
@@ -83,13 +83,20 @@ class ArgparseConversionTest(ParserTest):
         with self.assertRaises(KeyError):
             self.assertIsNone(ac.get_tracked_refs('foo', 'bar'))
 
+    def test_top_level_parser_no_choices(self):
+        parser = Script('from argparse import ArgumentParser as AP\np = AP()').parsers[0]
+        key, val = Converter.for_ast_callable(parser)(parser)._choices  # noqa
+        self.assertTrue(key is val is None)
+
     # endregion
 
-    # region get_name_repr
+    # region get_name_repr & collection_contents
 
-    def test_get_name_repr_bad_type(self):
+    def test_utils_bad_types(self):
         with self.assertRaises(TypeError):
             get_name_repr('foo')  # noqa
+        with self.assertRaises(TypeError):
+            collection_contents('foo')  # noqa
 
     def test_get_name_repr_call(self):
         node = ast.parse('foo()').body[0]
@@ -204,6 +211,43 @@ class Two(Command0, description='Command two'):
         ac = AstCallable(ast.parse('foo(123, bar=456)').body[0].value, Mock(), {})  # noqa
         with self.assertRaises(TypeError):
             Converter.for_ast_callable(ac)
+
+    def test_parser_add_help(self):
+        code = 'from argparse import ArgumentParser as AP\np1 = AP(add_help=False)\np2 = AP(add_help=True)\n'
+        expected = f"""{IMPORT_LINE}\n\n
+class Command0(Command, add_help=False):  {DISCLAIMER}\n    pass\n\n
+class Command1(Command):  {DISCLAIMER}\n    pass\n\n
+        """.rstrip()
+        self.assert_strings_equal(expected, convert_script(Script(code)))
+
+    def test_sub_parser_choices(self):
+        code = """
+from argparse import ArgumentParser
+p = ArgumentParser()
+sp_act = p.add_subparsers()
+sp_act.add_parser('foo-bar')
+sp_act.add_parser('foo', aliases=('bar', 'baz'))
+sp_act.add_parser(aliases=(k for k in 'abc'))
+sp_act.add_parser(aliases={k: 1 for k in 'abc'})
+sp_act.add_parser(aliases={'a': 1, 'b': 2})
+sp_act.add_parser(aliases=ALIASES)
+sp_act.add_parser(BAR, aliases=BARS['x'])
+sp_act.add_parser(aliases={'a'})
+sp_act.add_parser(aliases=())
+        """
+        expected = f"""{IMPORT_LINE}\n\n
+class Command0(Command):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
+class FooBar(Command0, choice='foo-bar'):\n    pass\n\n
+class Foo(Command0, choices=('foo', 'bar', 'baz')):\n    pass\n\n
+class Command1(Command0, choices=tuple(k for k in 'abc')):\n    pass\n\n
+class Command2(Command0, choices={{k: 1 for k in 'abc'}}):\n    pass\n\n
+class Command3(Command0, choices=('a', 'b')):\n    pass\n\n
+class Command4(Command0, choices=ALIASES):\n    pass\n\n
+class Command5(Command0, choices=(BAR, *BARS['x'])):\n    pass\n\n
+class Command6(Command0, choice='a'):\n    pass\n\n
+class Command7(Command0):\n    pass\n\n
+        """.rstrip()
+        self.assert_strings_equal(expected, convert_script(Script(code)))
 
 
 class ArgparseConversionCustomSubclassTest(ParserTest):

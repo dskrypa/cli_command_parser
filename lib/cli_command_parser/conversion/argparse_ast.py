@@ -4,7 +4,7 @@ import ast
 import logging
 import sys
 from argparse import ArgumentParser
-from ast import Assign, Call, withitem
+from ast import AST, Assign, Call, withitem
 from functools import partial
 from inspect import Signature, BoundArguments
 from pathlib import Path
@@ -13,7 +13,7 @@ from typing import List, Tuple, Dict, Set
 
 from cli_command_parser.compat import cached_property
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
-from .utils import get_name_repr, iter_parents
+from .utils import get_name_repr, iter_module_parents
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import PathLike
@@ -56,7 +56,7 @@ class Script:
     @classmethod
     def _register_parser(cls, module: str, name: str, ast_cls: ParserCls):
         # Identify package-level exports that may have been defined for a custom ArgumentParser subclass
-        modules = [module, *(parent for parent in iter_parents(module) if name in vars(sys.modules[parent]))]
+        modules = [module, *(parent for parent in iter_module_parents(module) if name in vars(sys.modules[parent]))]
         for module in modules:
             log.debug(f'Registering {module}.{name} -> {ast_cls}')
             cls._parser_classes.setdefault(module, {})[name] = ast_cls
@@ -201,11 +201,12 @@ class AstCallable:
             args = self.call_args
         return [ast.unparse(arg) for arg in args]
 
-    def _init_func_kwargs(self) -> Dict[str, str]:
+    @cached_property
+    def init_func_raw_kwargs(self) -> Dict[str, AST]:
         try:
             kwargs = self._init_func_bound.arguments
         except (TypeError, AttributeError):  # No represents func
-            kwargs = {kw.arg: kw.value for kw in self.call_kwargs}
+            return {kw.arg: kw.value for kw in self.call_kwargs}
         else:
             kwargs = kwargs.copy()
             kwargs.pop('self', None)
@@ -213,7 +214,10 @@ class AstCallable:
                 kwargs.pop('args')
             if isinstance(kwargs.get('kwargs'), dict):
                 kwargs.update(kwargs.pop('kwargs'))
-        return {key: ast.unparse(val) for key, val in kwargs.items()}
+            return kwargs
+
+    def _init_func_kwargs(self) -> Dict[str, str]:
+        return {key: ast.unparse(val) for key, val in self.init_func_raw_kwargs.items()}
 
     @cached_property
     def init_func_kwargs(self) -> Dict[str, str]:
