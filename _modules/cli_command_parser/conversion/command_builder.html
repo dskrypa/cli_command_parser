@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cli_command_parser.conversion.command_builder &mdash; CLI Command Parser 2023.04.01 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CLI Command Parser
+          </a>
+              <div class="version">
+                2023.04.01
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cli_command_parser.conversion.command_builder</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cli_command_parser.conversion.command_builder</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">keyword</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">,</span> <span class="n">Subscript</span><span class="p">,</span> <span class="n">DictComp</span><span class="p">,</span> <span class="n">ListComp</span><span class="p">,</span> <span class="n">SetComp</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">cli_command_parser.compat</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">cli_command_parser.nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
+<span class="kn">from</span> <span class="nn">.argparse_ast</span> <span class="kn">import</span> <span class="n">AC</span><span class="p">,</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">ArgGroup</span><span class="p">,</span> <span class="n">MutuallyExclusiveGroup</span><span class="p">,</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">Script</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">collection_contents</span><span class="p">,</span> <span class="n">unparse</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">cli_command_parser.typing</span> <span class="kn">import</span> <span class="n">OptStr</span>
+    <span class="kn">from</span> <span class="nn">.argparse_ast</span> <span class="kn">import</span> <span class="n">ArgCollection</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;convert_script&#39;</span><span class="p">]</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">C</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;Converter&#39;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">RESERVED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">keyword</span><span class="o">.</span><span class="n">kwlist</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">keyword</span><span class="o">.</span><span class="n">softkwlist</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># &lt; 3.9</span>
+    <span class="n">RESERVED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">keyword</span><span class="o">.</span><span class="n">kwlist</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="convert_script"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.convert_script">[docs]</a><span class="k">def</span> <span class="nf">convert_script</span><span class="p">(</span><span class="n">script</span><span class="p">:</span> <span class="n">Script</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ScriptConverter</span><span class="p">(</span><span class="n">script</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span></div>
+
+
+<span class="k">class</span> <span class="nc">Converter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_ac_converter_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">converts</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">converts</span> <span class="o">=</span> <span class="n">converts</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_ac_converter_map</span><span class="p">[</span><span class="n">converts</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Script</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Converter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span> <span class="o">=</span> <span class="n">ast_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Converter</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="n">ast_obj</span> <span class="o">=</span> <span class="n">ast_obj</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ac_converter_map</span><span class="p">[</span><span class="n">ast_obj</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">for</span> <span class="n">converts_cls</span><span class="p">,</span> <span class="n">converter_cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ac_converter_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="n">converts_cls</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">converter_cls</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No Converter is registered for </span><span class="si">{</span><span class="n">ast_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> objects&#39;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">ast_objs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AC</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConverterGroup</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">ConverterGroup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span> <span class="k">for</span> <span class="n">ast_obj</span> <span class="ow">in</span> <span class="n">ast_objs</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_lines</span><span class="p">(</span><span class="n">indent</span><span class="p">))</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<span class="k">class</span> <span class="nc">ConverterGroup</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">C</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;members&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">members</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">C</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="n">members</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">C</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
+
+    <span class="k">def</span> <span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">member</span><span class="o">.</span><span class="n">format_lines</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ScriptConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">Script</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="c1"># TODO: Filter to what is actually used</span>
+        <span class="k">yield</span> <span class="p">(</span>
+            <span class="s1">&#39;from cli_command_parser import&#39;</span>
+            <span class="s1">&#39; Command, SubCommand, ParamGroup, Positional, Option, Flag, Counter, PassThru, main&#39;</span>
+        <span class="p">)</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">parsers</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">ParserConverter</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">counter</span><span class="o">=</span><span class="n">counter</span><span class="p">)</span><span class="o">.</span><span class="n">format_lines</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">CollectionConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgCollection</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">_name_mode</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">grouped_children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ConverterGroup</span><span class="p">[</span><span class="n">ParamConverter</span> <span class="o">|</span> <span class="n">GroupConverter</span> <span class="o">|</span> <span class="n">Converter</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">for_ast_callable</span><span class="p">(</span><span class="n">cg_cls</span><span class="p">)</span><span class="o">.</span><span class="n">init_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cg</span><span class="p">)</span> <span class="k">for</span> <span class="n">cg_cls</span><span class="p">,</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">()]</span>
+
+    <span class="k">def</span> <span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">child_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">child_group</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child_group</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;descendant_args&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">child_group</span><span class="p">:</span>
+                    <span class="k">yield from</span> <span class="n">child</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child_group</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ParamConverter</span><span class="p">):</span>
+                <span class="k">yield from</span> <span class="n">child_group</span>
+
+    <span class="k">def</span> <span class="nf">format_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">child_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">child_group</span><span class="o">.</span><span class="n">format_all</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">cg</span> <span class="k">for</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">    pass&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">ParserConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">AstArgumentParser</span><span class="p">):</span>
+    <span class="n">_auto_gen_disclaimer</span> <span class="o">=</span> <span class="s1">&#39;# This is an automatically generated name that should probably be updated&#39;</span>
+    <span class="n">ast_obj</span><span class="p">:</span> <span class="n">AstArgumentParser</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">|</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">:</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">counter</span><span class="p">:</span> <span class="n">count</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span> <span class="k">if</span> <span class="n">counter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">counter</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">sub_parser_converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ParserConverter</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">sub_parser</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">sub_parsers</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
+        <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sp_converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_parser_converters</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">sp_converter</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_gen_disclaimer</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">yield</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">()</span><span class="si">}</span><span class="s1">):</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_members</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sp_converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_parser_converters</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">sp_converter</span><span class="o">.</span><span class="n">format_lines</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># log.debug(f&#39;Processing args for {kwargs}&#39;)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;option_name_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sub_parser</span><span class="p">:</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_choices</span>
+            <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="s1">&#39;add_help&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">literal_eval_or_none</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;add_help&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;add_help&#39;</span><span class="p">)</span>
+
+        <span class="n">cmd_args</span> <span class="o">=</span> <span class="n">CommandArgs</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmd_args</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="s1">&#39;Command&#39;</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">is_sub_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="c1"># region Name / CLI Choices</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_name</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;Command</span><span class="si">{</span><span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_custom_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sub_parser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">literal_eval_or_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sub_parser</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+        <span class="n">aliases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_raw_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;aliases&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">aliases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_name</span> <span class="ow">or</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="n">name</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aliases</span><span class="p">,</span> <span class="p">(</span><span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Subscript</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">,</span> <span class="n">DictComp</span><span class="p">,</span> <span class="n">ListComp</span><span class="p">,</span> <span class="n">SetComp</span><span class="p">)):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">unparse</span><span class="p">(</span><span class="n">aliases</span><span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;choices&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">, *</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="k">return</span> <span class="s1">&#39;choices&#39;</span><span class="p">,</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tuple</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aliases</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="n">collection_contents</span><span class="p">(</span><span class="n">aliases</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">parsed</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="n">parsed</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;choices&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Member-Related Properties</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_name_mode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">name_modes</span> <span class="o">=</span> <span class="p">{</span><span class="n">pc</span><span class="o">.</span><span class="n">_name_mode</span> <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span> <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">is_option</span> <span class="ow">and</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">pc</span><span class="o">.</span><span class="n">attr_name</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">name_modes</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_modes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># endregion</span>
+
+
+<span class="k">class</span> <span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">):</span>
+    <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgGroup</span>
+
+    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span>
+        <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">with ParamGroup(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">()</span><span class="si">}</span><span class="s1">):&#39;</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_members</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># log.debug(f&#39;Processing args for {self.ast_obj._init_func_bound}&#39;)</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+            <span class="n">title_str</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">title_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39; options&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+                    <span class="n">title</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">title_str</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">description</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;description=</span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="p">,</span> <span class="n">MutuallyExclusiveGroup</span><span class="p">):</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;mutually_exclusive=True&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ParamConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">ParserArg</span><span class="p">):</span>
+    <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ParserArg</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">_counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamConverter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">ast_obj</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamConverter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pass_thru</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">is_pass_thru</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ParamConverterGroup</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ParamConverterGroup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">param_cls</span><span class="p">,</span> <span class="n">args_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cls_and_kwargs</span><span class="p">()</span>
+        <span class="n">arg_str</span> <span class="o">=</span> <span class="n">args_obj</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pos_args</span><span class="p">())</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">attr_name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">param_cls</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">arg_str</span><span class="si">}</span><span class="s1">)&#39;</span>
+
+    <span class="c1"># region Naming</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">attr_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_auto_long_opt_str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="s2">&quot;&#39;-&#39;&quot;</span> <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_attr_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name_candidates</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RESERVED</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_attr_name_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pass_thru</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">plain</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_option</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pass_thru</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
+                    <span class="n">opt</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">opt</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">opt</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;param_</span><span class="si">{</span><span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_counter</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Arg Processing</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">cmd_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_option</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
+        <span class="k">return</span> <span class="n">short</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_auto_long_opt_str</span> <span class="k">else</span> <span class="p">(</span><span class="n">long</span> <span class="o">+</span> <span class="n">short</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">use_auto_long_opt_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_option</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">long</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">long</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span>
+
+    <span class="k">def</span> <span class="nf">get_pos_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_option_strs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_cls_and_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseArgs</span><span class="p">]:</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">help_arg</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;help&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">help_arg</span> <span class="ow">and</span> <span class="n">help_arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">(</span><span class="s1">&#39;argparse&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPPRESS&#39;</span><span class="p">,</span> <span class="p">()):</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;hide&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pass_thru</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;PassThru&#39;</span><span class="p">,</span> <span class="n">PassThruArgs</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">action</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">and</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="si">}</span><span class="s1">: action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s1"> is not supported for Positional parameters&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;Positional&#39;</span><span class="p">,</span> <span class="n">ParamArgs</span><span class="o">.</span><span class="n">init_positional</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_option</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span>
+            <span class="k">if</span> <span class="n">action</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="s1">&#39;store_false&#39;</span><span class="p">,</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span> <span class="s1">&#39;append_const&#39;</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="s1">&#39;Flag&#39;</span><span class="p">,</span> <span class="n">FlagArgs</span><span class="o">.</span><span class="n">init_flag</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;Counter&#39;</span><span class="p">,</span> <span class="n">FlagArgs</span><span class="o">.</span><span class="n">init_counter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="si">}</span><span class="s1">: action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s1"> is not supported for Option parameters&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;Option&#39;</span><span class="p">,</span> <span class="n">OptionArgs</span><span class="o">.</span><span class="n">init_option</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to determine a suitable Parameter type for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region High Level Param Type</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">is_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">nargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nargs&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">nargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">(</span><span class="s1">&#39;argparse&#39;</span><span class="p">,</span> <span class="s1">&#39;REMAINDER&#39;</span><span class="p">,</span> <span class="p">())</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">is_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
+        <span class="k">return</span> <span class="n">plain</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">long</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">short</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">is_option</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">long</span> <span class="ow">or</span> <span class="n">short</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">plain</span>
+
+    <span class="c1"># endregion</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_grouped_opt_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">option_strs</span> <span class="o">=</span> <span class="p">(</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_args</span><span class="p">)</span>
+        <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">option_strs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">):</span>
+                <span class="n">long</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
+                <span class="n">short</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span>
+
+
+<span class="k">class</span> <span class="nc">ParamConverterGroup</span><span class="p">(</span><span class="n">ConverterGroup</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ast_obj</span><span class="p">,</span> <span class="s1">&#39;sub_parsers&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">positionals</span><span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">i_converters</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">i_converters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">converter</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
+                <span class="n">positionals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">others</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+                <span class="n">others</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i_converters</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">positional</span> <span class="ow">in</span> <span class="n">positionals</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">positional</span><span class="o">.</span><span class="n">format_lines</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+
+        <span class="n">sub_parsers</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ast_obj</span><span class="p">,</span> <span class="s1">&#39;sub_parsers&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sub_parsers</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found sub_parsers=</span><span class="si">{</span><span class="n">sub_parsers</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">sub_parsers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="p">[</span><span class="s1">&#39;dest&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;sub_cmd&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">RESERVED</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;sub_cmd&#39;</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}{</span><span class="n">name</span><span class="si">}</span><span class="s1"> = SubCommand()&#39;</span>
+
+        <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">other</span><span class="o">.</span><span class="n">format_lines</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+
+
+<span class="c1"># region Arg Containers</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">BaseArgs</span><span class="p">:</span>
+    <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">end_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">end_fields</span><span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">]</span> <span class="o">+</span> <span class="n">end_fields</span>
+        <span class="n">kv_iter</span> <span class="o">=</span> <span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kv_iter</span> <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_str</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;help&#39;</span><span class="p">])</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_kwargs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+        <span class="n">help_str</span> <span class="o">=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;help&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">help_str</span><span class="p">:</span>
+            <span class="c1"># log.debug(f&#39;Processing {help_str=}&#39;)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">help_str</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">help_str</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># likely an f-string</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">help_str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;(default: </span><span class="si">%(default)s</span><span class="s1">)&#39;</span><span class="p">):</span>
+                    <span class="n">help_str</span> <span class="o">=</span> <span class="n">help_str</span><span class="p">[:</span><span class="o">-</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+                <span class="n">filtered</span><span class="p">[</span><span class="s1">&#39;help&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">help_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">help_str</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">filtered</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">CommandArgs</span><span class="p">(</span><span class="n">BaseArgs</span><span class="p">):</span>
+    <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">choices</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">usage</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">epilog</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">option_name_mode</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">add_help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">docs_url</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">email</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="c1"># endregion</span>
+
+
+<span class="c1"># region ParserArg Arg Containers</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ParamBaseArgs</span><span class="p">(</span><span class="n">BaseArgs</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">required</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">hide</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_str</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;hide&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">])</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PassThruArgs</span><span class="p">(</span><span class="n">ParamBaseArgs</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ParamArgs</span><span class="p">(</span><span class="n">ParamBaseArgs</span><span class="p">):</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">choices</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_positional</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">nargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nargs_obj</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">nargs</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nargs_obj</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span> <span class="ow">and</span> <span class="n">nargs_obj</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span> <span class="ow">and</span> <span class="n">nargs_obj</span> <span class="o">!=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">nargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OptionArgs</span><span class="p">(</span><span class="n">ParamArgs</span><span class="p">):</span>
+    <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_option</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">const</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s1">: ignoring const=</span><span class="si">{</span><span class="n">const</span><span class="si">!r}</span><span class="s1"> - it is only supported for Flag and Counter parameters&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">nargs</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">: using default nargs=&#39;+&#39; because action=</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s2"> and no nargs value was provided&quot;</span><span class="p">)</span>
+                <span class="n">nargs</span> <span class="o">=</span> <span class="s2">&quot;&#39;+&#39;&quot;</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nargs</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+                <span class="n">nargs</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">nargs</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">nargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">FlagArgs</span><span class="p">(</span><span class="n">OptionArgs</span><span class="p">):</span>
+    <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_flag</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;store_true&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">),</span> <span class="s1">&#39;store_false&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;False&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">opposite</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store_const&#39;</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="n">opposite</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">const</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">default</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;nargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">action</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="n">const</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_counter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;nargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;const&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">const</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="n">const</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span> <span class="k">else</span> <span class="n">default</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="c1"># endregion</span>
+
+
+<span class="k">def</span> <span class="nf">literal_eval_or_none</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
