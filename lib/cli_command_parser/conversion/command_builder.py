@@ -360,7 +360,7 @@ class ParamConverter(Converter, converts=ParserArg):
 
         if self.is_positional:
             if action and action not in ('store', 'append'):
-                raise ConversionError(f'{self.ast_obj}: {action=} is not supported for Positional parameters')
+                raise ConversionError(f'{self.ast_obj}: action={action!r} is not supported for Positional parameters')
             return 'Positional', ParamArgs.init_positional(action, **kwargs)
         elif self.is_option:
             kwargs['name_mode'] = self.name_mode
@@ -370,7 +370,7 @@ class ParamConverter(Converter, converts=ParserArg):
                 elif action == 'count':
                     return 'Counter', FlagArgs.init_counter(**kwargs)
                 elif action not in ('store', 'append'):
-                    raise ConversionError(f'{self.ast_obj}: {action=} is not supported for Option parameters')
+                    raise ConversionError(f'{self.ast_obj}: action={action!r} is not supported for Option parameters')
             return 'Option', OptionArgs.init_option(self.ast_obj, action, **kwargs)
 
         raise ConversionError(f'Unable to determine a suitable Parameter type for {self.ast_obj!r}')

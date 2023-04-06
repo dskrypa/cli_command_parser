@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+from itertools import count
 from typing import TYPE_CHECKING
 from unittest import main
 from unittest.mock import Mock, patch
@@ -11,7 +12,8 @@ from cli_command_parser.compat import cached_property
 from cli_command_parser.conversion.argparse_ast import Script, AstArgumentParser, AstCallable
 from cli_command_parser.conversion.argparse_ast import AddVisitedChild, visit_func
 from cli_command_parser.conversion.argparse_utils import ArgumentParser, SubParsersAction
-from cli_command_parser.conversion.command_builder import Converter, ParserConverter, convert_script
+from cli_command_parser.conversion.command_builder import Converter, ParserConverter, ParamConverter, convert_script
+from cli_command_parser.conversion.command_builder import ConversionError
 from cli_command_parser.conversion.utils import get_name_repr, collection_contents
 from cli_command_parser.conversion.visitor import TrackedRefMap
 from cli_command_parser.testing import ParserTest, RedirectStreams
@@ -223,10 +225,12 @@ class Command1(Command):  {DISCLAIMER}\n    pass\n\n
     def test_sub_parser_choices(self):
         code = """
 from argparse import ArgumentParser
-p = ArgumentParser()
-sp_act = p.add_subparsers()
+p1 = ArgumentParser()
+sp_act = p1.add_subparsers(dest='in')
 sp_act.add_parser('foo-bar')
 sp_act.add_parser('foo', aliases=('bar', 'baz'))
+p2 = ArgumentParser()
+sp_act = p2.add_subparsers()
 sp_act.add_parser(aliases=(k for k in 'abc'))
 sp_act.add_parser(aliases={k: 1 for k in 'abc'})
 sp_act.add_parser(aliases={'a': 1, 'b': 2})
@@ -239,15 +243,61 @@ sp_act.add_parser(aliases=())
 class Command0(Command):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
 class FooBar(Command0, choice='foo-bar'):\n    pass\n\n
 class Foo(Command0, choices=('foo', 'bar', 'baz')):\n    pass\n\n
-class Command1(Command0, choices=tuple(k for k in 'abc')):\n    pass\n\n
-class Command2(Command0, choices={{k: 1 for k in 'abc'}}):\n    pass\n\n
-class Command3(Command0, choices=('a', 'b')):\n    pass\n\n
-class Command4(Command0, choices=ALIASES):\n    pass\n\n
-class Command5(Command0, choices=(BAR, *BARS['x'])):\n    pass\n\n
-class Command6(Command0, choice='a'):\n    pass\n\n
-class Command7(Command0):\n    pass\n\n
+class Command1(Command):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
+class Command2(Command1, choices=tuple(k for k in 'abc')):\n    pass\n\n
+class Command3(Command1, choices={{k: 1 for k in 'abc'}}):\n    pass\n\n
+class Command4(Command1, choices=('a', 'b')):\n    pass\n\n
+class Command5(Command1, choices=ALIASES):\n    pass\n\n
+class Command6(Command1, choices=(BAR, *BARS['x'])):\n    pass\n\n
+class Command7(Command1, choice='a'):\n    pass\n\n
+class Command8(Command1):\n    pass\n\n
         """.rstrip()
         self.assert_strings_equal(expected, convert_script(Script(code)))
+
+    def test_option_names(self):
+        parser = Script("from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', '-')").parsers[0]
+        converter = Converter.for_ast_callable(parser.args[0])(parser.args[0], Mock(), 0)  # noqa
+        converter._counter = count()  # prevent potential interference from other tests
+        attr_name_candidates = converter._attr_name_candidates()  # noqa
+        self.assertEqual('foo', next(attr_name_candidates))
+        self.assertEqual('param_0', next(attr_name_candidates))
+        self.assertEqual('param_1', next(attr_name_candidates))
+        converter.__dict__['is_option'] = False
+        self.assertEqual('param_2', next(converter._attr_name_candidates()))  # noqa
+        with patch.object(ParamConverter, '_attr_name_candidates', return_value=()):
+            with self.assertRaises(StopIteration):
+                _ = converter._attr_name  # noqa
+
+    def test_bad_positional_action(self):
+        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('foo', action='store_true')"
+        with self.assertRaisesRegex(ConversionError, 'is not supported for Positional parameters'):
+            convert_script(Script(code))
+
+    def test_bad_option_action(self):
+        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', action='extend')"
+        with self.assertRaisesRegex(ConversionError, 'is not supported for Option parameters'):
+            convert_script(Script(code))
+
+    def test_explicit_option_action(self):
+        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', action='store')"
+        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option()'
+        self.assertEqual(expected, convert_script(Script(code)))
+
+    def test_bad_param_type(self):
+        code = 'from argparse import ArgumentParser as AP\np = AP(); p.add_argument()'
+        with self.assertRaisesRegex(ConversionError, 'Unable to determine a suitable Parameter type'):
+            convert_script(Script(code))
+
+    def test_help_from_var(self):
+        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', help=HELP)"
+        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(help=HELP)'
+        self.assertEqual(expected, convert_script(Script(code)))
+
+    def test_help_strip_default(self):
+        text = 'The foo (default: %(default)s)'
+        code = f"from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', help={text!r})"
+        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(help='The foo')"
+        self.assertEqual(expected, convert_script(Script(code)))
 
 
 class ArgparseConversionCustomSubclassTest(ParserTest):
