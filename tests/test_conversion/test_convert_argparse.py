@@ -147,10 +147,7 @@ for sp in (sp1, sp2):
     group.add_argument('--dry-run', '-D', action='store_true', help='Perform a dry run with no side effects')
         """
 
-        expected_base = (
-            f"{IMPORT_LINE}\n\n\nclass Command0(Command, option_name_mode='-'):  {DISCLAIMER}\n"
-            '    action = SubCommand()'
-        )
+        expected_base = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    action = SubCommand()'
         common = """
     with ParamGroup(description='Common options'):
         verbose = Counter('-v', help='Increase logging verbosity')
@@ -199,10 +196,10 @@ class Command0(Command):  {DISCLAIMER}
     action = SubCommand()
 \n
 class One(Command0, help='Command one'):
-    foo_bar = Flag('-f', name_mode='-', help='Do foo bar')\n
+    foo_bar = Flag('-f', help='Do foo bar')\n
     with ParamGroup(mutually_exclusive=True):
         verbose = Counter('-v', help='Increase logging verbosity')
-        dry_run = Flag('-D', help='Perform a dry run with no side effects')
+        dry_run = Flag('-D', name_mode='_', help='Perform a dry run with no side effects')
 \n
 class Two(Command0, description='Command two'):
     baz = Option('-b', nargs='+', help='What to baz')
@@ -267,6 +264,30 @@ class Command8(Command1):\n    pass\n\n
         with patch.object(ParamConverter, '_attr_name_candidates', return_value=()):
             with self.assertRaises(StopIteration):
                 _ = converter._attr_name  # noqa
+
+    def test_option_name_mode_default(self):
+        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo-bar')"
+        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo_bar = Option()'
+        self.assertEqual(expected, convert_script(Script(code)))
+
+    def test_option_name_mode_underscore(self):
+        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo_bar')"
+        expected = (
+            f"{IMPORT_LINE}\n\n\nclass Command0(Command, option_name_mode='_'):  {DISCLAIMER}"
+            '\n    foo_bar = Option()'
+        )
+        self.assertEqual(expected, convert_script(Script(code)))
+
+    def test_option_name_mode_underscore_subparser(self):
+        code = """
+from argparse import ArgumentParser as AP\np = AP()\nsp = p.add_subparsers()\n
+sp1 = sp.add_parser('one', help='Command one')\nsp1.add_argument('--foo_bar', '-f', action='store_true')
+        """
+        expected = f"""{IMPORT_LINE}\n\n
+class Command0(Command, option_name_mode='_'):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
+class One(Command0, help='Command one'):\n    foo_bar = Flag('-f')
+        """.rstrip()
+        self.assert_strings_equal(expected, convert_script(Script(code)))
 
     def test_bad_positional_action(self):
         code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('foo', action='store_true')"

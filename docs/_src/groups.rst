@@ -291,13 +291,13 @@ Example output for the mutually dependent group nested inside the mutually exclu
     main
 
     $ grouped_action_flags.py -ab
-    argument conflict - the following arguments cannot be combined: --action_a / -a, --action_b / -b (they are mutually exclusive - only one is allowed)
+    argument conflict - the following arguments cannot be combined: --action-a / -a, --action-b / -b (they are mutually exclusive - only one is allowed)
 
     $ grouped_action_flags.py -abc
-    argument conflict - the following arguments cannot be combined: --action_a / -a, --action_b / -b, {--action_c / -c,--action_d / -d} (they are mutually exclusive - only one is allowed)
+    argument conflict - the following arguments cannot be combined: --action-a / -a, --action-b / -b, {--action-c / -c,--action-d / -d} (they are mutually exclusive - only one is allowed)
 
     $ grouped_action_flags.py -c
-    argument missing - the following argument is required: --action_d / -d (because --action_c/-c was provided)
+    argument missing - the following argument is required: --action-d / -d (because --action-c/-c was provided)
 
     $ grouped_action_flags.py -cd
     c
@@ -308,10 +308,10 @@ Example output for the mutually dependent group nested inside the mutually exclu
 Example output for the mutually exclusive group nested inside the mutually dependent group::
 
     $ grouped_action_flags.py -w
-    arguments missing - the following arguments are required: --action_x / -x, {--action_y / -y,--action_z / -z} (because --action_w/-w was provided)
+    arguments missing - the following arguments are required: --action-x / -x, {--action-y / -y,--action-z / -z} (because --action-w/-w was provided)
 
     $ grouped_action_flags.py -wx
-    argument missing - the following argument is required: {--action_y / -y,--action_z / -z} (because --action_w/-w, --action_x/-x were provided)
+    argument missing - the following argument is required: {--action-y / -y,--action-z / -z} (because --action-w/-w, --action-x/-x were provided)
 
     $ grouped_action_flags.py -wxy
     main
@@ -320,4 +320,4 @@ Example output for the mutually exclusive group nested inside the mutually depen
     y
 
     $ grouped_action_flags.py -wxyz
-    argument conflict - the following arguments cannot be combined: --action_y / -y, --action_z / -z (they are mutually exclusive - only one is allowed)
+    argument conflict - the following arguments cannot be combined: --action-y / -y, --action-z / -z (they are mutually exclusive - only one is allowed)

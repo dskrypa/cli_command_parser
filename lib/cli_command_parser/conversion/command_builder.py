@@ -22,10 +22,7 @@ log = logging.getLogger(__name__)
 
 C = TypeVar('C', bound='Converter')
 
-try:
-    RESERVED = set(keyword.kwlist) | set(keyword.softkwlist)
-except AttributeError:  # < 3.9
-    RESERVED = set(keyword.kwlist)
+RESERVED = set(keyword.kwlist) | set(getattr(keyword, 'softkwlist', ('_', 'case', 'match')))  # soft was added in 3.9
 
 
 def convert_script(script: Script) -> str:
@@ -299,7 +296,7 @@ class ParamConverter(Converter, converts=ParserArg):
 
     @cached_property
     def attr_name(self) -> str:
-        return self._attr_name.replace('-', '_') if self._name_mode else self._attr_name
+        return self._attr_name.replace('-', '_')
 
     @cached_property
     def name_mode(self) -> str | None:
@@ -309,7 +306,7 @@ class ParamConverter(Converter, converts=ParserArg):
     def _name_mode(self) -> str | None:
         if not self.use_auto_long_opt_str:
             return None
-        return "'-'" if '-' in self._attr_name else None
+        return "'_'" if '_' in self._attr_name else None
 
     @cached_property
     def _attr_name(self) -> str:

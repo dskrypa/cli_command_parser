@@ -511,14 +511,18 @@ class TriFlagTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
 
     def test_auto_long_with_alt(self):
-        class Foo(Command):
-            foo = TriFlag(alt_long='--no-foo')
-            bar = TriFlag('--bar', alt_long='--baz')
-            abc = TriFlag()
+        cases = [({}, '--no-abc'), ({'option_name_mode': '_'}, '--no_abc')]
+        for kwargs, abc_long in cases:
+            with self.subTest(kwargs=kwargs, abc_long=abc_long):
 
-        self.assertEqual(['--no-foo', '--foo'], Foo.foo.option_strs.long)
-        self.assertEqual(['--bar', '--baz'], Foo.bar.option_strs.long)
-        self.assertEqual(['--no_abc', '--abc'], Foo.abc.option_strs.long)
+                class Foo(Command, **kwargs):
+                    foo = TriFlag(alt_long='--no-foo')
+                    bar = TriFlag('--bar', alt_long='--baz')
+                    abc = TriFlag()
+
+                self.assertEqual(['--no-foo', '--foo'], Foo.foo.option_strs.long)
+                self.assertEqual(['--bar', '--baz'], Foo.bar.option_strs.long)
+                self.assertEqual([abc_long, '--abc'], Foo.abc.option_strs.long)
 
 
 class CounterTest(ParserTest):
