@@ -370,6 +370,8 @@ class ParamConverter(Converter, converts=ParserArg):
             return 'Positional', ParamArgs.init_positional(action, **kwargs)
         elif self.is_option:
             kwargs['name_mode'] = self.name_mode
+            if not action and 'const' in kwargs:
+                action = 'append_const' if 'nargs' in kwargs else 'store_const'
             if action:
                 if action in ('store_true', 'store_false', 'store_const', 'append_const'):
                     return 'Flag', FlagArgs.init_flag(action, **kwargs)
@@ -377,6 +379,7 @@ class ParamConverter(Converter, converts=ParserArg):
                     return 'Counter', FlagArgs.init_counter(**kwargs)
                 elif action not in ('store', 'append'):
                     raise ConversionError(f'{self.ast_obj}: action={action!r} is not supported for Option parameters')
+
             return 'Option', OptionArgs.init_option(self.ast_obj, action, **kwargs)
 
         raise ConversionError(f'Unable to determine a suitable Parameter type for {self.ast_obj!r}')
@@ -535,10 +538,17 @@ class ParamArgs(ParamBaseArgs):
     @classmethod
     def init_positional(cls, action: OptStr = None, nargs: OptStr = None, **kwargs):
         if nargs is not None:
-            nargs_obj = Nargs(literal_eval(nargs))
+            parsed = literal_eval_or_none(nargs)
+            if parsed is not None:
+                nargs_obj = Nargs(parsed)
+                if action in ('store', None) and nargs_obj == 1:
+                    action = nargs = None
+            else:
+                nargs_obj = None
         else:
             nargs_obj = Nargs(1)
-        if (action == 'store' and nargs_obj == 1) or (action == 'append' and nargs_obj != Nargs(1)):
+
+        if nargs_obj is not None and action == 'append' and nargs_obj != Nargs(1):
             action = None
         return cls.from_kwargs(action=action, nargs=nargs, **kwargs)
 
@@ -560,8 +570,7 @@ class OptionArgs(ParamArgs):
         elif action == 'store':
             if nargs == '1':
                 nargs = None
-            if not nargs:
-                action = None
+            action = None
 
         return cls.from_kwargs(action=repr(action) if action else None, nargs=nargs, **kwargs)
 
