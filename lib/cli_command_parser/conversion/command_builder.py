@@ -58,7 +58,7 @@ class Converter(ABC):
 
     @classmethod
     def init_group(cls: Type[C], parent: CollectionConverter, ast_objs: List[AC]) -> ConverterGroup[C]:
-        return ConverterGroup(parent, [cls(ast_obj, parent) for ast_obj in ast_objs])
+        return ConverterGroup(parent, cls, [cls(ast_obj, parent) for ast_obj in ast_objs])
 
     def convert(self, indent: int = 0) -> str:
         return '\n'.join(self.format_lines(indent))
@@ -69,10 +69,11 @@ class Converter(ABC):
 
 
 class ConverterGroup(Generic[C]):
-    __slots__ = ('parent', 'members')
+    __slots__ = ('parent', 'member_type', 'members')
 
-    def __init__(self, parent: CollectionConverter, members: List[C]):
+    def __init__(self, parent: CollectionConverter, member_type: Type[C], members: List[C]):
         self.parent = parent
+        self.member_type = member_type
         self.members = members
 
     def __len__(self) -> int:
@@ -125,8 +126,12 @@ class CollectionConverter(Converter, ABC):
                 yield from child_group
 
     def format_members(self, prefix: str, indent: int = 4) -> Iterator[str]:
+        last = False
         for child_group in self.grouped_children:
+            if last and child_group and issubclass(child_group.member_type, GroupConverter):
+                yield ''
             yield from child_group.format_all(indent)
+            last = bool(child_group)
 
         if not any(cg for cg in self.grouped_children):
             yield f'{prefix}    pass'
@@ -238,7 +243,7 @@ class GroupConverter(CollectionConverter, converts=ArgGroup):
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:
         prefix = ' ' * indent
-        yield f'\n{prefix}with ParamGroup({self._get_args()}):'
+        yield f'{prefix}with ParamGroup({self._get_args()}):'
         yield from self.format_members(prefix, indent + 4)
 
     def _get_args(self) -> str:
@@ -282,7 +287,7 @@ class ParamConverter(Converter, converts=ParserArg):
 
     @classmethod
     def init_group(cls, parent: CollectionConverter, args: List[ParserArg]) -> ParamConverterGroup:
-        return ParamConverterGroup(parent, [cls(arg, parent, i) for i, arg in enumerate(args)])
+        return ParamConverterGroup(parent, cls, [cls(arg, parent, i) for i, arg in enumerate(args)])
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:
         yield self.format(indent)

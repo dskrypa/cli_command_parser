@@ -323,6 +323,28 @@ class One(Command0, help='Command one'):\n    foo_bar = Flag('-f')
         expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(help='The foo')"
         self.assertEqual(expected, convert_script(Script(code)))
 
+    def test_group_title_trim(self):
+        code = """from argparse import ArgumentParser as AP\np = AP()
+g = p.add_argument_group(title='Misc Options', description='Miscellaneous option group')
+g.add_argument('--foo')
+        """
+        expected = f"""{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}
+    with ParamGroup('Misc', description='Miscellaneous option group'):
+        foo = Option()
+        """.rstrip()
+        self.assertEqual(expected, convert_script(Script(code)))
+
+    def test_group_no_options_in_title(self):
+        code = """from argparse import ArgumentParser as AP\np = AP()
+g = p.add_argument_group(title='Misc Group', description='Miscellaneous option group')
+g.add_argument('--foo')
+        """
+        expected = f"""{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}
+    with ParamGroup('Misc Group', description='Miscellaneous option group'):
+        foo = Option()
+        """.rstrip()
+        self.assertEqual(expected, convert_script(Script(code)))
+
 
 class AstVisitorTest(ParserTest):
     def test_touch_for_unhandled_cases(self):
