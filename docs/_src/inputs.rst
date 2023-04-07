@@ -36,10 +36,10 @@ available.
 
 Given the following (truncated) :gh_examples:`example <custom_inputs.py>`::
 
-    from cli_command_parser import Command, Option, main, inputs as i
+    from cli_command_parser import Command, Option, main, inputs
 
     class InputsExample(Command):
-        path = Option('-p', type=i.Path(exists=True, type='file'), help='The path to a file')
+        path = Option('-p', type=inputs.Path(exists=True, type='file'), help='The path to a file')
 
         def main(self):
             if self.path:
