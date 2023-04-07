@@ -416,6 +416,11 @@ p.add_argument('--bar')\np.add_argument('baz')\np.add_argument('--foo', nargs=RE
         expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option()'
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
+    def test_option_nargs_star_to_plus(self):
+        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', nargs='*')"
+        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(nargs='+')"
+        self.assert_strings_equal(expected, convert_script(Script(code)))
+
     # endregion
 
     # region Flag Args

@@ -562,6 +562,8 @@ class OptionArgs(ParamArgs):
         if const:
             log.warning(f'{arg}: ignoring const={const!r} - it is only supported for Flag and Counter parameters')
 
+        if nargs == "'*'":
+            nargs = "'+'"
         if action == 'append':
             if not nargs:
                 log.debug(f"{arg}: using default nargs='+' because action={action!r} and no nargs value was provided")
