@@ -15,7 +15,7 @@ from cli_command_parser.conversion.argparse_utils import ArgumentParser, SubPars
 from cli_command_parser.conversion.command_builder import Converter, ParserConverter, ParamConverter, convert_script
 from cli_command_parser.conversion.command_builder import ConversionError
 from cli_command_parser.conversion.utils import get_name_repr, collection_contents
-from cli_command_parser.conversion.visitor import TrackedRefMap
+from cli_command_parser.conversion.visitor import ScriptVisitor, TrackedRefMap, TrackedRef
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 if TYPE_CHECKING:
@@ -123,11 +123,14 @@ class ArgparseConversionTest(ParserTest):
             Script(code).parsers[0].pprint()
         self.assert_strings_equal(expected, streams.stdout.strip())
 
-    def test_renamed_import_and_remainder(self):
+    def test_renamed_import_and_remainder_in_func(self):
         code = """
+import logging
 from argparse import ArgumentParser as ArgParser, REMAINDER
-parser = ArgParser()
-parser.add_argument('test', nargs=REMAINDER)
+log = logging.getLogger(__name__)
+def main():
+    parser = ArgParser()
+    parser.add_argument('test', nargs=REMAINDER)
         """
         expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    test = PassThru()'
         self.assertEqual(expected, convert_script(Script(code)))
@@ -185,7 +188,7 @@ sp1 = subparsers.add_parser('one', help='Command one')
 sp1.add_argument('--foo-bar', '-f', action='store_true', help='Do foo bar')
 sp2 = subparsers.add_parser('two', description='Command two')
 sp2.add_argument('--baz', '-b', nargs='+', help='What to baz')
-for sp in [sp1]:
+for sp in [sp1, sp123456789]:
     group = sp.add_mutually_exclusive_group()
     group.add_argument('--verbose', '-v', action='count', default=0, help='Increase logging verbosity')
     group.add_argument('--dry_run', '-D', action='store_true', help='Perform a dry run with no side effects')
@@ -319,6 +322,57 @@ class One(Command0, help='Command one'):\n    foo_bar = Flag('-f')
         code = f"from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', help={text!r})"
         expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(help='The foo')"
         self.assertEqual(expected, convert_script(Script(code)))
+
+
+class AstVisitorTest(ParserTest):
+    def test_touch_for_unhandled_cases(self):
+        code = """
+from logging import getLogger
+from argparse import Namespace, ArgumentParser as AP
+log = getLogger(__name__)
+def foo():
+    for k, v in {}.items():
+        pass
+    for t in some_iterable:
+        pass
+with foo():
+    a = int
+    b = {'a': 1}['a']
+p = AP()
+        """
+        self.assertEqual(1, len(Script(code).parsers))
+
+    def test_tracked_ref(self):
+        a, b = TrackedRef('foo.bar'), TrackedRef('foo.baz')
+        self.assertEqual('<TrackedRef: foo.bar>', repr(a))
+        self.assertIn(a, {a, b})
+        self.assertNotIn(a, {b})
+        self.assertEqual(a, TrackedRef('foo.bar'))
+
+    def test_with_no_as_name(self):
+        self.assertEqual(1, len(Script('from argparse import ArgumentParser as AP\nwith AP():\n    pass').parsers))
+
+    def test_resolve_ref_no_visit_func(self):
+        class FakeRef:
+            def __init__(self, module, name):
+                self.module, self.name = module, name
+
+        ref = FakeRef('foo', 'bar')
+        visitor = ScriptVisitor()
+        visitor.track_refs_to(ref)  # noqa
+        visitor.scopes['foo'] = ref
+        self.assertIsNone(visitor.resolve_ref('foo.bar'))
+
+    def test_for_multiple_parser_parents(self):
+        code = """
+from argparse import ArgumentParser as AP\np1 = AP()\nsp = p1.add_subparsers()\nsp1 = sp.add_parser('foo')\n
+p2 = AP()\nfor p in (sp1, p2):\n    pass
+        """
+        self.assertEqual(2, len(Script(code).parsers))
+
+    def test_for_no_subparsers(self):
+        code = 'from argparse import ArgumentParser as AP\np1 = AP()\np2 = AP()\nfor p in (p1, p2):\n    pass'
+        self.assertEqual(2, len(Script(code).parsers))
 
 
 class ArgparseConversionCustomSubclassTest(ParserTest):

@@ -111,10 +111,10 @@ class ScriptVisitor(NodeVisitor):
 
         if len(refs) == len(ele_names) and all(isinstance(ref, AstArgumentParser) for ref in refs):
             parents = set(ref.parent for ref in refs)
-            log.debug(f'  > Found parents={parents!r}')
+            log.debug(f'  > Found parents={len(parents)}')
             if len(parents) == 1:
                 parent = next(iter(parents))
-                if parent and set(parent.sub_parsers) == set(refs):
+                if parent and set(getattr(parent, 'sub_parsers', ())) == set(refs):
                     self.scopes[loop_var] = parent
                     self.generic_visit(node)
                     return
