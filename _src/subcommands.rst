@@ -74,7 +74,7 @@ We can see from the help text that it is aware of its subcommands::
         bar                       Print bar
 
     Optional arguments:
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 Usage examples::
@@ -154,7 +154,7 @@ common ``env`` Option for selecting an environment to connect to::
         find                      Find objects
 
     Optional arguments:
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
     Common options:
       --verbose [VERBOSE], -v [VERBOSE]
@@ -251,7 +251,7 @@ Top level ``--help`` text for the above example::
     Optional arguments:
       --verbose [VERBOSE], -v [VERBOSE]
                                   Increase logging verbosity (can specify multiple times) (default: 0)
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 Each subcommand has its own command-specific help text as well::
@@ -262,13 +262,13 @@ Each subcommand has its own command-specific help text as well::
     Optional arguments:
       --verbose [VERBOSE], -v [VERBOSE]
                                   Increase logging verbosity (can specify multiple times) (default: 0)
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
     $ advanced_subcommand.py baz -h
     usage: advanced_subcommand.py baz [--help]
 
     Optional arguments:
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 Note that the ``baz`` subcommand, which does not extend ``Base``, does not include ``verbose`` because it does not

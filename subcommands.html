@@ -178,7 +178,7 @@ Subcommands:
     bar                       Print bar
 
 Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
+  --help, -h                  Show this help message and exit
 </pre></div>
 </div>
 <p>Usage examples:</p>
@@ -254,7 +254,7 @@ Subcommands:
     find                      Find objects
 
 Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
+  --help, -h                  Show this help message and exit
 
 Common options:
   --verbose [VERBOSE], -v [VERBOSE]
@@ -342,7 +342,7 @@ Subcommands:
 Optional arguments:
   --verbose [VERBOSE], -v [VERBOSE]
                               Increase logging verbosity (can specify multiple times) (default: 0)
-  --help, -h                  Show this help message and exit (default: False)
+  --help, -h                  Show this help message and exit
 </pre></div>
 </div>
 <p>Each subcommand has its own command-specific help text as well:</p>
@@ -352,13 +352,13 @@ usage: advanced_subcommand.py foo [--verbose [VERBOSE]] [--help]
 Optional arguments:
   --verbose [VERBOSE], -v [VERBOSE]
                               Increase logging verbosity (can specify multiple times) (default: 0)
-  --help, -h                  Show this help message and exit (default: False)
+  --help, -h                  Show this help message and exit
 
 $ advanced_subcommand.py baz -h
 usage: advanced_subcommand.py baz [--help]
 
 Optional arguments:
-  --help, -h                  Show this help message and exit (default: False)
+  --help, -h                  Show this help message and exit
 </pre></div>
 </div>
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">baz</span></code> subcommand, which does not extend <code class="docutils literal notranslate"><span class="pre">Base</span></code>, does not include <code class="docutils literal notranslate"><span class="pre">verbose</span></code> because it does not

@@ -4,7 +4,7 @@ Custom Inputs
 
 ::
 
-    usage: custom_inputs.py [--path PATH] [--in_file IN_FILE] [--out_file OUT_FILE] [--json JSON] [--simple_range {0 <= N <= 49}] [--skip_range {1 <= N <= 29, step=2}] [--float_range {0.0 <= N < 1.0}] [--choice_range {0 <= N <= 19}] [--help]
+    usage: custom_inputs.py [--path PATH] [--in-file IN_FILE] [--out-file OUT_FILE] [--json JSON] [--simple-range {0 <= N <= 49}] [--skip-range {1 <= N <= 29, step=2}] [--float-range {0.0 <= N < 1.0}] [--choice-range {0 <= N <= 19}] [--help]
 
 
 
@@ -16,9 +16,9 @@ Custom Inputs
     +------------------------------------------+------------------------------------+
     | ``--path PATH``, ``-p PATH``             | The path to a file                 |
     +------------------------------------------+------------------------------------+
-    | ``--in_file IN_FILE``, ``-f IN_FILE``    | The path to a file to read         |
+    | ``--in-file IN_FILE``, ``-f IN_FILE``    | The path to a file to read         |
     +------------------------------------------+------------------------------------+
-    | ``--out_file OUT_FILE``, ``-o OUT_FILE`` | The path to a file to write        |
+    | ``--out-file OUT_FILE``, ``-o OUT_FILE`` | The path to a file to write        |
     +------------------------------------------+------------------------------------+
     | ``--json JSON``, ``-j JSON``             | The path to a file containing json |
     +------------------------------------------+------------------------------------+
@@ -32,11 +32,11 @@ Custom Inputs
     :widths: auto
 
     +------------------------------------------------------------------------+----------------------------------------+
-    | ``--simple_range {0 <= N <= 49}``, ``-r {0 <= N <= 49}``               | Choose a number in the specified range |
+    | ``--simple-range {0 <= N <= 49}``, ``-r {0 <= N <= 49}``               | Choose a number in the specified range |
     +------------------------------------------------------------------------+----------------------------------------+
-    | ``--skip_range {1 <= N <= 29, step=2}``, ``-k {1 <= N <= 29, step=2}`` | Choose a number in the specified range |
+    | ``--skip-range {1 <= N <= 29, step=2}``, ``-k {1 <= N <= 29, step=2}`` | Choose a number in the specified range |
     +------------------------------------------------------------------------+----------------------------------------+
-    | ``--float_range {0.0 <= N < 1.0}``, ``-F {0.0 <= N < 1.0}``            | Choose a number in the specified range |
+    | ``--float-range {0.0 <= N < 1.0}``, ``-F {0.0 <= N < 1.0}``            | Choose a number in the specified range |
     +------------------------------------------------------------------------+----------------------------------------+
-    | ``--choice_range {0 <= N <= 19}``, ``-c {0 <= N <= 19}``               | Choose a number in the specified range |
+    | ``--choice-range {0 <= N <= 19}``, ``-c {0 <= N <= 19}``               | Choose a number in the specified range |
     +------------------------------------------------------------------------+----------------------------------------+

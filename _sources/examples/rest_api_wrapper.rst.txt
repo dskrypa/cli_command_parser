@@ -105,7 +105,7 @@ Sync group members
 
 ::
 
-    usage: rest_api_wrapper.py sync [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--dry_run] [--all] [--role {all|admin|user}] [--group GROUP]
+    usage: rest_api_wrapper.py sync [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--dry-run] [--all] [--role {all|admin|user}] [--group GROUP]
 
 
 
@@ -117,7 +117,7 @@ Sync group members
     +-----------------------+--------------------------------------------------------------+
     | ``--help``, ``-h``    | Show this help message and exit                              |
     +-----------------------+--------------------------------------------------------------+
-    | ``--dry_run``, ``-D`` | Print the actions that would be taken instead of taking them |
+    | ``--dry-run``, ``-D`` | Print the actions that would be taken instead of taking them |
     +-----------------------+--------------------------------------------------------------+
 
 

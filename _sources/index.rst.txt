@@ -64,7 +64,7 @@ Example Program
     Optional arguments:
       --name NAME, -n NAME        The person to say hello to (default: 'World')
       --count COUNT, -c COUNT     Number of times to repeat the message (default: 1)
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 Installing CLI Command Parser

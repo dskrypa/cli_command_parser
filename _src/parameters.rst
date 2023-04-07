@@ -191,9 +191,9 @@ Example usage::
     usage: simple_flags.py [--foo] [--no-bar] [--help]
 
     Optional arguments:
-      --foo, -f                   (default: False)
+      --foo, -f
       --no-bar, -B                (default: True)
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 
@@ -434,7 +434,7 @@ The resulting help text::
       TEXT [TEXT ...]             The text to print
 
     Optional arguments:
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 Example usage::
@@ -485,8 +485,8 @@ Example help text::
       HOSTS [HOSTS ...]           The hosts on which the given command should be run
 
     Optional arguments:
-      COMMAND                     The command to run (default: None)
-      --help, -h                  Show this help message and exit (default: False)
+      COMMAND                     The command to run
+      --help, -h                  Show this help message and exit
 
 
 Example usage::
