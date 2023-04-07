@@ -224,7 +224,7 @@ Example snippet::
 The help text (note that ``clean`` appears in both the ``Actions`` section and the optional args section)::
 
     $ build_docs.py -h
-    usage: build_docs.py {clean,backup} [--verbose [VERBOSE]] [--dry_run] [--clean] [--update] [--open] [--help]
+    usage: build_docs.py {clean,backup} [--verbose [VERBOSE]] [--dry-run] [--clean] [--update] [--open] [--help]
 
     Build documentation using Sphinx
 
@@ -237,11 +237,11 @@ The help text (note that ``clean`` appears in both the ``Actions`` section and t
     Optional arguments:
       --verbose [VERBOSE], -v [VERBOSE]
                                   Increase logging verbosity (can specify multiple times) (default: 0)
-      --dry_run, -D               Print the actions that would be taken instead of taking them (default: False)
-      --clean, -c                 Clean the docs directory before building docs (default: False)
-      --update, -u                Update RST files (default: False)
-      --open, -o                  Open the docs in the default web browser after running sphinx-build (default: False)
-      --help, -h                  Show this help message and exit (default: False)
+      --dry-run, -D               Print the actions that would be taken instead of taking them
+      --clean, -c                 Clean the docs directory before building docs
+      --update, -u                Update RST files
+      --open, -o                  Open the docs in the default web browser after running sphinx-build
+      --help, -h                  Show this help message and exit
 
 
 If the script is called with ``build_docs.py clean`` or ``build_docs.py backup``, then only the ``clean`` or ``backup``

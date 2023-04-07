@@ -200,8 +200,8 @@ class HelpTextTest(ParserTest):
         expected = """Optional arguments:
   --help, -h                  Show this help message and exit
   --escape ESCAPE, -e ESCAPE  Escape the provided regex special characters (default: '()')
-  --allow_inst, -I            Allow search results that include instrumental versions of songs
-  --full_info, -F             Print all available info about the discovered objects
+  --allow-inst, -I            Allow search results that include instrumental versions of songs
+  --full-info, -F             Print all available info about the discovered objects
   --format {json|json-pretty|json-compact|text|yaml|pprint|csv|table|pseudo-yaml|json-lines|plain|pseudo-json},
     -f {json|json-pretty|json-compact|text|yaml|pprint|csv|table|pseudo-yaml|json-lines|plain|pseudo-json}
                               Output format to use for --full_info (default: 'yaml')
@@ -254,6 +254,14 @@ class HelpTextTest(ParserTest):
         help_text = get_help_text(Foo)
         self.assertIn('--foo-bar', help_text)
         self.assertNotIn('--foo_bar', help_text)
+
+    def test_only_underscore_enabled(self):
+        class Foo(Command, option_name_mode='_'):
+            foo_bar = Flag()
+
+        help_text = get_help_text(Foo)
+        self.assertIn('--foo_bar', help_text)
+        self.assertNotIn('--foo-bar', help_text)
 
     def test_option_name_mode_overrides(self):
         mode_exp_map = {'underscore': ('--foo_a',), 'dash': ('--foo-a',), 'both': ('--foo-a', '--foo_a')}
@@ -654,20 +662,20 @@ class GroupHelpTextTest(ParserTest):
 
     def test_nested_show_tree(self):
         expected = """
-        usage: foo.py [--foo FOO] [--arg_a ARG_A] [--arg_b ARG_B] [--arg_y ARG_Y] [--arg_z ARG_Z] [--bar] [--baz] [--help]
+        usage: foo.py [--foo FOO] [--arg-a ARG_A] [--arg-b ARG_B] [--arg-y ARG_Y] [--arg-z ARG_Z] [--bar] [--baz] [--help]
 
         Optional arguments:
         │ --foo FOO, -f FOO         Do foo
         │ --help, -h                Show this help message and exit
         │
         Mutually exclusive options:
-        ¦ --arg_a ARG_A, -a ARG_A   A
-        ¦ --arg_b ARG_B, -b ARG_B   B
+        ¦ --arg-a ARG_A, -a ARG_A   A
+        ¦ --arg-b ARG_B, -b ARG_B   B
         ¦
         ¦ Mutually dependent options:
-        ¦ ║ --arg_y ARG_Y, -y ARG_Y
+        ¦ ║ --arg-y ARG_Y, -y ARG_Y
         ¦ ║                         Y
-        ¦ ║ --arg_z ARG_Z, -z ARG_Z
+        ¦ ║ --arg-z ARG_Z, -z ARG_Z
         ¦ ║                         Z
         ¦ ║
         ¦
