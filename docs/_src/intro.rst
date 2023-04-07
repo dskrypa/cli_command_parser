@@ -95,7 +95,7 @@ Using the Hello World example again, we can see the automatically generated help
 
     Optional arguments:
       --name NAME, -n NAME        The person to say hello to (default: 'World')
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
 
 
 The ``--help`` / ``-h`` option is automatically added to the command, and usage / help text is automatically generated

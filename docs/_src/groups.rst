@@ -50,7 +50,7 @@ Using that example, we can see the common options group in a subcommand's help t
       {foo,bar,baz}               The type of object to show
 
     Optional arguments:
-      --help, -h                  Show this help message and exit (default: False)
+      --help, -h                  Show this help message and exit
       --ids IDS, -i IDS           The IDs of the objects to show
 
     Common options:
