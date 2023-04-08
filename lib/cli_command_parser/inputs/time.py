@@ -25,15 +25,21 @@ from threading import RLock
 from typing import Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, overload
 from typing import Tuple, Dict
 
+try:
+    from typing import Literal
+except ImportError:
+    from ..compat import Literal
+
 from ..typing import T, Bool, Locale, TimeBound
 from ..utils import MissingMixin
 from .base import InputType
 from .exceptions import InputValidationError, InvalidChoiceError
 
-__all__ = ['DTFormatMode', 'Day', 'Month', 'DateTime', 'Date', 'Time']
+__all__ = ['DTFormatMode', 'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time']
 
 DT = TypeVar('DT')
-
+TimeUnit = Literal['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']
+_TIMEDELTA_UNITS = {'days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks'}
 DEFAULT_DATE_FMT = '%Y-%m-%d'
 DEFAULT_TIME_FMT = '%H:%M:%S'
 DEFAULT_DT_FMT = '%Y-%m-%d %H:%M:%S'
@@ -74,10 +80,15 @@ class different_locale:
 
 
 class DTInput(InputType[T], ABC):
+    __slots__ = ('locale',)
     dt_type: str
     locale: Optional[Locale]
 
-    def __init_subclass__(cls, dt_type: str = None):  # noqa
+    def __init_subclass__(cls, dt_type: str = None, **kwargs):
+        """
+        :param dt_type: Used in InvalidChoiceError / ValueError messages
+        """
+        super().__init_subclass__(**kwargs)
         cls.dt_type = dt_type
 
     def __init__(self, locale: Locale = None):
@@ -104,6 +115,7 @@ class DTFormatMode(MissingMixin, Enum):
 
 
 class CalendarUnitInput(DTInput[Union[str, int]], ABC):
+    __slots__ = ('full', 'abbreviation', 'numeric', 'out_format', 'out_locale')
     _formats: Dict[DTFormatMode, Sequence[Union[str, int]]]
     _min_index: int = 0
 
@@ -220,6 +232,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
 
 
 class Day(CalendarUnitInput, dt_type='day of the week'):
+    __slots__ = ('iso',)
     _formats = {
         DTFormatMode.FULL: day_name,
         DTFormatMode.ABBREVIATION: day_abbr,
@@ -275,6 +288,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
 
 
 class Month(CalendarUnitInput, dt_type='month', min_index=1):
+    __slots__ = ()
     _formats = {
         DTFormatMode.FULL: month_name,
         DTFormatMode.ABBREVIATION: month_abbr,
@@ -325,6 +339,36 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
 # endregion
 
 
+class TimeDelta(InputType[timedelta]):
+    __slots__ = ('unit',)
+
+    def __init__(self, unit: TimeUnit):
+        unit = unit.lower()
+        if unit not in _TIMEDELTA_UNITS:
+            raise TypeError(f'Invalid unit={unit!r} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
+        self.unit = unit
+        # TODO: min/max params like NumRange?
+
+    def __call__(self, value: Union[str, int, float]) -> timedelta:
+        if isinstance(value, str):
+            try:
+                value = float(value.replace(',', '').replace('_', ''))  # allow comma or _ between thousands
+            except ValueError as e:
+                raise InputValidationError(
+                    f'Invalid numeric {self.unit}={value!r} - expected an integer or float'
+                ) from e
+
+        return timedelta(**{self.unit: value})
+
+    def fix_default(self, value: Union[int, float, timedelta, None]) -> Optional[timedelta]:
+        if value is None or isinstance(value, timedelta):
+            return value
+        return self(value)
+
+    def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
+        return f'{{{self.unit}}}'
+
+
 # region Date/Time Parse Inputs
 
 
@@ -334,8 +378,8 @@ class DateTimeInput(DTInput[DT], ABC):
     _earliest: TimeBound = None
     _latest: TimeBound = None
 
-    def __init_subclass__(cls, type: Type[DT]):  # noqa
-        super().__init_subclass__(dt_type=type.__name__)
+    def __init_subclass__(cls, type: Type[DT], **kwargs):  # noqa
+        super().__init_subclass__(dt_type=type.__name__, **kwargs)
         cls._type = type
 
     def __init__(

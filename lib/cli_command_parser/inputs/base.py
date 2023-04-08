@@ -13,6 +13,8 @@ __all__ = ['InputType']
 
 
 class InputType(Generic[T], ABC):
+    __slots__ = ()
+
     @abstractmethod
     def __call__(self, value: str) -> T:
         """Process the parsed argument and convert it to the desired type"""

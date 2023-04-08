@@ -58,7 +58,7 @@ class Converter(ABC):
 
     @classmethod
     def init_group(cls: Type[C], parent: CollectionConverter, ast_objs: List[AC]) -> ConverterGroup[C]:
-        return ConverterGroup(parent, [cls(ast_obj, parent) for ast_obj in ast_objs])
+        return ConverterGroup(parent, cls, [cls(ast_obj, parent) for ast_obj in ast_objs])
 
     def convert(self, indent: int = 0) -> str:
         return '\n'.join(self.format_lines(indent))
@@ -69,10 +69,11 @@ class Converter(ABC):
 
 
 class ConverterGroup(Generic[C]):
-    __slots__ = ('parent', 'members')
+    __slots__ = ('parent', 'member_type', 'members')
 
-    def __init__(self, parent: CollectionConverter, members: List[C]):
+    def __init__(self, parent: CollectionConverter, member_type: Type[C], members: List[C]):
         self.parent = parent
+        self.member_type = member_type
         self.members = members
 
     def __len__(self) -> int:
@@ -125,8 +126,12 @@ class CollectionConverter(Converter, ABC):
                 yield from child_group
 
     def format_members(self, prefix: str, indent: int = 4) -> Iterator[str]:
+        last = False
         for child_group in self.grouped_children:
+            if last and child_group and issubclass(child_group.member_type, GroupConverter):
+                yield ''
             yield from child_group.format_all(indent)
+            last = bool(child_group)
 
         if not any(cg for cg in self.grouped_children):
             yield f'{prefix}    pass'
@@ -152,6 +157,8 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
 
     def format_lines(self, indent: int = 0) -> Iterator[str]:
         suffix = f'  {self._auto_gen_disclaimer}' if self.parent is None else ''
+        # TODO: Add _init_command_ and/or main methods
+        # TODO: If subparsers have no unique args, use action methods instead?
         yield '\n'
         yield f'class {self.name}({self._get_args()}):{suffix}'
         yield from self.format_members('')
@@ -187,9 +194,9 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
         if not self.is_sub_parser:
             return None
         name = literal_eval_or_none(self.ast_obj.init_func_kwargs.get('name'))
-        if not name or ' ' in name or not name[0].isalpha():
+        if not name or not name[0].isalpha():
             return None
-        return name.title().replace('_', '').replace('-', '')
+        return name.title().replace(' ', '').replace('_', '').replace('-', '')
 
     @cached_property
     def _choices(self) -> Tuple[OptStr, OptStr]:
@@ -198,7 +205,7 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
         name = self.ast_obj.init_func_kwargs.get('name')
         aliases = self.ast_obj.init_func_raw_kwargs.get('aliases')
         if not aliases:
-            if name and (not self._custom_name or '-' in name):
+            if name and (not self._custom_name or '-' in name or ' ' in name):
                 return 'choice', name
             return None, None
         elif isinstance(aliases, (Attribute, Name, Subscript, GeneratorExp, DictComp, ListComp, SetComp)):
@@ -238,7 +245,7 @@ class GroupConverter(CollectionConverter, converts=ArgGroup):
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:
         prefix = ' ' * indent
-        yield f'\n{prefix}with ParamGroup({self._get_args()}):'
+        yield f'{prefix}with ParamGroup({self._get_args()}):'
         yield from self.format_members(prefix, indent + 4)
 
     def _get_args(self) -> str:
@@ -282,7 +289,7 @@ class ParamConverter(Converter, converts=ParserArg):
 
     @classmethod
     def init_group(cls, parent: CollectionConverter, args: List[ParserArg]) -> ParamConverterGroup:
-        return ParamConverterGroup(parent, [cls(arg, parent, i) for i, arg in enumerate(args)])
+        return ParamConverterGroup(parent, cls, [cls(arg, parent, i) for i, arg in enumerate(args)])
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:
         yield self.format(indent)
@@ -365,6 +372,8 @@ class ParamConverter(Converter, converts=ParserArg):
             return 'Positional', ParamArgs.init_positional(action, **kwargs)
         elif self.is_option:
             kwargs['name_mode'] = self.name_mode
+            if not action and 'const' in kwargs:
+                action = 'append_const' if 'nargs' in kwargs else 'store_const'
             if action:
                 if action in ('store_true', 'store_false', 'store_const', 'append_const'):
                     return 'Flag', FlagArgs.init_flag(action, **kwargs)
@@ -372,6 +381,7 @@ class ParamConverter(Converter, converts=ParserArg):
                     return 'Counter', FlagArgs.init_counter(**kwargs)
                 elif action not in ('store', 'append'):
                     raise ConversionError(f'{self.ast_obj}: action={action!r} is not supported for Option parameters')
+
             return 'Option', OptionArgs.init_option(self.ast_obj, action, **kwargs)
 
         raise ConversionError(f'Unable to determine a suitable Parameter type for {self.ast_obj!r}')
@@ -530,10 +540,17 @@ class ParamArgs(ParamBaseArgs):
     @classmethod
     def init_positional(cls, action: OptStr = None, nargs: OptStr = None, **kwargs):
         if nargs is not None:
-            nargs_obj = Nargs(literal_eval(nargs))
+            parsed = literal_eval_or_none(nargs)
+            if parsed is not None:
+                nargs_obj = Nargs(parsed)
+                if action in ('store', None) and nargs_obj == 1:
+                    action = nargs = None
+            else:
+                nargs_obj = None
         else:
             nargs_obj = Nargs(1)
-        if (action == 'store' and nargs_obj == 1) or (action == 'append' and nargs_obj != Nargs(1)):
+
+        if nargs_obj is not None and action == 'append' and nargs_obj != Nargs(1):
             action = None
         return cls.from_kwargs(action=action, nargs=nargs, **kwargs)
 
@@ -547,6 +564,8 @@ class OptionArgs(ParamArgs):
         if const:
             log.warning(f'{arg}: ignoring const={const!r} - it is only supported for Flag and Counter parameters')
 
+        if nargs == "'*'":
+            nargs = "'+'"
         if action == 'append':
             if not nargs:
                 log.debug(f"{arg}: using default nargs='+' because action={action!r} and no nargs value was provided")
@@ -555,8 +574,7 @@ class OptionArgs(ParamArgs):
         elif action == 'store':
             if nargs == '1':
                 nargs = None
-            if not nargs:
-                action = None
+            action = None
 
         return cls.from_kwargs(action=repr(action) if action else None, nargs=nargs, **kwargs)
 

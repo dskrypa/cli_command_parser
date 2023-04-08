@@ -4,10 +4,10 @@ from datetime import datetime, date, timedelta, time
 from unittest import main, TestCase
 from unittest.mock import patch
 
-from cli_command_parser import Command, Option
+from cli_command_parser import Command, Option, BadArgument
 from cli_command_parser.inputs.time import Day, Month, DateTime, Date, Time, different_locale, normalize_dt, dt_repr
-from cli_command_parser.inputs.exceptions import InvalidChoiceError, InputValidationError
-from cli_command_parser.testing import ParserTest
+from cli_command_parser.inputs import TimeDelta, InvalidChoiceError, InputValidationError
+from cli_command_parser.testing import ParserTest, get_help_text
 
 # fmt: off
 ISO_DAYS = {
@@ -209,6 +209,47 @@ class MonthInputTest(TestCase):
         self.assertEqual(expected, Month(full=False, abbreviation=False).format_metavar())
 
     # endregion
+
+
+class TimeDeltaInputTest(TestCase):
+    def test_invalid_unit(self):
+        with self.assertRaisesRegex(TypeError, 'Invalid unit='):
+            TimeDelta('foo')  # noqa
+
+    def test_default_handling(self):
+        class Foo(Command):
+            foo = Option(type=TimeDelta('days'))
+            bar = Option(type=TimeDelta('days'), default=2)
+            baz = Option(type=TimeDelta('days'), default=timedelta(days=3))
+
+        foo = Foo()
+        self.assertIsNone(foo.foo)
+        self.assertEqual(timedelta(days=2), foo.bar)
+        self.assertEqual(timedelta(days=3), foo.baz)
+
+    def test_help_text(self):
+        class Foo(Command):
+            bar = Option(type=TimeDelta('weeks'))
+
+        self.assertIn('\n  --bar {weeks}\n', get_help_text(Foo))
+
+    def test_parsing(self):
+        class Foo(Command):
+            bar = Option('-b', type=TimeDelta('hours'), default=2)
+
+        cases = [
+            ([], timedelta(hours=2)),
+            (['-b', '123'], timedelta(hours=123)),
+            (['-b', '-5'], timedelta(hours=-5)),
+            (['-b', '-5.5'], timedelta(hours=-5, minutes=-30)),
+            (['-b', '4.5'], timedelta(hours=4, minutes=30)),
+        ]
+        for args, expected in cases:
+            with self.subTest(args=args, expected=expected):
+                self.assertEqual(expected, Foo.parse(args).bar)
+
+        with self.assertRaisesRegex(BadArgument, "Invalid numeric hours='potato' - expected an integer or float"):
+            Foo.parse(['-b', 'potato'])
 
 
 class DateTimeInputTest(TestCase):

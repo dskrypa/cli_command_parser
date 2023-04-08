@@ -11,12 +11,14 @@ characters.
 from collections.abc import Callable
 from textwrap import TextWrapper
 from threading import RLock
-from typing import List, Generic, _GenericAlias  # noqa
+from typing import List, Generic, _GenericAlias, _SpecialForm  # noqa
 
 try:
     from wcwidth import wcswidth
 except ImportError:
     wcswidth = len
+
+__all__ = ['get_origin', 'cached_property', 'WCTextWrapper', 'Literal']
 
 
 # region typing
@@ -39,6 +41,43 @@ def _get_args(tp):  # pylint: disable=C0103
             res = (list(res[:-1]), res[-1])
         return res
     return ()
+
+
+try:
+    from typing import Literal
+except ImportError:  # Python 3.7
+
+    class _LiteralSpecialForm(_SpecialForm, _root=True):
+        def __repr__(self) -> str:
+            return f'compat.{self._name}'
+
+        def __getitem__(self, parameters):
+            if not isinstance(parameters, tuple):
+                parameters = (parameters,)
+            return _GenericAlias(self, parameters)
+
+    _LITERAL_DOCSTRING = """
+    Special typing form to define literal types (a.k.a. value types).
+
+    This form can be used to indicate to type checkers that the corresponding
+    variable or function parameter has a value equivalent to the provided
+    literal (or one of several literals):
+
+      def validate_simple(data: Any) -> Literal[True]:  # always returns True
+          ...
+
+      MODE = Literal['r', 'rb', 'w', 'wb']
+      def open_helper(file: str, mode: MODE) -> str:
+          ...
+
+      open_helper('/some/path', 'r')  # Passes type check
+      open_helper('/other/path', 'typo')  # Error in type checker
+
+    Literal[...] cannot be subclassed. At runtime, an arbitrary value
+    is allowed as type argument to Literal[...], but type checkers may
+    impose restrictions.
+    """
+    Literal = _LiteralSpecialForm('Literal', doc=_LITERAL_DOCSTRING)
 
 
 # endregion
