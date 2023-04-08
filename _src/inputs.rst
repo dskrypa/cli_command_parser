@@ -36,10 +36,10 @@ available.
 
 Given the following (truncated) :gh_examples:`example <custom_inputs.py>`::
 
-    from cli_command_parser import Command, Option, main, inputs as i
+    from cli_command_parser import Command, Option, main, inputs
 
     class InputsExample(Command):
-        path = Option('-p', type=i.Path(exists=True, type='file'), help='The path to a file')
+        path = Option('-p', type=inputs.Path(exists=True, type='file'), help='The path to a file')
 
         def main(self):
             if self.path:
@@ -393,3 +393,24 @@ Time
 
 Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
 a :class:`python:datetime.time` object.
+
+
+Other Date / Time Inputs
+------------------------
+
+
+TimeDelta
+^^^^^^^^^
+
+Input type that requires a time unit supported by :class:`python:datetime.timedelta` objects.  Parsing results in
+returning a :class:`python:datetime.timedelta` object.  Can parse positive and negative integers and floats.
+
+Does **not** support automatic parsing of a CLI user-provided unit.  The unit must be specified when the ``TimeDelta``
+input is initialized.
+
+.. _timedelta_init_params:
+
+**TimeDelta initialization parameters:**
+
+:unit: The time unit to use when initializing a :class:`python:datetime.timedelta` object with the parsed value.
+  Supported units: days, seconds, microseconds, milliseconds, minutes, hours, weeks

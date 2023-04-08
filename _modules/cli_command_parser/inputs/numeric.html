@@ -113,6 +113,7 @@
 
 
 <span class="k">class</span> <span class="nc">NumericInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span>
 
     <span class="k">def</span> <span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -200,6 +201,7 @@
 <span class="sd">    :param include_max: Whether the maximum is inclusive (default: False)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;snap&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;include_min&#39;</span><span class="p">,</span> <span class="s1">&#39;include_max&#39;</span><span class="p">)</span>
     <span class="n">snap</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="nb">min</span><span class="p">:</span> <span class="n">Number</span>
     <span class="nb">max</span><span class="p">:</span> <span class="n">Number</span>
@@ -248,12 +250,12 @@
 
     <span class="k">def</span> <span class="nf">_range_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">min_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="s1">&#39;&lt;=&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span> <span class="k">else</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">)</span>
+            <span class="n">min_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;&lt;=&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">include_min</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&lt;&quot;</span><span class="si">}</span><span class="s1"> &#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">min_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">max_str</span> <span class="o">=</span> <span class="s1">&#39; </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&lt;=&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span> <span class="k">else</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+            <span class="n">max_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="s2">&quot;&lt;=&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">include_max</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&lt;&quot;</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">max_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 

@@ -148,6 +148,10 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">non_defaults</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
     <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fixes the default value to conform to the expected return type for this input.  Allows the default value for a</span>
+<span class="sd">        path to be provided as a string, for example.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -186,7 +190,6 @@
 
 
 <div class="viewcode-block" id="Path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">_Path</span><span class="p">]):</span>
-    <span class="c1"># noinspection PyUnresolvedReferences</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param exists: If set, then the provided path must already exist if True, or must not already exist if False.</span>
 <span class="sd">      Default: existence is not checked.</span>

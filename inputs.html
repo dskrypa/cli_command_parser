@@ -83,6 +83,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#time">Time</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#other-date-time-inputs">Other Date / Time Inputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#timedelta">TimeDelta</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -170,10 +174,10 @@ with <code class="docutils literal notranslate"><span class="pre">/{drive}/...</
 </dd>
 </dl>
 <p>Given the following (truncated) <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">inputs</span> <span class="k">as</span> <span class="n">i</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">inputs</span>
 
 <span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file&#39;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
@@ -542,6 +546,23 @@ a <a class="reference external" href="https://docs.python.org/3/library/datetime
 <h4>Time<a class="headerlink" href="#time" title="Permalink to this heading"></a></h4>
 <p>Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
 a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.time" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">datetime.time</span></code></a> object.</p>
+</section>
+</section>
+<section id="other-date-time-inputs">
+<h3>Other Date / Time Inputs<a class="headerlink" href="#other-date-time-inputs" title="Permalink to this heading"></a></h3>
+<section id="timedelta">
+<h4>TimeDelta<a class="headerlink" href="#timedelta" title="Permalink to this heading"></a></h4>
+<p>Input type that requires a time unit supported by <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">datetime.timedelta</span></code></a> objects.  Parsing results in
+returning a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">datetime.timedelta</span></code></a> object.  Can parse positive and negative integers and floats.</p>
+<p>Does <strong>not</strong> support automatic parsing of a CLI user-provided unit.  The unit must be specified when the <code class="docutils literal notranslate"><span class="pre">TimeDelta</span></code>
+input is initialized.</p>
+<p id="timedelta-init-params"><strong>TimeDelta initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="timedelta:unit">unit<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The time unit to use when initializing a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">datetime.timedelta</span></code></a> object with the parsed value.
+Supported units: days, seconds, microseconds, milliseconds, minutes, hours, weeks</p>
+</dd>
+</dl>
 </section>
 </section>
 </section>
