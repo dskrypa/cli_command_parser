@@ -238,6 +238,8 @@ sp_act.add_parser(aliases=ALIASES)
 sp_act.add_parser(BAR, aliases=BARS['x'])
 sp_act.add_parser(aliases={'a'})
 sp_act.add_parser(aliases=())
+sp_act.add_parser('abc def')
+sp_act.add_parser('123 456')
         """
         expected = f"""{IMPORT_LINE}\n\n
 class Command0(Command):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
@@ -251,6 +253,8 @@ class Command5(Command1, choices=ALIASES):\n    pass\n\n
 class Command6(Command1, choices=(BAR, *BARS['x'])):\n    pass\n\n
 class Command7(Command1, choice='a'):\n    pass\n\n
 class Command8(Command1):\n    pass\n\n
+class AbcDef(Command1, choice='abc def'):\n    pass\n\n
+class Command9(Command1, choice='123 456'):\n    pass\n\n
         """.rstrip()
         self.assert_strings_equal(expected, convert_script(Script(code)))
 

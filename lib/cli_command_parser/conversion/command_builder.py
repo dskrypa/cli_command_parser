@@ -157,6 +157,8 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
 
     def format_lines(self, indent: int = 0) -> Iterator[str]:
         suffix = f'  {self._auto_gen_disclaimer}' if self.parent is None else ''
+        # TODO: Add _init_command_ and/or main methods
+        # TODO: If subparsers have no unique args, use action methods instead?
         yield '\n'
         yield f'class {self.name}({self._get_args()}):{suffix}'
         yield from self.format_members('')
@@ -192,9 +194,9 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
         if not self.is_sub_parser:
             return None
         name = literal_eval_or_none(self.ast_obj.init_func_kwargs.get('name'))
-        if not name or ' ' in name or not name[0].isalpha():
+        if not name or not name[0].isalpha():
             return None
-        return name.title().replace('_', '').replace('-', '')
+        return name.title().replace(' ', '').replace('_', '').replace('-', '')
 
     @cached_property
     def _choices(self) -> Tuple[OptStr, OptStr]:
@@ -203,7 +205,7 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
         name = self.ast_obj.init_func_kwargs.get('name')
         aliases = self.ast_obj.init_func_raw_kwargs.get('aliases')
         if not aliases:
-            if name and (not self._custom_name or '-' in name):
+            if name and (not self._custom_name or '-' in name or ' ' in name):
                 return 'choice', name
             return None, None
         elif isinstance(aliases, (Attribute, Name, Subscript, GeneratorExp, DictComp, ListComp, SetComp)):
