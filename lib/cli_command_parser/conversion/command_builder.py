@@ -25,11 +25,11 @@ C = TypeVar('C', bound='Converter')
 RESERVED = set(keyword.kwlist) | set(getattr(keyword, 'softkwlist', ('_', 'case', 'match')))  # soft was added in 3.9
 
 
-def convert_script(script: Script) -> str:
-    return ScriptConverter(script).convert()
+def convert_script(script: Script, add_methods: bool = False) -> str:
+    return ScriptConverter(script, add_methods=add_methods).convert()
 
 
-class Converter(ABC):
+class Converter(Generic[AC], ABC):
     converts: Type[AC] = None
     _ac_converter_map = {}
 
@@ -44,7 +44,7 @@ class Converter(ABC):
         self.parent = parent
 
     @classmethod
-    def for_ast_callable(cls, ast_obj: Union[AC, Type[AC]]) -> Type[Converter]:
+    def for_ast_callable(cls, ast_obj: Union[AC, Type[AC]]) -> Type[Converter[AC]]:
         if not isinstance(ast_obj, type):
             ast_obj = ast_obj.__class__
         try:
@@ -55,6 +55,10 @@ class Converter(ABC):
             if issubclass(ast_obj, converts_cls):
                 return converter_cls
         raise TypeError(f'No Converter is registered for {ast_obj.__class__.__name__} objects')
+
+    @classmethod
+    def init_for_ast_callable(cls, ast_obj: AC, *args, **kwargs) -> Converter[AC]:
+        return cls.for_ast_callable(ast_obj)(ast_obj, *args, **kwargs)
 
     @classmethod
     def init_group(cls: Type[C], parent: CollectionConverter, ast_objs: List[AC]) -> ConverterGroup[C]:
@@ -91,6 +95,10 @@ class ConverterGroup(Generic[C]):
 
 
 class ScriptConverter(Converter, converts=Script):
+    def __init__(self, *args, add_methods: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_methods = add_methods
+
     def format_lines(self, indent: int = 0) -> Iterator[str]:
         # TODO: Filter to what is actually used
         yield (
@@ -99,10 +107,10 @@ class ScriptConverter(Converter, converts=Script):
         )
         counter = count()
         for parser in self.ast_obj.parsers:
-            yield from ParserConverter(parser, counter=counter).format_lines()
+            yield from ParserConverter(parser, counter=counter, add_methods=self.add_methods).format_lines()
 
 
-class CollectionConverter(Converter, ABC):
+class CollectionConverter(Converter[AC], ABC):
     ast_obj: ArgCollection
     parent: CollectionConverter | None
     _name_mode = None
@@ -133,22 +141,34 @@ class CollectionConverter(Converter, ABC):
             yield from child_group.format_all(indent)
             last = bool(child_group)
 
-        if not any(cg for cg in self.grouped_children):
-            yield f'{prefix}    pass'
+        yield from self.finalize(any(cg for cg in self.grouped_children), prefix, indent)
+
+    def finalize(self, had_members: bool, prefix: str, indent: int = 4):
+        if not had_members:
+            yield f'{prefix}{" " * indent}pass'
 
 
-class ParserConverter(CollectionConverter, converts=AstArgumentParser):
+class ParserConverter(CollectionConverter[AstArgumentParser], converts=AstArgumentParser):
     _auto_gen_disclaimer = '# This is an automatically generated name that should probably be updated'
     ast_obj: AstArgumentParser
     parent: ParserConverter | None
 
-    def __init__(self, parser: AstArgumentParser, parent: ParserConverter = None, counter: count = None):
+    def __init__(
+        self,
+        parser: AstArgumentParser,
+        parent: ParserConverter = None,
+        counter: count = None,
+        *,
+        add_methods: bool = False,
+    ):
         super().__init__(parser, parent)
         self.counter = count() if counter is None else counter
+        self.add_methods = add_methods
 
     @cached_property
     def sub_parser_converters(self) -> List[ParserConverter]:
-        return [self.__class__(sub_parser, self, self.counter) for sub_parser in self.ast_obj.sub_parsers]
+        cls, add_methods = self.__class__, self.add_methods
+        return [cls(sub_parser, self, self.counter, add_methods=add_methods) for sub_parser in self.ast_obj.sub_parsers]
 
     def descendant_args(self) -> Iterator[ParamConverter]:
         yield from super().descendant_args()
@@ -157,13 +177,37 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
 
     def format_lines(self, indent: int = 0) -> Iterator[str]:
         suffix = f'  {self._auto_gen_disclaimer}' if self.parent is None else ''
-        # TODO: Add _init_command_ and/or main methods
         # TODO: If subparsers have no unique args, use action methods instead?
         yield '\n'
         yield f'class {self.name}({self._get_args()}):{suffix}'
         yield from self.format_members('')
         for sp_converter in self.sub_parser_converters:
             yield from sp_converter.format_lines()
+
+    def finalize(self, had_members: bool, prefix: str, indent: int = 4):
+        if not self.add_methods:
+            yield from super().finalize(had_members, prefix, indent)
+            return
+
+        if had_members:
+            yield ''
+
+        had_last = False
+        prefix += ' ' * indent
+        if not self.is_sub_parser:
+            had_members = had_last = True
+            yield f'{prefix}def _init_command_(self):'
+            yield f'{prefix}    pass'
+
+        if not self.sub_parser_converters:
+            had_members = True
+            if had_last:
+                yield ''
+            yield f'{prefix}def main(self):'
+            yield f'{prefix}    pass'
+
+        if not had_members:  # This case is unlikely, but here just in case
+            yield f'{prefix}pass'
 
     def _get_args(self) -> str:
         kwargs = self.ast_obj.init_func_kwargs.copy()
@@ -240,7 +284,7 @@ class ParserConverter(CollectionConverter, converts=AstArgumentParser):
     # endregion
 
 
-class GroupConverter(CollectionConverter, converts=ArgGroup):
+class GroupConverter(CollectionConverter[ArgGroup], converts=ArgGroup):
     ast_obj: ArgGroup
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:
@@ -268,7 +312,7 @@ class GroupConverter(CollectionConverter, converts=ArgGroup):
         return ', '.join(args)
 
 
-class ParamConverter(Converter, converts=ParserArg):
+class ParamConverter(Converter[ParserArg], converts=ParserArg):
     ast_obj: ParserArg
     parent: CollectionConverter | None
     _counter = count()

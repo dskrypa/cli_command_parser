@@ -42,11 +42,12 @@ class ParserConverter(Command, description=f'Tool to convert an {arg_parser} int
 
 class Convert(ParserConverter):
     input: Path = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
+    add_methods = Flag('--no-methods', '-M', default=True, help='Do not include boilerplate methods in Commands')
 
     def main(self):
         from cli_command_parser.conversion import convert_script
 
-        print(convert_script(self.script))
+        print(convert_script(self.script, self.add_methods))
 
 
 class Pprint(ParserConverter):

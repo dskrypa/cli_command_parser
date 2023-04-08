@@ -23,138 +23,60 @@ if TYPE_CHECKING:
 
 
 PACKAGE = 'cli_command_parser.conversion'
+CMD0 = 'Command0'
 DISCLAIMER = '# This is an automatically generated name that should probably be updated'
 IMPORT_LINE = (
     'from cli_command_parser import Command, SubCommand, ParamGroup, Positional, Option, Flag, Counter, PassThru, main'
 )
 
 
-def prep_args(*add_argument_args_strs: str) -> str:
-    add_arg_iter = (f'p.add_argument({arg})' for arg in add_argument_args_strs)
-    return '\n'.join(('from argparse import REMAINDER, ArgumentParser as AP', 'p = AP()', *add_arg_iter))
+# region Helper functions
 
 
-def prep_expected(*members: str, name: str = 'Command0', parent: str = 'Command', cmd_args: str = '') -> str:
-    expected = f'{IMPORT_LINE}\n\n\nclass {name}({parent}{cmd_args}):  {DISCLAIMER}'
+def prep_args(*add_args: str, remainder: bool = False) -> str:
+    if remainder:
+        imports = 'from argparse import REMAINDER, ArgumentParser as AP'
+    else:
+        imports = 'from argparse import ArgumentParser as AP'
+    return '\n'.join((imports, 'p = AP()', *(f'p.add_argument({arg})' for arg in add_args)))
+
+
+def prep_cmd(*members: str, name: str = CMD0, base: str = 'Command', suffix: str = '', **kwargs) -> str:
+    if kwargs:
+        cmd_args = ', ' + ', '.join(f'{k}={v}' for k, v in kwargs.items())
+    else:
+        cmd_args = ''
+
+    cls_def_line = f'class {name}({base}{cmd_args}):{suffix}'
     if members:
-        return '\n'.join((expected, *(f'    {mem}' for mem in members)))
-    return expected + '\n'
+        return '\n'.join((cls_def_line, *(f'    {mem}' if mem else mem for mem in members)))
+    return cls_def_line
 
 
-def prep_and_convert(*add_argument_args_strs: str) -> str:
-    return convert_script(Script(prep_args(*add_argument_args_strs)))
+def prep_group(*add_args: str, title: str = None, description: str = None, parser: str = 'p', var: str = 'g') -> str:
+    group_arg_str = ', '.join(f'{k}={v!r}' for k, v in {'title': title, 'description': description}.items() if v)
+    add_arg_iter = (f'{var}.add_argument({arg})' for arg in add_args)
+    return '\n'.join((f'{var} = {parser}.add_argument_group({group_arg_str})', *add_arg_iter))
 
 
-class ArgparseConversionTest(ParserTest):
-    # region Low value tests for coverage
+def prep_expected(*members: str, name: str = CMD0, parent: str = 'Command', **kwargs) -> str:
+    expected = IMPORT_LINE + '\n\n\n' + prep_cmd(*members, name=name, base=parent, suffix=f'  {DISCLAIMER}', **kwargs)
+    return expected if members else expected + '\n'
 
-    def test_argparse_typing_helpers(self):
-        parser = ArgumentParser()
-        parser.register('action', 'parsers', SubParsersAction)
-        sp_action = parser.add_subparsers(dest='action', prog='')
-        self.assertIsInstance(sp_action, SubParsersAction)
-        sub_parser = sp_action.add_parser('test')
-        self.assertIsNotNone(sub_parser.add_mutually_exclusive_group())
-        self.assertIsNotNone(sub_parser.add_argument_group('test'))
 
-    def test_script_reprs(self):
-        self.assertEqual('<Script[parsers=0]>', repr(Script('foo()')))
+def prep_and_convert(*add_argument_args_strs: str, remainder: bool = False, **kwargs) -> str:
+    code = prep_args(*add_argument_args_strs, remainder=remainder)
+    return convert_script(Script(code), **kwargs)
 
-    def test_group_and_arg_reprs(self):
-        code = "import argparse\np = argparse.ArgumentParser()\ng = p.add_argument_group()\ng.add_argument('--foo')\n"
-        parser = Script(code).parsers[0]
-        group = parser.groups[0]
-        self.assertIn('p.add_argument_group()', repr(group))
-        self.assertIn("g.add_argument('--foo')", repr(group.args[0]))
 
-    def test_descriptors(self):
-        mock = Mock()
+# endregion
 
-        class Foo:
-            foo = AddVisitedChild(Mock, 'abc')
 
-            @classmethod
-            def _add_visit_func(cls, name):
-                return False
-
-            @visit_func
-            def bar(self):
-                return 123
-
-        Foo.baz = visit_func(mock)
-        self.assertEqual(123, Foo().bar())
-        self.assertIsInstance(Foo().baz(), Mock)  # noqa
-        mock.assert_called()
-        self.assertIsInstance(Foo.foo, AddVisitedChild)
-
-    def test_add_visit_func_attr_error(self):
-        original = AstCallable.visit_funcs.copy()
-        self.assertTrue(AstCallable._add_visit_func('foo_bar'))
-        self.assertNotEqual(original, AstCallable.visit_funcs)
-        self.assertIn('foo_bar', AstCallable.visit_funcs)
-        AstCallable.visit_funcs = original
-
-    def test_ast_callable_misc(self):
-        ac = AstCallable(Mock(args=123, keywords=456), Mock(), {})
-        self.assertEqual(123, ac.call_args)
-        self.assertIsNone(ac.get_tracked_refs('foo', 'bar', None))
-        with self.assertRaises(KeyError):
-            self.assertIsNone(ac.get_tracked_refs('foo', 'bar'))
-
-    def test_top_level_parser_no_choices(self):
-        parser = Script('from argparse import ArgumentParser as AP\np = AP()').parsers[0]
-        key, val = Converter.for_ast_callable(parser)(parser)._choices  # noqa
-        self.assertTrue(key is val is None)
-
-    # endregion
-
-    # region get_name_repr & collection_contents
-
-    def test_utils_bad_types(self):
-        with self.assertRaises(TypeError):
-            get_name_repr('foo')  # noqa
-        with self.assertRaises(TypeError):
-            collection_contents('foo')  # noqa
-
-    def test_get_name_repr_call(self):
-        node = ast.parse('foo()').body[0]
-        self.assertEqual('foo', get_name_repr(node.value))  # noqa # Tests the isinstance(node, Call) line
-        self.assertEqual('foo()', get_name_repr(node))      # noqa # Tests the isinstance(node, AST) line
-
-    # endregion
-
-    def test_ast_callable_no_represents(self):
-        ac = AstCallable(ast.parse('foo(123, bar=456)').body[0].value, Mock(), {})  # noqa
-        self.assertEqual(['123'], ac.init_func_args)
-        self.assertEqual({'bar': '456'}, ac.init_func_kwargs)
-
-    def test_pprint(self):
-        code = "import argparse\np = argparse.ArgumentParser()\ng = p.add_argument_group()\ng.add_argument('--foo')\n"
-        expected = """
- + <AstArgumentParser[sub_parsers=0]: ``argparse.ArgumentParser()``>:
-    + <ArgGroup: ``p.add_argument_group()``>:
-       - <ParserArg[g.add_argument('--foo')]>
-        """.strip()
-        with RedirectStreams() as streams:
-            Script(code).parsers[0].pprint()
-        self.assert_strings_equal(expected, streams.stdout.strip())
-
-    def test_renamed_import_and_remainder_in_func(self):
-        code = """
-import logging
-from argparse import ArgumentParser as ArgParser, REMAINDER
-log = logging.getLogger(__name__)
-def main():
-    parser = ArgParser()
-    parser.add_argument('test', nargs=REMAINDER)
-        """
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    test = PassThru()'
-        self.assertEqual(expected, convert_script(Script(code)))
+class CommandBuilderTest(ParserTest):
+    # region Sub Parsers / Command kwargs
 
     def test_sub_parser_args_in_loop(self):
-        code = """
-import argparse
-parser = argparse.ArgumentParser()
+        code = """import argparse\nparser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(dest='action')
 sp1 = subparsers.add_parser('one', help='Command one')
 sp1.add_argument('--foo-bar', '-f', action='store_true', help='Do foo bar')
@@ -166,32 +88,18 @@ for sp in (sp1, sp2):
     group.add_argument('--dry-run', '-D', action='store_true', help='Perform a dry run with no side effects')
         """
 
-        expected_base = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    action = SubCommand()'
         common = """
     with ParamGroup(description='Common options'):
         verbose = Counter('-v', help='Increase logging verbosity')
         dry_run = Flag('-D', help='Perform a dry run with no side effects')
         """.rstrip()
-
-        expected_smart = f"""{expected_base}\n{common}\n\n
-class One(Command0, help='Command one'):
-    foo_bar = Flag('-f', help='Do foo bar')\n\n
-class Two(Command0, description='Command two'):
-    baz = Option('-b', nargs='+', help='What to baz')
-        """.rstrip()
-        with self.subTest(smart_loop_handling=True):
-            self.assert_strings_equal(expected_smart, convert_script(Script(code)))
-
-        expected_split = f"""{expected_base}\n\n
-class One(Command0, help='Command one'):
-    foo_bar = Flag('-f', help='Do foo bar')
-{common}\n\n
-class Two(Command0, description='Command two'):
-    baz = Option('-b', nargs='+', help='What to baz')
-{common}
-        """.rstrip()
-        with self.subTest(smart_loop_handling=False):
-            self.assert_strings_equal(expected_split, convert_script(Script(code, False)))
+        base = prep_expected('action = SubCommand()')
+        a = "class One(Command0, help='Command one'):\n    foo_bar = Flag('-f', help='Do foo bar')\n"
+        b = "class Two(Command0, description='Command two'):\n    baz = Option('-b', nargs='+', help='What to baz')\n"
+        cases = [(True, f'{base}\n{common}\n\n\n{a}\n\n{b}'), (False, f'{base}\n\n\n{a}{common}\n\n\n{b}{common}')]
+        for smart_loop_handling, expected in cases:
+            with self.subTest(smart_loop_handling=smart_loop_handling):
+                self.assert_strings_equal(expected, convert_script(Script(code, smart_loop_handling)), trim=True)
 
     def test_sub_parser_args_mismatch_in_loop(self):
         code = """
@@ -209,11 +117,8 @@ for sp in [sp1, sp123456789]:
     group.add_argument('--verbose', '-v', action='count', default=0, help='Increase logging verbosity')
     group.add_argument('--dry_run', '-D', action='store_true', help='Perform a dry run with no side effects')
         """
-        expected = f"""{IMPORT_LINE}\n\n
-class Command0(Command):  {DISCLAIMER}
-    foo = Positional()
-    action = SubCommand()
-\n
+
+        expected = f"""{prep_expected("foo = Positional()", "action = SubCommand()")}\n\n
 class One(Command0, help='Command one'):
     foo_bar = Flag('-f', help='Do foo bar')\n
     with ParamGroup(mutually_exclusive=True):
@@ -225,18 +130,10 @@ class Two(Command0, description='Command two'):
         """.rstrip()
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
-    def test_converter_for_ast_callable_error(self):
-        ac = AstCallable(ast.parse('foo(123, bar=456)').body[0].value, Mock(), {})  # noqa
-        with self.assertRaises(TypeError):
-            Converter.for_ast_callable(ac)
-
     def test_parser_add_help(self):
         code = 'from argparse import ArgumentParser as AP\np1 = AP(add_help=False)\np2 = AP(add_help=True)\n'
-        expected = f"""{IMPORT_LINE}\n\n
-class Command0(Command, add_help=False):  {DISCLAIMER}\n    pass\n\n
-class Command1(Command):  {DISCLAIMER}\n    pass\n\n
-        """.rstrip()
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        cmds = (prep_expected('pass', add_help='False'), prep_cmd('pass', name='Command1', suffix=f'  {DISCLAIMER}'))
+        self.assert_strings_equal('\n\n\n'.join(cmds), convert_script(Script(code)))
 
     def test_sub_parser_choices(self):
         code = """
@@ -257,6 +154,7 @@ sp_act.add_parser(aliases=())
 sp_act.add_parser('abc def')
 sp_act.add_parser('123 456')
         """
+
         expected = f"""{IMPORT_LINE}\n\n
 class Command0(Command):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
 class FooBar(Command0, choice='foo-bar'):\n    pass\n\n
@@ -274,18 +172,23 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
         """.rstrip()
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
+    # endregion
+
     # region Option names / name mode
 
     def test_option_names(self):
-        parser = Script(prep_args("'--foo', '-'")).parsers[0]
-        converter = Converter.for_ast_callable(parser.args[0])(parser.args[0], Mock(), 0)  # noqa
+        converter = Converter.init_for_ast_callable(Script(prep_args("'--foo', '-'")).parsers[0].args[0], Mock(), 0)
         converter._counter = count()  # prevent potential interference from other tests
-        attr_name_candidates = converter._attr_name_candidates()  # noqa
+        attr_name_candidates = converter._attr_name_candidates()
         self.assertEqual('foo', next(attr_name_candidates))
         self.assertEqual('param_0', next(attr_name_candidates))
         self.assertEqual('param_1', next(attr_name_candidates))
         converter.__dict__['is_option'] = False
-        self.assertEqual('param_2', next(converter._attr_name_candidates()))  # noqa
+        self.assertEqual('param_2', next(converter._attr_name_candidates()))
+
+    def test_option_attr_name_no_candidates(self):
+        converter = Converter.init_for_ast_callable(Script(prep_args("'--foo'")).parsers[0].args[0], Mock(), 0)
+        # Note: this would never actually happen
         with patch.object(ParamConverter, '_attr_name_candidates', return_value=()):
             with self.assertRaises(StopIteration):
                 _ = converter._attr_name  # noqa
@@ -294,16 +197,14 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
         self.assertEqual(prep_expected('foo_bar = Option()'), prep_and_convert("'--foo-bar'"))
 
     def test_option_name_mode_underscore(self):
-        expected = prep_expected('foo_bar = Option()', cmd_args=", option_name_mode='_'")
-        self.assertEqual(expected, prep_and_convert("'--foo_bar'"))
+        self.assertEqual(prep_expected('foo_bar = Option()', option_name_mode="'_'"), prep_and_convert("'--foo_bar'"))
 
     def test_option_name_mode_underscore_subparser(self):
-        code = f"""{prep_args()}\nsp = p.add_subparsers()\n
-sp1 = sp.add_parser('one', help='Command one')\nsp1.add_argument('--foo_bar', '-f', action='store_true')
-        """
-        expected = prep_expected('sub_cmd = SubCommand()', cmd_args=", option_name_mode='_'")
-        expected += "\n\n\nclass One(Command0, help='Command one'):\n    foo_bar = Flag('-f')"
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        lines = [prep_args(), 'sp = p.add_subparsers()', "sp1 = sp.add_parser('one', help='Command one')"]
+        code = '\n'.join(lines + ["sp1.add_argument('--foo_bar', '-f', action='store_true')"])
+        exp_a = prep_expected('sub_cmd = SubCommand()', option_name_mode="'_'")
+        exp_b = prep_cmd("foo_bar = Flag('-f')", name='One', base=CMD0, help="'Command one'")
+        self.assert_strings_equal(f'{exp_a}\n\n\n{exp_b}', convert_script(Script(code)))
 
     # endregion
 
@@ -322,6 +223,23 @@ sp1 = sp.add_parser('one', help='Command one')\nsp1.add_argument('--foo_bar', '-
 
     # endregion
 
+    # region Param Groups
+
+    def test_group_title_trim(self):
+        code = prep_args() + '\n' + prep_group("'--foo'", title='Misc Options', description='Miscellaneous args')
+        expected = prep_expected("with ParamGroup('Misc', description='Miscellaneous args'):", '    foo = Option()')
+        self.assertEqual(expected, convert_script(Script(code)))
+
+    def test_group_no_options_in_title(self):
+        desc = 'Miscellaneous args'
+        code = prep_args() + '\n' + prep_group("'foo', nargs=1", title='Misc Group', description=desc)
+        expected = prep_expected(f"with ParamGroup('Misc Group', description='{desc}'):", '    foo = Positional()')
+        self.assert_strings_equal(expected, convert_script(Script(code)))
+
+    # endregion
+
+    # region Param Converter
+
     def test_help_from_var(self):
         self.assertEqual(prep_expected('foo = Option(help=HELP)'), prep_and_convert("'--foo', help=HELP"))
 
@@ -329,37 +247,14 @@ sp1 = sp.add_parser('one', help='Command one')\nsp1.add_argument('--foo_bar', '-
         expected = prep_expected("foo = Option(help='The foo')")
         self.assertEqual(expected, prep_and_convert("'--foo', help='The foo (default: %(default)s)'"))
 
-    def test_group_title_trim(self):
-        code = """from argparse import ArgumentParser as AP\np = AP()
-g = p.add_argument_group(title='Misc Options', description='Miscellaneous option group')
-g.add_argument('--foo')
-        """
-        expected = f"""{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}
-    with ParamGroup('Misc', description='Miscellaneous option group'):
-        foo = Option()
-        """.rstrip()
-        self.assertEqual(expected, convert_script(Script(code)))
-
-    def test_group_no_options_in_title(self):
-        code = """from argparse import ArgumentParser as AP\np = AP()
-g = p.add_argument_group(title='Misc Group', description='Miscellaneous option group')
-g.add_argument('foo', nargs=1)
-        """
-        expected = f"""{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}
-    with ParamGroup('Misc Group', description='Miscellaneous option group'):
-        foo = Positional()
-        """.rstrip()
-        self.assert_strings_equal(expected, convert_script(Script(code)))
-
-    # region Param Converter
-
     def test_bad_param_type(self):
         with self.assertRaisesRegex(ConversionError, 'Unable to determine a suitable Parameter type'):
             prep_and_convert('')
 
     def test_param_order(self):
         expected = prep_expected('baz = Positional()', 'bar = Option()', 'foo = PassThru()', 'abc = Option()')
-        self.assert_strings_equal(expected, prep_and_convert("'--bar'", "'baz'", "'--foo', nargs=REMAINDER", "'--abc'"))
+        converted = prep_and_convert("'--bar'", "'baz'", "'--foo', nargs=REMAINDER", "'--abc'", remainder=True)
+        self.assert_strings_equal(expected, converted)
 
     def test_param_converter_misc(self):
         arg = Script(prep_args("'foo'")).parsers[0].args[0]
@@ -367,6 +262,10 @@ g.add_argument('foo', nargs=1)
         self.assertEqual(converter, converter)
         self.assertFalse(converter.use_auto_long_opt_str)  # noqa
         self.assertIsNone(converter._name_mode)  # noqa
+
+    def test_pass_thru(self):
+        expected = prep_expected('test = PassThru()')
+        self.assert_strings_equal(expected, prep_and_convert("'test', nargs=REMAINDER", remainder=True))
 
     # endregion
 
@@ -426,9 +325,133 @@ g.add_argument('foo', nargs=1)
 
     # endregion
 
+    # region Add Methods
+
+    def test_add_methods_base_cmd_both(self):
+        p = '    pass'
+        expected = prep_expected('foo = Option()', '', 'def _init_command_(self):', p, '', 'def main(self):', p)
+        self.assert_strings_equal(expected, prep_and_convert("'--foo'", add_methods=True))
+
+    def test_add_methods_base_cmd_no_args_both(self):
+        expected = prep_expected('def _init_command_(self):', '    pass', '', 'def main(self):', '    pass')
+        self.assert_strings_equal(expected, prep_and_convert(add_methods=True))
+
+    def test_add_methods_split_across_subparsers(self):
+        code = prep_args() + "\nsps = p.add_subparsers()\nsp = sps.add_parser('foo')"
+        cmds = [
+            prep_expected('sub_cmd = SubCommand()', '', 'def _init_command_(self):', '    pass'),
+            prep_cmd('def main(self):', '    pass', name='Foo', base=CMD0),
+        ]
+        self.assert_strings_equal('\n\n\n'.join(cmds), convert_script(Script(code), add_methods=True))
+
+    def test_add_methods_no_methods(self):
+        converter = Converter.init_for_ast_callable(Script(prep_args()).parsers[0], add_methods=True)
+        # This is unlikely to occur
+        converter.__dict__.update(is_sub_parser=True, sub_parser_converters=1)
+        self.assertEqual(['    pass'], list(converter.finalize(False, '')))
+
+    # endregion
+
+
+class AstUtilsTest(ParserTest):
+    def test_utils_bad_types(self):
+        with self.assertRaises(TypeError):
+            get_name_repr('foo')  # noqa
+        with self.assertRaises(TypeError):
+            collection_contents('foo')  # noqa
+
+    def test_get_name_repr_call(self):
+        node = ast.parse('foo()').body[0]
+        self.assertEqual('foo', get_name_repr(node.value))  # noqa # Tests the isinstance(node, Call) line
+        self.assertEqual('foo()', get_name_repr(node))      # noqa # Tests the isinstance(node, AST) line
+
+
+class AstCallableTest(ParserTest):
+    def test_ast_callable_no_represents(self):
+        ac = AstCallable(ast.parse('foo(123, bar=456)').body[0].value, Mock(), {})  # noqa
+        self.assertEqual(['123'], ac.init_func_args)
+        self.assertEqual({'bar': '456'}, ac.init_func_kwargs)
+
+    def test_converter_for_ast_callable_error(self):
+        ac = AstCallable(ast.parse('foo(123, bar=456)').body[0].value, Mock(), {})  # noqa
+        with self.assertRaises(TypeError):
+            Converter.for_ast_callable(ac)
+
+    def test_pprint(self):
+        code = "import argparse\np = argparse.ArgumentParser()\ng = p.add_argument_group()\ng.add_argument('--foo')\n"
+        expected = """
+ + <AstArgumentParser[sub_parsers=0]: ``argparse.ArgumentParser()``>:
+    + <ArgGroup: ``p.add_argument_group()``>:
+       - <ParserArg[g.add_argument('--foo')]>
+       """.strip()
+        with RedirectStreams() as streams:
+            Script(code).parsers[0].pprint()
+        self.assert_strings_equal(expected, streams.stdout.strip())
+
+    # region Low value tests for coverage
+
+    def test_argparse_typing_helpers(self):
+        parser = ArgumentParser()
+        parser.register('action', 'parsers', SubParsersAction)
+        sp_action = parser.add_subparsers(dest='action', prog='')
+        self.assertIsInstance(sp_action, SubParsersAction)
+        sub_parser = sp_action.add_parser('test')
+        self.assertIsNotNone(sub_parser.add_mutually_exclusive_group())
+        self.assertIsNotNone(sub_parser.add_argument_group('test'))
+
+    def test_script_reprs(self):
+        self.assertEqual('<Script[parsers=0]>', repr(Script('foo()')))
+
+    def test_group_and_arg_reprs(self):
+        code = "import argparse\np = argparse.ArgumentParser()\ng = p.add_argument_group()\ng.add_argument('--foo')\n"
+        parser = Script(code).parsers[0]
+        group = parser.groups[0]
+        self.assertIn('p.add_argument_group()', repr(group))
+        self.assertIn("g.add_argument('--foo')", repr(group.args[0]))
+
+    def test_descriptors(self):
+        mock = Mock()
+
+        class Foo:
+            foo = AddVisitedChild(Mock, 'abc')
+
+            @classmethod
+            def _add_visit_func(cls, name):
+                return False
+
+            @visit_func
+            def bar(self):
+                return 123
+
+        Foo.baz = visit_func(mock)
+        self.assertEqual(123, Foo().bar())
+        self.assertIsInstance(Foo().baz(), Mock)  # noqa
+        mock.assert_called()
+        self.assertIsInstance(Foo.foo, AddVisitedChild)
+
+    def test_add_visit_func_attr_error(self):
+        original = AstCallable.visit_funcs.copy()
+        self.assertTrue(AstCallable._add_visit_func('foo_bar'))
+        self.assertNotEqual(original, AstCallable.visit_funcs)
+        self.assertIn('foo_bar', AstCallable.visit_funcs)
+        AstCallable.visit_funcs = original
+
+    def test_ast_callable_misc(self):
+        ac = AstCallable(Mock(args=123, keywords=456), Mock(), {})
+        self.assertEqual(123, ac.call_args)
+        self.assertIsNone(ac.get_tracked_refs('foo', 'bar', None))
+        with self.assertRaises(KeyError):
+            self.assertIsNone(ac.get_tracked_refs('foo', 'bar'))
+
+    def test_top_level_parser_no_choices(self):
+        key, val = Converter.init_for_ast_callable(Script(prep_args()).parsers[0])._choices
+        self.assertTrue(key is val is None)
+
+    # endregion
+
 
 class AstVisitorTest(ParserTest):
-    def test_touch_for_unhandled_cases(self):
+    def test_touch_unhandled_cases_for_coverage(self):
         code = """
 from logging import getLogger
 from argparse import Namespace, ArgumentParser as AP
@@ -467,15 +490,17 @@ p = AP()
         self.assertIsNone(visitor.resolve_ref('foo.bar'))
 
     def test_for_multiple_parser_parents(self):
-        code = """
-from argparse import ArgumentParser as AP\np1 = AP()\nsp = p1.add_subparsers()\nsp1 = sp.add_parser('foo')\n
-p2 = AP()\nfor p in (sp1, p2):\n    pass
-        """
+        code = prep_args() + "\ns = p.add_subparsers()\na = s.add_parser('f')\nb = AP()\nfor x in (a, b):\n    pass"
         self.assertEqual(2, len(Script(code).parsers))
 
     def test_for_no_subparsers(self):
         code = 'from argparse import ArgumentParser as AP\np1 = AP()\np2 = AP()\nfor p in (p1, p2):\n    pass'
         self.assertEqual(2, len(Script(code).parsers))
+
+    def test_extra_import_and_def_in_func(self):
+        code = """import logging\nfrom argparse import ArgumentParser\nlog = logging.getLogger(__name__)
+def main():\n    parser = ArgumentParser()\n    parser.add_argument('test')"""
+        self.assertEqual(prep_expected('test = Positional()'), convert_script(Script(code)))
 
 
 class ArgparseConversionCustomSubclassTest(ParserTest):
@@ -566,24 +591,16 @@ with parser.add_subparser('action', 'one') as sp1:
     sp1.add_argument('--foo', help=hide)
 sp2 = parser.add_subparser('action', 'two')
         """
-        expected = f"""{IMPORT_LINE}\n\n
-class Command0(Command, description='Parse args'):  {DISCLAIMER}
-    abc = 123
-    action = SubCommand()
-\n
-class One(Command0):
-    foo = Option(hide=True)
-\n
-class Two(Command0):
-    pass
-        """.rstrip()
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        cmds = [
+            prep_expected('abc = 123', 'action = SubCommand()', description="'Parse args'"),
+            prep_cmd('foo = Option(hide=True)', name='One', base=CMD0),
+            prep_cmd('pass', name='Two', base=CMD0),
+        ]
+        self.assert_strings_equal('\n\n\n'.join(cmds), convert_script(Script(code)))
 
     def test_converter_for_ast_callable_subclass(self):
         code = "from foo import ArgParser\np = ArgParser()\nsp = p.add_subparser(name='one')\nsp.add_argument('--foo')"
-        parser = Script(code).parsers[0]
-        converter_cls = Converter.for_ast_callable(parser)
-        self.assertEqual(converter_cls, ParserConverter)
+        self.assertEqual(Converter.for_ast_callable(Script(code).parsers[0]), ParserConverter)
 
 
 if __name__ == '__main__':
