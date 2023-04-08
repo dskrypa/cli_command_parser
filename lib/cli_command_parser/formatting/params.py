@@ -34,7 +34,8 @@ class ParamHelpFormatter:
     _param_cls_fmt_cls_map = {}
     required_formatter_map: BoolFormatterMap = {False: '[{}]'.format}
 
-    def __init_subclass__(cls, param_cls: Type[ParamOrGroup] = None):  # noqa
+    def __init_subclass__(cls, param_cls: Type[ParamOrGroup] = None, **kwargs):
+        super().__init_subclass__(**kwargs)
         if param_cls is not None:
             cls._param_cls_fmt_cls_map[param_cls] = cls
 

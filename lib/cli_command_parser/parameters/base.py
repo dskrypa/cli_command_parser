@@ -223,7 +223,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     show_default: bool = None
 
     def __init_subclass__(
-        cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None
+        cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None, **kwargs
     ):
         """
         :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`.Flag`
@@ -232,6 +232,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
           like :class:`.Flag` and :class:`.Counter`.
         :param repr_attrs: Additional attributes to include in the repr.
         """
+        super().__init_subclass__(**kwargs)
         actions = set(cls._actions)  # Inherit actions from parent
         actions.update(getattr(cls, '_BasicActionMixin__actions', ()))  # Inherit from mixin, if present
         try:

@@ -77,7 +77,11 @@ class DTInput(InputType[T], ABC):
     dt_type: str
     locale: Optional[Locale]
 
-    def __init_subclass__(cls, dt_type: str = None):  # noqa
+    def __init_subclass__(cls, dt_type: str = None, **kwargs):
+        """
+        :param dt_type: Used in InvalidChoiceError / ValueError messages
+        """
+        super().__init_subclass__(**kwargs)
         cls.dt_type = dt_type
 
     def __init__(self, locale: Locale = None):
@@ -334,8 +338,8 @@ class DateTimeInput(DTInput[DT], ABC):
     _earliest: TimeBound = None
     _latest: TimeBound = None
 
-    def __init_subclass__(cls, type: Type[DT]):  # noqa
-        super().__init_subclass__(dt_type=type.__name__)
+    def __init_subclass__(cls, type: Type[DT], **kwargs):  # noqa
+        super().__init_subclass__(dt_type=type.__name__, **kwargs)
         cls._type = type
 
     def __init__(

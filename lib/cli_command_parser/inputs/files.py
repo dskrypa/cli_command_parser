@@ -54,6 +54,10 @@ class FileInput(InputType[T], ABC):
         return f'<{self.__class__.__name__}({non_defaults})>'
 
     def fix_default(self, value: Optional[T]) -> Optional[T]:
+        """
+        Fixes the default value to conform to the expected return type for this input.  Allows the default value for a
+        path to be provided as a string, for example.
+        """
         if value is None:
             return value
         return self(value)
@@ -92,7 +96,6 @@ class FileInput(InputType[T], ABC):
 
 
 class Path(FileInput[_Path]):
-    # noinspection PyUnresolvedReferences
     """
     :param exists: If set, then the provided path must already exist if True, or must not already exist if False.
       Default: existence is not checked.
