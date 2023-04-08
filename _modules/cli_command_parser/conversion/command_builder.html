@@ -119,11 +119,11 @@
 <span class="n">RESERVED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">keyword</span><span class="o">.</span><span class="n">kwlist</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="s1">&#39;softkwlist&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;case&#39;</span><span class="p">,</span> <span class="s1">&#39;match&#39;</span><span class="p">)))</span>  <span class="c1"># soft was added in 3.9</span>
 
 
-<div class="viewcode-block" id="convert_script"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.convert_script">[docs]</a><span class="k">def</span> <span class="nf">convert_script</span><span class="p">(</span><span class="n">script</span><span class="p">:</span> <span class="n">Script</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">ScriptConverter</span><span class="p">(</span><span class="n">script</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span></div>
+<div class="viewcode-block" id="convert_script"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.convert_script">[docs]</a><span class="k">def</span> <span class="nf">convert_script</span><span class="p">(</span><span class="n">script</span><span class="p">:</span> <span class="n">Script</span><span class="p">,</span> <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ScriptConverter</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">add_methods</span><span class="o">=</span><span class="n">add_methods</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span></div>
 
 
-<span class="k">class</span> <span class="nc">Converter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Converter</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_ac_converter_map</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -138,7 +138,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Converter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
             <span class="n">ast_obj</span> <span class="o">=</span> <span class="n">ast_obj</span><span class="o">.</span><span class="vm">__class__</span>
         <span class="k">try</span><span class="p">:</span>
@@ -149,6 +149,10 @@
             <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="n">converts_cls</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">converter_cls</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No Converter is registered for </span><span class="si">{</span><span class="n">ast_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> objects&#39;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">init_for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">AC</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">for_ast_callable</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">)(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">ast_objs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AC</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConverterGroup</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
@@ -185,6 +189,10 @@
 
 
 <span class="k">class</span> <span class="nc">ScriptConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">Script</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span> <span class="o">=</span> <span class="n">add_methods</span>
+
     <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="c1"># TODO: Filter to what is actually used</span>
         <span class="k">yield</span> <span class="p">(</span>
@@ -193,10 +201,10 @@
         <span class="p">)</span>
         <span class="n">counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">parsers</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="n">ParserConverter</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">counter</span><span class="o">=</span><span class="n">counter</span><span class="p">)</span><span class="o">.</span><span class="n">format_lines</span><span class="p">()</span>
+            <span class="k">yield from</span> <span class="n">ParserConverter</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">counter</span><span class="o">=</span><span class="n">counter</span><span class="p">,</span> <span class="n">add_methods</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span><span class="p">)</span><span class="o">.</span><span class="n">format_lines</span><span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">CollectionConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CollectionConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgCollection</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_name_mode</span> <span class="o">=</span> <span class="kc">None</span>
@@ -227,22 +235,34 @@
             <span class="k">yield from</span> <span class="n">child_group</span><span class="o">.</span><span class="n">format_all</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
             <span class="n">last</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">child_group</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">cg</span> <span class="k">for</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">    pass&#39;</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">cg</span> <span class="k">for</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">),</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">had_members</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">had_members</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}</span><span class="s1">pass&#39;</span>
 
 
-<span class="k">class</span> <span class="nc">ParserConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">AstArgumentParser</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ParserConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">AstArgumentParser</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">AstArgumentParser</span><span class="p">):</span>
     <span class="n">_auto_gen_disclaimer</span> <span class="o">=</span> <span class="s1">&#39;# This is an automatically generated name that should probably be updated&#39;</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">AstArgumentParser</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">:</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">counter</span><span class="p">:</span> <span class="n">count</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parser</span><span class="p">:</span> <span class="n">AstArgumentParser</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">counter</span><span class="p">:</span> <span class="n">count</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span> <span class="k">if</span> <span class="n">counter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">counter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span> <span class="o">=</span> <span class="n">add_methods</span>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">sub_parser_converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ParserConverter</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">sub_parser</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">sub_parsers</span><span class="p">]</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">add_methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">sub_parser</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span> <span class="n">add_methods</span><span class="o">=</span><span class="n">add_methods</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">sub_parsers</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
         <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span>
@@ -251,13 +271,37 @@
 
     <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_gen_disclaimer</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-        <span class="c1"># TODO: Add _init_command_ and/or main methods</span>
         <span class="c1"># TODO: If subparsers have no unique args, use action methods instead?</span>
         <span class="k">yield</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">()</span><span class="si">}</span><span class="s1">):</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_members</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">sp_converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_parser_converters</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="n">sp_converter</span><span class="o">.</span><span class="n">format_lines</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">had_members</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="n">had_members</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">had_members</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="n">had_last</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">prefix</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sub_parser</span><span class="p">:</span>
+            <span class="n">had_members</span> <span class="o">=</span> <span class="n">had_last</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">def _init_command_(self):&#39;</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">    pass&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_parser_converters</span><span class="p">:</span>
+            <span class="n">had_members</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">had_last</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">def main(self):&#39;</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">    pass&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">had_members</span><span class="p">:</span>  <span class="c1"># This case is unlikely, but here just in case</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">pass&#39;</span>
 
     <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -334,7 +378,7 @@
     <span class="c1"># endregion</span>
 
 
-<span class="k">class</span> <span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">ArgGroup</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgGroup</span>
 
     <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -362,7 +406,7 @@
         <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">ParamConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">ParserArg</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ParamConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ParserArg</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ParserArg</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>
