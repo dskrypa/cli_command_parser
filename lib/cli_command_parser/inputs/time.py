@@ -25,15 +25,21 @@ from threading import RLock
 from typing import Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, overload
 from typing import Tuple, Dict
 
+try:
+    from typing import Literal
+except ImportError:
+    from ..compat import Literal
+
 from ..typing import T, Bool, Locale, TimeBound
 from ..utils import MissingMixin
 from .base import InputType
 from .exceptions import InputValidationError, InvalidChoiceError
 
-__all__ = ['DTFormatMode', 'Day', 'Month', 'DateTime', 'Date', 'Time']
+__all__ = ['DTFormatMode', 'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time']
 
 DT = TypeVar('DT')
-
+TimeUnit = Literal['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']
+_TIMEDELTA_UNITS = {'days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks'}
 DEFAULT_DATE_FMT = '%Y-%m-%d'
 DEFAULT_TIME_FMT = '%H:%M:%S'
 DEFAULT_DT_FMT = '%Y-%m-%d %H:%M:%S'
@@ -331,6 +337,36 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
 
 
 # endregion
+
+
+class TimeDelta(InputType[timedelta]):
+    __slots__ = ('unit',)
+
+    def __init__(self, unit: TimeUnit):
+        unit = unit.lower()
+        if unit not in _TIMEDELTA_UNITS:
+            raise TypeError(f'Invalid unit={unit!r} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
+        self.unit = unit
+        # TODO: min/max params like NumRange?
+
+    def __call__(self, value: Union[str, int, float]) -> timedelta:
+        if isinstance(value, str):
+            try:
+                value = float(value.replace(',', '').replace('_', ''))  # allow comma or _ between thousands
+            except ValueError as e:
+                raise InputValidationError(
+                    f'Invalid numeric {self.unit}={value!r} - expected an integer or float'
+                ) from e
+
+        return timedelta(**{self.unit: value})
+
+    def fix_default(self, value: Union[int, float, timedelta, None]) -> Optional[timedelta]:
+        if value is None or isinstance(value, timedelta):
+            return value
+        return self(value)
+
+    def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
+        return f'{{{self.unit}}}'
 
 
 # region Date/Time Parse Inputs

@@ -16,7 +16,7 @@ from .base import InputType
 from .choices import Choices, ChoiceMap, EnumChoices
 from .files import Path, File, Serialized, Json, Pickle
 from .numeric import Range, NumRange
-from .time import Day, Month, DateTime, Date, Time, DTFormatMode
+from .time import Day, Month, TimeDelta, DateTime, Date, Time, DTFormatMode
 
 if _t.TYPE_CHECKING:
     from ..typing import TypeFunc, InputTypeFunc, ChoicesType
@@ -26,7 +26,7 @@ __all__ = [
     'StatMode', 'FileWrapper', 'Path', 'File', 'Serialized', 'Json', 'Pickle',
     'Range', 'NumRange',
     'Choices', 'ChoiceMap', 'EnumChoices',
-    'Day', 'Month', 'DateTime', 'Date', 'Time', 'DTFormatMode',
+    'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time', 'DTFormatMode',
     'normalize_input_type',
 ]
 # fmt: on
