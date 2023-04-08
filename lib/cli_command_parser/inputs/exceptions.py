@@ -25,8 +25,9 @@ class InvalidChoiceError(InputValidationError):
 
     def __str__(self) -> str:
         if isinstance(self.invalid, Collection) and not isinstance(self.invalid, str):
-            bad_str = '{}s: {}'.format(self.type_str, ', '.join(map(repr, self.invalid)))
+            bad_str = f'{self.type_str}s: {", ".join(map(repr, self.invalid))}'
         else:
             bad_str = f'{self.type_str}: {self.invalid!r}'
+
         choices_str = ', '.join(map(repr, self.choices))
         return f'invalid {bad_str} (choose from: {choices_str})'

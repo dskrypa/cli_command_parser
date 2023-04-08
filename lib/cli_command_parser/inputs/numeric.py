@@ -19,6 +19,7 @@ _range = range
 
 
 class NumericInput(InputType[NT], ABC):
+    __slots__ = ()
     type: NumType
 
     def is_valid_type(self, value: str) -> bool:
@@ -106,6 +107,7 @@ class NumRange(NumericInput[NT]):
     :param include_max: Whether the maximum is inclusive (default: False)
     """
 
+    __slots__ = ('type', 'snap', 'min', 'max', 'include_min', 'include_max')
     snap: bool
     min: Number
     max: Number
@@ -154,12 +156,12 @@ class NumRange(NumericInput[NT]):
 
     def _range_str(self, var: str = 'N') -> str:
         if self.min is not None:
-            min_str = '{} {} '.format(self.min, '<=' if self.include_min else '<')
+            min_str = f'{self.min} {"<=" if self.include_min else "<"} '
         else:
             min_str = ''
 
         if self.max is not None:
-            max_str = ' {} {}'.format('<=' if self.include_max else '<', self.max)
+            max_str = f' {"<=" if self.include_max else "<"} {self.max}'
         else:
             max_str = ''
 

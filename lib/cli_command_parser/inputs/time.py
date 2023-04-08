@@ -74,6 +74,7 @@ class different_locale:
 
 
 class DTInput(InputType[T], ABC):
+    __slots__ = ('locale',)
     dt_type: str
     locale: Optional[Locale]
 
@@ -108,6 +109,7 @@ class DTFormatMode(MissingMixin, Enum):
 
 
 class CalendarUnitInput(DTInput[Union[str, int]], ABC):
+    __slots__ = ('full', 'abbreviation', 'numeric', 'out_format', 'out_locale')
     _formats: Dict[DTFormatMode, Sequence[Union[str, int]]]
     _min_index: int = 0
 
@@ -224,6 +226,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
 
 
 class Day(CalendarUnitInput, dt_type='day of the week'):
+    __slots__ = ('iso',)
     _formats = {
         DTFormatMode.FULL: day_name,
         DTFormatMode.ABBREVIATION: day_abbr,
@@ -279,6 +282,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
 
 
 class Month(CalendarUnitInput, dt_type='month', min_index=1):
+    __slots__ = ()
     _formats = {
         DTFormatMode.FULL: month_name,
         DTFormatMode.ABBREVIATION: month_abbr,
