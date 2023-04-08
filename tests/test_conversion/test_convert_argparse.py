@@ -29,6 +29,22 @@ IMPORT_LINE = (
 )
 
 
+def prep_args(*add_argument_args_strs: str) -> str:
+    add_arg_iter = (f'p.add_argument({arg})' for arg in add_argument_args_strs)
+    return '\n'.join(('from argparse import REMAINDER, ArgumentParser as AP', 'p = AP()', *add_arg_iter))
+
+
+def prep_expected(*members: str, name: str = 'Command0', parent: str = 'Command', cmd_args: str = '') -> str:
+    expected = f'{IMPORT_LINE}\n\n\nclass {name}({parent}{cmd_args}):  {DISCLAIMER}'
+    if members:
+        return '\n'.join((expected, *(f'    {mem}' for mem in members)))
+    return expected + '\n'
+
+
+def prep_and_convert(*add_argument_args_strs: str) -> str:
+    return convert_script(Script(prep_args(*add_argument_args_strs)))
+
+
 class ArgparseConversionTest(ParserTest):
     # region Low value tests for coverage
 
@@ -261,7 +277,7 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
     # region Option names / name mode
 
     def test_option_names(self):
-        parser = Script("from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', '-')").parsers[0]
+        parser = Script(prep_args("'--foo', '-'")).parsers[0]
         converter = Converter.for_ast_callable(parser.args[0])(parser.args[0], Mock(), 0)  # noqa
         converter._counter = count()  # prevent potential interference from other tests
         attr_name_candidates = converter._attr_name_candidates()  # noqa
@@ -275,27 +291,18 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
                 _ = converter._attr_name  # noqa
 
     def test_option_name_mode_default(self):
-        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo-bar')"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo_bar = Option()'
-        self.assertEqual(expected, convert_script(Script(code)))
+        self.assertEqual(prep_expected('foo_bar = Option()'), prep_and_convert("'--foo-bar'"))
 
     def test_option_name_mode_underscore(self):
-        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo_bar')"
-        expected = (
-            f"{IMPORT_LINE}\n\n\nclass Command0(Command, option_name_mode='_'):  {DISCLAIMER}"
-            '\n    foo_bar = Option()'
-        )
-        self.assertEqual(expected, convert_script(Script(code)))
+        expected = prep_expected('foo_bar = Option()', cmd_args=", option_name_mode='_'")
+        self.assertEqual(expected, prep_and_convert("'--foo_bar'"))
 
     def test_option_name_mode_underscore_subparser(self):
-        code = """
-from argparse import ArgumentParser as AP\np = AP()\nsp = p.add_subparsers()\n
+        code = f"""{prep_args()}\nsp = p.add_subparsers()\n
 sp1 = sp.add_parser('one', help='Command one')\nsp1.add_argument('--foo_bar', '-f', action='store_true')
         """
-        expected = f"""{IMPORT_LINE}\n\n
-class Command0(Command, option_name_mode='_'):  {DISCLAIMER}\n    sub_cmd = SubCommand()\n\n
-class One(Command0, help='Command one'):\n    foo_bar = Flag('-f')
-        """.rstrip()
+        expected = prep_expected('sub_cmd = SubCommand()', cmd_args=", option_name_mode='_'")
+        expected += "\n\n\nclass One(Command0, help='Command one'):\n    foo_bar = Flag('-f')"
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
     # endregion
@@ -303,32 +310,24 @@ class One(Command0, help='Command one'):\n    foo_bar = Flag('-f')
     # region Actions
 
     def test_bad_positional_action(self):
-        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('foo', action='store_true')"
         with self.assertRaisesRegex(ConversionError, 'is not supported for Positional parameters'):
-            convert_script(Script(code))
+            prep_and_convert("'foo', action='store_true'")
 
     def test_bad_option_action(self):
-        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', action='extend')"
         with self.assertRaisesRegex(ConversionError, 'is not supported for Option parameters'):
-            convert_script(Script(code))
+            prep_and_convert("'--foo', action='extend'")
 
     def test_explicit_option_action(self):
-        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', action='store')"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option()'
-        self.assertEqual(expected, convert_script(Script(code)))
+        self.assertEqual(prep_expected('foo = Option()'), prep_and_convert("'--foo', action='store'"))
 
     # endregion
 
     def test_help_from_var(self):
-        code = "from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', help=HELP)"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(help=HELP)'
-        self.assertEqual(expected, convert_script(Script(code)))
+        self.assertEqual(prep_expected('foo = Option(help=HELP)'), prep_and_convert("'--foo', help=HELP"))
 
     def test_help_strip_default(self):
-        text = 'The foo (default: %(default)s)'
-        code = f"from argparse import ArgumentParser as AP\np = AP(); p.add_argument('--foo', help={text!r})"
-        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(help='The foo')"
-        self.assertEqual(expected, convert_script(Script(code)))
+        expected = prep_expected("foo = Option(help='The foo')")
+        self.assertEqual(expected, prep_and_convert("'--foo', help='The foo (default: %(default)s)'"))
 
     def test_group_title_trim(self):
         code = """from argparse import ArgumentParser as AP\np = AP()
@@ -355,22 +354,15 @@ g.add_argument('foo', nargs=1)
     # region Param Converter
 
     def test_bad_param_type(self):
-        code = 'from argparse import ArgumentParser as AP\np = AP(); p.add_argument()'
         with self.assertRaisesRegex(ConversionError, 'Unable to determine a suitable Parameter type'):
-            convert_script(Script(code))
+            prep_and_convert('')
 
     def test_param_order(self):
-        code = """from argparse import REMAINDER, ArgumentParser as AP\np = AP()
-p.add_argument('--bar')\np.add_argument('baz')\np.add_argument('--foo', nargs=REMAINDER)\np.add_argument('--abc')
-        """
-        expected = f"""{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}
-    baz = Positional()\n    bar = Option()\n    foo = PassThru()\n    abc = Option()\n
-        """.rstrip()
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected('baz = Positional()', 'bar = Option()', 'foo = PassThru()', 'abc = Option()')
+        self.assert_strings_equal(expected, prep_and_convert("'--bar'", "'baz'", "'--foo', nargs=REMAINDER", "'--abc'"))
 
     def test_param_converter_misc(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('foo')"
-        arg = Script(code).parsers[0].args[0]
+        arg = Script(prep_args("'foo'")).parsers[0].args[0]
         converter = Converter.for_ast_callable(arg)(arg, Mock(), 1)  # noqa
         self.assertEqual(converter, converter)
         self.assertFalse(converter.use_auto_long_opt_str)  # noqa
@@ -381,77 +373,56 @@ p.add_argument('--bar')\np.add_argument('baz')\np.add_argument('--foo', nargs=RE
     # region Positional Args
 
     def test_positional_nargs_non_literal(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('foo', nargs=N)"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Positional(nargs=N)'
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        self.assert_strings_equal(prep_expected('foo = Positional(nargs=N)'), prep_and_convert("'foo', nargs=N"))
 
     def test_positional_nargs_gt_1(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('foo', nargs=2)"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Positional(nargs=2)'
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        self.assert_strings_equal(prep_expected('foo = Positional(nargs=2)'), prep_and_convert("'foo', nargs=2"))
 
     def test_positional_nargs_append(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('foo', nargs=2, action='append')"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Positional(nargs=2)'
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected('foo = Positional(nargs=2)')
+        self.assert_strings_equal(expected, prep_and_convert("'foo', nargs=2, action='append'"))
 
     # endregion
 
     # region Option Args
 
     def test_option_append_nargs_default(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', action='append')"
-        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(nargs='+')"
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected("foo = Option(nargs='+')")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='append'"))
 
     def test_option_append_nargs_set(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', action='append', nargs=2)"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(nargs=2)'
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected('foo = Option(nargs=2)')
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='append', nargs=2"))
 
     def test_option_ignore_const(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', action='store', const='b')"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option()'
+        expected = prep_expected('foo = Option()')
         with self.assertLogs(f'{PACKAGE}.command_builder', 'WARNING'):
-            self.assert_strings_equal(expected, convert_script(Script(code)))
+            self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store', const='b'"))
 
     def test_option_store_nargs_default_value(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', action='store', nargs=1)"
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option()'
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        self.assert_strings_equal(prep_expected('foo = Option()'), prep_and_convert("'--foo', action='store', nargs=1"))
 
     def test_option_nargs_star_to_plus(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', nargs='*')"
-        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Option(nargs='+')"
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        self.assert_strings_equal(prep_expected("foo = Option(nargs='+')"), prep_and_convert("'--foo', nargs='*'"))
 
     # endregion
 
     # region Flag Args
 
     def test_auto_flag_from_const(self):
-        code = "from argparse import ArgumentParser as AP\np = AP()\np.add_argument('--foo', const='bar')"
-        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Flag(const='bar')"
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        self.assert_strings_equal(prep_expected("foo = Flag(const='bar')"), prep_and_convert("'--foo', const='bar'"))
 
     def test_flag_store_non_standard_const(self):
-        code = """from argparse import ArgumentParser as AP\np = AP()
-p.add_argument('--foo', action='store_const', const='bar')"""
-        expected = f"{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Flag(const='bar')"
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected("foo = Flag(const='bar')")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_const', const='bar'"))
 
     def test_flag_append_const(self):
-        code = """from argparse import ArgumentParser as AP\np = AP()
-p.add_argument('--foo', action='append_const', const='bar')"""
-        expected = f"""{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}
-    foo = Flag(action='append_const', const='bar')"""
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected("foo = Flag(action='append_const', const='bar')")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='append_const', const='bar'"))
 
     def test_flag_remove_redundant_default(self):
-        code = """from argparse import ArgumentParser as AP\np = AP()
-p.add_argument('--foo', action='store_true', default=False)"""
-        expected = f'{IMPORT_LINE}\n\n\nclass Command0(Command):  {DISCLAIMER}\n    foo = Flag()'
-        self.assert_strings_equal(expected, convert_script(Script(code)))
+        expected = prep_expected('foo = Flag()')
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_true', default=False"))
 
     # endregion
 
