@@ -102,6 +102,7 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">AllowLeadingDash</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
@@ -109,7 +110,7 @@
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BasePositional</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">ChoicesType</span>
+    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">LeadingDash</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Positional&#39;</span><span class="p">]</span>
 
@@ -135,6 +136,11 @@
 <span class="sd">      an empty list will be returned for this Parameter.</span>
 <span class="sd">    :param choices: A container that holds the specific values that users must pick from.  By default, any value is</span>
 <span class="sd">      allowed.</span>
+<span class="sd">    :param allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with</span>
+<span class="sd">      a dash, it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /</span>
+<span class="sd">      ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for</span>
+<span class="sd">      an Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use ``False`` / ``never`` /</span>
+<span class="sd">      ``AllowLeadingDash.NEVER``.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -146,6 +152,7 @@
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">LeadingDash</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">nargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -164,7 +171,9 @@
             <span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="n">required</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">allow_leading_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">AllowLeadingDash</span><span class="p">(</span><span class="n">allow_leading_dash</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

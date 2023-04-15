@@ -280,7 +280,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;CommandParameters are only available for Command subclasses&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;CommandParameters are only available for Command subclasses&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="o">=</span> <span class="n">params</span> <span class="o">=</span> <span class="n">CommandParameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">mcs</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">params</span></div>

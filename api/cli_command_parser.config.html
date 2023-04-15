@@ -125,6 +125,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.STRICT"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.STRICT</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.NUMERIC"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NUMERIC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.ALWAYS"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.ALWAYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.NEVER"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NEVER</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.context.html">Context Module</a></li>
@@ -540,6 +546,41 @@ input.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.STRICT">
 <span class="sig-name descname"><span class="pre">STRICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'strict'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.STRICT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">AllowLeadingDash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#AllowLeadingDash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>How a given Parameter should handle values with a leading dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  Only configurable at the Parameter level,
+not the Command level.</p>
+<p>The behavior based on each supported option:</p>
+<dl class="field-list simple">
+<dt class="field-odd">NUMERIC<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Allow numeric values like <code class="docutils literal notranslate"><span class="pre">-5</span></code> and <code class="docutils literal notranslate"><span class="pre">-1.3</span></code>, but reject values like <code class="docutils literal notranslate"><span class="pre">-d</span></code>.</p>
+</dd>
+<dt class="field-even">ALWAYS<span class="colon">:</span></dt>
+<dd class="field-even"><p>Always allow values with a leading dash.</p>
+</dd>
+<dt class="field-odd">NEVER<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Never allow values with a leading dash.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.NUMERIC">
+<span class="sig-name descname"><span class="pre">NUMERIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numeric'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.NUMERIC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.ALWAYS">
+<span class="sig-name descname"><span class="pre">ALWAYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'always'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.ALWAYS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.NEVER">
+<span class="sig-name descname"><span class="pre">NEVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'never'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.NEVER" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

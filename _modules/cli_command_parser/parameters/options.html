@@ -104,11 +104,12 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Tuple</span>
 
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">AllowLeadingDash</span>
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ParseState</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">OptStr</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">LeadingDash</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">parameter_action</span>
 <span class="kn">from</span> <span class="nn">.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
@@ -147,6 +148,11 @@
 <span class="sd">      will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order</span>
 <span class="sd">      that they were provided.  When enabled, values from env variables take precedence over the default value.  When</span>
 <span class="sd">      enabled and the Parameter is required, then either a CLI value or an env var value must be provided.</span>
+<span class="sd">    :param allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with</span>
+<span class="sd">      a dash, it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /</span>
+<span class="sd">      ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for</span>
+<span class="sd">      an Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use ``False`` / ``never`` /</span>
+<span class="sd">      ``AllowLeadingDash.NEVER``.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -162,12 +168,17 @@
         <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">env_var</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">LeadingDash</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">nargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid nargs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="si">}</span><span class="s1"> - use Flag or Counter for Options with 0 args&#39;</span><span class="p">)</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="s1">&#39;use Flag or Counter for Options with 0 args&#39;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nargs</span><span class="p">,</span> <span class="nb">range</span><span class="p">)</span> <span class="ow">and</span> <span class="n">nargs</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">nargs</span><span class="o">.</span><span class="n">step</span> <span class="o">!=</span> <span class="n">nargs</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;, </span><span class="si">{</span><span class="n">nargs</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">nargs</span><span class="o">.</span><span class="n">step</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;try using range(</span><span class="si">{</span><span class="n">nargs</span><span class="o">.</span><span class="n">step</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">nargs</span><span class="o">.</span><span class="n">stop</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">) instead, or </span><span class="si">{</span><span class="n">details</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid nargs=</span><span class="si">{</span><span class="n">nargs</span><span class="si">!r}</span><span class="s1"> - </span><span class="si">{</span><span class="n">details</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;store&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;append&#39;</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -176,6 +187,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">env_var</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span> <span class="o">=</span> <span class="n">env_var</span>
+        <span class="k">if</span> <span class="n">allow_leading_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">AllowLeadingDash</span><span class="p">(</span><span class="n">allow_leading_dash</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Option.env_vars"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option.env_vars">[docs]</a>    <span class="k">def</span> <span class="nf">env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">env_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span>
@@ -184,9 +197,6 @@
                 <span class="k">yield</span> <span class="n">env_var</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">yield from</span> <span class="n">env_var</span></div></div>
-
-
-<span class="c1"># TODO: 1/2 flag, 1/2 option, like Counter, but for any value</span>
 
 
 <span class="k">class</span> <span class="nc">_Flag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
@@ -412,6 +422,7 @@
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="c1"># noinspection PyTypeChecker</span>
         <span class="k">return</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">before_main</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">before_main</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ActionFlag.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>

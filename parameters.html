@@ -251,6 +251,13 @@ will not be checked.  If multiple env variable names/keys were provided, then th
 that they were provided.  When enabled, values from env variables take precedence over the default value.  When
 enabled and the Parameter is required, then either a CLI value or an env var value must be provided.</p>
 </dd>
+<dt class="field-odd" id="option:allow_leading_dash">allow_leading_dash<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether string values may begin with a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  By default, if a value begins with a dash,
+it is only accepted if it appears to be a negative numeric value.  Use <code class="docutils literal notranslate"><span class="pre">True</span></code> / <code class="docutils literal notranslate"><span class="pre">always</span></code> /
+<code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.ALWAYS</span></code> to allow any value that begins with a dash (as long as it is not an option string for an
+Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use <code class="docutils literal notranslate"><span class="pre">False</span></code> / <code class="docutils literal notranslate"><span class="pre">never</span></code> /
+<code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NEVER</span></code>.</p>
+</dd>
 </dl>
 <p>Given the following example Command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -449,6 +456,13 @@ to <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd>
 <dt class="field-odd" id="positional:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
+</dd>
+<dt class="field-even" id="positional:allow_leading_dash">allow_leading_dash<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether string values may begin with a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  By default, if a value begins with a dash,
+it is only accepted if it appears to be a negative numeric value.  Use <code class="docutils literal notranslate"><span class="pre">True</span></code> / <code class="docutils literal notranslate"><span class="pre">always</span></code> /
+<code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.ALWAYS</span></code> to allow any value that begins with a dash (as long as it is not an option string for an
+Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use <code class="docutils literal notranslate"><span class="pre">False</span></code> / <code class="docutils literal notranslate"><span class="pre">never</span></code> /
+<code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NEVER</span></code>.</p>
 </dd>
 </dl>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py">Example command</a>:</p>

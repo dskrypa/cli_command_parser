@@ -92,7 +92,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.handle_long"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_long()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.handle_short"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_short()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.consume_values"><code class="docutils literal notranslate"><span class="pre">CommandParser.consume_values()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.parser.CommandParser.node"><code class="docutils literal notranslate"><span class="pre">CommandParser.node</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -151,12 +150,12 @@
 <p>Stateful parser used for a single pass of argument parsing</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.arg_deque">
-<span class="sig-name descname"><span class="pre">arg_deque</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Deque" title="(in Python v3.11)"><span class="pre">Deque</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.arg_deque" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">arg_deque</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Deque</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.arg_deque" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.deferred">
-<span class="sig-name descname"><span class="pre">deferred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.deferred" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">deferred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.deferred" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -166,12 +165,12 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.params">
-<span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.params" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><span class="pre">CommandParameters</span></a></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.params" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.positionals">
-<span class="sig-name descname"><span class="pre">positionals</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.positionals" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">positionals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional" title="cli_command_parser.parameters.base.BasePositional"><span class="pre">BasePositional</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cli_command_parser.parser.CommandParser.positionals" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -215,11 +214,6 @@
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.parser.CommandParser.node">
-<span class="sig-name descname"><span class="pre">node</span></span><a class="headerlink" href="#cli_command_parser.parser.CommandParser.node" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

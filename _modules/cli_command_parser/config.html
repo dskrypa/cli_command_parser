@@ -118,6 +118,7 @@
     <span class="s1">&#39;OptionNameMode&#39;</span><span class="p">,</span>
     <span class="s1">&#39;SubcommandAliasHelpMode&#39;</span><span class="p">,</span>
     <span class="s1">&#39;AmbiguousComboMode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AllowLeadingDash&#39;</span><span class="p">,</span>
     <span class="s1">&#39;DEFAULT_CONFIG&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -154,7 +155,7 @@
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span>  <span class="c1"># noqa</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected one of </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected one of </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ShowDefaults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ShowDefaults</span><span class="p">:</span>
@@ -270,6 +271,36 @@
     <span class="n">IGNORE</span> <span class="o">=</span> <span class="s1">&#39;ignore&#39;</span>           <span class="c1"># Ignore potentially ambiguous combinations of short options entirely</span>
     <span class="n">PERMISSIVE</span> <span class="o">=</span> <span class="s1">&#39;permissive&#39;</span>   <span class="c1"># Allow multi-char short options that overlap with a single char one for exact matches</span>
     <span class="n">STRICT</span> <span class="o">=</span> <span class="s1">&#39;strict&#39;</span>           <span class="c1"># Reject multi-char short options that overlap with a single char one before parsing</span></div>
+
+
+<div class="viewcode-block" id="AllowLeadingDash"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AllowLeadingDash">[docs]</a><span class="k">class</span> <span class="nc">AllowLeadingDash</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    How a given Parameter should handle values with a leading dash (``-``).  Only configurable at the Parameter level,</span>
+<span class="sd">    not the Command level.</span>
+
+<span class="sd">    The behavior based on each supported option:</span>
+
+<span class="sd">    :NUMERIC: Allow numeric values like ``-5`` and ``-1.3``, but reject values like ``-d``.</span>
+<span class="sd">    :ALWAYS: Always allow values with a leading dash.</span>
+<span class="sd">    :NEVER: Never allow values with a leading dash.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NUMERIC</span> <span class="o">=</span> <span class="s1">&#39;numeric&#39;</span>     <span class="c1"># Allow a leading dash when the value is numeric</span>
+    <span class="n">ALWAYS</span> <span class="o">=</span> <span class="s1">&#39;always&#39;</span>       <span class="c1"># Always allow a leading dash</span>
+    <span class="n">NEVER</span> <span class="o">=</span> <span class="s1">&#39;never&#39;</span>         <span class="c1"># Never allow a leading dash</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>  <span class="c1"># noqa</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALWAYS</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NEVER</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
 <span class="c1"># endregion</span>
