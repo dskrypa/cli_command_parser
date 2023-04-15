@@ -73,7 +73,11 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         if nargs is not None:
             self.nargs = Nargs(nargs)
         if 0 in self.nargs:
-            raise ParameterDefinitionError(f'Invalid nargs={self.nargs} - use Flag or Counter for Options with 0 args')
+            details = 'use Flag or Counter for Options with 0 args'
+            if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
+                suffix = f', {nargs.step}' if nargs.step != 1 else ''
+                details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
+            raise ParameterDefinitionError(f'Invalid nargs={nargs!r} - {details}')
         if action is _NotSet:
             action = 'store' if self.nargs == 1 else 'append'
         elif action == 'store' and self.nargs != 1:

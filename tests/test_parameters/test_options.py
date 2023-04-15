@@ -84,6 +84,26 @@ class OptionTest(ParserTest):
         ]
         self.assert_call_fails_cases(Option, fail_cases)
 
+    def test_nargs_0_range_tip_step_1(self):
+        expected = r'try using range\(1, 2\) instead, or use Flag or Counter for Options with 0 args'
+        with self.assertRaisesRegex(ParameterDefinitionError, expected):
+
+            class Foo(Command):
+                bar = Option(nargs=range(2))
+
+    def test_nargs_0_range_tip_step_2_matches_stop(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'):
+
+            class Foo(Command):
+                bar = Option(nargs=range(0, 2, 2))
+
+    def test_nargs_0_range_tip_step_2(self):
+        expected = r'try using range\(2, 3, 2\) instead, or use Flag or Counter for Options with 0 args'
+        with self.assertRaisesRegex(ParameterDefinitionError, expected):
+
+            class Foo(Command):
+                bar = Option(nargs=range(0, 3, 2))
+
     def test_bad_option_strs_rejected(self):
         # fmt: off
         fail_cases = [
