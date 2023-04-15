@@ -242,6 +242,69 @@ class SubCommandTest(ParserTest):
             fail_cases = [['mid'], ['mid', 'a'], ['mid', 'b'], ['a', 'mid'], ['b', 'mid']]
             self.assert_parse_fails_cases(Base, fail_cases, UsageError)
 
+    def test_middle_abc_subcommand_positional_basic(self):
+        class Base(Command):
+            sub = SubCommand()
+
+        class Mid(Base, ABC):
+            foo = Positional()
+
+        class A(Mid):
+            bar = Option('-B')
+
+        success_cases = [
+            (['a', 'x', '-B', 'a'], {'foo': 'x', 'bar': 'a', 'sub': 'a'}),
+            (['a', 'x'], {'foo': 'x', 'bar': None, 'sub': 'a'}),
+        ]
+        self.assert_parse_results_cases(Base, success_cases)
+        fail_cases = [['mid'], ['mid', 'a'], ['a'], ['foo', 'a']]
+        self.assert_parse_fails_cases(Base, fail_cases, UsageError)
+
+    def test_middle_abc_subcommand_with_positionals(self):
+        class Base(Command, prog='foo_bar.py'):
+            sub = SubCommand()
+
+        class Mid(Base, ABC):
+            foo = Positional()
+            with ParamGroup():
+                bar: int = Positional()
+
+        class A(Mid):
+            baz = Option('-B')
+
+        class B(Mid):
+            baz = Option('-B')
+
+        with self.subTest(case='params registered'):
+            self.assertEqual(2, len(A().ctx.params.all_positionals))
+            self.assertEqual(2, len(B().ctx.params.all_positionals))
+
+        with self.subTest(case='help text'):
+            base_help_text = get_help_text(Base)
+            self.assert_str_contains('Subcommands:\n  {a|b}\n', base_help_text)
+            self.assertNotRegex(base_help_text, r'\bmid\b')
+            expected = """usage: foo_bar.py a FOO BAR [--help] [--baz BAZ]\n
+Positional arguments:\n  FOO\n
+Other arguments:\n  BAR\n
+Optional arguments:\n  --help, -h                  Show this help message and exit\n  --baz BAZ, -B BAZ\n"""
+            self.assert_strings_equal(expected, get_help_text(A))
+
+        with self.subTest(case='parsing'):
+            success_cases = [
+                (['a', 'w', '1', '-B', 'a'], {'foo': 'w', 'bar': 1, 'baz': 'a', 'sub': 'a'}),
+                (['b', 'x', '2', '-B', 'a'], {'foo': 'x', 'bar': 2, 'baz': 'a', 'sub': 'b'}),
+                (['a', 'y', '9'], {'foo': 'y', 'bar': 9, 'baz': None, 'sub': 'a'}),
+                (['b', 'z', '9'], {'foo': 'z', 'bar': 9, 'baz': None, 'sub': 'b'}),
+            ]
+            self.assert_parse_results_cases(Base, success_cases)
+            # fmt: off
+            fail_cases = [
+                ['mid'], ['mid', 'a'], ['mid', 'b'], ['a', 'mid'], ['b', 'mid'],
+                ['1', 'a'], ['1', 'b'], ['a'], ['b'], ['a', 'x'], ['b', 'x'], ['x', '1'], ['x', '1', 'a'], ['1', 'x'],
+            ]
+            # fmt: on
+            self.assert_parse_fails_cases(Base, fail_cases, UsageError)
+
     def test_config_inherited(self):
         class Base(Command, option_name_mode='-'):
             sub_cmd = SubCommand()

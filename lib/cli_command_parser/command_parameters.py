@@ -76,6 +76,15 @@ class CommandParameters:
         return None
 
     @cached_property
+    def all_positionals(self) -> List[BasePositional]:
+        try:
+            if not self.parent.sub_command:
+                return self.parent.all_positionals + self.positionals
+        except AttributeError:
+            pass
+        return self.positionals
+
+    @cached_property
     def always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
         """
         The :paramref:`.ActionFlag.before_main` :class:`.ActionFlag` actions that are always available, even if parsing
@@ -92,8 +101,8 @@ class CommandParameters:
         else:
             formatter_factory = self.config.command_formatter or CommandHelpFormatter
         formatter = formatter_factory(self.command, self)
+        formatter.maybe_add_positionals(self.all_positionals)
         formatter.maybe_add_option(self._pass_thru)
-        formatter.maybe_add_positionals(self.positionals)
         formatter.maybe_add_options(self.options)
         formatter.maybe_add_groups(self.groups)
         return formatter
@@ -129,30 +138,31 @@ class CommandParameters:
 
     # region Initialization
 
-    def _process_parameters(self):
-        """
-        Process all of the :class:`.Parameter` / :class:`.ParamGroup` members in the associated :class:`.Command` class.
-        """
+    def _iter_parameters(self) -> Iterator[ParamBase]:
         name_param_map = {}  # Allow subclasses to override names, but not within a given command
-        positionals = []
-        options = []
-        groups = set()
-
         for attr, param in self.command.__dict__.items():
             if attr.startswith('__') or not isinstance(param, ParamBase):  # Name mangled Parameters are still processed
                 continue
-
-            name = param.name
             try:
-                other_attr, other_param = name_param_map[name]
+                other_attr, other_param = name_param_map[param.name]
             except KeyError:
-                name_param_map[name] = (attr, param)
+                name_param_map[param.name] = (attr, param)
+                yield param
             else:
                 raise CommandDefinitionError(
                     'Name conflict - multiple parameters within a Command cannot have the same name - conflicting'
                     f' params: {other_attr}={other_param}, {attr}={param}'
                 )
 
+    def _process_parameters(self):
+        """
+        Process all of the :class:`.Parameter` / :class:`.ParamGroup` members in the associated :class:`.Command` class.
+        """
+        positionals = []
+        options = []
+        groups = set()
+
+        for param in self._iter_parameters():
             if isinstance(param, BasePositional):
                 positionals.append(param)
             elif isinstance(param, BaseOption):
@@ -460,7 +470,7 @@ class CommandParameters:
 
     def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand
-        yield from (p for p in self.positionals if p.required and not p.group and not isinstance(p, ignore))
+        yield from (p for p in self.all_positionals if p.required and not p.group and not isinstance(p, ignore))
         yield from (p for p in self.options if p.required and not p.group)
         pass_thru = self._pass_thru
         if pass_thru and pass_thru.required and not pass_thru.group:

@@ -69,19 +69,6 @@ class MetadataTest(ParserTest):
         self.assertTrue(stdout.startswith('usage: foo.py {bar}'), f'Unexpected stdout: {stdout}')
         self.assertTrue(stdout.endswith(f'\n{TEST_EPILOG}\n'), f'Unexpected stdout: {stdout}')
 
-    def test_subcommand_is_in_usage(self):
-        class Foo(Command, prog='foo.py'):
-            sub_cmd = SubCommand()
-
-        class Bar(Foo):
-            pass
-
-        class Baz(Foo):
-            pass
-
-        usage = get_usage_text(Baz)
-        self.assertEqual('usage: foo.py baz [--help]', usage)
-
 
 class ParsedInvocationTest(ParserTest):
     def test_help_called_with_missing_required_params(self):
@@ -164,6 +151,16 @@ class UsageTextTest(ParserTest):
             spam = TriFlag('-s', name_mode='-')
 
         self.assertEqual('--spam, -s | --no-spam', Foo.spam.format_usage(full=True))
+
+    def test_non_subcommand_cmd_subclass_usage(self):
+        class Foo(Command, prog='foo.py'):
+            bar = Positional()
+
+        class Baz(Foo):
+            pass
+
+        self.assertEqual('usage: foo.py BAR [--help]', get_usage_text(Foo))
+        self.assertEqual('usage: foo.py BAR [--help]', get_usage_text(Baz))
 
 
 class HelpTextTest(ParserTest):
@@ -375,7 +372,45 @@ class SubcommandHelpAndRstTest(ParserTest):
             self.assert_str_contains(expected_help, get_help_text(Foo))
             self.assert_str_contains(expected_rst, get_rst_text(Foo))
 
-    def test_sub_command_choice_alias_modes(self):
+    def test_subcommand_is_in_usage(self):
+        class Foo(Command, prog='foo.py'):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            pass
+
+        class Baz(Foo):
+            pos = Positional()
+
+        self.assertEqual('usage: foo.py bar [--help]', get_usage_text(Bar))
+        self.assertEqual('usage: foo.py baz POS [--help]', get_usage_text(Baz))
+
+    def test_middle_abc_subcommand_is_in_usage(self):
+        class Foo(Command, prog='foo.py'):
+            sub = SubCommand()
+
+        class Mid(Foo, ABC):
+            pass
+
+        class Bar(Mid):
+            pos = Positional()
+
+        self.assertEqual('usage: foo.py bar POS [--help]', get_usage_text(Bar))
+
+    def test_nested_subcommand_is_in_usage(self):
+        class Foo(Command, prog='foo.py'):
+            sub_a = SubCommand()
+
+        class Bar(Foo):
+            sub_b = SubCommand()
+
+        class Baz(Bar):
+            pass
+
+        self.assertEqual('usage: foo.py bar {baz} [--help]', get_usage_text(Bar))
+        self.assertEqual('usage: foo.py bar baz [--help]', get_usage_text(Baz))
+
+    def test_subcommand_choice_alias_modes(self):
         help_header = 'Subcommands:\n  {bar|bars|baz}\n'
         foo_help, bar_help, baz_help = 'Foo the foo', 'Foo one or more bars', 'Foo one or more baz'
         cases = (
@@ -393,7 +428,7 @@ class SubcommandHelpAndRstTest(ParserTest):
                 class Baz(Foo, help='Foo one or more baz'):
                     xyz = Flag('-x')
 
-    def test_sub_command_choice_alias_modes_on_subcmd(self):
+    def test_subcommand_choice_alias_modes_on_subcmd(self):
         help_header = 'Subcommands:\n  {bar|bars|baz|bazs}\n'
         bar_help, bars_help, baz_help = 'Foo one or more bars', 'Alias of: bar', 'Foo one or more baz'
         cases = (
@@ -410,7 +445,7 @@ class SubcommandHelpAndRstTest(ParserTest):
                 class Baz(Foo, choices=('baz', 'bazs'), help='Foo one or more baz', cmd_alias_mode=mode):
                     xyz = Flag('-x')
 
-    def test_sub_command_alias_custom_help_retained(self):
+    def test_subcommand_alias_custom_help_retained(self):
         help_header = 'Subcommands:\n  {bar|run bar}\n'
         expected = {'bar': 'Execute bar', 'run bar': 'Run bar'}
         cases = (('alias', expected), ('repeat', expected), ('combine', expected))

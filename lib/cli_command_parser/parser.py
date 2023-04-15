@@ -40,7 +40,7 @@ class CommandParser:
         self._last = None
         self.ctx = ctx
         self.params = ctx.params
-        self.positionals = ctx.params.positionals.copy()
+        self.positionals = ctx.params.all_positionals.copy()
         if ctx.config.reject_ambiguous_pos_combos:
             PosNode.build_tree(ctx.command)
 

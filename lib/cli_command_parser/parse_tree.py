@@ -260,7 +260,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     @classmethod
     def build_tree(cls, command: CommandCls) -> PosNode:
         root = cls(None, None, target=command)
-        process_params(command, [root], command.__class__.params(command).positionals)
+        process_params(command, [root], command.__class__.params(command).all_positionals)
         return root
 
     def update_node(self, word: Word, param: BasePositional, target: Target) -> PosNode:
@@ -358,7 +358,7 @@ def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePosi
                 new_nodes.update(node.update_node(choice.choice, param, target) for node in nodes)
             else:
                 choice_nodes = {node.update_node(choice.choice, param, target) for node in nodes}
-                new_nodes.update(process_params(target, choice_nodes, params.positionals))
+                new_nodes.update(process_params(target, choice_nodes, params.all_positionals))
 
         return new_nodes
 
