@@ -97,7 +97,7 @@
 <span class="kn">import</span> <span class="nn">keyword</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">,</span> <span class="n">Subscript</span><span class="p">,</span> <span class="n">DictComp</span><span class="p">,</span> <span class="n">ListComp</span><span class="p">,</span> <span class="n">SetComp</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">,</span> <span class="n">Subscript</span><span class="p">,</span> <span class="n">DictComp</span><span class="p">,</span> <span class="n">ListComp</span><span class="p">,</span> <span class="n">SetComp</span><span class="p">,</span> <span class="n">Constant</span><span class="p">,</span> <span class="n">Str</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -125,13 +125,16 @@
 
 <span class="k">class</span> <span class="nc">Converter</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">_ac_converter_map</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">converts</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">converts</span> <span class="o">=</span> <span class="n">converts</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_ac_converter_map</span><span class="p">[</span><span class="n">converts</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
+        <span class="k">if</span> <span class="n">newline_between_members</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">newline_between_members</span> <span class="o">=</span> <span class="n">newline_between_members</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Script</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Converter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span> <span class="o">=</span> <span class="n">ast_obj</span>
@@ -184,7 +187,10 @@
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
 
     <span class="k">def</span> <span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+        <span class="n">newline_between_members</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_type</span><span class="o">.</span><span class="n">newline_between_members</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">and</span> <span class="n">newline_between_members</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
             <span class="k">yield from</span> <span class="n">member</span><span class="o">.</span><span class="n">format_lines</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
 
 
@@ -378,7 +384,7 @@
     <span class="c1"># endregion</span>
 
 
-<span class="k">class</span> <span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">ArgGroup</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">ArgGroup</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgGroup</span>
 
     <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -458,6 +464,10 @@
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name_candidates</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RESERVED</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_attr_name_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_raw_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dest&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="p">(</span><span class="n">Constant</span><span class="p">,</span> <span class="n">Str</span><span class="p">)):</span>  <span class="c1"># Str is for 3.7 compatibility</span>
+            <span class="k">yield</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">dest</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># .value for Constant, .s for Str</span>
+
         <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pass_thru</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="n">plain</span>
@@ -731,9 +741,16 @@
                 <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="n">opposite</span><span class="p">:</span>
-                <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">const</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store_true&#39;</span><span class="p">:</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">default</span> <span class="ow">and</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;store_false&#39;</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+                <span class="n">const</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">const</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">default</span> <span class="k">else</span> <span class="kc">None</span>
+
             <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">const</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">default</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;nargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">action</span><span class="p">:</span>
