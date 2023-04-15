@@ -31,13 +31,16 @@ def convert_script(script: Script, add_methods: bool = False) -> str:
 
 class Converter(Generic[AC], ABC):
     converts: Type[AC] = None
+    newline_between_members: bool = False
     _ac_converter_map = {}
 
-    def __init_subclass__(cls, converts: Type[AC] = None, **kwargs):
+    def __init_subclass__(cls, converts: Type[AC] = None, newline_between_members: bool = None, **kwargs):
         super().__init_subclass__(**kwargs)
         if converts:
             cls.converts = converts
             cls._ac_converter_map[converts] = cls
+        if newline_between_members is not None:
+            cls.newline_between_members = newline_between_members
 
     def __init__(self, ast_obj: Union[AC, Script], parent: Optional[Converter] = None):
         self.ast_obj = ast_obj
@@ -90,7 +93,10 @@ class ConverterGroup(Generic[C]):
         yield from self.members
 
     def format_all(self, indent: int = 0) -> Iterator[str]:
-        for member in self.members:
+        newline_between_members = self.member_type.newline_between_members
+        for i, member in enumerate(self.members):
+            if i and newline_between_members:
+                yield ''
             yield from member.format_lines(indent)
 
 
@@ -284,7 +290,7 @@ class ParserConverter(CollectionConverter[AstArgumentParser], converts=AstArgume
     # endregion
 
 
-class GroupConverter(CollectionConverter[ArgGroup], converts=ArgGroup):
+class GroupConverter(CollectionConverter[ArgGroup], converts=ArgGroup, newline_between_members=True):
     ast_obj: ArgGroup
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:

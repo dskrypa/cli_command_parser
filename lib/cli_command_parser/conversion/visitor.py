@@ -137,20 +137,22 @@ class ScriptVisitor(NodeVisitor):
     # endregion
 
     def resolve_ref(self, name: Union[str, AST, Attribute, Name, expr]):
-        if not isinstance(name, str):
-            name = get_name_repr(name)
-        try:
-            return self.scopes[name]
-        except KeyError:
-            pass
-        try:
-            obj_name, attr = name.rsplit('.', 1)
-        except ValueError:
-            return None
-        try:
-            obj = self.scopes[obj_name]
-        except KeyError:
-            return None
+        if isinstance(name, Attribute) and isinstance(name.value, Call):
+            obj = self.visit_Call(name.value)
+            attr = name.attr
+        else:
+            if not isinstance(name, str):
+                name = get_name_repr(name)
+            try:
+                return self.scopes[name]
+            except KeyError:
+                pass
+            try:
+                obj_name, attr = name.rsplit('.', 1)
+                obj = self.scopes[obj_name]
+            except (ValueError, KeyError):
+                return None
+
         try:
             can_call = attr in obj.visit_funcs
         except (AttributeError, TypeError):

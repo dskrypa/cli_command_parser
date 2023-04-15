@@ -236,6 +236,24 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
         expected = prep_expected(f"with ParamGroup('Misc Group', description='{desc}'):", '    foo = Positional()')
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
+    def test_space_between_groups(self):
+        parts = (prep_args(), prep_group("'--foo'", title='A', var='a'), prep_group("'--bar'", title='B', var='b'))
+        expected = prep_expected(
+            "with ParamGroup('A'):", '    foo = Option()', '', "with ParamGroup('B'):", '    bar = Option()'
+        )
+        self.assertEqual(expected, convert_script(Script('\n'.join(parts))))
+
+    def test_chained_mutually_exclusive_group_in_named_group(self):
+        code = f"""{prep_args()}
+group = p.add_argument_group('Exclusive Options').add_mutually_exclusive_group()
+group.add_argument('--foo')"""
+        expected = prep_expected(
+            "with ParamGroup(description='Exclusive Options'):",
+            '    with ParamGroup(mutually_exclusive=True):',
+            '        foo = Option()',
+        )
+        self.assert_strings_equal(expected, convert_script(Script(code)))
+
     # endregion
 
     # region Param Converter
