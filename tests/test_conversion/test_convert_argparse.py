@@ -236,6 +236,24 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
         expected = prep_expected(f"with ParamGroup('Misc Group', description='{desc}'):", '    foo = Positional()')
         self.assert_strings_equal(expected, convert_script(Script(code)))
 
+    def test_space_between_groups(self):
+        parts = (prep_args(), prep_group("'--foo'", title='A', var='a'), prep_group("'--bar'", title='B', var='b'))
+        expected = prep_expected(
+            "with ParamGroup('A'):", '    foo = Option()', '', "with ParamGroup('B'):", '    bar = Option()'
+        )
+        self.assertEqual(expected, convert_script(Script('\n'.join(parts))))
+
+    def test_chained_mutually_exclusive_group_in_named_group(self):
+        code = f"""{prep_args()}
+group = p.add_argument_group('Exclusive Options').add_mutually_exclusive_group()
+group.add_argument('--foo')"""
+        expected = prep_expected(
+            "with ParamGroup(description='Exclusive Options'):",
+            '    with ParamGroup(mutually_exclusive=True):',
+            '        foo = Option()',
+        )
+        self.assert_strings_equal(expected, convert_script(Script(code)))
+
     # endregion
 
     # region Param Converter
@@ -319,9 +337,25 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
         expected = prep_expected("foo = Flag(action='append_const', const='bar')")
         self.assert_strings_equal(expected, prep_and_convert("'--foo', action='append_const', const='bar'"))
 
-    def test_flag_remove_redundant_default(self):
+    def test_flag_remove_redundant_default_true(self):
         expected = prep_expected('foo = Flag()')
         self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_true', default=False"))
+
+    def test_flag_remove_redundant_default_false(self):
+        expected = prep_expected('foo = Flag(default=True)')
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_false', default=True"))
+
+    def test_flag_store_false(self):
+        expected = prep_expected('foo = Flag(default=True)')
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_false'"))
+
+    def test_negative_flag_with_dest(self):
+        expected = prep_expected("bar = Flag('--foo', '-f', default=True)")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', '-f', dest='bar', action='store_false'"))
+
+    def test_positive_flag_with_dest(self):
+        expected = prep_expected("bar = Flag('--foo', '-f')")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', '-f', dest='bar', action='store_true'"))
 
     # endregion
 
