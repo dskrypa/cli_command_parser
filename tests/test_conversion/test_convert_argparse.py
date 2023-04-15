@@ -337,9 +337,17 @@ group.add_argument('--foo')"""
         expected = prep_expected("foo = Flag(action='append_const', const='bar')")
         self.assert_strings_equal(expected, prep_and_convert("'--foo', action='append_const', const='bar'"))
 
-    def test_flag_remove_redundant_default(self):
+    def test_flag_remove_redundant_default_true(self):
         expected = prep_expected('foo = Flag()')
         self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_true', default=False"))
+
+    def test_flag_remove_redundant_default_false(self):
+        expected = prep_expected('foo = Flag(default=True)')
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_false', default=True"))
+
+    def test_flag_store_false(self):
+        expected = prep_expected('foo = Flag(default=True)')
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_false'"))
 
     # endregion
 

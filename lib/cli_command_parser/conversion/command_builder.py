@@ -643,9 +643,16 @@ class FlagArgs(OptionArgs):
                 action = None
         else:
             if default == opposite:
-                default = None
+                const = None
+                if action == 'store_true':
+                    default = None
+            elif not default and action == 'store_false':
+                default = 'True'
+                const = None
+            else:
+                const = value if default else None
+
             action = None
-            const = value if default else None
 
         kwargs['type'] = kwargs['nargs'] = None
         if action:
