@@ -6,13 +6,17 @@ Helpers for handling ``nargs=...`` for Parameters.
 
 from __future__ import annotations
 
-from typing import Union, Optional, Sequence, Collection, Tuple, Set, FrozenSet
+from typing import Union, Optional, Sequence, Collection, Iterable, Tuple, Set, FrozenSet
 
-NargsValue = Union[str, int, Tuple[int, Optional[int]], Sequence[int], Set[int], FrozenSet[int], range]
+__all__ = ['Nargs', 'NargsValue', 'REMAINDER', 'nargs_max_sum', 'nargs_min_sum']
 
-NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None)}
+REMAINDER = type('REMAINDER', (), {})()
+_UNBOUND = (None, REMAINDER)
+NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None), 'REMAINDER': (0, REMAINDER)}
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
 SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
+
+NargsValue = Union[str, int, Tuple[int, Optional[int]], Sequence[int], Set[int], FrozenSet[int], range, type(REMAINDER)]
 
 
 class Nargs:
@@ -24,7 +28,7 @@ class Nargs:
     Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.
     """
 
-    __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable')
+    __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable', '_has_upper_bound')
     _orig: NargsValue
     range: Optional[range]
     min: Optional[int]
@@ -70,14 +74,17 @@ class Nargs:
             except (ValueError, TypeError) as e:
                 raise e.__class__(SEQ_ERROR_FMT.format(nargs)) from e
 
-            if not (isinstance(a, int) and (b is None or isinstance(b, int))):
+            if not (isinstance(a, int) and (b in _UNBOUND or isinstance(b, int))):
                 raise TypeError(SEQ_ERROR_FMT.format(nargs))
-            elif 0 > a or (b is not None and a > b):
+            elif 0 > a or (b not in _UNBOUND and a > b):
                 raise ValueError(SEQ_ERROR_FMT.format(nargs))
+        elif nargs is REMAINDER:
+            self.min, self.max = self.allowed = (0, REMAINDER)
         else:
             raise TypeError(f'Unexpected type={nargs.__class__.__name__} for nargs={nargs!r}')
 
         self.variable = self.min != self.max
+        self._has_upper_bound = self.max not in _UNBOUND
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self._orig!r})'
@@ -86,8 +93,8 @@ class Nargs:
         rng = self.range
         if rng is not None:
             return f'{rng.start} ~ {rng.stop}' if rng.step == 1 else f'{rng.start} ~ {rng.stop} (step={rng.step})'
-        elif self.max is None:
-            return f'{self.min} or more'
+        elif not self._has_upper_bound:
+            return f'{self.min} or more' if self.max is None else self.max.__class__.__name__
         elif self.min == self.max:
             return str(self.min)
         elif isinstance(self.allowed, frozenset):
@@ -108,9 +115,9 @@ class Nargs:
             return NotImplemented
 
     def _eq_nargs(self, other: Nargs) -> bool:
-        if self.max is None:
-            return other.max is None and self.min == other.min
-        elif other.max is None:
+        if not self._has_upper_bound:
+            return other.max is self.max and self.min == other.min
+        elif not other._has_upper_bound:
             return False
         elif isinstance(other._orig, type(self._orig)):
             return self.allowed == other.allowed
@@ -148,7 +155,23 @@ class Nargs:
         For more advanced use cases, such as range or a set of counts, the count must also match one of the specific
         numbers provided for this to return True.
         """
-        if self.max is None:
-            return count >= self.min
-        else:
+        if self._has_upper_bound:
             return count in self.allowed
+        else:
+            return count >= self.min
+
+    @property
+    def has_upper_bound(self) -> bool:
+        return self._has_upper_bound
+
+    @property
+    def upper_bound(self) -> Union[int, float]:
+        return self.max if self._has_upper_bound else float('inf')
+
+
+def nargs_max_sum(nargs_objects: Iterable[Nargs]) -> Union[int, float]:
+    return sum(obj.upper_bound for obj in nargs_objects)
+
+
+def nargs_min_sum(nargs_objects: Iterable[Nargs]) -> int:
+    return sum(obj.min for obj in nargs_objects)

@@ -162,12 +162,7 @@ class CommandMeta(ABCMeta, type):
         else:
             return first if include_abc else parent
 
-        try:
-            mro = type.mro(cls)[1:]
-        except TypeError:  # a Command object was provided instead of a Command class
-            cls = cls.__class__
-            mro = type.mro(cls)[1:]
-
+        cls, mro = _mro(cls)
         first = parent = None
         for parent_cls in mro:
             if isinstance(parent_cls, mcs):
@@ -198,6 +193,14 @@ class CommandMeta(ABCMeta, type):
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
             cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta, no_sys_argv=no_sys_argv)
         return meta
+
+
+def _mro(cmd_cls):
+    try:
+        return cmd_cls, type.mro(cmd_cls)[1:-1]  # 0 is always the class itself, -1 is always object
+    except TypeError:  # a Command object was provided instead of a Command class
+        cmd_cls = cmd_cls.__class__
+        return cmd_cls, type.mro(cmd_cls)[1:-1]
 
 
 def _choice_items(choice: OptStr, choices: Optional[Choices]) -> Sequence[Tuple[OptStr, OptStr]]:
