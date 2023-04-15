@@ -4,7 +4,7 @@ from itertools import product, starmap
 from operator import or_
 from unittest import TestCase, main
 
-from cli_command_parser.config import CommandConfig, ShowDefaults, ConfigItem, DEFAULT_CONFIG
+from cli_command_parser.config import CommandConfig, ShowDefaults, ConfigItem, DEFAULT_CONFIG, AllowLeadingDash
 
 
 class ConfigTest(TestCase):
@@ -66,6 +66,12 @@ class ConfigTest(TestCase):
     def test_ro_del_rejected(self):
         with self.assertRaises(AttributeError):
             del DEFAULT_CONFIG.usage_column_width
+
+    def test_invalid_allow_leading_dash(self):
+        with self.assertRaises(ValueError):
+            AllowLeadingDash('foo')
+        with self.assertRaises(ValueError):
+            AllowLeadingDash(1)
 
 
 if __name__ == '__main__':

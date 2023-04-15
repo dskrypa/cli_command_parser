@@ -342,6 +342,10 @@ class FlagTest(ParserTest):
         with self.assertRaises(TypeError):
             Flag(choices=(1, 2))
 
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Flag(allow_leading_dash=True)
+
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
             foo_bar = Flag('-b')
@@ -418,6 +422,10 @@ class TriFlagTest(ParserTest):
     def test_metavar_not_allowed(self):
         with self.assertRaises(TypeError):
             TriFlag(metavar='foo')
+
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            TriFlag(allow_leading_dash=True)
 
     def test_bad_consts(self):
         exc = ParameterDefinitionError
@@ -660,6 +668,10 @@ class CounterTest(ParserTest):
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
             Counter(choices=(1, 2))
+
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Counter(allow_leading_dash=True)
 
 
 if __name__ == '__main__':

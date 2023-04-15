@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from ..config import AllowLeadingDash
 from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
@@ -15,7 +16,7 @@ from ..utils import _NotSet
 from .base import BasicActionMixin, BasePositional
 
 if TYPE_CHECKING:
-    from ..typing import InputTypeFunc, ChoicesType
+    from ..typing import InputTypeFunc, ChoicesType, LeadingDash
 
 __all__ = ['Positional']
 
@@ -52,6 +53,7 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         default: Any = _NotSet,
         *,
         choices: ChoicesType = None,
+        allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
         if nargs is not None:
@@ -71,3 +73,5 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)
         self.type = normalize_input_type(type, choices)
+        if allow_leading_dash is not None:
+            self.allow_leading_dash = AllowLeadingDash(allow_leading_dash)

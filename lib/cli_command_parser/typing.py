@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from enum import Enum
     from pathlib import Path
     from .commands import Command
-    from .config import CommandConfig
+    from .config import CommandConfig, AllowLeadingDash
     from .core import CommandMeta
     from .inputs import InputType
     from .parameters import Parameter, ParamGroup
@@ -48,6 +48,7 @@ Converter = Union[Deserializer, Serializer]
 
 Config = Optional['CommandConfig']
 AnyConfig = Union[Config, Dict[str, Any]]
+LeadingDash = Union['AllowLeadingDash', str, bool]
 
 Param = TypeVar('Param', bound='Parameter')
 ParamList = List[Param]

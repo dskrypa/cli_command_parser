@@ -19,7 +19,6 @@ except ImportError:
 FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
 
-
 # region Text Processing / Formatting
 
 
@@ -31,7 +30,7 @@ def short_repr(obj: Any, max_len: int = 100, sep: str = '...', func: Callable[[A
     obj_repr = func(obj)
     if len(obj_repr) > max_len:
         part_len = (max_len - len(sep)) // 2
-        return '{}{}{}'.format(obj_repr[:part_len], sep, obj_repr[-part_len:])
+        return f'{obj_repr[:part_len]}{sep}{obj_repr[-part_len:]}'
     return obj_repr
 
 
@@ -123,7 +122,7 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
         if self._name_ is None or '|' in self._name_:  # | check is for 3.11 where pseudo-members are assigned names
             val = self._value_
             members = ((mem, mem._value_) for mem in self.__class__)
-            return sorted(mem for mem, mem_val in members if mem_val & val == mem_val)
+            return sorted(mem for mem, mem_val in members if mem_val & val == mem_val)  # noqa
         return [self]
 
     def __lt__(self, other: FlagEnum) -> bool:

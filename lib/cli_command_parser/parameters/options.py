@@ -10,11 +10,12 @@ from abc import ABC
 from functools import partial, update_wrapper
 from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
 
+from ..config import AllowLeadingDash
 from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr
+from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
 from ..utils import _NotSet
 from .base import BasicActionMixin, BaseOption, parameter_action
 from .option_strings import TriFlagOptionStrings
@@ -68,6 +69,7 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         type: InputTypeFunc = None,  # noqa
         choices: ChoicesType = None,
         env_var: Union[str, Sequence[str]] = None,
+        allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
         if nargs is not None:
@@ -86,6 +88,8 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         self.type = normalize_input_type(type, choices)
         if env_var:
             self.env_var = env_var
+        if allow_leading_dash is not None:
+            self.allow_leading_dash = AllowLeadingDash(allow_leading_dash)
 
     def env_vars(self) -> Iterator[str]:
         env_var = self.env_var
@@ -94,9 +98,6 @@ class Option(BasicActionMixin, BaseOption[T_co]):
                 yield env_var
             else:
                 yield from env_var
-
-
-# TODO: 1/2 flag, 1/2 option, like Counter, but for any value
 
 
 class _Flag(BaseOption[T_co], ABC):
@@ -322,6 +323,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
     def __lt__(self, other: ActionFlag) -> bool:
         if not isinstance(other, ActionFlag):
             return NotImplemented
+        # noinspection PyTypeChecker
         return (not self.before_main, self.order, self.name) < (not other.before_main, other.order, other.name)
 
     def __call__(self, func: Callable) -> ActionFlag:

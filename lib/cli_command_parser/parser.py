@@ -28,10 +28,12 @@ __all__ = ['CommandParser']
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    __slots__ = ('_last', 'arg_deque', 'ctx', 'deferred', 'node', 'params', 'positionals')
+    __slots__ = ('_last', 'arg_deque', 'ctx', 'deferred', 'params', 'positionals')
 
     arg_deque: Optional[Deque[str]]
     deferred: Optional[List[str]]
+    params: CommandParameters
+    positionals: List[BasePositional]
     _last: Optional[Parameter]
 
     def __init__(self, ctx: Context):
