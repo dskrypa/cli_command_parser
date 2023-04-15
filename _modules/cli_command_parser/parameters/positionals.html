@@ -102,7 +102,6 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">AllowLeadingDash</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
@@ -172,8 +171,7 @@
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="n">required</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">allow_leading_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">AllowLeadingDash</span><span class="p">(</span><span class="n">allow_leading_dash</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_nargs_and_allow_leading_dash</span><span class="p">(</span><span class="n">allow_leading_dash</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

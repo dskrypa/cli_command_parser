@@ -256,12 +256,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">first</span> <span class="k">if</span> <span class="n">include_abc</span> <span class="k">else</span> <span class="n">parent</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">mro</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># a Command object was provided instead of a Command class</span>
-            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span>
-            <span class="n">mro</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">mro</span> <span class="o">=</span> <span class="n">_mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">first</span> <span class="o">=</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">parent_cls</span> <span class="ow">in</span> <span class="n">mro</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_cls</span><span class="p">,</span> <span class="n">mcs</span><span class="p">):</span>
@@ -292,6 +287,14 @@
             <span class="n">parent_meta</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_from_parent</span><span class="p">(</span><span class="n">mcs</span><span class="o">.</span><span class="n">meta</span><span class="p">,</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__metadata</span> <span class="o">=</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="o">.</span><span class="n">for_command</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_meta</span><span class="p">,</span> <span class="n">no_sys_argv</span><span class="o">=</span><span class="n">no_sys_argv</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">meta</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_mro</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">,</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># 0 is always the class itself, -1 is always object</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># a Command object was provided instead of a Command class</span>
+        <span class="n">cmd_cls</span> <span class="o">=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">,</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_choice_items</span><span class="p">(</span><span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Choices</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>

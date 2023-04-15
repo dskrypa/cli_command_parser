@@ -151,7 +151,7 @@
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">meta</span><span class="o">.</span><span class="n">usage</span>
 
-        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">positionals</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">options</span>  <span class="c1"># noqa</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">all_positionals</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">options</span>  <span class="c1"># noqa</span>
         <span class="n">pass_thru</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">pass_thru</span>
         <span class="k">if</span> <span class="n">pass_thru</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pass_thru</span><span class="p">)</span>
@@ -249,7 +249,7 @@
 
 <span class="k">def</span> <span class="nf">get_usage_sub_cmds</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">):</span>
     <span class="n">cmd_mcs</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandMeta</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>  <span class="c1"># Using metaclass to avoid potentially overwritten attrs</span>
-    <span class="n">parent</span><span class="p">:</span> <span class="n">CommandType</span> <span class="o">=</span> <span class="n">cmd_mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+    <span class="n">parent</span><span class="p">:</span> <span class="n">CommandType</span> <span class="o">=</span> <span class="n">cmd_mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 

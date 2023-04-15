@@ -145,6 +145,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.command_parent"><code class="docutils literal notranslate"><span class="pre">CommandParameters.command_parent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.parent"><code class="docutils literal notranslate"><span class="pre">CommandParameters.parent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParameters.pass_thru</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.always_available_action_flags"><code class="docutils literal notranslate"><span class="pre">CommandParameters.always_available_action_flags</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_option_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_option_param_value_pairs()</span></code></a></li>
@@ -744,8 +745,12 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.allowed"><code class="docutils literal notranslate"><span class="pre">Nargs.allowed</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable"><code class="docutils literal notranslate"><span class="pre">Nargs.variable</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied"><code class="docutils literal notranslate"><span class="pre">Nargs.satisfied()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.has_upper_bound</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.upper_bound</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_max_sum"><code class="docutils literal notranslate"><span class="pre">nargs_max_sum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_sum"><code class="docutils literal notranslate"><span class="pre">nargs_min_sum()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api/cli_command_parser.parameters.html">Parameters Package</a><ul>
@@ -835,6 +840,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.in_mutually_exclusive_group"><code class="docutils literal notranslate"><span class="pre">ParamGroup.in_mutually_exclusive_group</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.validate"><code class="docutils literal notranslate"><span class="pre">ParamGroup.validate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.contains_positional"><code class="docutils literal notranslate"><span class="pre">ParamGroup.contains_positional</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.contains_required"><code class="docutils literal notranslate"><span class="pre">ParamGroup.contains_required</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.show_in_help"><code class="docutils literal notranslate"><span class="pre">ParamGroup.show_in_help</span></code></a></li>
 </ul>
 </li>
@@ -967,6 +973,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.positionals"><code class="docutils literal notranslate"><span class="pre">CommandParser.positionals</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args"><code class="docutils literal notranslate"><span class="pre">CommandParser.parse_args()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_pass_thru()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_remainder"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_remainder()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_positional"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_positional()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_long"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_long()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_short"><code class="docutils literal notranslate"><span class="pre">CommandParser.handle_short()</span></code></a></li>
