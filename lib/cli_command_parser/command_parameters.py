@@ -277,7 +277,7 @@ class CommandParameters:
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for param={param!r}')
-            grouped_ordered_flags[param.before_main][param.order].append(param)
+            grouped_ordered_flags[param.before_main][param.order].append(param)  # noqa  # PyCharm infers the wrong type
 
         found_non_always = False
         invalid = {}

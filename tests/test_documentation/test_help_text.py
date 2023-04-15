@@ -364,7 +364,8 @@ class SubcommandHelpAndRstTest(ParserTest):
             sc_kwargs = {}
 
         with self.subTest(mode=mode, **cmd_kwargs):
-            expected_help, expected_rst = get_expected_help_and_rst(help_header, param_help_map)
+            expected_help = prep_expected_help_text(help_header, param_help_map)
+            expected_rst = prep_expected_rst('    |             |     {:<13s} |\n', param_help_map)
 
             class Foo(Command, **cmd_kwargs):
                 sub_cmd = SubCommand(**sc_kwargs)
@@ -480,14 +481,17 @@ class SubcommandHelpAndRstTest(ParserTest):
                     pass
 
 
-def get_expected_help_and_rst(help_header: str, param_help_map: Dict[str, str]) -> Tuple[str, str]:
-    kf = '    {:s}\n'.format
-    hf = '    {:<25s} {}\n'.format
-    rf = '    |             |     {:<13s} |\n'.format
-    expected_help = help_header + ''.join(hf(k, v) if v else kf(k) for k, v in param_help_map.items())
+def prep_expected_help_text(help_header: str, param_help_map: Dict[str, str], indent: int = 4) -> str:
+    prefix = ' ' * indent
+    kf = f'{prefix}{{:s}}\n'.format
+    hf = f'{prefix}{{:<25s}} {{}}\n'.format
+    return help_header + ''.join(hf(k, v) if v else kf(k) for k, v in param_help_map.items())
+
+
+def prep_expected_rst(table_fmt_str: str, param_help_map: Dict[str, str]) -> str:
+    rf = table_fmt_str.format
     table = RstTable.from_dict({f'``{k}``': v for k, v in param_help_map.items()}, use_table_directive=False)
-    expected_rst = ''.join(rf(line) for line in table.iter_build() if line)
-    return expected_help, expected_rst
+    return ''.join(rf(line) for line in table.iter_build() if line)
 
 
 class ShowDefaultsTest(TestCase):

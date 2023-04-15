@@ -117,6 +117,10 @@ class PassThruTest(ParserTest):
         with self.assertRaises(TypeError):
             PassThru(choices=(1, 2))
 
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            PassThru(allow_leading_dash=True)
+
 
 class MiscParameterTest(ParserTest):
     def test_param_knows_command(self):

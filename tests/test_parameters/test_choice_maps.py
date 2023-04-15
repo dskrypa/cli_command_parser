@@ -3,8 +3,7 @@
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command
-from cli_command_parser.context import Context
+from cli_command_parser import Command, Context
 from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice
 from cli_command_parser.parameters.choice_map import SubCommand, Action, Choice
 from cli_command_parser.testing import ParserTest
@@ -135,6 +134,8 @@ class ChoiceMapTest(ParserTest):
 
         self.assertIn('foo', Foo.action.choices)
 
+    # region Kwargs Not Allowed
+
     def test_nargs_not_allowed_sub_cmd(self):
         with self.assertRaises(TypeError):
             SubCommand(nargs='+')
@@ -147,6 +148,10 @@ class ChoiceMapTest(ParserTest):
         with self.assertRaises(TypeError):
             SubCommand(choices=(1, 2))
 
+    def test_allow_leading_dash_not_allowed_sub_cmd(self):
+        with self.assertRaises(TypeError):
+            SubCommand(allow_leading_dash=True)
+
     def test_nargs_not_allowed_action(self):
         with self.assertRaises(TypeError):
             Action(nargs='+')
@@ -158,6 +163,12 @@ class ChoiceMapTest(ParserTest):
     def test_choices_not_allowed_action(self):
         with self.assertRaises(TypeError):
             Action(choices=(1, 2))
+
+    def test_allow_leading_dash_not_allowed_action(self):
+        with self.assertRaises(TypeError):
+            Action(allow_leading_dash=True)
+
+    # endregion
 
     def test_choice_format_help(self):
         choice = Choice('test', help='Example choice')

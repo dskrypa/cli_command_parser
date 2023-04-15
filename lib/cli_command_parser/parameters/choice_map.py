@@ -150,10 +150,9 @@ class ChoiceMap(BasePositional[str], Generic[T]):
         return n_values
 
     def validate(self, value: str):
-        values = ctx.get_parsed_value(self).copy()
-        values.append(value)
         choices = self.choices
         if choices:
+            values = (*ctx.get_parsed_value(self), value)
             choice = ' '.join(values)
             if choice in choices:
                 return
@@ -163,6 +162,7 @@ class ChoiceMap(BasePositional[str], Generic[T]):
             if not any(c.startswith(prefix) for c in choices if c):
                 raise InvalidChoice(self, prefix[:-1], choices)
         elif value.startswith('-'):
+            # Note: choices with a leading dash are rejected by `_validate_positional`
             raise BadArgument(self, f'invalid value={value!r}')
 
     def result_value(self) -> OptStr:

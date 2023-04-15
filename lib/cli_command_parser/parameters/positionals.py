@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from ..config import AllowLeadingDash
 from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
@@ -15,7 +16,7 @@ from ..utils import _NotSet
 from .base import BasicActionMixin, BasePositional
 
 if TYPE_CHECKING:
-    from ..typing import InputTypeFunc, ChoicesType
+    from ..typing import InputTypeFunc, ChoicesType, LeadingDash
 
 __all__ = ['Positional']
 
@@ -41,6 +42,11 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
       an empty list will be returned for this Parameter.
     :param choices: A container that holds the specific values that users must pick from.  By default, any value is
       allowed.
+    :param allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with
+      a dash, it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
+      ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for
+      an Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use ``False`` / ``never`` /
+      ``AllowLeadingDash.NEVER``.
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
@@ -52,6 +58,7 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         default: Any = _NotSet,
         *,
         choices: ChoicesType = None,
+        allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
         if nargs is not None:
@@ -71,3 +78,5 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)
         self.type = normalize_input_type(type, choices)
+        if allow_leading_dash is not None:
+            self.allow_leading_dash = AllowLeadingDash(allow_leading_dash)

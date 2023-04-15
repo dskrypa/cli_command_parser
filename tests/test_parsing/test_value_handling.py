@@ -3,7 +3,7 @@
 from unittest import main
 
 from cli_command_parser.commands import Command
-from cli_command_parser.exceptions import NoSuchOption, BadArgument
+from cli_command_parser.exceptions import NoSuchOption, BadArgument, UsageError
 from cli_command_parser.parameters import Positional, Option
 from cli_command_parser.testing import ParserTest
 
@@ -73,6 +73,8 @@ class NumericValueTest(ParserTest):
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
 
+
+class LeadingDashValueTest(ParserTest):
     def test_str_option(self):
         class Foo(Command, error_handler=None):
             bar = Option()
@@ -96,6 +98,51 @@ class NumericValueTest(ParserTest):
             (['--bar', '-1.5.1'], NoSuchOption),
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_allow_leading_dash(self):
+        class Foo(Command):
+            earliest = Option('-E', type=str.strip, allow_leading_dash='always')
+            latest = Option('-L', allow_leading_dash=True)
+
+        success_cases = [
+            (['-E', '@h-5m', '-L', 'now'], {'earliest': '@h-5m', 'latest': 'now'}),
+            (['-E', '1d@d', '-L', 'd@d'], {'earliest': '1d@d', 'latest': 'd@d'}),
+            (['-E', '-5d@d', '-L', '-1d@d'], {'earliest': '-5d@d', 'latest': '-1d@d'}),
+            (['-E', ' -5d@d', '-L', '-1d@d'], {'earliest': '-5d@d', 'latest': '-1d@d'}),
+            ([], {'earliest': None, 'latest': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_leading_dash_misc(self):
+        class Foo(Command):
+            bar = Positional(allow_leading_dash='ALWAYS')
+            baz = Option('-b', allow_leading_dash=False)
+
+        success_cases = [
+            (['-1'], {'bar': '-1', 'baz': None}),
+            (['-1', '-b', 'a'], {'bar': '-1', 'baz': 'a'}),
+            (['-b', 'a', '-1'], {'bar': '-1', 'baz': 'a'}),
+            (['-b', 'a', '1'], {'bar': '1', 'baz': 'a'}),
+            (['--baz', 'a', '-1'], {'bar': '-1', 'baz': 'a'}),
+            (['--baz', 'a', '1'], {'bar': '1', 'baz': 'a'}),
+            (['-x'], {'bar': '-x', 'baz': None}),
+            (['-x', '-b', 'a'], {'bar': '-x', 'baz': 'a'}),
+            (['-b', 'a', '-x'], {'bar': '-x', 'baz': 'a'}),
+            (['-b', 'a', 'x'], {'bar': 'x', 'baz': 'a'}),
+            (['--baz', 'a', '-x'], {'bar': '-x', 'baz': 'a'}),
+            (['--baz', 'a', 'x'], {'bar': 'x', 'baz': 'a'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            ['-b'],
+            ['--baz'],
+            ['--bar'],
+            ['-1', '-2'],
+            ['-1', '-b', '-2'],
+            ['x', '-b', '-2'],
+            ['x', '-b', '-y'],
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 if __name__ == '__main__':

@@ -4,8 +4,8 @@ from abc import ABC
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag, TriFlag
-from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument
+from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag, TriFlag, ParamGroup
+from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, UsageError
 from cli_command_parser.formatting.commands import get_formatter
 from cli_command_parser.testing import RedirectStreams, ParserTest, get_help_text
 
@@ -233,13 +233,14 @@ class SubCommandTest(ParserTest):
 
         with self.subTest(case='parsing'):
             success_cases = [
-                (['a', '-b1', '-B', 'a'], {'foo': None, 'bar': 1, 'baz': 'a', 'sub_cmd': 'a'}),
+                (['a', '-b1', '-B', 'a', '-fx'], {'foo': 'x', 'bar': 1, 'baz': 'a', 'sub_cmd': 'a'}),
                 (['b', '-b2', '-B', 'a'], {'foo': None, 'bar': 2, 'baz': 'a', 'sub_cmd': 'b'}),
                 (['a'], {'foo': None, 'bar': None, 'baz': None, 'sub_cmd': 'a'}),
                 (['b'], {'foo': None, 'bar': None, 'baz': None, 'sub_cmd': 'b'}),
             ]
             self.assert_parse_results_cases(Base, success_cases)
-            self.assert_parse_fails(Base, ['mid'])
+            fail_cases = [['mid'], ['mid', 'a'], ['mid', 'b'], ['a', 'mid'], ['b', 'mid']]
+            self.assert_parse_fails_cases(Base, fail_cases, UsageError)
 
     def test_config_inherited(self):
         class Base(Command, option_name_mode='-'):

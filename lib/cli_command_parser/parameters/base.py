@@ -21,7 +21,7 @@ except ImportError:
     from ..compat import cached_property
 
 from ..annotations import get_descriptor_value_type
-from ..config import CommandConfig, OptionNameMode
+from ..config import CommandConfig, OptionNameMode, AllowLeadingDash
 from ..context import Context, ctx, get_current_context, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
 from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
@@ -41,6 +41,7 @@ if TYPE_CHECKING:
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack', default=[])
+_is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
 
 
 class parameter_action:  # pylint: disable=C0103
@@ -212,7 +213,6 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     # Class attributes
     _actions: FrozenSet[str] = frozenset()          #: The actions supported by this Parameter
-    _positional: bool = False                       #: Whether this Parameter is positional or not
     _repr_attrs: Optional[Collection[str]] = None   #: Attributes to include in ``repr()`` output
     accepts_none: bool = False                      #: Whether this Parameter can be provided without a value
     accepts_values: bool = True                     #: Whether this Parameter can be provided with at least 1 value
@@ -221,6 +221,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     nargs: Nargs = Nargs(1)                         # Set in subclasses
     type: Optional[Callable[[str], T_co]] = None    # Only set here if not set by __init__ in Option/Positional
     show_default: bool = None
+    allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
 
     def __init_subclass__(
         cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None, **kwargs
@@ -394,7 +395,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     def validate(self, value: Optional[T_co]):
         if isinstance(value, str) and value.startswith('-'):
-            if len(value) > 1 and not _is_numeric(value):
+            if self.allow_leading_dash == AllowLeadingDash.NUMERIC:
+                if len(value) > 1 and not _is_numeric(value):
+                    raise BadArgument(self, f'invalid value={value!r}')
+            elif self.allow_leading_dash == AllowLeadingDash.NEVER:
                 raise BadArgument(self, f'invalid value={value!r}')
         elif value is None:
             if not self.accepts_none:
@@ -543,7 +547,6 @@ class BasePositional(Parameter[T_co], ABC):
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
-    _positional: bool = True
     _default_ok: bool = False
 
     def __init_subclass__(cls, default_ok: bool = None, **kwargs):  # pylint: disable=W0222
@@ -614,11 +617,3 @@ def _validate_opt_strs(opt_strs: Collection[str]):
     if bad:
         msg = f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
         raise ParameterDefinitionError(msg)
-
-
-def _is_numeric(text: str) -> Bool:
-    try:
-        num_match = _is_numeric._num_match
-    except AttributeError:
-        _is_numeric._num_match = num_match = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
-    return num_match(text)

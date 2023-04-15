@@ -84,6 +84,26 @@ class OptionTest(ParserTest):
         ]
         self.assert_call_fails_cases(Option, fail_cases)
 
+    def test_nargs_0_range_tip_step_1(self):
+        expected = r'try using range\(1, 2\) instead, or use Flag or Counter for Options with 0 args'
+        with self.assertRaisesRegex(ParameterDefinitionError, expected):
+
+            class Foo(Command):
+                bar = Option(nargs=range(2))
+
+    def test_nargs_0_range_tip_step_2_matches_stop(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'):
+
+            class Foo(Command):
+                bar = Option(nargs=range(0, 2, 2))
+
+    def test_nargs_0_range_tip_step_2(self):
+        expected = r'try using range\(2, 3, 2\) instead, or use Flag or Counter for Options with 0 args'
+        with self.assertRaisesRegex(ParameterDefinitionError, expected):
+
+            class Foo(Command):
+                bar = Option(nargs=range(0, 3, 2))
+
     def test_bad_option_strs_rejected(self):
         # fmt: off
         fail_cases = [
@@ -322,6 +342,10 @@ class FlagTest(ParserTest):
         with self.assertRaises(TypeError):
             Flag(choices=(1, 2))
 
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Flag(allow_leading_dash=True)
+
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
             foo_bar = Flag('-b')
@@ -398,6 +422,10 @@ class TriFlagTest(ParserTest):
     def test_metavar_not_allowed(self):
         with self.assertRaises(TypeError):
             TriFlag(metavar='foo')
+
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            TriFlag(allow_leading_dash=True)
 
     def test_bad_consts(self):
         exc = ParameterDefinitionError
@@ -640,6 +668,10 @@ class CounterTest(ParserTest):
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
             Counter(choices=(1, 2))
+
+    def test_allow_leading_dash_not_allowed(self):
+        with self.assertRaises(TypeError):
+            Counter(allow_leading_dash=True)
 
 
 if __name__ == '__main__':

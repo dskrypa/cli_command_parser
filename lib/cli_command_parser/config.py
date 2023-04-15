@@ -24,6 +24,7 @@ __all__ = [
     'OptionNameMode',
     'SubcommandAliasHelpMode',
     'AmbiguousComboMode',
+    'AllowLeadingDash',
     'DEFAULT_CONFIG',
 ]
 
@@ -176,6 +177,36 @@ class AmbiguousComboMode(MissingMixin, Enum):
     IGNORE = 'ignore'           # Ignore potentially ambiguous combinations of short options entirely
     PERMISSIVE = 'permissive'   # Allow multi-char short options that overlap with a single char one for exact matches
     STRICT = 'strict'           # Reject multi-char short options that overlap with a single char one before parsing
+
+
+class AllowLeadingDash(Enum):
+    """
+    How a given Parameter should handle values with a leading dash (``-``).  Only configurable at the Parameter level,
+    not the Command level.
+
+    The behavior based on each supported option:
+
+    :NUMERIC: Allow numeric values like ``-5`` and ``-1.3``, but reject values like ``-d``.
+    :ALWAYS: Always allow values with a leading dash.
+    :NEVER: Never allow values with a leading dash.
+    """
+
+    NUMERIC = 'numeric'     # Allow a leading dash when the value is numeric
+    ALWAYS = 'always'       # Always allow a leading dash
+    NEVER = 'never'         # Never allow a leading dash
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            try:
+                return cls._member_map_[value.upper()]  # noqa
+            except KeyError:
+                pass
+        elif value is True:
+            return cls.ALWAYS
+        elif value is False:
+            return cls.NEVER
+        return super()._missing_(value)  # noqa
 
 
 # endregion

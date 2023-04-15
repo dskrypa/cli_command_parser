@@ -3,8 +3,8 @@
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command
-from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError
+from cli_command_parser import Command, ParamGroup
+from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, UsageError
 from cli_command_parser.parameters.base import parameter_action, BasePositional
 from cli_command_parser.parameters import Positional
 from cli_command_parser.testing import ParserTest
@@ -60,6 +60,17 @@ class PositionalTest(ParserTest):
 
         with self.assertRaises(CommandDefinitionError):
             Foo.parse([])
+
+    def test_pos_grouped_pos_both_required(self):
+        class Foo(Command):
+            bar = Positional()
+            with ParamGroup():
+                baz = Positional()
+
+        success_cases = [(['a', 'b'], {'bar': 'a', 'baz': 'b'})]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [[], ['a']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
 
 if __name__ == '__main__':

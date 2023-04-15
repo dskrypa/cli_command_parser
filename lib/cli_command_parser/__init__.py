@@ -4,7 +4,14 @@ Command Parser
 :author: Doug Skrypa
 """
 
-from .config import CommandConfig, ShowDefaults, OptionNameMode, SubcommandAliasHelpMode
+from .config import (
+    CommandConfig,
+    ShowDefaults,
+    OptionNameMode,
+    SubcommandAliasHelpMode,
+    AmbiguousComboMode,
+    AllowLeadingDash,
+)
 from .commands import Command, main
 from .context import Context, get_current_context, ctx, get_parsed, get_context, get_raw_arg
 from .exceptions import (
