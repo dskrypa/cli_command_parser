@@ -349,6 +349,14 @@ group.add_argument('--foo')"""
         expected = prep_expected('foo = Flag(default=True)')
         self.assert_strings_equal(expected, prep_and_convert("'--foo', action='store_false'"))
 
+    def test_negative_flag_with_dest(self):
+        expected = prep_expected("bar = Flag('--foo', '-f', default=True)")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', '-f', dest='bar', action='store_false'"))
+
+    def test_positive_flag_with_dest(self):
+        expected = prep_expected("bar = Flag('--foo', '-f')")
+        self.assert_strings_equal(expected, prep_and_convert("'--foo', '-f', dest='bar', action='store_true'"))
+
     # endregion
 
     # region Add Methods

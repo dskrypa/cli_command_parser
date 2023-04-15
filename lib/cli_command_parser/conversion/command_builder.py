@@ -3,7 +3,7 @@ from __future__ import annotations
 import keyword
 import logging
 from abc import ABC, abstractmethod
-from ast import literal_eval, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp
+from ast import literal_eval, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp, Constant, Str
 from dataclasses import dataclass, fields
 from itertools import count
 from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, TypeVar, Generic, List, Tuple
@@ -370,6 +370,10 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
         return next(name for name in self._attr_name_candidates() if name not in RESERVED)
 
     def _attr_name_candidates(self) -> Iterator[str]:
+        dest = self.ast_obj.init_func_raw_kwargs.get('dest')
+        if dest is not None and isinstance(dest, (Constant, Str)):  # Str is for 3.7 compatibility
+            yield getattr(dest, dest._fields[0])  # .value for Constant, .s for Str
+
         long, short, plain = self._grouped_opt_strs
         if self.is_positional or self.is_pass_thru:
             yield from plain
