@@ -122,6 +122,11 @@ The generic :class:`.Option` parameter that accepts arbitrary values or lists of
   will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
   that they were provided.  When enabled, values from env variables take precedence over the default value.  When
   enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
+:allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with a dash,
+  it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
+  ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for an
+  Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use ``False`` / ``never`` /
+  ``AllowLeadingDash.NEVER``.
 
 
 Given the following example Command::
@@ -322,6 +327,11 @@ The generic :class:`.Positional` parameter that accepts arbitrary values or list
 :default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.  Defaults
   to ``None`` under those conditions.
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
+:allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with a dash,
+  it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
+  ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for an
+  Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use ``False`` / ``never`` /
+  ``AllowLeadingDash.NEVER``.
 
 
 :gh_examples:`Example command <echo.py>`::

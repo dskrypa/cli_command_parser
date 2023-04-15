@@ -42,6 +42,11 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
       an empty list will be returned for this Parameter.
     :param choices: A container that holds the specific values that users must pick from.  By default, any value is
       allowed.
+    :param allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with
+      a dash, it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
+      ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for
+      an Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use ``False`` / ``never`` /
+      ``AllowLeadingDash.NEVER``.
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
