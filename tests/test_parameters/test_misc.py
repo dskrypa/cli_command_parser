@@ -38,8 +38,8 @@ class PassThruTest(ParserTest):
             baz = PassThru()
 
         success_cases = [
-            (['--bar', '--', 'a', 'b', 'c'], {'bar': True, 'baz': ['a', 'b', 'c']}),
-            (['--', '--bar', '--', 'a', 'b', 'c'], {'bar': False, 'baz': ['--bar', '--', 'a', 'b', 'c']}),
+            (['--bar', '--', 'a', 'b', '--c', '---x'], {'bar': True, 'baz': ['a', 'b', '--c', '---x']}),
+            (['--', '--bar', '--', 'a', '-b', 'c'], {'bar': False, 'baz': ['--bar', '--', 'a', '-b', 'c']}),
             (['--bar', '--'], {'bar': True, 'baz': []}),
             (['--', '--bar'], {'bar': False, 'baz': ['--bar']}),
             (['--'], {'bar': False, 'baz': []}),
@@ -105,6 +105,8 @@ class PassThruTest(ParserTest):
         self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).formatter.format_basic_usage())
         self.assertEqual('-- FOO', PassThru(name='foo', required=True).formatter.format_basic_usage())
 
+    # region Unsupported Kwargs
+
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
             PassThru(nargs='+')
@@ -120,6 +122,8 @@ class PassThruTest(ParserTest):
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
             PassThru(allow_leading_dash=True)
+
+    # endregion
 
 
 class MiscParameterTest(ParserTest):

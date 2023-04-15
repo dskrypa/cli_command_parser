@@ -10,7 +10,6 @@ from abc import ABC
 from functools import partial, update_wrapper
 from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
 
-from ..config import AllowLeadingDash
 from ..context import ctx, ParseState
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
@@ -91,10 +90,9 @@ class Option(BasicActionMixin, BaseOption[T_co]):
             raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
+        self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
         if env_var:
             self.env_var = env_var
-        if allow_leading_dash is not None:
-            self.allow_leading_dash = AllowLeadingDash(allow_leading_dash)
 
     def env_vars(self) -> Iterator[str]:
         env_var = self.env_var

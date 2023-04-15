@@ -29,7 +29,7 @@ class PassThru(Parameter):
     :param kwargs: Additional keyword arguments to pass to :class:`.Parameter`.
     """
 
-    nargs = Nargs('*')
+    nargs = Nargs('REMAINDER')
     missing_hint: str = "missing pass thru args separated from others with '--'"
 
     def __init__(self, action: str = 'store_all', default: Any = _NotSet, required: Bool = False, **kwargs):

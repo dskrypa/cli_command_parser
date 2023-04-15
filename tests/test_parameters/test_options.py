@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 from cli_command_parser import Command, Counter, Flag, Option, TriFlag, ParamGroup
 from cli_command_parser.exceptions import NoSuchOption, UsageError, ParameterDefinitionError, CommandDefinitionError
 from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument, ParamsMissing, ParamConflict
+from cli_command_parser.nargs import REMAINDER
 from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 
 STANDALONE_DASH_B = re.compile(r'(?<!-)-b\b')
@@ -72,16 +73,17 @@ class OptionTest(ParserTest):
 
     def test_nargs_0_rejected(self):
         fail_cases = [
-            ({'nargs': '?'}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
-            ({'nargs': '?', 'required': True}, ParameterDefinitionError),
-            ({'nargs': '?', 'required': False}, ParameterDefinitionError),
-            ({'nargs': '*'}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
-            ({'nargs': '*', 'required': True}, ParameterDefinitionError),
-            ({'nargs': '*', 'required': False}, ParameterDefinitionError),
             ({'nargs': 0}, ParameterDefinitionError),
             ({'nargs': (0, 2)}, ParameterDefinitionError),
             ({'nargs': range(2)}, ParameterDefinitionError),
         ]
+        for val in ('?', '*', 'REMAINDER'):
+            fail_cases += [
+                ({'nargs': val}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
+                ({'nargs': val, 'required': True}, ParameterDefinitionError),
+                ({'nargs': val, 'required': False}, ParameterDefinitionError),
+            ]
+
         self.assert_call_fails_cases(Option, fail_cases)
 
     def test_nargs_0_range_tip_step_1(self):
@@ -208,6 +210,33 @@ class OptionTest(ParserTest):
         expected = '<TriFlagOptionStrings[name_mode=OptionNameMode.DASH][--a-c, --no-a-c]>'
         self.assertEqual(expected, repr(Foo.a_c.option_strs))
 
+    def test_type_annotation_with_remainder_ignored(self):
+        class Foo(Command):
+            bar: int = Option(nargs=(1, REMAINDER))
+
+        self.assertIsNone(Foo.bar.type)  # noqa
+
+    def test_type_with_remainder_rejected(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+
+            class Foo(Command):
+                bar = Option(nargs=(1, REMAINDER), type=int)
+
+    def test_choices_with_remainder_rejected(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+
+            class Foo(Command):
+                bar = Option(nargs=(1, REMAINDER), choices=('a', 'b'))
+
+    def test_bad_leading_dash_with_remainder_rejected(self):
+        expected = 'only allow_leading_dash=AllowLeadingDash.ALWAYS'
+        for allow_leading_dash in ('numeric', False):
+            with self.subTest(allow_leading_dash=allow_leading_dash):
+                with self.assertRaisesRegex(ParameterDefinitionError, expected):
+
+                    class Foo(Command):
+                        bar = Option(nargs=(1, REMAINDER), allow_leading_dash=allow_leading_dash)
+
 
 class EnvVarTest(ParserTest):
     @contextmanager
@@ -326,6 +355,8 @@ class FlagTest(ParserTest):
         success_cases = [(['--bar'], {'bar': [42]}), ([], {'bar': []}), (['-bb'], {'bar': [42, 42]})]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    # region Unsupported Kwargs
+
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
             Flag(nargs='+')
@@ -345,6 +376,8 @@ class FlagTest(ParserTest):
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
             Flag(allow_leading_dash=True)
+
+    # endregion
 
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
@@ -407,6 +440,8 @@ class TriFlagTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    # region Unsupported Kwargs
+
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
             TriFlag(nargs='+')
@@ -426,6 +461,8 @@ class TriFlagTest(ParserTest):
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
             TriFlag(allow_leading_dash=True)
+
+    # endregion
 
     def test_bad_consts(self):
         exc = ParameterDefinitionError
@@ -657,6 +694,8 @@ class CounterTest(ParserTest):
         self.assertTrue(Counter().is_valid_arg('1'))
         self.assertFalse(Counter().is_valid_arg('1.5'))
 
+    # region Unsupported Kwargs
+
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
             Counter(nargs='+')
@@ -672,6 +711,8 @@ class CounterTest(ParserTest):
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
             Counter(allow_leading_dash=True)
+
+    # endregion
 
 
 if __name__ == '__main__':

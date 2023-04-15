@@ -2,9 +2,8 @@
 
 from unittest import main
 
-from cli_command_parser.commands import Command
+from cli_command_parser import Command, Positional, Option
 from cli_command_parser.exceptions import NoSuchOption, BadArgument, UsageError
-from cli_command_parser.parameters import Positional, Option
 from cli_command_parser.testing import ParserTest
 
 

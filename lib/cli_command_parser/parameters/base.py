@@ -28,8 +28,8 @@ from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
-from ..nargs import Nargs
-from ..typing import Bool, CommandCls, CommandObj, CommandAny, Param, T_co
+from ..nargs import Nargs, REMAINDER
+from ..typing import Bool, CommandCls, CommandObj, CommandAny, Param, LeadingDash, T_co
 from ..utils import _NotSet
 from .option_strings import OptionStrings
 
@@ -284,8 +284,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         super().__set_name__(command, name)
         type_attr = self.type
         choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
-        if not (choices or type_attr is None) or not self._config(command).allow_annotation_type:
+        if (
+            not (choices or type_attr is None)
+            or not self._config(command).allow_annotation_type
+            or self.nargs.max is REMAINDER
+        ):
             return
+
         annotated_type = get_descriptor_value_type(command, name)
         if annotated_type is None:
             return
@@ -337,7 +342,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def _nargs_max_reached(self) -> bool:
         try:
             return len(ctx.get_parsed_value(self)) >= self.nargs.max
-        except TypeError:
+        except TypeError:  # None or REMAINDER
             return False
 
     def take_action(  # pylint: disable=W0613
@@ -482,6 +487,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 class BasicActionMixin:
     action: str
     nargs: Nargs
+    type: Optional[Callable]
 
     def _init_value_factory(self, state: ParseState):
         if self.action == 'append':
@@ -530,6 +536,23 @@ class BasicActionMixin:
         ctx.set_parsed_value(self, values[:-count])
         ctx.record_action(self, -count)
         return values[-count:]
+
+    def _validate_nargs_and_allow_leading_dash(self, allow_leading_dash: LeadingDash):
+        if allow_leading_dash is not None:
+            allow_leading_dash = AllowLeadingDash(allow_leading_dash)
+
+        if self.nargs.max is REMAINDER:
+            if self.type is not None:
+                raise ParameterDefinitionError(f'Type casting and choices are not supported with nargs={self.nargs!r}')
+            elif allow_leading_dash not in (None, AllowLeadingDash.ALWAYS):
+                raise ParameterDefinitionError(
+                    f'With nargs={self.nargs!r}, only allow_leading_dash=AllowLeadingDash.ALWAYS is supported - found:'
+                    f' {allow_leading_dash!r}'
+                )
+            allow_leading_dash = AllowLeadingDash.ALWAYS
+
+        if allow_leading_dash is not None:
+            self.allow_leading_dash = allow_leading_dash
 
 
 class BasePositional(Parameter[T_co], ABC):

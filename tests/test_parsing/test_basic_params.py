@@ -6,7 +6,7 @@ from cli_command_parser.commands import Command
 from cli_command_parser.context import ctx
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import NoSuchOption, BadArgument, ParamsMissing, UsageError, MissingArgument
-from cli_command_parser.nargs import Nargs
+from cli_command_parser.nargs import Nargs, REMAINDER
 from cli_command_parser.parameters.base import BaseOption, parameter_action
 from cli_command_parser.parameters import Positional, Option, Flag, SubCommand, PassThru
 from cli_command_parser.testing import ParserTest
@@ -27,9 +27,8 @@ class OptionTest(ParserTest):
         class Foo(Command):
             bar = Flag()
 
-        for case in (['----'], ['----bar'], ['--bar', '----'], ['--bar', '----bar'], ['-'], ['--bar', '-']):
-            with self.subTest(case=case), self.assertRaises(NoSuchOption):
-                Foo.parse(case)
+        fail_cases = [['----'], ['----bar'], ['--bar', '----'], ['--bar', '----bar'], ['-'], ['--bar', '-'], ['---bar']]
+        self.assert_parse_fails_cases(Foo, fail_cases, NoSuchOption)
 
     def test_extra_long_option_deferred(self):
         class Foo(Command):
@@ -186,6 +185,27 @@ class OptionTest(ParserTest):
         fail_cases = [['-foo-bar'], ['-foo_bar'], ['--foobar'], ['--fooBar'], ['--foo_bar']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    def test_option_remainder(self):
+        class Foo(Command):
+            bar = Flag()
+            baz = Option(nargs=(1, REMAINDER))
+
+        success_cases = [
+            (['--bar', '--baz', 'a', 'b', '--c', '---x'], {'bar': True, 'baz': ['a', 'b', '--c', '---x']}),
+            (['--bar', '--baz', '--foo', 'a', '-b', 'c'], {'bar': True, 'baz': ['--foo', 'a', '-b', 'c']}),
+            (['--bar', '--baz', '--'], {'bar': True, 'baz': ['--']}),
+            (['--baz', '--', '--bar'], {'bar': False, 'baz': ['--', '--bar']}),
+            (['--bar', '--baz', '-1'], {'bar': True, 'baz': ['-1']}),
+            (['--baz', '-1', '--bar'], {'bar': False, 'baz': ['-1', '--bar']}),
+            (['--bar', '--baz', 'abc'], {'bar': True, 'baz': ['abc']}),
+            (['--baz', 'abc', '--bar'], {'bar': False, 'baz': ['abc', '--bar']}),
+            ([], {'bar': False, 'baz': []}),
+            (['--bar'], {'bar': True, 'baz': []}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-1', '--bar']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
 
 class PositionalTest(ParserTest):
     def test_extra_positional_deferred(self):
@@ -269,6 +289,46 @@ class PositionalTest(ParserTest):
         # Only ChoiceMap splits/combines on space - `foo bar` must be provided as a single/quoted argument here
         self.assert_parse_fails(Show, ['foo', 'bar'])
 
+    def test_positional_remainder(self):
+        class Foo(Command):
+            bar = Flag()
+            baz = Positional(nargs='REMAINDER')
+
+        success_cases = [
+            (['--bar', 'a', 'b', '--c', '---x'], {'bar': True, 'baz': ['a', 'b', '--c', '---x']}),
+            (['--bar', '--foo', 'a', '-b', 'c'], {'bar': True, 'baz': ['--foo', 'a', '-b', 'c']}),
+            (['--bar', '--'], {'bar': True, 'baz': ['--']}),
+            (['--', '--bar'], {'bar': False, 'baz': ['--', '--bar']}),
+            (['--bar', '-1'], {'bar': True, 'baz': ['-1']}),
+            (['-1', '--bar'], {'bar': False, 'baz': ['-1', '--bar']}),
+            (['--bar', 'abc'], {'bar': True, 'baz': ['abc']}),
+            (['abc', '--bar'], {'bar': False, 'baz': ['abc', '--bar']}),
+            ([], {'bar': False, 'baz': []}),
+            (['--bar'], {'bar': True, 'baz': []}),
+            (['---bar'], {'bar': False, 'baz': ['---bar']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_positional_remainder_min_1(self):
+        class Foo(Command):
+            bar = Flag()
+            baz = Positional(nargs=(1, REMAINDER), allow_leading_dash=True)
+
+        success_cases = [
+            (['--bar', 'a', 'b', '--c', '---x'], {'bar': True, 'baz': ['a', 'b', '--c', '---x']}),
+            (['--bar', '--foo', 'a', '-b', 'c'], {'bar': True, 'baz': ['--foo', 'a', '-b', 'c']}),
+            (['--bar', '--'], {'bar': True, 'baz': ['--']}),
+            (['--', '--bar'], {'bar': False, 'baz': ['--', '--bar']}),
+            (['--bar', '-1'], {'bar': True, 'baz': ['-1']}),
+            (['-1', '--bar'], {'bar': False, 'baz': ['-1', '--bar']}),
+            (['--bar', 'abc'], {'bar': True, 'baz': ['abc']}),
+            (['abc', '--bar'], {'bar': False, 'baz': ['abc', '--bar']}),
+            (['---bar'], {'bar': False, 'baz': ['---bar']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [[], ['--bar']]
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
 
 class PassThruTest(ParserTest):
     def test_sub_cmd_pass_thru_accepted(self):
@@ -300,6 +360,29 @@ class PassThruTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails(Foo, [], ParamsMissing)
+
+    def test_positional_remainder_pass_thru_combo(self):
+        class Foo(Command):
+            bar = PassThru()
+            baz = Positional(nargs='REMAINDER')
+
+        success_cases = [
+            (['--bar', 'a', 'b', '--c', '---x'], {'bar': None, 'baz': ['--bar', 'a', 'b', '--c', '---x']}),
+            (['--bar', '--foo', 'a', '-b', 'c'], {'bar': None, 'baz': ['--bar', '--foo', 'a', '-b', 'c']}),
+            (['--bar', '--'], {'bar': [], 'baz': ['--bar']}),  # PassThru is evaluated before all other params
+            (['--bar', '--', 'abc'], {'bar': ['abc'], 'baz': ['--bar']}),
+            (['--bar', '--', '-1'], {'bar': ['-1'], 'baz': ['--bar']}),
+            (['--', '--bar'], {'bar': ['--bar'], 'baz': []}),
+            (['--bar', '-1'], {'bar': None, 'baz': ['--bar', '-1']}),
+            (['-1', '--bar'], {'bar': None, 'baz': ['-1', '--bar']}),
+            (['--bar', 'abc'], {'bar': None, 'baz': ['--bar', 'abc']}),
+            (['abc', '--bar'], {'bar': None, 'baz': ['abc', '--bar']}),
+            (['abc', 'bar'], {'bar': None, 'baz': ['abc', 'bar']}),
+            ([], {'bar': None, 'baz': []}),
+            (['--'], {'bar': [], 'baz': []}),
+            (['--bar'], {'bar': None, 'baz': ['--bar']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
 if __name__ == '__main__':

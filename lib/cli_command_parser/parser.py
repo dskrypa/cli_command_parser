@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
+from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
@@ -101,28 +102,32 @@ class CommandParser:
         while arg_deque:
             arg = arg_deque.popleft()
             if arg == '--':
-                if ctx.params.find_nested_pass_thru():  # pylint: disable=R1723
+                if self._maybe_consume_remainder(arg):
+                    break
+                elif ctx.params.find_nested_pass_thru():  # pylint: disable=R1723
                     self.deferred.append(arg)
                     self.deferred.extend(arg_deque)
                     break
                 else:
                     raise NoSuchOption(f'invalid argument: {arg}')
             elif arg.startswith('---'):
-                raise NoSuchOption(f'invalid argument: {arg}')
+                if not self._maybe_consume_remainder(arg):
+                    raise NoSuchOption(f'invalid argument: {arg}')
             elif arg.startswith('--'):
                 self.handle_long(arg)
             elif arg.startswith('-') and arg != '-':
                 try:
                     self.handle_short(arg)
                 except KeyError:
-                    self._check_sub_command_options(arg)
-                    if self.positionals:
-                        try:
-                            self.handle_positional(arg)
-                        except UsageError:
+                    if not self._maybe_consume_remainder(arg):
+                        self._check_sub_command_options(arg)
+                        if self.positionals:
+                            try:
+                                self.handle_positional(arg)
+                            except UsageError:
+                                self.deferred.append(arg)
+                        else:
                             self.deferred.append(arg)
-                    else:
-                        self.deferred.append(arg)
             else:
                 self.handle_positional(arg)
 
@@ -155,32 +160,51 @@ class CommandParser:
                 return deque(remaining[:separator_pos])
         return deque(remaining)
 
+    def _maybe_consume_remainder(self, arg: str) -> bool:
+        if len(self.positionals) == 1:
+            param = self.positionals[0]
+            if param.nargs.max is REMAINDER:
+                self.handle_remainder(param, arg)
+                return True
+        return False
+
+    def handle_remainder(self, param: Parameter, value: str) -> int:
+        found = param.take_action(value)
+        arg_deque = self.arg_deque
+        while arg_deque:
+            found += param.take_action(arg_deque.popleft())
+        return found
+
     def handle_positional(self, arg: str):
         # log.debug(f'handle_positional({arg=})')
         try:
-            param = self.positionals.pop(0)  # type: BasePositional
+            param: BasePositional = self.positionals.pop(0)
         except IndexError:
             self.deferred.append(arg)
         else:
-            try:
-                found = param.take_action(arg)
-            except UsageError:
-                self.positionals.insert(0, param)
-                raise
-            try:
-                self.consume_values(param, found=found)
-            except Backtrack:
-                self.positionals.insert(0, param)
+            if param.nargs.max is REMAINDER:
+                self.handle_remainder(param, arg)
             else:
-                self._last = param
+                try:
+                    found = param.take_action(arg)
+                except UsageError:
+                    self.positionals.insert(0, param)
+                    raise
+                try:
+                    self.consume_values(param, found=found)
+                except Backtrack:
+                    self.positionals.insert(0, param)
+                else:
+                    self._last = param
 
     def handle_long(self, arg: str):
         # log.debug(f'handle_long({arg=})')
         try:
             opt, param, value = self.params.long_option_to_param_value_pair(arg)
         except KeyError:
-            self._check_sub_command_options(arg)
-            self.deferred.append(arg)
+            if not self._maybe_consume_remainder(arg):
+                self._check_sub_command_options(arg)
+                self.deferred.append(arg)
         else:
             if value is not None or (param.accepts_none and not param.accepts_values):
                 param.take_action(value, opt_str=opt)
@@ -270,6 +294,7 @@ class CommandParser:
         :param found: The number of already discovered values for that Parameter (only specified for positional params)
         :return: The total number of values that were found for the given Parameter.
         """
+        remainder = param.nargs.max is REMAINDER
         while True:
             try:
                 value = self.arg_deque.popleft()
@@ -279,7 +304,9 @@ class CommandParser:
                 return self._finalize_consume(param, None, found)
             else:
                 # log.debug(f'Found {value=} in deque - may use it for {param=}')
-                if value.startswith('--'):
+                if remainder:
+                    return self.handle_remainder(param, value)
+                elif value.startswith('--'):
                     return self._finalize_consume(param, value, found)
                 elif value.startswith('-') and value != '-':
                     if self.params.get_option_param_value_pairs(value):
@@ -326,13 +353,12 @@ def _to_pop(positionals: List[BasePositional], can_pop: List[int], available: in
     if not can_pop:
         return None
 
-    required = sum(p.nargs.min for p in positionals)
+    required = nargs_min_sum(p.nargs for p in positionals)
     if available < required:
         return None
 
     required -= req_mod
-    nargs_max_vals = [p.nargs.max for p in positionals]
-    acceptable = float('inf') if None in nargs_max_vals else sum(nargs_max_vals)
+    acceptable = nargs_max_sum(p.nargs for p in positionals)
     for n in can_pop:
         if required <= n <= acceptable:
             return n
