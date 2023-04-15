@@ -81,6 +81,13 @@ with optional dependencies::
 
     $ pip install -U cli-command-parser[wcwidth]
 
+To use the argparse to cli-command-parser conversion script with Python 3.7 or 3.8, there is a dependency on
+`astunparse <https://astunparse.readthedocs.io>`__.  If you are using Python 3.9 or above, then ``astunparse`` is not
+necessary because the relevant code was added to the stdlib ``ast`` module.  If you're unsure, you can install
+cli-command-parser with the following command to automatically handle whether that extra dependency is needed or not::
+
+    $ pip install -U cli-command-parser[conversion]
+
 
 Links
 *****
