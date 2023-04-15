@@ -424,16 +424,16 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         if description:
             return description
         group = self.param
-        if not group.description and not group._name:
-            if ctx.config.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
-                return 'Mutually {} options'.format('exclusive' if group.mutually_exclusive else 'dependent')
-            else:
-                return 'Optional arguments'
-        else:
+        if group.description or group._name:
             description = group.description or f'{group.name} options'
             if ctx.config.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
-                description += ' (mutually {})'.format('exclusive' if group.mutually_exclusive else 'dependent')
+                description += f' (mutually {"exclusive" if group.mutually_exclusive else "dependent"})'
             return description
+        elif ctx.config.show_group_type and (group.mutually_exclusive or group.mutually_dependent):
+            return f'Mutually {"exclusive" if group.mutually_exclusive else "dependent"} options'
+
+        adjective = 'Required' if group.required else 'Other' if group.contains_required else 'Optional'
+        return f'{adjective} arguments'
 
     def _get_spacer(self) -> str:
         group = self.param

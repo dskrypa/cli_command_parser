@@ -182,7 +182,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
             params = self.params
             if params:
-                for group in (params.positionals, params.options, (params.pass_thru,)):
+                for group in (params.all_positionals, params.options, (params.pass_thru,)):
                     for param in group:
                         if param and param not in exclude:
                             try:

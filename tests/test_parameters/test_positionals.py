@@ -43,23 +43,27 @@ class PositionalTest(ParserTest):
         success_cases = [([], {'bar': []}), (['a'], {'bar': ['a']}), (['a', 'b'], {'bar': ['a', 'b']})]
         self.assert_parse_results_cases(Foo, success_cases)
 
-    def test_nargs_star_defaults(self):
-        for default in ('a', ['a']):
-            with self.subTest(default=default):
+    def test_unbound_nargs_defaults(self):
+        for nargs in ('*', 'REMAINDER'):
+            for default in ('a', ['a']):
+                with self.subTest(nargs=nargs, default=default):
+
+                    class Foo(Command):
+                        bar = Positional(nargs=nargs, default=default)
+
+                    success_cases = [([], {'bar': ['a']}), (['b'], {'bar': ['b']}), (['a', 'b'], {'bar': ['a', 'b']})]
+                    self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_pos_after_unbound_nargs_rejected(self):
+        for nargs in ('*', 'REMAINDER'):
+            with self.subTest(nargs=nargs):
 
                 class Foo(Command):
-                    bar = Positional(nargs='*', default=default)
+                    bar = Positional(nargs=nargs)
+                    baz = Positional()
 
-                success_cases = [([], {'bar': ['a']}), (['b'], {'bar': ['b']}), (['a', 'b'], {'bar': ['a', 'b']})]
-                self.assert_parse_results_cases(Foo, success_cases)
-
-    def test_pos_after_nargs_star_rejected(self):
-        class Foo(Command):
-            bar = Positional(nargs='*')
-            baz = Positional()
-
-        with self.assertRaises(CommandDefinitionError):
-            Foo.parse([])
+                with self.assertRaises(CommandDefinitionError):
+                    Foo.parse([])
 
     def test_pos_grouped_pos_both_required(self):
         class Foo(Command):
@@ -71,6 +75,33 @@ class PositionalTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [[], ['a']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_type_annotation_with_remainder_ignored(self):
+        class Foo(Command):
+            bar: int = Positional(nargs='REMAINDER')
+
+        self.assertIsNone(Foo.bar.type)  # noqa
+
+    def test_type_with_remainder_rejected(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+
+            class Foo(Command):
+                bar = Positional(nargs='REMAINDER', type=int)
+
+    def test_choices_with_remainder_rejected(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+
+            class Foo(Command):
+                bar = Positional(nargs='REMAINDER', choices=('a', 'b'))
+
+    def test_bad_leading_dash_with_remainder_rejected(self):
+        expected = 'only allow_leading_dash=AllowLeadingDash.ALWAYS'
+        for allow_leading_dash in ('numeric', False):
+            with self.subTest(allow_leading_dash=allow_leading_dash):
+                with self.assertRaisesRegex(ParameterDefinitionError, expected):
+
+                    class Foo(Command):
+                        bar = Positional(nargs='REMAINDER', allow_leading_dash=allow_leading_dash)
 
 
 if __name__ == '__main__':

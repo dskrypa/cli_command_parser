@@ -2,7 +2,7 @@
 
 from unittest import TestCase, main
 
-from cli_command_parser.nargs import Nargs
+from cli_command_parser.nargs import Nargs, REMAINDER
 
 
 class NargsTest(TestCase):
@@ -49,43 +49,59 @@ class NargsTest(TestCase):
 
     def test_star(self):
         nargs = Nargs('*')
-        self.assertIs(nargs.range, None)
-        self.assertEqual(nargs.min, 0)
-        self.assertIs(nargs.max, None)
-        self.assertEqual(nargs.allowed, (0, None))
-        self.assertTrue(nargs.variable)
         self.assertIn('*', repr(nargs))
         self.assertEqual(str(nargs), '0 or more')
-        self.assertEqual(nargs, Nargs('*'))
-        self.assertNotIn(-1, nargs)
-        self.assertIn(0, nargs)
-        self.assertIn(1, nargs)
-        self.assertIn(2, nargs)
-        self.assertFalse(nargs.satisfied(-1))
-        self.assertTrue(nargs.satisfied(0))
-        self.assertTrue(nargs.satisfied(1))
-        self.assertTrue(nargs.satisfied(2))
-        self.assertTrue(nargs.satisfied(100))
 
     def test_plus(self):
         nargs = Nargs('+')
-        self.assertIs(nargs.range, None)
-        self.assertEqual(nargs.min, 1)
-        self.assertIs(nargs.max, None)
-        self.assertEqual(nargs.allowed, (1, None))
-        self.assertTrue(nargs.variable)
         self.assertIn('+', repr(nargs))
         self.assertEqual(str(nargs), '1 or more')
-        self.assertEqual(nargs, Nargs('+'))
-        self.assertNotIn(-1, nargs)
-        self.assertNotIn(0, nargs)
-        self.assertIn(1, nargs)
-        self.assertIn(2, nargs)
-        self.assertFalse(nargs.satisfied(-1))
-        self.assertFalse(nargs.satisfied(0))
-        self.assertTrue(nargs.satisfied(1))
-        self.assertTrue(nargs.satisfied(2))
-        self.assertTrue(nargs.satisfied(100))
+
+    def test_remainder(self):
+        for init_val in ('REMAINDER', REMAINDER):
+            nargs = Nargs(init_val)
+            self.assertIn('REMAINDER', repr(nargs))
+            self.assertEqual(str(nargs), 'REMAINDER')
+
+    def test_0_to_unbound(self):
+        for init_val, expected_max in (('*', None), ('REMAINDER', REMAINDER)):
+            with self.subTest(init_val=init_val):
+                nargs = Nargs(init_val)
+                self.assertIs(nargs.range, None)
+                self.assertEqual(nargs.min, 0)
+                self.assertIs(nargs.max, expected_max)
+                self.assertEqual(nargs.allowed, (0, expected_max))
+                self.assertTrue(nargs.variable)
+                self.assertEqual(nargs, Nargs(init_val))
+                self.assertNotIn(-1, nargs)
+                self.assertIn(0, nargs)
+                self.assertIn(1, nargs)
+                self.assertIn(2, nargs)
+                self.assertFalse(nargs.satisfied(-1))
+                self.assertTrue(nargs.satisfied(0))
+                self.assertTrue(nargs.satisfied(1))
+                self.assertTrue(nargs.satisfied(2))
+                self.assertTrue(nargs.satisfied(100))
+
+    def test_1_to_unbound(self):
+        for init_val, expected_max in (('+', None), ((1, REMAINDER), REMAINDER)):
+            with self.subTest(init_val=init_val):
+                nargs = Nargs(init_val)
+                self.assertIs(nargs.range, None)
+                self.assertEqual(nargs.min, 1)
+                self.assertIs(nargs.max, expected_max)
+                self.assertEqual(nargs.allowed, (1, expected_max))
+                self.assertTrue(nargs.variable)
+                self.assertEqual(nargs, Nargs(init_val))
+                self.assertNotIn(-1, nargs)
+                self.assertNotIn(0, nargs)
+                self.assertIn(1, nargs)
+                self.assertIn(2, nargs)
+                self.assertFalse(nargs.satisfied(-1))
+                self.assertFalse(nargs.satisfied(0))
+                self.assertTrue(nargs.satisfied(1))
+                self.assertTrue(nargs.satisfied(2))
+                self.assertTrue(nargs.satisfied(100))
 
     def test_tuple_static(self):
         for n in range(11):

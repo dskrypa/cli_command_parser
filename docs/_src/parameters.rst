@@ -49,6 +49,8 @@ Common parameters that are supported when initializing most Parameters:
     - ``'?'``: One argument may be provided, but it is not required.  Generally only useful for Positional Parameters.
     - ``'*'``: Any number of arguments may be provided, including none.  The arguments will be collected in a list.
     - ``'+'``: One or more arguments may be provided.  The arguments will be collected in a list.
+    - ``'REMAINDER'``: All remaining arguments will be collected in a list.  Prevents any type casting or choice
+      restrictions from being used, and implies ``allow_leading_dash=AllowLeadingDash.ALWAYS``.
     - ``(N₀, N₁)`` (a tuple of 2 integers): Accept exactly either ``N₀`` or ``N₁`` arguments.  ``N₀`` must be less
       than ``N₁``.
     - ``(N, None)`` (a tuple of an integer and ``None``): Similar to ``'+'``, accept a minimum of ``N`` arguments, or

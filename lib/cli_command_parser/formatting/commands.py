@@ -57,7 +57,7 @@ class CommandHelpFormatter:
         if meta.usage:
             return meta.usage
 
-        params = self.params.positionals + self.params.options  # noqa
+        params = self.params.all_positionals + self.params.options  # noqa
         pass_thru = self.params.pass_thru
         if pass_thru is not None:
             params.append(pass_thru)
@@ -155,7 +155,7 @@ def get_formatter(command: CommandAny) -> CommandHelpFormatter:
 
 def get_usage_sub_cmds(command: CommandCls):
     cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
-    parent: CommandType = cmd_mcs.parent(command)
+    parent: CommandType = cmd_mcs.parent(command, False)
     if not parent:
         return []
 

@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union, Optional, Collection, Iterable, Iterator, MutableMapping, Dict, Set, Tuple
 
 from .exceptions import AmbiguousParseTree
+from .nargs import nargs_max_sum, nargs_min_sum
 from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ class AnyWord:
         self.nargs = nargs
         self.n = n
         if remaining is None:
-            self.remaining = float('inf') if nargs.max is None else nargs.max - 1  # -1 since one would be consumed
+            self.remaining = nargs.upper_bound - 1  # -1 since one would be consumed
         else:
             self.remaining = remaining
 
@@ -86,21 +87,13 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             yield node.param
         if recursive:
             for node in self.values():
-                try:
-                    unbound = node.word.nargs.max is None
-                except AttributeError:  # node.word is not an AnyWord
-                    yield from node._link_params(True)
-                else:
-                    yield from node._link_params(not unbound)
+                yield from node._link_params(_has_upper_bound(node))
 
     def nargs_min(self) -> int:
-        return sum(p.nargs.min for p in self.link_params(True))
+        return nargs_min_sum(p.nargs for p in self.link_params(True))
 
     def nargs_max(self) -> Union[int, float]:
-        values = [p.nargs.max for p in self.link_params(True)]
-        if None in values:
-            return float('inf')
-        return sum(values)
+        return nargs_max_sum(p.nargs for p in self.link_params(True))
 
     # region AnyWord Methods
 
@@ -260,7 +253,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     @classmethod
     def build_tree(cls, command: CommandCls) -> PosNode:
         root = cls(None, None, target=command)
-        process_params(command, [root], command.__class__.params(command).positionals)
+        process_params(command, [root], command.__class__.params(command).all_positionals)
         return root
 
     def update_node(self, word: Word, param: BasePositional, target: Target) -> PosNode:
@@ -307,7 +300,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
 
         node = PosNode(word, param, target, self)
         # TODO: This needs to be converted to be lazy instead
-        if word.nargs.max is not None:
+        if word.nargs.has_upper_bound:
             while True:
                 try:
                     node = node._create_child()
@@ -325,12 +318,14 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             return
         indent += 2
         for node in self.values():
-            try:
-                unbound = node.word.nargs.max is None
-            except AttributeError:  # node.word is not an AnyWord
-                node.print_tree(indent, True)
-            else:
-                node.print_tree(indent, not unbound)
+            node.print_tree(indent, _has_upper_bound(node))
+
+
+def _has_upper_bound(node) -> bool:
+    try:
+        return node.word.nargs.has_upper_bound
+    except AttributeError:
+        return True
 
 
 def process_params(command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> Set[PosNode]:
@@ -358,7 +353,7 @@ def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePosi
                 new_nodes.update(node.update_node(choice.choice, param, target) for node in nodes)
             else:
                 choice_nodes = {node.update_node(choice.choice, param, target) for node in nodes}
-                new_nodes.update(process_params(target, choice_nodes, params.positionals))
+                new_nodes.update(process_params(target, choice_nodes, params.all_positionals))
 
         return new_nodes
 

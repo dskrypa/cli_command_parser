@@ -241,7 +241,11 @@ class ParamGroup(ParamBase):
     @property
     def contains_positional(self) -> bool:
         # Used by the help text formatter when grouping parameters / groups
-        return any(isinstance(p, BasePositional) for p in self)
+        return any(isinstance(p, BasePositional) for p in self.members)
+
+    @property
+    def contains_required(self) -> bool:
+        return any(p.required for p in self.members)
 
     @property
     def show_in_help(self) -> bool:
