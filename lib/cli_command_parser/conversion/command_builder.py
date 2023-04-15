@@ -449,6 +449,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
         nargs = self.ast_obj.init_func_kwargs.get('nargs')
         if not nargs:
             return False
+        # TODO: Refactor to take advantage of new nargs=REMAINDER support
         return nargs in self.ast_obj.get_tracked_refs('argparse', 'REMAINDER', ())
 
     @cached_property
