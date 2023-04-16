@@ -7,12 +7,20 @@ Program metadata introspection for use in usage, help text, and documentation.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from inspect import getmodule
 from pathlib import Path
+from sys import modules
 from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Type, Optional, Union, Tuple, Dict
 from urllib.parse import urlparse
 
+try:
+    from importlib.metadata import entry_points, EntryPoint
+except ImportError:  # Python 3.7
+    from importlib_metadata import entry_points, EntryPoint
+
+from .compat import cached_property
 from .context import ctx, NoActiveContext
 
 if TYPE_CHECKING:
@@ -61,7 +69,7 @@ class ProgramMetadata:
     module: str = Metadata(None)
     command: str = Metadata(None)
     prog: str = Metadata(None)
-    prog_from_sys_argv: bool = Metadata(None)
+    prog_src: str = Metadata(None)
     url: str = Metadata(None)
     docs_url: str = Metadata(None)
     email: str = Metadata(None)
@@ -111,7 +119,7 @@ class ProgramMetadata:
         else:
             doc = doc_str = None
 
-        prog, prog_from_sys_argv = _prog(prog, path, parent, no_sys_argv)
+        prog, prog_src = _prog_finder.normalize(prog, path, parent, no_sys_argv, command)
         return cls(
             parent=parent,
             path=path,
@@ -119,7 +127,7 @@ class ProgramMetadata:
             module=g.get('__module__'),
             command=command.__qualname__,
             prog=prog,
-            prog_from_sys_argv=prog_from_sys_argv,
+            prog_src=prog_src,
             url=url or g.get('__url__'),
             docs_url=docs_url or _docs_url_from_repo_url(url) or _docs_url_from_repo_url(g.get('__url__')),
             email=email or g.get('__author_email__'),
@@ -164,7 +172,7 @@ def _repr(obj, indent=0) -> str:
     if not isinstance(obj, ProgramMetadata):
         return repr(obj)
 
-    field_dict = {field: getattr(obj, field) for field in obj._fields}
+    field_dict = {field: getattr(obj, field) for field in sorted(obj._fields)}
     prev_str = ' ' * indent
     indent += 4
     indent_str = ' ' * indent
@@ -172,32 +180,99 @@ def _repr(obj, indent=0) -> str:
     return f'<{obj.__class__.__name__}(\n{fields_str}\n{prev_str})>'
 
 
-def _prog(prog: OptStr, cmd_path: Path, parent: Optional[ProgramMetadata], no_sys_argv: Bool) -> Tuple[OptStr, bool]:
-    # TODO: Attempt to detect the name to use via importlib.metadata.entry_points?  3.8+, with return value changes
-    #  after 3.9
-    if prog:
-        return prog, False
-    if no_sys_argv is None:
-        try:
-            no_sys_argv = not ctx.allow_argv_prog
-        except NoActiveContext:
-            no_sys_argv = False
+class ProgFinder:
+    @cached_property
+    def mod_obj_prog_map(self) -> Dict[str, Dict[str, str]]:
+        mod_obj_prog_map = defaultdict(dict)
+        for entry_point in self._get_console_scripts():
+            module, obj = map(str.strip, entry_point.value.split(':', 1))
+            obj = obj.split('[', 1)[0].strip()  # Strip extras, if any
+            mod_obj_prog_map[module][obj] = entry_point.name
 
-    if parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
-        return parent.prog, parent.prog_from_sys_argv
-    elif not no_sys_argv:
+        mod_obj_prog_map.default_factory = None  # Disable automatic defaults
+        return mod_obj_prog_map
+
+    @classmethod
+    def _get_console_scripts(cls) -> Tuple[EntryPoint, ...]:
+        try:
+            return entry_points(group='console_scripts')
+        except TypeError:  # Python 3.8 or 3.9
+            return entry_points()['console_scripts']
+
+    def normalize(
+        self,
+        prog: OptStr,
+        cmd_path: Path,
+        parent: Optional[ProgramMetadata],
+        no_sys_argv: Bool,
+        command: CommandType,
+    ) -> Tuple[OptStr, str]:
+        if prog:
+            return prog, 'class kwargs'
+
+        ep_name = self._from_entry_point(command)
+        if ep_name:
+            return ep_name, 'entry_points'
+
+        if no_sys_argv is None:
+            try:
+                no_sys_argv = not ctx.allow_argv_prog
+            except NoActiveContext:
+                no_sys_argv = False
+
+        # if parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
+        #     return parent.prog, parent.prog_from_sys_argv
+        if parent and parent.prog != parent.path.name and (not no_sys_argv or parent.prog_src != 'sys.argv'):
+            return parent.prog, parent.prog_src
+        elif not no_sys_argv:
+            argv_name = self._from_sys_argv()
+            if argv_name:
+                return argv_name, 'sys.argv'
+
+        return cmd_path.name, 'path'
+
+    def _from_entry_point(self, command: CommandType) -> OptStr:
+        main_mod = 'cli_command_parser.commands'
+        for prog, obj, obj_mod, obj_name in self._iter_entry_point_candidates(command):
+            if obj is command or (obj_mod == main_mod and obj_name == 'main'):
+                return prog
+
+        return None
+
+    def _iter_entry_point_candidates(self, command: CommandType):
+        try:
+            # TODO: This likely won't work for a base command in one module, sub commands defined in separate modules,
+            #  and main imported from cli_command_parser in the package's __init__/__main__ module...
+            obj_prog_map = self.mod_obj_prog_map[command.__module__]
+            module = modules[command.__module__]
+        except KeyError as e:
+            pass
+        else:
+            for obj_name, prog in obj_prog_map.items():
+                base_name = obj_name.split('.', 1)[0]
+                try:
+                    obj = getattr(module, base_name)
+                except AttributeError:
+                    pass
+                else:
+                    yield prog, obj, getattr(obj, '__module__', ''), getattr(obj, '__name__', '')
+
+    def _from_sys_argv(self) -> OptStr:
         try:
             ctx_prog = ctx.prog
         except NoActiveContext:
-            ctx_prog = None
+            return None
 
         if ctx_prog:
             path = Path(ctx_prog)
             # Windows allows invocation without .exe - assume a file with an extension is a match
             if path.exists() or next(path.parent.glob(f'{path.name}.???'), None) is not None:
-                return path.name, True
+                return path.name
 
-    return cmd_path.name, False
+        return None
+
+
+_prog_finder = ProgFinder()
 
 
 def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Dict[str, Any]]:
