@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from cli_command_parser import Command, CommandConfig
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.context import Context, ActionPhase, ctx, get_current_context, ParseState
+from cli_command_parser.context import Context, ActionPhase, ctx, get_current_context
 from cli_command_parser.context import get_context, get_parsed, get_raw_arg
 from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.parameters import Flag, SubCommand, Positional
@@ -204,16 +204,12 @@ class ContextTest(TestCase):
 
     # endregion
 
-    def test_state_done(self):
-        for state, expected in zip(ParseState, (False, True, True)):
-            self.assertEqual(state.done, expected)
-
     def test_repr(self):
         class Foo(Command):
             pass
 
-        self.assertEqual('<Context[state=ParseState.INITIAL, command=Foo]>', repr(Foo().ctx))
-        self.assertEqual('<Context[state=ParseState.INITIAL, command=None]>', repr(Context()))
+        self.assertEqual('<Context[command=Foo]>', repr(Foo().ctx))
+        self.assertEqual('<Context[command=None]>', repr(Context()))
 
 
 if __name__ == '__main__':

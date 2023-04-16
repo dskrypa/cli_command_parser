@@ -108,11 +108,11 @@ class Command(ABC, metaclass=CommandMeta):
         cmd_cls = cls
         with ExitStack() as stack:
             stack.enter_context(ctx)
-            sub_cmd = CommandParser.parse_args(ctx)
+            sub_cmd = CommandParser.parse_args_and_get_next_cmd(ctx)
             while sub_cmd:
                 cmd_cls = sub_cmd
                 ctx = stack.enter_context(ctx._sub_context(cmd_cls))
-                sub_cmd = CommandParser.parse_args(ctx)
+                sub_cmd = CommandParser.parse_args_and_get_next_cmd(ctx)
 
             return cmd_cls()
 

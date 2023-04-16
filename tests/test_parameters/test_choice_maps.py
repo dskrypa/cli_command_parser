@@ -11,7 +11,7 @@ from cli_command_parser.testing import ParserTest
 
 class ChoiceMapTest(ParserTest):
     def test_reassign_choice_rejected(self):
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Invalid choice=.*- already assigned to Choice'):
 
             class Foo(Command):
                 action = Action()
@@ -41,16 +41,7 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             action = Action()
 
-        self.assert_parse_fails(Foo, [], CommandDefinitionError)
-
-    def test_missing_action_target_forced(self):
-        class Foo(Command):
-            action = Action()
-
-        with Context():
-            with self.assertRaises(BadArgument):
-                Foo.action.validate('-foo')
-            self.assertIs(None, Foo.action.validate('foo'))
+        self.assert_parse_fails_cases(Foo, [[], ['foo'], ['-f']], CommandDefinitionError)
 
     def test_choice_map_too_many(self):
         class Foo(Command):
@@ -73,7 +64,7 @@ class ChoiceMapTest(ParserTest):
             def foo(self):
                 pass
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'No choices were registered for Action'):
             foo = Foo.parse([])
             del Foo.action.choices['foo']
             foo.action  # noqa
@@ -114,14 +105,14 @@ class ChoiceMapTest(ParserTest):
             sub = SubCommand()
 
         Foo.sub.register(Mock(__name__='bar'))
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Invalid choice=.*with parent=None - already assigned to'):
             Foo.sub.register(Mock(__name__='bar'))
 
     def test_redundant_sub_cmd_choice_rejected(self):
         class Foo(Command):
             sub = SubCommand()
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine a positional command_or_choice='):
             Foo.sub.register('foo', choice='foo')
 
     def test_custom_action_choice(self):

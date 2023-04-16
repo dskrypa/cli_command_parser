@@ -10,7 +10,7 @@ from abc import ABC
 from functools import partial, update_wrapper
 from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
 
-from ..context import ctx, ParseState
+from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
@@ -116,7 +116,7 @@ class _Flag(BaseOption[T_co], ABC):
             raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
         super().__init__(*option_strs, **kwargs)
 
-    def _init_value_factory(self, state: ParseState):
+    def _init_value_factory(self):
         if self.action == 'store_const':
             return self.default
         else:
@@ -397,7 +397,7 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
-    def _init_value_factory(self, state: ParseState):
+    def _init_value_factory(self):
         return self.default
 
     def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:

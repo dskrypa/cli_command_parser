@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-from unittest import main, skip
+from abc import ABC
+from unittest import main
 
 from cli_command_parser.commands import Command
 from cli_command_parser.config import AmbiguousComboMode
 from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import NoSuchOption, ParamsMissing, UsageError, MissingArgument, ParamUsageError
-from cli_command_parser.exceptions import AmbiguousCombo, AmbiguousShortForm
+from cli_command_parser.exceptions import AmbiguousCombo, AmbiguousShortForm, CommandDefinitionError
 from cli_command_parser.parameters import Positional, Option, Flag, Counter, SubCommand
 from cli_command_parser.testing import ParserTest
 
@@ -250,38 +251,6 @@ class ParamComboTest(ParserTest):
         ]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
-    @skip('This case is not currently supported')  # TODO: Should this be supported?
-    def test_common_positional_after_sub_command(self):
-        class Foo(Command):
-            sub = SubCommand()
-            pos = Positional()
-
-        class Bar(Foo):
-            bar = Option('-b')
-
-        class Baz(Foo):
-            baz = Option('-b')
-
-        bar_expected = {'pos': 'a', 'sub': 'bar', 'bar': 'c'}
-        baz_expected = {'pos': 'a', 'sub': 'bar', 'baz': 'c'}
-        success_cases = [
-            (['bar', 'a', '-b', 'c'], bar_expected),
-            (['bar', '-b', 'c', 'a'], bar_expected),
-            (['-b', 'c', 'bar', 'a'], bar_expected),
-            (['baz', 'a', '-b', 'c'], baz_expected),
-            (['baz', '-b', 'c', 'a'], baz_expected),
-            (['-b', 'c', 'baz', 'a'], baz_expected),
-            (['bar', 'a'], {'pos': 'a', 'sub': 'bar', 'bar': None}),
-            (['baz', 'a'], {'pos': 'a', 'sub': 'baz', 'baz': None}),
-        ]
-        self.assert_parse_results_cases(Foo, success_cases)
-        # fmt: off
-        fail_cases = [
-            ['a', 'bar'], ['a', 'baz'], ['baz'], ['bar'], ['a'], ['-b', 'c', 'bar'], ['-b', 'c', 'baz'], ['-b', 'c']
-        ]
-        # fmt: on
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
-
     def test_sub_cmd_optional_before_base_positional(self):
         class Foo(Command):
             foo = Positional()
@@ -381,6 +350,100 @@ class ParamComboTest(ParserTest):
         fail_cases = [['-b', 'a'], ['a', '-b'], ['a', '-b', 'c']]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+
+class PositionalAfterSubcommandTest(ParserTest):
+    def test_common_positional_after_sub_command(self):
+        class Foo(Command):
+            sub = SubCommand()
+            pos = Positional()
+
+        class Bar(Foo):
+            bar = Option('-b')
+
+        class Baz(Foo):
+            baz = Option('-b')
+
+        bar_expected = {'pos': 'a', 'sub': 'bar', 'bar': 'c'}
+        baz_expected = {'pos': 'a', 'sub': 'baz', 'baz': 'c'}
+        success_cases = [
+            (['bar', 'a', '-b', 'c'], bar_expected),
+            (['bar', '-b', 'c', 'a'], bar_expected),
+            (['baz', 'a', '-b', 'c'], baz_expected),
+            (['baz', '-b', 'c', 'a'], baz_expected),
+            (['bar', 'a'], {'pos': 'a', 'sub': 'bar', 'bar': None}),
+            (['baz', 'a'], {'pos': 'a', 'sub': 'baz', 'baz': None}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['a', 'bar'], ['a', 'baz'], ['baz'], ['bar'], ['a'], ['-b', 'c', 'bar'], ['-b', 'c', 'baz'], ['-b', 'c'],
+            ['-b', 'c', 'bar', 'a'], ['-b', 'c', 'baz', 'a'], [],
+        ]
+        # fmt: on
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_pos_in_one_sub_cmd(self):
+        class Cmd(Command):
+            sub = SubCommand()
+            pre = Positional()
+
+        class Foo(Cmd):
+            foo = Positional()
+            bar = Option('-b')
+
+        class Bar(Cmd):
+            baz = Option('-b')
+
+        foo_expected = {'pre': 'a', 'sub': 'foo', 'bar': 'c', 'foo': '2'}
+        bar_expected = {'pre': 'a', 'sub': 'bar', 'baz': 'c'}
+        success_cases = [
+            (['foo', 'a', '2', '-b', 'c'], foo_expected),
+            (['foo', 'a', '-b', 'c', '2'], foo_expected),
+            (['foo', '-b', 'c', 'a', '2'], foo_expected),
+            (['bar', 'a', '-b', 'c'], bar_expected),
+            (['bar', '-b', 'c', 'a'], bar_expected),
+            (['foo', 'x', '2'], {'pre': 'x', 'sub': 'foo', 'bar': None, 'foo': '2'}),
+            (['bar', 'x'], {'pre': 'x', 'sub': 'bar', 'baz': None}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['a', 'bar'], ['a', 'foo'], ['foo'], ['bar'], ['a'], ['-b', 'c', 'bar'], ['-b', 'c', 'foo'], ['-b', 'c'],
+            ['-b', 'c', 'bar', 'a'], ['-b', 'c', 'foo', 'a'], ['foo', '-b', 'c', 'a'], ['foo', 'x'], [],
+        ]
+        # fmt: on
+        self.assert_parse_fails_cases(Cmd, fail_cases, UsageError)
+
+    def test_middle_abc_subcommand_positional_basic(self):
+        class Base(Command):
+            sub = SubCommand()
+            pre = Positional()
+
+        class Mid(Base, ABC):
+            mid = Positional()
+
+        class A(Mid):
+            bar = Flag('-b')
+
+        success_cases = [
+            (['a', '1', '2', '-b'], {'sub': 'a', 'pre': '1', 'mid': '2', 'bar': True}),
+            (['a', '1', '-b', '2'], {'sub': 'a', 'pre': '1', 'mid': '2', 'bar': True}),
+            (['a', '-b', '1', '2'], {'sub': 'a', 'pre': '1', 'mid': '2', 'bar': True}),
+            (['a', 'b', 'c'], {'sub': 'a', 'pre': 'b', 'mid': 'c', 'bar': False}),
+            (['-b', 'a', 'b', 'c'], {'sub': 'a', 'pre': 'b', 'mid': 'c', 'bar': True}),
+        ]
+        self.assert_parse_results_cases(Base, success_cases)
+        fail_cases = [[], ['a'], ['a', 'b']]
+        self.assert_parse_fails_cases(Base, fail_cases, UsageError)
+
+    def test_no_sub_cmds(self):
+        class Cmd(Command):
+            sub = SubCommand()
+            pre = Positional()
+
+        with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
+            Cmd.parse([])
 
 
 if __name__ == '__main__':

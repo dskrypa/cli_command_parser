@@ -27,7 +27,7 @@ class TestParamRegistry(TestCase):
             a = SubCommand()
             b = SubCommand()
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parse([])
 
     def test_action_with_sub_cmd_rejected(self):
@@ -44,18 +44,8 @@ class TestParamRegistry(TestCase):
             a = SubCommand()
             b = Action()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'may not follow the sub command SubCommand'):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parse([])
-
-    def test_positional_after_sub_cmd_rejected(self):
-        with self.assertRaisesRegex(CommandDefinitionError, 'may not follow the sub command'):
-
-            class Foo(Command):
-                sub = SubCommand()
-                pos = Positional()
-
-            class Bar(Foo, choice='bar'):
-                pass
 
     def test_no_help(self):
         class Foo(Command, add_help=False, error_handler=None):
@@ -75,6 +65,7 @@ class TestParamRegistry(TestCase):
             Bar.parse_and_run(['-h'])
 
     def test_multiple_non_required_positionals_rejected(self):
+        expected_msg = 'because it accepts a variable number of arguments with no specific choices defined'
         for a, b in (('?', '?'), ('?', '*'), ('*', '?'), ('*', '*')):
             with self.subTest(a=a, b=b):
 
@@ -82,7 +73,7 @@ class TestParamRegistry(TestCase):
                     foo = Positional(nargs=a)
                     bar = Positional(nargs=b)
 
-                with self.assertRaises(CommandDefinitionError):
+                with self.assertRaisesRegex(CommandDefinitionError, expected_msg):
                     CommandMeta.params(Foo)
 
 

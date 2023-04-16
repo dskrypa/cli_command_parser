@@ -82,6 +82,23 @@ with optional dependencies::
     $ pip install -U cli-command-parser[wcwidth]
 
 
+Python Version Compatibility
+============================
+
+Python versions 3.7 and above are currently supported.  CLI Command Parser will no longer support 3.7 after 2023-04-30,
+ahead of the `official end of support for 3.7 on 2023-06-27 <https://devguide.python.org/versions/>`__.
+
+When using 3.7 or 3.8, some additional packages that backport functionality that was added in later Python versions
+are required for compatibility.
+
+To use the argparse to cli-command-parser conversion script with Python 3.7 or 3.8, there is a dependency on
+`astunparse <https://astunparse.readthedocs.io>`__.  If you are using Python 3.9 or above, then ``astunparse`` is not
+necessary because the relevant code was added to the stdlib ``ast`` module.  If you're unsure, you can install
+cli-command-parser with the following command to automatically handle whether that extra dependency is needed or not::
+
+    $ pip install -U cli-command-parser[conversion]
+
+
 User Guide
 **********
 

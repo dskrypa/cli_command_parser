@@ -487,7 +487,7 @@ class TriFlagTest(ParserTest):
                     bar = TriFlag('-b', **case)
                     baz = Flag('-B')
 
-                with self.assertRaises(CommandDefinitionError):
+                with self.assertRaisesRegex(CommandDefinitionError, 'option=.* conflict for command='):
                     Foo.parse([])
 
     def test_no_alt_short(self):

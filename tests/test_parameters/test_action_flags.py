@@ -102,7 +102,7 @@ class ActionFlagTest(ParserTest):
                     self.assertFalse(parsed[a])
 
     def test_no_reassign(self):
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot re-assign the func to call for ActionFlag'):
 
             class Foo(Command):
                 foo = ActionFlag()(Mock())
@@ -116,7 +116,7 @@ class ActionFlagTest(ParserTest):
             bar = ActionFlag('-b', order=1)(Mock())
             baz = ActionFlag('-b', order=2)(Mock())
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, "short option='-b' conflict for command="):
             Foo.parse([])
 
     def test_extra_flags_provided_cause_error(self):
@@ -300,7 +300,7 @@ class ActionFlagTest(ParserTest):
             foo = before_main(order=1)(Mock(__doc__=''))
             bar = before_main(order=2, always_available=True)(Mock(__doc__=''))
 
-        with self.assertRaisesRegex(CommandDefinitionError, r'invalid parameters: \{\(True, 2\): ActionFlag\(\'bar\','):
+        with self.assertRaisesRegex(CommandDefinitionError, r"invalid parameters: \{\(True, 2\): ActionFlag\('bar',"):
             Foo.parse([])
 
 

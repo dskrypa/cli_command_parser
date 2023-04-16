@@ -11,15 +11,16 @@ from collections import deque
 from os import environ
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
-from .context import ActionPhase, Context, ParseState
+from .context import ActionPhase, Context
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
+from .exceptions import Backtrack, UnsupportedAction
 from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
+    from .config import CommandConfig
     from .typing import CommandType
 
 __all__ = ['CommandParser']
@@ -29,72 +30,48 @@ __all__ = ['CommandParser']
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    __slots__ = ('_last', 'arg_deque', 'ctx', 'deferred', 'params', 'positionals')
+    __slots__ = ('_last', 'arg_deque', 'config', 'deferred', 'params', 'positionals')
 
     arg_deque: Optional[Deque[str]]
+    config: CommandConfig
     deferred: Optional[List[str]]
     params: CommandParameters
     positionals: List[BasePositional]
     _last: Optional[Parameter]
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
         self._last = None
-        self.ctx = ctx
-        self.params = ctx.params
-        self.positionals = ctx.params.all_positionals.copy()
-        if ctx.config.reject_ambiguous_pos_combos:
+        self.params = params
+        self.positionals = params.all_positionals.copy()
+        self.config = config
+        if config.reject_ambiguous_pos_combos:
             PosNode.build_tree(ctx.command)
 
     @classmethod
-    def parse_args(cls, ctx: Context) -> Optional[CommandType]:
+    def parse_args_and_get_next_cmd(cls, ctx: Context) -> Optional[CommandType]:
         try:
-            parsed = cls.__parse_args(ctx)
+            return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
         except UsageError:
-            ctx.state = ParseState.FAILED
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise
             return None
-        except Exception:
-            ctx.state = ParseState.FAILED
-            raise
-        else:
-            if ctx.state == ParseState.INITIAL:
-                ctx.state = ParseState.COMPLETE
-            return parsed
 
-    @classmethod
-    def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
-        params = ctx.params
-        sub_cmd_param = params.sub_command
-        if sub_cmd_param and not sub_cmd_param.choices:
-            raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
-
-        cls(ctx)._parse_args(ctx)
+    def get_next_cmd(self, ctx: Context) -> Optional[CommandType]:
+        self._parse_args(ctx)
+        params = self.params
         params.validate_groups()
-
-        if sub_cmd_param:
-            next_cmd = sub_cmd_param.target()  # type: CommandType
-            missing = cls._missing(params, ctx)
-            if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
-                ctx.state = ParseState.FAILED
-                if ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
-                    return None
+        missing = ctx.get_missing()
+        no_pre_init_action = not ctx.categorized_action_flags[ActionPhase.PRE_INIT]
+        next_cmd = params.sub_command.target() if params.sub_command else None
+        if next_cmd is not None:
+            if missing and no_pre_init_action and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 raise ParamsMissing(missing)
-            return next_cmd
-
-        missing = cls._missing(params, ctx)
-        if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
-            # Action is excluded because it provides a better error message
-            if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
+        elif missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
+            if no_pre_init_action:
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.config.ignore_unknown:
-            raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))
-
-        return None
-
-    @classmethod
-    def _missing(cls, params: CommandParameters, ctx: Context) -> List[Parameter]:
-        return [p for p in params.required_check_params() if ctx.num_provided(p) == 0]
+            raise NoSuchOption(f'unrecognized arguments: {" ".join(ctx.remaining)}') from None
+        return next_cmd
 
     def _parse_args(self, ctx: Context):
         self.arg_deque = arg_deque = self.handle_pass_thru(ctx)
@@ -254,7 +231,7 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if not self.ctx.config.allow_backtrack or not self.positionals or found < 2:
+        if not self.config.allow_backtrack or not self.positionals or found < 2:
             return found
 
         can_pop = param.can_pop_counts()
@@ -269,7 +246,7 @@ class CommandParser:
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
-        if not self.ctx.config.allow_backtrack:
+        if not self.config.allow_backtrack:
             return
 
         can_pop = self._last.can_pop_counts()

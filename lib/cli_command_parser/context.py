@@ -32,29 +32,10 @@ if TYPE_CHECKING:
     from .parameters import Parameter, ActionFlag
     from .typing import Bool, ParamOrGroup, CommandType, AnyConfig, OptStr, PathLike
 
-__all__ = [
-    'Context',
-    'ctx',
-    'get_current_context',
-    'get_or_create_context',
-    'get_context',
-    'get_parsed',
-    'get_raw_arg',
-    'ParseState',
-]
+__all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
 _context_stack = ContextVar('cli_command_parser.context.stack', default=[])
 _TERMINAL = Terminal()
-
-
-class ParseState(Enum):
-    INITIAL = 1
-    COMPLETE = 2
-    FAILED = 3
-
-    @property
-    def done(self) -> bool:
-        return self._value_ > 1
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -69,6 +50,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     prog: OptStr = None
     _terminal_width: Optional[int]
     allow_argv_prog: Bool = True
+    _provided: Dict[ParamOrGroup, int]
 
     def __init__(
         self,
@@ -82,7 +64,6 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     ):
         self.command = command
         self.parent = parent
-        self.state = ParseState.INITIAL
         self.config = _normalize_config(config, kwargs, parent, command)
         if parent is not None:
             self._set_argv(parent.prog, argv)
@@ -128,8 +109,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self.__class__(argv, command, parent=self, **kwargs)
 
     def __repr__(self) -> str:
-        cmd_name = getattr(self.command, '__name__', None)
-        return f'<{self.__class__.__name__}[state={self.state}, command={cmd_name}]>'
+        return f'<{self.__class__.__name__}[command={getattr(self.command, "__name__", None)}]>'
 
     def __enter__(self) -> Context:
         _context_stack.get().append(self)
@@ -220,7 +200,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         try:
             return self._parsed[param]
         except KeyError:
-            self._parsed[param] = value = param._init_value_factory(self.state)
+            self._parsed[param] = value = param._init_value_factory()
             return value
 
     def set_parsed_value(self, param: Parameter, value: Any):
@@ -236,6 +216,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def num_provided(self, param: ParamOrGroup) -> int:
         """Not intended to be called by users.  Used by Parameters during parsing to handle nargs."""
         return self._provided[param]
+
+    def get_missing(self) -> List[Parameter]:
+        return [p for p in self.params.required_check_params() if self._provided[p] == 0]
 
     # endregion
 
