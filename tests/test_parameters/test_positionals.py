@@ -55,6 +55,7 @@ class PositionalTest(ParserTest):
                     self.assert_parse_results_cases(Foo, success_cases)
 
     def test_pos_after_unbound_nargs_rejected(self):
+        expected_msg = 'it accepts a variable number of arguments with no specific choices defined'
         for nargs in ('*', 'REMAINDER'):
             with self.subTest(nargs=nargs):
 
@@ -62,7 +63,7 @@ class PositionalTest(ParserTest):
                     bar = Positional(nargs=nargs)
                     baz = Positional()
 
-                with self.assertRaises(CommandDefinitionError):
+                with self.assertRaisesRegex(CommandDefinitionError, expected_msg):
                     Foo.parse([])
 
     def test_pos_grouped_pos_both_required(self):

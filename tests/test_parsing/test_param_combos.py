@@ -263,7 +263,7 @@ class ParamComboTest(ParserTest):
             baz = Option('-b')
 
         bar_expected = {'pos': 'a', 'sub': 'bar', 'bar': 'c'}
-        baz_expected = {'pos': 'a', 'sub': 'bar', 'baz': 'c'}
+        baz_expected = {'pos': 'a', 'sub': 'baz', 'baz': 'c'}
         success_cases = [
             (['bar', 'a', '-b', 'c'], bar_expected),
             (['bar', '-b', 'c', 'a'], bar_expected),

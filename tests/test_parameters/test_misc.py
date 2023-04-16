@@ -64,7 +64,7 @@ class PassThruTest(ParserTest):
             bar = PassThru()
             baz = PassThru()
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'it cannot follow another PassThru param'):
             Foo.parse([])
 
     def test_double_dash_without_pass_thru_rejected(self):
@@ -91,7 +91,7 @@ class PassThruTest(ParserTest):
         class Bar(Foo):
             pt2 = PassThru()
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'it cannot follow another PassThru param'):
             Bar.parse([])
 
     def test_extra_rejected(self):
@@ -194,7 +194,7 @@ class MiscParameterTest(ParserTest):
             bar = Flag('-b')
             baz = Option('-b')
 
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, "short option='-b' conflict for command="):
             Foo.parse([])
 
     def test_config_no_context_explicit_command(self):

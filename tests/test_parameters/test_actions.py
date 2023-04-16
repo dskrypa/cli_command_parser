@@ -94,7 +94,7 @@ class ActionTest(TestCase):
         self.assertEqual(foo.text, ['bar'])
 
     def test_reject_double_choice(self):
-        with self.assertRaises(CommandDefinitionError):
+        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine a positional method_or_choice='):
 
             class Foo(Command):
                 action = Action()
