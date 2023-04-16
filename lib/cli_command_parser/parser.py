@@ -13,13 +13,14 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ActionPhase, Context, ParseState
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import CommandDefinitionError, Backtrack, UnsupportedAction
+from .exceptions import Backtrack, UnsupportedAction
 from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
+    from .config import CommandConfig
     from .typing import CommandType
 
 __all__ = ['CommandParser']
@@ -29,26 +30,27 @@ __all__ = ['CommandParser']
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    __slots__ = ('_last', 'arg_deque', 'ctx', 'deferred', 'params', 'positionals')
+    __slots__ = ('_last', 'arg_deque', 'config', 'deferred', 'params', 'positionals')
 
     arg_deque: Optional[Deque[str]]
+    config: CommandConfig
     deferred: Optional[List[str]]
     params: CommandParameters
     positionals: List[BasePositional]
     _last: Optional[Parameter]
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
         self._last = None
-        self.ctx = ctx
-        self.params = ctx.params
-        self.positionals = ctx.params.all_positionals.copy()
-        if ctx.config.reject_ambiguous_pos_combos:
+        self.params = params
+        self.positionals = params.all_positionals.copy()
+        self.config = config
+        if config.reject_ambiguous_pos_combos:
             PosNode.build_tree(ctx.command)
 
     @classmethod
     def parse_args(cls, ctx: Context) -> Optional[CommandType]:
         try:
-            parsed = cls.__parse_args(ctx)
+            next_cmd = cls.__parse_args(ctx)
         except UsageError:
             ctx.state = ParseState.FAILED
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
@@ -60,14 +62,14 @@ class CommandParser:
         else:
             if ctx.state == ParseState.INITIAL:
                 ctx.state = ParseState.COMPLETE
-            return parsed
+            return next_cmd
 
     @classmethod
     def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
         params = ctx.params
         sub_cmd_param = params.sub_command
 
-        cls(ctx)._parse_args(ctx)
+        cls(ctx, params, ctx.config)._parse_args(ctx)
         params.validate_groups()
 
         if sub_cmd_param:
@@ -252,7 +254,7 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if not self.ctx.config.allow_backtrack or not self.positionals or found < 2:
+        if not self.config.allow_backtrack or not self.positionals or found < 2:
             return found
 
         can_pop = param.can_pop_counts()
@@ -267,7 +269,7 @@ class CommandParser:
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
-        if not self.ctx.config.allow_backtrack:
+        if not self.config.allow_backtrack:
             return
 
         can_pop = self._last.can_pop_counts()
