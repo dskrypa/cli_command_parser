@@ -69,6 +69,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     prog: OptStr = None
     _terminal_width: Optional[int]
     allow_argv_prog: Bool = True
+    _provided: Dict[ParamOrGroup, int]
 
     def __init__(
         self,
@@ -236,6 +237,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def num_provided(self, param: ParamOrGroup) -> int:
         """Not intended to be called by users.  Used by Parameters during parsing to handle nargs."""
         return self._provided[param]
+
+    def get_missing(self) -> List[Parameter]:
+        return [p for p in self.params.required_check_params() if self._provided[p] == 0]
 
     # endregion
 

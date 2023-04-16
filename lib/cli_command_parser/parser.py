@@ -48,9 +48,9 @@ class CommandParser:
             PosNode.build_tree(ctx.command)
 
     @classmethod
-    def parse_args(cls, ctx: Context) -> Optional[CommandType]:
+    def parse_args_and_get_next_cmd(cls, ctx: Context) -> Optional[CommandType]:
         try:
-            next_cmd = cls.__parse_args(ctx)
+            next_cmd = cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
         except UsageError:
             ctx.state = ParseState.FAILED
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
@@ -64,26 +64,20 @@ class CommandParser:
                 ctx.state = ParseState.COMPLETE
             return next_cmd
 
-    @classmethod
-    def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
-        params = ctx.params
-        sub_cmd_param = params.sub_command
-
-        cls(ctx, params, ctx.config)._parse_args(ctx)
+    def get_next_cmd(self, ctx: Context) -> Optional[CommandType]:
+        self._parse_args(ctx)
+        params = self.params
         params.validate_groups()
-
-        if sub_cmd_param:
-            next_cmd: CommandType = sub_cmd_param.target()
-            missing = cls._missing(params, ctx)
+        missing = ctx.get_missing()
+        if params.sub_command:
+            next_cmd: CommandType = params.sub_command.target()
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.state = ParseState.FAILED
                 if ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                     return None
                 raise ParamsMissing(missing)
             return next_cmd
-
-        missing = cls._missing(params, ctx)
-        if missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
+        elif missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
             # Action is excluded because it provides a better error message
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise ParamsMissing(missing)
@@ -91,10 +85,6 @@ class CommandParser:
             raise NoSuchOption(f'unrecognized arguments: {" ".join(ctx.remaining)}')
 
         return None
-
-    @classmethod
-    def _missing(cls, params: CommandParameters, ctx: Context) -> List[Parameter]:
-        return [p for p in params.required_check_params() if ctx.num_provided(p) == 0]
 
     def _parse_args(self, ctx: Context):
         self.arg_deque = arg_deque = self.handle_pass_thru(ctx)
