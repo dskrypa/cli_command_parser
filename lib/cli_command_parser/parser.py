@@ -11,7 +11,7 @@ from collections import deque
 from os import environ
 from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
-from .context import ActionPhase, Context, ParseState
+from .context import ActionPhase, Context
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
 from .exceptions import Backtrack, UnsupportedAction
 from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
@@ -50,41 +50,28 @@ class CommandParser:
     @classmethod
     def parse_args_and_get_next_cmd(cls, ctx: Context) -> Optional[CommandType]:
         try:
-            next_cmd = cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
+            return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
         except UsageError:
-            ctx.state = ParseState.FAILED
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise
             return None
-        except Exception:
-            ctx.state = ParseState.FAILED
-            raise
-        else:
-            if ctx.state == ParseState.INITIAL:
-                ctx.state = ParseState.COMPLETE
-            return next_cmd
 
     def get_next_cmd(self, ctx: Context) -> Optional[CommandType]:
         self._parse_args(ctx)
         params = self.params
         params.validate_groups()
         missing = ctx.get_missing()
-        if params.sub_command:
-            next_cmd: CommandType = params.sub_command.target()
-            if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
-                ctx.state = ParseState.FAILED
-                if ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
-                    return None
+        no_pre_init_action = not ctx.categorized_action_flags[ActionPhase.PRE_INIT]
+        next_cmd = params.sub_command.target() if params.sub_command else None
+        if next_cmd is not None:
+            if missing and no_pre_init_action and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 raise ParamsMissing(missing)
-            return next_cmd
         elif missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
-            # Action is excluded because it provides a better error message
-            if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
+            if no_pre_init_action:
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.config.ignore_unknown:
-            raise NoSuchOption(f'unrecognized arguments: {" ".join(ctx.remaining)}')
-
-        return None
+            raise NoSuchOption(f'unrecognized arguments: {" ".join(ctx.remaining)}') from None
+        return next_cmd
 
     def _parse_args(self, ctx: Context):
         self.arg_deque = arg_deque = self.handle_pass_thru(ctx)

@@ -22,7 +22,7 @@ except ImportError:
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash
-from ..context import Context, ctx, get_current_context, ParseState
+from ..context import Context, ctx, get_current_context
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
 from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
 from ..inputs import InputType, normalize_input_type
@@ -277,7 +277,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         if show_default is not None:
             self.show_default = show_default
 
-    def _init_value_factory(self, state: ParseState):
+    def _init_value_factory(self):
         return _NotSet
 
     def __set_name__(self, command: CommandCls, name: str):
@@ -489,10 +489,10 @@ class BasicActionMixin:
     nargs: Nargs
     type: Optional[Callable]
 
-    def _init_value_factory(self, state: ParseState):
+    def _init_value_factory(self):
         if self.action == 'append':
             return []
-        return super()._init_value_factory(state)  # noqa
+        return super()._init_value_factory()  # noqa
 
     @parameter_action
     def store(self: Parameter, value: T_co):
@@ -524,7 +524,7 @@ class BasicActionMixin:
         if not values:
             return values
 
-        ctx.set_parsed_value(self, self._init_value_factory(ctx.state))
+        ctx.set_parsed_value(self, self._init_value_factory())
         ctx._provided[self] = 0
         return values
 

@@ -11,7 +11,7 @@ from string import whitespace, printable
 from typing import Type, TypeVar, Generic, Optional, Callable, Union, Collection, Mapping, NoReturn, Dict
 from types import MethodType
 
-from ..context import ctx, ParseState
+from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
@@ -100,7 +100,7 @@ class ChoiceMap(BasePositional[str], Generic[T]):
         self.description = description
         self.choices = {}
 
-    def _init_value_factory(self, state: ParseState):
+    def _init_value_factory(self):
         return []
 
     # region Choice Registration
