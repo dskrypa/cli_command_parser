@@ -41,16 +41,7 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             action = Action()
 
-        self.assert_parse_fails(Foo, [], CommandDefinitionError)
-
-    def test_missing_action_target_forced(self):
-        class Foo(Command):
-            action = Action()
-
-        with Context():
-            with self.assertRaises(BadArgument):
-                Foo.action.validate('-foo')
-            self.assertIs(None, Foo.action.validate('foo'))
+        self.assert_parse_fails_cases(Foo, [[], ['foo'], ['-f']], CommandDefinitionError)
 
     def test_choice_map_too_many(self):
         class Foo(Command):

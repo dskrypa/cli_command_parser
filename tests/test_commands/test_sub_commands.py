@@ -65,8 +65,9 @@ class SubCommandTest(ParserTest):
         class Foo(Command):
             sub_cmd = SubCommand()
 
-        with self.assertRaises(CommandDefinitionError):
-            Foo.parse([])
+        for args in ([], ['foo']):
+            with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
+                Foo.parse(args)
 
     # endregion
 

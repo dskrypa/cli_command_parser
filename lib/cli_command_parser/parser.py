@@ -66,14 +66,12 @@ class CommandParser:
     def __parse_args(cls, ctx: Context) -> Optional[CommandType]:
         params = ctx.params
         sub_cmd_param = params.sub_command
-        if sub_cmd_param and not sub_cmd_param.choices:
-            raise CommandDefinitionError(f'{ctx.command}.{sub_cmd_param.name} = {sub_cmd_param} has no sub Commands')
 
         cls(ctx)._parse_args(ctx)
         params.validate_groups()
 
         if sub_cmd_param:
-            next_cmd = sub_cmd_param.target()  # type: CommandType
+            next_cmd: CommandType = sub_cmd_param.target()
             missing = cls._missing(params, ctx)
             if missing and next_cmd.__class__.parent(next_cmd) is not ctx.command:
                 ctx.state = ParseState.FAILED
@@ -88,7 +86,7 @@ class CommandParser:
             if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.config.ignore_unknown:
-            raise NoSuchOption('unrecognized arguments: {}'.format(' '.join(ctx.remaining)))
+            raise NoSuchOption(f'unrecognized arguments: {" ".join(ctx.remaining)}')
 
         return None
 

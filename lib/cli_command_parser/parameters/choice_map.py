@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from functools import partial
 from string import whitespace, printable
-from typing import Type, TypeVar, Generic, Optional, Callable, Union, Collection, Mapping, Dict
+from typing import Type, TypeVar, Generic, Optional, Callable, Union, Collection, Mapping, NoReturn, Dict
 from types import MethodType
 
 from ..context import ctx, ParseState
@@ -134,6 +134,9 @@ class ChoiceMap(BasePositional[str], Generic[T]):
             prefix = 'Invalid default' if choice is None else f'Invalid choice={choice!r} for'
             raise CommandDefinitionError(f'{prefix} target={target!r} - already assigned to {existing}')
 
+    def _no_choices_error(self) -> NoReturn:
+        raise CommandDefinitionError(f'No choices were registered for {self}')
+
     # endregion
 
     # region Argument Handling
@@ -151,33 +154,34 @@ class ChoiceMap(BasePositional[str], Generic[T]):
 
     def validate(self, value: str):
         choices = self.choices
-        if choices:
-            values = (*ctx.get_parsed_value(self), value)
-            choice = ' '.join(values)
-            if choice in choices:
-                return
-            elif len(values) > self.nargs.max:
-                raise BadArgument(self, 'too many values')
-            prefix = choice + ' '
-            if not any(c.startswith(prefix) for c in choices if c):
-                raise InvalidChoice(self, prefix[:-1], choices)
-        elif value.startswith('-'):
-            # Note: choices with a leading dash are rejected by `_validate_positional`
-            raise BadArgument(self, f'invalid value={value!r}')
+        if not choices:
+            self._no_choices_error()
+
+        values = (*ctx.get_parsed_value(self), value)
+        choice = ' '.join(values)
+        if choice in choices:
+            return
+        elif len(values) > self.nargs.max:
+            raise BadArgument(self, 'too many values')
+        prefix = choice + ' '
+        if not any(c.startswith(prefix) for c in choices if c):
+            raise InvalidChoice(self, prefix[:-1], choices)
 
     def result_value(self) -> OptStr:
         choices = self.choices
         if not choices:
-            raise CommandDefinitionError(f'No choices were registered for {self}')
+            self._no_choices_error()
 
         values = ctx.get_parsed_value(self)
         if not values:
             if None in choices:
                 return None
             raise MissingArgument(self)
+
         val_count = len(values)
         if val_count not in self.nargs:
             raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
+
         choice = ' '.join(values)
         if choice not in choices:
             raise InvalidChoice(self, choice, choices)
@@ -292,6 +296,9 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             return partial(self.register_command, command_or_choice, help=help)
         else:
             return self.register_command(choice, command_or_choice, help=help)  # noqa
+
+    def _no_choices_error(self) -> NoReturn:
+        raise CommandDefinitionError(f'{ctx.command}.{self.name} = {self} has no sub Commands')
 
 
 class Action(ChoiceMap[MethodType], title='Actions'):
