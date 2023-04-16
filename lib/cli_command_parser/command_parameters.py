@@ -50,6 +50,7 @@ class CommandParameters:
     combo_option_map: OptionMap                          #: Mapping of {short opt: Parameter} (no dash characters)
     groups: List[ParamGroup]                             #: List of ParamGroup objects
     positionals: List[BasePositional]                    #: List of positional Parameters
+    _deferred_positionals: List[BasePositional] = ()     #: Positional Parameters that are deferred to sub commands
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
 
     def __init__(self, command: CommandCls, command_parent: Optional[CommandCls], config: CommandConfig):
@@ -169,6 +170,7 @@ class CommandParameters:
                 options.append(param)
             elif isinstance(param, ParamGroup):
                 # Groups will only be discovered here when defined with `as` - ex: `with ParamGroup(...) as foo:`
+                # Group members will always be discovered at the top level since context managers share the outer scope
                 groups.add(param)
             elif isinstance(param, PassThru):
                 if self.pass_thru:
@@ -200,36 +202,37 @@ class CommandParameters:
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):
-        var_nargs_param = None
-        for param in params:
-            if self.sub_command:
-                raise CommandDefinitionError(
-                    f'Positional param={param!r} may not follow the sub command {self.sub_command} - re-order the'
-                    ' positionals, move it into the sub command(s), or convert it to an optional parameter'
-                )
-            elif var_nargs_param:
+        var_nargs_param = action_or_sub_cmd = split_index = None
+        for i, param in enumerate(params):
+            if var_nargs_param:
                 raise CommandDefinitionError(
                     f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
                     f' a variable number of arguments with no specific choices defined - param={param!r} is invalid'
                 )
-
-            if isinstance(param, (SubCommand, Action)):
-                if self.action:  # self.sub_command being already defined is handled above
+            elif isinstance(param, (SubCommand, Action)):
+                if action_or_sub_cmd:
                     raise CommandDefinitionError(
                         f'Only 1 Action xor SubCommand is allowed in a given Command - {self.command.__name__} cannot'
-                        f' contain both {self.action} and {param}'
+                        f' contain both {action_or_sub_cmd} and {param}'
                     )
                 elif isinstance(param, SubCommand):
-                    self.sub_command = param
+                    self.sub_command = action_or_sub_cmd = param
+                    split_index = i + 1
                 else:
-                    self.action = param
+                    self.action = action_or_sub_cmd = param
                     if not param.has_choices:
                         raise CommandDefinitionError(f'No choices were registered for {self.action}')
-
-            if param.nargs.variable and not param.has_choices:
+            elif param.nargs.variable and not param.has_choices:
                 var_nargs_param = param
 
-        self.positionals = params
+        if split_index:
+            params, self._deferred_positionals = params[:split_index], params[split_index:]
+
+        parent = self.parent
+        if parent and parent._deferred_positionals:
+            self.positionals = parent._deferred_positionals + params
+        else:
+            self.positionals = params
 
     def _process_options(self, params: Collection[BaseOption]):
         parent = self.parent
@@ -459,6 +462,7 @@ class CommandParameters:
             raise exc
 
     def try_env_params(self, ctx: Context) -> Iterator[Option]:
+        """Yields Option parameters that have an environment variable configured, and did not have any CLI values."""
         for param in self.options:
             try:
                 param.env_var  # noqa
