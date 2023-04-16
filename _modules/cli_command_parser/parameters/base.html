@@ -116,7 +116,7 @@
 
 <span class="kn">from</span> <span class="nn">..annotations</span> <span class="kn">import</span> <span class="n">get_descriptor_value_type</span>
 <span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="p">,</span> <span class="n">AllowLeadingDash</span>
-<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">get_current_context</span><span class="p">,</span> <span class="n">ParseState</span>
+<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">get_current_context</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">normalize_input_type</span>
@@ -371,7 +371,7 @@
         <span class="k">if</span> <span class="n">show_default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">show_default</span> <span class="o">=</span> <span class="n">show_default</span>
 
-    <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ParseState</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_NotSet</span>
 
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -583,10 +583,10 @@
     <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ParseState</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_init_value_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;append&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">()</span>  <span class="c1"># noqa</span>
 
     <span class="nd">@parameter_action</span>
     <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T_co</span><span class="p">):</span>
@@ -618,7 +618,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">values</span>
 
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">state</span><span class="p">))</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_factory</span><span class="p">())</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">_provided</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">values</span>
 

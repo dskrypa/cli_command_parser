@@ -154,6 +154,20 @@ with optional dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U cli-command-parser[wcwidth]
 </pre></div>
 </div>
+<section id="python-version-compatibility">
+<h3>Python Version Compatibility<a class="headerlink" href="#python-version-compatibility" title="Permalink to this heading"></a></h3>
+<p>Python versions 3.7 and above are currently supported.  CLI Command Parser will no longer support 3.7 after 2023-04-30,
+ahead of the <a class="reference external" href="https://devguide.python.org/versions/">official end of support for 3.7 on 2023-06-27</a>.</p>
+<p>When using 3.7 or 3.8, some additional packages that backport functionality that was added in later Python versions
+are required for compatibility.</p>
+<p>To use the argparse to cli-command-parser conversion script with Python 3.7 or 3.8, there is a dependency on
+<a class="reference external" href="https://astunparse.readthedocs.io">astunparse</a>.  If you are using Python 3.9 or above, then <code class="docutils literal notranslate"><span class="pre">astunparse</span></code> is not
+necessary because the relevant code was added to the stdlib <code class="docutils literal notranslate"><span class="pre">ast</span></code> module.  If you’re unsure, you can install
+cli-command-parser with the following command to automatically handle whether that extra dependency is needed or not:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U cli-command-parser[conversion]
+</pre></div>
+</div>
+</section>
 </section>
 <section id="user-guide">
 <h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h2>

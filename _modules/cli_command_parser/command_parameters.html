@@ -144,6 +144,7 @@
     <span class="n">combo_option_map</span><span class="p">:</span> <span class="n">OptionMap</span>                          <span class="c1">#: Mapping of {short opt: Parameter} (no dash characters)</span>
     <span class="n">groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]</span>                             <span class="c1">#: List of ParamGroup objects</span>
     <span class="n">positionals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span>                    <span class="c1">#: List of positional Parameters</span>
+    <span class="n">_deferred_positionals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>     <span class="c1">#: Positional Parameters that are deferred to sub commands</span>
     <span class="n">option_map</span><span class="p">:</span> <span class="n">OptionMap</span>                                <span class="c1">#: Mapping of {--opt / -opt: Parameter}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">command_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">):</span>
@@ -263,6 +264,7 @@
                 <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">):</span>
                 <span class="c1"># Groups will only be discovered here when defined with `as` - ex: `with ParamGroup(...) as foo:`</span>
+                <span class="c1"># Group members will always be discovered at the top level since context managers share the outer scope</span>
                 <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">:</span>
@@ -294,36 +296,37 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>
-        <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Positional param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> may not follow the sub command </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="si">}</span><span class="s1"> - re-order the&#39;</span>
-                    <span class="s1">&#39; positionals, move it into the sub command(s), or convert it to an optional parameter&#39;</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">var_nargs_param</span><span class="p">:</span>
+        <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">split_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">var_nargs_param</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;Additional Positional parameters cannot follow </span><span class="si">{</span><span class="n">var_nargs_param</span><span class="si">}</span><span class="s1"> because it accepts&#39;</span>
                     <span class="sa">f</span><span class="s1">&#39; a variable number of arguments with no specific choices defined - param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> is invalid&#39;</span>
                 <span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">SubCommand</span><span class="p">,</span> <span class="n">Action</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">:</span>  <span class="c1"># self.sub_command being already defined is handled above</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">SubCommand</span><span class="p">,</span> <span class="n">Action</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">action_or_sub_cmd</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s1">&#39;Only 1 Action xor SubCommand is allowed in a given Command - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> cannot&#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39; contain both </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39; contain both </span><span class="si">{</span><span class="n">action_or_sub_cmd</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s1">&#39;</span>
                     <span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="o">=</span> <span class="n">param</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">param</span>
+                    <span class="n">split_index</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">param</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">param</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No choices were registered for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span><span class="p">:</span>
                 <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">param</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="k">if</span> <span class="n">split_index</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="n">split_index</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="n">split_index</span><span class="p">:]</span>
+
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">_deferred_positionals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">+</span> <span class="n">params</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">params</span>
 
     <span class="k">def</span> <span class="nf">_process_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]):</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
@@ -553,6 +556,7 @@
             <span class="k">raise</span> <span class="n">exc</span></div>
 
 <div class="viewcode-block" id="CommandParameters.try_env_params"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.try_env_params">[docs]</a>    <span class="k">def</span> <span class="nf">try_env_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Option</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Yields Option parameters that have an environment variable configured, and did not have any CLI values.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">param</span><span class="o">.</span><span class="n">env_var</span>  <span class="c1"># noqa</span>

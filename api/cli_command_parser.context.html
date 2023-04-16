@@ -81,6 +81,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.set_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.set_parsed_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.record_action"><code class="docutils literal notranslate"><span class="pre">Context.record_action()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.num_provided"><code class="docutils literal notranslate"><span class="pre">Context.num_provided()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.get_missing"><code class="docutils literal notranslate"><span class="pre">Context.get_missing()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.action_flag_count"><code class="docutils literal notranslate"><span class="pre">Context.action_flag_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.all_action_flags"><code class="docutils literal notranslate"><span class="pre">Context.all_action_flags</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.Context.categorized_action_flags"><code class="docutils literal notranslate"><span class="pre">Context.categorized_action_flags</span></code></a></li>
@@ -92,13 +93,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_context"><code class="docutils literal notranslate"><span class="pre">get_context()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_parsed"><code class="docutils literal notranslate"><span class="pre">get_parsed()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.get_raw_arg"><code class="docutils literal notranslate"><span class="pre">get_raw_arg()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.context.ParseState"><code class="docutils literal notranslate"><span class="pre">ParseState</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.INITIAL"><code class="docutils literal notranslate"><span class="pre">ParseState.INITIAL</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.COMPLETE"><code class="docutils literal notranslate"><span class="pre">ParseState.COMPLETE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.FAILED"><code class="docutils literal notranslate"><span class="pre">ParseState.FAILED</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.context.ParseState.done"><code class="docutils literal notranslate"><span class="pre">ParseState.done</span></code></a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.conversion.html">Conversion Package</a></li>
@@ -250,6 +244,11 @@ with this Context.</p>
 <dd><p>Not intended to be called by users.  Used by Parameters during parsing to handle nargs.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.context.Context.get_missing">
+<span class="sig-name descname"><span class="pre">get_missing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.get_missing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.get_missing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.context.Context.action_flag_count">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_flag_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#Context.action_flag_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.Context.action_flag_count" title="Permalink to this definition"></a></dt>
@@ -353,32 +352,6 @@ returned dict match the names assigned to the Parameters in the given Command.</
 <dt class="sig sig-object py" id="cli_command_parser.context.get_raw_arg">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.context.</span></span><span class="sig-name descname"><span class="pre">get_raw_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><span class="pre">Command</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/context.html#get_raw_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.get_raw_arg" title="Permalink to this definition"></a></dt>
 <dd><p>Retrieve the raw parsed argument value(s) provided for the given Parameter</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cli_command_parser.context.ParseState">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.context.</span></span><span class="sig-name descname"><span class="pre">ParseState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/context.html#ParseState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.ParseState" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.context.ParseState.INITIAL">
-<span class="sig-name descname"><span class="pre">INITIAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cli_command_parser.context.ParseState.INITIAL" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.context.ParseState.COMPLETE">
-<span class="sig-name descname"><span class="pre">COMPLETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cli_command_parser.context.ParseState.COMPLETE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.context.ParseState.FAILED">
-<span class="sig-name descname"><span class="pre">FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cli_command_parser.context.ParseState.FAILED" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cli_command_parser.context.ParseState.done">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">done</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="reference internal" href="../_modules/cli_command_parser/context.html#ParseState.done"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.context.ParseState.done" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </section>
