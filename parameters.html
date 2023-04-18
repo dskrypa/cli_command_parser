@@ -360,16 +360,19 @@ specified.  Defaults to <code class="docutils literal notranslate"><span class="
 <dt class="field-odd" id="triflag:alt_short">alt_short<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The alternate short form to use.</p>
 </dd>
-<dt class="field-even" id="triflag:default">default<span class="colon">:</span></dt>
-<dd class="field-even"><p>The default value to use if neither the primary or alternate options are provided.  Defaults to None.</p>
+<dt class="field-even" id="triflag:alt_help">alt_help<span class="colon">:</span></dt>
+<dd class="field-even"><p>The help text to display with the alternate option strings.</p>
 </dd>
-<dt class="field-odd" id="triflag:name_mode">name_mode<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for the TriFlag.</p>
+<dt class="field-odd" id="triflag:default">default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The default value to use if neither the primary or alternate options are provided.  Defaults to None.</p>
+</dd>
+<dt class="field-even" id="triflag:name_mode">name_mode<span class="colon">:</span></dt>
+<dd class="field-even"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for the TriFlag.</p>
 </dd>
 </dl>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">foo</span> <span class="o">=</span> <span class="n">TriFlag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">alt_short</span><span class="o">=</span><span class="s1">&#39;-F&#39;</span><span class="p">,</span> <span class="n">name_mode</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Enable/disable foo (default: automatically picked)&#39;</span><span class="p">)</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">TriFlag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">alt_short</span><span class="o">=</span><span class="s1">&#39;-F&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Enable/disable foo (default: automatically picked)&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Help text:</p>

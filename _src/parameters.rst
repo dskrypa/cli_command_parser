@@ -227,6 +227,7 @@ provided, respectively.
   specified.  Defaults to ``no`` if ``alt_long`` is not specified.
 :alt_long: The alternate long form to use.
 :alt_short: The alternate short form to use.
+:alt_help: The help text to display with the alternate option strings.
 :default: The default value to use if neither the primary or alternate options are provided.  Defaults to None.
 :name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for the TriFlag.
 
@@ -234,7 +235,7 @@ provided, respectively.
 Example::
 
     class MyCommand(Command):
-        foo = TriFlag('-f', alt_short='-F', name_mode='-', help='Enable/disable foo (default: automatically picked)')
+        foo = TriFlag('-f', alt_short='-F', help='Enable/disable foo (default: automatically picked)')
 
 
 Help text::
