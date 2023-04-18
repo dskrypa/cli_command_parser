@@ -32,6 +32,7 @@ from .exceptions import (
 )
 from .error_handling import ErrorHandler, error_handler, no_exit_handler
 from .formatting.commands import get_formatter
+from .nargs import REMAINDER
 from .parameters import (
     Parameter,
     PassThru,

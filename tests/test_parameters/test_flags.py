@@ -184,6 +184,8 @@ class TriFlagTest(ParserTest):
         fail_cases = [({'consts': None}, exc), ({'consts': (1,)}, exc), ({'consts': [1, 2, 3]}, exc)]
         self.assert_call_fails_cases(TriFlag, fail_cases)
 
+    # region Option Strings
+
     def test_bad_alt_short(self):
         with self.assertRaises(ParameterDefinitionError):
             TriFlag(alt_short='-a-a')
@@ -193,7 +195,7 @@ class TriFlagTest(ParserTest):
         fail_cases = [({'alt_prefix': '-no'}, exc), ({'alt_prefix': 'a=b'}, exc), ({'alt_prefix': '='}, exc)]
         self.assert_call_fails_cases(TriFlag, fail_cases)
 
-    def test_bad_combos(self):
+    def test_bad_option_str_combos(self):
         cases = [{'alt_short': '-B'}, {'alt_long': '--baz'}, {'alt_long': '--baz', 'alt_short': '-B'}]
         for case in cases:
             with self.subTest(case=case):
@@ -210,6 +212,10 @@ class TriFlagTest(ParserTest):
             spam = TriFlag('-s')
 
         self.assertSetEqual({'--no-spam'}, Foo.spam.option_strs.alt_allowed)
+
+    # endregion
+
+    # region Name Mode
 
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
@@ -303,6 +309,8 @@ class TriFlagTest(ParserTest):
                 self.assertEqual(['--no-foo', '--foo'], Foo.foo.option_strs.long)
                 self.assertEqual(['--bar', '--baz'], Foo.bar.option_strs.long)
                 self.assertEqual([abc_long, '--abc'], Foo.abc.option_strs.long)
+
+    # endregion
 
 
 if __name__ == '__main__':
