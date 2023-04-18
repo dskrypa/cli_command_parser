@@ -3,15 +3,9 @@
 from typing import Type
 from unittest import main
 
-from cli_command_parser import Command, Context
+from cli_command_parser import Command, Context, ParameterDefinitionError
 from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import (
-    UsageError,
-    ParameterDefinitionError,
-    CommandDefinitionError,
-    ParamsMissing,
-    ParamConflict,
-)
+from cli_command_parser.exceptions import UsageError, CommandDefinitionError, ParamsMissing, ParamConflict
 from cli_command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
 from cli_command_parser.testing import ParserTest
 
@@ -117,7 +111,10 @@ class MutuallyExclusiveGroupTest(_GroupTest):
             (['-b'], {'bar': True, 'baz': False}),
             (['-B'], {'bar': False, 'baz': True}),
         ]
-        fail_cases = [(['-bB'], UsageError), (['-B', '-b'], UsageError, 'mutually exclusive - only one is allowed')]
+        fail_cases = [
+            (['-bB'], ParamConflict),
+            (['-B', '-b'], ParamConflict, 'mutually exclusive - only one is allowed'),
+        ]
         self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2)
 
     def test_positional_nargs_qm(self):
@@ -137,7 +134,7 @@ class MutuallyExclusiveGroupTest(_GroupTest):
             (['-b'], {'foo': None, 'bar': True}),
         ]
         fail_cases = [['-b', 'a'], ['a', '-b']]
-        self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2, exc=UsageError)
+        self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2, exc=ParamConflict)
 
     def test_bad_members_rejected(self):
         fail_cases = [
@@ -186,7 +183,7 @@ class MutuallyExclusiveGroupTest(_GroupTest):
             (['-fB'], {'foo': True, 'bar': False, 'baz': True}),
         ]
         fail_cases = [['-bB'], ['-B', '-b'], ['-fbB'], ['-f', '-B', '-b']]
-        self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2, exc=UsageError)
+        self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2, exc=ParamConflict)
 
     def test_required_param_in_nested_groups_doesnt_block_other_group(self):
         class Foo(Command):
@@ -526,6 +523,6 @@ if __name__ == '__main__':
     # import logging
     # logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2, exit=False)
     except KeyboardInterrupt:
         print()

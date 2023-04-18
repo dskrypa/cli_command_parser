@@ -11,7 +11,7 @@ from functools import partial, update_wrapper
 from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
 
 from ..context import ctx
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, ParamConflict
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
@@ -237,6 +237,11 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
             msg = f'Invalid consts={consts!r} - expected a 2-tuple of (positive, negative) constants to store'
             raise ParameterDefinitionError(msg) from e
 
+        if default in consts:
+            raise ParameterDefinitionError(
+                f'Invalid default={default!r} with consts={consts!r} - the default must not match either value'
+            )
+
         alt_opt_strs = filter(None, (alt_short, alt_long))
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
         self.consts = consts
@@ -248,13 +253,23 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         super().__set_name__(command, name)
         self.option_strs.update_alts(name)
 
+    def _get_const(self, opt_str: str) -> Union[TC, TA]:
+        if opt_str in self.option_strs.alt_allowed:
+            return self.consts[1]
+        else:
+            return self.consts[0]
+
     @parameter_action
     def store_const(self, opt_str: str):
-        if opt_str in self.option_strs.alt_allowed:
-            const = self.consts[1]
-        else:
-            const = self.consts[0]
-        ctx.set_parsed_value(self, const)
+        ctx.set_parsed_value(self, self._get_const(opt_str))
+
+    def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
+        if value is None:
+            prev_parsed = ctx.get_parsed_value(self)
+            const = self._get_const(opt_str)
+            if prev_parsed is not self.default and prev_parsed != const:
+                raise ParamConflict([self])
+        return super().take_action(value, short_combo, opt_str)
 
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
