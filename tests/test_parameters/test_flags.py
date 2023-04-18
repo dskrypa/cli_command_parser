@@ -184,6 +184,13 @@ class TriFlagTest(ParserTest):
         fail_cases = [({'consts': None}, exc), ({'consts': (1,)}, exc), ({'consts': [1, 2, 3]}, exc)]
         self.assert_call_fails_cases(TriFlag, fail_cases)
 
+    def test_default_in_consts_rejected(self):
+        cases = [((None, 'foo'), None), (('foo', None), None), ((True, False), True), ((True, False), False)]
+        for consts, default in cases:
+            with self.subTest(consts=consts, default=default):
+                with self.assertRaisesRegex(ParameterDefinitionError, 'the default must not match either value'):
+                    TriFlag(consts=consts, default=default)
+
     # region Option Strings
 
     def test_bad_alt_short(self):
