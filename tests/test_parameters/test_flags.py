@@ -36,6 +36,8 @@ class FlagTest(ParserTest):
 
                 self.assert_parse_results_cases(Foo, [(['--bar'], {'bar': True}), ([], {'bar': False})])
 
+    # region Test Param Actions
+
     def test_store_false(self):
         class Foo(Command):
             bar = Flag(default=True)
@@ -62,6 +64,8 @@ class FlagTest(ParserTest):
         success_cases = [(['--bar'], {'bar': [42]}), ([], {'bar': []}), (['-bb'], {'bar': [42, 42]})]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    # endregion
+
     # region Unsupported Kwargs
 
     def test_nargs_not_allowed(self):
@@ -85,6 +89,8 @@ class FlagTest(ParserTest):
             Flag(allow_leading_dash=True)
 
     # endregion
+
+    # region Name Mode
 
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
@@ -127,11 +133,13 @@ class FlagTest(ParserTest):
         success_cases = [(['--foo-bar'], exp), (['--foo_bar'], exp), (['-b'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    # endregion
+
 
 class TriFlagTest(ParserTest):
     def test_trinary(self):
         class Foo(Command):
-            bar = TriFlag('-b', alt_short='-B', name_mode='-')
+            bar = TriFlag('-b', alt_short='-B')
             baz = Flag('-Z')
 
         success_cases = [
@@ -199,7 +207,7 @@ class TriFlagTest(ParserTest):
 
     def test_no_alt_short(self):
         class Foo(Command):
-            spam = TriFlag('-s', name_mode='-')
+            spam = TriFlag('-s')
 
         self.assertSetEqual({'--no-spam'}, Foo.spam.option_strs.alt_allowed)
 

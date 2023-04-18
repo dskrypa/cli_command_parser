@@ -148,7 +148,7 @@ class UsageTextTest(ParserTest):
 
     def test_tri_flag_full_usage(self):
         class Foo(Command):
-            spam = TriFlag('-s', name_mode='-')
+            spam = TriFlag('-s')
 
         self.assertEqual('--spam, -s | --no-spam', Foo.spam.format_usage(full=True))
 
@@ -281,13 +281,13 @@ class HelpTextTest(ParserTest):
 
     def test_tri_flag_no_alt_short(self):
         class Foo(Command):
-            spam = TriFlag('-s', name_mode='-')
+            spam = TriFlag('-s')
 
         self.assertIn('--spam, -s\n    --no-spam\n', get_help_text(Foo))
 
     def test_tri_flag_alt_help(self):
         class Foo(Command):
-            spam = TriFlag('-s', alt_short='-S', name_mode='-', help='Spam me', alt_help='Do not spam me')
+            spam = TriFlag('-s', alt_short='-S', help='Spam me', alt_help='Do not spam me')
 
         expected_help = '  --spam, -s                  Spam me\n  --no-spam, -S               Do not spam me\n'
         self.assert_str_contains(expected_help, get_help_text(Foo))
