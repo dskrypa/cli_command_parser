@@ -179,6 +179,15 @@
             <span class="k">pass</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span></div>
 
+<div class="viewcode-block" id="CommandParameters.get_positionals_to_parse"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse">[docs]</a>    <span class="k">def</span> <span class="nf">get_positionals_to_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
+        <span class="n">positionals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_positionals</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">positionals</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">positionals</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">positionals</span><span class="p">[</span><span class="n">i</span><span class="p">:]]</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
 <div class="viewcode-block" id="CommandParameters.always_available_action_flags"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.always_available_action_flags">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">always_available_action_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -296,12 +305,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>
-        <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">split_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">unfollowable</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">split_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">_deferred_positionals</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">+</span> <span class="n">params</span>
+
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">var_nargs_param</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">unfollowable</span><span class="p">:</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">unfollowable</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
+                    <span class="n">why</span> <span class="o">=</span> <span class="s1">&#39;because it is a positional that is not required&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">why</span> <span class="o">=</span> <span class="s1">&#39;because it accepts a variable number of arguments with no specific choices defined&#39;</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Additional Positional parameters cannot follow </span><span class="si">{</span><span class="n">var_nargs_param</span><span class="si">}</span><span class="s1"> because it accepts&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39; a variable number of arguments with no specific choices defined - param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> is invalid&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Additional Positional parameters cannot follow </span><span class="si">{</span><span class="n">unfollowable</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">why</span><span class="si">}</span><span class="s1"> - param=</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s1"> is invalid&#39;</span>
                 <span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">SubCommand</span><span class="p">,</span> <span class="n">Action</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">action_or_sub_cmd</span><span class="p">:</span>
@@ -312,21 +328,22 @@
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">param</span>
                     <span class="n">split_index</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>  <span class="c1"># It has local choices or is not required</span>
+                        <span class="n">unfollowable</span> <span class="o">=</span> <span class="n">param</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># It&#39;s an Action</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action_or_sub_cmd</span> <span class="o">=</span> <span class="n">param</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No choices were registered for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span><span class="p">:</span>
-                <span class="n">var_nargs_param</span> <span class="o">=</span> <span class="n">param</span>
+            <span class="k">elif</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span> <span class="ow">or</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">has_choices</span><span class="p">):</span>
+                <span class="n">unfollowable</span> <span class="o">=</span> <span class="n">param</span>
 
         <span class="k">if</span> <span class="n">split_index</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="n">split_index</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="n">split_index</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="o">.</span><span class="n">has_local_choices</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">split_index</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="n">split_index</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="n">split_index</span><span class="p">:]</span>
 
-        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
-        <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">_deferred_positionals</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_deferred_positionals</span> <span class="o">+</span> <span class="n">params</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span> <span class="o">=</span> <span class="n">params</span>
 
     <span class="k">def</span> <span class="nf">_process_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]):</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
@@ -514,7 +531,10 @@
 
         <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">command</span> <span class="o">=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># The target was None (it&#39;s a subcommand&#39;s local choice)</span>
+                <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">param</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">find_option_that_accepts_values</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
