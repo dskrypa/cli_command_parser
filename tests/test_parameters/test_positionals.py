@@ -3,10 +3,9 @@
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, ParamGroup
+from cli_command_parser import Command, ParamGroup, SubCommand, Positional
 from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, UsageError
 from cli_command_parser.parameters.base import parameter_action, BasePositional
-from cli_command_parser.parameters import Positional
 from cli_command_parser.testing import ParserTest
 
 
@@ -55,16 +54,41 @@ class PositionalTest(ParserTest):
                     self.assert_parse_results_cases(Foo, success_cases)
 
     def test_pos_after_unbound_nargs_rejected(self):
-        expected_msg = 'it accepts a variable number of arguments with no specific choices defined'
-        for nargs in ('*', 'REMAINDER'):
+        exp_0 = 'it is a positional that is not required'
+        exp_var = 'it accepts a variable number of arguments with no specific choices defined'
+        for nargs, pat in (('+', exp_var), ('*', exp_0), ('REMAINDER', exp_0)):
             with self.subTest(nargs=nargs):
 
                 class Foo(Command):
                     bar = Positional(nargs=nargs)
                     baz = Positional()
 
-                with self.assertRaisesRegex(CommandDefinitionError, expected_msg):
+                with self.assertRaisesRegex(CommandDefinitionError, pat):
                     Foo.parse([])
+
+    def test_sub_cmd_pos_after_unbound_nargs_rejected(self):
+        exp_0 = 'it is a positional that is not required'
+        exp_var = 'it accepts a variable number of arguments with no specific choices defined'
+        for nargs, pat in (('+', exp_var), ('*', exp_0), ('REMAINDER', exp_0)):
+            with self.subTest(nargs=nargs):
+
+                class Foo(Command):
+                    sub = SubCommand()
+                    bar = Positional(nargs=nargs)
+
+                class Bar(Foo):
+                    baz = Positional()
+
+                with self.assertRaisesRegex(CommandDefinitionError, pat):
+                    Foo.parse(['bar'])
+
+    def test_pos_after_non_required_sub_cmd_rejected(self):
+        class Foo(Command):
+            sub = SubCommand(required=False)
+            bar = Positional()
+
+        with self.assertRaisesRegex(CommandDefinitionError, 'it is a positional that is not required'):
+            Foo.parse([])
 
     def test_pos_grouped_pos_both_required(self):
         class Foo(Command):

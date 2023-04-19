@@ -85,6 +85,15 @@ class CommandParameters:
             pass
         return self.positionals
 
+    def get_positionals_to_parse(self, ctx: Context) -> List[BasePositional]:
+        positionals = self.all_positionals
+        if not positionals:
+            return []
+        for i, param in enumerate(positionals):
+            if not ctx.num_provided(param):
+                return [p for p in positionals[i:]]
+        return []
+
     @cached_property
     def always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
         """
@@ -202,12 +211,19 @@ class CommandParameters:
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):
-        var_nargs_param = action_or_sub_cmd = split_index = None
+        unfollowable = action_or_sub_cmd = split_index = None
+        parent = self.parent
+        if parent and parent._deferred_positionals:
+            params = parent._deferred_positionals + params
+
         for i, param in enumerate(params):
-            if var_nargs_param:
+            if unfollowable:
+                if 0 in unfollowable.nargs:
+                    why = 'because it is a positional that is not required'
+                else:
+                    why = 'because it accepts a variable number of arguments with no specific choices defined'
                 raise CommandDefinitionError(
-                    f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
-                    f' a variable number of arguments with no specific choices defined - param={param!r} is invalid'
+                    f'Additional Positional parameters cannot follow {unfollowable} {why} - param={param!r} is invalid'
                 )
             elif isinstance(param, (SubCommand, Action)):
                 if action_or_sub_cmd:
@@ -218,21 +234,22 @@ class CommandParameters:
                 elif isinstance(param, SubCommand):
                     self.sub_command = action_or_sub_cmd = param
                     split_index = i + 1
-                else:
+                    if param.has_choices and 0 in param.nargs:  # It has local choices or is not required
+                        unfollowable = param
+                else:  # It's an Action
                     self.action = action_or_sub_cmd = param
                     if not param.has_choices:
                         raise CommandDefinitionError(f'No choices were registered for {self.action}')
-            elif param.nargs.variable and not param.has_choices:
-                var_nargs_param = param
+            elif 0 in param.nargs or (param.nargs.variable and not param.has_choices):
+                unfollowable = param
 
         if split_index:
-            params, self._deferred_positionals = params[:split_index], params[split_index:]
+            if self.sub_command.has_local_choices:
+                self._deferred_positionals = params[split_index:]
+            else:
+                params, self._deferred_positionals = params[:split_index], params[split_index:]
 
-        parent = self.parent
-        if parent and parent._deferred_positionals:
-            self.positionals = parent._deferred_positionals + params
-        else:
-            self.positionals = params
+        self.positionals = params
 
     def _process_options(self, params: Collection[BaseOption]):
         parent = self.parent
@@ -420,7 +437,10 @@ class CommandParameters:
 
         for choice in self.sub_command.choices.values():
             command = choice.target
-            params = command.__class__.params(command)
+            try:
+                params = command.__class__.params(command)
+            except AttributeError:  # The target was None (it's a subcommand's local choice)
+                continue
             try:
                 param = params.find_option_that_accepts_values(option)
             except KeyError:

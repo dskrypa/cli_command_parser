@@ -65,7 +65,6 @@ class TestParamRegistry(TestCase):
             Bar.parse_and_run(['-h'])
 
     def test_multiple_non_required_positionals_rejected(self):
-        expected_msg = 'because it accepts a variable number of arguments with no specific choices defined'
         for a, b in (('?', '?'), ('?', '*'), ('*', '?'), ('*', '*')):
             with self.subTest(a=a, b=b):
 
@@ -73,7 +72,7 @@ class TestParamRegistry(TestCase):
                     foo = Positional(nargs=a)
                     bar = Positional(nargs=b)
 
-                with self.assertRaisesRegex(CommandDefinitionError, expected_msg):
+                with self.assertRaisesRegex(CommandDefinitionError, 'it is a positional that is not required'):
                     CommandMeta.params(Foo)
 
 

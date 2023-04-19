@@ -118,8 +118,19 @@ class ChoiceMap(BasePositional[str], Generic[T]):
 
         self.nargs = Nargs(lengths)
 
+    @classmethod
+    def _validate_positional(cls, value: str, prefix: str = 'choice'):
+        if not value or value.startswith('-'):
+            raise cls._choice_validation_exc(
+                f"Invalid {cls.__name__} {prefix}={value!r} - may not be empty or start with '-'"
+            )
+
+        bad = {c for c in value if (c in whitespace and c != ' ') or c not in printable}
+        if bad:
+            raise cls._choice_validation_exc(f'Invalid {cls.__name__} {prefix}={value!r} - invalid characters: {bad}')
+
     def register_choice(self, choice: str, target: T = _NotSet, help: str = None):  # noqa
-        _validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+        self._validate_positional(choice)
         self._register_choice(choice, target, help)
 
     def _register_choice(
@@ -241,6 +252,10 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         if local_choices:
             self._register_local_choices(local_choices)
 
+    @property
+    def has_local_choices(self) -> bool:
+        return None in self.choices or any(c.target is None for c in self.choices.values())
+
     def _register_local_choices(self, local_choices: Union[Mapping[str, str], Collection[str]]):
         try:
             choice_help_iter = local_choices.items()
@@ -254,7 +269,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         if choice is None:
             choice = camel_to_snake_case(command.__name__)
         else:
-            _validate_positional(self.__class__.__name__, choice, exc=self._choice_validation_exc)
+            self._validate_positional(choice)
 
         try:
             self.register_choice(choice, command, help)
@@ -374,14 +389,3 @@ class Action(ChoiceMap[MethodType], title='Actions'):
             return self.register_action(choice, method_or_choice, help=help, default=default)
 
     __call__ = register
-
-
-def _validate_positional(
-    param_cls: str, value: str, prefix: str = 'choice', exc: Type[Exception] = ParameterDefinitionError
-):
-    if not value or value.startswith('-'):
-        raise exc(f"Invalid {param_cls} {prefix}={value!r} - may not be empty or start with '-'")
-
-    bad = {c for c in value if (c in whitespace and c != ' ') or c not in printable}
-    if bad:
-        raise exc(f'Invalid {param_cls} {prefix}={value!r} - invalid characters: {bad}')

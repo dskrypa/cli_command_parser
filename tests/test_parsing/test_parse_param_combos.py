@@ -7,6 +7,8 @@ from cli_command_parser import Command, Positional, Option, Flag, SubCommand, Co
 from cli_command_parser.exceptions import NoSuchOption, ParamsMissing, UsageError, ParamUsageError
 from cli_command_parser.testing import ParserTest
 
+FOO_BAR = ('foo', 'bar')
+
 
 class ParamComboTest(ParserTest):
     def test_pos_after_optional(self):
@@ -42,7 +44,7 @@ class ParamComboTest(ParserTest):
             ['--bar', 'a', 'b', 'c', 'd'],
             ['--bar', 'a', 'b', '-baz'],
         ]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     def test_positional_after_var_nargs(self):
         class Foo(Command):
@@ -70,7 +72,7 @@ class ParamComboTest(ParserTest):
             ['d', '--bar'],
             ['d', '-b'],
         ]
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     def test_nargs_unbound_ints_then_pos_str(self):
         class Foo(Command):
@@ -85,7 +87,7 @@ class ParamComboTest(ParserTest):
         ]
         fail_cases = [['-b', 'a'], ['a', '-b'], ['a', '-b', 'c']]
         self.assert_parse_results_cases(Foo, success_cases)
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
 
 class ParseParamsWithSubcommandsTest(ParserTest):
@@ -174,7 +176,7 @@ class ParseParamsWithSubcommandsTest(ParserTest):
             ['-b', 'c', 'bar', 'a'], ['-b', 'c', 'baz', 'a'], [],
         ]
         # fmt: on
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     def test_pos_in_one_sub_cmd(self):
         class Cmd(Command):
@@ -206,7 +208,7 @@ class ParseParamsWithSubcommandsTest(ParserTest):
             ['-b', 'c', 'bar', 'a'], ['-b', 'c', 'foo', 'a'], ['foo', '-b', 'c', 'a'], ['foo', 'x'], [],
         ]
         # fmt: on
-        self.assert_parse_fails_cases(Cmd, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Cmd, fail_cases)
 
     def test_middle_abc_subcommand_positional_basic(self):
         class Base(Command):
@@ -228,7 +230,7 @@ class ParseParamsWithSubcommandsTest(ParserTest):
         ]
         self.assert_parse_results_cases(Base, success_cases)
         fail_cases = [[], ['a'], ['a', 'b']]
-        self.assert_parse_fails_cases(Base, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Base, fail_cases)
 
     def test_no_sub_cmds(self):
         class Cmd(Command):
@@ -237,6 +239,158 @@ class ParseParamsWithSubcommandsTest(ParserTest):
 
         with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
             Cmd.parse([])
+
+    def test_positional_nargs_star_after_local_choices(self):
+        class Foo(Command):
+            action = SubCommand(local_choices=FOO_BAR)
+            pos = Positional(nargs='*')
+            c = Flag('-c')
+
+        class Baz(Foo):
+            actions = Option('-a', nargs='+', choices=FOO_BAR)
+
+        success_cases = [
+            (['foo'], {'action': 'foo', 'pos': [], 'c': False}),
+            (['bar'], {'action': 'bar', 'pos': [], 'c': False}),
+            (['foo', 'a'], {'action': 'foo', 'pos': ['a'], 'c': False}),
+            (['bar', 'a'], {'action': 'bar', 'pos': ['a'], 'c': False}),
+            (['foo', '-c'], {'action': 'foo', 'pos': [], 'c': True}),
+            (['bar', '-c'], {'action': 'bar', 'pos': [], 'c': True}),
+            (['foo', '-c', 'a'], {'action': 'foo', 'pos': ['a'], 'c': True}),
+            (['bar', '-c', 'a'], {'action': 'bar', 'pos': ['a'], 'c': True}),
+            (['foo', 'a', '-c'], {'action': 'foo', 'pos': ['a'], 'c': True}),
+            (['bar', 'a', '-c'], {'action': 'bar', 'pos': ['a'], 'c': True}),
+            (['foo', 'a', 'b', '-c'], {'action': 'foo', 'pos': ['a', 'b'], 'c': True}),
+            (['bar', 'a', 'b', '-c'], {'action': 'bar', 'pos': ['a', 'b'], 'c': True}),
+            (['baz'], {'action': 'baz', 'pos': [], 'c': False, 'actions': []}),
+            (['baz', '-a', 'foo'], {'action': 'baz', 'pos': [], 'c': False, 'actions': ['foo']}),
+            (['baz', '-a', 'foo', 'bar'], {'action': 'baz', 'pos': [], 'c': False, 'actions': ['foo', 'bar']}),
+            (['baz', '-a', 'bar'], {'action': 'baz', 'pos': [], 'c': False, 'actions': ['bar']}),
+            (['baz', '--actions', 'foo'], {'action': 'baz', 'pos': [], 'c': False, 'actions': ['foo']}),
+            (['baz', '--actions', 'foo', 'bar'], {'action': 'baz', 'pos': [], 'c': False, 'actions': ['foo', 'bar']}),
+            (['baz', '--actions', 'bar'], {'action': 'baz', 'pos': [], 'c': False, 'actions': ['bar']}),
+            (['baz', '-a', 'bar', 'a', '-c'], {'action': 'baz', 'pos': ['a'], 'c': True, 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': ['bar']}),
+            (['baz', 'a', 'b', '-a', 'bar'], {'action': 'baz', 'pos': ['a', 'b'], 'c': False, 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar', '-c'], {'action': 'baz', 'pos': ['a'], 'c': True, 'actions': ['bar']}),
+            (['baz', 'a'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': []}),
+            (['baz', '-c'], {'action': 'baz', 'pos': [], 'c': True, 'actions': []}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['foo', 'a', '-c', 'b'], ['baz', '-a'], ['baz', '-a', 'baz'], ['foo', '-a'], ['bar', '-a'],
+            ['baz', 'a', '-a', 'bar', 'b', '-c'],
+        ]
+        # fmt: on
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    def test_positional_after_local_choices(self):
+        class Foo(Command):
+            action = SubCommand(local_choices=FOO_BAR)
+            pos = Positional(nargs='+')
+            c = Flag('-c')
+
+        class Baz(Foo):
+            actions = Option('-a', nargs='+', choices=FOO_BAR)
+
+        success_cases = [
+            (['foo', 'a'], {'action': 'foo', 'pos': ['a'], 'c': False}),
+            (['bar', 'a'], {'action': 'bar', 'pos': ['a'], 'c': False}),
+            (['foo', '-c', 'a'], {'action': 'foo', 'pos': ['a'], 'c': True}),
+            (['bar', '-c', 'a'], {'action': 'bar', 'pos': ['a'], 'c': True}),
+            (['foo', 'a', '-c'], {'action': 'foo', 'pos': ['a'], 'c': True}),
+            (['bar', 'a', '-c'], {'action': 'bar', 'pos': ['a'], 'c': True}),
+            (['foo', 'a', 'b', '-c'], {'action': 'foo', 'pos': ['a', 'b'], 'c': True}),
+            (['bar', 'a', 'b', '-c'], {'action': 'bar', 'pos': ['a', 'b'], 'c': True}),
+            (['baz', 'a', '-a', 'foo', 'bar'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': ['foo', 'bar']}),
+            (['baz', 'a', '-a', 'bar'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': ['bar']}),
+            (['baz', 'a', 'b', '-a', 'bar'], {'action': 'baz', 'pos': ['a', 'b'], 'c': False, 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar', '-c'], {'action': 'baz', 'pos': ['a'], 'c': True, 'actions': ['bar']}),
+            (['baz', 'a'], {'action': 'baz', 'pos': ['a'], 'c': False, 'actions': []}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['foo', 'a', '-c', 'b'], ['baz', '-a'], ['baz', '-a', 'baz'], ['foo', '-a'], ['bar', '-a'],
+            ['foo'], ['bar'], ['baz'], ['foo', '-c'], ['bar', '-c'], ['baz', '-c'], ['baz', '-a', 'foo'],
+            ['baz', '-a', 'bar', 'a', '-c'],
+        ]
+        # fmt: on
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    def test_positional_after_sub_choices(self):
+        class Foo(Command):
+            action = SubCommand()
+            pos = Positional(nargs='+')
+
+        class Multi(Foo, choices=FOO_BAR):
+            c = Flag('-c')
+
+        class Baz(Foo):
+            actions = Option('-a', nargs='+', choices=FOO_BAR)
+
+        success_cases = [
+            (['foo', 'a'], {'action': 'foo', 'pos': ['a'], 'c': False}),
+            (['bar', 'a'], {'action': 'bar', 'pos': ['a'], 'c': False}),
+            (['foo', '-c', 'a'], {'action': 'foo', 'pos': ['a'], 'c': True}),
+            (['bar', '-c', 'a'], {'action': 'bar', 'pos': ['a'], 'c': True}),
+            (['foo', 'a', '-c'], {'action': 'foo', 'pos': ['a'], 'c': True}),
+            (['bar', 'a', '-c'], {'action': 'bar', 'pos': ['a'], 'c': True}),
+            (['foo', 'a', 'b', '-c'], {'action': 'foo', 'pos': ['a', 'b'], 'c': True}),
+            (['bar', 'a', 'b', '-c'], {'action': 'bar', 'pos': ['a', 'b'], 'c': True}),
+            (['baz', 'a', '-a', 'foo', 'bar'], {'action': 'baz', 'pos': ['a'], 'actions': ['foo', 'bar']}),
+            (['baz', 'a', 'b', '-a', 'bar'], {'action': 'baz', 'pos': ['a', 'b'], 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar'], {'action': 'baz', 'pos': ['a'], 'actions': ['bar']}),
+            (['baz', '-a', 'bar', 'a'], {'action': 'baz', 'pos': ['a'], 'actions': ['bar']}),
+            (['baz', 'a'], {'action': 'baz', 'pos': ['a'], 'actions': []}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['foo', 'a', '-c', 'b'], ['baz', '-a'], ['baz', '-a', 'baz'], ['foo', '-a', 'foo'], ['bar', '-a', 'foo'],
+            ['baz', 'a', '-c'], ['foo'], ['bar'], ['baz'], ['foo', '-c'], ['bar', '-c'], ['baz', '-a', 'foo'],
+        ]
+        # fmt: on
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    def test_positional_in_sub_cmds_after_sub_choices(self):
+        class Foo(Command):
+            action = SubCommand()
+            pos = Positional()
+
+        class Multi(Foo, choices=FOO_BAR):
+            bar = Positional()
+            c = Flag('-c')
+
+        class Baz(Foo):
+            baz = Positional()
+            actions = Option('-a', nargs='+', choices=FOO_BAR)
+
+        success_cases = [
+            (['foo', 'a', 'b'], {'action': 'foo', 'pos': 'a', 'bar': 'b', 'c': False}),
+            (['foo', '-c', 'a', 'b'], {'action': 'foo', 'pos': 'a', 'bar': 'b', 'c': True}),
+            (['foo', 'a', '-c', 'b'], {'action': 'foo', 'pos': 'a', 'bar': 'b', 'c': True}),
+            (['foo', 'a', 'b', '-c'], {'action': 'foo', 'pos': 'a', 'bar': 'b', 'c': True}),
+            (
+                ['baz', 'a', '-a', 'foo', 'bar', 'b'],
+                {'action': 'baz', 'pos': 'a', 'baz': 'b', 'actions': ['foo', 'bar']},
+            ),
+            (['baz', 'a', 'b', '-a', 'bar'], {'action': 'baz', 'pos': 'a', 'baz': 'b', 'actions': ['bar']}),
+            (['baz', 'a', '-a', 'bar', 'b'], {'action': 'baz', 'pos': 'a', 'baz': 'b', 'actions': ['bar']}),
+            (['baz', '-a', 'bar', 'a', 'b'], {'action': 'baz', 'pos': 'a', 'baz': 'b', 'actions': ['bar']}),
+            (['baz', 'a', 'b'], {'action': 'baz', 'pos': 'a', 'baz': 'b', 'actions': []}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        # fmt: off
+        fail_cases = [
+            ['baz', '-a'], ['baz', '-a', 'baz'], ['foo', '-a', 'foo'], ['bar', '-a', 'foo'],
+            ['baz', 'a', '-c'], ['foo'], ['bar'], ['baz'], ['foo', '-c'], ['bar', '-c'], ['baz', '-a', 'foo'],
+        ]
+        # fmt: on
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
 
 if __name__ == '__main__':
