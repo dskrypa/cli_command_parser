@@ -42,7 +42,7 @@ class CommandParser:
     def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
         self._last = None
         self.params = params
-        self.positionals = params.all_positionals.copy()
+        self.positionals = params.get_positionals_to_parse(ctx)
         self.config = config
         if config.reject_ambiguous_pos_combos:
             PosNode.build_tree(ctx.command)
@@ -78,37 +78,36 @@ class CommandParser:
         self.deferred = ctx.remaining = []
         while arg_deque:
             arg = arg_deque.popleft()
-            if arg == '--':
-                if self._maybe_consume_remainder(arg):
+            try:
+                if self._parse_arg(ctx, arg):
                     break
-                elif ctx.params.find_nested_pass_thru():  # pylint: disable=R1723
-                    self.deferred.append(arg)
-                    self.deferred.extend(arg_deque)
-                    break
-                else:
-                    raise NoSuchOption(f'invalid argument: {arg}')
-            elif arg.startswith('---'):
-                if not self._maybe_consume_remainder(arg):
-                    raise NoSuchOption(f'invalid argument: {arg}')
-            elif arg.startswith('--'):
-                self.handle_long(arg)
-            elif arg.startswith('-') and arg != '-':
-                try:
-                    self.handle_short(arg)
-                except KeyError:
-                    if not self._maybe_consume_remainder(arg):
-                        self._check_sub_command_options(arg)
-                        if self.positionals:
-                            try:
-                                self.handle_positional(arg)
-                            except UsageError:
-                                self.deferred.append(arg)
-                        else:
-                            self.deferred.append(arg)
-            else:
-                self.handle_positional(arg)
+            except NextCommand:
+                self.deferred.append(arg)
+                self.deferred.extend(arg_deque)
+                break
 
         self._parse_env_vars(ctx)
+
+    def _parse_arg(self, ctx: Context, arg: str):
+        if arg == '--':
+            if self._maybe_consume_remainder(arg):
+                return True
+            elif ctx.params.find_nested_pass_thru():  # pylint: disable=R1723
+                # TODO: Make sure a test exists where parsing fails because required params were not provided yet
+                raise NextCommand
+            else:
+                raise NoSuchOption(f'invalid argument: {arg}')
+        elif arg.startswith('---'):
+            if not self._maybe_consume_remainder(arg):
+                raise NoSuchOption(f'invalid argument: {arg}')
+        elif arg.startswith('--'):
+            self.handle_long(arg)
+        elif arg.startswith('-') and arg != '-':
+            self.handle_short(arg)
+        else:
+            self.handle_positional(arg)
+
+        return False
 
     def _parse_env_vars(self, ctx: Context):
         # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
@@ -191,17 +190,33 @@ class CommandParser:
 
     def handle_short(self, arg: str):
         # log.debug(f'handle_short({arg=})')
-        param_val_combos = self.params.short_option_to_param_value_pairs(arg)
-        # log.debug(f'Split {arg=} into {param_val_combos=}')
-        if len(param_val_combos) == 1:
-            opt, param, value = param_val_combos[0]
-            self._handle_short_value(opt, param, value)
+        try:
+            param_val_combos = self.params.short_option_to_param_value_pairs(arg)
+        except KeyError:
+            self._handle_short_not_found(arg)
         else:
-            last_opt, last_param, _last_val = param_val_combos[-1]
-            for opt, param, _ in param_val_combos[:-1]:
-                param.take_action(None, short_combo=True, opt_str=opt)
+            # log.debug(f'Split {arg=} into {param_val_combos=}')
+            if len(param_val_combos) == 1:
+                opt, param, value = param_val_combos[0]
+                self._handle_short_value(opt, param, value)
+            else:
+                last_opt, last_param, _last_val = param_val_combos[-1]
+                for opt, param, _ in param_val_combos[:-1]:
+                    param.take_action(None, short_combo=True, opt_str=opt)
 
-            self._handle_short_value(last_opt, last_param, None)
+                self._handle_short_value(last_opt, last_param, None)
+
+    def _handle_short_not_found(self, arg: str):
+        if self._maybe_consume_remainder(arg):
+            return
+        self._check_sub_command_options(arg)
+        if self.positionals:
+            try:
+                self.handle_positional(arg)
+            except UsageError:
+                self.deferred.append(arg)
+        else:
+            self.deferred.append(arg)
 
     def _handle_short_value(self, opt: str, param: BaseOption, value: Any):
         # log.debug(f'Handling short {value=} for {param=}')
@@ -218,7 +233,11 @@ class CommandParser:
         if not self.positionals:
             return
         param = self.params.find_nested_option_that_accepts_values(arg)
-        if param is not None:
+        if param is None:
+            return
+        elif len(self.positionals) == 1 and 0 in self.positionals[0].nargs:
+            raise NextCommand
+        else:
             raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')
 
     def _maybe_backtrack(self, param: Parameter, found: int) -> int:
@@ -292,7 +311,7 @@ class CommandParser:
                     else:
                         try:
                             self._check_sub_command_options(value)
-                        except ParamUsageError as e:
+                        except (ParamUsageError, NextCommand) as e:
                             return self._finalize_consume(param, value, found, e)
 
                     if not param.would_accept(value):
@@ -341,3 +360,7 @@ def _to_pop(positionals: List[BasePositional], can_pop: List[int], available: in
             return n
 
     return None
+
+
+class NextCommand(Exception):
+    pass

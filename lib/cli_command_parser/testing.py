@@ -105,6 +105,12 @@ class ParserTest(TestCase):
                 with self.subTest(expected='exception', argv=argv):
                     self.assert_parse_fails(cmd_cls, argv, exc, pat, message=message)
 
+    def assert_argv_parse_fails_cases(
+        self, cmd_cls: CommandCls, cases: Iterable[Argv], exc: Type[Exception] = UsageError, message: str = None
+    ):
+        """Convenience method for calling :meth:`.assert_parse_fails_cases` with a default exception type."""
+        self.assert_parse_fails_cases(cmd_cls, cases, exc, message)
+
     def assert_call_fails(
         self,
         func: Callable,
