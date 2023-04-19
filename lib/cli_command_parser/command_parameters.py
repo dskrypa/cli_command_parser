@@ -203,6 +203,10 @@ class CommandParameters:
 
     def _process_positionals(self, params: List[BasePositional]):
         var_nargs_param = action_or_sub_cmd = split_index = None
+        parent = self.parent
+        if parent and parent._deferred_positionals:
+            params = parent._deferred_positionals + params
+
         for i, param in enumerate(params):
             if var_nargs_param:
                 raise CommandDefinitionError(
@@ -228,11 +232,7 @@ class CommandParameters:
         if split_index:
             params, self._deferred_positionals = params[:split_index], params[split_index:]
 
-        parent = self.parent
-        if parent and parent._deferred_positionals:
-            self.positionals = parent._deferred_positionals + params
-        else:
-            self.positionals = params
+        self.positionals = params
 
     def _process_options(self, params: Collection[BaseOption]):
         parent = self.parent

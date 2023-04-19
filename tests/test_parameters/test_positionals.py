@@ -3,10 +3,9 @@
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, ParamGroup
+from cli_command_parser import Command, ParamGroup, SubCommand, Positional
 from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, UsageError
 from cli_command_parser.parameters.base import parameter_action, BasePositional
-from cli_command_parser.parameters import Positional
 from cli_command_parser.testing import ParserTest
 
 
@@ -56,7 +55,7 @@ class PositionalTest(ParserTest):
 
     def test_pos_after_unbound_nargs_rejected(self):
         expected_msg = 'it accepts a variable number of arguments with no specific choices defined'
-        for nargs in ('*', 'REMAINDER'):
+        for nargs in ('+', '*', 'REMAINDER'):
             with self.subTest(nargs=nargs):
 
                 class Foo(Command):
@@ -65,6 +64,21 @@ class PositionalTest(ParserTest):
 
                 with self.assertRaisesRegex(CommandDefinitionError, expected_msg):
                     Foo.parse([])
+
+    def test_sub_cmd_pos_after_unbound_nargs_rejected(self):
+        expected_msg = 'it accepts a variable number of arguments with no specific choices defined'
+        for nargs in ('+', '*', 'REMAINDER'):
+            with self.subTest(nargs=nargs):
+
+                class Foo(Command):
+                    sub = SubCommand()
+                    bar = Positional(nargs=nargs)
+
+                class Bar(Foo):
+                    baz = Positional()
+
+                with self.assertRaisesRegex(CommandDefinitionError, expected_msg):
+                    Foo.parse(['bar'])
 
     def test_pos_grouped_pos_both_required(self):
         class Foo(Command):
