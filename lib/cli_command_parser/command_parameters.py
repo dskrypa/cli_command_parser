@@ -202,7 +202,7 @@ class CommandParameters:
         self.groups = sorted(groups)
 
     def _process_positionals(self, params: List[BasePositional]):
-        var_nargs_param = action_or_sub_cmd = split_index = None
+        var_nargs_param = action_or_sub_cmd = split_index = non_required_param = None
         parent = self.parent
         if parent and parent._deferred_positionals:
             params = parent._deferred_positionals + params
@@ -213,6 +213,11 @@ class CommandParameters:
                     f'Additional Positional parameters cannot follow {var_nargs_param} because it accepts'
                     f' a variable number of arguments with no specific choices defined - param={param!r} is invalid'
                 )
+            elif non_required_param:
+                raise CommandDefinitionError(
+                    f'Additional Positional parameters cannot follow {non_required_param} because it is a positional'
+                    f' that is not required - param={param!r} is invalid'
+                )
             elif isinstance(param, (SubCommand, Action)):
                 if action_or_sub_cmd:
                     raise CommandDefinitionError(
@@ -222,10 +227,14 @@ class CommandParameters:
                 elif isinstance(param, SubCommand):
                     self.sub_command = action_or_sub_cmd = param
                     split_index = i + 1
+                    if param.has_choices and 0 in param.nargs:
+                        non_required_param = param
                 else:
                     self.action = action_or_sub_cmd = param
                     if not param.has_choices:
                         raise CommandDefinitionError(f'No choices were registered for {self.action}')
+            elif 0 in param.nargs:
+                non_required_param = param
             elif param.nargs.variable and not param.has_choices:
                 var_nargs_param = param
 
