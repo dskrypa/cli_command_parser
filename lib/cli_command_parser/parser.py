@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ActionPhase, Context
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import Backtrack, UnsupportedAction
+from .exceptions import Backtrack, NextCommand, UnsupportedAction
 from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
@@ -360,7 +360,3 @@ def _to_pop(positionals: List[BasePositional], can_pop: List[int], available: in
             return n
 
     return None
-
-
-class NextCommand(Exception):
-    pass

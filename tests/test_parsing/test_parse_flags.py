@@ -87,21 +87,20 @@ class ParseFlagsTest(ParserTest):
                 self.assert_parse_fails_cases(Foo, fail_cases)
 
     def test_combined_flags_ambiguous_strict_rejected(self):
+        class Foo(Command, ambiguous_short_combos=AmbiguousComboMode.STRICT):
+            a = Flag('-a')
+            b = Flag('-b')
+            c = Flag('-c')
+            ab = Flag('-ab')
+            bc = Flag('-bc')
+            abc = Flag('-abc')
+
         exp_error_pat = (
             'Ambiguous short form for --ab / -ab - it conflicts with: --a / -a, --b / -b\n'
             'Ambiguous short form for --abc / -abc - it conflicts with: --a / -a, --b / -b, --c / -c\n'
             'Ambiguous short form for --bc / -bc - it conflicts with: --b / -b, --c / -c'
         )
         with self.assertRaisesRegex(AmbiguousShortForm, exp_error_pat):
-
-            class Foo(Command, ambiguous_short_combos=AmbiguousComboMode.STRICT):
-                a = Flag('-a')
-                b = Flag('-b')
-                c = Flag('-c')
-                ab = Flag('-ab')
-                bc = Flag('-bc')
-                abc = Flag('-abc')
-
             get_params(Foo)
 
     def test_combined_flags_ambiguous_strict_parsing(self):

@@ -4,7 +4,7 @@ from unittest import main
 
 from cli_command_parser import Command, Option, Flag, Positional, REMAINDER, BaseOption, ctx
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument
+from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument, AmbiguousShortForm
 from cli_command_parser.nargs import Nargs
 from cli_command_parser.parameters.base import parameter_action
 from cli_command_parser.testing import ParserTest
@@ -75,7 +75,7 @@ class OptionTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
-    def test_short_value_ambiguous(self):
+    def test_short_value_ambiguous_permissive(self):
         class Foo(Command):
             foo = Option('-f')
             foobar = Option('-foobar')
@@ -105,6 +105,15 @@ class OptionTest(ParserTest):
             (['--foorab'], MissingArgument),
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_short_value_ambiguous_strict(self):
+        class Foo(Command, ambiguous_short_combos='strict'):
+            foo = Option('-f')
+            foobar = Option('-foobar')
+            foorab = Option('-foorab')
+
+        with self.assertRaises(AmbiguousShortForm):
+            Foo.parse([])
 
     def test_custom_type_starting_with_dash(self):
         class TimeOffset:

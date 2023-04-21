@@ -241,7 +241,11 @@ class UnsupportedAction(CommandParserException):
 
 
 class Backtrack(CommandParserException):
-    """Raised when backtracking took place"""
+    """Raised when backtracking took place.  Only used internally."""
+
+
+class NextCommand(CommandParserException):
+    """Raised by the parser to advance to the next Command in certain cases.  Only used internally."""
 
 
 # endregion
