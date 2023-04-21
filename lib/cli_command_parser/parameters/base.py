@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from functools import partial, update_wrapper
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, overload
-from typing import List, FrozenSet
+from typing import List, Tuple, FrozenSet
 
 try:
     from functools import cached_property  # pylint: disable=C0412
@@ -66,11 +66,12 @@ class parameter_action:  # pylint: disable=C0103
         unique to each subclass.  The mangled name is replaced with the friendlier `_actions` in
         :meth:`Parameter.__init_subclass__`.
         """
+        attr = f'_{parameter_cls.__name__}__actions'
         try:
-            actions = getattr(parameter_cls, f'_{parameter_cls.__name__}__actions')
+            actions = getattr(parameter_cls, attr)
         except AttributeError:
             actions = set()
-            setattr(parameter_cls, f'_{parameter_cls.__name__}__actions', actions)
+            setattr(parameter_cls, attr, actions)
 
         actions.add(name)
 
@@ -339,35 +340,23 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def _nargs_max_reached(self) -> bool:
+    def _get_parsed_and_max_reached(self) -> Tuple[List[T_co], bool]:
+        parsed = ctx.get_parsed_value(self)
         try:
-            return len(ctx.get_parsed_value(self)) >= self.nargs.max
+            nargs_max_reached = len(parsed) >= self.nargs.max
         except TypeError:  # None or REMAINDER
-            return False
+            nargs_max_reached = False
+        return parsed, nargs_max_reached
 
-    def take_action(  # pylint: disable=W0613
-        self, value: Optional[str], short_combo: bool = False, opt_str: str = None
-    ):
-        action = self.action
-        if action == 'append' and self._nargs_max_reached():
-            val_count = len(ctx.get_parsed_value(self))
-            raise ParamUsageError(
-                self, f'cannot accept any additional args with nargs={self.nargs}: val_count={val_count!r}'
-            )
-        elif action == 'store':
-            val = ctx.get_parsed_value(self)
-            if val is not _NotSet:
-                raise ParamUsageError(self, f'received value={value!r} but a stored value={val!r} already exists')
-
+    def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
         ctx.record_action(self)
-        action_method = getattr(self, action)
-        return action_method(self.prepare_and_validate(value, short_combo))
+        return getattr(self, self.action)(self.prepare_and_validate(value, short_combo))
 
     def would_accept(self, value: str, short_combo: bool = False) -> bool:
         action = self.action
         if action in {'store', 'store_all'} and ctx.get_parsed_value(self) is not _NotSet:
             return False
-        elif action == 'append' and self._nargs_max_reached():
+        elif action == 'append' and self._get_parsed_and_max_reached()[1]:
             return False
         try:
             normalized = self.prepare_value(value, short_combo, True)
@@ -496,11 +485,19 @@ class BasicActionMixin:
 
     @parameter_action
     def store(self: Parameter, value: T_co):
+        prev = ctx.get_parsed_value(self)
+        if prev is not _NotSet:
+            raise ParamUsageError(self, f'can only be specified once - found multiple values: {prev!r}, {value!r}')
         ctx.set_parsed_value(self, value)
 
     @parameter_action
     def append(self: Parameter, value: T_co):
-        ctx.get_parsed_value(self).append(value)
+        parsed, nargs_max_reached = self._get_parsed_and_max_reached()
+        if nargs_max_reached:
+            raise ParamUsageError(
+                self, f'cannot accept any additional args with nargs={self.nargs} - already found {len(parsed)} values'
+            )
+        parsed.append(value)
 
     def _pre_pop_values(self: Parameter):
         if self.action != 'append' or not self.nargs.variable or self.type not in (None, str):
