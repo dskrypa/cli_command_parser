@@ -6,7 +6,7 @@ from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
 import cli_command_parser.error_handling
-from cli_command_parser.error_handling import ErrorHandler, no_exit_handler
+from cli_command_parser.error_handling import ErrorHandler, Handler, no_exit_handler
 from cli_command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
 from cli_command_parser.exceptions import ParamConflict, ParamsMissing, MultiParamUsageError
 from cli_command_parser import Command, Flag
@@ -51,6 +51,22 @@ class ErrorHandlingTest(TestCase):
 
     def test_error_handler_repr(self):
         self.assertIn('handlers=', repr(ErrorHandler()))
+
+    def test_most_specific_handler_chosen(self):
+        handler = ErrorHandler()
+        handler.register(lambda e: None, Exception)
+        exc = ParamUsageError(Flag('--foo'), 'test')
+        self.assertIs(CommandParserException.exit, handler.get_handler(ParamUsageError, exc))
+
+    def test_handler_equality(self):
+        def foo(e):
+            pass
+
+        a = Handler(TypeError, foo)
+        b = Handler(TypeError, foo)
+        c = Handler(ValueError, foo)
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, c)
 
 
 class TestCommandErrorHandling(TestCase):
