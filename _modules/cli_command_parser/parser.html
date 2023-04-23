@@ -107,7 +107,7 @@
 
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">Context</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoSuchOption</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">ParamsMissing</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">Backtrack</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">Backtrack</span><span class="p">,</span> <span class="n">NextCommand</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
 <span class="kn">from</span> <span class="nn">.nargs</span> <span class="kn">import</span> <span class="n">REMAINDER</span><span class="p">,</span> <span class="n">nargs_max_sum</span><span class="p">,</span> <span class="n">nargs_min_sum</span>
 <span class="kn">from</span> <span class="nn">.parse_tree</span> <span class="kn">import</span> <span class="n">PosNode</span>
 <span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">BasicActionMixin</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BaseOption</span>
@@ -286,19 +286,16 @@
         <span class="c1"># log.debug(f&#39;handle_short({arg=})&#39;)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">param_val_combos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  <span class="c1"># Handles 3 potential KeyErrors for either the full short option or a single-char combo</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_handle_short_not_found</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># log.debug(f&#39;Split {arg=} into {param_val_combos=}&#39;)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_val_combos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">opt</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">param_val_combos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_handle_short_value</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">last_opt</span><span class="p">,</span> <span class="n">last_param</span><span class="p">,</span> <span class="n">_last_val</span> <span class="o">=</span> <span class="n">param_val_combos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">param_val_combos</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                    <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">opt_str</span><span class="o">=</span><span class="n">opt</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_handle_short_value</span><span class="p">(</span><span class="n">last_opt</span><span class="p">,</span> <span class="n">last_param</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">param_val_combos</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">param_val_combos</span><span class="p">:</span>
+                <span class="c1"># Note: This loop is only executed for single char combined flags, where the values will always be None</span>
+                <span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param_val_combos</span><span class="p">:</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">take_action</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">short_combo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">opt_str</span><span class="o">=</span><span class="n">opt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_short_value</span><span class="p">(</span><span class="o">*</span><span class="n">last</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_handle_short_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_consume_remainder</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
@@ -454,10 +451,6 @@
             <span class="k">return</span> <span class="n">n</span>
 
     <span class="k">return</span> <span class="kc">None</span>
-
-
-<span class="k">class</span> <span class="nc">NextCommand</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
 </pre></div>
 
            </div>

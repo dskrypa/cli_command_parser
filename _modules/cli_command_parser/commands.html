@@ -136,6 +136,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="k">return</span> <span class="bp">self</span>
 
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> in prog=</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">prog</span><span class="si">!r}</span><span class="s1">&gt;&#39;</span>
+
     <span class="c1"># region Parse &amp; Run</span>
 
     <span class="nd">@classmethod</span>
@@ -341,7 +345,7 @@
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_command</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_command</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience function that can be used as the main entry point for a program.</span>
 

@@ -140,12 +140,14 @@
     <span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;received values=</span><span class="si">{</span><span class="n">values</span><span class="si">!r}</span><span class="s1"> but a stored value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> already exists&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;can only be specified once - found values=</span><span class="si">{</span><span class="n">values</span><span class="si">!r}</span><span class="s1"> but a stored value=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> already exists&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">normalized</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
-        <span class="n">action_method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">action_method</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">)(</span><span class="n">normalized</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PassThru.result_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.result_value">[docs]</a>    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
