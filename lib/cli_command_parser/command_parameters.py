@@ -337,17 +337,28 @@ class CommandParameters:
             return {}
         return _find_ambiguous_combos(single_char_combos, multi_char_combos)
 
-    def _ensure_combo_is_unambiguous(self, option: str):
-        # Called by short_option_to_param_value_pairs after ensuring the length is > 1
-        acm = self.config.ambiguous_short_combos
-        if acm == AmbiguousComboMode.IGNORE:
-            return
+    @cached_property
+    def _nested_potentially_ambiguous_combo_options(self):
+        single_char_combos, multi_char_combos = self._classified_combo_options
+        for params in self._iter_nested_params():
+            nested_single_char_combos, nested_multi_char_combos = params._classified_combo_options
+            single_char_combos.update(nested_single_char_combos)
+            multi_char_combos.update(nested_multi_char_combos)
 
+        if not multi_char_combos:
+            return {}
+        return _find_ambiguous_combos(single_char_combos, multi_char_combos)
+
+    def _is_combo_potentially_ambiguous(self, option: str) -> Optional[bool]:
+        # Called by short_option_to_param_value_pairs after ensuring the length is > 1
         to_check = option[1:]  # Strip leading '-'
-        potentially_ambiguous_combo_options = self._potentially_ambiguous_combo_options
+        # Note: len(to_check) will never be 2 here - this is only called if len(option) > 2
+        potentially_ambiguous_combo_options = self._nested_potentially_ambiguous_combo_options
+        acm = self.config.ambiguous_short_combos
         if acm == AmbiguousComboMode.PERMISSIVE and to_check in potentially_ambiguous_combo_options:
-            # TODO: Check Flag vs Option?
-            return  # Permissive mode allows exact matches of multi-char short forms
+            return True  # Permissive mode allows exact matches of multi-char short forms
+        elif acm == AmbiguousComboMode.IGNORE:
+            return None
 
         ambiguous = set()
         for multi, (param, singles) in potentially_ambiguous_combo_options.items():
@@ -357,6 +368,8 @@ class CommandParameters:
 
         if ambiguous:
             raise AmbiguousCombo(ambiguous, option)
+
+        return False
 
     # endregion
 
@@ -407,14 +420,15 @@ class CommandParameters:
             option, value = option.split('=', 1)
         except ValueError:
             value = None
-
-        if len(option) > 2:  # 2 due to '-' prefix
-            self._ensure_combo_is_unambiguous(option)
+        else:
+            # Note: if the option is not in this Command's option_map, the KeyError is handled by CommandParser
+            return [(option, self.option_map[option], value)]
 
         try:
             param = self.option_map[option]
         except KeyError:
-            if value is not None:
+            opt_len = len(option)
+            if opt_len < 2 or (opt_len > 2 and self._is_combo_potentially_ambiguous(option)):
                 raise
         else:
             return [(option, param, value)]
@@ -426,6 +440,7 @@ class CommandParameters:
         if param.would_accept(value, short_combo=True):
             return [(key, param, value)]
         else:
+            # Multi-char short options can never be combined with each other, but single-char ones can
             return [(c, combo_option_map[c], None) for c in option[1:]]
 
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
