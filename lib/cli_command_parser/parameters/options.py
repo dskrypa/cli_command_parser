@@ -125,8 +125,8 @@ class _Flag(BaseOption[T_co], ABC):
     def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
         # log.debug(f'{self!r}.take_action({value!r})')
         ctx.record_action(self)
-        action_method = getattr(self, self.action)
         if value is None:
+            action_method = getattr(self, self.action)
             return action_method(opt_str) if self._use_opt_str else action_method()
 
         raise ParamUsageError(self, f'received value={value!r} but no values are accepted for action={self.action!r}')

@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Deque, List
 
 from .context import ActionPhase, Context
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import Backtrack, UnsupportedAction
+from .exceptions import Backtrack, NextCommand, UnsupportedAction
 from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
@@ -192,19 +192,16 @@ class CommandParser:
         # log.debug(f'handle_short({arg=})')
         try:
             param_val_combos = self.params.short_option_to_param_value_pairs(arg)
-        except KeyError:
+        except KeyError:  # Handles 3 potential KeyErrors for either the full short option or a single-char combo
             self._handle_short_not_found(arg)
         else:
             # log.debug(f'Split {arg=} into {param_val_combos=}')
-            if len(param_val_combos) == 1:
-                opt, param, value = param_val_combos[0]
-                self._handle_short_value(opt, param, value)
-            else:
-                last_opt, last_param, _last_val = param_val_combos[-1]
-                for opt, param, _ in param_val_combos[:-1]:
-                    param.take_action(None, short_combo=True, opt_str=opt)
-
-                self._handle_short_value(last_opt, last_param, None)
+            last = param_val_combos.pop()
+            if param_val_combos:
+                # Note: This loop is only executed for single char combined flags, where the values will always be None
+                for opt, param, value in param_val_combos:
+                    param.take_action(value, short_combo=True, opt_str=opt)
+            self._handle_short_value(*last)
 
     def _handle_short_not_found(self, arg: str):
         if self._maybe_consume_remainder(arg):
@@ -360,7 +357,3 @@ def _to_pop(positionals: List[BasePositional], can_pop: List[int], available: in
             return n
 
     return None
-
-
-class NextCommand(Exception):
-    pass

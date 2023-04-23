@@ -16,8 +16,11 @@ The default handler will...
 :author: Doug Skrypa
 """
 
+from __future__ import annotations
+
 import platform
 import sys
+from collections import ChainMap
 from typing import Type, Callable, Union, Optional, Dict
 
 from .exceptions import CommandParserException
@@ -25,22 +28,25 @@ from .exceptions import CommandParserException
 __all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler', 'NullErrorHandler']
 
 WINDOWS = platform.system().lower() == 'windows'
+HandlerFunc = Callable[[BaseException], Optional[bool]]
 
 
 class ErrorHandler:
-    _exc_handler_map: Dict[Type[BaseException], Callable] = {}
+    __slots__ = ('exc_handler_map',)
+    _exc_handler_map: Dict[Type[BaseException], Handler] = {}
+    exc_handler_map: Dict[Type[BaseException], Handler]
 
     def __init__(self):
-        self.exc_handler_map: Dict[Type[BaseException], Callable] = {}
+        self.exc_handler_map = {}
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}[handlers={len(self.exc_handler_map)}]>'
 
-    def register(self, handler: Callable, *exceptions: Type[BaseException]):
+    def register(self, handler: HandlerFunc, *exceptions: Type[BaseException]):
         for exc in exceptions:
-            self.exc_handler_map[exc] = handler
+            self.exc_handler_map[exc] = Handler(exc, handler)
 
-    def unregister(self, *exceptions):
+    def unregister(self, *exceptions: Type[BaseException]):
         for exc in exceptions:
             try:
                 del self.exc_handler_map[exc]
@@ -48,35 +54,32 @@ class ErrorHandler:
                 pass
 
     def __call__(self, *exceptions: Type[BaseException]):
-        def _handler(func: Union[Callable, staticmethod]):
-            self.register(func, *exceptions)
-            return func
+        def _handler(handler: Union[HandlerFunc, staticmethod]):
+            self.register(handler, *exceptions)
+            return handler
 
         return _handler
 
     @classmethod
     def cls_handler(cls, *exceptions: Type[BaseException]):
-        def _cls_handler(func: Union[Callable, staticmethod]):
+        def _cls_handler(handler: Union[HandlerFunc, staticmethod]):
             for exc in exceptions:
-                cls._exc_handler_map[exc] = func
-            return func
+                cls._exc_handler_map[exc] = Handler(exc, handler)
+            return handler
 
         return _cls_handler
 
-    def get_handler(self, exc_type: Type[BaseException], exc: BaseException) -> Optional[Callable]:
-        exc_handler_maps = (self.exc_handler_map, self._exc_handler_map)
-        for exc_handler_map in exc_handler_maps:
-            try:
-                return exc_handler_map[exc_type]
-            except KeyError:
-                pass
-        for exc_handler_map in exc_handler_maps:
-            try:
-                return next((f for ec, f in exc_handler_map.items() if isinstance(exc, ec)))
-            except StopIteration:
-                pass
-
-        return None
+    def get_handler(self, exc_type: Type[BaseException], exc: BaseException) -> Optional[HandlerFunc]:
+        exc_handler_map = ChainMap(self.exc_handler_map, self._exc_handler_map)
+        try:
+            return exc_handler_map[exc_type].handler
+        except KeyError:
+            pass
+        candidates = sorted(handler for ec, handler in exc_handler_map.items() if isinstance(exc, ec))
+        try:
+            return candidates[0].handler
+        except IndexError:
+            return None
 
     def __enter__(self):
         return self
@@ -90,7 +93,7 @@ class ErrorHandler:
 
         return False
 
-    def copy(self) -> 'ErrorHandler':
+    def copy(self) -> ErrorHandler:
         clone = self.__class__()
         clone.exc_handler_map.update(self.exc_handler_map)
         return clone
@@ -102,6 +105,25 @@ class NullErrorHandler:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return None
+
+
+class Handler:
+    """
+    Wrapper around an exception class and the handler for it to facilitate sorting to select the most specific handler
+    for a given exception.
+    """
+
+    __slots__ = ('exc_cls', 'handler')
+
+    def __init__(self, exc_cls: Type[BaseException], handler: HandlerFunc):
+        self.exc_cls = exc_cls
+        self.handler = handler
+
+    def __eq__(self, other: Handler) -> bool:
+        return other.exc_cls == self.exc_cls and other.handler == self.handler
+
+    def __lt__(self, other: Handler) -> bool:
+        return issubclass(self.exc_cls, other.exc_cls)
 
 
 ErrorHandler.cls_handler(CommandParserException)(CommandParserException.exit)

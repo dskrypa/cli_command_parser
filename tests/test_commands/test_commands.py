@@ -147,6 +147,12 @@ class TestCommands(TestCase):
         del Foo.ctx
         self.assertIsInstance(Foo().ctx, Context)
 
+    def test_prog_in_repr(self):
+        class Foo(Command, prog='foo.py'):
+            pass
+
+        self.assertEqual("<Foo in prog='foo.py'>", repr(Foo()))
+
 
 if __name__ == '__main__':
     try:

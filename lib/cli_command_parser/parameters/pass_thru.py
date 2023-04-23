@@ -46,12 +46,14 @@ class PassThru(Parameter):
     ):
         value = ctx.get_parsed_value(self)
         if value is not _NotSet:
-            raise ParamUsageError(self, f'received values={values!r} but a stored value={value!r} already exists')
+            raise ParamUsageError(
+                self,
+                f'can only be specified once - found values={values!r} but a stored value={value!r} already exists',
+            )
 
         ctx.record_action(self)
         normalized = list(map(self.prepare_value, values))
-        action_method = getattr(self, self.action)
-        return action_method(normalized)
+        return getattr(self, self.action)(normalized)
 
     def result_value(self) -> Any:
         value = ctx.get_parsed_value(self)

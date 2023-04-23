@@ -82,7 +82,7 @@ class GroupTest(_GroupTest):
             (['-B'], {'bar': False, 'baz': True}),
             (['-bB'], {'bar': True, 'baz': True}),
         ]
-        fail_cases = [([], UsageError)]
+        fail_cases = [([], ParamsMissing, 'at least one of the following arguments are required')]
         self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2)
 
     def test_required_param_missing_from_non_required_group(self):
@@ -263,7 +263,11 @@ class MutuallyDependentGroupTest(_GroupTest):
             (['-b', '--baz'], {'bar': True, 'baz': True}),
             (['--baz', '--bar'], {'bar': True, 'baz': True}),
         ]
-        fail_cases = [([], UsageError), (['-b'], UsageError), (['-B'], UsageError)]
+        fail_cases = [
+            ([], ParamsMissing, '- the following arguments are required'),
+            (['-b'], ParamsMissing),
+            (['-B'], ParamsMissing),
+        ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases)
 

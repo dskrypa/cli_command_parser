@@ -42,6 +42,10 @@ class Command(ABC, metaclass=CommandMeta):
             self.ctx = ctx
         return self
 
+    def __repr__(self) -> str:
+        cls = self.__class__
+        return f'<{cls.__name__} in prog={cls.__class__.meta(cls).prog!r}>'
+
     # region Parse & Run
 
     @classmethod
@@ -247,7 +251,7 @@ class Command(ABC, metaclass=CommandMeta):
             param.func(self, *args, **kwargs)
 
 
-def main(argv: Argv = None, return_command: Bool = False, **kwargs):
+def main(argv: Argv = None, return_command: Bool = False, **kwargs) -> Optional[CommandObj]:
     """
     Convenience function that can be used as the main entry point for a program.
 

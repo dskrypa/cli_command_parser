@@ -33,7 +33,7 @@ class ContextTest(TestCase):
         self.assertNotEqual(default, c.config.ignore_unknown)
 
     def test_double_config_rejected(self):
-        with self.assertRaisesRegex(ValueError, 'Cannot combine config='):
+        with self.assertRaisesRegex(TypeError, 'Cannot combine config='):
             Context(config=CommandConfig(), add_help=False)
 
     def test_explicitly_provided_config_used(self):
@@ -54,14 +54,14 @@ class ContextTest(TestCase):
             pass
 
         context = Context(command=Foo, show_docstring=False)
-        self.assertDictEqual({'show_docstring': False}, context.config.as_dict(False))
-        self.assertEqual(1, len(context.config.parents))
+        self.assertDictEqual({'show_docstring': False, 'add_help': False}, context.config.as_dict(False))
+        self.assertEqual(2, len(context.config._data.maps))
         self.assertFalse(context.config.add_help)
         self.assertFalse(context.config.show_docstring)
 
     def test_config_from_command_with_no_config(self):
         context = Context(command=Command, show_docstring=False)
-        self.assertEqual(0, len(context.config.parents))
+        self.assertEqual(1, len(context.config._data.maps))
         self.assertFalse(context.config.show_docstring)
 
     def test_allow_argv_prog_from_parent(self):

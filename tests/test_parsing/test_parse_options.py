@@ -2,9 +2,9 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, Positional, REMAINDER, BaseOption, ctx
+from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption, ctx
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument
+from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument, AmbiguousShortForm, AmbiguousCombo
 from cli_command_parser.nargs import Nargs
 from cli_command_parser.parameters.base import parameter_action
 from cli_command_parser.testing import ParserTest
@@ -75,7 +75,7 @@ class OptionTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
 
-    def test_short_value_ambiguous(self):
+    def test_short_value_ambiguous_permissive(self):
         class Foo(Command):
             foo = Option('-f')
             foobar = Option('-foobar')
@@ -105,6 +105,15 @@ class OptionTest(ParserTest):
             (['--foorab'], MissingArgument),
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_short_value_ambiguous_strict(self):
+        class Foo(Command, ambiguous_short_combos='strict'):
+            foo = Option('-f')
+            foobar = Option('-foobar')
+            foorab = Option('-foorab')
+
+        with self.assertRaises(AmbiguousShortForm):
+            Foo.parse([])
 
     def test_custom_type_starting_with_dash(self):
         class TimeOffset:
@@ -224,6 +233,32 @@ class OptionTest(ParserTest):
 
                 self.assert_parse_results_cases(Foo, success_cases)
                 self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_2c_short_in_sub_cmd_with_base_1c_short_prefix(self):
+        class Foo(Command):
+            sub = SubCommand()
+            foo = Option('-f')
+
+        class Bar(Foo):
+            foobar = Option('-fb')
+
+        success_cases = [
+            (['bar'], {'sub': 'bar', 'foo': None, 'foobar': None}),
+            (['bar', '-fx'], {'sub': 'bar', 'foo': 'x', 'foobar': None}),
+            (['bar', '-f=x'], {'sub': 'bar', 'foo': 'x', 'foobar': None}),
+            (['bar', '-f', 'x'], {'sub': 'bar', 'foo': 'x', 'foobar': None}),
+            (['bar', '--foo', 'x'], {'sub': 'bar', 'foo': 'x', 'foobar': None}),
+            (['bar', '-fb=x'], {'sub': 'bar', 'foo': None, 'foobar': 'x'}),
+            (['bar', '-fb', 'x'], {'sub': 'bar', 'foo': None, 'foobar': 'x'}),
+            (['bar', '--foobar', 'x'], {'sub': 'bar', 'foo': None, 'foobar': 'x'}),
+            (['bar', '-f=x', '-fb=y'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),
+            (['bar', '-fb=y', '-f=x'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),
+            (['bar', '--foobar', 'y', '--foo', 'x'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),
+            (['bar', '--foo', 'x', '--foobar', 'y'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['bar', '-fby'], ['bar', '-fbx'], ['bar', '-fbar']]
+        self.assert_parse_fails_cases(Foo, fail_cases, AmbiguousCombo)
 
 
 if __name__ == '__main__':

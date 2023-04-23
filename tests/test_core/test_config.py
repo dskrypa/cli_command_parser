@@ -4,10 +4,39 @@ from itertools import product, starmap
 from operator import or_
 from unittest import TestCase, main
 
+from cli_command_parser import Command, SubCommand
+from cli_command_parser.core import get_config
 from cli_command_parser.config import CommandConfig, ShowDefaults, ConfigItem, DEFAULT_CONFIG, AllowLeadingDash
 
 
-class ConfigTest(TestCase):
+class ConfigItemTest(TestCase):
+    def test_config_item_self(self):
+        self.assertIsInstance(CommandConfig.show_defaults, ConfigItem)
+
+    def test_config_item_repr(self):
+        self.assertEqual("<ConfigItem(True, type=<class 'bool'>)>", repr(CommandConfig.add_help))
+
+    def test_config_item_del(self):
+        config = CommandConfig(add_help=False)
+        self.assertDictEqual({'add_help': False}, config.as_dict(False))
+        del config.add_help
+        self.assertDictEqual({}, config.as_dict(False))
+        with self.assertRaises(AttributeError):
+            del config.add_help
+
+    def test_config_item_default(self):
+        self.assertTrue(CommandConfig().add_help)
+
+    def test_ro_set_rejected(self):
+        with self.assertRaises(AttributeError):
+            DEFAULT_CONFIG.usage_column_width = 50  # noqa
+
+    def test_ro_del_rejected(self):
+        with self.assertRaises(AttributeError):
+            del DEFAULT_CONFIG.usage_column_width
+
+
+class ConfigEnumTest(TestCase):
     def test_invalid_show_defaults(self):
         with self.assertRaisesRegex(ValueError, 'Invalid.*- expected one of'):
             ShowDefaults('foo')
@@ -25,53 +54,46 @@ class ConfigTest(TestCase):
     def test_set_show_default(self):
         config = CommandConfig()
         self.assertIsNot(ShowDefaults.NEVER, config.show_defaults)
-        config.show_defaults = 'never'
+        config.show_defaults = 'never'  # noqa
         self.assertIs(ShowDefaults.NEVER, config.show_defaults)
-
-    def test_config_item_self(self):
-        self.assertIsInstance(CommandConfig.show_defaults, ConfigItem)
-
-    def test_config_item_repr(self):
-        self.assertEqual("<ConfigItem(True, type=<class 'bool'>)>", repr(CommandConfig.add_help))
-
-    def test_config_no_overrides_empty(self):
-        self.assertDictEqual({}, CommandConfig().as_dict(False))
-
-    def test_config_item_del(self):
-        config = CommandConfig(add_help=False)
-        self.assertDictEqual({'add_help': False}, config.as_dict(False))
-        del config.add_help
-        self.assertDictEqual({}, config.as_dict(False))
-        with self.assertRaises(AttributeError):
-            del config.add_help
-
-    def test_config_item_default(self):
-        self.assertTrue(CommandConfig().add_help)
-
-    def test_config_inherited_value(self):
-        self.assertFalse(CommandConfig((CommandConfig(add_help=False),)).add_help)
-
-    def test_config_alt_parent_inherited_value(self):
-        self.assertFalse(CommandConfig((CommandConfig(add_help=False), CommandConfig())).add_help)
-        self.assertFalse(CommandConfig((CommandConfig(), CommandConfig(add_help=False))).add_help)
-
-    def test_config_invalid_key(self):
-        with self.assertRaisesRegex(TypeError, 'unsupported options: bar, foo'):
-            CommandConfig(foo=1, bar=2)
-
-    def test_ro_set_rejected(self):
-        with self.assertRaises(AttributeError):
-            DEFAULT_CONFIG.usage_column_width = 50
-
-    def test_ro_del_rejected(self):
-        with self.assertRaises(AttributeError):
-            del DEFAULT_CONFIG.usage_column_width
 
     def test_invalid_allow_leading_dash(self):
         with self.assertRaises(ValueError):
             AllowLeadingDash('foo')
         with self.assertRaises(ValueError):
             AllowLeadingDash(1)
+
+
+class ConfigTest(TestCase):
+    def test_config_no_overrides_empty(self):
+        self.assertDictEqual({}, CommandConfig().as_dict(False))
+
+    def test_config_invalid_key(self):
+        with self.assertRaisesRegex(TypeError, 'unsupported options: bar, foo'):
+            CommandConfig(foo=1, bar=2)
+
+    # region Inheritance
+
+    def test_config_inherited_value(self):
+        self.assertFalse(CommandConfig(CommandConfig(add_help=False)).add_help)
+
+    def test_config_alt_parent_inherited_value(self):
+        self.assertFalse(CommandConfig(CommandConfig(CommandConfig(), add_help=False)).add_help)
+        self.assertFalse(CommandConfig(CommandConfig(CommandConfig(add_help=False))).add_help)
+
+    def test_config_sub_cmd_inheritance(self):
+        class Foo(Command, show_group_tree=True):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            pass
+
+        self.assertTrue(Foo().ctx.config.show_group_tree)
+        self.assertTrue(Bar().ctx.config.show_group_tree)
+        self.assertTrue(get_config(Foo).show_group_tree)
+        self.assertTrue(get_config(Bar).show_group_tree)
+
+    # endregion
 
 
 if __name__ == '__main__':

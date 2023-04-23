@@ -227,12 +227,22 @@ class ParamGroup(ParamBase):
         self._check_conflicts(provided, missing)
         if not missing:
             return
-        elif not provided and (self.required or (self.mutually_dependent and any(p.required for p in self.members))):
-            raise ParamsMissing(missing)
+        req_any, req_all = self._classify_required()
+        if not provided and req_any:
+            raise ParamsMissing(missing, partial=not req_all)
         elif provided or not self.in_mutually_exclusive_group:
             req_missing = [p for p in missing if p.required]
             if req_missing:
                 raise ParamsMissing(req_missing)
+
+    def _classify_required(self) -> Tuple[bool, bool]:
+        """Returns a tuple of (req_any, req_all)"""
+        if self.mutually_dependent and (self.required or any(p.required for p in self.members)):
+            return True, True
+        elif self.required:
+            return True, False
+        else:
+            return False, False
 
     # endregion
 
