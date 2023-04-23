@@ -8,13 +8,13 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Optional, Union, TypeVar, Callable, Iterable, Collection, Any, Mapping, Sequence
+from typing import TYPE_CHECKING, Optional, Union, TypeVar, Callable, Iterable, Collection, Any, Mapping, Iterator
 from typing import Dict, Tuple, List
 from warnings import warn
 from weakref import WeakSet
 
 from .command_parameters import CommandParameters
-from .config import CommandConfig
+from .config import CommandConfig, DEFAULT_CONFIG
 from .exceptions import CommandDefinitionError
 from .metadata import ProgramMetadata
 
@@ -26,6 +26,8 @@ __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadat
 Bases = Union[Tuple[type, ...], Iterable[type]]
 Choices = Union[Mapping[str, Optional[str]], Collection[str]]
 T = TypeVar('T')
+
+META_KEYS = {'prog', 'usage', 'description', 'epilog', 'doc_name'}
 
 
 class CommandMeta(ABCMeta, type):
@@ -72,8 +74,7 @@ class CommandMeta(ABCMeta, type):
         config: AnyConfig = None,
         **kwargs,
     ) -> CommandCls:
-        meta_iter = ((k, kwargs.pop(k, None)) for k in ('prog', 'usage', 'description', 'epilog', 'doc_name'))
-        metadata = {k: v for k, v in meta_iter if v}
+        metadata = {k: v for k, v in ((k, kwargs.pop(k)) for k in META_KEYS.intersection(kwargs)) if v}
         namespace['_CommandMeta__params'] = None  # Prevent commands from inheriting parent params
         namespace['_CommandMeta__metadata'] = None  # Prevent commands from inheriting parent metadata directly
         namespace['_CommandMeta__parents'] = None  # Prevent commands from inheriting parents directly
@@ -129,19 +130,19 @@ class CommandMeta(ABCMeta, type):
                 return config
             kwargs = config  # It was a dict
 
-        parent = mcs._from_parent(mcs.config, bases)
-        if kwargs or (not parent and ABC not in bases):
+        parent_config = mcs._from_parent(mcs.config, bases)
+        if kwargs or (not parent_config and ABC not in bases):
             cfg_kwargs = {k: kwargs.pop(k) for k in CommandConfig.FIELDS.intersection(kwargs)}
-            return CommandConfig(parents=(parent,) if parent else (), **cfg_kwargs)
+            return CommandConfig(parent=parent_config, **cfg_kwargs)
 
         return None
 
     @classmethod
-    def config(mcs, cls: CommandAny) -> Config:
+    def config(mcs, cls: CommandAny, default: T = None) -> Union[CommandConfig, T]:
         try:
             return cls.__config     # This attr is not overwritten for every subclass
         except AttributeError:      # This means that the Command and all of its parents have no custom config
-            return None
+            return default
 
     # endregion
 
@@ -183,11 +184,13 @@ class CommandMeta(ABCMeta, type):
         except AttributeError:
             raise TypeError('CommandParameters are only available for Command subclasses') from None
         if not params:
-            cls.__params = params = CommandParameters(cls, mcs.parent(cls, True), mcs.config(cls))
+            parent = mcs.parent(cls, True)
+            parent_params = mcs.params(parent) if parent is not None else None
+            cls.__params = params = CommandParameters(cls, parent, parent_params, mcs.config(cls, DEFAULT_CONFIG))
         return params
 
     @classmethod
-    def meta(mcs, cls: CommandCls, no_sys_argv: Bool = False) -> Optional[ProgramMetadata]:
+    def meta(mcs, cls: CommandCls, no_sys_argv: Bool = False) -> ProgramMetadata:
         meta = cls.__metadata
         if not meta:
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
@@ -203,19 +206,18 @@ def _mro(cmd_cls):
         return cmd_cls, type.mro(cmd_cls)[1:-1]
 
 
-def _choice_items(choice: OptStr, choices: Optional[Choices]) -> Sequence[Tuple[OptStr, OptStr]]:
+def _choice_items(choice: OptStr, choices: Optional[Choices]) -> Iterator[Tuple[OptStr, OptStr]]:
     if not choices:
-        return ((choice, None),)  # noqa
-
-    try:
-        items = {kv: None for kv in choices.items()}
-    except AttributeError:
-        items = {(c, None): None for c in choices}
-
-    if choice:
-        return {(choice, None): None, **items}
+        yield choice, None
     else:
-        return items
+        try:
+            items = choices.items()
+        except AttributeError:  # Choices is not a dict of choice:help
+            items = ((c, None) for c in choices)
+
+        if choice and choice not in choices:
+            yield choice, None
+        yield from items
 
 
 get_parent = CommandMeta.parent

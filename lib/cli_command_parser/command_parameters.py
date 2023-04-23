@@ -39,8 +39,8 @@ ActionFlags = List[ActionFlag]
 class CommandParameters:
     command: CommandCls                                  #: The Command associated with this CommandParameters object
     formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
-    command_parent: Optional[CommandCls] = None          #: The parent Command, if any
-    parent: Optional[CommandParameters] = None           #: The parent Command's CommandParameters
+    command_parent: Optional[CommandCls]                 #: The parent Command, if any
+    parent: Optional[CommandParameters]                  #: The parent Command's CommandParameters
     action: Optional[Action] = None                      #: An Action Parameter, if specified
     _pass_thru: Optional[PassThru] = None                #: A PassThru Parameter, if specified
     sub_command: Optional[SubCommand] = None             #: A SubCommand Parameter, if specified
@@ -53,12 +53,16 @@ class CommandParameters:
     _deferred_positionals: List[BasePositional] = ()     #: Positional Parameters that are deferred to sub commands
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
 
-    def __init__(self, command: CommandCls, command_parent: Optional[CommandCls], config: CommandConfig):
+    def __init__(
+        self,
+        command: CommandCls,
+        command_parent: Optional[CommandCls],
+        parent_params: Optional[CommandParameters],
+        config: CommandConfig,
+    ):
         self.command = command
-        if command_parent is not None:
-            self.command_parent = command_parent
-            self.parent = command_parent.__class__.params(command_parent)
-
+        self.command_parent = command_parent
+        self.parent = parent_params
         self.config = config
         self._process_parameters()
 
@@ -106,10 +110,7 @@ class CommandParameters:
     def formatter(self) -> CommandHelpFormatter:
         from .formatting.commands import CommandHelpFormatter
 
-        if self.config is None:
-            formatter_factory = CommandHelpFormatter
-        else:
-            formatter_factory = self.config.command_formatter or CommandHelpFormatter
+        formatter_factory = self.config.command_formatter or CommandHelpFormatter
         formatter = formatter_factory(self.command, self)
         formatter.maybe_add_positionals(self.all_positionals)
         formatter.maybe_add_option(self._pass_thru)
@@ -171,7 +172,7 @@ class CommandParameters:
             if param.group:
                 _find_groups(groups, param)
 
-        if self.config and self.config.add_help and (not self.parent or not self.parent._has_help):
+        if self.config.add_help and self.command_parent is not None and (not self.parent or not self.parent._has_help):
             options.append(help_action)
 
         self._process_positionals(positionals)
@@ -248,7 +249,7 @@ class CommandParameters:
         self._process_action_flags(options)
         self.combo_option_map = dict(sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0])))  # noqa
 
-        if self.config and self.config.ambiguous_short_combos == AmbiguousComboMode.STRICT:
+        if self.config.ambiguous_short_combos == AmbiguousComboMode.STRICT:
             self._strict_ambiguous_short_combo_check()
 
     def _process_option_strs(
@@ -319,7 +320,7 @@ class CommandParameters:
         raise AmbiguousShortForm(param_conflicts_map)
 
     @cached_property
-    def _classified_combo_options(self) -> Tuple[Dict[str, BaseOption], Dict[str, BaseOption]]:
+    def _classified_combo_options(self) -> Tuple[OptionMap, OptionMap]:
         multi_char_combos = {}
         single_char_combos = {}
         for combo, param in self.combo_option_map.items():
@@ -330,28 +331,22 @@ class CommandParameters:
         return single_char_combos, multi_char_combos
 
     @cached_property
-    def _potentially_ambiguous_combo_options(self) -> Dict[str, Tuple[BaseOption, Dict[str, BaseOption]]]:
+    def _potentially_ambiguous_combo_options(self) -> Dict[str, Tuple[BaseOption, OptionMap]]:
         single_char_combos, multi_char_combos = self._classified_combo_options
         if not multi_char_combos:
             return {}
-
-        ambiguous_combo_options = {}
-        for combo, param in multi_char_combos.items():
-            singles = {c: single_char_combos[c] for c in combo if c in single_char_combos}
-            if singles:
-                ambiguous_combo_options[combo] = (param, singles)
-
-        return ambiguous_combo_options
+        return _find_ambiguous_combos(single_char_combos, multi_char_combos)
 
     def _ensure_combo_is_unambiguous(self, option: str):
         # Called by short_option_to_param_value_pairs after ensuring the length is > 1
-        acm = AmbiguousComboMode.PERMISSIVE if not self.config else self.config.ambiguous_short_combos
+        acm = self.config.ambiguous_short_combos
         if acm == AmbiguousComboMode.IGNORE:
             return
 
         to_check = option[1:]  # Strip leading '-'
         potentially_ambiguous_combo_options = self._potentially_ambiguous_combo_options
         if acm == AmbiguousComboMode.PERMISSIVE and to_check in potentially_ambiguous_combo_options:
+            # TODO: Check Flag vs Option?
             return  # Permissive mode allows exact matches of multi-char short forms
 
         ambiguous = set()
@@ -366,6 +361,16 @@ class CommandParameters:
     # endregion
 
     # region Option Processing
+
+    def _iter_nested_params(self) -> Iterator[CommandParameters]:
+        if not self.sub_command:
+            return
+        for choice in self.sub_command.choices.values():
+            command = choice.target
+            try:
+                yield command.__class__.params(command)
+            except AttributeError:  # The target was None (it's a subcommand's local choice)
+                pass
 
     def get_option_param_value_pairs(self, option: str) -> Optional[Tuple[BaseOption, ...]]:
         if option.startswith('---'):
@@ -437,15 +442,7 @@ class CommandParameters:
         return None
 
     def find_nested_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
-        if not self.sub_command:
-            return None
-
-        for choice in self.sub_command.choices.values():
-            command = choice.target
-            try:
-                params = command.__class__.params(command)
-            except AttributeError:  # The target was None (it's a subcommand's local choice)
-                continue
+        for params in self._iter_nested_params():
             try:
                 param = params.find_option_that_accepts_values(option)
             except KeyError:
@@ -461,12 +458,7 @@ class CommandParameters:
         return None
 
     def find_nested_pass_thru(self) -> Optional[PassThru]:
-        if not self.sub_command:
-            return None
-
-        for choice in self.sub_command.choices.values():
-            command = choice.target
-            params = command.__class__.params(command)
+        for params in self._iter_nested_params():
             if params._pass_thru:
                 return params._pass_thru
 
@@ -511,3 +503,15 @@ def _find_groups(groups: Set[ParamGroup], param: ParamBase):
     while group:
         groups.add(group)
         group = group.group
+
+
+def _find_ambiguous_combos(
+    single_char_combos: OptionMap, multi_char_combos: OptionMap
+) -> Dict[str, Tuple[BaseOption, OptionMap]]:
+    ambiguous_combo_options = {}
+    for combo, param in multi_char_combos.items():
+        singles = {c: single_char_combos[c] for c in combo if c in single_char_combos}
+        if singles:
+            ambiguous_combo_options[combo] = (param, singles)
+
+    return ambiguous_combo_options

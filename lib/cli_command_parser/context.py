@@ -65,7 +65,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.command = command
         self.parent = parent
         self.config = _normalize_config(config, kwargs, parent, command)
-        if parent is not None:
+        if parent:
             self._set_argv(parent.prog, argv)
             self._parsed = parent._parsed.copy()
             self.unknown = parent.unknown.copy()
@@ -290,20 +290,16 @@ def _normalize_config(
 ) -> CommandConfig:
     if config is not None:
         if kwargs:
-            raise ValueError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+            raise TypeError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
         elif isinstance(config, CommandConfig):
             return config
         kwargs = config
 
-    parents = []
-    if parent and parent.config:
-        parents.append(parent.config)
-    if command is not None:
-        cmd_cfg = command.__class__.config(command)
-        if cmd_cfg:
-            parents.append(cmd_cfg)
+    if parent:
+        for key, val in parent.config._data.items():
+            kwargs.setdefault(key, val)
 
-    return CommandConfig(parents=parents, **kwargs)
+    return CommandConfig(parent=command.__class__.config(command) if command is not None else None, **kwargs)
 
 
 class ActionPhase(Enum):
@@ -339,7 +335,7 @@ class ContextProxy:
     def __contains__(self, item) -> bool:
         return item in get_current_context()
 
-    def __enter__(self):
+    def __enter__(self) -> Context:
         return get_current_context().__enter__()
 
     def __exit__(self, exc_type, exc_val, exc_tb):

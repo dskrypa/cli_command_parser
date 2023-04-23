@@ -6,8 +6,9 @@ Configuration options for Command behavior.
 
 from __future__ import annotations
 
+from collections import ChainMap
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, Generic, Sequence, overload, Dict
+from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, Generic, overload, Dict
 
 from .utils import FixedFlag, MissingMixin, _NotSet
 
@@ -223,20 +224,6 @@ class ConfigItem(Generic[CV, DV]):
         self.name = name
         owner.FIELDS.add(name)
 
-    def get_value(self, instance: CommandConfig) -> ConfigValue:
-        try:
-            return instance.__dict__[self.name]
-        except KeyError:
-            pass
-
-        for parent in instance.parents:
-            try:
-                return self.get_value(parent)
-            except KeyError:
-                pass
-
-        raise KeyError
-
     @overload
     def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[CV, DV]:
         ...
@@ -248,23 +235,20 @@ class ConfigItem(Generic[CV, DV]):
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        try:
-            return self.get_value(instance)
-        except KeyError:
-            return self.default
+        return instance._data.get(self.name, self.default)
 
     def __set__(self, instance: CommandConfig, value: ConfigValue):
         if instance._read_only:
             raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
         elif self.type is not None:
             value = self.type(value)
-        instance.__dict__[self.name] = value
+        instance._data[self.name] = value
 
     def __delete__(self, instance: CommandConfig):
         if instance._read_only:
             raise AttributeError(f'Unable to delete attribute {self.name} because {instance} is read-only')
         try:
-            del instance.__dict__[self.name]
+            del instance._data[self.name]
         except KeyError as e:
             raise AttributeError(f'No {self.name!r} config was stored for {instance}') from e
 
@@ -275,6 +259,11 @@ class ConfigItem(Generic[CV, DV]):
 class CommandConfig:
     """Configuration options for Commands."""
 
+    # Note: PyCharm may incorrectly think ConfigItem attrs are read only: https://youtrack.jetbrains.com/issue/PY-29770
+
+    __slots__ = ('_data', '_read_only')
+    _data: ChainMap
+    _read_only: bool
     FIELDS = set()
 
     # region Error Handling Options
@@ -376,8 +365,8 @@ class CommandConfig:
 
     # endregion
 
-    def __init__(self, parents: Optional[Sequence[CommandConfig]] = None, read_only: bool = False, **kwargs):
-        self.parents = parents or ()
+    def __init__(self, parent: Optional[CommandConfig] = None, read_only: bool = False, **kwargs):
+        self._data = parent._data.new_child() if parent else ChainMap()
         self._read_only = read_only
         fields = self.FIELDS
         for key, val in kwargs.items():
@@ -392,14 +381,13 @@ class CommandConfig:
 
     def __repr__(self) -> str:
         settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False).items())
-        cfg_str = f', {settings}' if settings else ''
-        return f'<{self.__class__.__name__}(parents={self.parents!r}{cfg_str})>'
+        return f'<{self.__class__.__name__}[depth={len(self._data.maps)}]({settings})>'
 
     def as_dict(self, full: Bool = True) -> Dict[str, Any]:
         """Return a dict representing the configured options."""
         if full:
             return {key: getattr(self, key) for key in self.FIELDS}
-        return {key: val for key, val in self.__dict__.items() if key in self.FIELDS}
+        return {key: val for key, val in self._data.items() if key in self.FIELDS}
 
 
-DEFAULT_CONFIG = CommandConfig(read_only=True)
+DEFAULT_CONFIG: CommandConfig = CommandConfig(read_only=True)
