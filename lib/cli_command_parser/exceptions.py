@@ -183,9 +183,10 @@ class ParamConflict(MultiParamUsageError):
 class ParamsMissing(UsageError):
     """Error raised when one or more required Parameters were not provided"""
 
-    def __init__(self, params: Collection[ParamOrGroup], message: str = None):
+    def __init__(self, params: Collection[ParamOrGroup], message: str = None, partial: bool = False):
         self.params = params
         self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
+        self.partial = partial
         if message:
             self.message = message
 
@@ -195,7 +196,8 @@ class ParamsMissing(UsageError):
             message = '; '.join(p.missing_hint for p in self.params if p.missing_hint)
 
         if len(self.params) > 1:
-            prefix = 'arguments missing - the following arguments are required'
+            mid = '- at least one of' if self.partial else '-'
+            prefix = f'arguments missing {mid} the following arguments are required'
         else:
             prefix = 'argument missing - the following argument is required'
         return f'{prefix}: {self.usage_str}{message}'
