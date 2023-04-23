@@ -368,16 +368,13 @@ class CommandConfig:
     def __init__(self, parent: Optional[CommandConfig] = None, read_only: bool = False, **kwargs):
         self._data = parent._data.new_child() if parent else ChainMap()
         self._read_only = read_only
-        fields = self.FIELDS
-        for key, val in kwargs.items():
-            if key in fields:
-                setattr(self, key, val)
-            else:
-                # The number of times one or more invalid options will be provided is extremely low compared to how
-                # often this exception will not need to be raised, so the re-iteration over kwargs is acceptable.
-                # This also avoids creating the `bad` dict that would otherwise be thrown away on 99.9% of init calls.
-                bad = ', '.join(sorted(key for key in kwargs if key not in fields))
-                raise TypeError(f'Invalid configuration - unsupported options: {bad}')
+        if kwargs:
+            try:
+                for key, val in kwargs.items():
+                    setattr(self, key, val)
+            except AttributeError:
+                bad = set(kwargs).difference(self.FIELDS)
+                raise TypeError(f'Invalid configuration - unsupported options: {", ".join(sorted(bad))}') from None
 
     def __repr__(self) -> str:
         settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False).items())
