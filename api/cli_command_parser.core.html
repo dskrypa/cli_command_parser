@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -79,8 +80,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.core.get_parent"><code class="docutils literal notranslate"><span class="pre">get_parent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.core.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.core.get_params"><code class="docutils literal notranslate"><span class="pre">get_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.core.get_metadata"><code class="docutils literal notranslate"><span class="pre">get_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.core.get_params"><code class="docutils literal notranslate"><span class="pre">get_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.core.get_top_level_commands"><code class="docutils literal notranslate"><span class="pre">get_top_level_commands()</span></code></a></li>
 </ul>
 </li>
@@ -238,13 +239,13 @@ NOT extend ABC will be returned.</p></li>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cli_command_parser.core.get_params">
-<span class="sig-prename descclassname"><span class="pre">cli_command_parser.core.</span></span><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandAny</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><span class="pre">CommandParameters</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/core.html#get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.core.get_params" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="cli_command_parser.core.get_metadata">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.core.</span></span><span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandCls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_sys_argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata" title="cli_command_parser.metadata.ProgramMetadata"><span class="pre">ProgramMetadata</span></a></span></span><a class="headerlink" href="#cli_command_parser.core.get_metadata" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cli_command_parser.core.get_metadata">
-<span class="sig-prename descclassname"><span class="pre">cli_command_parser.core.</span></span><span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandCls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_sys_argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata" title="cli_command_parser.metadata.ProgramMetadata"><span class="pre">ProgramMetadata</span></a></span></span><a class="headerlink" href="#cli_command_parser.core.get_metadata" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="cli_command_parser.core.get_params">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.core.</span></span><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandAny</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><span class="pre">CommandParameters</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/core.html#get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.core.get_params" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">

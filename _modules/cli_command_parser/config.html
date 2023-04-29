@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a></li>
 </ul>
@@ -179,6 +180,9 @@
 <span class="sd">      in help text</span>
 <span class="sd">    :BOTH_DASH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo-bar`` with be displayed</span>
 <span class="sd">      in help text</span>
+<span class="sd">    :NONE: No long form option string will be added.  At least one short form option string must be defined.  Note that</span>
+<span class="sd">      it is NOT necessary to use ``name_mode=None`` to prevent the automatic creation of long form option strings - if</span>
+<span class="sd">      any long form option strings are explicitly provided for a given Parameter, then no automatic ones will be added.</span>
 
 <span class="sd">    If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</span>
 
@@ -197,14 +201,15 @@
     <span class="c1">#                         &amp; 4  -&gt; display options set</span>
     <span class="n">BOTH_UNDERSCORE</span> <span class="o">=</span> <span class="mi">15</span>    <span class="c1"># &amp; 8  -&gt; show only underscore version</span>
     <span class="n">BOTH_DASH</span> <span class="o">=</span> <span class="mi">23</span>          <span class="c1"># &amp; 16 -&gt; show only dash version</span>
+    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">32</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">OptionNameMode</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">OptionNameMode</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">OPT_NAME_MODE_ALIASES</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NONE</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
 <span class="n">OPT_NAME_MODE_ALIASES</span> <span class="o">=</span> <span class="p">{</span>
@@ -307,7 +312,7 @@
 <span class="c1"># endregion</span>
 
 
-<span class="k">class</span> <span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
+<div class="viewcode-block" id="ConfigItem"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">[docs]</a><span class="k">class</span> <span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">CV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
@@ -347,7 +352,7 @@
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> config was stored for </span><span class="si">{</span><span class="n">instance</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">!r}</span><span class="s1">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">)&gt;&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">!r}</span><span class="s1">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">)&gt;&#39;</span></div>
 
 
 <div class="viewcode-block" id="CommandConfig"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig">[docs]</a><span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>

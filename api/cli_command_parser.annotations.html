@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -65,6 +66,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.actions.html">Actions Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Annotations Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.annotations.get_annotation_value_type"><code class="docutils literal notranslate"><span class="pre">get_annotation_value_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.annotations.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
@@ -134,6 +137,17 @@
 <dt class="sig sig-object py" id="cli_command_parser.annotations.get_descriptor_value_type">
 <span class="sig-prename descclassname"><span class="pre">cli_command_parser.annotations.</span></span><span class="sig-name descname"><span class="pre">get_descriptor_value_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)"><span class="pre">type</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)"><span class="pre">type</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/annotations.html#get_descriptor_value_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.annotations.get_descriptor_value_type" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.annotations.get_annotation_value_type">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.annotations.</span></span><span class="sig-name descname"><span class="pre">get_annotation_value_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)"><span class="pre">type</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/annotations.html#get_annotation_value_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.annotations.get_annotation_value_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.annotations.get_args">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.annotations.</span></span><span class="sig-name descname"><span class="pre">get_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><span class="pre">tuple</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/annotations.html#get_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.annotations.get_args" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper around <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.get_args" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">typing.get_args()</span></code></a> for 3.7~8 compatibility, to make it behave more like it does in 3.9+</p>
+</dd></dl>
 
 </section>
 

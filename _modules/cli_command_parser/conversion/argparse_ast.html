@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
@@ -183,7 +184,7 @@
 <span class="c1"># region Decorators &amp; Descriptors</span>
 
 
-<span class="k">class</span> <span class="nc">visit_func</span><span class="p">:</span>
+<div class="viewcode-block" id="visit_func"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.visit_func">[docs]</a><span class="k">class</span> <span class="nc">visit_func</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A method that can be called by an AST visitor.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;func&#39;</span><span class="p">,)</span>
@@ -197,10 +198,10 @@
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="c1"># This will never actually be called, but it makes PyCharm happy</span>
-        <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">AddVisitedChild</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">]):</span>
+<div class="viewcode-block" id="AddVisitedChild"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AddVisitedChild">[docs]</a><span class="k">class</span> <span class="nc">AddVisitedChild</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Simplifies the definition of an add_child method that can be called by an AST visitor, where possible.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;child_cls&#39;</span><span class="p">,</span> <span class="s1">&#39;list_attr&#39;</span><span class="p">)</span>
@@ -215,13 +216,13 @@
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ArgCollection</span><span class="p">,</span> <span class="n">owner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">InitNode</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">TrackedRefMap</span><span class="p">],</span> <span class="n">AC</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>  <span class="c1"># noqa</span>
-        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">_add_child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child_cls</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_attr</span><span class="p">))</span>  <span class="c1"># noqa</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">_add_child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child_cls</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_attr</span><span class="p">))</span>  <span class="c1"># noqa</span></div>
 
 
 <span class="c1"># endregion</span>
 
 
-<span class="k">class</span> <span class="nc">AstCallable</span><span class="p">:</span>
+<div class="viewcode-block" id="AstCallable"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable">[docs]</a><span class="k">class</span> <span class="nc">AstCallable</span><span class="p">:</span>
     <span class="n">represents</span><span class="p">:</span> <span class="n">RepresentedCallable</span>
     <span class="n">visit_funcs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">_sig</span><span class="p">:</span> <span class="n">Signature</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -238,11 +239,11 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">visit_funcs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">represents</span><span class="p">:</span> <span class="n">RepresentedCallable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AstCallable.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">represents</span><span class="p">:</span> <span class="n">RepresentedCallable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">represents</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">represents</span> <span class="o">=</span> <span class="n">represents</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">InitNode</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="n">Script</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">:</span> <span class="n">TrackedRefMap</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Call</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_node</span> <span class="o">=</span> <span class="n">node</span>
@@ -257,13 +258,13 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_call_repr</span><span class="p">()</span><span class="si">}</span><span class="s1">]&gt;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">get_tracked_refs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">D</span><span class="p">]:</span>
+<div class="viewcode-block" id="AstCallable.get_tracked_refs"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.get_tracked_refs">[docs]</a>    <span class="k">def</span> <span class="nf">get_tracked_refs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">D</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">tracked_ref</span><span class="p">,</span> <span class="n">refs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">tracked_ref</span><span class="o">.</span><span class="n">module</span> <span class="o">==</span> <span class="n">module</span> <span class="ow">and</span> <span class="n">tracked_ref</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">refs</span>
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No tracked ref found for </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No tracked ref found for </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
     <span class="c1"># region Initialization Call</span>
 
@@ -273,29 +274,29 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span> <span class="o">=</span> <span class="n">Signature</span><span class="o">.</span><span class="n">from_callable</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">represents</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="AstCallable.signature"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.signature">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">signature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Signature</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signature</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signature</span><span class="p">()</span></div>
 
-    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="AstCallable.init_func_name"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.init_func_name">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">init_func_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The name or alias of the function/callable that was used to initialize this object&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">get_name_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call_node</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_name_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call_node</span><span class="o">.</span><span class="n">func</span><span class="p">)</span></div>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_init_func_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundArguments</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_args</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">represents</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">call_args</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">kw</span><span class="o">.</span><span class="n">arg</span><span class="p">:</span> <span class="n">kw</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_kwargs</span><span class="p">})</span>
 
-    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="AstCallable.init_func_args"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.init_func_args">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">init_func_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_func_bound</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>  <span class="c1"># No represents func</span>
             <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_args</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">unparse</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">unparse</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span></div>
 
-    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="AstCallable.init_func_raw_kwargs"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.init_func_raw_kwargs">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">init_func_raw_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AST</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_func_bound</span><span class="o">.</span><span class="n">arguments</span>
@@ -308,26 +309,26 @@
                 <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;kwargs&#39;</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;kwargs&#39;</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">kwargs</span>
+            <span class="k">return</span> <span class="n">kwargs</span></div>
 
     <span class="k">def</span> <span class="nf">_init_func_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">unparse</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_func_raw_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
-    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="AstCallable.init_func_kwargs"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.init_func_kwargs">[docs]</a>    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">init_func_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_func_kwargs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_func_kwargs</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">init_call_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="AstCallable.init_call_repr"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.init_call_repr">[docs]</a>    <span class="k">def</span> <span class="nf">init_call_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">arg_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_func_args</span><span class="p">)</span>
         <span class="n">kw_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">kw_str</span><span class="p">:</span>
             <span class="n">arg_str</span> <span class="o">=</span> <span class="n">kw_str</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">arg_str</span> <span class="k">else</span> <span class="p">(</span><span class="n">arg_str</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="n">kw_str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_func_name</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">arg_str</span><span class="si">}</span><span class="s1">)&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_func_name</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">arg_str</span><span class="si">}</span><span class="s1">)&#39;</span></div>
 
     <span class="c1"># endregion</span>
 
-    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="AstCallable.pprint"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.pprint">[docs]</a>    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># region Stdlib Argparse Wrappers</span>
@@ -337,17 +338,17 @@
     <span class="n">parent</span><span class="p">:</span> <span class="n">ArgCollection</span></div>
 
 
-<span class="k">class</span> <span class="nc">ArgCollection</span><span class="p">(</span><span class="n">AstCallable</span><span class="p">):</span>
+<div class="viewcode-block" id="ArgCollection"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection">[docs]</a><span class="k">class</span> <span class="nc">ArgCollection</span><span class="p">(</span><span class="n">AstCallable</span><span class="p">):</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">ArgCollection</span> <span class="o">|</span> <span class="n">Script</span>
     <span class="n">_children</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="s1">&#39;groups&#39;</span><span class="p">)</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">]</span>
     <span class="n">groups</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArgGroup</span><span class="p">]</span>
     <span class="n">add_argument</span> <span class="o">=</span> <span class="n">AddVisitedChild</span><span class="p">(</span><span class="n">ParserArg</span><span class="p">,</span> <span class="s1">&#39;args&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">children</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ArgCollection.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">children</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">children</span><span class="p">:</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">_children</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">cls</span><span class="o">.</span><span class="n">_children</span><span class="p">,</span> <span class="o">*</span><span class="n">children</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_children</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">cls</span><span class="o">.</span><span class="n">_children</span><span class="p">,</span> <span class="o">*</span><span class="n">children</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">InitNode</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="n">Script</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">:</span> <span class="n">TrackedRefMap</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Call</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">,</span> <span class="n">call</span><span class="p">)</span>
@@ -362,28 +363,28 @@
         <span class="n">container</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">child</span>
 
-    <span class="nd">@visit_func</span>
+<div class="viewcode-block" id="ArgCollection.add_mutually_exclusive_group"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.add_mutually_exclusive_group">[docs]</a>    <span class="nd">@visit_func</span>
     <span class="k">def</span> <span class="nf">add_mutually_exclusive_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">InitNode</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">:</span> <span class="n">TrackedRefMap</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_child</span><span class="p">(</span><span class="n">MutuallyExclusiveGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_child</span><span class="p">(</span><span class="n">MutuallyExclusiveGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">)</span></div>
 
-    <span class="nd">@visit_func</span>
+<div class="viewcode-block" id="ArgCollection.add_argument_group"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.add_argument_group">[docs]</a>    <span class="nd">@visit_func</span>
     <span class="k">def</span> <span class="nf">add_argument_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">InitNode</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">:</span> <span class="n">TrackedRefMap</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_child</span><span class="p">(</span><span class="n">ArgGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_child</span><span class="p">(</span><span class="n">ArgGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">grouped_children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">AC</span><span class="p">]]]:</span>
+<div class="viewcode-block" id="ArgCollection.grouped_children"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.grouped_children">[docs]</a>    <span class="k">def</span> <span class="nf">grouped_children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">AC</span><span class="p">]]]:</span>
         <span class="k">yield</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span>
-        <span class="k">yield</span> <span class="n">ArgGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span>
+        <span class="k">yield</span> <span class="n">ArgGroup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span></div>
 
     <span class="c1"># region Output Methods</span>
 
-    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="ArgCollection.pprint"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.pprint">[docs]</a>    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}</span><span class="s1"> + </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s1">:&#39;</span><span class="p">)</span>
         <span class="n">indent</span> <span class="o">+=</span> <span class="mi">3</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_children</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">values</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-                    <span class="n">value</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span></div></div>
 
     <span class="c1"># endregion</span>
 
@@ -396,14 +397,14 @@
     <span class="k">pass</span></div>
 
 
-<span class="k">class</span> <span class="nc">SubparsersAction</span><span class="p">(</span><span class="n">AstCallable</span><span class="p">,</span> <span class="n">represents</span><span class="o">=</span><span class="n">_ArgumentParser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">):</span>
+<div class="viewcode-block" id="SubparsersAction"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.SubparsersAction">[docs]</a><span class="k">class</span> <span class="nc">SubparsersAction</span><span class="p">(</span><span class="n">AstCallable</span><span class="p">,</span> <span class="n">represents</span><span class="o">=</span><span class="n">_ArgumentParser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">):</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">ParserObj</span>
 
-    <span class="nd">@visit_func</span>
+<div class="viewcode-block" id="SubparsersAction.add_parser"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.SubparsersAction.add_parser">[docs]</a>    <span class="nd">@visit_func</span>
     <span class="k">def</span> <span class="nf">add_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">InitNode</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">:</span> <span class="n">TrackedRefMap</span><span class="p">):</span>
         <span class="n">sub_parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_add_subparser</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">tracked_refs</span><span class="p">)</span>
         <span class="n">sub_parser</span><span class="o">.</span><span class="n">sp_parent</span> <span class="o">=</span> <span class="bp">self</span>
-        <span class="k">return</span> <span class="n">sub_parser</span>
+        <span class="k">return</span> <span class="n">sub_parser</span></div></div>
 
 
 <div class="viewcode-block" id="AstArgumentParser"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstArgumentParser">[docs]</a><span class="nd">@Script</span><span class="o">.</span><span class="n">register_parser</span>

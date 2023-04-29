@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -74,8 +75,11 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.conversion.command_builder.html">Command_Builder Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.conversion.utils.html">Utils Module</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Visitor Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.conversion.visitor.scoped"><code class="docutils literal notranslate"><span class="pre">scoped()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.conversion.visitor.ScopedVisit"><code class="docutils literal notranslate"><span class="pre">ScopedVisit</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.conversion.visitor.ScriptVisitor"><code class="docutils literal notranslate"><span class="pre">ScriptVisitor</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.conversion.visitor.TrackedRef"><code class="docutils literal notranslate"><span class="pre">TrackedRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.conversion.visitor.imp_names"><code class="docutils literal notranslate"><span class="pre">imp_names()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -133,6 +137,17 @@
              
   <section id="module-cli_command_parser.conversion.visitor">
 <span id="visitor-module"></span><h1>Visitor Module<a class="headerlink" href="#module-cli_command_parser.conversion.visitor" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.conversion.visitor.scoped">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.conversion.visitor.</span></span><span class="sig-name descname"><span class="pre">scoped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/conversion/visitor.html#scoped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.visitor.scoped" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.conversion.visitor.ScopedVisit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.conversion.visitor.</span></span><span class="sig-name descname"><span class="pre">ScopedVisit</span></span><a class="reference internal" href="../_modules/cli_command_parser/conversion/visitor.html#ScopedVisit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.visitor.ScopedVisit" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.conversion.visitor.ScriptVisitor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.conversion.visitor.</span></span><span class="sig-name descname"><span class="pre">ScriptVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smart_loop_handling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_refs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Collection" title="(in Python v3.11)"><span class="pre">Collection</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cli_command_parser.conversion.visitor.TrackedRef" title="cli_command_parser.conversion.visitor.TrackedRef"><span class="pre">TrackedRef</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/conversion/visitor.html#ScriptVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.visitor.ScriptVisitor" title="Permalink to this definition"></a></dt>
@@ -234,6 +249,11 @@
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.conversion.visitor.imp_names">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.conversion.visitor.</span></span><span class="sig-name descname"><span class="pre">imp_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.Import" title="(in Python v3.11)"><span class="pre">Import</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.ImportFrom" title="(in Python v3.11)"><span class="pre">ImportFrom</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.11)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/conversion/visitor.html#imp_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.visitor.imp_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 

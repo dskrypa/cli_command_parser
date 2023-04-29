@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Error Handling &mdash; CLI Command Parser 2023.04.23 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sphinx_paramlinks.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Usage" href="advanced.html" />
+    <link rel="prev" title="Documentation" href="documentation.html" />
+    <link href="_static/rtd_custom.css" rel="stylesheet", type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CLI Command Parser
+          </a>
+              <div class="version">
+                2023.04.23
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html">Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="groups.html">Parameter Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subcommands.html">Subcommands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Input Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Error Handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-error-handlers">Defining Error Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced">Advanced</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example Script Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Example Scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CLI Command Parser</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Error Handling</li>
+    <li class="wy-breadcrumbs-aside">
+        
+    </li>
+
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="error-handling">
+<h1>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this heading"></a></h1>
+<p>Error handler functions can be registered to automatically handle exceptions that were not caught inside Commands.  The
+error handler that should be used for a given Command can be specified through <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a> or, more
+easily, through the <a class="reference internal" href="configuration.html#error-handling-options"><span class="std std-ref">error_handler class keyword argument</span></a> when defining
+a Command.</p>
+<p>All <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandlers</span></code></a> will catch <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException" title="cli_command_parser.exceptions.CommandParserException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParserException</span></code></a> exceptions and handle them by
+calling the exception’s <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.exit" title="cli_command_parser.exceptions.CommandParserException.exit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exit()</span></code></a> method.</p>
+<p>There are three ErrorHandler instances included by default:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="simple">
+<dt><a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a>:</dt><dd><ul class="simple">
+<li><p>Catches <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyboardInterrupt" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code></a> and calls <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></p></li>
+<li><p>Catches <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BrokenPipeError" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">BrokenPipeError</span></code></a> and takes no further action (it prevents a stack trace from being
+printed for it)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.extended_error_handler" title="cli_command_parser.error_handling.extended_error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code></a>:</dt><dd><ul class="simple">
+<li><p>The default error handler</p></li>
+<li><p>Handles everything that <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a> does</p></li>
+<li><p>The only difference between this handler and <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a> is that an additional
+handler is registered only when running on Windows to catch <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">OSError</span></code></a> and work around a bug
+related to the broken pipe error number: <code class="xref py py-func docutils literal notranslate"><span class="pre">handle_win_os_pipe_error()</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.no_exit_handler" title="cli_command_parser.error_handling.no_exit_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_exit_handler</span></code></a>:</dt><dd><ul class="simple">
+<li><p>Overrides the <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException" title="cli_command_parser.exceptions.CommandParserException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParserException</span></code></a> exception handler to call the exception’s
+<a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.show" title="cli_command_parser.exceptions.CommandParserException.show"><code class="xref py py-meth docutils literal notranslate"><span class="pre">show()</span></code></a> method instead of <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.exit" title="cli_command_parser.exceptions.CommandParserException.exit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exit()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h2>
+<p>Example of how to use <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a> instead of <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.extended_error_handler" title="cli_command_parser.error_handling.extended_error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">error_handler</span>
+
+<span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">error_handler</span><span class="o">=</span><span class="n">error_handler</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Example of how to disable all error handling, including the handler for <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException" title="cli_command_parser.exceptions.CommandParserException"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParserException</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span>
+
+<span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">error_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="defining-error-handlers">
+<h2>Defining Error Handlers<a class="headerlink" href="#defining-error-handlers" title="Permalink to this heading"></a></h2>
+<p>To define an error handler function for an additional exception class, the <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> object can be used
+as a decorator on the function that will handle the exception.</p>
+<p>Similar to <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#object.__exit__" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">object.__exit__()</span></code></a>, if the error handler function returns a truthy value, then the exception
+will be considered handled.  Behavior differs in the case of <code class="docutils literal notranslate"><span class="pre">0</span></code>, which will be treated as a value with which
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> should be called.  In fact, <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> will be called with any truthy value other
+than <code class="docutils literal notranslate"><span class="pre">True</span></code> that is returned by the error handler function.</p>
+<p>To indicate that the error was not handled, and that any other (less specific) error handlers that may match the
+exception should be tried, the handler function should return <code class="docutils literal notranslate"><span class="pre">False</span></code> or any other falsey value (other than <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p>
+<p>Alternatively, the handler function may call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> directly, if desired.  Similar to <code class="docutils literal notranslate"><span class="pre">__exit__</span></code>,
+the exception that was passed to the handler function should NOT be re-raised by the handler function.</p>
+<p>If no handler function can be found for a given exception, or if none of them indicate that the exception was handled
+or should result in a call to <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a>, then the exception will be propagated as usual (which should
+result in the traceback being printed by the interpreter).</p>
+<p>Example of adding a handler for a custom <code class="docutils literal notranslate"><span class="pre">MyException</span></code> exception to the default
+<a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.extended_error_handler" title="cli_command_parser.error_handling.extended_error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">extended_error_handler</span>
+
+<span class="nd">@extended_error_handler</span><span class="p">(</span><span class="n">MyException</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_my_exception</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="n">MyException</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to proceed due to </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced">
+<h2>Advanced<a class="headerlink" href="#advanced" title="Permalink to this heading"></a></h2>
+<p>For repos that contain many separate entry points defined in a <code class="docutils literal notranslate"><span class="pre">cli</span></code> package or similar, a common error handler
+function can be defined / registered in the package’s <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>.  This will result in that handler function being
+used automatically for all of the modules within that package (and its sub-packages) without needing to explicitly
+import it in any of them.</p>
+<p>One example use case for that approach would be for user-facing scripts to have a catch-all handler registered for
+<code class="docutils literal notranslate"><span class="pre">Exception</span></code>, where the handler logs just the error message by default, and only logs the full traceback when the user
+specified <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> output or similar.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="documentation.html" class="btn btn-neutral float-left" title="Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Doug Skrypa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

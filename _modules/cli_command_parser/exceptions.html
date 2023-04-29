@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a></li>
 </ul>
@@ -135,12 +136,13 @@
 <div class="viewcode-block" id="CommandParserException"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException">[docs]</a><span class="k">class</span> <span class="nc">CommandParserException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all other Command Parser exceptions&quot;&quot;&quot;</span>
 
-    <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
 
-<div class="viewcode-block" id="CommandParserException.show"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandParserException.show"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="CommandParserException.exit"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -150,11 +152,11 @@
 <div class="viewcode-block" id="ParserExit"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">[docs]</a><span class="k">class</span> <span class="nc">ParserExit</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception used to exit with the given message and status code&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span></div>
 
 
@@ -332,16 +334,16 @@
 <span class="c1"># region Internal Exceptions</span>
 
 
-<span class="k">class</span> <span class="nc">UnsupportedAction</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that an attempted action cannot be completed.  Only used internally.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="UnsupportedAction"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.UnsupportedAction">[docs]</a><span class="k">class</span> <span class="nc">UnsupportedAction</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that an attempted action cannot be completed.  Only used internally.&quot;&quot;&quot;</span></div>
 
 
-<span class="k">class</span> <span class="nc">Backtrack</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when backtracking took place.  Only used internally.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Backtrack"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.Backtrack">[docs]</a><span class="k">class</span> <span class="nc">Backtrack</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when backtracking took place.  Only used internally.&quot;&quot;&quot;</span></div>
 
 
-<span class="k">class</span> <span class="nc">NextCommand</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised by the parser to advance to the next Command in certain cases.  Only used internally.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="NextCommand"><a class="viewcode-back" href="../../api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NextCommand">[docs]</a><span class="k">class</span> <span class="nc">NextCommand</span><span class="p">(</span><span class="n">CommandParserException</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised by the parser to advance to the next Command in certain cases.  Only used internally.&quot;&quot;&quot;</span></div>
 
 
 <span class="c1"># endregion</span>

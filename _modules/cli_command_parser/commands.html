@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a></li>
 </ul>
@@ -221,7 +222,7 @@
 <span class="sd">        Primary entry point for running a command.  Subclasses generally should not override this method.</span>
 
 <span class="sd">        Handles exceptions using the configured :class:`.ErrorHandler`.  Alternate error handlers can be specified</span>
-<span class="sd">        via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class initialization.</span>
+<span class="sd">        via the :paramref:`~.core.CommandMeta.error_handler` parameter during Command class initialization.</span>
 <span class="sd">        To skip error handling, define the class with ``error_handler=None``.</span>
 
 <span class="sd">        Calls the following methods in order:</span>
@@ -257,11 +258,11 @@
 <span class="sd">        The first method called by :meth:`.__call__` (before :meth:`.main` and others).</span>
 
 <span class="sd">        Validates the number of ActionFlags that were specified, and calls all of the specified</span>
-<span class="sd">        :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions such as ``--help`` that were</span>
+<span class="sd">        :func:`~.options.before_main` / :obj:`~.options.action_flag` actions such as ``--help`` that were</span>
 <span class="sd">        defined with ``before_main=True`` and ``always_available=True`` in their configured order.</span>
 
-<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
-<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span>
         <span class="n">n_flags</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">action_flag_count</span>
@@ -298,11 +299,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called by :meth:`.__call__` after :meth:`._init_command_` and before :meth:`.main` is called.</span>
 
-<span class="sd">        Calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions that were</span>
-<span class="sd">        defined with ``before_main=True`` and ``always_available=False`` in their configured order.</span>
+<span class="sd">        Calls all of the specified :func:`~.options.before_main` / :obj:`~.options.action_flag` actions that</span>
+<span class="sd">        were defined with ``before_main=True`` and ``always_available=False`` in their configured order.</span>
 
-<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
-<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">):</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -312,9 +313,9 @@
 <span class="sd">        Primary method that is called when running a Command.</span>
 
 <span class="sd">        If any arguments were specified that are associated with triggering a method that was decorated / registered as</span>
-<span class="sd">        a positional :class:`~.parameters.Action`&#39;s target method, then that method is called here.</span>
+<span class="sd">        a positional :class:`~.choice_map.Action`&#39;s target method, then that method is called here.</span>
 
-<span class="sd">        Commands that do not have any positional :class:`Actions&lt;.parameters.Action&gt;` can override this method, and do</span>
+<span class="sd">        Commands that do not have any positional :class:`Actions&lt;.choice_map.Action&gt;` can override this method, and do</span>
 <span class="sd">        **not** need to call ``super().main(*args, **kwargs)``.</span>
 
 <span class="sd">        Initialization code that is common for all actions, or that should be run before :meth:`._before_main_` should</span>
@@ -335,11 +336,11 @@
 <div class="viewcode-block" id="Command._after_main_"><a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_">[docs]</a>    <span class="k">def</span> <span class="nf">_after_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called by :meth:`.__call__` after :meth:`.main` is called.  Calls all of the specified</span>
-<span class="sd">        :obj:`~.parameters.after_main` / :obj:`~.parameters.action_flag` actions that were defined with</span>
+<span class="sd">        :func:`~.options.after_main` / :obj:`~.options.action_flag` actions that were defined with</span>
 <span class="sd">        ``before_main=False`` in their configured order.</span>
 
-<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
-<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods</span>
+<span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
+<span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">AFTER_MAIN</span><span class="p">):</span>
             <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>

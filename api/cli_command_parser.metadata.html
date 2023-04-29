@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -76,6 +77,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.formatting.html">Formatting Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Metadata Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.metadata.Metadata"><code class="docutils literal notranslate"><span class="pre">Metadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.Metadata.default"><code class="docutils literal notranslate"><span class="pre">Metadata.default</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.Metadata.name"><code class="docutils literal notranslate"><span class="pre">Metadata.name</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.parent"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.parent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.path"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.path</span></code></a></li>
@@ -97,6 +103,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.for_command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.for_command()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.metadata.ProgFinder"><code class="docutils literal notranslate"><span class="pre">ProgFinder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgFinder.mod_obj_prog_map"><code class="docutils literal notranslate"><span class="pre">ProgFinder.mod_obj_prog_map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.metadata.ProgFinder.normalize"><code class="docutils literal notranslate"><span class="pre">ProgFinder.normalize()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -152,6 +163,22 @@
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.metadata.Metadata">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.metadata.</span></span><span class="sig-name descname"><span class="pre">Metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/metadata.html#Metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.metadata.Metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.metadata.Metadata.default">
+<span class="sig-name descname"><span class="pre">default</span></span><a class="headerlink" href="#cli_command_parser.metadata.Metadata.default" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.metadata.Metadata.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cli_command_parser.metadata.Metadata.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.metadata.ProgramMetadata">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.metadata.</span></span><span class="sig-name descname"><span class="pre">ProgramMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/metadata.html#ProgramMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.metadata.ProgramMetadata" title="Permalink to this definition"></a></dt>
@@ -254,6 +281,22 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.metadata.ProgramMetadata.get_doc_str">
 <span class="sig-name descname"><span class="pre">get_doc_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">OptStr</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/metadata.html#ProgramMetadata.get_doc_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.metadata.ProgramMetadata.get_doc_str" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.metadata.ProgFinder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.metadata.</span></span><span class="sig-name descname"><span class="pre">ProgFinder</span></span><a class="reference internal" href="../_modules/cli_command_parser/metadata.html#ProgFinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.metadata.ProgFinder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.metadata.ProgFinder.mod_obj_prog_map">
+<span class="sig-name descname"><span class="pre">mod_obj_prog_map</span></span><a class="reference internal" href="../_modules/cli_command_parser/metadata.html#ProgFinder.mod_obj_prog_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.metadata.ProgFinder.mod_obj_prog_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.metadata.ProgFinder.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">OptStr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path" title="cli_command_parser.inputs.files.Path"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cli_command_parser.metadata.ProgramMetadata" title="cli_command_parser.metadata.ProgramMetadata"><span class="pre">ProgramMetadata</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_sys_argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandType</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">OptStr</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/metadata.html#ProgFinder.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.metadata.ProgFinder.normalize" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

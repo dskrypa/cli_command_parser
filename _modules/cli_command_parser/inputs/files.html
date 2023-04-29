@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
@@ -112,7 +113,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Path&#39;</span><span class="p">,</span> <span class="s1">&#39;File&#39;</span><span class="p">,</span> <span class="s1">&#39;Serialized&#39;</span><span class="p">,</span> <span class="s1">&#39;Json&#39;</span><span class="p">,</span> <span class="s1">&#39;Pickle&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">FileInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="FileInput"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput">[docs]</a><span class="k">class</span> <span class="nc">FileInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">exists</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">expand</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -147,16 +148,16 @@
         <span class="n">non_defaults</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">non_defaults</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<div class="viewcode-block" id="FileInput.fix_default"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.fix_default">[docs]</a>    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fixes the default value to conform to the expected return type for this input.  Allows the default value for a</span>
 <span class="sd">        path to be provided as a string, for example.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">validated_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
+<div class="viewcode-block" id="FileInput.validated_path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.validated_path">[docs]</a>    <span class="k">def</span> <span class="nf">validated_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_Path</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
@@ -186,7 +187,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;it is not readable&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;it is not writable&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">path</span>
+        <span class="k">return</span> <span class="n">path</span></div></div>
 
 
 <div class="viewcode-block" id="Path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">_Path</span><span class="p">]):</span>

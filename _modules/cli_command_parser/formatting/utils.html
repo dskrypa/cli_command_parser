@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
@@ -148,7 +149,7 @@
     <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">line_iter</span><span class="p">(</span><span class="n">usage_lines</span><span class="p">,</span> <span class="n">description_lines</span><span class="p">))</span></div>
 
 
-<span class="k">def</span> <span class="nf">combine_and_wrap</span><span class="p">(</span><span class="n">parts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">max_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="combine_and_wrap"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.combine_and_wrap">[docs]</a><span class="k">def</span> <span class="nf">combine_and_wrap</span><span class="p">(</span><span class="n">parts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">max_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine the given strings using the given delimiter, wrapping to a new line at max_width.&quot;&quot;&quot;</span>
     <span class="n">delim_end</span> <span class="o">=</span> <span class="n">delim</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
     <span class="n">delim_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">delim</span><span class="p">)</span>
@@ -185,7 +186,7 @@
             <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">yield</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line_parts</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">last</span><span class="p">:</span>
-        <span class="k">yield</span> <span class="n">last</span>
+        <span class="k">yield</span> <span class="n">last</span></div>
 
 
 <span class="k">def</span> <span class="nf">_description_start_line</span><span class="p">(</span><span class="n">usage</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">max_usage_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>

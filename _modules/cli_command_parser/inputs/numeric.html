@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
@@ -112,28 +113,36 @@
 <span class="n">_range</span> <span class="o">=</span> <span class="nb">range</span>
 
 
-<span class="k">class</span> <span class="nc">NumericInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="NumericInput"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput">[docs]</a><span class="k">class</span> <span class="nc">NumericInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span>
 
-    <span class="k">def</span> <span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="NumericInput.is_valid_type"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.is_valid_type">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called during parsing when :meth:`.Parameter.would_accept` is called to determine if the value would be</span>
+<span class="sd">        accepted later for processing / conversion when called.</span>
+
+<span class="sd">        :param value: The parsed argument to validate</span>
+<span class="sd">        :return: True if this input would accept it for processing later (where it may still be rejected), False if</span>
+<span class="sd">          it should be rejected before attempting to process / convert / store it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_range_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span>
+<div class="viewcode-block" id="NumericInput.format_metavar"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.format_metavar">[docs]</a>    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div>
 
-    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NT</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NT</span><span class="p">]:</span>
+<div class="viewcode-block" id="NumericInput.fix_default"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.fix_default">[docs]</a>    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NT</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NT</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Range"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range">[docs]</a><span class="k">class</span> <span class="nc">Range</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>

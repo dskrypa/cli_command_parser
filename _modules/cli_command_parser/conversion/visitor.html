@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a></li>
 </ul>
@@ -110,7 +111,7 @@
 <span class="n">_NoCall</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">scoped</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="scoped"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.scoped">[docs]</a><span class="k">def</span> <span class="nf">scoped</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_scoped_method</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">ScriptVisitor</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">new_child</span><span class="p">()</span>
@@ -119,14 +120,14 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">parents</span>
 
-    <span class="k">return</span> <span class="n">_scoped_method</span>
+    <span class="k">return</span> <span class="n">_scoped_method</span></div>
 
 
-<span class="k">class</span> <span class="nc">ScopedVisit</span><span class="p">:</span>
+<div class="viewcode-block" id="ScopedVisit"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScopedVisit">[docs]</a><span class="k">class</span> <span class="nc">ScopedVisit</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ScriptVisitor</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">partial</span><span class="p">(</span><span class="n">scoped</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">),</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">partial</span><span class="p">(</span><span class="n">scoped</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">),</span> <span class="n">instance</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ScriptVisitor"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor">[docs]</a><span class="k">class</span> <span class="nc">ScriptVisitor</span><span class="p">(</span><span class="n">NodeVisitor</span><span class="p">):</span>
@@ -299,11 +300,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">module</span></div>
 
 
-<span class="k">def</span> <span class="nf">imp_names</span><span class="p">(</span><span class="n">imp</span><span class="p">:</span> <span class="n">Import</span> <span class="o">|</span> <span class="n">ImportFrom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<div class="viewcode-block" id="imp_names"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.imp_names">[docs]</a><span class="k">def</span> <span class="nf">imp_names</span><span class="p">(</span><span class="n">imp</span><span class="p">:</span> <span class="n">Import</span> <span class="o">|</span> <span class="n">ImportFrom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
     <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">imp</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span>
         <span class="n">as_name</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">name</span>
-        <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">as_name</span>
+        <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">as_name</span></div>
 </pre></div>
 
            </div>

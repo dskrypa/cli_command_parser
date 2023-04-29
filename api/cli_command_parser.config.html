@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -67,6 +68,47 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.command_parameters.html">Command_Parameters Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.commands.html">Commands Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Config Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults"><code class="docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.NEVER"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.NEVER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.MISSING"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.MISSING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.TRUTHY"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.TRUTHY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.NON_EMPTY"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.NON_EMPTY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.ANY"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.ANY</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode"><code class="docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.UNDERSCORE"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.UNDERSCORE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.DASH"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.DASH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.BOTH"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_UNDERSCORE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.BOTH_DASH"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_DASH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.NONE"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.NONE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.REPEAT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.COMBINE"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.COMBINE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.ALIAS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.IGNORE"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.IGNORE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.PERMISSIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.STRICT"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.STRICT</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.NUMERIC"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NUMERIC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.ALWAYS"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.ALWAYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.NEVER"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NEVER</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.ConfigItem"><code class="docutils literal notranslate"><span class="pre">ConfigItem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ConfigItem.default"><code class="docutils literal notranslate"><span class="pre">ConfigItem.default</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ConfigItem.type"><code class="docutils literal notranslate"><span class="pre">ConfigItem.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ConfigItem.name"><code class="docutils literal notranslate"><span class="pre">ConfigItem.name</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.CommandConfig"><code class="docutils literal notranslate"><span class="pre">CommandConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.FIELDS"><code class="docutils literal notranslate"><span class="pre">CommandConfig.FIELDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.error_handler"><code class="docutils literal notranslate"><span class="pre">CommandConfig.error_handler</span></code></a></li>
@@ -95,40 +137,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults"><code class="docutils literal notranslate"><span class="pre">ShowDefaults</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.NEVER"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.NEVER</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.MISSING"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.MISSING</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.TRUTHY"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.TRUTHY</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.NON_EMPTY"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.NON_EMPTY</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ShowDefaults.ANY"><code class="docutils literal notranslate"><span class="pre">ShowDefaults.ANY</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode"><code class="docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.UNDERSCORE"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.UNDERSCORE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.DASH"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.DASH</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.BOTH"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_UNDERSCORE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.OptionNameMode.BOTH_DASH"><code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_DASH</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.REPEAT</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.COMBINE"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.COMBINE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS"><code class="docutils literal notranslate"><span class="pre">SubcommandAliasHelpMode.ALIAS</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.IGNORE"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.IGNORE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.PERMISSIVE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AmbiguousComboMode.STRICT"><code class="docutils literal notranslate"><span class="pre">AmbiguousComboMode.STRICT</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.NUMERIC"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NUMERIC</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.ALWAYS"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.ALWAYS</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.AllowLeadingDash.NEVER"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NEVER</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -193,6 +201,257 @@
 <dd class="field-odd"><p>Doug Skrypa</p>
 </dd>
 </dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">ShowDefaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#ShowDefaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.ShowDefaults" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag" title="cli_command_parser.utils.FixedFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></p>
+<p>Options for showing <code class="docutils literal notranslate"><span class="pre">(default:</span> <span class="pre">&lt;default&gt;)</span></code> in <code class="docutils literal notranslate"><span class="pre">--help</span></code> text.  Options can be combined, but
+<a class="reference internal" href="#cli_command_parser.config.ShowDefaults.NEVER" title="cli_command_parser.config.ShowDefaults.NEVER"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ShowDefaults.NEVER</span></code></a> will override all other options.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">TRUTHY</span></code> / <code class="docutils literal notranslate"><span class="pre">NON_EMPTY</span></code> / <code class="docutils literal notranslate"><span class="pre">ANY</span></code> are combined, then the most permissive (rightmost / highest value)
+option will be used.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MISSING</span></code> option must be combined with one of <code class="docutils literal notranslate"><span class="pre">TRUTHY</span></code> / <code class="docutils literal notranslate"><span class="pre">NON_EMPTY</span></code> / <code class="docutils literal notranslate"><span class="pre">ANY</span></code> - using <code class="docutils literal notranslate"><span class="pre">MISSING</span></code> alone
+is equivalent to <code class="docutils literal notranslate"><span class="pre">ShowDefaults.MISSING</span> <span class="pre">|</span> <span class="pre">ShowDefaults.NEVER</span></code>, which will result in no default values being shown.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.NEVER">
+<span class="sig-name descname"><span class="pre">NEVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.NEVER" title="Permalink to this definition"></a></dt>
+<dd><p>Never include the default value in help text</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.MISSING">
+<span class="sig-name descname"><span class="pre">MISSING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.MISSING" title="Permalink to this definition"></a></dt>
+<dd><p>Only include the default value if <code class="docutils literal notranslate"><span class="pre">default:</span></code> is not already present</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.TRUTHY">
+<span class="sig-name descname"><span class="pre">TRUTHY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.TRUTHY" title="Permalink to this definition"></a></dt>
+<dd><p>Only include the default value if it is treated as True in a boolean context</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.NON_EMPTY">
+<span class="sig-name descname"><span class="pre">NON_EMPTY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.NON_EMPTY" title="Permalink to this definition"></a></dt>
+<dd><p>Only include the default value if it is not <code class="docutils literal notranslate"><span class="pre">None</span></code> or an empty container</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.ANY">
+<span class="sig-name descname"><span class="pre">ANY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.ANY" title="Permalink to this definition"></a></dt>
+<dd><p>Any default value, regardless of truthiness, will be included</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">OptionNameMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#OptionNameMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.OptionNameMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag" title="cli_command_parser.utils.FixedFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></p>
+<p>How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.</p>
+<p>Given a Parameter defined as <code class="docutils literal notranslate"><span class="pre">foo_bar</span> <span class="pre">=</span> <span class="pre">Option(...)</span></code>, the default long form handling based on this setting would
+be:</p>
+<dl class="field-list simple">
+<dt class="field-odd">UNDERSCORE<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code></p>
+</dd>
+<dt class="field-even">DASH<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code></p>
+</dd>
+<dt class="field-odd">BOTH<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted</p>
+</dd>
+<dt class="field-even">BOTH_UNDERSCORE<span class="colon">:</span></dt>
+<dd class="field-even"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, but only <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> with be displayed
+in help text</p>
+</dd>
+<dt class="field-odd">BOTH_DASH<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, but only <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> with be displayed
+in help text</p>
+</dd>
+<dt class="field-even">NONE<span class="colon">:</span></dt>
+<dd class="field-even"><p>No long form option string will be added.  At least one short form option string must be defined.  Note that
+it is NOT necessary to use <code class="docutils literal notranslate"><span class="pre">name_mode=None</span></code> to prevent the automatic creation of long form option strings - if
+any long form option strings are explicitly provided for a given Parameter, then no automatic ones will be added.</p>
+</dd>
+</dl>
+<p>If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</p>
+<p>The value may be specified to Commands as <code class="docutils literal notranslate"><span class="pre">option_name_mode=&lt;mode&gt;</span></code> or to Parameters as <code class="docutils literal notranslate"><span class="pre">name_mode=&lt;mode&gt;</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> is one of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OptionNameMode.UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.DASH</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH</span></code>
+or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_DASH</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'dash'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_dash'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'-'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*-'</span></code></p></li>
+</ul>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.UNDERSCORE">
+<span class="sig-name descname"><span class="pre">UNDERSCORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.UNDERSCORE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.DASH">
+<span class="sig-name descname"><span class="pre">DASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.DASH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH">
+<span class="sig-name descname"><span class="pre">BOTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE">
+<span class="sig-name descname"><span class="pre">BOTH_UNDERSCORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH_DASH">
+<span class="sig-name descname"><span class="pre">BOTH_DASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">23</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH_DASH" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.NONE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">SubcommandAliasHelpMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#SubcommandAliasHelpMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin" title="cli_command_parser.utils.MissingMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingMixin</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Options for how subcommand aliases (alternate <a class="reference internal" href="../subcommands.html#subcommand-cls-params"><span class="std std-ref">choices</span></a> specified for a given Command
+class that is registered as a subcommand / subclass of another Command) should be displayed in help text.</p>
+<p>If a given Command is defined without the <code class="docutils literal notranslate"><span class="pre">choices=</span></code> class keyword argument, or if the provided collection
+contained only one value, then this setting is ignored.</p>
+<p>The output based on each supported option:</p>
+<dl class="field-list simple">
+<dt class="field-odd">REPEAT<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Each alias will be on a separate line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, and each alias will repeat the
+description (if defined for the target Command) as if it was a separate subcommand</p>
+</dd>
+<dt class="field-even">COMBINE<span class="colon">:</span></dt>
+<dd class="field-even"><p>All of the aliases will be combined on the same line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, with the values
+displayed in a way that is similar to the way that the <code class="docutils literal notranslate"><span class="pre">choices=</span></code> values for other Parameters are displayed.</p>
+</dd>
+<dt class="field-odd">ALIAS<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Each alias will be on a separate line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, but only the first choice/value will
+have the description (if defined for the target Command).  Subsequent aliases’ descriptions will be replaced by
+<code class="docutils literal notranslate"><span class="pre">Alias</span> <span class="pre">of:</span> <span class="pre">&lt;first</span> <span class="pre">choice/alias</span> <span class="pre">value&gt;</span></code>.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.REPEAT">
+<span class="sig-name descname"><span class="pre">REPEAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'repeat'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.COMBINE">
+<span class="sig-name descname"><span class="pre">COMBINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'combine'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.COMBINE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.ALIAS">
+<span class="sig-name descname"><span class="pre">ALIAS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'alias'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">AmbiguousComboMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#AmbiguousComboMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin" title="cli_command_parser.utils.MissingMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingMixin</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.</p>
+<p>The behavior based on each supported option:</p>
+<dl class="field-list simple">
+<dt class="field-odd">IGNORE<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Ignore potentially ambiguous combinations of short options entirely.  Best effort parsing will be
+performed.</p>
+</dd>
+<dt class="field-even">PERMISSIVE<span class="colon">:</span></dt>
+<dd class="field-even"><p>Allow multi-char short options that overlap with a single char one for exact matches, but reject any
+user input that combines multiple short options when the combination contains a sequence that could be
+interpreted as a multi-char short option.</p>
+</dd>
+<dt class="field-odd">STRICT<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reject multi-char short options that overlap with a single char one before parsing, regardless of user
+input.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.IGNORE">
+<span class="sig-name descname"><span class="pre">IGNORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ignore'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.IGNORE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.PERMISSIVE">
+<span class="sig-name descname"><span class="pre">PERMISSIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'permissive'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.STRICT">
+<span class="sig-name descname"><span class="pre">STRICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'strict'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.STRICT" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">AllowLeadingDash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#AllowLeadingDash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>How a given Parameter should handle values with a leading dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  Only configurable at the Parameter level,
+not the Command level.</p>
+<p>The behavior based on each supported option:</p>
+<dl class="field-list simple">
+<dt class="field-odd">NUMERIC<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Allow numeric values like <code class="docutils literal notranslate"><span class="pre">-5</span></code> and <code class="docutils literal notranslate"><span class="pre">-1.3</span></code>, but reject values like <code class="docutils literal notranslate"><span class="pre">-d</span></code>.</p>
+</dd>
+<dt class="field-even">ALWAYS<span class="colon">:</span></dt>
+<dd class="field-even"><p>Always allow values with a leading dash.</p>
+</dd>
+<dt class="field-odd">NEVER<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Never allow values with a leading dash.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.NUMERIC">
+<span class="sig-name descname"><span class="pre">NUMERIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numeric'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.NUMERIC" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.ALWAYS">
+<span class="sig-name descname"><span class="pre">ALWAYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'always'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.ALWAYS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.NEVER">
+<span class="sig-name descname"><span class="pre">NEVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'never'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.NEVER" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.ConfigItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">ConfigItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">CV</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#ConfigItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.ConfigItem" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">CV</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">DV</span></code>]</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ConfigItem.default">
+<span class="sig-name descname"><span class="pre">default</span></span><a class="headerlink" href="#cli_command_parser.config.ConfigItem.default" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ConfigItem.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cli_command_parser.config.ConfigItem.type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.ConfigItem.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cli_command_parser.config.ConfigItem.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">CommandConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><span class="pre">CommandConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#CommandConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.CommandConfig" title="Permalink to this definition"></a></dt>
@@ -362,226 +621,6 @@ they were successfully detected</p>
 <span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/config.html#CommandConfig.as_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.CommandConfig.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Return a dict representing the configured options.</p>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">ShowDefaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#ShowDefaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.ShowDefaults" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag" title="cli_command_parser.utils.FixedFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></p>
-<p>Options for showing <code class="docutils literal notranslate"><span class="pre">(default:</span> <span class="pre">&lt;default&gt;)</span></code> in <code class="docutils literal notranslate"><span class="pre">--help</span></code> text.  Options can be combined, but
-<a class="reference internal" href="#cli_command_parser.config.ShowDefaults.NEVER" title="cli_command_parser.config.ShowDefaults.NEVER"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ShowDefaults.NEVER</span></code></a> will override all other options.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">TRUTHY</span></code> / <code class="docutils literal notranslate"><span class="pre">NON_EMPTY</span></code> / <code class="docutils literal notranslate"><span class="pre">ANY</span></code> are combined, then the most permissive (rightmost / highest value)
-option will be used.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">MISSING</span></code> option must be combined with one of <code class="docutils literal notranslate"><span class="pre">TRUTHY</span></code> / <code class="docutils literal notranslate"><span class="pre">NON_EMPTY</span></code> / <code class="docutils literal notranslate"><span class="pre">ANY</span></code> - using <code class="docutils literal notranslate"><span class="pre">MISSING</span></code> alone
-is equivalent to <code class="docutils literal notranslate"><span class="pre">ShowDefaults.MISSING</span> <span class="pre">|</span> <span class="pre">ShowDefaults.NEVER</span></code>, which will result in no default values being shown.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.NEVER">
-<span class="sig-name descname"><span class="pre">NEVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.NEVER" title="Permalink to this definition"></a></dt>
-<dd><p>Never include the default value in help text</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.MISSING">
-<span class="sig-name descname"><span class="pre">MISSING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.MISSING" title="Permalink to this definition"></a></dt>
-<dd><p>Only include the default value if <code class="docutils literal notranslate"><span class="pre">default:</span></code> is not already present</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.TRUTHY">
-<span class="sig-name descname"><span class="pre">TRUTHY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.TRUTHY" title="Permalink to this definition"></a></dt>
-<dd><p>Only include the default value if it is treated as True in a boolean context</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.NON_EMPTY">
-<span class="sig-name descname"><span class="pre">NON_EMPTY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.NON_EMPTY" title="Permalink to this definition"></a></dt>
-<dd><p>Only include the default value if it is not <code class="docutils literal notranslate"><span class="pre">None</span></code> or an empty container</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.ShowDefaults.ANY">
-<span class="sig-name descname"><span class="pre">ANY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cli_command_parser.config.ShowDefaults.ANY" title="Permalink to this definition"></a></dt>
-<dd><p>Any default value, regardless of truthiness, will be included</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">OptionNameMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#OptionNameMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.OptionNameMode" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag" title="cli_command_parser.utils.FixedFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></p>
-<p>How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.</p>
-<p>Given a Parameter defined as <code class="docutils literal notranslate"><span class="pre">foo_bar</span> <span class="pre">=</span> <span class="pre">Option(...)</span></code>, the default long form handling based on this setting would
-be:</p>
-<dl class="field-list simple">
-<dt class="field-odd">UNDERSCORE<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code></p>
-</dd>
-<dt class="field-even">DASH<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code></p>
-</dd>
-<dt class="field-odd">BOTH<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted</p>
-</dd>
-<dt class="field-even">BOTH_UNDERSCORE<span class="colon">:</span></dt>
-<dd class="field-even"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, but only <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> with be displayed
-in help text</p>
-</dd>
-<dt class="field-odd">BOTH_DASH<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, but only <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> with be displayed
-in help text</p>
-</dd>
-</dl>
-<p>If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</p>
-<p>The value may be specified to Commands as <code class="docutils literal notranslate"><span class="pre">option_name_mode=&lt;mode&gt;</span></code> or to Parameters as <code class="docutils literal notranslate"><span class="pre">name_mode=&lt;mode&gt;</span></code>,
-where <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> is one of:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">OptionNameMode.UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.DASH</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH</span></code>
-or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_DASH</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'dash'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_dash'</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'-'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*-'</span></code></p></li>
-</ul>
-</div></blockquote>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.UNDERSCORE">
-<span class="sig-name descname"><span class="pre">UNDERSCORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.UNDERSCORE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.DASH">
-<span class="sig-name descname"><span class="pre">DASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.DASH" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH">
-<span class="sig-name descname"><span class="pre">BOTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE">
-<span class="sig-name descname"><span class="pre">BOTH_UNDERSCORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.OptionNameMode.BOTH_DASH">
-<span class="sig-name descname"><span class="pre">BOTH_DASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">23</span></em><a class="headerlink" href="#cli_command_parser.config.OptionNameMode.BOTH_DASH" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">SubcommandAliasHelpMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#SubcommandAliasHelpMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin" title="cli_command_parser.utils.MissingMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingMixin</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
-<p>Options for how subcommand aliases (alternate <a class="reference internal" href="../subcommands.html#subcommand-cls-params"><span class="std std-ref">choices</span></a> specified for a given Command
-class that is registered as a subcommand / subclass of another Command) should be displayed in help text.</p>
-<p>If a given Command is defined without the <code class="docutils literal notranslate"><span class="pre">choices=</span></code> class keyword argument, or if the provided collection
-contained only one value, then this setting is ignored.</p>
-<p>The output based on each supported option:</p>
-<dl class="field-list simple">
-<dt class="field-odd">REPEAT<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Each alias will be on a separate line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, and each alias will repeat the
-description (if defined for the target Command) as if it was a separate subcommand</p>
-</dd>
-<dt class="field-even">COMBINE<span class="colon">:</span></dt>
-<dd class="field-even"><p>All of the aliases will be combined on the same line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, with the values
-displayed in a way that is similar to the way that the <code class="docutils literal notranslate"><span class="pre">choices=</span></code> values for other Parameters are displayed.</p>
-</dd>
-<dt class="field-odd">ALIAS<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Each alias will be on a separate line in the <code class="docutils literal notranslate"><span class="pre">Subcommands:</span></code> section, but only the first choice/value will
-have the description (if defined for the target Command).  Subsequent aliases’ descriptions will be replaced by
-<code class="docutils literal notranslate"><span class="pre">Alias</span> <span class="pre">of:</span> <span class="pre">&lt;first</span> <span class="pre">choice/alias</span> <span class="pre">value&gt;</span></code>.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.REPEAT">
-<span class="sig-name descname"><span class="pre">REPEAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'repeat'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.COMBINE">
-<span class="sig-name descname"><span class="pre">COMBINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'combine'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.COMBINE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.SubcommandAliasHelpMode.ALIAS">
-<span class="sig-name descname"><span class="pre">ALIAS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'alias'</span></em><a class="headerlink" href="#cli_command_parser.config.SubcommandAliasHelpMode.ALIAS" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">AmbiguousComboMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#AmbiguousComboMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.MissingMixin" title="cli_command_parser.utils.MissingMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingMixin</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
-<p>Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.</p>
-<p>The behavior based on each supported option:</p>
-<dl class="field-list simple">
-<dt class="field-odd">IGNORE<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Ignore potentially ambiguous combinations of short options entirely.  Best effort parsing will be
-performed.</p>
-</dd>
-<dt class="field-even">PERMISSIVE<span class="colon">:</span></dt>
-<dd class="field-even"><p>Allow multi-char short options that overlap with a single char one for exact matches, but reject any
-user input that combines multiple short options when the combination contains a sequence that could be
-interpreted as a multi-char short option.</p>
-</dd>
-<dt class="field-odd">STRICT<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Reject multi-char short options that overlap with a single char one before parsing, regardless of user
-input.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.IGNORE">
-<span class="sig-name descname"><span class="pre">IGNORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ignore'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.IGNORE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.PERMISSIVE">
-<span class="sig-name descname"><span class="pre">PERMISSIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'permissive'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.AmbiguousComboMode.STRICT">
-<span class="sig-name descname"><span class="pre">STRICT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'strict'</span></em><a class="headerlink" href="#cli_command_parser.config.AmbiguousComboMode.STRICT" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">AllowLeadingDash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#AllowLeadingDash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
-<p>How a given Parameter should handle values with a leading dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  Only configurable at the Parameter level,
-not the Command level.</p>
-<p>The behavior based on each supported option:</p>
-<dl class="field-list simple">
-<dt class="field-odd">NUMERIC<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Allow numeric values like <code class="docutils literal notranslate"><span class="pre">-5</span></code> and <code class="docutils literal notranslate"><span class="pre">-1.3</span></code>, but reject values like <code class="docutils literal notranslate"><span class="pre">-d</span></code>.</p>
-</dd>
-<dt class="field-even">ALWAYS<span class="colon">:</span></dt>
-<dd class="field-even"><p>Always allow values with a leading dash.</p>
-</dd>
-<dt class="field-odd">NEVER<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Never allow values with a leading dash.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.NUMERIC">
-<span class="sig-name descname"><span class="pre">NUMERIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numeric'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.NUMERIC" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.ALWAYS">
-<span class="sig-name descname"><span class="pre">ALWAYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'always'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.ALWAYS" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.AllowLeadingDash.NEVER">
-<span class="sig-name descname"><span class="pre">NEVER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'never'</span></em><a class="headerlink" href="#cli_command_parser.config.AllowLeadingDash.NEVER" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -74,6 +75,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.documentation.render_script_rst"><code class="docutils literal notranslate"><span class="pre">render_script_rst()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.documentation.render_command_rst"><code class="docutils literal notranslate"><span class="pre">render_command_rst()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.documentation.load_commands"><code class="docutils literal notranslate"><span class="pre">load_commands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.documentation.top_level_commands"><code class="docutils literal notranslate"><span class="pre">top_level_commands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.documentation.import_module"><code class="docutils literal notranslate"><span class="pre">import_module()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.documentation.RstWriter"><code class="docutils literal notranslate"><span class="pre">RstWriter</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.documentation.RstWriter.document_script"><code class="docutils literal notranslate"><span class="pre">RstWriter.document_script()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.documentation.RstWriter.document_scripts"><code class="docutils literal notranslate"><span class="pre">RstWriter.document_scripts()</span></code></a></li>
@@ -171,7 +174,7 @@ words or not (default: True)</p></li>
 <dd><p>Load all of the commands from the file with the given path and return them as a dict of <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">Command}</span></code>.</p>
 <p>If an <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">OSError</span></code></a> or a subclass thereof is encountered while attempting to load the file (due to the
 path not existing, or a permission error, etc), it will be allowed to propagate.  An <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">ImportError</span></code></a>
-may be raised by <code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code> if the specified path cannot be imported.</p>
+may be raised by <a class="reference internal" href="#cli_command_parser.documentation.import_module" title="cli_command_parser.documentation.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code></a> if the specified path cannot be imported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -183,6 +186,18 @@ may be raised by <code class="xref py py-func docutils literal notranslate"><spa
 <dd class="field-even"><p>Dict containing the Commands loaded from the given file</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.documentation.top_level_commands">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.documentation.</span></span><span class="sig-name descname"><span class="pre">top_level_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Commands</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Commands</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#top_level_commands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.top_level_commands" title="Permalink to this definition"></a></dt>
+<dd><p>Filter the given commands to only the ones that do not have a parent present in the provided dict of commands</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.documentation.import_module">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.documentation.</span></span><span class="sig-name descname"><span class="pre">import_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/documentation.html#import_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.documentation.import_module" title="Permalink to this definition"></a></dt>
+<dd><p>Import the module / package from the given path</p>
 </dd></dl>
 
 <dl class="py class">

@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a></li>
 </ul>
@@ -396,10 +397,10 @@
     <span class="k">return</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">ActionPhase</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ActionPhase"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ActionPhase">[docs]</a><span class="k">class</span> <span class="nc">ActionPhase</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">PRE_INIT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">BEFORE_MAIN</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">AFTER_MAIN</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">AFTER_MAIN</span> <span class="o">=</span> <span class="mi">2</span></div>
 
     <span class="c1"># def __next__(self) -&gt; ActionPhase:</span>
     <span class="c1">#     try:</span>
@@ -408,7 +409,7 @@
     <span class="c1">#         raise StopIteration</span>
 
 
-<span class="k">class</span> <span class="nc">ContextProxy</span><span class="p">:</span>
+<div class="viewcode-block" id="ContextProxy"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ContextProxy">[docs]</a><span class="k">class</span> <span class="nc">ContextProxy</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Proxy for the currently active :class:`Context` object.  Allows usage similar to the ``request`` object in Flask.</span>
 
@@ -435,19 +436,19 @@
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="ContextProxy.terminal_width"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ContextProxy.terminal_width">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">terminal_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">terminal_width</span>
         <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span>
+            <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span></div>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="ContextProxy.config"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ContextProxy.config">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">config</span>
         <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">DEFAULT_CONFIG</span>
+            <span class="k">return</span> <span class="n">DEFAULT_CONFIG</span></div></div>
 
 
 <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Context</span><span class="p">,</span> <span class="n">ContextProxy</span><span class="p">())</span>

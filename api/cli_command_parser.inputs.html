@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a></li>
 </ul>
@@ -165,6 +166,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli_command_parser.inputs.files.html">Files Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput"><code class="docutils literal notranslate"><span class="pre">FileInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.exists"><code class="docutils literal notranslate"><span class="pre">FileInput.exists</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.expand"><code class="docutils literal notranslate"><span class="pre">FileInput.expand</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.resolve"><code class="docutils literal notranslate"><span class="pre">FileInput.resolve</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.type"><code class="docutils literal notranslate"><span class="pre">FileInput.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.readable"><code class="docutils literal notranslate"><span class="pre">FileInput.readable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.writable"><code class="docutils literal notranslate"><span class="pre">FileInput.writable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.allow_dash"><code class="docutils literal notranslate"><span class="pre">FileInput.allow_dash</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.use_windows_fix"><code class="docutils literal notranslate"><span class="pre">FileInput.use_windows_fix</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.fix_default"><code class="docutils literal notranslate"><span class="pre">FileInput.fix_default()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.validated_path"><code class="docutils literal notranslate"><span class="pre">FileInput.validated_path()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path"><code class="docutils literal notranslate"><span class="pre">Path</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.__call__"><code class="docutils literal notranslate"><span class="pre">Path.__call__()</span></code></a></li>
 </ul>
@@ -189,6 +203,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli_command_parser.inputs.numeric.html">Numeric Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput"><code class="docutils literal notranslate"><span class="pre">NumericInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.type"><code class="docutils literal notranslate"><span class="pre">NumericInput.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.is_valid_type"><code class="docutils literal notranslate"><span class="pre">NumericInput.is_valid_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.format_metavar"><code class="docutils literal notranslate"><span class="pre">NumericInput.format_metavar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.fix_default"><code class="docutils literal notranslate"><span class="pre">NumericInput.fix_default()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.snap"><code class="docutils literal notranslate"><span class="pre">Range.snap</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.range"><code class="docutils literal notranslate"><span class="pre">Range.range</span></code></a></li>
@@ -210,11 +231,40 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli_command_parser.inputs.time.html">Time Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale"><code class="docutils literal notranslate"><span class="pre">different_locale</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale.locale"><code class="docutils literal notranslate"><span class="pre">different_locale.locale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale.original"><code class="docutils literal notranslate"><span class="pre">different_locale.original</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput"><code class="docutils literal notranslate"><span class="pre">DTInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.dt_type"><code class="docutils literal notranslate"><span class="pre">DTInput.dt_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">DTInput.__init_subclass__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.locale"><code class="docutils literal notranslate"><span class="pre">DTInput.locale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.choice_str"><code class="docutils literal notranslate"><span class="pre">DTInput.choice_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.fix_default"><code class="docutils literal notranslate"><span class="pre">DTInput.fix_default()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode"><code class="docutils literal notranslate"><span class="pre">DTFormatMode</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.FULL"><code class="docutils literal notranslate"><span class="pre">DTFormatMode.FULL</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.ABBREVIATION"><code class="docutils literal notranslate"><span class="pre">DTFormatMode.ABBREVIATION</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.NUMERIC"><code class="docutils literal notranslate"><span class="pre">DTFormatMode.NUMERIC</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode.NUMERIC_ISO"><code class="docutils literal notranslate"><span class="pre">DTFormatMode.NUMERIC_ISO</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.__init_subclass__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.full"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.full</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.abbreviation"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.abbreviation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.numeric"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.numeric</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.out_format"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.out_format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.out_locale"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.out_locale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.choices"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.choices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.choice_str"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.choice_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.format_metavar"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.format_metavar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse_numeric"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.parse_numeric()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.parse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__call__"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.dt_type"><code class="docutils literal notranslate"><span class="pre">CalendarUnitInput.dt_type</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day"><code class="docutils literal notranslate"><span class="pre">Day</span></code></a><ul>
@@ -235,6 +285,20 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.format_metavar"><code class="docutils literal notranslate"><span class="pre">TimeDelta.format_metavar()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput"><code class="docutils literal notranslate"><span class="pre">DateTimeInput</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.__init_subclass__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.formats"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.formats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.earliest"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.earliest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.latest"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.latest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.parse_dt"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.parse_dt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.parse"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.parse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.choice_str"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.choice_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.format_metavar"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.format_metavar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__call__"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.locale"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.locale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.dt_type"><code class="docutils literal notranslate"><span class="pre">DateTimeInput.dt_type</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime"><code class="docutils literal notranslate"><span class="pre">DateTime</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime.locale"><code class="docutils literal notranslate"><span class="pre">DateTime.locale</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime.dt_type"><code class="docutils literal notranslate"><span class="pre">DateTime.dt_type</span></code></a></li>
@@ -250,6 +314,8 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time.dt_type"><code class="docutils literal notranslate"><span class="pre">Time.dt_type</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.dt_repr"><code class="docutils literal notranslate"><span class="pre">dt_repr()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.normalize_dt"><code class="docutils literal notranslate"><span class="pre">normalize_dt()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli_command_parser.inputs.utils.html">Utils Module</a><ul>
@@ -276,6 +342,7 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.close"><code class="docutils literal notranslate"><span class="pre">FileWrapper.close()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 </ul>
 </li>

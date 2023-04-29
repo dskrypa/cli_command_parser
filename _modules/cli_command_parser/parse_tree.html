@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Input Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../error_handlers.html">Error Handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a></li>
 </ul>
@@ -113,7 +114,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PosNode&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">AnyWord</span><span class="p">:</span>
+<div class="viewcode-block" id="AnyWord"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.AnyWord">[docs]</a><span class="k">class</span> <span class="nc">AnyWord</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;nargs&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;remaining&#39;</span><span class="p">)</span>
 
     <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span>
@@ -144,7 +145,7 @@
             <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span></div>
 
 
 <span class="n">Word</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AnyWord</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
@@ -422,14 +423,14 @@
         <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">process_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
+<div class="viewcode-block" id="process_params"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params">[docs]</a><span class="k">def</span> <span class="nf">process_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="n">process_param</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">nodes</span>
+    <span class="k">return</span> <span class="n">nodes</span></div>
 
 
-<span class="k">def</span> <span class="nf">process_param</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
+<div class="viewcode-block" id="process_param"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param">[docs]</a><span class="k">def</span> <span class="nf">process_param</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
     <span class="c1"># At each step, the number of branches grows</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">Choice</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">choices</span>  <span class="c1"># noqa</span>
@@ -460,7 +461,7 @@
 
     <span class="c1"># At this point, the param will take any word</span>
     <span class="n">word</span> <span class="o">=</span> <span class="n">AnyWord</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">update_node</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">update_node</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span></div>
 </pre></div>
 
            </div>
