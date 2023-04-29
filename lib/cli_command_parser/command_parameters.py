@@ -241,6 +241,8 @@ class CommandParameters:
         for param in params:
             options.append(param)
             opts = param.option_strs
+            if not opts.has_min_opts():
+                raise ParameterDefinitionError(f'No option strings were registered for param={param!r}')
             self._process_option_strs(param, 'long', opts.long, option_map, combo_option_map)
             self._process_option_strs(param, 'short', opts.short, option_map, combo_option_map)
 

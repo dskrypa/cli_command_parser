@@ -7,7 +7,8 @@ from cli_command_parser import Command, Flag, TriFlag
 from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError
 from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 
-STANDALONE_DASH_B = re.compile(r'(?<!-)-b\b')
+STANDALONE_DASH_B_LC = re.compile(r'(?<!-)-b\b')
+STANDALONE_DASH_B_UC = re.compile(r'(?<!-)-B\b')
 
 
 class FlagTest(ParserTest):
@@ -100,7 +101,7 @@ class FlagTest(ParserTest):
         self.assertIn('--foo-bar', help_text)
         self.assertIn('--foo-bar', usage_text)
         self.assertIn('--foo_bar', help_text)
-        self.assertRegex(help_text, STANDALONE_DASH_B)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
         exp = {'foo_bar': True}
         success_cases = [(['--foo-bar'], exp), (['--foo_bar'], exp), (['-b'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
@@ -114,7 +115,7 @@ class FlagTest(ParserTest):
         self.assertNotIn('--foo-bar', usage_text)
         self.assertIn('--foo_bar', help_text)
         self.assertIn('--foo_bar', usage_text)
-        self.assertRegex(help_text, STANDALONE_DASH_B)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
         exp = {'foo_bar': True}
         success_cases = [(['--foo-bar'], exp), (['--foo_bar'], exp), (['-b'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
@@ -128,10 +129,30 @@ class FlagTest(ParserTest):
         self.assertNotIn('--foo_bar', usage_text)
         self.assertIn('--foo-bar', help_text)
         self.assertIn('--foo-bar', usage_text)
-        self.assertRegex(help_text, STANDALONE_DASH_B)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
         exp = {'foo_bar': True}
         success_cases = [(['--foo-bar'], exp), (['--foo_bar'], exp), (['-b'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_name_none_missing_options(self):
+        class Foo(Command, option_name_mode=None):
+            bar = Flag()
+
+        with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+            Foo().parse([])
+
+    def test_name_none(self):
+        class Foo(Command, option_name_mode='NONE'):
+            bar = Flag('-b')
+
+        help_text, usage_text = get_help_text(Foo), get_usage_text(Foo)
+        self.assertNotIn('--bar', help_text)
+        self.assertNotIn('--bar', usage_text)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
+
+        success_cases = [([], {'bar': False}), (['-b'], {'bar': True})]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails(Foo, ['--bar'])
 
     # endregion
 
@@ -237,7 +258,7 @@ class TriFlagTest(ParserTest):
         self.assertIn('--foo_bar', help_text)
         self.assertIn('--no_foo_bar', help_text)
 
-        self.assertRegex(help_text, STANDALONE_DASH_B)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
         exp, alt = {'foo_bar': True}, {'foo_bar': False}
         success_cases = [
             ([], {'foo_bar': None}),
@@ -264,7 +285,7 @@ class TriFlagTest(ParserTest):
         self.assertIn('--no_foo_bar', help_text)
         self.assertIn('--no_foo_bar', usage_text)
 
-        self.assertRegex(help_text, STANDALONE_DASH_B)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
         exp, alt = {'foo_bar': True}, {'foo_bar': False}
         success_cases = [
             ([], {'foo_bar': None}),
@@ -291,7 +312,7 @@ class TriFlagTest(ParserTest):
         self.assertIn('--no-foo-bar', help_text)
         self.assertIn('--no-foo-bar', usage_text)
 
-        self.assertRegex(help_text, STANDALONE_DASH_B)
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
         exp, alt = {'foo_bar': True}, {'foo_bar': False}
         success_cases = [
             ([], {'foo_bar': None}),
@@ -316,6 +337,33 @@ class TriFlagTest(ParserTest):
                 self.assertEqual(['--no-foo', '--foo'], Foo.foo.option_strs.long)
                 self.assertEqual(['--bar', '--baz'], Foo.bar.option_strs.long)
                 self.assertEqual([abc_long, '--abc'], Foo.abc.option_strs.long)
+
+    def test_name_none_missing_options(self):
+        cases = [((), {}), (('-b',), {}), ((), {'alt_short': '-B'})]
+        for args, kwargs in cases:
+            with self.subTest(args=args, kwargs=kwargs):
+
+                class Foo(Command, option_name_mode=None):
+                    bar = TriFlag(*args, **kwargs)
+
+                with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+                    Foo().parse([])
+
+    def test_name_none(self):
+        class Foo(Command, option_name_mode='NONE'):
+            bar = TriFlag('-b', alt_short='-B')
+
+        never_expected = ('--bar', '--no-bar', '--no_bar')
+        help_text, usage_text = get_help_text(Foo), get_usage_text(Foo)
+        self.assertTrue(all(val not in help_text for val in never_expected))
+        self.assertTrue(all(val not in usage_text for val in never_expected))
+        self.assertRegex(help_text, STANDALONE_DASH_B_LC)
+        self.assertRegex(help_text, STANDALONE_DASH_B_UC)
+
+        success_cases = [([], {'bar': None}), (['-b'], {'bar': True}), (['-B'], {'bar': False})]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['--bar'], ['--no-bar'], ['--no_bar']]
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     # endregion
 
