@@ -251,6 +251,8 @@ class OptionTest(ParserTest):
             (['bar', '-fb=x'], {'sub': 'bar', 'foo': None, 'foobar': 'x'}),
             (['bar', '-fb', 'x'], {'sub': 'bar', 'foo': None, 'foobar': 'x'}),
             (['bar', '--foobar', 'x'], {'sub': 'bar', 'foo': None, 'foobar': 'x'}),
+            (['bar', '-fb', 'x', '-f', 'y'], {'sub': 'bar', 'foo': 'y', 'foobar': 'x'}),
+            (['bar', '-f', 'y', '-fb', 'x'], {'sub': 'bar', 'foo': 'y', 'foobar': 'x'}),
             (['bar', '-f=x', '-fb=y'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),
             (['bar', '-fb=y', '-f=x'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),
             (['bar', '--foobar', 'y', '--foo', 'x'], {'sub': 'bar', 'foo': 'x', 'foobar': 'y'}),

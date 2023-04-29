@@ -24,6 +24,7 @@ from .restructured_text import RstTable
 from .utils import format_help_entry, _should_add_default
 
 if TYPE_CHECKING:
+    from ..parameters.option_strings import TriFlagOptionStrings
     from ..typing import Bool, ParamOrGroup, OptStr
 
 BoolFormatterMap = Dict[bool, Callable[[str], str]]
@@ -165,7 +166,7 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             return delim.join(self.iter_usage_parts())
 
         param: BaseOption = self.param
-        opt = param.option_strs.display_long[0]
+        opt = param.option_strs.get_usage_opt()
         if not include_meta or param.nargs == 0:
             return opt
         return f'{opt} {self._format_usage_metavar()}'
@@ -176,13 +177,13 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
 
 class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        opts = self.param.option_strs
+        opts: TriFlagOptionStrings = self.param.option_strs
         if full:
             primary = delim.join(opts.primary_option_strs())
             alts = delim.join(opts.alt_option_strs())
             return f'{primary} | {alts}'
         else:
-            return f'{opts.display_long_primary[0]} | {opts.display_long_alt[0]}'
+            return f'{opts.get_usage_opt(False)} | {opts.get_usage_opt(True)}'
 
     def format_description(self, rst: Bool = False, alt: bool = False) -> str:
         if not alt:
@@ -219,7 +220,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
             choices = (str(c) for c in (c.choice for cg in self.choice_groups for c in cg.choices) if c is not None)
             if config.sort_choices:
                 choices = sorted(choices)
-            return '{{{}}}'.format(config.choice_delim.join(choices))
+            return f'{{{config.choice_delim.join(choices)}}}'
         else:
             return param.metavar or param.name.upper()
 
@@ -354,7 +355,7 @@ class ChoiceGroup:
             return first, first.format_usage(), first.help
 
         if additional:
-            usage = '{{{}}}'.format('|'.join(choice_strs))
+            usage = f'{{{"|".join(choice_strs)}}}'
 
         return first, usage, first.help
 

@@ -21,7 +21,7 @@ from __future__ import annotations
 import platform
 import sys
 from collections import ChainMap
-from typing import Type, Callable, Union, Optional, Dict
+from typing import Type, Callable, Union, Optional, Iterator, Dict
 
 from .exceptions import CommandParserException
 
@@ -69,27 +69,31 @@ class ErrorHandler:
 
         return _cls_handler
 
-    def get_handler(self, exc_type: Type[BaseException], exc: BaseException) -> Optional[HandlerFunc]:
+    def iter_handlers(self, exc_type: Type[BaseException], exc: BaseException) -> Iterator[HandlerFunc]:
         exc_handler_map = ChainMap(self.exc_handler_map, self._exc_handler_map)
         try:
-            return exc_handler_map[exc_type].handler
+            yield exc_handler_map[exc_type].handler
         except KeyError:
             pass
-        candidates = sorted(handler for ec, handler in exc_handler_map.items() if isinstance(exc, ec))
-        try:
-            return candidates[0].handler
-        except IndexError:
-            return None
+        candidates = sorted(
+            handler for ec, handler in exc_handler_map.items() if ec is not exc_type and isinstance(exc, ec)
+        )
+        for candidate in candidates:
+            yield candidate.handler
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb) -> bool:
-        handler = self.get_handler(exc_type, exc_val)
-        if handler:
+        if exc_type is None:
+            return False
+
+        for handler in self.iter_handlers(exc_type, exc_val):
             result = handler(exc_val)
-            if result in (True, None):
+            if result is True:
                 return True
+            if result or (isinstance(result, int) and result is not False):
+                sys.exit(result)
 
         return False
 
@@ -128,14 +132,35 @@ class Handler:
 
 ErrorHandler.cls_handler(CommandParserException)(CommandParserException.exit)
 
-error_handler = ErrorHandler()
-error_handler.register(lambda e: print(), KeyboardInterrupt)
-error_handler.register(lambda e: None, BrokenPipeError)
+#: Default base :class:`ErrorHandler`
+error_handler: ErrorHandler = ErrorHandler()
+error_handler.register(lambda e: True, BrokenPipeError)
 
-no_exit_handler = error_handler.copy()
+
+@error_handler(KeyboardInterrupt)
+def handle_kb_interrupt(exc: KeyboardInterrupt) -> int:
+    """
+    Handles :class:`python:KeyboardInterrupt` by calling :func:`python:print` to avoid ending the program in a way that
+    causes the next terminal prompt to be printed on the same line as the last (possibly incomplete) line of output.
+    """
+    try:
+        print(flush=True)  # Flush forces any potential closed/broken pipe-related error to be caught/handled here
+    except BrokenPipeError:
+        pass
+    except OSError as e:
+        # Handle the closed/broken pipe incorrect errno bug if triggered during the above print
+        if not WINDOWS or not handle_win_os_pipe_error(e):
+            raise
+    return 130
+
+
+#: An :class:`ErrorHandler` that does not call :func:`python:sys.exit` for
+#: :class:`CommandParserExceptions<.CommandParserException>`
+no_exit_handler: ErrorHandler = error_handler.copy()
 no_exit_handler(CommandParserException)(CommandParserException.show)
 
-extended_error_handler = error_handler.copy()
+#: The default :class:`ErrorHandler` (extends :obj:`error_handler`)
+extended_error_handler: ErrorHandler = error_handler.copy()
 
 if WINDOWS:
     import ctypes
@@ -145,13 +170,14 @@ if WINDOWS:
     NT_STATUSES = {0xC000_00B1: 'STATUS_PIPE_CLOSING', 0xC000_014B: 'STATUS_PIPE_BROKEN'}
 
     @extended_error_handler(OSError)
-    def _handle_os_error(exc: OSError):
+    def handle_win_os_pipe_error(exc: OSError):
         """
-        This is a workaround for `issue35754 <https://bugs.python.org/issue35754>`_, which is a bug in the way that the
+        This is a workaround for `[Windows] I/O on a broken pipe may raise an EINVAL OSError instead of BrokenPipeError
+        <https://github.com/python/cpython/issues/79935>`_, which is a bug in the way that the
         windows error code for a broken pipe is translated into an errno value.  It should be translated to
         :data:`~errno.EPIPE`, but it uses :data:`~errno.EINVAL` (22) instead.
 
-        Prevents the following when piping output to utilities such as ``| head``:
+        Prevents the following when piping output to utilities such as ``| head``::\n
             Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
             OSError: [Errno 22] Invalid argument
         """

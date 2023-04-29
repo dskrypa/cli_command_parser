@@ -160,6 +160,8 @@ class OptionTest(ParserTest):
             with self.subTest(case=case), self.assertRaises(ParameterDefinitionError):
                 Option(required=True, default=case)
 
+    # region Name Mode
+
     def test_name_both(self):
         class Foo(Command, option_name_mode='*'):
             foo_bar = Option('-b')
@@ -200,6 +202,30 @@ class OptionTest(ParserTest):
         exp = {'foo_bar': 'baz'}
         success_cases = [(['--foo-bar', 'baz'], exp), (['--foo_bar', 'baz'], exp), (['-b', 'baz'], exp)]
         self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_name_none_missing_options(self):
+        class Foo(Command, option_name_mode=None):
+            bar = Option()
+
+        with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+            Foo().parse([])
+
+    def test_name_none(self):
+        class Foo(Command, option_name_mode='NONE'):
+            bar = Option('-b')
+
+        help_text, usage_text = get_help_text(Foo), get_usage_text(Foo)
+        self.assertNotIn('--bar', help_text)
+        self.assertNotIn('--bar', usage_text)
+        self.assertRegex(help_text, STANDALONE_DASH_B)
+
+        success_cases = [([], {'bar': None}), (['-b', 'foo'], {'bar': 'foo'})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+        fail_cases = [['--bar'], ['-b'], ['--bar', 'foo']]
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    # endregion
 
     def test_option_strs_repr(self):
         class Foo(Command, option_name_mode='-'):

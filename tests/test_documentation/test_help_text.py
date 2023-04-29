@@ -262,7 +262,8 @@ class HelpTextTest(ParserTest):
 
     def test_option_name_mode_overrides(self):
         mode_exp_map = {'underscore': ('--foo_a',), 'dash': ('--foo-a',), 'both': ('--foo-a', '--foo_a')}
-        base_expected = ('--foo_b', '--foo-c', '--foo-d', '--foo_d', '--eeee')
+        base_expected = ('--foo_b', '--foo-c', '--foo-d', '--foo_d', '--eeee', '-ff', '-fg')
+        never_expected = ('--foo-e', '--foo_e', '--foo-f', '--foo_f', '--foo-g', '--foo_g')
         for mode, expected_a in mode_exp_map.items():
             with self.subTest(mode=mode):
 
@@ -272,12 +273,13 @@ class HelpTextTest(ParserTest):
                     foo_c = Flag(name_mode='dash')
                     foo_d = Flag(name_mode='both')
                     foo_e = Flag('--eeee')
+                    foo_f = Flag('-ff', name_mode=None)
+                    foo_g = Flag('-fg', name_mode='NONE')
 
                 help_text = get_help_text(Foo)
                 self.assertTrue(all(exp in help_text for exp in base_expected))
                 self.assertTrue(all(exp in help_text for exp in expected_a))
-                self.assertNotIn('--foo_e', help_text)
-                self.assertNotIn('--foo-e', help_text)
+                self.assertTrue(all(val not in help_text for val in never_expected))
 
     def test_tri_flag_no_alt_short(self):
         class Foo(Command):

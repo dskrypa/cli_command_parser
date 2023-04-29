@@ -85,6 +85,9 @@ class OptionNameMode(FixedFlag):
       in help text
     :BOTH_DASH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo-bar`` with be displayed
       in help text
+    :NONE: No long form option string will be added.  At least one short form option string must be defined.  Note that
+      it is NOT necessary to use ``name_mode=None`` to prevent the automatic creation of long form option strings - if
+      any long form option strings are explicitly provided for a given Parameter, then no automatic ones will be added.
 
     If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.
 
@@ -103,14 +106,15 @@ class OptionNameMode(FixedFlag):
     #                         & 4  -> display options set
     BOTH_UNDERSCORE = 15    # & 8  -> show only underscore version
     BOTH_DASH = 23          # & 16 -> show only dash version
+    NONE = 32
 
     @classmethod
-    def _missing_(cls, value: Union[str, int]) -> OptionNameMode:
+    def _missing_(cls, value: Union[str, int, None]) -> OptionNameMode:
         try:
             return OPT_NAME_MODE_ALIASES[value]
         except KeyError:
             pass
-        return super()._missing_(value)
+        return cls.NONE if value is None else super()._missing_(value)
 
 
 OPT_NAME_MODE_ALIASES = {

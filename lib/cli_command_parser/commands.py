@@ -127,7 +127,7 @@ class Command(ABC, metaclass=CommandMeta):
         Primary entry point for running a command.  Subclasses generally should not override this method.
 
         Handles exceptions using the configured :class:`.ErrorHandler`.  Alternate error handlers can be specified
-        via the :paramref:`~.core.CommandMeta.__new__.error_handler` parameter during Command class initialization.
+        via the :paramref:`~.core.CommandMeta.error_handler` parameter during Command class initialization.
         To skip error handling, define the class with ``error_handler=None``.
 
         Calls the following methods in order:
@@ -163,11 +163,11 @@ class Command(ABC, metaclass=CommandMeta):
         The first method called by :meth:`.__call__` (before :meth:`.main` and others).
 
         Validates the number of ActionFlags that were specified, and calls all of the specified
-        :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions such as ``--help`` that were
+        :func:`~.options.before_main` / :obj:`~.options.action_flag` actions such as ``--help`` that were
         defined with ``before_main=True`` and ``always_available=True`` in their configured order.
 
-        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
-        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
+        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
         """
         ctx = self.__ctx
         n_flags = ctx.action_flag_count
@@ -204,11 +204,11 @@ class Command(ABC, metaclass=CommandMeta):
         """
         Called by :meth:`.__call__` after :meth:`._init_command_` and before :meth:`.main` is called.
 
-        Calls all of the specified :obj:`~.parameters.before_main` / :obj:`~.parameters.action_flag` actions that were
-        defined with ``before_main=True`` and ``always_available=False`` in their configured order.
+        Calls all of the specified :func:`~.options.before_main` / :obj:`~.options.action_flag` actions that
+        were defined with ``before_main=True`` and ``always_available=False`` in their configured order.
 
-        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
-        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
+        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
         """
         for param in self.__ctx.iter_action_flags(ActionPhase.BEFORE_MAIN):
             param.func(self, *args, **kwargs)
@@ -218,9 +218,9 @@ class Command(ABC, metaclass=CommandMeta):
         Primary method that is called when running a Command.
 
         If any arguments were specified that are associated with triggering a method that was decorated / registered as
-        a positional :class:`~.parameters.Action`'s target method, then that method is called here.
+        a positional :class:`~.choice_map.Action`'s target method, then that method is called here.
 
-        Commands that do not have any positional :class:`Actions<.parameters.Action>` can override this method, and do
+        Commands that do not have any positional :class:`Actions<.choice_map.Action>` can override this method, and do
         **not** need to call ``super().main(*args, **kwargs)``.
 
         Initialization code that is common for all actions, or that should be run before :meth:`._before_main_` should
@@ -241,11 +241,11 @@ class Command(ABC, metaclass=CommandMeta):
     def _after_main_(self, *args, **kwargs):
         """
         Called by :meth:`.__call__` after :meth:`.main` is called.  Calls all of the specified
-        :obj:`~.parameters.after_main` / :obj:`~.parameters.action_flag` actions that were defined with
+        :func:`~.options.after_main` / :obj:`~.options.action_flag` actions that were defined with
         ``before_main=False`` in their configured order.
 
-        :param args: Positional arguments to pass to the :obj:`~.parameters.action_flag` methods
-        :param kwargs: Keyword arguments to pass to the :obj:`~.parameters.action_flag` methods
+        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
         """
         for param in self.__ctx.iter_action_flags(ActionPhase.AFTER_MAIN):
             param.func(self, *args, **kwargs)

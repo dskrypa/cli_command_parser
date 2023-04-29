@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Optional, Collection, Union, Iterator, List, S
 
 from ..config import OptionNameMode, DEFAULT_CONFIG
 from ..exceptions import ParameterDefinitionError
+from ..utils import _NotSet
 
 if TYPE_CHECKING:
     from ..typing import Bool
@@ -25,8 +26,8 @@ class OptionStrings:
     _long: Set[str]
     _short: Set[str]
 
-    def __init__(self, option_strs: Collection[str], name_mode: Union[OptionNameMode, str] = None):
-        self.name_mode = OptionNameMode(name_mode) if name_mode is not None else None
+    def __init__(self, option_strs: Collection[str], name_mode: Union[OptionNameMode, str, None] = _NotSet):
+        self.name_mode = OptionNameMode(name_mode) if name_mode is not _NotSet else None
         self._display_long = self._long = {opt for opt in option_strs if opt.startswith('--')}
         self._short = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
         self.combinable = {opt[1:] for opt in short_opts if len(opt) == 2}
@@ -38,13 +39,13 @@ class OptionStrings:
         options = ', '.join(self.all_option_strs())
         return f'<{self.__class__.__name__}[name_mode={self.name_mode}][{options}]>'
 
-    @classmethod
-    def _sort_options(cls, options: Collection[str]):
-        return sorted(options, key=lambda opt: (-len(opt), opt))
-
     def has_long(self) -> Bool:
         """Whether any (primary / non-alternate, for TriFlag) long option strings were defined"""
         return self._long  # Explicit values were provided during param init
+
+    def has_min_opts(self) -> Bool:
+        """Returns a truthy value if the minimum required number of option strings have been registered"""
+        return self._long or self._short
 
     def update(self, name: str):
         """
@@ -58,7 +59,7 @@ class OptionStrings:
         if mode_val & 4:  # any option was set
             self._display_long = self._display_long.copy()
         if mode & OptionNameMode.DASH:
-            option = '--{}'.format(name.replace('_', '-'))
+            option = f'--{name.replace("_", "-")}'
             self._long.add(option)
             if mode_val & 16:  # OptionNameMode.BOTH_DASH = OptionNameMode.DASH | 4 | 16
                 self._display_long.add(option)
@@ -70,15 +71,18 @@ class OptionStrings:
 
     @property
     def long(self) -> List[str]:
-        return self._sort_options(self._long)
+        return _sort_options(self._long)
 
     @property
     def short(self) -> List[str]:
-        return self._sort_options(self._short)
+        return _sort_options(self._short)
 
     @property
     def display_long(self) -> List[str]:
-        return self._sort_options(self._display_long)
+        return _sort_options(self._display_long)
+
+    def get_usage_opt(self) -> str:
+        return next(self.option_strs())
 
     def option_strs(self) -> Iterator[str]:
         yield from self.display_long
@@ -97,6 +101,9 @@ class TriFlagOptionStrings(OptionStrings):
         """Whether any primary / non-alternate long option strings were defined"""
         return self._long.difference(self._alt_long)
 
+    def has_min_opts(self) -> Bool:
+        return next(self.option_strs(False), None) and next(self.option_strs(True), None)
+
     def add_alts(self, prefix: Optional[str], long: Optional[str], short: Optional[str]):
         self._alt_prefix = prefix
         self._alt_long = (long,) if long else set()
@@ -112,7 +119,7 @@ class TriFlagOptionStrings(OptionStrings):
         mode = self.name_mode or DEFAULT_CONFIG.option_name_mode
         mode_val: int = mode._value_  # noqa # This Flag doesn't subclass int due to breakage in 3.11
         if mode & OptionNameMode.DASH:
-            option = '--{}-{}'.format(self._alt_prefix, name.replace('_', '-'))
+            option = f'--{self._alt_prefix}-{name.replace("_", "-")}'
             self._alt_long.add(option)
             self._long.add(option)
             if mode_val & 16:  # OptionNameMode.BOTH_DASH = OptionNameMode.DASH | 4 | 16
@@ -147,7 +154,7 @@ class TriFlagOptionStrings(OptionStrings):
 
     # @property
     # def long_alt(self) -> List[str]:
-    #     return self._sort_options(self._alt_long)
+    #     return _sort_options(self._alt_long)
 
     @property
     def display_long_alt(self) -> List[str]:
@@ -165,6 +172,9 @@ class TriFlagOptionStrings(OptionStrings):
         yield from self.display_long_alt
         yield from self.short_alt
 
+    def get_usage_opt(self, alt: bool = False) -> str:
+        return next(self.option_strs(alt))
+
     def option_strs(self, alt: bool = False) -> Iterator[str]:
         if alt:
             yield from self.alt_option_strs()
@@ -174,3 +184,7 @@ class TriFlagOptionStrings(OptionStrings):
     def all_option_strs(self) -> Iterator[str]:
         yield from self.option_strs(False)
         yield from self.option_strs(True)
+
+
+def _sort_options(options: Collection[str]):
+    return sorted(options, key=lambda opt: (-len(opt), opt))

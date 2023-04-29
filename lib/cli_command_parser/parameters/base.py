@@ -613,7 +613,7 @@ class BaseOption(Parameter[T_co], ABC):
     _opt_str_cls: Type[OptionStrings] = OptionStrings
     option_strs: OptionStrings
 
-    def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str] = None, **kwargs):
+    def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str, None] = _NotSet, **kwargs):
         _validate_opt_strs(option_strs)
         super().__init__(action, **kwargs)
         self.option_strs = self._opt_str_cls(option_strs, name_mode)
