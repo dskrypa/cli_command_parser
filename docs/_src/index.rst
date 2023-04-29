@@ -136,6 +136,9 @@ Configuring & Documenting Commands
 :doc:`examples`
     Automatically generated documentation for the :gh_proj_url:`example scripts <tree/main/examples>` in this project.
 
+:doc:`error_handlers`
+    How to define custom error handlers for exceptions that were not caught inside Commands.
+
 
 Advanced
 ========
@@ -183,6 +186,7 @@ Indices and Tables
    inputs
    configuration
    documentation
+   error_handlers
    advanced
    testing
 

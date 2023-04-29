@@ -41,12 +41,13 @@ __all__ = [
 class CommandParserException(Exception):
     """Base class for all other Command Parser exceptions"""
 
-    code: int = 2
+    code: int = 3
 
-    def show(self):
+    def show(self) -> bool:
         message = str(self)
         if message:
             print(message, file=sys.stderr)
+        return True
 
     def exit(self):
         self.show()
@@ -56,11 +57,11 @@ class CommandParserException(Exception):
 class ParserExit(CommandParserException):
     """Exception used to exit with the given message and status code"""
 
-    def __init__(self, message: str = None, code: int = None):
+    def __init__(self, message: str = None, code: int = 0):
         self.code = code
         self.message = message
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message or ''
 
 

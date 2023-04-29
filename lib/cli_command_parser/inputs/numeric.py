@@ -23,6 +23,14 @@ class NumericInput(InputType[NT], ABC):
     type: NumType
 
     def is_valid_type(self, value: str) -> bool:
+        """
+        Called during parsing when :meth:`.Parameter.would_accept` is called to determine if the value would be
+        accepted later for processing / conversion when called.
+
+        :param value: The parsed argument to validate
+        :return: True if this input would accept it for processing later (where it may still be rejected), False if
+          it should be rejected before attempting to process / convert / store it.
+        """
         try:
             self.type(value)
         except (ValueError, TypeError):

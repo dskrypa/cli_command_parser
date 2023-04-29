@@ -15,7 +15,7 @@ EXAMPLES_DIR = Path(__file__).resolve().parents[2].joinpath('examples')
 # WORKERS = 8
 
 try:
-    from testtools import ConcurrentTestSuite, iterate_tests
+    from testtools import ConcurrentTestSuite, iterate_tests  # noqa
 except ImportError:
     pass  # This is only used to improve run time when testing locally; they are not essential
 else:
@@ -79,7 +79,7 @@ class ExampleScriptTest(TestCase):
 class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):
     def test_no_args(self):
         code, stdout, stderr = self.call_script()
-        self.assertEqual(2, code)
+        self.assertEqual(3, code)
         self.assertEqual('argument {echo|split|double|reverse}: missing required argument value\n', stderr)
 
     def test_help(self):
@@ -100,14 +100,14 @@ class ActionWithArgsTest(ExampleScriptTest, file='action_with_args.py'):
 
     def test_echo_no_args(self):
         code, stdout, stderr = self.call_script('echo')
-        self.assertEqual(2, code)
+        self.assertEqual(3, code)
         self.assertEqual('argument missing - the following argument is required: TEXT [TEXT ...]\n', stderr)
 
 
 class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
     def test_no_args(self):
         code, stdout, stderr = self.call_script()
-        self.assertEqual(2, code)
+        self.assertEqual(3, code)
         self.assertEqual('argument {show}: missing required argument value\n', stderr)
 
     def test_help(self):
@@ -118,7 +118,7 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
 
     def test_show_no_args(self):
         code, stdout, stderr = self.call_script('show')
-        self.assertEqual(2, code)
+        self.assertEqual(3, code)
         self.assertEqual(stderr, 'argument {attrs|hello|log_test|rst}: missing required argument value\n')
 
     def test_show_help(self):
@@ -156,7 +156,7 @@ class SharedLoggingInitTest(ExampleScriptTest, file='shared_logging_init.py'):
 
     def test_show_oops(self):
         code, stdout, stderr = self.call_script('show', 'oops')
-        self.assertEqual(2, code)
+        self.assertEqual(3, code)
         expected = (
             "argument {attrs|hello|log_test|rst}: invalid choice: 'oops'"
             " (choose from: 'attrs', 'hello', 'log_test', 'rst')\n"
