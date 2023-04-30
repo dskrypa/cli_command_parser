@@ -175,6 +175,7 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
             kwargs.setdefault('show_default', False)
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
+        # TODO: Support env_var
 
     @parameter_action
     def store_const(self):
@@ -221,7 +222,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         alt_short: str = None,
         alt_help: str = None,
         action: str = 'store_const',
-        default: TD = None,
+        default: TD = _NotSet,
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -237,6 +238,8 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
             msg = f'Invalid consts={consts!r} - expected a 2-tuple of (positive, negative) constants to store'
             raise ParameterDefinitionError(msg) from e
 
+        if default is _NotSet and not kwargs.get('required', False):
+            default = None
         if default in consts:
             raise ParameterDefinitionError(
                 f'Invalid default={default!r} with consts={consts!r} - the default must not match either value'
