@@ -96,6 +96,11 @@ Options support two additional initialization parameters:
       generated long form based on the Parameter's name will not be added.
 :name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this
   Option/Flag/Counter/etc.
+:env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
+  be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
+  will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
+  that they were provided.  When enabled, values from env variables take precedence over the default value.  When
+  enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
 
 .. note::
     Automatically abbreviated option strings are not supported.  To accept a particular option string, it must be
@@ -119,11 +124,6 @@ The generic :class:`.Option` parameter that accepts arbitrary values or lists of
 **Unique Option initialization parameters:**
 
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
-:env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
-  be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
-  will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
-  that they were provided.  When enabled, values from env variables take precedence over the default value.  When
-  enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
 :allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with a dash,
   it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
   ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for an
@@ -169,8 +169,16 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
 :const: The constant value to store / append.  If a ``default`` value is provided that is not a bool, then this
   must also be provided.  Defaults to ``True`` when ``default`` is ``False`` (the default when it is not specified),
   and to ``False`` when ``default`` is ``True``.
+:type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value, which
+  should be called on environment variable values, if any are configured for this Flag via
+  :ref:`parameters:Options:env_var`.  It should return a truthy value if any action should be taken (i.e.,
+  if the constant should be stored/appended), or a falsey value for no action to be taken.  The
+  :func:`default function<.str_to_bool>` handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``,
+  and ``0`` / ``false`` / ``no`` and similar as ``False``.
+:strict_env: When ``True`` (the default), if an :ref:`parameters:Options:env_var` is used as the source of
+  a value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
+  environment variables will be ignored (and a warning message will be logged).
 :nargs: Not supported.
-:type: Not supported.
 
 
 :gh_examples:`Example command <simple_flags.py>`::
@@ -230,6 +238,15 @@ provided, respectively.
 :alt_help: The help text to display with the alternate option strings.
 :default: The default value to use if neither the primary or alternate options are provided.  Defaults to None.
 :name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for the TriFlag.
+:type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value, which
+  should be called on environment variable values, if any are configured for this TriFlag via
+  :ref:`parameters:Options:env_var`.  It should return a truthy value if the primary constant should be
+  stored, or a falsey value if the alternate constant should be stored.  The :func:`default function<.str_to_bool>`
+  handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``, and ``0`` / ``false`` / ``no`` and similar
+  as ``False``.
+:strict_env: When ``True`` (the default), if an :ref:`parameters:Options:env_var` is used as the source of
+  a value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
+  environment variables will be ignored (and a warning message will be logged).
 
 
 Example::

@@ -593,13 +593,8 @@
 <div class="viewcode-block" id="CommandParameters.try_env_params"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.try_env_params">[docs]</a>    <span class="k">def</span> <span class="nf">try_env_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Option</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Yields Option parameters that have an environment variable configured, and did not have any CLI values.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">env_var</span>  <span class="c1"># noqa</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">yield</span> <span class="n">param</span></div>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">env_var</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">param</span></div>
 
 <div class="viewcode-block" id="CommandParameters.required_check_params"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params">[docs]</a>    <span class="k">def</span> <span class="nf">required_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
         <span class="n">ignore</span> <span class="o">=</span> <span class="n">SubCommand</span>
