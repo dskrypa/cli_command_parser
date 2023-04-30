@@ -287,10 +287,6 @@ class ActionFlagTest(ParserTest):
         with self.assertRaises(TypeError):
             ActionFlag(nargs='+')
 
-    def test_type_not_allowed(self):
-        with self.assertRaises(TypeError):
-            ActionFlag(type=int)
-
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
             ActionFlag(choices=(1, 2))

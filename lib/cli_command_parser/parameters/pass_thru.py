@@ -6,16 +6,16 @@ PassThru Parameters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Any
+from typing import TYPE_CHECKING, Any
 
 from ..context import ctx
 from ..exceptions import ParamUsageError, MissingArgument
 from ..nargs import Nargs
-from ..utils import _NotSet
+from ..utils import _NotSet, ValueSource
 from .base import Parameter, parameter_action
 
 if TYPE_CHECKING:
-    from ..typing import Bool
+    from ..typing import Bool, Strings, ValSrc
 
 __all__ = ['PassThru']
 
@@ -38,11 +38,11 @@ class PassThru(Parameter):
         super().__init__(action=action, required=required, default=default, **kwargs)
 
     @parameter_action
-    def store_all(self, values: Collection[str]):
+    def store_all(self, values: Strings):
         ctx.set_parsed_value(self, values)
 
     def take_action(  # pylint: disable=W0237
-        self, values: Collection[str], short_combo: bool = False, opt_str: str = None
+        self, values: Strings, short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
     ):
         value = ctx.get_parsed_value(self)
         if value is not _NotSet:

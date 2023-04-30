@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import partial, update_wrapper
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, overload
+from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, overload
 from typing import List, Tuple, FrozenSet
 
 try:
@@ -29,8 +29,8 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs, REMAINDER
-from ..typing import Bool, CommandCls, CommandObj, CommandAny, Param, LeadingDash, T_co
-from ..utils import _NotSet
+from ..typing import Bool, ValSrc, OptStrs, CommandCls, CommandObj, CommandAny, Param, LeadingDash, T_co
+from ..utils import _NotSet, ValueSource
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
@@ -348,7 +348,9 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             nargs_max_reached = False
         return parsed, nargs_max_reached
 
-    def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
+    def take_action(
+        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
+    ):
         ctx.record_action(self)
         return getattr(self, self.action)(self.prepare_and_validate(value, short_combo))
 
@@ -365,6 +367,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         return self.is_valid_arg(normalized)
 
     def prepare_and_validate(self, value: str, short_combo: bool = False) -> T_co:
+        """Called by :meth:`.take_action` to prepare/validate the value before it is passed to the action method."""
         if value is not None:
             value = self.prepare_value(value, short_combo)
         self.validate(value)
@@ -607,22 +610,45 @@ class BaseOption(Parameter[T_co], ABC):
       that extend Parameter, and must be registered via :class:`parameter_action`.
     :param name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this
       Option/Flag/Counter/etc.
+    :param env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
+      be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
+      will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
+      that they were provided.  When enabled, values from env variables take precedence over the default value.  When
+      enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
     _opt_str_cls: Type[OptionStrings] = OptionStrings
     option_strs: OptionStrings
+    env_var: OptStrs = None
 
-    def __init__(self, *option_strs: str, action: str, name_mode: Union[OptionNameMode, str, None] = _NotSet, **kwargs):
+    def __init__(
+        self,
+        *option_strs: str,
+        action: str,
+        name_mode: Union[OptionNameMode, str, None] = _NotSet,
+        env_var: OptStrs = None,
+        **kwargs,
+    ):
         _validate_opt_strs(option_strs)
         super().__init__(action, **kwargs)
         self.option_strs = self._opt_str_cls(option_strs, name_mode)
+        if env_var:
+            self.env_var = env_var
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         if not self.option_strs.name_mode:
             self.option_strs.name_mode = command.__class__.config(command).option_name_mode
         self.option_strs.update(name)
+
+    def env_vars(self) -> Iterator[str]:
+        env_var = self.env_var
+        if env_var:
+            if isinstance(env_var, str):
+                yield env_var
+            else:
+                yield from env_var
 
 
 def get_active_param_group() -> Optional[ParamGroup]:

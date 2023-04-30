@@ -13,7 +13,7 @@ from difflib import unified_diff
 from io import StringIO, BytesIO
 from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, ContextManager, Dict, List, Tuple
 from unittest import TestCase
-from unittest.mock import Mock, seal
+from unittest.mock import Mock, seal, patch
 
 from .actions import help_action
 from .commands import Command
@@ -40,9 +40,13 @@ __all__ = [
 Argv = List[str]
 Expected = Dict[str, Any]
 Kwargs = Dict[str, Any]
+Env = Dict[str, str]
 Case = Tuple[Argv, Expected]
+EnvCase = Tuple[Argv, Env, Expected]
 ExceptionCase = Union[Argv, Tuple[Argv, Type[Exception]], Tuple[Argv, Type[Exception], str]]
 CallExceptionCase = Union[Tuple[Kwargs, Type[Exception]], Tuple[Kwargs, Type[Exception], str]]
+
+OPT_ENV_MOD = 'cli_command_parser.parser.environ'
 
 
 class ParserTest(TestCase):
@@ -70,6 +74,17 @@ class ParserTest(TestCase):
         for argv, expected in cases:
             with self.subTest(expected='results', argv=argv):
                 self.assert_parse_results(cmd_cls, argv, expected, message)
+
+    def assert_env_parse_results(
+        self, cmd_cls: CommandCls, argv: Argv, env: Env, expected: Expected, message: str = None
+    ) -> Command:
+        with patch(OPT_ENV_MOD, env):
+            return self.assert_parse_results(cmd_cls, argv, expected, message)
+
+    def assert_env_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[EnvCase], message: str = None):
+        for argv, env, expected in cases:
+            with self.subTest(expected='results', argv=argv, env=env):
+                self.assert_env_parse_results(cmd_cls, argv, env, expected, message)
 
     def assert_parse_fails(
         self,
@@ -161,6 +176,11 @@ class ParserTest(TestCase):
         if sub_text not in text:
             diff = format_diff(sub_text, text, n=diff_lines)
             self.fail('String did not contain expected text:\n' + diff)
+
+    @contextmanager
+    def env_vars(self, case: str, **env_vars):
+        with self.subTest(case=case), patch(OPT_ENV_MOD, env_vars):
+            yield
 
 
 # region Formatting

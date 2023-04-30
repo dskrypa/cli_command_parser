@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 import re
-from contextlib import contextmanager
 from unittest import main
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from cli_command_parser import Command, Flag, Option, TriFlag, ParamGroup
 from cli_command_parser.exceptions import UsageError, ParameterDefinitionError
@@ -12,7 +11,6 @@ from cli_command_parser.nargs import REMAINDER
 from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 
 STANDALONE_DASH_B = re.compile(r'(?<!-)-b\b')
-OPT_ENV_MOD = 'cli_command_parser.parser.environ'
 
 
 class OptionTest(ParserTest):
@@ -265,34 +263,35 @@ class OptionTest(ParserTest):
 
 
 class EnvVarTest(ParserTest):
-    @contextmanager
-    def env_vars(self, case: str, **env_vars):
-        with self.subTest(case=case), patch(OPT_ENV_MOD, env_vars):
-            yield
+    def test_no_env_vars(self):
+        self.assertEqual([], list(Option().env_vars()))
 
     def test_env_var(self):
         class Foo(Command):
             bar: int = Option('-b', default=123, env_var='TEST_VAR_123')
 
-        with self.env_vars('param default'):
-            self.assertEqual(123, Foo.parse([]).bar)
-        with self.env_vars('cli override', TEST_VAR_123='234'):
-            self.assertEqual(987, Foo.parse(['-b', '987']).bar)
-        with self.env_vars('env override', TEST_VAR_123='234'):
-            self.assertEqual(234, Foo.parse([]).bar)
+        # fmt: off
+        cases = [
+            ([], {}, {'bar': 123}),                                     # param default
+            (['-b', '987'], {'TEST_VAR_123': '234'}, {'bar': 987}),     # cli override
+            ([], {'TEST_VAR_123': '234'}, {'bar': 234}),                # env override
+        ]
+        # fmt: on
+        self.assert_env_parse_results_cases(Foo, cases)
 
     def test_env_vars(self):
         class Foo(Command):
             bar: int = Option('-b', default=123, env_var=('TEST_VAR_123', 'TEST_VAR_234'))
 
-        with self.env_vars('param default'):
-            self.assertEqual(123, Foo.parse([]).bar)
-        with self.env_vars('cli override', TEST_VAR_123='234'):
-            self.assertEqual(987, Foo.parse(['-b', '987']).bar)
-        with self.env_vars('env override 1', TEST_VAR_123='234', TEST_VAR_234='345'):
-            self.assertEqual(234, Foo.parse([]).bar)
-        with self.env_vars('env override 2', TEST_VAR_234='345'):
-            self.assertEqual(345, Foo.parse([]).bar)
+        # fmt: off
+        cases = [
+            ([], {}, {'bar': 123}),                                                 # param default
+            (['-b', '987'], {'TEST_VAR_123': '234'}, {'bar': 987}),                 # cli override
+            ([], {'TEST_VAR_123': '234', 'TEST_VAR_234': '345'}, {'bar': 234}),     # env override 1
+            ([], {'TEST_VAR_234': '345'}, {'bar': 345}),                            # env override 2
+        ]
+        # fmt: on
+        self.assert_env_parse_results_cases(Foo, cases)
 
     def test_env_var_required(self):
         class Foo(Command):
@@ -300,10 +299,14 @@ class EnvVarTest(ParserTest):
 
         with self.env_vars('no value'), self.assertRaises(ParamsMissing):
             Foo.parse([])
-        with self.env_vars('cli override', TEST_VAR_123='234'):
-            self.assertEqual(987, Foo.parse(['-b', '987']).bar)
-        with self.env_vars('env override', TEST_VAR_123='234'):
-            self.assertEqual(234, Foo.parse([]).bar)
+
+        # fmt: off
+        cases = [
+            (['-b', '987'], {'TEST_VAR_123': '234'}, {'bar': 987}),     # cli override
+            ([], {'TEST_VAR_123': '234'}, {'bar': 234}),                # env override
+        ]
+        # fmt: on
+        self.assert_env_parse_results_cases(Foo, cases)
 
     def test_env_var_in_required_group(self):
         class Cmd(Command):
@@ -319,14 +322,14 @@ class EnvVarTest(ParserTest):
             Cmd.parse(['-b', 'b'])
         with self.env_vars('combo 2', BAR='b'), self.assertRaises(ParamConflict):
             Cmd.parse(['-f', 'a'])
-        with self.env_vars('env ok 1', FOO='a'):
-            self.assertEqual('a', Cmd.parse([]).foo)
-        with self.env_vars('env ok 2', BAR='b'):
-            self.assertEqual('b', Cmd.parse([]).bar)
-        with self.env_vars('cli ok 1'):
-            self.assertEqual('a', Cmd.parse(['-f', 'a']).foo)
-        with self.env_vars('cli ok 2'):
-            self.assertEqual('b', Cmd.parse(['-b', 'b']).bar)
+
+        cases = [
+            ([], {'FOO': 'a'}, {'foo': 'a', 'bar': None}),  # env ok 1
+            ([], {'BAR': 'b'}, {'foo': None, 'bar': 'b'}),  # env ok 2
+            (['-f', 'a'], {}, {'foo': 'a', 'bar': None}),  # cli ok 1
+            (['-b', 'b'], {}, {'foo': None, 'bar': 'b'}),  # cli ok 2
+        ]
+        self.assert_env_parse_results_cases(Cmd, cases)
 
 
 if __name__ == '__main__':

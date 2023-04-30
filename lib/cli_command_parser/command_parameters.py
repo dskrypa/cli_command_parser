@@ -498,13 +498,8 @@ class CommandParameters:
     def try_env_params(self, ctx: Context) -> Iterator[Option]:
         """Yields Option parameters that have an environment variable configured, and did not have any CLI values."""
         for param in self.options:
-            try:
-                param.env_var  # noqa
-            except AttributeError:
-                pass
-            else:
-                if ctx.num_provided(param) == 0:
-                    yield param
+            if param.env_var and ctx.num_provided(param) == 0:
+                yield param
 
     def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand

@@ -3,7 +3,7 @@
 from unittest import main
 
 from cli_command_parser import Command, Counter, Flag
-from cli_command_parser.exceptions import NoSuchOption, ParameterDefinitionError
+from cli_command_parser.exceptions import NoSuchOption, ParameterDefinitionError, BadArgument
 from cli_command_parser.testing import ParserTest
 
 
@@ -128,6 +128,28 @@ class CounterTest(ParserTest):
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
             Counter(allow_leading_dash=True)
+
+    # endregion
+
+    # region Env Var Handling
+
+    def test_env_var(self):
+        class Foo(Command):
+            bar = Counter('-b', env_var='BAR')
+
+        cases = [
+            ([], {}, {'bar': 0}),
+            (['-b'], {'BAR': '0'}, {'bar': 1}),
+            ([], {'BAR': '0'}, {'bar': 0}),
+            ([], {'BAR': '1'}, {'bar': 1}),
+            ([], {'BAR': '12'}, {'bar': 12}),
+        ]
+        self.assert_env_parse_results_cases(Foo, cases)
+
+        with self.env_vars('invalid value', BAR='foo'):
+            # TODO: Improve this error so it indicates which env var had a bad value
+            with self.assertRaisesRegex(BadArgument, "bad counter value='foo'"):
+                Foo.parse([])
 
     # endregion
 

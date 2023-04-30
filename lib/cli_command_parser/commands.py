@@ -39,7 +39,7 @@ class Command(ABC, metaclass=CommandMeta):
         self = super().__new__(cls)
         self.__ctx = ctx
         if not hasattr(self, 'ctx'):
-            self.ctx = ctx
+            self.ctx: Context = ctx  # noqa  # PyCharm complains this is invalid, but doesn't understand it without it
         return self
 
     def __repr__(self) -> str:
