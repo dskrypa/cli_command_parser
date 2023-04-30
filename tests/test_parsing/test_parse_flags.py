@@ -3,7 +3,7 @@
 from itertools import product
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, TriFlag, Counter, AmbiguousComboMode, ParamConflict
+from cli_command_parser import Command, Option, Flag, TriFlag, Counter, AmbiguousComboMode, ParamConflict, ParamsMissing
 from cli_command_parser.core import get_params
 from cli_command_parser.exceptions import NoSuchOption, UsageError, MissingArgument, AmbiguousCombo, AmbiguousShortForm
 from cli_command_parser.testing import ParserTest
@@ -219,6 +219,18 @@ class ParseTriFlagsTest(ParserTest):
         success_cases = [([], {'bar': None}), (['--bar'], t), (['-b'], t), (['--no-bar'], f), (['-B'], f)]
         self.assert_parse_results_cases(Foo, success_cases)
 
+        pos, neg = ('--bar', '-b'), ('--no-bar', '-B')
+        fail_cases = [['-bB'], ['-Bb'], *(list(t) for g in ((pos, neg), (neg, pos)) for t in product(*g))]
+        self.assert_parse_fails_cases(Foo, fail_cases, ParamConflict)
+
+    def test_required_tri_flag(self):
+        class Foo(Command):
+            bar = TriFlag('-b', alt_short='-B', required=True)
+
+        t, f = {'bar': True}, {'bar': False}
+        success_cases = [(['--bar'], t), (['-b'], t), (['--no-bar'], f), (['-B'], f)]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails(Foo, [], ParamsMissing)
         pos, neg = ('--bar', '-b'), ('--no-bar', '-B')
         fail_cases = [['-bB'], ['-Bb'], *(list(t) for g in ((pos, neg), (neg, pos)) for t in product(*g))]
         self.assert_parse_fails_cases(Foo, fail_cases, ParamConflict)

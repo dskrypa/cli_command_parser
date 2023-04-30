@@ -6,20 +6,25 @@ Optional Parameters
 
 from __future__ import annotations
 
-from abc import ABC
+import logging
+from abc import ABC, abstractmethod
 from functools import partial, update_wrapper
-from typing import Any, Optional, Callable, Sequence, Iterator, Union, TypeVar, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, Tuple
 
 from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, ParamConflict
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..typing import Bool, T_co, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
-from ..utils import _NotSet
+from ..typing import T_co, TypeFunc
+from ..utils import _NotSet, ValueSource, str_to_bool
 from .base import BasicActionMixin, BaseOption, parameter_action
 from .option_strings import TriFlagOptionStrings
 
+if TYPE_CHECKING:
+    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, ValSrc, LeadingDash
+
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
+log = logging.getLogger(__name__)
 
 TD = TypeVar('TD')
 TC = TypeVar('TC')
@@ -48,11 +53,6 @@ class Option(BasicActionMixin, BaseOption[T_co]):
       used as if it was provided here.  When both are present, this argument takes precedence.
     :param choices: A container that holds the specific values that users must pick from.  By default, any value is
       allowed.
-    :param env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
-      be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
-      will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
-      that they were provided.  When enabled, values from env variables take precedence over the default value.  When
-      enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
     :param allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with
       a dash, it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
       ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for
@@ -60,8 +60,6 @@ class Option(BasicActionMixin, BaseOption[T_co]):
       ``AllowLeadingDash.NEVER``.
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
-
-    env_var: Union[str, Sequence[str]] = None
 
     def __init__(
         self,
@@ -72,7 +70,6 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
         choices: ChoicesType = None,
-        env_var: Union[str, Sequence[str]] = None,
         allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
@@ -91,30 +88,25 @@ class Option(BasicActionMixin, BaseOption[T_co]):
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
         self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
-        if env_var:
-            self.env_var = env_var
-
-    def env_vars(self) -> Iterator[str]:
-        env_var = self.env_var
-        if env_var:
-            if isinstance(env_var, str):
-                yield env_var
-            else:
-                yield from env_var
 
 
 class _Flag(BaseOption[T_co], ABC):
     nargs = Nargs(0)
+    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    strict_env: bool
     _use_opt_str: bool = False
 
     def __init_subclass__(cls, use_opt_str: bool = False, **kwargs):  # pylint: disable=W0222
         super().__init_subclass__(**kwargs)
         cls._use_opt_str = use_opt_str
 
-    def __init__(self, *option_strs: str, **kwargs):
+    def __init__(self, *option_strs: str, type: TypeFunc = None, strict_env: bool = True, **kwargs):  # noqa
         if 'metavar' in kwargs:
             raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
         super().__init__(*option_strs, **kwargs)
+        self.strict_env = strict_env
+        if type is not None:
+            self.type = type
 
     def _init_value_factory(self):
         if self.action == 'store_const':
@@ -122,14 +114,35 @@ class _Flag(BaseOption[T_co], ABC):
         else:
             return []
 
-    def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
+    def take_action(
+        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
+    ):
         # log.debug(f'{self!r}.take_action({value!r})')
         ctx.record_action(self)
         if value is None:
             action_method = getattr(self, self.action)
             return action_method(opt_str) if self._use_opt_str else action_method()
+        elif src != ValueSource.CLI:
+            src, env_var = src
+            try:
+                return self.take_env_var_action(value, env_var)
+            except ParamUsageError as e:
+                if not self.strict_env:
+                    log.warning(e)
+                    return
+                raise
 
         raise ParamUsageError(self, f'received value={value!r} but no values are accepted for action={self.action!r}')
+
+    def prepare_env_var_value(self, value: str, env_var: str) -> T_co:
+        try:
+            return self.type(value)
+        except Exception as e:
+            raise ParamUsageError(self, f'unable to parse value={value!r} from env_var={env_var!r}: {e}') from e
+
+    @abstractmethod
+    def take_env_var_action(self, value: str, env_var: str):
+        raise NotImplementedError
 
     def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:  # noqa
         return value is None
@@ -153,6 +166,15 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
       ``const=True`` (the default), and to ``True`` when ``const=False``.  Defaults to ``None`` for any other
       constant.
     :param const: The constant value to store/append when this parameter is specified.  Defaults to ``True``.
+    :param type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value,
+      which should be called on environment variable values, if any are configured for this Flag via
+      :paramref:`.BaseOption.env_var`.  It should return a truthy value if any action should be taken (i.e., if the
+      constant should be stored/appended), or a falsey value for no action to be taken.  The
+      :func:`default function<.str_to_bool>` handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``,
+      and ``0`` / ``false`` / ``no`` and similar as ``False``.
+    :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a
+      value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
+      environment variables will be ignored (and a warning message will be logged).
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
@@ -175,6 +197,10 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
             kwargs.setdefault('show_default', False)
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
+
+    def take_env_var_action(self, value: str, env_var: str):
+        if self.prepare_env_var_value(value, env_var):
+            getattr(self, self.action)()
 
     @parameter_action
     def store_const(self):
@@ -203,6 +229,15 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
     :param default: The default value to use if neither the primary or alternate options are provided.  Defaults
       to None.
     :param name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this TriFlag.
+    :param type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value,
+      which should be called on environment variable values, if any are configured for this TriFlag via
+      :paramref:`.BaseOption.env_var`.  It should return a truthy value if the primary constant should be stored, or a
+      falsey value if the alternate constant should be stored.  The :func:`default function<.str_to_bool>` handles
+      parsing ``1`` / ``true`` / ``yes`` and similar as ``True``, and ``0`` / ``false`` / ``no`` and similar
+      as ``False``.
+    :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a
+      value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
+      environment variables will be ignored (and a warning message will be logged).
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
@@ -221,7 +256,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         alt_short: str = None,
         alt_help: str = None,
         action: str = 'store_const',
-        default: TD = None,
+        default: TD = _NotSet,
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -237,6 +272,8 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
             msg = f'Invalid consts={consts!r} - expected a 2-tuple of (positive, negative) constants to store'
             raise ParameterDefinitionError(msg) from e
 
+        if default is _NotSet and not kwargs.get('required', False):
+            default = None
         if default in consts:
             raise ParameterDefinitionError(
                 f'Invalid default={default!r} with consts={consts!r} - the default must not match either value'
@@ -261,15 +298,27 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
 
     @parameter_action
     def store_const(self, opt_str: str):
-        ctx.set_parsed_value(self, self._get_const(opt_str))
+        self._store_const(self._get_const(opt_str))
 
-    def take_action(self, value: Optional[str], short_combo: bool = False, opt_str: str = None):
+    def _store_const(self, const: Union[TC, TA]):
+        ctx.set_parsed_value(self, const)
+
+    def take_action(
+        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
+    ):
         if value is None:
             prev_parsed = ctx.get_parsed_value(self)
             const = self._get_const(opt_str)
             if prev_parsed is not self.default and prev_parsed != const:
                 raise ParamConflict([self])
-        return super().take_action(value, short_combo, opt_str)
+        return super().take_action(value, short_combo, opt_str, src)
+
+    def take_env_var_action(self, value: str, env_var: str):
+        parsed = self.prepare_env_var_value(value, env_var)
+        self._store_const(self.consts[0] if parsed else self.consts[1])
+
+
+# region Action Flag
 
 
 class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
@@ -382,6 +431,9 @@ def before_main(*option_strs: str, order: Union[int, float] = 1, func: Callable 
 def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable = None, **kwargs) -> ActionFlag:
     """An ActionFlag that will be executed after :meth:`.Command.main`"""
     return ActionFlag(*option_strs, order=order, func=func, before_main=False, **kwargs)
+
+
+# endregion
 
 
 class Counter(BaseOption[int], accepts_values=True, accepts_none=True):

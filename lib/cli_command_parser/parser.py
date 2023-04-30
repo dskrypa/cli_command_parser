@@ -17,6 +17,7 @@ from .exceptions import Backtrack, NextCommand, UnsupportedAction
 from .nargs import REMAINDER, nargs_max_sum, nargs_min_sum
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
+from .utils import ValueSource
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -112,6 +113,7 @@ class CommandParser:
     def _parse_env_vars(self, ctx: Context):
         # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
         #  mutually exclusive params when they were provided via env
+        env = ValueSource.ENV
         for param in self.params.try_env_params(ctx):
             for env_var in param.env_vars():
                 try:
@@ -119,7 +121,7 @@ class CommandParser:
                 except KeyError:
                     pass
                 else:
-                    param.take_action(value)
+                    param.take_action(value, src=(env, env_var))
                     break
 
     def handle_pass_thru(self, ctx: Context) -> Deque[str]:
