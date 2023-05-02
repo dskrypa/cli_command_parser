@@ -8,6 +8,8 @@ Program metadata introspection for use in usage, help text, and documentation.
 from __future__ import annotations
 
 from collections import defaultdict
+from functools import cached_property
+from importlib.metadata import entry_points, EntryPoint
 from inspect import getmodule
 from pathlib import Path
 from sys import modules
@@ -15,12 +17,6 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Type, Optional, Union, Tuple, Dict
 from urllib.parse import urlparse
 
-try:
-    from importlib.metadata import entry_points, EntryPoint
-except ImportError:  # Python 3.7
-    from importlib_metadata import entry_points, EntryPoint
-
-from .compat import cached_property
 from .context import ctx, NoActiveContext
 
 if TYPE_CHECKING:
@@ -29,6 +25,9 @@ if TYPE_CHECKING:
 __all__ = ['ProgramMetadata']
 
 DEFAULT_FILE_NAME: str = 'UNKNOWN'
+
+# TODO: Make it possible to auto-detect author email/url more centrally without needing to import version vars in every
+#  CLI module
 
 
 class Metadata:
@@ -211,6 +210,7 @@ class ProgFinder:
             return prog, 'class kwargs'
 
         ep_name = self._from_entry_point(command)
+        # TODO: This isn't working for documentation generation...
         if ep_name:
             return ep_name, 'entry_points'
 
@@ -220,8 +220,6 @@ class ProgFinder:
             except NoActiveContext:
                 no_sys_argv = False
 
-        # if parent and parent.prog != parent.path.name and (not no_sys_argv or not parent.prog_from_sys_argv):
-        #     return parent.prog, parent.prog_from_sys_argv
         if parent and parent.prog != parent.path.name and (not no_sys_argv or parent.prog_src != 'sys.argv'):
             return parent.prog, parent.prog_src
         elif not no_sys_argv:

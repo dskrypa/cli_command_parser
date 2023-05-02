@@ -11,12 +11,8 @@ It has some involvement in the parsing process for :class:`.BaseOption` paramete
 from __future__ import annotations
 
 from collections import defaultdict
+from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
-
-try:
-    from functools import cached_property
-except ImportError:
-    from .compat import cached_property
 
 from .actions import help_action
 from .config import CommandConfig, AmbiguousComboMode

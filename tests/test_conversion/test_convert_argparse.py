@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import ast
+from functools import cached_property
 from itertools import count
 from typing import TYPE_CHECKING
 from unittest import main
 from unittest.mock import Mock, patch
 
-from cli_command_parser.compat import cached_property
 from cli_command_parser.conversion.argparse_ast import Script, AstArgumentParser, AstCallable
 from cli_command_parser.conversion.argparse_ast import AddVisitedChild, visit_func
 from cli_command_parser.conversion.argparse_utils import ArgumentParser, SubParsersAction

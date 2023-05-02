@@ -8,135 +8,15 @@ The :class:`WCTextWrapper` in this module extends the stdlib :class:`python:text
 characters.
 """
 
-from collections.abc import Callable
 from textwrap import TextWrapper
-from threading import RLock
-from typing import List, Generic, _GenericAlias, _SpecialForm  # noqa
+from typing import List
 
 try:
     from wcwidth import wcswidth
 except ImportError:
     wcswidth = len
 
-__all__ = ['get_origin', 'cached_property', 'WCTextWrapper', 'Literal']
-
-
-# region typing
-
-
-def get_origin(tp):  # pylint: disable=C0103
-    # Copied from 3.8
-    if isinstance(tp, _GenericAlias):
-        return tp.__origin__
-    if tp is Generic:
-        return Generic
-    return None
-
-
-def _get_args(tp):  # pylint: disable=C0103
-    # Copied from 3.8
-    if isinstance(tp, _GenericAlias):
-        res = tp.__args__
-        if get_origin(tp) is Callable and res[0] is not Ellipsis:
-            res = (list(res[:-1]), res[-1])
-        return res
-    return ()
-
-
-try:
-    from typing import Literal
-except ImportError:  # Python 3.7
-
-    class _LiteralSpecialForm(_SpecialForm, _root=True):
-        def __repr__(self) -> str:
-            return f'compat.{self._name}'
-
-        def __getitem__(self, parameters):
-            if not isinstance(parameters, tuple):
-                parameters = (parameters,)
-            return _GenericAlias(self, parameters)
-
-    _LITERAL_DOCSTRING = """
-    Special typing form to define literal types (a.k.a. value types).
-
-    This form can be used to indicate to type checkers that the corresponding
-    variable or function parameter has a value equivalent to the provided
-    literal (or one of several literals):
-
-      def validate_simple(data: Any) -> Literal[True]:  # always returns True
-          ...
-
-      MODE = Literal['r', 'rb', 'w', 'wb']
-      def open_helper(file: str, mode: MODE) -> str:
-          ...
-
-      open_helper('/some/path', 'r')  # Passes type check
-      open_helper('/other/path', 'typo')  # Error in type checker
-
-    Literal[...] cannot be subclassed. At runtime, an arbitrary value
-    is allowed as type argument to Literal[...], but type checkers may
-    impose restrictions.
-    """
-    Literal = _LiteralSpecialForm('Literal', doc=_LITERAL_DOCSTRING)
-
-
-# endregion
-
-# region functools
-
-
-_NOT_FOUND = object()
-
-
-class cached_property:  # pylint: disable=C0103,R0903
-    # Copied from 3.10
-    def __init__(self, func):
-        self.func = func
-        self.attrname = None
-        self.__doc__ = func.__doc__
-        self.lock = RLock()
-
-    def __set_name__(self, owner, name):
-        if self.attrname is None:
-            self.attrname = name
-        elif name != self.attrname:
-            raise TypeError(
-                f'Cannot assign the same cached_property to two different names ({self.attrname!r} and {name!r}).'
-            )
-
-    def __get__(self, instance, owner=None):
-        if instance is None:
-            return self
-        if self.attrname is None:
-            raise TypeError('Cannot use cached_property instance without calling __set_name__ on it.')
-        try:
-            cache = instance.__dict__
-        except AttributeError:  # not all objects have __dict__ (e.g. class defines slots)
-            msg = (
-                f"No '__dict__' attribute on {type(instance).__name__!r} "
-                f'instance to cache {self.attrname!r} property.'
-            )
-            raise TypeError(msg) from None
-        val = cache.get(self.attrname, _NOT_FOUND)
-        if val is _NOT_FOUND:
-            with self.lock:
-                # check if another thread filled cache while we awaited lock
-                val = cache.get(self.attrname, _NOT_FOUND)
-                if val is _NOT_FOUND:
-                    val = self.func(instance)
-                    try:
-                        cache[self.attrname] = val
-                    except TypeError:
-                        msg = (
-                            f"The '__dict__' attribute on {type(instance).__name__!r} instance "
-                            f'does not support item assignment for caching {self.attrname!r} property.'
-                        )
-                        raise TypeError(msg) from None
-        return val
-
-
-# endregion
-
+__all__ = ['WCTextWrapper']
 
 # region textwrap
 

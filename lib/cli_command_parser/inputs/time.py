@@ -22,13 +22,8 @@ from datetime import datetime, date, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, overload
+from typing import Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, Literal, overload
 from typing import Tuple, Dict
-
-try:
-    from typing import Literal
-except ImportError:
-    from ..compat import Literal
 
 from ..typing import T, Bool, Locale, TimeBound
 from ..utils import MissingMixin
