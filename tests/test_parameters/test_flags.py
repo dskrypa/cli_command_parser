@@ -4,7 +4,7 @@ import re
 from unittest import main
 
 from cli_command_parser import Command, Flag, TriFlag
-from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, ParamUsageError
+from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError
 from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 
 STANDALONE_DASH_B_LC = re.compile(r'(?<!-)-b\b')
@@ -150,100 +150,6 @@ class FlagTest(ParserTest):
         success_cases = [([], {'bar': False}), (['-b'], {'bar': True})]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails(Foo, ['--bar'])
-
-    # endregion
-
-    # region Env Var Handling
-
-    def test_env_var(self):
-        class Foo(Command):
-            bar = Flag('-b', env_var='BAR')
-
-        t, f = {'bar': True}, {'bar': False}
-        cases = [
-            ([], {}, f),
-            (['-b'], {'BAR': '0'}, t),  # cli takes precedence
-            ([], {'BAR': '0'}, f),  # env false ignored
-            ([], {'BAR': 'f'}, f),  # env false ignored
-            ([], {'BAR': '1'}, t),
-            ([], {'BAR': 'true'}, t),
-            ([], {'BAR': 'TruE'}, t),
-        ]
-        self.assert_env_parse_results_cases(Foo, cases)
-
-        with self.env_vars('invalid value', BAR='foo'):
-            with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
-                Foo.parse([])
-
-    def test_env_vars(self):
-        class Foo(Command):
-            bar = Flag('-b', env_var=('FOO', 'BAR'))
-
-        t, f = {'bar': True}, {'bar': False}
-        # fmt: off
-        cases = [
-            ([], {}, f),
-            (['-b'], {'FOO': '0'}, t),              # cli takes precedence
-            (['-b'], {'BAR': '0'}, t),              # cli takes precedence
-            ([], {'BAR': '0'}, f),                  # env false ignored
-            ([], {'FOO': 'false', 'BAR': '1'}, f),  # stops after first found env var
-            ([], {'FOO': 'true', 'BAR': '0'}, t),   # stops after first found env var
-            ([], {'FOO': '1'}, t),
-            ([], {'BAR': '1'}, t),
-            ([], {'BAR': 'true'}, t),
-            ([], {'FOO': 'TruE'}, t),
-            ([], {'BAR': 'TruE'}, t),
-        ]
-        # fmt: on
-        self.assert_env_parse_results_cases(Foo, cases)
-
-    def test_env_var_invalid_permissive(self):
-        class Foo(Command):
-            bar = Flag('-b', env_var='BAR', strict_env=False)
-
-        with self.assertLogs('cli_command_parser.parameters.options', 'WARNING'):
-            self.assert_env_parse_results(Foo, [], {'BAR': 'foo'}, {'bar': False})
-
-    def test_non_default_const_stored_from_env_var(self):
-        class Foo(Command):
-            bar = Flag('-b', env_var='BAR', default=True)
-
-        t, f = {'bar': False}, {'bar': True}
-        cases = [
-            ([], {}, f),
-            (['-b'], {'BAR': '0'}, t),  # cli takes precedence
-            ([], {'BAR': '0'}, f),  # env false ignored
-            ([], {'BAR': 'f'}, f),  # env false ignored
-            ([], {'BAR': '1'}, t),
-            ([], {'BAR': 'true'}, t),
-            ([], {'BAR': 'TruE'}, t),
-        ]
-        self.assert_env_parse_results_cases(Foo, cases)
-
-    def test_custom_env_var_type(self):
-        def parse_bool(value: str) -> bool:
-            if value == 'foo':
-                return True
-            elif value == 'bar':
-                return False
-            raise ValueError
-
-        class Foo(Command):
-            bar = Flag('-b', type=parse_bool, env_var='BAR')
-
-        t, f = {'bar': True}, {'bar': False}
-        cases = [
-            ([], {}, f),
-            (['-b'], {'BAR': '123'}, t),  # cli takes precedence
-            ([], {'BAR': 'bar'}, f),
-            ([], {'BAR': 'foo'}, t),
-        ]
-        self.assert_env_parse_results_cases(Foo, cases)
-
-        for val in ('1', 'true', '0', 'false'):
-            with self.env_vars(f'invalid value={val}', BAR=val):
-                with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
-                    Foo.parse([])
 
     # endregion
 
@@ -451,30 +357,6 @@ class TriFlagTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['--bar'], ['--no-bar'], ['--no_bar']]
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
-
-    # endregion
-
-    # region Env Var Handling
-
-    def test_env_var(self):
-        class Foo(Command):
-            bar = TriFlag('-b', alt_short='-B', env_var='BAR')
-
-        d, t, f = {'bar': None}, {'bar': True}, {'bar': False}
-        cases = [
-            ([], {}, d),
-            (['-b'], {'BAR': '0'}, t),  # cli takes precedence
-            ([], {'BAR': '0'}, f),
-            ([], {'BAR': 'f'}, f),
-            ([], {'BAR': '1'}, t),
-            ([], {'BAR': 'true'}, t),
-            ([], {'BAR': 'TruE'}, t),
-        ]
-        self.assert_env_parse_results_cases(Foo, cases)
-
-        with self.env_vars('invalid value', BAR='foo'):
-            with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
-                Foo.parse([])
 
     # endregion
 

@@ -213,7 +213,7 @@ class InvalidChoice(BadArgument):
 
     def __init__(self, param: Optional[Parameter], invalid: Any, choices: Collection[Any]):
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
-            bad_str = 'choices: {}'.format(', '.join(map(repr, invalid)))
+            bad_str = f'choices: {", ".join(map(repr, invalid))}'
         else:
             bad_str = f'choice: {invalid!r}'
         choices_str = ', '.join(map(repr, choices))

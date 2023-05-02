@@ -94,17 +94,27 @@ class _Flag(BaseOption[T_co], ABC):
     nargs = Nargs(0)
     type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
     strict_env: bool
+    use_env_value: bool = False
     _use_opt_str: bool = False
 
     def __init_subclass__(cls, use_opt_str: bool = False, **kwargs):  # pylint: disable=W0222
         super().__init_subclass__(**kwargs)
         cls._use_opt_str = use_opt_str
 
-    def __init__(self, *option_strs: str, type: TypeFunc = None, strict_env: bool = True, **kwargs):  # noqa
+    def __init__(
+        self,
+        *option_strs: str,
+        type: TypeFunc = None,  # noqa
+        strict_env: bool = True,
+        use_env_value: bool = False,
+        **kwargs,
+    ):
         if 'metavar' in kwargs:
             raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
         super().__init__(*option_strs, **kwargs)
         self.strict_env = strict_env
+        if use_env_value:
+            self.use_env_value = use_env_value
         if type is not None:
             self.type = type
 
@@ -171,10 +181,15 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
       :paramref:`.BaseOption.env_var`.  It should return a truthy value if any action should be taken (i.e., if the
       constant should be stored/appended), or a falsey value for no action to be taken.  The
       :func:`default function<.str_to_bool>` handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``,
-      and ``0`` / ``false`` / ``no`` and similar as ``False``.
+      and ``0`` / ``false`` / ``no`` and similar as ``False``.  If :paramref:`use_env_value` is ``True``, then this
+      function should return either the default or constant value instead.
     :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a
       value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
       environment variables will be ignored (and a warning message will be logged).
+    :param use_env_value: If ``True``, when an :paramref:`.BaseOption.env_var` is used as the source of a value for
+      this Flag, the parsed value will be stored as this Flag's value (it must match either the default or constant
+      value).  If ``False`` (the default), then the parsed value will be used to determine whether this Flag's normal
+      action should be taken as if it was specified via a CLI argument.
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
@@ -199,7 +214,13 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
         self.const = const
 
     def take_env_var_action(self, value: str, env_var: str):
-        if self.prepare_env_var_value(value, env_var):
+        parsed = self.prepare_env_var_value(value, env_var)
+        if self.use_env_value:
+            if parsed == self.const:
+                getattr(self, self.action)()
+            elif parsed != self.default:
+                raise BadArgument(self, f'invalid value={parsed!r} from env_var={env_var!r}')
+        elif parsed:
             getattr(self, self.action)()
 
     @parameter_action
@@ -234,10 +255,15 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
       :paramref:`.BaseOption.env_var`.  It should return a truthy value if the primary constant should be stored, or a
       falsey value if the alternate constant should be stored.  The :func:`default function<.str_to_bool>` handles
       parsing ``1`` / ``true`` / ``yes`` and similar as ``True``, and ``0`` / ``false`` / ``no`` and similar
-      as ``False``.
+      as ``False``.  If :paramref:`use_env_value` is ``True``, then this function should return the primary or
+      alternate constant or the default value instead.
     :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a
       value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
       environment variables will be ignored (and a warning message will be logged).
+    :param use_env_value: If ``True``, when an :paramref:`.BaseOption.env_var` is used as the source of a value for
+      this TriFlag, the parsed value will be stored as this TriFlag's value (it must match the primary or alternate
+      constant, or the default value).  If ``False`` (the default), then the parsed value will be used to determine
+      whether this TriFlag's normal action should be taken as if it was specified via a CLI argument.
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
@@ -315,7 +341,13 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
 
     def take_env_var_action(self, value: str, env_var: str):
         parsed = self.prepare_env_var_value(value, env_var)
-        self._store_const(self.consts[0] if parsed else self.consts[1])
+        if self.use_env_value:
+            if parsed in self.consts:
+                self._store_const(parsed)
+            elif parsed != self.default:
+                raise BadArgument(self, f'invalid value={parsed!r} from env_var={env_var!r}')
+        else:
+            self._store_const(self.consts[0] if parsed else self.consts[1])
 
 
 # region Action Flag
