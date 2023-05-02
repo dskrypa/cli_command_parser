@@ -174,10 +174,15 @@ parameters have a default value of ``False``, and will change to ``True`` if pro
   :ref:`parameters:Options:env_var`.  It should return a truthy value if any action should be taken (i.e.,
   if the constant should be stored/appended), or a falsey value for no action to be taken.  The
   :func:`default function<.str_to_bool>` handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``,
-  and ``0`` / ``false`` / ``no`` and similar as ``False``.
+  and ``0`` / ``false`` / ``no`` and similar as ``False``.  If :ref:`parameters:Flag:use_env_value` is ``True``, then
+  this function should return either the default or constant value instead.
 :strict_env: When ``True`` (the default), if an :ref:`parameters:Options:env_var` is used as the source of
   a value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
   environment variables will be ignored (and a warning message will be logged).
+:use_env_value: If ``True``, when an :ref:`parameters:Options:env_var` is used as the source of a value for this Flag,
+  the parsed value will be stored as this Flag's value (it must match either the default or constant value).  If
+  ``False`` (the default), then the parsed value will be used to determine whether this Flag's normal action should be
+  taken as if it was specified via a CLI argument.
 :nargs: Not supported.
 
 
@@ -243,10 +248,15 @@ provided, respectively.
   :ref:`parameters:Options:env_var`.  It should return a truthy value if the primary constant should be
   stored, or a falsey value if the alternate constant should be stored.  The :func:`default function<.str_to_bool>`
   handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``, and ``0`` / ``false`` / ``no`` and similar
-  as ``False``.
+  as ``False``.  If :ref:`parameters:TriFlag:use_env_value` is ``True``, then this function should return the primary
+  or alternate constant or the default value instead.
 :strict_env: When ``True`` (the default), if an :ref:`parameters:Options:env_var` is used as the source of
   a value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
   environment variables will be ignored (and a warning message will be logged).
+:use_env_value: If ``True``, when an :ref:`parameters:Options:env_var` is used as the source of a value for this
+  TriFlag, the parsed value will be stored as this TriFlag's value (it must match the primary or alternate constant,
+  or the default value).  If ``False`` (the default), then the parsed value will be used to determine whether this
+  TriFlag's normal action should be taken as if it was specified via a CLI argument.
 
 
 Example::

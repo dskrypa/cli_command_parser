@@ -303,15 +303,22 @@ should be called on environment variable values, if any are configured for this 
 <a class="reference internal" href="#options:env_var"><span class="std std-ref">env_var</span></a>.  It should return a truthy value if any action should be taken (i.e.,
 if the constant should be stored/appended), or a falsey value for no action to be taken.  The
 <a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool" title="cli_command_parser.utils.str_to_bool"><code class="xref py py-func docutils literal notranslate"><span class="pre">default</span> <span class="pre">function</span></code></a> handles parsing <code class="docutils literal notranslate"><span class="pre">1</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">yes</span></code> and similar as <code class="docutils literal notranslate"><span class="pre">True</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">0</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code> / <code class="docutils literal notranslate"><span class="pre">no</span></code> and similar as <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+and <code class="docutils literal notranslate"><span class="pre">0</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code> / <code class="docutils literal notranslate"><span class="pre">no</span></code> and similar as <code class="docutils literal notranslate"><span class="pre">False</span></code>.  If <a class="reference internal" href="#flag:use_env_value"><span class="std std-ref">use_env_value</span></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, then
+this function should return either the default or constant value instead.</p>
 </dd>
 <dt class="field-even" id="flag:strict_env">strict_env<span class="colon">:</span></dt>
 <dd class="field-even"><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code> (the default), if an <a class="reference internal" href="#options:env_var"><span class="std std-ref">env_var</span></a> is used as the source of
 a value for this parameter and that value is invalid, then parsing will fail.  When <code class="docutils literal notranslate"><span class="pre">False</span></code>, invalid values from
 environment variables will be ignored (and a warning message will be logged).</p>
 </dd>
-<dt class="field-odd" id="flag:nargs">nargs<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Not supported.</p>
+<dt class="field-odd" id="flag:use_env_value">use_env_value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, when an <a class="reference internal" href="#options:env_var"><span class="std std-ref">env_var</span></a> is used as the source of a value for this Flag,
+the parsed value will be stored as this Flag’s value (it must match either the default or constant value).  If
+<code class="docutils literal notranslate"><span class="pre">False</span></code> (the default), then the parsed value will be used to determine whether this Flag’s normal action should be
+taken as if it was specified via a CLI argument.</p>
+</dd>
+<dt class="field-even" id="flag:nargs">nargs<span class="colon">:</span></dt>
+<dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py">Example command</a>:</p>
@@ -386,12 +393,19 @@ should be called on environment variable values, if any are configured for this 
 <a class="reference internal" href="#options:env_var"><span class="std std-ref">env_var</span></a>.  It should return a truthy value if the primary constant should be
 stored, or a falsey value if the alternate constant should be stored.  The <a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool" title="cli_command_parser.utils.str_to_bool"><code class="xref py py-func docutils literal notranslate"><span class="pre">default</span> <span class="pre">function</span></code></a>
 handles parsing <code class="docutils literal notranslate"><span class="pre">1</span></code> / <code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">yes</span></code> and similar as <code class="docutils literal notranslate"><span class="pre">True</span></code>, and <code class="docutils literal notranslate"><span class="pre">0</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code> / <code class="docutils literal notranslate"><span class="pre">no</span></code> and similar
-as <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+as <code class="docutils literal notranslate"><span class="pre">False</span></code>.  If <a class="reference internal" href="#triflag:use_env_value"><span class="std std-ref">use_env_value</span></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, then this function should return the primary
+or alternate constant or the default value instead.</p>
 </dd>
 <dt class="field-even" id="triflag:strict_env">strict_env<span class="colon">:</span></dt>
 <dd class="field-even"><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code> (the default), if an <a class="reference internal" href="#options:env_var"><span class="std std-ref">env_var</span></a> is used as the source of
 a value for this parameter and that value is invalid, then parsing will fail.  When <code class="docutils literal notranslate"><span class="pre">False</span></code>, invalid values from
 environment variables will be ignored (and a warning message will be logged).</p>
+</dd>
+<dt class="field-odd" id="triflag:use_env_value">use_env_value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, when an <a class="reference internal" href="#options:env_var"><span class="std std-ref">env_var</span></a> is used as the source of a value for this
+TriFlag, the parsed value will be stored as this TriFlag’s value (it must match the primary or alternate constant,
+or the default value).  If <code class="docutils literal notranslate"><span class="pre">False</span></code> (the default), then the parsed value will be used to determine whether this
+TriFlag’s normal action should be taken as if it was specified via a CLI argument.</p>
 </dd>
 </dl>
 <p>Example:</p>

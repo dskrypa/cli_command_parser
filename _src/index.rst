@@ -3,7 +3,7 @@ CLI Command Parser
 
 |downloads| |py_version| |coverage_badge| |build_status| |Blue|
 
-.. |py_version| image:: https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20-blue
+.. |py_version| image:: https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20-blue
     :target: https://pypi.org/project/cli-command-parser/
 
 .. |coverage_badge| image:: https://codecov.io/gh/dskrypa/cli_command_parser/branch/main/graph/badge.svg
@@ -85,13 +85,13 @@ with optional dependencies::
 Python Version Compatibility
 ============================
 
-Python versions 3.7 and above are currently supported.  CLI Command Parser will no longer support 3.7 after 2023-04-30,
-ahead of the `official end of support for 3.7 on 2023-06-27 <https://devguide.python.org/versions/>`__.
+Python versions 3.8 and above are currently supported.  The last release of CLI Command Parser that supported 3.7 was
+2023-04-30.  Support for Python 3.7 `officially ends on 2023-06-27 <https://devguide.python.org/versions/>`__.
 
-When using 3.7 or 3.8, some additional packages that backport functionality that was added in later Python versions
+When using Python 3.8, some additional packages that backport functionality that was added in later Python versions
 are required for compatibility.
 
-To use the argparse to cli-command-parser conversion script with Python 3.7 or 3.8, there is a dependency on
+To use the argparse to cli-command-parser conversion script with Python 3.8, there is a dependency on
 `astunparse <https://astunparse.readthedocs.io>`__.  If you are using Python 3.9 or above, then ``astunparse`` is not
 necessary because the relevant code was added to the stdlib ``ast`` module.  If you're unsure, you can install
 cli-command-parser with the following command to automatically handle whether that extra dependency is needed or not::
@@ -175,7 +175,7 @@ Indices and Tables
 
 .. toctree::
    :caption: User Guide
-   :maxdepth: 3
+   :maxdepth: 4
    :hidden:
 
    intro

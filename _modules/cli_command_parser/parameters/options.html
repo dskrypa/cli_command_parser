@@ -189,17 +189,27 @@
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="nb">type</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
     <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">use_env_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">_use_opt_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">use_opt_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0222</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_use_opt_str</span> <span class="o">=</span> <span class="n">use_opt_str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_env_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="s1">&#39;metavar&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.__init__() got an unexpected keyword argument: &#39;metavar&#39;&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strict_env</span> <span class="o">=</span> <span class="n">strict_env</span>
+        <span class="k">if</span> <span class="n">use_env_value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span> <span class="o">=</span> <span class="n">use_env_value</span>
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
 
@@ -266,10 +276,15 @@
 <span class="sd">      :paramref:`.BaseOption.env_var`.  It should return a truthy value if any action should be taken (i.e., if the</span>
 <span class="sd">      constant should be stored/appended), or a falsey value for no action to be taken.  The</span>
 <span class="sd">      :func:`default function&lt;.str_to_bool&gt;` handles parsing ``1`` / ``true`` / ``yes`` and similar as ``True``,</span>
-<span class="sd">      and ``0`` / ``false`` / ``no`` and similar as ``False``.</span>
+<span class="sd">      and ``0`` / ``false`` / ``no`` and similar as ``False``.  If :paramref:`use_env_value` is ``True``, then this</span>
+<span class="sd">      function should return either the default or constant value instead.</span>
 <span class="sd">    :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a</span>
 <span class="sd">      value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from</span>
 <span class="sd">      environment variables will be ignored (and a warning message will be logged).</span>
+<span class="sd">    :param use_env_value: If ``True``, when an :paramref:`.BaseOption.env_var` is used as the source of a value for</span>
+<span class="sd">      this Flag, the parsed value will be stored as this Flag&#39;s value (it must match either the default or constant</span>
+<span class="sd">      value).  If ``False`` (the default), then the parsed value will be used to determine whether this Flag&#39;s normal</span>
+<span class="sd">      action should be taken as if it was specified via a CLI argument.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -294,7 +309,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="o">=</span> <span class="n">const</span>
 
 <div class="viewcode-block" id="Flag.take_env_var_action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.take_env_var_action">[docs]</a>    <span class="k">def</span> <span class="nf">take_env_var_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_env_var_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">env_var</span><span class="p">):</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_env_var_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">env_var</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parsed</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span><span class="p">:</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">)()</span>
+            <span class="k">elif</span> <span class="n">parsed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid value=</span><span class="si">{</span><span class="n">parsed</span><span class="si">!r}</span><span class="s1"> from env_var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">parsed</span><span class="p">:</span>
             <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">)()</span></div>
 
 <div class="viewcode-block" id="Flag.store_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.store_const">[docs]</a>    <span class="nd">@parameter_action</span>
@@ -329,10 +350,15 @@
 <span class="sd">      :paramref:`.BaseOption.env_var`.  It should return a truthy value if the primary constant should be stored, or a</span>
 <span class="sd">      falsey value if the alternate constant should be stored.  The :func:`default function&lt;.str_to_bool&gt;` handles</span>
 <span class="sd">      parsing ``1`` / ``true`` / ``yes`` and similar as ``True``, and ``0`` / ``false`` / ``no`` and similar</span>
-<span class="sd">      as ``False``.</span>
+<span class="sd">      as ``False``.  If :paramref:`use_env_value` is ``True``, then this function should return the primary or</span>
+<span class="sd">      alternate constant or the default value instead.</span>
 <span class="sd">    :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a</span>
 <span class="sd">      value for this parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from</span>
 <span class="sd">      environment variables will be ignored (and a warning message will be logged).</span>
+<span class="sd">    :param use_env_value: If ``True``, when an :paramref:`.BaseOption.env_var` is used as the source of a value for</span>
+<span class="sd">      this TriFlag, the parsed value will be stored as this TriFlag&#39;s value (it must match the primary or alternate</span>
+<span class="sd">      constant, or the default value).  If ``False`` (the default), then the parsed value will be used to determine</span>
+<span class="sd">      whether this TriFlag&#39;s normal action should be taken as if it was specified via a CLI argument.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -410,7 +436,13 @@
 
 <div class="viewcode-block" id="TriFlag.take_env_var_action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.take_env_var_action">[docs]</a>    <span class="k">def</span> <span class="nf">take_env_var_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_env_var_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">env_var</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_store_const</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">parsed</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parsed</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_store_const</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">parsed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid value=</span><span class="si">{</span><span class="n">parsed</span><span class="si">!r}</span><span class="s1"> from env_var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_store_const</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">parsed</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div></div>
 
 
 <span class="c1"># region Action Flag</span>
