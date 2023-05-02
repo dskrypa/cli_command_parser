@@ -5,10 +5,10 @@ import logging
 from abc import ABC, abstractmethod
 from ast import literal_eval, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp, Constant, Str
 from dataclasses import dataclass, fields
+from functools import cached_property
 from itertools import count
 from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, TypeVar, Generic, List, Tuple
 
-from cli_command_parser.compat import cached_property
 from cli_command_parser.nargs import Nargs
 from .argparse_ast import AC, ParserArg, ArgGroup, MutuallyExclusiveGroup, AstArgumentParser, Script
 from .utils import collection_contents, unparse
@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 C = TypeVar('C', bound='Converter')
 
 RESERVED = set(keyword.kwlist) | set(getattr(keyword, 'softkwlist', ('_', 'case', 'match')))  # soft was added in 3.9
+# TODO: Handle argparse.SUPPRESS ('==SUPPRESS==')
 
 
 def convert_script(script: Script, add_methods: bool = False) -> str:
@@ -301,6 +302,7 @@ class GroupConverter(CollectionConverter[ArgGroup], converts=ArgGroup, newline_b
     def _get_args(self) -> str:
         # log.debug(f'Processing args for {self.ast_obj._init_func_bound}')
         description = self.ast_obj.init_func_kwargs.get('description')
+        # TODO: Missing required=True
         title = self.ast_obj.init_func_kwargs.get('title')
         if title:
             title_str = literal_eval(title)

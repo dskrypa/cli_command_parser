@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import logging
+from functools import cached_property
 from pathlib import Path
 
 from cli_command_parser import Command, Counter, Positional, Flag, ParamGroup, SubCommand, main
-from cli_command_parser.compat import cached_property
 from cli_command_parser.inputs import Path as IPath
 
 log = logging.getLogger(__name__)

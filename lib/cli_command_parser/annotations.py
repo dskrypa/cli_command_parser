@@ -8,12 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Collection, Iterable
 from inspect import isclass
-from typing import Union, Optional, get_type_hints
-
-try:
-    from typing import get_origin, get_args as _get_args  # pylint: disable=C0412
-except ImportError:  # Added in 3.8; the versions from 3.8 are copied here
-    from .compat import get_origin, _get_args
+from typing import Union, Optional, get_type_hints, get_origin, get_args as _get_args  # pylint: disable=C0412
 
 try:
     from types import NoneType

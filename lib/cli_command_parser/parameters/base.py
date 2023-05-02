@@ -10,15 +10,10 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from contextvars import ContextVar
-from functools import partial, update_wrapper
+from functools import partial, update_wrapper, cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, overload
 from typing import List, Tuple, FrozenSet
-
-try:
-    from functools import cached_property  # pylint: disable=C0412
-except ImportError:
-    from ..compat import cached_property
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash

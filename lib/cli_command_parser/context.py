@@ -12,14 +12,10 @@ from collections import defaultdict
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
 from enum import Enum
+from functools import cached_property
 from inspect import Signature, Parameter as _Parameter
 from typing import TYPE_CHECKING, Any, Callable, Union, Sequence, Optional, Iterator, Collection, cast
 from typing import Dict, Tuple, List
-
-try:
-    from functools import cached_property
-except ImportError:
-    from .compat import cached_property
 
 from .config import CommandConfig, DEFAULT_CONFIG
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler

@@ -5,13 +5,12 @@ import logging
 import sys
 from argparse import ArgumentParser
 from ast import AST, Assign, Call, withitem
-from functools import partial
+from functools import partial, cached_property
 from inspect import Signature, BoundArguments
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, Optional, Callable, Collection, TypeVar, Generic, Type, Iterator
 from typing import List, Tuple, Dict, Set
 
-from cli_command_parser.compat import cached_property
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
 from .utils import get_name_repr, iter_module_parents, unparse
 

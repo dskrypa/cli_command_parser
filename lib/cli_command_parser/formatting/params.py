@@ -7,12 +7,8 @@ Parameter usage / help text formatters
 
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Tuple, Dict
-
-try:
-    from functools import cached_property
-except ImportError:
-    from ..compat import cached_property
 
 from ..config import SubcommandAliasHelpMode
 from ..context import ctx
