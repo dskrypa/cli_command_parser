@@ -80,11 +80,11 @@ class Option(BasicActionMixin, BaseOption[T_co]):
             if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
                 suffix = f', {nargs.step}' if nargs.step != 1 else ''
                 details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
-            raise ParameterDefinitionError(f'Invalid nargs={nargs!r} - {details}')
+            raise ParameterDefinitionError(f'Invalid {nargs=} - {details}')
         if action is _NotSet:
             action = 'store' if self.nargs == 1 else 'append'
         elif action == 'store' and self.nargs != 1:
-            raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for action={action!r}')
+            raise ParameterDefinitionError(f'Invalid nargs={self.nargs} for {action=}')
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
         self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
@@ -142,13 +142,13 @@ class _Flag(BaseOption[T_co], ABC):
                     return
                 raise
 
-        raise ParamUsageError(self, f'received value={value!r} but no values are accepted for action={self.action!r}')
+        raise ParamUsageError(self, f'received {value=} but no values are accepted for action={self.action!r}')
 
     def prepare_env_var_value(self, value: str, env_var: str) -> T_co:
         try:
             return self.type(value)
         except Exception as e:
-            raise ParamUsageError(self, f'unable to parse value={value!r} from env_var={env_var!r}: {e}') from e
+            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
 
     @abstractmethod
     def take_env_var_action(self, value: str, env_var: str):
@@ -205,7 +205,7 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
                 const = self.__default_const_map[default]
             except KeyError as e:
                 cls = self.__class__.__name__
-                raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with default={default!r}") from e
+                raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with {default=}") from e
         if default is _NotSet:
             default = self.__default_const_map.get(const)  # will be True, False, or None
         if default is False:  # Avoid surprises for custom non-truthy values
@@ -219,7 +219,7 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
             if parsed == self.const:
                 getattr(self, self.action)()
             elif parsed != self.default:
-                raise BadArgument(self, f'invalid value={parsed!r} from env_var={env_var!r}')
+                raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
         elif parsed:
             getattr(self, self.action)()
 
@@ -295,14 +295,14 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         try:
             _pos, _neg = consts
         except (ValueError, TypeError) as e:
-            msg = f'Invalid consts={consts!r} - expected a 2-tuple of (positive, negative) constants to store'
+            msg = f'Invalid {consts=} - expected a 2-tuple of (positive, negative) constants to store'
             raise ParameterDefinitionError(msg) from e
 
         if default is _NotSet and not kwargs.get('required', False):
             default = None
         if default in consts:
             raise ParameterDefinitionError(
-                f'Invalid default={default!r} with consts={consts!r} - the default must not match either value'
+                f'Invalid {default=} with {consts=} - the default must not match either value'
             )
 
         alt_opt_strs = filter(None, (alt_short, alt_long))
@@ -345,7 +345,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
             if parsed in self.consts:
                 self._store_const(parsed)
             elif parsed != self.default:
-                raise BadArgument(self, f'invalid value={parsed!r} from env_var={env_var!r}')
+                raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
         else:
             self._store_const(self.consts[0] if parsed else self.consts[1])
 
@@ -382,8 +382,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
     ):
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
         found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
-        bad = {k: v for k, v in found.items() if expected[k] != v}
-        if bad:
+        if bad := {k: v for k, v in found.items() if expected[k] != v}:
             raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
         elif always_available and not before_main:
             raise ParameterDefinitionError('always_available=True cannot be combined with before_main=False')
@@ -445,8 +444,8 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
 
     def result(self) -> Optional[Callable]:
         if self.result_value():
-            if self.func:
-                return self.func
+            if func := self.func:
+                return func
             raise ParameterDefinitionError(f'No function was registered for {self}')
         return None
 
@@ -490,8 +489,7 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
 
     def __init__(self, *option_strs: str, action: str = 'append', default: int = 0, const: int = 1, **kwargs):
         vals = {'const': const, 'default': default}
-        bad_types = ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type))
-        if bad_types:
+        if bad_types := ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type)):
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
@@ -508,7 +506,7 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
             combinable = self.option_strs.combinable
             if short_combo and combinable and all(c in combinable for c in value):
                 return len(value) + 1  # +1 for the -short that preceded this value
-            raise BadArgument(self, f'bad counter value={value!r}') from e
+            raise BadArgument(self, f'bad counter {value=}') from e
 
     @parameter_action
     def append(self, value: Optional[int]):
@@ -523,7 +521,7 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
         try:
             value = self.type(value)
         except (ValueError, TypeError) as e:
-            raise BadArgument(self, f'invalid value={value!r} (expected an integer)') from e
+            raise BadArgument(self, f'invalid {value=} (expected an integer)') from e
         else:
             return
 

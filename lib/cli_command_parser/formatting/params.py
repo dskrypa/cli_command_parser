@@ -70,8 +70,7 @@ class ParamHelpFormatter:
         param = self.param
         if param.metavar:
             return param.metavar
-        t = param.type
-        if t is not None:
+        if (t := param.type) is not None:
             try:
                 config = ctx.config
                 metavar = t.format_metavar(config.choice_delim, config.sort_choices)
@@ -184,8 +183,7 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
     def format_description(self, rst: Bool = False, alt: bool = False) -> str:
         if not alt:
             return super().format_description(rst=rst)
-        alt_help = self.param.alt_help
-        if alt_help:
+        if alt_help := self.param.alt_help:
             return super().format_description(rst=rst, description=alt_help)
         return ''
 
@@ -297,8 +295,7 @@ class ChoiceGroup:
 
     def add(self, choice: Choice):
         self.choices.append(choice)
-        choice_str = choice.choice
-        if choice_str:
+        if choice_str := choice.choice:
             self.choice_strs.append(choice_str)
 
     def format(self, default_mode: SubcommandAliasHelpMode, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
@@ -321,11 +318,10 @@ class ChoiceGroup:
           the help text / description for that choice / alias.
         """
         first = self.choices[0]
-        config = get_config(first.target)
         # If it's not a Command, get_config will return None.  If it is a Command, then it will use its config.  If the
         # alias mode is not set on that target Command, but it is set on its parent, then this will use that parent's
         # setting.
-        if config:
+        if config := get_config(first.target):
             mode = config.cmd_alias_mode or default_mode
         else:
             mode = default_mode

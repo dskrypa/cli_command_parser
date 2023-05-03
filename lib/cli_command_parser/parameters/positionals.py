@@ -68,11 +68,11 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         if action is _NotSet:
             action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
         elif action == 'store' and self.nargs.max != 1:
-            raise ParameterDefinitionError(f'Invalid action={action!r} for nargs={self.nargs}')
+            raise ParameterDefinitionError(f'Invalid {action=} for nargs={self.nargs}')
         required = 0 not in self.nargs
         if default is not _NotSet and required:
             raise ParameterDefinitionError(
-                f'Invalid default={default!r} - only allowed for Positional parameters when nargs=? or nargs=*'
+                f'Invalid {default=} - only allowed for Positional parameters when nargs=? or nargs=*'
             )
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)

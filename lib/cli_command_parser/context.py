@@ -156,8 +156,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             else:
                 parsed = {}
 
-            params = self.params
-            if params:
+            if params := self.params:
                 for group in (params.all_positionals, params.options, (params.pass_thru,)):
                     for param in group:
                         if param and param not in exclude:
@@ -181,8 +180,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
         """Returns the :class:`.ErrorHandler` configured to be used."""
-        error_handler = self.config.error_handler
-        if error_handler is _NotSet:
+        if (error_handler := self.config.error_handler) is _NotSet:
             return extended_error_handler
         elif error_handler is None:
             return NullErrorHandler()
@@ -286,7 +284,7 @@ def _normalize_config(
 ) -> CommandConfig:
     if config is not None:
         if kwargs:
-            raise TypeError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+            raise TypeError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
         elif isinstance(config, CommandConfig):
             return config
         kwargs = config

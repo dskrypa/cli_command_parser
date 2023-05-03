@@ -31,8 +31,7 @@ class OptionStrings:
         self._display_long = self._long = {opt for opt in option_strs if opt.startswith('--')}
         self._short = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
         self.combinable = {opt[1:] for opt in short_opts if len(opt) == 2}
-        bad_opts = ', '.join(opt for opt in short_opts if '-' in opt[1:])
-        if bad_opts:
+        if bad_opts := ', '.join(opt for opt in short_opts if '-' in opt[1:]):
             raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
 
     def __repr__(self) -> str:
@@ -134,8 +133,7 @@ class TriFlagOptionStrings(OptionStrings):
     @property
     def alt_allowed(self) -> Set[str]:
         allowed = set(self._alt_long)
-        short = self._alt_short
-        if short:
+        if short := self._alt_short:
             allowed.add(short)
             allowed.add(short[1:])
         return allowed

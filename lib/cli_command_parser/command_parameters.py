@@ -66,7 +66,7 @@ class CommandParameters:
         positionals = len(self.positionals)
         options = len(self.options)
         cls_name = self.__class__.__name__
-        return f'<{cls_name}[command={self.command.__name__}, positionals={positionals!r}, options={options!r}]>'
+        return f'<{cls_name}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
     @property
     def pass_thru(self) -> Optional[PassThru]:
@@ -155,13 +155,11 @@ class CommandParameters:
                 groups.add(param)
             elif isinstance(param, PassThru):
                 if self.pass_thru:
-                    raise CommandDefinitionError(
-                        f'Invalid PassThru param={param!r} - it cannot follow another PassThru param'
-                    )
+                    raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
                 self._pass_thru = param
             else:
                 raise CommandDefinitionError(
-                    f'Unexpected type={param.__class__} for param={param!r} - custom parameters must extend'
+                    f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
                     ' BasePositional, BaseOption, or ParamGroup'
                 )
 
@@ -195,7 +193,7 @@ class CommandParameters:
                 else:
                     why = 'because it accepts a variable number of arguments with no specific choices defined'
                 raise CommandDefinitionError(
-                    f'Additional Positional parameters cannot follow {unfollowable} {why} - param={param!r} is invalid'
+                    f'Additional Positional parameters cannot follow {unfollowable} {why} - {param=} is invalid'
                 )
             elif isinstance(param, (SubCommand, Action)):
                 if action_or_sub_cmd:
@@ -238,7 +236,7 @@ class CommandParameters:
             options.append(param)
             opts = param.option_strs
             if not opts.has_min_opts():
-                raise ParameterDefinitionError(f'No option strings were registered for param={param!r}')
+                raise ParameterDefinitionError(f'No option strings were registered for {param=}')
             self._process_option_strs(param, 'long', opts.long, option_map, combo_option_map)
             self._process_option_strs(param, 'short', opts.short, option_map, combo_option_map)
 
@@ -270,7 +268,7 @@ class CommandParameters:
         grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
         for param in action_flags:
             if param.func is None:
-                raise ParameterDefinitionError(f'No function was registered for param={param!r}')
+                raise ParameterDefinitionError(f'No function was registered for {param=}')
             grouped_ordered_flags[param.before_main][param.order].append(param)  # noqa  # PyCharm infers the wrong type
 
         found_non_always = False
@@ -451,7 +449,7 @@ class CommandParameters:
                 if param.accepts_values:
                     return param
         else:
-            raise ValueError(f'Invalid option={option!r}')
+            raise ValueError(f'Invalid {option=}')
         return None
 
     def find_nested_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:

@@ -303,8 +303,7 @@ class GroupConverter(CollectionConverter[ArgGroup], converts=ArgGroup, newline_b
         # log.debug(f'Processing args for {self.ast_obj._init_func_bound}')
         description = self.ast_obj.init_func_kwargs.get('description')
         # TODO: Missing required=True
-        title = self.ast_obj.init_func_kwargs.get('title')
-        if title:
+        if title := self.ast_obj.init_func_kwargs.get('title'):
             title_str = literal_eval(title)
             if title_str.lower().endswith(' options'):
                 if description:
@@ -314,7 +313,7 @@ class GroupConverter(CollectionConverter[ArgGroup], converts=ArgGroup, newline_b
 
         args = [title] if title else []
         if description:
-            args.append(f'description={description}')
+            args.append(f'{description=!s}')
         if isinstance(self.ast_obj, MutuallyExclusiveGroup):
             args.append('mutually_exclusive=True')
         return ', '.join(args)
@@ -373,7 +372,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
 
     def _attr_name_candidates(self) -> Iterator[str]:
         dest = self.ast_obj.init_func_raw_kwargs.get('dest')
-        if dest is not None and isinstance(dest, (Constant, Str)):  # Str is for 3.7 compatibility
+        if dest is not None and isinstance(dest, Constant):
             yield getattr(dest, dest._fields[0])  # .value for Constant, .s for Str
 
         long, short, plain = self._grouped_opt_strs
@@ -411,20 +410,18 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
 
     def get_cls_and_kwargs(self) -> Tuple[str, BaseArgs]:
         kwargs = self.ast_obj.init_func_kwargs.copy()
-        help_arg = kwargs.get('help')
-        if help_arg and help_arg in self.ast_obj.get_tracked_refs('argparse', 'SUPPRESS', ()):
+        if (help_arg := kwargs.get('help')) and help_arg in self.ast_obj.get_tracked_refs('argparse', 'SUPPRESS', ()):
             kwargs.update({'hide': 'True', 'help': None})
 
         if self.is_pass_thru:
             return 'PassThru', PassThruArgs.from_kwargs(**kwargs)
 
-        action = kwargs.pop('action', None)
-        if action:
+        if action := kwargs.pop('action', None):
             action = literal_eval(action)
 
         if self.is_positional:
             if action and action not in ('store', 'append'):
-                raise ConversionError(f'{self.ast_obj}: action={action!r} is not supported for Positional parameters')
+                raise ConversionError(f'{self.ast_obj}: {action=} is not supported for Positional parameters')
             return 'Positional', ParamArgs.init_positional(action, **kwargs)
         elif self.is_option:
             kwargs['name_mode'] = self.name_mode
@@ -436,7 +433,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
                 elif action == 'count':
                     return 'Counter', FlagArgs.init_counter(**kwargs)
                 elif action not in ('store', 'append'):
-                    raise ConversionError(f'{self.ast_obj}: action={action!r} is not supported for Option parameters')
+                    raise ConversionError(f'{self.ast_obj}: {action=} is not supported for Option parameters')
 
             return 'Option', OptionArgs.init_option(self.ast_obj, action, **kwargs)
 
@@ -499,9 +496,8 @@ class ParamConverterGroup(ConverterGroup[ParamConverter]):
         for positional in positionals:
             yield from positional.format_lines(indent)
 
-        sub_parsers = getattr(self.parent.ast_obj, 'sub_parsers', None)
-        if sub_parsers:
-            log.debug(f'Found sub_parsers={sub_parsers}')
+        if sub_parsers := getattr(self.parent.ast_obj, 'sub_parsers', None):
+            log.debug(f'Found {sub_parsers=}')
             try:
                 name = literal_eval(sub_parsers[0].init_func_kwargs['dest']).replace('-', '_')
             except (KeyError, ValueError):
@@ -619,13 +615,13 @@ class OptionArgs(ParamArgs):
     @classmethod
     def init_option(cls, arg: ParserArg, action: OptStr = None, nargs: OptStr = None, const: OptStr = None, **kwargs):
         if const:
-            log.warning(f'{arg}: ignoring const={const!r} - it is only supported for Flag and Counter parameters')
+            log.warning(f'{arg}: ignoring {const=} - it is only supported for Flag and Counter parameters')
 
         if nargs == "'*'":
             nargs = "'+'"
         if action == 'append':
             if not nargs:
-                log.debug(f"{arg}: using default nargs='+' because action={action!r} and no nargs value was provided")
+                log.debug(f"{arg}: using default nargs='+' because {action=} and no nargs value was provided")
                 nargs = "'+'"
             action = None
         elif action == 'store':

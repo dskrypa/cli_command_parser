@@ -83,7 +83,7 @@ class Range(NumericInput[NT]):
         rng_min, rng_max = min(self.range), max(self.range)
         step = abs(self.range.step)
         base = f'{rng_min} <= {var} <= {rng_max}'
-        return base if step == 1 else f'{base}, step={step}'
+        return base if step == 1 else f'{base}, {step=}'
 
     def __call__(self, value: str) -> NT:
         value = self.type(value)

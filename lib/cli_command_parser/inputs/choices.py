@@ -21,6 +21,8 @@ __all__ = ['Choices', 'ChoiceMap', 'EnumChoices']
 
 EnumT = TypeVar('EnumT', bound=Enum)
 
+# TODO: Add support for input validation based on regex or fnmatch pattern
+
 
 class _ChoicesBase(InputType[T], ABC):
     choices: Collection[T]

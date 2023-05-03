@@ -68,18 +68,15 @@ class ScriptVisitor(NodeVisitor):
 
     def visit_Import(self, node: Import):
         for module_name, as_name in imp_names(node):
-            name_tracked_map = self._mod_name_tracked_map.get(module_name)
-            if name_tracked_map:
+            if name_tracked_map := self._mod_name_tracked_map.get(module_name):
                 log.debug(f'Found module import: {module_name} as {as_name}')
                 for name, tracked in name_tracked_map.items():
                     self.scopes[f'{as_name}.{name}'] = tracked
 
     def visit_ImportFrom(self, node: ImportFrom):
-        name_tracked_map = self._mod_name_tracked_map.get(node.module)
-        if name_tracked_map:
+        if name_tracked_map := self._mod_name_tracked_map.get(node.module):
             for name, as_name in imp_names(node):
-                tracked = name_tracked_map.get(name)
-                if tracked:
+                if tracked := name_tracked_map.get(name):
                     log.debug(f'Found tracked import: {node.module}.{name} as {as_name}')
                     self.scopes[as_name] = tracked
 
@@ -105,7 +102,7 @@ class ScriptVisitor(NodeVisitor):
     visit_AsyncFor = visit_For
 
     def _visit_for_smart(self, node: For, loop_var: str, ele_names: List[str]):
-        log.debug(f'Attempting smart for loop visit for loop_var={loop_var!r} in ele_names={ele_names!r}')
+        log.debug(f'Attempting smart for loop visit for {loop_var=} in {ele_names=}')
         refs = [ref for ref in (self.scopes.get(name) for name in ele_names) if ref]
         # log.debug(f'  > Found {len(refs)=}, {len(ele_names)=}')
 
@@ -125,8 +122,7 @@ class ScriptVisitor(NodeVisitor):
     def _visit_for_elements(self, node: For, loop_var: str, ele_names: List[str]):
         visited_any = False
         for name in ele_names:
-            ref = self.scopes.get(name)
-            if ref:
+            if ref := self.scopes.get(name):
                 visited_any = True
                 self.scopes[loop_var] = ref
                 self.generic_visit(node)
@@ -161,30 +157,25 @@ class ScriptVisitor(NodeVisitor):
 
     def visit_withitem(self, item):
         context_expr = item.context_expr
-        func = self.resolve_ref(context_expr)
-        if func:
+        if func := self.resolve_ref(context_expr):
             call = context_expr if isinstance(context_expr, Call) else None
             result = func(item, call, self.get_tracked_refs())
-            as_name = item.optional_vars
-            if as_name:
+            if as_name := item.optional_vars:
                 self.scopes[get_name_repr(as_name)] = result
 
     def visit_Assign(self, node: Assign):
         value = node.value
         if isinstance(value, (Attribute, Name)):  # Assigning an alias to a variable
-            ref = self.resolve_ref(value)
-            if ref:
+            if ref := self.resolve_ref(value):
                 for target in node.targets:
                     self.scopes[get_name_repr(target)] = ref
         elif isinstance(value, Call):
-            result = self.visit_Call(value)
-            if result is not _NoCall:
+            if (result := self.visit_Call(value)) is not _NoCall:
                 for target in node.targets:
                     self.scopes[get_name_repr(target)] = result  # noq
 
     def visit_Call(self, node: Call):
-        func = self.resolve_ref(node.func)
-        if func:
+        if func := self.resolve_ref(node.func):
             return func(node, node, self.get_tracked_refs())
         return _NoCall
 

@@ -36,7 +36,7 @@ class ParserConverter(Command, description=f'Tool to convert an {arg_parser} int
         from cli_command_parser.conversion import Script
 
         script = Script(self.input.read_text(), self.smart_for, path=self.input)
-        log.debug(f'Found script={script!r}')
+        log.debug(f'Found {script=}')
         return script
 
 

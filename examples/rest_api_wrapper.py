@@ -43,7 +43,7 @@ class Sync(ApiWrapper, help='Sync group members'):
         groups = [self.group] if self.group else ['foo', 'bar', 'baz']
         for group in groups:
             for role in roles:
-                log.info(f'{prefix} group={group} members with role={role}')
+                log.info(f'{prefix} {group=} members with {role=}')
 
 
 # region Find subcommands

@@ -79,8 +79,7 @@ class CommandMeta(ABCMeta, type):
         namespace['_CommandMeta__metadata'] = None  # Prevent commands from inheriting parent metadata directly
         namespace['_CommandMeta__parents'] = None  # Prevent commands from inheriting parents directly
 
-        config = mcs._prepare_config(bases, config, kwargs)
-        if config:
+        if config := mcs._prepare_config(bases, config, kwargs):
             namespace['_CommandMeta__config'] = config
 
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
@@ -98,19 +97,14 @@ class CommandMeta(ABCMeta, type):
         if ABC in bases:
             return
         has_both = choices or choice is not None
-        parent = mcs.parent(cls, False)
-        if parent:
-            sub_cmd = mcs.params(parent).sub_command
-            if sub_cmd:
+        if parent := mcs.parent(cls, False):
+            if sub_cmd := mcs.params(parent).sub_command:
                 for choice, choice_help in _choice_items(choice, choices):
                     sub_cmd.register_command(choice, cls, choice_help or help)
             elif has_both:
-                warn(
-                    f'choices={choices} were not registered for {cls} because'
-                    f' its parent={parent!r} has no SubCommand parameter'
-                )
+                warn(f'{choices=} were not registered for {cls} because its {parent=} has no SubCommand parameter')
         elif has_both:
-            warn(f'choices={choices} were not registered for {cls} because it has no parent Command')
+            warn(f'{choices=} were not registered for {cls} because it has no parent Command')
 
     @classmethod
     def _from_parent(mcs, meth: Callable[[CommandCls], T], bases: Bases) -> Optional[T]:
@@ -125,7 +119,7 @@ class CommandMeta(ABCMeta, type):
     def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]) -> Config:
         if config is not None:
             if kwargs:
-                raise CommandDefinitionError(f'Cannot combine config={config!r} with keyword config arguments={kwargs}')
+                raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
             elif isinstance(config, CommandConfig):
                 return config
             kwargs = config  # It was a dict
@@ -191,8 +185,7 @@ class CommandMeta(ABCMeta, type):
 
     @classmethod
     def meta(mcs, cls: CommandCls, no_sys_argv: Bool = False) -> ProgramMetadata:
-        meta = cls.__metadata
-        if not meta:
+        if not (meta := cls.__metadata):
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
             cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta, no_sys_argv=no_sys_argv)
         return meta
