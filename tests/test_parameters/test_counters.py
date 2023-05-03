@@ -29,7 +29,7 @@ class CounterTest(ParserTest):
 
         for n in range(1, 11):
             with self.subTest(n=n):
-                self.assertEqual(Foo.parse(['-{}'.format('v' * n)]).verbose, n)
+                self.assertEqual(Foo.parse([f'-{"v" * n}']).verbose, n)
                 self.assertEqual(Foo.parse(['--verbose'] * n).verbose, n)
 
     def test_counter_num_no_space(self):

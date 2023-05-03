@@ -41,17 +41,17 @@ class Nargs:
         self.range = None
         if isinstance(nargs, int):
             if nargs < 0:
-                raise ValueError(f'Invalid nargs={nargs!r} integer - must be >= 0')
+                raise ValueError(f'Invalid {nargs=} integer - must be >= 0')
             self.min = self.max = nargs
             self.allowed = (nargs,)
         elif isinstance(nargs, str):
             try:
                 self.min, self.max = self.allowed = NARGS_STR_RANGES[nargs]
             except KeyError as e:
-                raise ValueError(f'Invalid nargs={nargs!r} string - expected one of ?, *, or +') from e
+                raise ValueError(f'Invalid {nargs=} string - expected one of ?, *, or +') from e
         elif isinstance(nargs, range):
             if not 0 <= nargs.start < nargs.stop or nargs.step < 0:
-                raise ValueError(f'Invalid nargs={nargs!r} range - expected positive step and 0 <= start < stop')
+                raise ValueError(f'Invalid {nargs=} range - expected positive step and 0 <= start < stop')
             self.range = nargs
             self.allowed = nargs
             self.min = nargs.start
@@ -81,7 +81,7 @@ class Nargs:
         elif nargs is REMAINDER:
             self.min, self.max = self.allowed = (0, REMAINDER)
         else:
-            raise TypeError(f'Unexpected type={nargs.__class__.__name__} for nargs={nargs!r}')
+            raise TypeError(f'Unexpected type={nargs.__class__.__name__} for {nargs=}')
 
         self.variable = self.min != self.max
         self._has_upper_bound = self.max not in _UNBOUND
@@ -98,7 +98,7 @@ class Nargs:
         elif self.min == self.max:
             return str(self.min)
         elif isinstance(self.allowed, frozenset):
-            return '{{{}}}'.format(','.join(map(str, sorted(self.allowed))))  # pylint: disable=C0209
+            return f'{{{",".join(map(str, sorted(self.allowed)))}}}'
         else:
             return f'{self.min} ~ {self.max}'
 

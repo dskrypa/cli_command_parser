@@ -90,8 +90,7 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     if top_only:
         commands = top_level_commands(commands)
 
-    doc_str = module.__doc__
-    if doc_str:
+    if doc_str := module.__doc__:
         for command in commands.values():
             get_metadata(command).pkg_doc_str = doc_str
 
@@ -105,8 +104,7 @@ def top_level_commands(commands: Commands) -> Commands:
 
     indirect_parents = defaultdict(set)
     for name, command in commands.items():
-        sub_command = get_params(command).sub_command
-        if sub_command:
+        if sub_command := get_params(command).sub_command:
             for choice in sub_command.choices.values():
                 indirect_parents[choice.target].add(command)
 
@@ -286,7 +284,7 @@ class RstWriter:
             return contents
 
         if not header:
-            header = '{} Package'.format(pkg_name.split('.')[-1].title())
+            header = f'{pkg_name.split(".")[-1].title()} Package'
 
         self.write_index(name or pkg_name, header, contents, index_subdir, caption=caption, subdir=subdir)
         return contents

@@ -72,7 +72,7 @@ class _ChoicesBase(InputType[T], ABC):
         choices = map(str, self.choices)
         if sort_choices:
             choices = sorted(choices)
-        return '{{{}}}'.format(choice_delim.join(choices))
+        return f'{{{choice_delim.join(choices)}}}'
 
 
 class Choices(_ChoicesBase[T]):
@@ -88,9 +88,9 @@ class Choices(_ChoicesBase[T]):
 
     def __init__(self, choices: Collection[T], type: TypeFunc = None, case_sensitive: Bool = True):  # noqa
         if not case_sensitive and not all(isinstance(c, str) for c in choices):
-            raise TypeError(f'Cannot combine case_sensitive=False with non-str choices={choices}')
+            raise TypeError(f'Cannot combine case_sensitive=False with non-str {choices=}')
         elif isinstance(type, EnumChoices) and not any(isinstance(c, type.enum) for c in choices):
-            raise TypeError(f'Invalid choices={choices} for type={type}')
+            raise TypeError(f'Invalid {choices=} for {type=}')
 
         self.choices = choices
         self.type = type

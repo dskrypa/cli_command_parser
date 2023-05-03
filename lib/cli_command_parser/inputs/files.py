@@ -144,7 +144,7 @@ class File(FileInput[Union[FileWrapper, str, bytes]]):
         **kwargs,
     ):
         if not lazy and allows_write(mode):
-            raise ValueError(f'Cannot combine mode={mode!r} with lazy=False for {self.__class__.__name__}')
+            raise ValueError(f'Cannot combine {mode=} with lazy=False for {self.__class__.__name__}')
         if not allows_write(mode):
             kwargs.setdefault('exists', True)
         kwargs.setdefault('type', StatMode.FILE)
@@ -210,7 +210,7 @@ class Pickle(Serialized):
         import pickle
 
         if 't' in mode:
-            raise ValueError(f'Invalid mode={mode!r} - pickle does not read/write text')
+            raise ValueError(f'Invalid {mode=} - pickle does not read/write text')
         if 'b' not in mode:
             mode += 'b'
 

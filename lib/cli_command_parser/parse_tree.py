@@ -40,7 +40,7 @@ class AnyWord:
     def __add__(self, other: int) -> AnyWord:
         remaining = self.remaining - other
         if remaining < 0:
-            raise ValueError(f'Unable to add {other} to {self!r} - remaining={remaining} is invalid')
+            raise ValueError(f'Unable to add {other} to {self!r} - {remaining=} is invalid')
         return AnyWord(self.nargs, remaining, self.n + other)
 
     def __eq__(self, other: AnyWord) -> bool:

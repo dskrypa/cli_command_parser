@@ -135,7 +135,7 @@ class NumRange(NumericInput[NT]):
         if min is None and max is None:
             raise ValueError('NumRange inputs must be initialized with at least one of min and/or max values')
         elif min is not None and max is not None and min >= max:
-            raise ValueError(f'Invalid min={min} >= max={max} - min must be less than max')
+            raise ValueError(f'Invalid {min=} >= {max=} - min must be less than max')
 
         if type is None:
             self.type = float if isinstance(min, float) or isinstance(max, float) else int
@@ -149,8 +149,8 @@ class NumRange(NumericInput[NT]):
             real_max = max if include_max else max - 1
             if real_min >= real_max:
                 raise ValueError(
-                    f'Invalid min={min} >= max={max} with snap=True, include_min={include_min},'
-                    f' include_max={include_max} - snap would produce invalid values'
+                    f'Invalid {min=} >= {max=} with snap=True, {include_min=},'
+                    f' {include_max=} - snap would produce invalid values'
                 )
 
         self.snap = snap

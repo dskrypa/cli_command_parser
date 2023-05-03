@@ -327,7 +327,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
 
         with different_locale(self.locale):
             raise InputValidationError(
-                f'Invalid month={month} - expected a value between 1 ({month_name[1]}) and 12 ({month_name[12]})'
+                f'Invalid {month=} - expected a value between 1 ({month_name[1]}) and 12 ({month_name[12]})'
             )
 
 
@@ -340,7 +340,7 @@ class TimeDelta(InputType[timedelta]):
     def __init__(self, unit: TimeUnit):
         unit = unit.lower()
         if unit not in _TIMEDELTA_UNITS:
-            raise TypeError(f'Invalid unit={unit!r} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
+            raise TypeError(f'Invalid {unit=} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
         self.unit = unit
         # TODO: min/max params like NumRange?
 
@@ -533,6 +533,6 @@ def normalize_dt(value: TimeBound, now: datetime = None) -> Optional[datetime]:
         today = date.today() if now is None else now.date()
         return datetime.combine(today, value)
     raise TypeError(
-        f'Unexpected datetime specifier type={value.__class__.__name__} for value={value!r}'
+        f'Unexpected datetime specifier type={value.__class__.__name__} for {value=}'
         ' (expected datetime, date, time, timedelta, or None)'
     )
