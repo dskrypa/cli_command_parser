@@ -27,6 +27,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx_paramlinks',  # https://github.com/sqlalchemyorg/sphinx-paramlinks
+    'sphinxcontrib.jquery',
 ]
 
 # Extension options
@@ -70,7 +71,10 @@ templates_path = [docs_dir.joinpath('_templates').as_posix()]
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
-html_theme_options = {'sticky_navigation': True}
+html_theme_options = {
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+}
 
 # html_static_path = [docs_dir.joinpath('_static').as_posix()]
 

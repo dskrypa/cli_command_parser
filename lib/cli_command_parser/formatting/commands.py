@@ -58,8 +58,7 @@ class CommandHelpFormatter:
             return meta.usage
 
         params = self.params.all_positionals + self.params.options  # noqa
-        pass_thru = self.params.pass_thru
-        if pass_thru is not None:
+        if (pass_thru := self.params.pass_thru) is not None:
             params.append(pass_thru)
 
         parts = ['usage:', meta.prog]
@@ -81,8 +80,7 @@ class CommandHelpFormatter:
             if group.show_in_help:
                 parts.append(group.formatter.format_help())
 
-        epilog = meta.format_epilog(ctx.config.extended_epilog)
-        if epilog:
+        if epilog := meta.format_epilog(ctx.config.extended_epilog):
             parts.append(epilog)
 
         return '\n'.join(parts)
@@ -92,20 +90,21 @@ class CommandHelpFormatter:
     ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         meta = get_metadata(self.command, no_sys_argv=no_sys_argv)
+        # TODO: Line wrap usage text?
         yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')
         if meta.description:
             yield meta.description
             yield ''
 
+        # TODO: The subcommand names in the group containing subcommand targets should link to their respective
+        #  subcommand sections
         for group in self.groups:
             if group.show_in_help:
                 table: RstTable = group.formatter.rst_table()  # noqa
                 yield from table.iter_build()  # noqa
 
-        if include_epilog:
-            epilog = meta.format_epilog(ctx.config.extended_epilog)
-            if epilog:
-                yield epilog
+        if include_epilog and (epilog := meta.format_epilog(ctx.config.extended_epilog)):
+            yield epilog
 
     def format_rst(
         self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, no_sys_argv: Bool = False
@@ -114,22 +113,23 @@ class CommandHelpFormatter:
         # TODO: Nested subcommands do not have full sections, but they should
         meta = get_metadata(self.command, no_sys_argv=no_sys_argv)
         name = meta.doc_name
+        # TODO: Usage name for subcommands seems to always be ``build_docs.py``
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)
 
+        # TODO: Use class docstring as description if no description is provided?
+
         parts = [rst_header(name, init_level), '']
-        if ctx.config.show_docstring:
-            doc_str = meta.get_doc_str()
-            if doc_str:
-                parts += [doc_str, '']
+        if ctx.config.show_docstring and (doc_str := meta.get_doc_str()):
+            parts += [doc_str, '']
 
         parts.append('')
         parts.extend(self._format_rst(True, no_sys_argv=no_sys_argv))
 
-        sub_command = get_params(self.command).sub_command
-        if sub_command and sub_command.show_in_help:
+        if (sub_command := get_params(self.command).sub_command) and sub_command.show_in_help:
             parts += ['', rst_header('Subcommands', init_level + 1), '']
             for cmd_name, choice in sub_command.choices.items():
+                # TODO: Config to disable inherited docstring/description from being printed for each subcommand
                 parts += ['', rst_header(f'Subcommand: {cmd_name}', init_level + 2), '']
                 if choice.help:
                     parts += [choice.help, '']

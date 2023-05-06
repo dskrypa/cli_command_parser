@@ -81,6 +81,15 @@ def _rst_toc_tree(name: str, content_fmt: str, contents: Strings, max_depth: int
 
 
 def rst_toc_tree(name: str, content_fmt: str, contents: Strings, max_depth: int = 4, **kwargs) -> str:
+    """
+    :param name: The name of the section.  Written as a header above the ``toctree`` directive.
+    :param content_fmt: The format string used to indent/prefix each entry in the contents to include in this table
+      of contents.
+    :param contents: The names of the documents to include in this table of contents.
+    :param max_depth: The maximum depth of the table of contents tree.  Use ``-1`` to allow unlimited depth.
+    :param kwargs: Keyword arguments to be included as ``:key: <value>`` options to the ``toctree`` directive.
+    :return: The RST header and table of contents directive as a string.
+    """
     return '\n'.join(_rst_toc_tree(name, content_fmt, contents, max_depth, **kwargs))
 
 
