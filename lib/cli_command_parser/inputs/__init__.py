@@ -33,8 +33,7 @@ __all__ = [
 
 
 def normalize_input_type(type_func: InputTypeFunc, param_choices: ChoicesType) -> _t.Optional[TypeFunc]:
-    choices_provided = param_choices is not None
-    if choices_provided:
+    if choices_provided := param_choices is not None:
         if not param_choices:
             raise _ParameterDefinitionError(
                 f'Invalid choices={param_choices!r} - when specified, choices cannot be empty'

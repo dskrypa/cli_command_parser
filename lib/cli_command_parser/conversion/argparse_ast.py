@@ -224,8 +224,7 @@ class AstCallable:
 
     def init_call_repr(self) -> str:
         arg_str = ', '.join(self.init_func_args)
-        kw_str = ', '.join(f'{k}={v}' for k, v in self.init_func_kwargs.items())
-        if kw_str:
+        if kw_str := ', '.join(f'{k}={v}' for k, v in self.init_func_kwargs.items()):
             arg_str = kw_str if not arg_str else (arg_str + ', ' + kw_str)
         return f'{self.init_func_name}({arg_str})'
 
@@ -285,8 +284,7 @@ class ArgCollection(AstCallable):
         print(f'{" " * indent} + {self!r}:')
         indent += 3
         for attr in self._children:
-            values = getattr(self, attr)
-            if values:
+            if values := getattr(self, attr):
                 for value in values:
                     value.pprint(indent)
 

@@ -112,11 +112,9 @@ class Command(ABC, metaclass=CommandMeta):
         cmd_cls = cls
         with ExitStack() as stack:
             stack.enter_context(ctx)
-            sub_cmd = CommandParser.parse_args_and_get_next_cmd(ctx)
-            while sub_cmd:
+            while sub_cmd := CommandParser.parse_args_and_get_next_cmd(ctx):
                 cmd_cls = sub_cmd
                 ctx = stack.enter_context(ctx._sub_context(cmd_cls))
-                sub_cmd = CommandParser.parse_args_and_get_next_cmd(ctx)
 
             return cmd_cls()
 
@@ -174,8 +172,7 @@ class Command(ABC, metaclass=CommandMeta):
         if n_flags and not ctx.config.multiple_action_flags and n_flags > 1:
             raise ParamConflict(ctx.all_action_flags, 'combining multiple action flags is disabled')
 
-        before = ctx.categorized_action_flags[ActionPhase.BEFORE_MAIN]
-        if before:
+        if before := ctx.categorized_action_flags[ActionPhase.BEFORE_MAIN]:
             action = get_params(self).action
             if action is not None and not ctx.config.action_after_action_flags:
                 raise ParamConflict([action, *before], 'combining an action with action flags is disabled')

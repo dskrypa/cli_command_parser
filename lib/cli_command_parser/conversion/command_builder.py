@@ -381,8 +381,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
         if self.is_option or self.is_pass_thru:
             for group in (long, short):
                 for opt in group:
-                    opt = opt.lstrip('-')
-                    if opt:
+                    if opt := opt.lstrip('-'):
                         yield opt
         while True:
             yield f'param_{next(self._counter)}'
@@ -445,8 +444,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
 
     @cached_property
     def is_pass_thru(self) -> bool:
-        nargs = self.ast_obj.init_func_kwargs.get('nargs')
-        if not nargs:
+        if not (nargs := self.ast_obj.init_func_kwargs.get('nargs')):
             return False
         # TODO: Refactor to take advantage of new nargs=REMAINDER support
         return nargs in self.ast_obj.get_tracked_refs('argparse', 'REMAINDER', ())
@@ -531,8 +529,7 @@ class BaseArgs:
     def from_kwargs(cls, **kwargs):
         keys = set(f.name for f in fields(cls)).intersection(kwargs)
         filtered = {key: kwargs[key] for key in keys}
-        help_str = filtered.get('help')
-        if help_str:
+        if help_str := filtered.get('help'):
             # log.debug(f'Processing {help_str=}')
             try:
                 help_str = literal_eval(help_str)
@@ -593,8 +590,7 @@ class ParamArgs(ParamBaseArgs):
     @classmethod
     def init_positional(cls, action: OptStr = None, nargs: OptStr = None, **kwargs):
         if nargs is not None:
-            parsed = literal_eval_or_none(nargs)
-            if parsed is not None:
+            if (parsed := literal_eval_or_none(nargs)) is not None:
                 nargs_obj = Nargs(parsed)
                 if action in ('store', None) and nargs_obj == 1:
                     action = nargs = None

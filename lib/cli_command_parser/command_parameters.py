@@ -182,8 +182,7 @@ class CommandParameters:
 
     def _process_positionals(self, params: List[BasePositional]):
         unfollowable = action_or_sub_cmd = split_index = None
-        parent = self.parent
-        if parent and parent._deferred_positionals:
+        if (parent := self.parent) and parent._deferred_positionals:
             params = parent._deferred_positionals + params
 
         for i, param in enumerate(params):
@@ -222,8 +221,7 @@ class CommandParameters:
         self.positionals = params
 
     def _process_options(self, params: Collection[BaseOption]):
-        parent = self.parent
-        if parent:
+        if parent := self.parent:
             option_map = parent.option_map.copy()
             combo_option_map = parent.combo_option_map.copy()
             options = parent.options.copy()
@@ -306,8 +304,7 @@ class CommandParameters:
 
     def _strict_ambiguous_short_combo_check(self):
         # Called during initial Option processing when using AmbiguousComboMode.STRICT
-        potentially_ambiguous_combo_options = self._potentially_ambiguous_combo_options
-        if not potentially_ambiguous_combo_options:
+        if not (potentially_ambiguous_combo_options := self._potentially_ambiguous_combo_options):
             return
 
         param_conflicts_map = {
@@ -499,8 +496,7 @@ class CommandParameters:
         ignore = SubCommand
         yield from (p for p in self.all_positionals if p.required and not p.group and not isinstance(p, ignore))
         yield from (p for p in self.options if p.required and not p.group)
-        pass_thru = self._pass_thru
-        if pass_thru and pass_thru.required and not pass_thru.group:
+        if (pass_thru := self._pass_thru) and pass_thru.required and not pass_thru.group:
             yield pass_thru
 
 
@@ -516,8 +512,7 @@ def _find_ambiguous_combos(
 ) -> Dict[str, Tuple[BaseOption, OptionMap]]:
     ambiguous_combo_options = {}
     for combo, param in multi_char_combos.items():
-        singles = {c: single_char_combos[c] for c in combo if c in single_char_combos}
-        if singles:
+        if singles := {c: single_char_combos[c] for c in combo if c in single_char_combos}:
             ambiguous_combo_options[combo] = (param, singles)
 
     return ambiguous_combo_options
