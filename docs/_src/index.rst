@@ -192,7 +192,7 @@ Indices and Tables
 
 .. toctree::
    :caption: API Documentation
-   :maxdepth: 4
+   :maxdepth: 3
    :hidden:
 
    api

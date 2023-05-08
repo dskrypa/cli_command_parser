@@ -125,8 +125,7 @@ class ChoiceMap(BasePositional[str], Generic[T]):
                 f"Invalid {cls.__name__} {prefix}={value!r} - may not be empty or start with '-'"
             )
 
-        bad = {c for c in value if (c in whitespace and c != ' ') or c not in printable}
-        if bad:
+        if bad := {c for c in value if (c in whitespace and c != ' ') or c not in printable}:
             raise cls._choice_validation_exc(f'Invalid {cls.__name__} {prefix}={value!r} - invalid characters: {bad}')
 
     def register_choice(self, choice: str, target: T = _NotSet, help: str = None):  # noqa
@@ -142,8 +141,8 @@ class ChoiceMap(BasePositional[str], Generic[T]):
             self.choices[choice] = Choice(choice, target, help, local)
             self._update_nargs()
         else:
-            prefix = 'Invalid default' if choice is None else f'Invalid choice={choice!r} for'
-            raise CommandDefinitionError(f'{prefix} target={target!r} - already assigned to {existing}')
+            prefix = 'Invalid default' if choice is None else f'Invalid {choice=} for'
+            raise CommandDefinitionError(f'{prefix} {target=} - already assigned to {existing}')
 
     def _no_choices_error(self) -> NoReturn:
         raise CommandDefinitionError(f'No choices were registered for {self}')
@@ -164,13 +163,11 @@ class ChoiceMap(BasePositional[str], Generic[T]):
         return n_values
 
     def validate(self, value: str):
-        choices = self.choices
-        if not choices:
+        if not (choices := self.choices):
             self._no_choices_error()
 
         values = (*ctx.get_parsed_value(self), value)
-        choice = ' '.join(values)
-        if choice in choices:
+        if (choice := ' '.join(values)) in choices:
             return
         elif len(values) > self.nargs.max:
             raise BadArgument(self, 'too many values')
@@ -179,22 +176,15 @@ class ChoiceMap(BasePositional[str], Generic[T]):
             raise InvalidChoice(self, prefix[:-1], choices)
 
     def result_value(self) -> OptStr:
-        choices = self.choices
-        if not choices:
+        if not (choices := self.choices):
             self._no_choices_error()
-
-        values = ctx.get_parsed_value(self)
-        if not values:
+        if not (values := ctx.get_parsed_value(self)):
             if None in choices:
                 return None
             raise MissingArgument(self)
-
-        val_count = len(values)
-        if val_count not in self.nargs:
+        if (val_count := len(values)) not in self.nargs:
             raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
-
-        choice = ' '.join(values)
-        if choice not in choices:
+        if (choice := ' '.join(values)) not in choices:
             raise InvalidChoice(self, choice, choices)
         return choice
 
@@ -277,8 +267,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             from ..core import get_parent
 
             parent = get_parent(command)
-            target = self.choices[choice].target
-            msg = f'Invalid choice={choice!r} for {command} with parent={parent!r} - already assigned to {target}'
+            msg = f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
             raise CommandDefinitionError(msg) from None
 
         return command
@@ -305,9 +294,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             return partial(self.register_command, choice, help=help)
         elif isinstance(command_or_choice, str):
             if choice is not None:
-                raise CommandDefinitionError(
-                    f'Cannot combine a positional command_or_choice={command_or_choice!r} choice with choice={choice!r}'
-                )
+                raise CommandDefinitionError(f'Cannot combine a positional {command_or_choice=} choice with {choice=}')
             return partial(self.register_command, command_or_choice, help=help)
         else:
             return self.register_command(choice, command_or_choice, help=help)  # noqa
@@ -378,9 +365,7 @@ class Action(ChoiceMap[MethodType], title='Actions'):
         """
         if isinstance(method_or_choice, str):
             if choice is not None:
-                raise CommandDefinitionError(
-                    f'Cannot combine a positional method_or_choice={method_or_choice!r} choice with choice={choice!r}'
-                )
+                raise CommandDefinitionError(f'Cannot combine a positional {method_or_choice=} choice with {choice=}')
             method_or_choice, choice = None, method_or_choice
 
         if method_or_choice is None:

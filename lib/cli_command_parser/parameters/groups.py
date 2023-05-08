@@ -78,10 +78,7 @@ class ParamGroup(ParamBase):
     def __repr__(self) -> str:
         exclusive, dependent = str(self.mutually_exclusive)[0], str(self.mutually_dependent)[0]
         members = len(self.members)
-        return (
-            f'<{self.__class__.__name__}[{self.name!r},'
-            f' members={members!r}, m.exclusive={exclusive}, m.dependent={dependent}]>'
-        )
+        return f'<{self.__class__.__name__}[{self.name!r}, {members=}, m.{exclusive=!s}, m.{dependent=!s}]>'
 
     def __hash__(self) -> int:
         return super().__hash__()
@@ -153,11 +150,11 @@ class ParamGroup(ParamBase):
             if (isinstance(param, BasePositional) and 0 not in param.nargs) or isinstance(param, PassThru):
                 cls_name = param.__class__.__name__
                 raise CommandDefinitionError(
-                    f'Cannot add param={param!r} to {self} - {cls_name} parameters cannot be mutually exclusive'
+                    f'Cannot add {param=} to {self} - {cls_name} parameters cannot be mutually exclusive'
                 )
             elif isinstance(param, BaseOption) and param.required:
                 raise CommandDefinitionError(
-                    f'Cannot add param={param!r} to {self} - required parameters cannot be mutually exclusive'
+                    f'Cannot add {param=} to {self} - required parameters cannot be mutually exclusive'
                     ' (but the group can be required)'
                 )
 
@@ -208,8 +205,7 @@ class ParamGroup(ParamBase):
 
     @property
     def in_mutually_exclusive_group(self) -> bool:
-        parent = self.group
-        if not parent:
+        if not (parent := self.group):
             return False
         return parent.mutually_exclusive
 
@@ -231,8 +227,7 @@ class ParamGroup(ParamBase):
         if not provided and req_any:
             raise ParamsMissing(missing, partial=not req_all)
         elif provided or not self.in_mutually_exclusive_group:
-            req_missing = [p for p in missing if p.required]
-            if req_missing:
+            if req_missing := [p for p in missing if p.required]:
                 raise ParamsMissing(req_missing)
 
     def _classify_required(self) -> Tuple[bool, bool]:

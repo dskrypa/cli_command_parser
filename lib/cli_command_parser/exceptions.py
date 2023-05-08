@@ -44,8 +44,7 @@ class CommandParserException(Exception):
     code: int = 3
 
     def show(self) -> bool:
-        message = str(self)
-        if message:
+        if message := str(self):
             print(message, file=sys.stderr)
         return True
 

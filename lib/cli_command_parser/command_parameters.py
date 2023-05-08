@@ -66,7 +66,7 @@ class CommandParameters:
         positionals = len(self.positionals)
         options = len(self.options)
         cls_name = self.__class__.__name__
-        return f'<{cls_name}[command={self.command.__name__}, positionals={positionals!r}, options={options!r}]>'
+        return f'<{cls_name}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
     @property
     def pass_thru(self) -> Optional[PassThru]:
@@ -155,13 +155,11 @@ class CommandParameters:
                 groups.add(param)
             elif isinstance(param, PassThru):
                 if self.pass_thru:
-                    raise CommandDefinitionError(
-                        f'Invalid PassThru param={param!r} - it cannot follow another PassThru param'
-                    )
+                    raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
                 self._pass_thru = param
             else:
                 raise CommandDefinitionError(
-                    f'Unexpected type={param.__class__} for param={param!r} - custom parameters must extend'
+                    f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
                     ' BasePositional, BaseOption, or ParamGroup'
                 )
 
@@ -184,8 +182,7 @@ class CommandParameters:
 
     def _process_positionals(self, params: List[BasePositional]):
         unfollowable = action_or_sub_cmd = split_index = None
-        parent = self.parent
-        if parent and parent._deferred_positionals:
+        if (parent := self.parent) and parent._deferred_positionals:
             params = parent._deferred_positionals + params
 
         for i, param in enumerate(params):
@@ -195,7 +192,7 @@ class CommandParameters:
                 else:
                     why = 'because it accepts a variable number of arguments with no specific choices defined'
                 raise CommandDefinitionError(
-                    f'Additional Positional parameters cannot follow {unfollowable} {why} - param={param!r} is invalid'
+                    f'Additional Positional parameters cannot follow {unfollowable} {why} - {param=} is invalid'
                 )
             elif isinstance(param, (SubCommand, Action)):
                 if action_or_sub_cmd:
@@ -224,8 +221,7 @@ class CommandParameters:
         self.positionals = params
 
     def _process_options(self, params: Collection[BaseOption]):
-        parent = self.parent
-        if parent:
+        if parent := self.parent:
             option_map = parent.option_map.copy()
             combo_option_map = parent.combo_option_map.copy()
             options = parent.options.copy()
@@ -238,7 +234,7 @@ class CommandParameters:
             options.append(param)
             opts = param.option_strs
             if not opts.has_min_opts():
-                raise ParameterDefinitionError(f'No option strings were registered for param={param!r}')
+                raise ParameterDefinitionError(f'No option strings were registered for {param=}')
             self._process_option_strs(param, 'long', opts.long, option_map, combo_option_map)
             self._process_option_strs(param, 'short', opts.short, option_map, combo_option_map)
 
@@ -270,7 +266,7 @@ class CommandParameters:
         grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
         for param in action_flags:
             if param.func is None:
-                raise ParameterDefinitionError(f'No function was registered for param={param!r}')
+                raise ParameterDefinitionError(f'No function was registered for {param=}')
             grouped_ordered_flags[param.before_main][param.order].append(param)  # noqa  # PyCharm infers the wrong type
 
         found_non_always = False
@@ -308,8 +304,7 @@ class CommandParameters:
 
     def _strict_ambiguous_short_combo_check(self):
         # Called during initial Option processing when using AmbiguousComboMode.STRICT
-        potentially_ambiguous_combo_options = self._potentially_ambiguous_combo_options
-        if not potentially_ambiguous_combo_options:
+        if not (potentially_ambiguous_combo_options := self._potentially_ambiguous_combo_options):
             return
 
         param_conflicts_map = {
@@ -451,7 +446,7 @@ class CommandParameters:
                 if param.accepts_values:
                     return param
         else:
-            raise ValueError(f'Invalid option={option!r}')
+            raise ValueError(f'Invalid {option=}')
         return None
 
     def find_nested_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
@@ -501,8 +496,7 @@ class CommandParameters:
         ignore = SubCommand
         yield from (p for p in self.all_positionals if p.required and not p.group and not isinstance(p, ignore))
         yield from (p for p in self.options if p.required and not p.group)
-        pass_thru = self._pass_thru
-        if pass_thru and pass_thru.required and not pass_thru.group:
+        if (pass_thru := self._pass_thru) and pass_thru.required and not pass_thru.group:
             yield pass_thru
 
 
@@ -518,8 +512,7 @@ def _find_ambiguous_combos(
 ) -> Dict[str, Tuple[BaseOption, OptionMap]]:
     ambiguous_combo_options = {}
     for combo, param in multi_char_combos.items():
-        singles = {c: single_char_combos[c] for c in combo if c in single_char_combos}
-        if singles:
+        if singles := {c: single_char_combos[c] for c in combo if c in single_char_combos}:
             ambiguous_combo_options[combo] = (param, singles)
 
     return ambiguous_combo_options

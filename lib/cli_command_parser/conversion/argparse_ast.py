@@ -46,7 +46,7 @@ class Script:
     def __repr__(self) -> str:
         parsers = len(self.parsers)
         location = f' @ {self.path.as_posix()}' if self.path else ''
-        return f'<{self.__class__.__name__}[parsers={parsers!r}{location}]>'
+        return f'<{self.__class__.__name__}[{parsers=}{location}]>'
 
     @property
     def mod_cls_to_ast_cls_map(self) -> Dict[str, Dict[str, ParserCls]]:
@@ -224,8 +224,7 @@ class AstCallable:
 
     def init_call_repr(self) -> str:
         arg_str = ', '.join(self.init_func_args)
-        kw_str = ', '.join(f'{k}={v}' for k, v in self.init_func_kwargs.items())
-        if kw_str:
+        if kw_str := ', '.join(f'{k}={v}' for k, v in self.init_func_kwargs.items()):
             arg_str = kw_str if not arg_str else (arg_str + ', ' + kw_str)
         return f'{self.init_func_name}({arg_str})'
 
@@ -285,8 +284,7 @@ class ArgCollection(AstCallable):
         print(f'{" " * indent} + {self!r}:')
         indent += 3
         for attr in self._children:
-            values = getattr(self, attr)
-            if values:
+            if values := getattr(self, attr):
                 for value in values:
                     value.pprint(indent)
 
@@ -324,7 +322,7 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
 
     def __repr__(self) -> str:
         sub_parsers = len(self.sub_parsers)
-        return f'<{self.__class__.__name__}[sub_parsers={sub_parsers!r}]: ``{self.init_call_repr()}``>'
+        return f'<{self.__class__.__name__}[{sub_parsers=}]: ``{self.init_call_repr()}``>'
 
     def _add_subparser(self, node: InitNode, call: Call, tracked_refs: TrackedRefMap, sub_parser_cls: ParserCls = None):
         # Using default of None since the class hasn't been defined at the time it would need to be set as default

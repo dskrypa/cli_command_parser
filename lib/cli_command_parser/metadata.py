@@ -146,23 +146,19 @@ class ProgramMetadata:
         if parts and not extended:
             return parts[0]
 
-        version = self.version
-        if version:
+        if version := self.version:
             version = f' [ver. {version}]'
         if self.email:
             parts.append(f'Report {self.prog}{version} bugs to {self.email}')
-        url = self.docs_url or self.url
-        if url:
+        if url := self.docs_url or self.url:
             parts.append(f'Online documentation: {url}')
         return '\n\n'.join(parts)
 
     def get_doc_str(self, strip: bool = True) -> OptStr:
-        doc_str = self.pkg_doc_str
-        if doc_str and strip:
+        if (doc_str := self.pkg_doc_str) and strip:
             doc_str = doc_str.strip()
         if not doc_str:
-            doc_str = self.doc_str
-            if doc_str and strip:
+            if (doc_str := self.doc_str) and strip:
                 doc_str = doc_str.strip()
         return doc_str
 
@@ -209,9 +205,8 @@ class ProgFinder:
         if prog:
             return prog, 'class kwargs'
 
-        ep_name = self._from_entry_point(command)
         # TODO: This isn't working for documentation generation...
-        if ep_name:
+        if ep_name := self._from_entry_point(command):
             return ep_name, 'entry_points'
 
         if no_sys_argv is None:
@@ -223,8 +218,7 @@ class ProgFinder:
         if parent and parent.prog != parent.path.name and (not no_sys_argv or parent.prog_src != 'sys.argv'):
             return parent.prog, parent.prog_src
         elif not no_sys_argv:
-            argv_name = self._from_sys_argv()
-            if argv_name:
+            if argv_name := self._from_sys_argv():
                 return argv_name, 'sys.argv'
 
         return cmd_path.name, 'path'
@@ -243,7 +237,7 @@ class ProgFinder:
             #  and main imported from cli_command_parser in the package's __init__/__main__ module...
             obj_prog_map = self.mod_obj_prog_map[command.__module__]
             module = modules[command.__module__]
-        except KeyError as e:
+        except KeyError:
             pass
         else:
             for obj_name, prog in obj_prog_map.items():

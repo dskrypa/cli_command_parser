@@ -62,7 +62,7 @@ class ShowDefaults(FixedFlag):
                 return cls._member_map_[value.upper().replace('-', '_')]  # noqa
             except KeyError:
                 expected = ', '.join(cls._member_map_)
-                raise ValueError(f'Invalid {cls.__name__} value={value!r} - expected one of {expected}') from None
+                raise ValueError(f'Invalid {cls.__name__} {value=} - expected one of {expected}') from None
         return super()._missing_(value)
 
     def __or__(self, other: ShowDefaults) -> ShowDefaults:

@@ -90,8 +90,7 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
     if top_only:
         commands = top_level_commands(commands)
 
-    doc_str = module.__doc__
-    if doc_str:
+    if doc_str := module.__doc__:
         for command in commands.values():
             get_metadata(command).pkg_doc_str = doc_str
 
@@ -105,8 +104,7 @@ def top_level_commands(commands: Commands) -> Commands:
 
     indirect_parents = defaultdict(set)
     for name, command in commands.items():
-        sub_command = get_params(command).sub_command
-        if sub_command:
+        if sub_command := get_params(command).sub_command:
             for choice in sub_command.choices.values():
                 indirect_parents[choice.target].add(command)
 
@@ -238,7 +236,9 @@ class RstWriter:
         names = [self.document_script(path, subdir, top_only=top_only, **kwargs) for path in paths]
         if index_name or index_header or index_subdir:
             name = index_name or subdir
-            self.write_index(name, index_header or name.title(), names, subdir, caption, index_subdir)
+            self.write_index(
+                name, index_header or name.title(), names, content_subdir=subdir, caption=caption, subdir=index_subdir
+            )
 
     def document_module(self, module: str, subdir: str = None):
         """
@@ -263,6 +263,7 @@ class RstWriter:
         index: Bool = True,
         empty: Bool = False,
         caption: str = None,
+        max_depth: int = 4,
     ) -> List[str]:
         """
         :param pkg_name: The name of the package to document
@@ -273,6 +274,7 @@ class RstWriter:
         :param index: Whether the index file should be created
         :param empty: Whether an index file should be created if the package had no modules to document
         :param caption: A caption to use for the index
+        :param max_depth: The maximum depth of the table of contents tree.  Use ``-1`` to allow unlimited depth.
         :return: List of the names from the contents of the package
         """
         if name:
@@ -281,23 +283,30 @@ class RstWriter:
             index_subdir = None
             content_subdir = subdir
 
-        contents = self._generate_code_rsts(pkg_name, pkg_path, content_subdir)
+        contents = self._generate_code_rsts(pkg_name, pkg_path, content_subdir, max_depth=max_depth)
         if (not contents and not empty) or not index:
             return contents
 
         if not header:
-            header = '{} Package'.format(pkg_name.split('.')[-1].title())
+            header = f'{pkg_name.split(".")[-1].title()} Package'
 
-        self.write_index(name or pkg_name, header, contents, index_subdir, caption=caption, subdir=subdir)
+        self.write_index(
+            name=name or pkg_name,
+            header=header,
+            contents=contents,
+            content_subdir=index_subdir,
+            caption=caption,
+            subdir=subdir,
+            max_depth=max_depth,
+        )
         return contents
 
-    def _generate_code_rsts(self, pkg_name: str, pkg_path: Path, subdir: str = None) -> List[str]:
+    def _generate_code_rsts(self, pkg_name: str, pkg_path: Path, subdir: str = None, max_depth: int = 4) -> List[str]:
         contents = []
         for path in pkg_path.iterdir():
             if path.is_dir():
                 sub_pkg_name = f'{pkg_name}.{path.name}'
-                pkg_modules = self.document_package(sub_pkg_name, path, subdir)
-                if pkg_modules:
+                if self.document_package(sub_pkg_name, path, subdir, max_depth=max_depth):
                     contents.append(sub_pkg_name)
             elif path.is_file() and path.suffix == '.py' and not path.name.startswith('__'):
                 name = f'{pkg_name}.{path.stem}'
@@ -313,12 +322,29 @@ class RstWriter:
         name: str,
         header: str,
         contents: Strings,
+        *,
         content_subdir: str = None,
-        caption: str = None,
         subdir: str = None,
+        caption: str = None,
+        max_depth: int = 4,
+        **kwargs,
     ):
+        """
+        Write an RST index file with a table of contents that references one or more other documents.
+
+        :param name: The file name to use when saving this index.
+        :param header: The name of the index document.  Written as a header above the ``toctree`` directive.
+        :param contents: The names of the documents to include in the table of contents for this index.
+        :param content_subdir: The subdirectory that contains the RST files referenced by ``contents``, if any / not
+          included in the ``contents`` values already.
+        :param subdir: The output subdirectory to use when writing this index, if any.
+        :param caption: A caption to use for the index
+        :param max_depth: The maximum depth of the table of contents tree.  Use ``-1`` to allow unlimited depth.
+        :param kwargs: Additional keyword arguments to be included as ``:key: <value>`` options to the ``toctree``
+          directive.
+        """
         content_fmt = '    {}' if content_subdir is None else f'    {content_subdir}/{{}}'
-        rendered = rst_toc_tree(header, content_fmt, contents, caption=caption)
+        rendered = rst_toc_tree(header, content_fmt, contents, caption=caption, max_depth=max_depth, **kwargs)
         self.write_rst(name, rendered, subdir)
 
     def write_rst(self, name: str, content: str, subdir: str = None):
@@ -330,6 +356,6 @@ class RstWriter:
         path = target_dir.joinpath(name + self.ext)
         log.debug(f'{prefix} {path.as_posix()}')
         if not self.dry_run:
-            # Path.write_text on 3.7 does not support `newline`
+            # Path.write_text on 3.8 does not support `newline`
             with path.open('w', encoding=self.encoding, newline=self.newline) as f:
                 f.write(content)

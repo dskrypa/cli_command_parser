@@ -31,8 +31,7 @@ def get_doc_params(rst_name: str, section_start: str, section_end: str = None) -
                 params[key] = ' '.join(val)
             key = None
             continue
-        m = key_val_match(line)
-        if m:
+        if m := key_val_match(line):
             if key:
                 params[key] = ' '.join(val)
             key = m.group(1)

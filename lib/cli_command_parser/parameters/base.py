@@ -106,14 +106,12 @@ class ParamBase(ABC):
         self.name = name
         self.help = help
         self.hide = hide
-        group = get_active_param_group()
-        if group:
+        if group := get_active_param_group():
             group.register(self)  # noqa  # This sets self.group = group
 
     @property
     def name(self) -> str:
-        name = self._name
-        if name is not None:
+        if (name := self._name) is not None:
             return name
         return self._default_name()
 
@@ -259,11 +257,11 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     ):
         if action not in self._actions:
             raise ParameterDefinitionError(
-                f'Invalid action={action!r} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
+                f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
             )
         if required and default is not _NotSet:
             raise ParameterDefinitionError(
-                f'Invalid combination of required=True with default={default!r} for {self.__class__.__name__} -'
+                f'Invalid combination of required=True with {default=} for {self.__class__.__name__} -'
                 ' required Parameters cannot have a default value'
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
@@ -287,8 +285,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         ):
             return
 
-        annotated_type = get_descriptor_value_type(command, name)
-        if annotated_type is None:
+        if (annotated_type := get_descriptor_value_type(command, name)) is None:
             return
         elif choices:
             type_attr.type = annotated_type
@@ -305,8 +302,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     def __repr__(self) -> str:
         attr_names = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
-        extra_attrs = self._repr_attrs
-        if extra_attrs:
+        if extra_attrs := self._repr_attrs:
             attr_names = chain(attr_names, extra_attrs)
 
         attrs = ((a, getattr(self, a, None)) for a in attr_names)
@@ -330,8 +326,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         with self._ctx(command):
             value = self.result()
 
-        name = self._name
-        if name is not None:
+        if (name := self._name) is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
@@ -381,22 +376,22 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         except InputValidationError as e:
             raise BadArgument(self, str(e)) from e
         except (TypeError, ValueError) as e:
-            raise BadArgument(self, f'bad value={value!r} for type={type_func!r}: {e}') from e
+            raise BadArgument(self, f'bad {value=} for type={type_func!r}: {e}') from e
         except Exception as e:
-            raise BadArgument(self, f'unable to cast value={value!r} to type={type_func!r}') from e
+            raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
     def validate(self, value: Optional[T_co]):
         if isinstance(value, str) and value.startswith('-'):
             if self.allow_leading_dash == AllowLeadingDash.NUMERIC:
                 if len(value) > 1 and not _is_numeric(value):
-                    raise BadArgument(self, f'invalid value={value!r}')
+                    raise BadArgument(self, f'invalid {value=}')
             elif self.allow_leading_dash == AllowLeadingDash.NEVER:
-                raise BadArgument(self, f'invalid value={value!r}')
+                raise BadArgument(self, f'invalid {value=}')
         elif value is None:
             if not self.accepts_none:
                 raise MissingArgument(self)
         elif not self.accepts_values:
-            raise BadArgument(self, f'does not accept values, but value={value!r} was provided')
+            raise BadArgument(self, f'does not accept values, but {value=} was provided')
 
     def is_valid_arg(self, value: Any) -> bool:
         try:
@@ -419,8 +414,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         return values.__class__(map(type_func.fix_default, values))
 
     def result_value(self) -> Optional[T_co]:
-        value = ctx.get_parsed_value(self)
-        if value is _NotSet:
+        if (value := ctx.get_parsed_value(self)) is _NotSet:
             if self.required:
                 raise MissingArgument(self)
             else:
@@ -431,20 +425,18 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
         # action == 'append' or 'store_all'
         if not value:
-            default = self.default
-            if default is not _NotSet:
+            if (default := self.default) is not _NotSet:
                 if isinstance(default, Collection) and not isinstance(default, str):
                     value = self._fix_default_collection(default)
                 else:
                     value.append(self._fix_default(default))
 
         nargs = self.nargs
-        val_count = len(value)
-        if val_count == 0 and 0 not in nargs:
+        if (val_count := len(value)) == 0 and 0 not in nargs:
             if self.required:
                 raise MissingArgument(self)
         elif val_count not in nargs:
-            raise BadArgument(self, f'expected nargs={nargs!r} values but found {val_count}')
+            raise BadArgument(self, f'expected {nargs=} values but found {val_count}')
 
         return value
 
@@ -483,8 +475,7 @@ class BasicActionMixin:
 
     @parameter_action
     def store(self: Parameter, value: T_co):
-        prev = ctx.get_parsed_value(self)
-        if prev is not _NotSet:
+        if (prev := ctx.get_parsed_value(self)) is not _NotSet:
             raise ParamUsageError(self, f'can only be specified once - found multiple values: {prev!r}, {value!r}')
         ctx.set_parsed_value(self, value)
 
@@ -504,8 +495,7 @@ class BasicActionMixin:
         return ctx.get_parsed_value(self)
 
     def can_pop_counts(self) -> List[int]:
-        values = self._pre_pop_values()
-        if not values:
+        if not (values := self._pre_pop_values()):
             return []
 
         n_values = len(values)
@@ -515,8 +505,7 @@ class BasicActionMixin:
         if self.action != 'append' or self.type not in (None, str):
             raise UnsupportedAction
 
-        values = ctx.get_parsed_value(self)
-        if not values:
+        if not (values := ctx.get_parsed_value(self)):
             return values
 
         ctx.set_parsed_value(self, self._init_value_factory())
@@ -580,9 +569,7 @@ class BasePositional(Parameter[T_co], ABC):
         default_bad = not self._default_ok or 0 not in self.nargs
         if not required and default_bad:
             cls_name = self.__class__.__name__
-            raise ParameterDefinitionError(
-                f'All {cls_name} parameters must be required - invalid required={required!r}'
-            )
+            raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
         elif default_bad and default is not _NotSet:
             cls_name = self.__class__.__name__
             raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
@@ -638,8 +625,7 @@ class BaseOption(Parameter[T_co], ABC):
         self.option_strs.update(name)
 
     def env_vars(self) -> Iterator[str]:
-        env_var = self.env_var
-        if env_var:
+        if env_var := self.env_var:
             if isinstance(env_var, str):
                 yield env_var
             else:
@@ -654,7 +640,6 @@ def get_active_param_group() -> Optional[ParamGroup]:
 
 
 def _validate_opt_strs(opt_strs: Collection[str]):
-    bad = ', '.join(opt for opt in opt_strs if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt)
-    if bad:
+    if bad := ', '.join(opt for opt in opt_strs if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt):
         msg = f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
         raise ParameterDefinitionError(msg)

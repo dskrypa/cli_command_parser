@@ -44,7 +44,18 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
     @action(default=True, help='Run sphinx-build')
     def sphinx_build(self):
-        cmd = ['sphinx-build', 'docs/_src', 'docs', '-b', 'html', '-d', 'docs/_build', '-j', '8', '-T', '-E', '-q']
+        # fmt: off
+        cmd = [
+            'sphinx-build', 'docs/_src', 'docs',
+            '-b', 'html',  # builder to use (default: html)
+            '-d', 'docs/_build',  # path for the cached environment and doctree files (default: OUTPUTDIR/.doctrees)
+            # '-j', '8',  # build in parallel with N processes where possible ("auto" will set N to cpu-count)
+            '-j', 'auto',  # Parallel processes to use
+            '-T',  # show full traceback on exception
+            '-E',  # don't use a saved environment, always read all files
+            '-q',  # no output on stdout, just warnings on stderr
+        ]
+        # fmt: on
         prefix = '[DRY RUN] Would run' if self.dry_run else 'Running'
         log.info(f'{prefix}: {cmd}')
         if not self.dry_run:
@@ -68,8 +79,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
                     path.unlink()
                 continue
 
-            is_auto = DOCS_AUTO.get(path.name)
-            if is_auto:
+            if is_auto := DOCS_AUTO.get(path.name):
                 try:
                     content_is_auto, content = is_auto
                 except TypeError:
@@ -93,7 +103,8 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
 
         log.info('Updating auto-generated RST files')
         pkg_path = self.package_path
-        self.rst_writer.document_package(pkg_path.name, pkg_path, name='api', header='API Documentation')
+        self.rst_writer.document_package(pkg_path.name, pkg_path, name='api', header='API Documentation', max_depth=3)
+
         examples_dir = PROJECT_ROOT.joinpath('examples')
         paths = (examples_dir.joinpath('complex'), *examples_dir.glob('*.py'))
         self.rst_writer.document_scripts(paths, 'examples', index_header='Example Scripts')
@@ -111,8 +122,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     @action('backup', help='Test the RST backup')
     def backup_rsts(self):
         self._ran_backup = True
-        rst_paths = list(self.docs_src_path.rglob('*.rst'))
-        if not rst_paths:
+        if not (rst_paths := list(self.docs_src_path.rglob('*.rst'))):
             return
 
         auto_generated = DOCS_AUTO['_src'][1]
