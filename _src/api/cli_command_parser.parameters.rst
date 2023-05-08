@@ -2,7 +2,7 @@ Parameters Package
 ******************
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     cli_command_parser.parameters.base
     cli_command_parser.parameters.choice_map

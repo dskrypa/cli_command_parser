@@ -2,7 +2,7 @@ Formatting Package
 ******************
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     cli_command_parser.formatting.commands
     cli_command_parser.formatting.params

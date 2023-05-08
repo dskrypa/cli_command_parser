@@ -2,7 +2,7 @@ Inputs Package
 **************
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     cli_command_parser.inputs.base
     cli_command_parser.inputs.choices

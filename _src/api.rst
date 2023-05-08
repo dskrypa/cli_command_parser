@@ -2,7 +2,7 @@ API Documentation
 *****************
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     api/cli_command_parser.actions
     api/cli_command_parser.annotations

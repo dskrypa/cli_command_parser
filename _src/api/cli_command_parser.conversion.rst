@@ -2,7 +2,7 @@ Conversion Package
 ******************
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     cli_command_parser.conversion.argparse_ast
     cli_command_parser.conversion.argparse_utils
