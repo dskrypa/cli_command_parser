@@ -28,11 +28,10 @@ class OptionStrings:
 
     def __init__(self, option_strs: Collection[str], name_mode: Union[OptionNameMode, str, None] = _NotSet):
         self.name_mode = OptionNameMode(name_mode) if name_mode is not _NotSet else None
-        self._display_long = self._long = {opt for opt in option_strs if opt.startswith('--')}
-        self._short = short_opts = {opt for opt in option_strs if 1 == opt.count('-', 0, 2)}
+        long_opts, short_opts = _split_options(option_strs)
+        self._display_long = self._long = long_opts
+        self._short = short_opts
         self.combinable = {opt[1:] for opt in short_opts if len(opt) == 2}
-        if bad_opts := ', '.join(opt for opt in short_opts if '-' in opt[1:]):
-            raise ParameterDefinitionError(f"Bad short option(s) - may not contain '-': {bad_opts}")
 
     def __repr__(self) -> str:
         options = ', '.join(self.all_option_strs())
@@ -186,3 +185,26 @@ class TriFlagOptionStrings(OptionStrings):
 
 def _sort_options(options: Collection[str]):
     return sorted(options, key=lambda opt: (-len(opt), opt))
+
+
+def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:
+    long_opts, short_opts, bad_opts, bad_short = set(), set(), [], []
+    for opt in opt_strs:
+        if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt:
+            bad_opts.append(opt)
+        elif opt.startswith('--'):
+            long_opts.add(opt)
+        elif '-' in opt[2:]:
+            bad_short.append(opt)
+        else:
+            short_opts.add(opt)
+
+    if bad_opts:
+        bad = ', '.join(bad_opts)
+        raise ParameterDefinitionError(
+            f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
+        )
+    elif bad_short:
+        raise ParameterDefinitionError(f"Bad short option(s) - they may not contain '-': {', '.join(bad_short)}")
+
+    return long_opts, short_opts

@@ -608,7 +608,6 @@ class BaseOption(Parameter[T_co], ABC):
         env_var: OptStrs = None,
         **kwargs,
     ):
-        _validate_opt_strs(option_strs)
         super().__init__(action, **kwargs)
         self.option_strs = self._opt_str_cls(option_strs, name_mode)
         if env_var:
@@ -633,10 +632,3 @@ def get_active_param_group() -> Optional[ParamGroup]:
         return _group_stack.get()[-1]
     except (AttributeError, IndexError):
         return None
-
-
-def _validate_opt_strs(opt_strs: Collection[str]):
-    if bad := ', '.join(opt for opt in opt_strs if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt):
-        raise ParameterDefinitionError(
-            f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
-        )
