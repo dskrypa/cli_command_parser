@@ -90,8 +90,7 @@ class Range(NumericInput[NT]):
         if value in self.range:
             return value
         elif self.snap:
-            rng_min = min(self.range)
-            if value < rng_min:
+            if (rng_min := min(self.range)) > value:
                 return rng_min
             return max(self.range)
 
