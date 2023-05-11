@@ -29,7 +29,7 @@ class RstFormatTest(ParserTest):
         self.assertEqual('############\nexample text\n############', rst_header(text, 0, True))
         self.assertEqual('example text\n^^^^^^^^^^^^', rst_header(text, 4))
 
-    def test_rst_table(self):
+    def test_rst_list_table(self):
         expected = """
         .. list-table::
             :widths: 21 75
@@ -49,6 +49,8 @@ class RstFormatTest(ParserTest):
     def test_basic_directive(self):
         self.assertEqual('.. math::', rst_directive('math'))
 
+
+class RstTableTest(ParserTest):
     def test_table_repr(self):
         self.assertTrue(repr(RstTable()).startswith('<RstTable[use_table_directive='))
 
@@ -64,17 +66,6 @@ class RstFormatTest(ParserTest):
         +---+---+---+
         """
         self.assert_strings_equal(dedent(expected).lstrip(), str(table))
-
-    def test_basic_subcommand_no_help(self):
-        expected = TEST_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
-
-        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', show_docstring=False, add_help=False):
-            sub_cmd = SubCommand()
-
-        class Foo(Base):
-            pass
-
-        self.assert_strings_equal(expected, render_command_rst(Base, fix_name=False))
 
     def test_table_with_header_row(self):
         rows = [{'foo': '123', 'bar': '234'}, {'foo': '345', 'bar': '456'}]
@@ -108,6 +99,8 @@ class RstFormatTest(ParserTest):
         """
         self.assert_strings_equal(dedent(expected).lstrip(), str(table))
 
+
+class RstWriterTest(ParserTest):
     def test_write_package_rsts(self):
         commands_expected = """
 Commands Module
@@ -192,6 +185,19 @@ Commands Module
 
             self.assertTrue(any('[DRY RUN] Would write' in line for line in log_ctx.output))
             self.assertFalse(tmp_path.joinpath('test.rst').exists())
+
+
+class CommandRstTest(ParserTest):
+    def test_basic_subcommand_no_help(self):
+        expected = TEST_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
+
+        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', show_docstring=False, add_help=False):
+            sub_cmd = SubCommand()
+
+        class Foo(Base):
+            pass
+
+        self.assert_strings_equal(expected, render_command_rst(Base, fix_name=False))
 
 
 class ExampleRstFormatTest(ParserTest):

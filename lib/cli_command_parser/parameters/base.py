@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collec
 from typing import List, Tuple, FrozenSet
 
 from ..annotations import get_descriptor_value_type
-from ..config import CommandConfig, OptionNameMode, AllowLeadingDash
+from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
 from ..context import Context, ctx, get_current_context
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
 from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
@@ -151,7 +151,7 @@ class ParamBase(ABC):
         except NoActiveContext:
             if command is None:
                 command = self.command
-            return command.__class__.config(command)
+            return command.__class__.config(command, DEFAULT_CONFIG)
 
     # region Usage / Help Text
 
@@ -621,7 +621,7 @@ class BaseOption(Parameter[T_co], ABC):
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         if not self.option_strs.name_mode:
-            self.option_strs.name_mode = command.__class__.config(command).option_name_mode
+            self.option_strs.name_mode = self._config(command).option_name_mode
         self.option_strs.update(name)
 
     def env_vars(self) -> Iterator[str]:
