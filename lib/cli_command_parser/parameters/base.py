@@ -19,7 +19,7 @@ from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
 from ..context import Context, ctx, get_current_context
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
-from ..exceptions import ParamUsageError, NoActiveContext, UnsupportedAction
+from ..exceptions import ParamUsageError, UnsupportedAction
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
@@ -91,7 +91,7 @@ class ParamBase(ABC):
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
-    __name: str = None              #: Always the name of the attr that points to this object
+    _attr_name: str = None          #: Always the name of the attr that points to this object
     _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
     group: ParamGroup = None        #: The group this object is a member of, if any
     command: CommandCls = None      #: The :class:`.Command` this object is a member of
@@ -126,32 +126,28 @@ class ParamBase(ABC):
     def __set_name__(self, command: CommandCls, name: str):
         self.command = command
         if self._name is None:
-            self.name = name
-        self.__name = name
+            self._name = name
+        self._attr_name = name
 
     def __hash__(self) -> int:
-        return hash(self.__class__) ^ hash(self.__name) ^ hash(self.name) ^ hash(self.command)
+        return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self.name) ^ hash(self.command)
 
-    def _ctx(self, command: CommandAny = None) -> Context:
-        try:
-            return get_current_context()
-        except NoActiveContext:
-            pass
+    def _ctx(self, command: CommandAny = None) -> Optional[Context]:
+        if context := get_current_context(True):
+            return context
         if command is None:
             command = self.command
         try:
             return command._Command__ctx
         except AttributeError:
-            pass
-        raise NoActiveContext('There is no active context')
+            return None
 
     def _config(self, command: CommandAny = None) -> CommandConfig:
-        try:
-            return self._ctx(command).config
-        except NoActiveContext:
-            if command is None:
-                command = self.command
-            return command.__class__.config(command, DEFAULT_CONFIG)
+        if context := self._ctx(command):
+            return context.config
+        if command is None:
+            command = self.command
+        return command.__class__.config(command, DEFAULT_CONFIG)
 
     # region Usage / Help Text
 
@@ -326,7 +322,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         with self._ctx(command):
             value = self.result()
 
-        if (name := self._name) is not None:
+        if (name := self._attr_name) is not None:
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
@@ -620,9 +616,9 @@ class BaseOption(Parameter[T_co], ABC):
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
-        if not self.option_strs.name_mode:
-            self.option_strs.name_mode = self._config(command).option_name_mode
-        self.option_strs.update(name)
+        if not (option_strs := self.option_strs).name_mode:
+            option_strs.name_mode = self._config(command).option_name_mode
+        option_strs.update(name)
 
     def env_vars(self) -> Iterator[str]:
         if env_var := self.env_var:
@@ -641,5 +637,6 @@ def get_active_param_group() -> Optional[ParamGroup]:
 
 def _validate_opt_strs(opt_strs: Collection[str]):
     if bad := ', '.join(opt for opt in opt_strs if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt):
-        msg = f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
-        raise ParameterDefinitionError(msg)
+        raise ParameterDefinitionError(
+            f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
+        )

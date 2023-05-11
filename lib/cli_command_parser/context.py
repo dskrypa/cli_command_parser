@@ -134,8 +134,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     @property
     def terminal_width(self) -> int:
         """Returns the current terminal width as the number of characters that fit on a single line."""
-        if self._terminal_width is not None:
-            return self._terminal_width
+        if (width := self._terminal_width) is not None:
+            return width
         return _TERMINAL.width
 
     def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
@@ -337,16 +337,16 @@ class ContextProxy:
 
     @property
     def terminal_width(self) -> int:
-        try:
-            return get_current_context().terminal_width
-        except NoActiveContext:
+        if context := get_current_context(True):
+            return context.terminal_width
+        else:
             return _TERMINAL.width
 
     @property
     def config(self) -> CommandConfig:
-        try:
-            return get_current_context().config
-        except NoActiveContext:
+        if context := get_current_context(True):
+            return context.config
+        else:
             return DEFAULT_CONFIG
 
 
@@ -377,15 +377,12 @@ def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, 
     Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
     no active Context.
     """
-    try:
-        context = get_current_context()
-    except NoActiveContext:
+    if not (context := get_current_context(True)):
         return Context(argv, command_cls, **kwargs)
+    elif argv is None and context.command is command_cls and not kwargs:
+        return context
     else:
-        if argv is None and context.command is command_cls and not kwargs:
-            return context
-        else:
-            return context._sub_context(command_cls, argv=argv, **kwargs)
+        return context._sub_context(command_cls, argv=argv, **kwargs)
 
 
 def get_context(command: Command) -> Context:

@@ -70,8 +70,8 @@ class CommandParameters:
 
     @property
     def pass_thru(self) -> Optional[PassThru]:
-        if self._pass_thru:
-            return self._pass_thru
+        if pass_thru := self._pass_thru:
+            return pass_thru
         elif self.parent:
             return self.parent.pass_thru
         return None
@@ -86,12 +86,11 @@ class CommandParameters:
         return self.positionals
 
     def get_positionals_to_parse(self, ctx: Context) -> List[BasePositional]:
-        positionals = self.all_positionals
-        if not positionals:
-            return []
-        for i, param in enumerate(positionals):
-            if not ctx.num_provided(param):
-                return [p for p in positionals[i:]]
+        if positionals := self.all_positionals:
+            for i, param in enumerate(positionals):
+                if not ctx.num_provided(param):
+                    return [p for p in positionals[i:]]
+
         return []
 
     @cached_property
@@ -122,15 +121,14 @@ class CommandParameters:
 
     def _iter_parameters(self) -> Iterator[ParamBase]:
         name_param_map = {}  # Allow subclasses to override names, but not within a given command
-        for attr, param in self.command.__dict__.items():
+        for item in self.command.__dict__.items():
+            attr, param = item
             if attr.startswith('__') or not isinstance(param, ParamBase):  # Name mangled Parameters are still processed
                 continue
-            try:
-                other_attr, other_param = name_param_map[param.name]
-            except KeyError:
-                name_param_map[param.name] = (attr, param)
-                yield param
+            elif (other := name_param_map.setdefault(param.name, item)) is item:
+                yield param  # There was no other param with the same name
             else:
+                other_attr, other_param = other
                 raise CommandDefinitionError(
                     'Name conflict - multiple parameters within a Command cannot have the same name - conflicting'
                     f' params: {other_attr}={other_param}, {attr}={param}'
@@ -459,8 +457,7 @@ class CommandParameters:
                 if param is not None:
                     return param
 
-            param = params.find_nested_option_that_accepts_values(option)
-            if param is not None:
+            if (param := params.find_nested_option_that_accepts_values(option)) is not None:
                 return param
 
         return None
