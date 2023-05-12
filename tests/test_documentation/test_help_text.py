@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from abc import ABC
 from contextlib import contextmanager
-from textwrap import dedent
 from typing import TYPE_CHECKING, Sequence, Iterable, Any, ContextManager, Tuple, Dict
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
@@ -219,22 +218,19 @@ class HelpTextTest(ParserTest):
         class Baz(Foo):
             pass
 
-        expected = dedent(
-            """
-            usage: foo.py {bar|baz} [--abc] [--help]
+        expected = """
+usage: foo.py {bar|baz} [--abc] [--help]
 
-            Subcommands:
-              {bar|baz}
-                bar
-                baz
+Subcommands:
+  {bar|baz}
+    bar
+    baz
 
-            Optional arguments:
-              --abc
-              --help, -h                  Show this help message and exit
-            """
-        ).lstrip()
-        help_text = get_help_text(Foo)
-        self.assertEqual(expected, help_text)
+Optional arguments:
+  --abc
+  --help, -h                  Show this help message and exit
+        """.lstrip()
+        self.assert_strings_equal(expected, get_help_text(Foo), trim=True)
 
     def test_underscore_and_dash_enabled(self):
         class Foo(Command, option_name_mode='both'):
@@ -663,28 +659,27 @@ class GroupHelpTextTest(ParserTest):
 
     def test_anon_group_auto_names_not_used(self):
         expected = """
-        usage: ansi_color_test.py [--text TEXT] [--attr {bold|dim}] [--limit LIMIT] [--basic] [--hex] [--all] [--color COLOR] [--background BACKGROUND] [--help]
+usage: ansi_color_test.py [--text TEXT] [--attr {bold|dim}] [--limit LIMIT] [--basic] [--hex] [--all] [--color COLOR] [--background BACKGROUND] [--help]
 
-        Tool for testing ANSI colors
+Tool for testing ANSI colors
 
-        Optional arguments:
-          --text TEXT, -t TEXT        Text to be displayed (default: the number of the color being shown)
-          --attr {bold|dim}, -a {bold|dim}
-                                      Background color to use (default: None)
-          --limit LIMIT, -L LIMIT     Range limit (default: 256)
-          --help, -h                  Show this help message and exit
+Optional arguments:
+  --text TEXT, -t TEXT        Text to be displayed (default: the number of the color being shown)
+  --attr {bold|dim}, -a {bold|dim}
+                              Background color to use (default: None)
+  --limit LIMIT, -L LIMIT     Range limit (default: 256)
+  --help, -h                  Show this help message and exit
 
-        Mutually exclusive options:
-          --basic, -B                 Display colors without the 38;5; prefix (cannot be combined with other args)
-          --hex, -H                   Display colors by hex value (cannot be combined with other args)
-          --all, -A                   Show all foreground and background colors (only when no color/bg is specified)
+Mutually exclusive options:
+  --basic, -B                 Display colors without the 38;5; prefix (cannot be combined with other args)
+  --hex, -H                   Display colors by hex value (cannot be combined with other args)
+  --all, -A                   Show all foreground and background colors (only when no color/bg is specified)
 
-        Optional arguments:
-          --color COLOR, -c COLOR     Text color to use (default: cycle through 0-256)
-          --background BACKGROUND, -b BACKGROUND
-                                      Background color to use (default: None)
-        """
-        expected = dedent(expected).lstrip()
+Optional arguments:
+  --color COLOR, -c COLOR     Text color to use (default: cycle through 0-256)
+  --background BACKGROUND, -b BACKGROUND
+                              Background color to use (default: None)
+        """.lstrip()
 
         class AnsiColorTest(Command, description='Tool for testing ANSI colors', prog='ansi_color_test.py'):
             text = Option('-t', help='Text to be displayed (default: the number of the color being shown)')
@@ -699,34 +694,33 @@ class GroupHelpTextTest(ParserTest):
                     color = Option('-c', help='Text color to use (default: cycle through 0-256)')
                     background = Option('-b', help='Background color to use (default: None)')
 
-        self.assert_strings_equal(expected, get_help_text(AnsiColorTest), diff_lines=7)
+        self.assert_strings_equal(expected, get_help_text(AnsiColorTest), diff_lines=7, trim=True)
 
     def test_nested_show_tree(self):
         expected = """
-        usage: foo.py [--foo FOO] [--arg-a ARG_A] [--arg-b ARG_B] [--arg-y ARG_Y] [--arg-z ARG_Z] [--bar] [--baz] [--help]
+usage: foo.py [--foo FOO] [--arg-a ARG_A] [--arg-b ARG_B] [--arg-y ARG_Y] [--arg-z ARG_Z] [--bar] [--baz] [--help]
 
-        Optional arguments:
-        │ --foo FOO, -f FOO         Do foo
-        │ --help, -h                Show this help message and exit
-        │
-        Mutually exclusive options:
-        ¦ --arg-a ARG_A, -a ARG_A   A
-        ¦ --arg-b ARG_B, -b ARG_B   B
-        ¦
-        ¦ Mutually dependent options:
-        ¦ ║ --arg-y ARG_Y, -y ARG_Y
-        ¦ ║                         Y
-        ¦ ║ --arg-z ARG_Z, -z ARG_Z
-        ¦ ║                         Z
-        ¦ ║
-        ¦
-        ¦ Optional arguments:
-        ¦ │ --bar
-        ¦ │ --baz
-        ¦ │
-        ¦
-        """
-        expected = dedent(expected).strip()
+Optional arguments:
+│ --foo FOO, -f FOO         Do foo
+│ --help, -h                Show this help message and exit
+│
+Mutually exclusive options:
+¦ --arg-a ARG_A, -a ARG_A   A
+¦ --arg-b ARG_B, -b ARG_B   B
+¦
+¦ Mutually dependent options:
+¦ ║ --arg-y ARG_Y, -y ARG_Y
+¦ ║                         Y
+¦ ║ --arg-z ARG_Z, -z ARG_Z
+¦ ║                         Z
+¦ ║
+¦
+¦ Optional arguments:
+¦ │ --bar
+¦ │ --baz
+¦ │
+¦
+        """.strip()
 
         class Foo(Command, show_group_tree=True, prog='foo.py'):
             foo = Option('-f', help='Do foo')
