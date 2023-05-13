@@ -135,3 +135,5 @@ Options that only affect RST documentation generation.
 
 :show_docstring: Whether the top level script's docstring should be included in generated documentation
   (default: True)
+:show_inherited_descriptions: Whether inherited descriptions should be included in subcommand sections of generated
+  documentation (default: False)

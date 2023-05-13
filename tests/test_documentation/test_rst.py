@@ -98,6 +98,28 @@ Commands Module
 
 
 class CommandRstTest(ParserTest):
+    def test_inherited_description_included(self):
+        class Foo(Command, description='foobarbaz', show_inherited_descriptions=True):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            pass
+
+        self.assertEqual(2, render_command_rst(Foo).count('\nfoobarbaz\n'))
+
+    def test_unique_description_included(self):
+        for show in (True, False):
+
+            class Foo(Command, description='foobarbaz', show_inherited_descriptions=show):
+                sub = SubCommand()
+
+            class Bar(Foo, description='bazbarfoo'):
+                pass
+
+            rendered = render_command_rst(Foo)
+            self.assertEqual(1, rendered.count('\nfoobarbaz\n'))
+            self.assertEqual(1, rendered.count('\nbazbarfoo\n'))
+
     def test_basic_subcommand_no_help(self):
         expected = THIS_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
 

@@ -402,6 +402,9 @@ class CommandConfig:
     #: Whether the top level script's docstring should be included in generated documentation
     show_docstring: Bool = ConfigItem(True, bool)
 
+    #: Whether inherited descriptions should be included in subcommand sections of generated documentation
+    show_inherited_descriptions: Bool = ConfigItem(False, bool)
+
     # endregion
 
     def __init__(self, parent: Optional[CommandConfig] = None, read_only: bool = False, **kwargs):

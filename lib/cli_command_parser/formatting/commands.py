@@ -14,7 +14,7 @@ from ..context import ctx, NoActiveContext
 from ..core import get_params, get_metadata
 from ..parameters.groups import ParamGroup
 from ..utils import camel_to_snake_case
-from .restructured_text import rst_header, RstTable
+from .restructured_text import RstTable, spaced_rst_header
 from .utils import combine_and_wrap
 
 if TYPE_CHECKING:
@@ -112,14 +112,20 @@ class CommandHelpFormatter:
         return '\n'.join(parts)
 
     def _format_rst(
-        self, include_epilog: Bool = False, sub_cmd_choice: str = None, allow_sys_argv: Bool = False
+        self,
+        include_epilog: Bool = False,
+        sub_cmd_choice: str = None,
+        allow_sys_argv: Bool = False,
+        show_description: Bool = True,
     ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
-        yield from ('::', '')
+        yield '::'
+        yield ''
         yield '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice, allow_sys_argv=allow_sys_argv, cont_indent=8)
-        yield from ('', '')
+        yield ''
+        yield ''
 
-        if description := self._meta.description:
+        if show_description and (description := self._meta.description):
             yield description
             yield ''
 
@@ -128,43 +134,58 @@ class CommandHelpFormatter:
         for group in self.groups:
             if group.show_in_help:
                 table: RstTable = group.formatter.rst_table()  # noqa
-                yield from table.iter_build()  # noqa
+                yield from table.iter_build()
 
         if include_epilog and (epilog := self._meta.format_epilog(ctx.config.extended_epilog, allow_sys_argv)):
             yield epilog
 
-    def format_rst(
+    def _format_rst_lines(
         self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
-    ) -> str:
-        """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
+    ) -> Iterator[str]:
         # TODO: Nested subcommands do not have full sections, but they should
         name = self._meta.doc_name
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)  # noqa
 
-        parts = [rst_header(name, init_level), '']
-        if ctx.config.show_docstring and (doc_str := self._meta.get_doc_str()):
-            parts += [doc_str, '']
+        yield from spaced_rst_header(name, init_level, False)
 
-        parts.append('')
-        parts.extend(self._format_rst(True, allow_sys_argv=allow_sys_argv))
+        config = ctx.config
+        if config.show_docstring and (doc_str := self._meta.get_doc_str()):
+            yield doc_str
+            yield ''
+
+        yield ''
+        yield from self._format_rst(True, allow_sys_argv=allow_sys_argv)
 
         if (sub_command := get_params(self.command).sub_command) and sub_command.show_in_help:
-            parts += ['', rst_header('Subcommands', init_level + 1), '']
+            show_inherited_descriptions, description = config.show_inherited_descriptions, self._meta.description
+            yield from spaced_rst_header('Subcommands', init_level + 1)
             for cmd_name, choice in sub_command.choices.items():
-                # TODO: Config to disable inherited description from being printed for each subcommand
-                parts += ['', rst_header(f'Subcommand: {cmd_name}', init_level + 2), '']
+                yield from spaced_rst_header(f'Subcommand: {cmd_name}', init_level + 2)
                 if choice_help := choice.help:
-                    parts += [choice_help, '']
+                    yield choice_help
+                    yield ''
 
                 try:
                     formatter = get_formatter(choice.target)
                 except TypeError:  # choice.target is None (it is the default choice, pointing back to the same Command)
                     formatter = self
+                    show_description = show_inherited_descriptions
+                else:
+                    if description and not show_inherited_descriptions:
+                        show_description = formatter._meta.description != description
+                    else:
+                        show_description = True
 
-                parts.extend(formatter._format_rst(sub_cmd_choice=cmd_name, allow_sys_argv=allow_sys_argv))
+                yield from formatter._format_rst(
+                    sub_cmd_choice=cmd_name, allow_sys_argv=allow_sys_argv, show_description=show_description
+                )
 
-        return '\n'.join(parts)
+    def format_rst(
+        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
+    ) -> str:
+        """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
+        return '\n'.join(self._format_rst_lines(fix_name, fix_name_func, init_level, allow_sys_argv))
 
 
 def _fix_name(name: str) -> str:
