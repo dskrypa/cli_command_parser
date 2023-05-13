@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 
-_group_stack = ContextVar('cli_command_parser.parameters.base.group_stack', default=[])
+_group_stack = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
 
 
@@ -630,5 +630,5 @@ class BaseOption(Parameter[T_co], ABC):
 def get_active_param_group() -> Optional[ParamGroup]:
     try:
         return _group_stack.get()[-1]
-    except (AttributeError, IndexError):
+    except (LookupError, IndexError):
         return None

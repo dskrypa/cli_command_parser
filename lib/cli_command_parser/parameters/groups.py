@@ -127,7 +127,10 @@ class ParamGroup(ParamBase):
         A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the
         ``with`` block will be registered as members of that group.
         """
-        _group_stack.get().append(self)
+        try:
+            _group_stack.get().append(self)
+        except LookupError:
+            _group_stack.set([self])
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
