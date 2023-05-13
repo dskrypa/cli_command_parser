@@ -35,6 +35,10 @@ class ConfigItemTest(TestCase):
         with self.assertRaises(AttributeError):
             del DEFAULT_CONFIG.usage_column_width
 
+    def test_dynamic_ro_set_rejected(self):
+        with self.assertRaises(AttributeError):
+            DEFAULT_CONFIG.cmd_alias_mode = 'repeat'  # noqa
+
 
 class ConfigEnumTest(TestCase):
     def test_invalid_show_defaults(self):
@@ -94,6 +98,16 @@ class ConfigTest(TestCase):
         self.assertTrue(get_config(Bar).show_group_tree)
 
     # endregion
+
+    def test_validate_wrap_usage_str(self):
+        with self.assertRaisesRegex(TypeError, 'Invalid wrap_usage_str value=.*'):
+            CommandConfig(wrap_usage_str='foo')
+        with self.assertRaisesRegex(ValueError, 'Invalid wrap_usage_str value=.*'):
+            CommandConfig(wrap_usage_str=-1)
+
+        self.assertEqual(False, CommandConfig().wrap_usage_str)
+        self.assertEqual(True, CommandConfig(wrap_usage_str=True).wrap_usage_str)
+        self.assertEqual(123, CommandConfig(wrap_usage_str=123).wrap_usage_str)
 
 
 if __name__ == '__main__':

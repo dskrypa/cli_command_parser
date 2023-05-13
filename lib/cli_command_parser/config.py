@@ -157,13 +157,6 @@ class SubcommandAliasHelpMode(MissingMixin, Enum):
 CmdAliasMode = Union[SubcommandAliasHelpMode, str]
 
 
-def _cmd_alias_mode(mode: CmdAliasMode) -> CmdAliasMode:
-    try:
-        return SubcommandAliasHelpMode(mode)
-    except ValueError:
-        return mode
-
-
 class AmbiguousComboMode(MissingMixin, Enum):
     """
     Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.
@@ -220,7 +213,7 @@ class AllowLeadingDash(Enum):
 class ConfigItem(Generic[CV, DV]):
     __slots__ = ('default', 'type', 'name')
 
-    def __init__(self, default: DV, type: Callable[[Any], CV] = None):  # noqa
+    def __init__(self, default: DV, type: Callable[..., CV] = None):  # noqa
         self.default = default
         self.type = type
 
@@ -244,8 +237,8 @@ class ConfigItem(Generic[CV, DV]):
     def __set__(self, instance: CommandConfig, value: ConfigValue):
         if instance._read_only:
             raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
-        elif self.type is not None:
-            value = self.type(value)
+        elif (type_func := self.type) is not None:
+            value = type_func(value)
         instance._data[self.name] = value
 
     def __delete__(self, instance: CommandConfig):
@@ -258,6 +251,23 @@ class ConfigItem(Generic[CV, DV]):
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}({self.default!r}, type={self.type!r})>'
+
+
+class DynamicConfigItem(ConfigItem):
+    __slots__ = ('__doc__',)
+
+    def __init__(self, default: DV, type: Callable[..., CV]):  # noqa
+        super().__init__(default, type)
+        self.__doc__ = type.__doc__
+
+    def __set__(self, instance: CommandConfig, value: ConfigValue):
+        if instance._read_only:
+            raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
+        instance._data[self.name] = self.type(instance, value)
+
+
+def config_item(default: DV):
+    return lambda func: DynamicConfigItem(default, func)
 
 
 class CommandConfig:
@@ -332,11 +342,19 @@ class CommandConfig:
     #: Whether the default value for Parameters should be shown in help text, and related behavior
     show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
 
-    #: How subcommand aliases should be displayed in help text.
-    cmd_alias_mode: CmdAliasMode = ConfigItem(None, _cmd_alias_mode)  # noqa
+    @config_item(None)
+    def cmd_alias_mode(self, value: CmdAliasMode) -> CmdAliasMode:
+        """How subcommand aliases should be displayed in help text."""
+        try:
+            return SubcommandAliasHelpMode(value)
+        except ValueError:
+            return value
 
     #: Whether Parameter `choices` values and Action / Subcommand choices should be sorted
     sort_choices: Bool = ConfigItem(False, bool)
+
+    #: Delimiter to use between choices in usage / help text
+    choice_delim: str = ConfigItem('|', str)
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = ConfigItem(False, bool)
@@ -355,17 +373,37 @@ class CommandConfig:
     #: they were successfully detected
     extended_epilog: Bool = ConfigItem(True, bool)
 
-    #: Whether the top level script's docstring should be included in generated documentation
-    show_docstring: Bool = ConfigItem(True, bool)
-
-    #: Delimiter to use between choices in usage / help text
-    choice_delim: str = ConfigItem('|', str)
-
     #: Width (in characters) for the usage column in help text
     usage_column_width: int = ConfigItem(30, int)
 
     #: Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width
     min_usage_column_width: int = ConfigItem(20, int)
+
+    @config_item(False)
+    def wrap_usage_str(self, value: Any) -> Union[int, bool]:
+        """
+        Wrap the basic usage string after the specified number of characters, or automatically based on terminal size
+        if ``True`` is specified instead.
+        """
+        if value is True or value is False:
+            return value
+        try:
+            value = int(value)
+        except (ValueError, TypeError) as e:
+            raise TypeError(f'Invalid wrap_usage_str {value=} - expected a bool or a positive integer') from e
+        if value < 1:
+            raise ValueError(f'Invalid wrap_usage_str {value=} - expected a bool or a positive integer')
+        return value
+
+    # endregion
+
+    # region Documentation Generation Options
+
+    #: Whether the top level script's docstring should be included in generated documentation
+    show_docstring: Bool = ConfigItem(True, bool)
+
+    #: Whether inherited descriptions should be included in subcommand sections of generated documentation
+    show_inherited_descriptions: Bool = ConfigItem(False, bool)
 
     # endregion
 

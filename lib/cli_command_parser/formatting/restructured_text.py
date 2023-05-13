@@ -54,6 +54,13 @@ def rst_header(text: str, level: int = 1, overline: Bool = False) -> str:
     return f'{bar}\n{text}\n{bar}' if overline else f'{text}\n{bar}'
 
 
+def spaced_rst_header(text: str, level: int = 1, before: bool = True) -> Iterator[str]:
+    if before:
+        yield ''
+    yield f'{text}\n{rst_bar(text, level)}'
+    yield ''
+
+
 def _rst_directive(
     directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: Bool = False
 ) -> Iterator[str]:

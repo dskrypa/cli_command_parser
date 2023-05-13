@@ -53,8 +53,6 @@ do foo
     usage: sub_cmd_with_mid_abc.py sub [--foo FOO] [--help] [--bar] [--baz]
 
 
-test
-
 
 .. rubric:: Optional arguments
 
