@@ -49,7 +49,7 @@ def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func
     :return: The help text for the given Command, formatted using RST
     """
     with Context([], command, allow_argv_prog=False):
-        return get_formatter(command).format_rst(fix_name, fix_name_func, no_sys_argv=True)
+        return get_formatter(command).format_rst(fix_name, fix_name_func)
 
 
 def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:

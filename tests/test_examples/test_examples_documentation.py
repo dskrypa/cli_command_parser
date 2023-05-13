@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest import main
 
 from cli_command_parser import Context, Command
-from cli_command_parser.documentation import render_script_rst
+from cli_command_parser.documentation import load_commands, render_command_rst, render_script_rst, top_level_commands
 from cli_command_parser.testing import ParserTest, get_help_text, load_command
 
 THIS_FILE = Path(__file__).resolve()
@@ -44,6 +44,25 @@ class ExampleHelpTest(ParserTest):
                 with load_command(EXAMPLES_DIR, file_name, cmd_name) as command:
                     expected = load_expected(expected_file_name)
                     self.assert_strings_equal(expected, get_help_text(command()).rstrip())
+
+
+class ExampleRstFormatTest(ParserTest):
+    def test_examples_shared_logging_init(self):
+        expected = TEST_DATA_DIR.joinpath('shared_logging_init.rst').read_text('utf-8')
+        commands = load_commands(EXAMPLES_DIR.joinpath('shared_logging_init.py'))
+        self.assertSetEqual({'Base', 'Show'}, set(commands))
+        self.assertSetEqual({'Base'}, set(top_level_commands(commands)))
+        with self.subTest(fix_name=True):
+            self.assert_strings_equal(expected, render_command_rst(commands['Base']))
+
+        with self.subTest(fix_name=False):
+            rendered = render_command_rst(commands['Base'], fix_name=False)
+            self.assertTrue(rendered.startswith('shared_logging_init\n*******************\n'))
+
+    def test_examples_advanced_subcommand(self):
+        commands = load_commands(EXAMPLES_DIR.joinpath('advanced_subcommand.py'))
+        self.assertSetEqual({'Base', 'Foo', 'Bar', 'Baz'}, set(commands))
+        self.assertSetEqual({'Base'}, set(top_level_commands(commands)))
 
     def _test_example_rst_texts(self):
         cases = [

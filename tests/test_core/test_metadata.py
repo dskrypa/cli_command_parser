@@ -7,8 +7,8 @@ from unittest.mock import patch, Mock, seal
 
 from cli_command_parser import Command, Context, main as ccp_main
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.metadata import ProgramMetadata, Metadata, ProgFinder
-from cli_command_parser.metadata import _path_and_globals, _description, _doc_name, _prog_finder, EntryPoint
+from cli_command_parser.metadata import ProgramMetadata, Metadata, DynamicMetadata, ProgFinder, dynamic_metadata
+from cli_command_parser.metadata import _path_and_globals, _description, _prog_finder, EntryPoint
 
 MODULE = 'cli_command_parser.metadata'
 THIS_FILE = Path(__file__)
@@ -20,7 +20,7 @@ class Foo(Command):
 
 def ep_scripts(*name_val_tuples):
     cs = 'console_scripts'
-    return tuple(EntryPoint(name, val, cs) for name, val in name_val_tuples)
+    return tuple(EntryPoint(name, val, cs) for name, val in name_val_tuples)  # noqa
 
 
 class MetadataTest(TestCase):
@@ -30,12 +30,24 @@ class MetadataTest(TestCase):
         self.assertRegex(meta_repr, r'\s{4}path=.*?/test_metadata.py')
 
     def test_metadata_self(self):
-        self.assertIsInstance(ProgramMetadata.prog, Metadata)
-        self.assertEqual('Metadata(default=None)', repr(ProgramMetadata.prog))
+        self.assertIsInstance(ProgramMetadata.url, Metadata)
+        self.assertIsInstance(ProgramMetadata.prog, DynamicMetadata)
+        self.assertEqual('Metadata(default=None)', repr(ProgramMetadata.url))
+        self.assertEqual('DynamicMetadata(func=ProgramMetadata.prog)', repr(ProgramMetadata.prog))
 
     def test_bad_arg(self):
         with self.assertRaisesRegex(TypeError, 'Invalid arguments for ProgramMetadata: bar, foo'):
             ProgramMetadata(foo=123, bar=456)
+
+    def test_dynamic_metadata_no_args(self):
+        class Bar:
+            _fields = set()
+
+            @dynamic_metadata
+            def baz(self):
+                return 1
+
+        self.assertIsInstance(Bar.baz, DynamicMetadata)
 
     # region Docstring / Description
 
@@ -76,9 +88,6 @@ class MetadataTest(TestCase):
         meta = ProgramMetadata(prog='foo', epilog='test', version='4.3.2', url='http://fake.com')
         self.assertEqual('test\n\nOnline documentation: http://fake.com', meta.format_epilog())
 
-    def test_doc_name_prog(self):
-        self.assertEqual('test_123', _doc_name(None, Path('UNKNOWN'), 'test_123'))
-
     # region Docs URL
 
     def test_doc_url_none(self):
@@ -114,7 +123,7 @@ class MetadataTest(TestCase):
 class MetadataProgTest(TestCase):
     def test_prog_from_path_on_no_sys_argv(self):
         with patch('sys.argv', []):
-            self.assertEqual(THIS_FILE.name, _prog_finder.normalize(None, THIS_FILE, None, False, Mock())[0])
+            self.assertEqual(THIS_FILE.name, _prog_finder.normalize(THIS_FILE, None, True, 'foo.bar', 'Baz')[0])
 
     def test_prog_from_sys_argv(self):
         name = 'example_test_123.py'
@@ -122,7 +131,7 @@ class MetadataProgTest(TestCase):
             tmp_path = Path(tmp_dir).joinpath(name)
             tmp_path.touch()
             with patch('sys.argv', [tmp_path.as_posix()]), Context():
-                self.assertEqual(name, _prog_finder.normalize(None, THIS_FILE, None, False, Mock())[0])
+                self.assertEqual(name, _prog_finder.normalize(THIS_FILE, None, True, 'foo.bar', 'Baz')[0])
 
     def test_entry_points_old(self):
         entry_points = {'console_scripts': ep_scripts(('bar.py', 'foo:bar'), ('baz.py', 'foo:baz'))}
@@ -137,33 +146,39 @@ class MetadataProgTest(TestCase):
             self.assertDictEqual(expected, ProgFinder().mod_obj_prog_map)
 
     def test_prog_from_entry_point_main(self):
-        Cmd = type('Cmd', (Command,), {'__module__': 'foo.bar'})
+        cmd_mod, cmd_name = 'foo.bar', 'Cmd'
         entry_points = ep_scripts(('bar.py', 'foo.bar:bar'), ('baz.py', 'foo.bar:main'))
         mod = Mock(main=ccp_main)
         seal(mod)  # Trigger the obj = getattr(...) AttributeError
         with patch(f'{MODULE}.modules', {'foo.bar': mod}), patch(f'{MODULE}.entry_points', return_value=entry_points):
-            self.assertEqual('baz.py', ProgFinder().normalize(None, THIS_FILE, None, False, Cmd)[0])  # noqa
+            for argv_ok in (True, False):
+                self.assertEqual('baz.py', ProgFinder().normalize(THIS_FILE, None, argv_ok, cmd_mod, cmd_name)[0])
 
     def test_prog_from_entry_point_method(self):
-        Cmd = type('Cmd', (Command,), {'__module__': 'foo.bar'})
+        cmd_mod, cmd_name = 'foo.bar', 'Cmd'
+        Cmd = type(cmd_name, (Command,), {'__module__': cmd_mod})
         entry_points = ep_scripts(('bar.py', 'foo.bar:bar'), ('baz.py', 'foo.bar:Cmd.parse_and_run'))
         with patch(f'{MODULE}.modules', {'foo.bar': Mock(Cmd=Cmd)}):
             with patch(f'{MODULE}.entry_points', return_value=entry_points):
-                self.assertEqual('baz.py', ProgFinder().normalize(None, THIS_FILE, None, False, Cmd)[0])  # noqa
+                for argv_ok in (True, False):
+                    self.assertEqual('baz.py', ProgFinder().normalize(THIS_FILE, None, argv_ok, cmd_mod, cmd_name)[0])
 
     def test_prog_from_entry_point_with_extras(self):
-        Cmd = type('Cmd', (Command,), {'__module__': 'foo.bar'})
+        cmd_mod, cmd_name = 'foo.bar', 'Cmd'
         entry_points = ep_scripts(('bar.py', 'foo.bar:bar'), ('baz.py', 'foo.bar:main [test]'))
         with patch(f'{MODULE}.modules', {'foo.bar': Mock(main=ccp_main)}):
             with patch(f'{MODULE}.entry_points', return_value=entry_points):
-                self.assertEqual('baz.py', ProgFinder().normalize(None, THIS_FILE, None, False, Cmd)[0])  # noqa
+                for argv_ok in (True, False):
+                    self.assertEqual('baz.py', ProgFinder().normalize(THIS_FILE, None, argv_ok, cmd_mod, cmd_name)[0])
 
     def test_prog_no_entry_point_found(self):
-        Cmd = type('Cmd', (Command,), {'__module__': 'foo.bar'})
+        cmd_mod, cmd_name = 'foo.bar', 'Cmd'
         entry_points = ep_scripts(('bar.py', 'foo.bar:bar'), ('baz.py', 'foo.bar:main'))
+        exp_name = THIS_FILE.name
         with patch(f'{MODULE}.modules', {'foo.bar': Mock()}):
             with patch(f'{MODULE}.entry_points', return_value=entry_points):
-                self.assertEqual(THIS_FILE.name, ProgFinder().normalize(None, THIS_FILE, None, False, Cmd)[0])  # noqa
+                for argv_ok in (True, False):
+                    self.assertEqual(exp_name, ProgFinder().normalize(THIS_FILE, None, argv_ok, cmd_mod, cmd_name)[0])
 
 
 if __name__ == '__main__':
