@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import logging
 import sys
+from abc import ABC
 from collections import defaultdict
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, Mapping, List, Dict
+from typing import TYPE_CHECKING, Iterable, Mapping, Any, List, Dict
 
 from .commands import Command
 from .context import Context
@@ -48,7 +49,7 @@ def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func
     :return: The help text for the given Command, formatted using RST
     """
     with Context([], command, allow_argv_prog=False):
-        return get_formatter(command).format_rst(fix_name, fix_name_func, no_sys_argv=True)
+        return get_formatter(command).format_rst(fix_name, fix_name_func)
 
 
 def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
@@ -72,7 +73,7 @@ def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_fun
 # region Import and Load Commands
 
 
-def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
+def load_commands(path: PathLike, top_only: Bool = False, include_abc: Bool = False) -> Commands:
     """
     Load all of the commands from the file with the given path and return them as a dict of ``{name: Command}``.
 
@@ -82,17 +83,25 @@ def load_commands(path: PathLike, top_only: Bool = False) -> Commands:
 
     :param path: The path to a file containing one or more :class:`.Command` classes
     :param top_only: If True, then only top-level commands are returned (default: all)
+    :param include_abc: Whether Command classes that extend :class:`python:abc.ABC` should be included in results.
     :return: Dict containing the Commands loaded from the given file
     """
     with Context(allow_argv_prog=False):
         module = import_module(path)
-    commands = {key: val for key, val in module.__dict__.items() if not key.startswith('__') and _is_command(val)}
-    if top_only:
-        commands = top_level_commands(commands)
+
+    commands = filtered_commands(module.__dict__, top_only, include_abc)
 
     if doc_str := module.__doc__:
         for command in commands.values():
             get_metadata(command).pkg_doc_str = doc_str
+
+    return commands
+
+
+def filtered_commands(obj_map: Dict[str, Any], top_only: Bool = False, include_abc: Bool = False) -> Commands:
+    commands = {key: val for key, val in obj_map.items() if not key.startswith('__') and _is_command(val, include_abc)}
+    if top_only:
+        commands = top_level_commands(commands)
 
     return commands
 
@@ -140,8 +149,11 @@ def import_module(path: PathLike):
     return module
 
 
-def _is_command(obj) -> bool:
-    return isinstance(obj, CommandMeta) and obj is not Command
+def _is_command(obj, include_abc: Bool = False) -> bool:
+    if not (isinstance(obj, CommandMeta) and obj is not Command):
+        return False
+    else:
+        return True if include_abc else ABC not in obj.__bases__
 
 
 # endregion
@@ -283,6 +295,7 @@ class RstWriter:
             index_subdir = None
             content_subdir = subdir
 
+        # TODO: This needs improvement for multi-package repos
         contents = self._generate_code_rsts(pkg_name, pkg_path, content_subdir, max_depth=max_depth)
         if (not contents and not empty) or not index:
             return contents

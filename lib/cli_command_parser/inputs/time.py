@@ -56,8 +56,7 @@ class different_locale:
 
     def __enter__(self):
         self._lock.acquire()
-        locale = self.locale
-        if not locale:
+        if not (locale := self.locale):
             return
         # locale.getlocale does not support LC_ALL, but `setlocale(LC_ALL)` with no locale to set will return a str
         # containing all of the current locale settings as `key1=val1;key2=val2;...;keyN=valN`
@@ -210,16 +209,9 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         normalized = self.parse(value)
         if normalized < self._min_index:
             raise InvalidChoiceError(value, self.choices(), self.dt_type)
-
-        out_mode = self.out_format
-        if out_mode in (DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO):
+        elif (out_mode := self.out_format) in (DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO):
             return self._formats[out_mode][normalized]
-
-        try:
-            names_or_abbreviations = self._formats[out_mode]
-        except KeyError:
-            pass
-        else:
+        elif (names_or_abbreviations := self._formats.get(out_mode)) is not None:
             with different_locale(self.out_locale):
                 return names_or_abbreviations[normalized]
 

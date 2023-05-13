@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
-_context_stack = ContextVar('cli_command_parser.context.stack', default=[])
+_context_stack = ContextVar('cli_command_parser.context.stack')
 _TERMINAL = Terminal()
 
 
@@ -105,10 +105,15 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self.__class__(argv, command, parent=self, **kwargs)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__}[command={getattr(self.command, "__name__", None)}]>'
+        command = getattr(self.command, '__name__', None)
+        prog, argv, allow_argv_prog = self.prog, self.argv, self.allow_argv_prog
+        return f'<{self.__class__.__name__}[{command=!s}, {prog=}, {allow_argv_prog=}, {argv=}]>'
 
     def __enter__(self) -> Context:
-        _context_stack.get().append(self)
+        try:
+            _context_stack.get().append(self)
+        except LookupError:
+            _context_stack.set([self])
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -134,8 +139,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     @property
     def terminal_width(self) -> int:
         """Returns the current terminal width as the number of characters that fit on a single line."""
-        if self._terminal_width is not None:
-            return self._terminal_width
+        if (width := self._terminal_width) is not None:
+            return width
         return _TERMINAL.width
 
     def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
@@ -330,23 +335,24 @@ class ContextProxy:
         return item in get_current_context()
 
     def __enter__(self) -> Context:
-        return get_current_context().__enter__()
+        # The current context is already active, so there's no need to re-enter it - it can just be returned
+        return get_current_context()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        return get_current_context().__exit__(exc_type, exc_val, exc_tb)
+        pass
 
     @property
     def terminal_width(self) -> int:
-        try:
-            return get_current_context().terminal_width
-        except NoActiveContext:
+        if context := get_current_context(True):
+            return context.terminal_width
+        else:
             return _TERMINAL.width
 
     @property
     def config(self) -> CommandConfig:
-        try:
-            return get_current_context().config
-        except NoActiveContext:
+        if context := get_current_context(True):
+            return context.config
+        else:
             return DEFAULT_CONFIG
 
 
@@ -366,7 +372,7 @@ def get_current_context(silent: bool = False) -> Optional[Context]:
     """
     try:
         return _context_stack.get()[-1]
-    except (AttributeError, IndexError):
+    except (LookupError, IndexError):
         if silent:
             return None
         raise NoActiveContext('There is no active context') from None
@@ -377,15 +383,12 @@ def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, 
     Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
     no active Context.
     """
-    try:
-        context = get_current_context()
-    except NoActiveContext:
+    if not (context := get_current_context(True)):
         return Context(argv, command_cls, **kwargs)
+    elif argv is None and context.command is command_cls and not kwargs:
+        return context
     else:
-        if argv is None and context.command is command_cls and not kwargs:
-            return context
-        else:
-            return context._sub_context(command_cls, argv=argv, **kwargs)
+        return context._sub_context(command_cls, argv=argv, **kwargs)
 
 
 def get_context(command: Command) -> Context:

@@ -208,8 +208,8 @@ class ContextTest(TestCase):
         class Foo(Command):
             pass
 
-        self.assertEqual('<Context[command=Foo]>', repr(Foo().ctx))
-        self.assertEqual('<Context[command=None]>', repr(Context()))
+        self.assertTrue(repr(Foo().ctx).startswith('<Context[command=Foo, prog='))
+        self.assertTrue(repr(Context()).startswith('<Context[command=None, prog='))
 
 
 if __name__ == '__main__':

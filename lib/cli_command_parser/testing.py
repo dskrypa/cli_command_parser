@@ -11,6 +11,8 @@ import sys
 from contextlib import AbstractContextManager, contextmanager
 from difflib import unified_diff
 from io import StringIO, BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, ContextManager, Dict, List, Tuple
 from unittest import TestCase
 from unittest.mock import Mock, seal, patch
@@ -23,7 +25,6 @@ from .documentation import load_commands
 from .exceptions import UsageError
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from .typing import CommandCls
 
 __all__ = [
@@ -35,6 +36,7 @@ __all__ = [
     'get_usage_text',
     'sealed_mock',
     'load_command',
+    'TemporaryDir',
 ]
 
 Argv = List[str]
@@ -323,3 +325,8 @@ def load_command(directory: Path, name: str, cmd_name: str) -> ContextManager[Co
     path = directory.joinpath(name)
     with Context.for_prog(path):
         yield load_commands(path)[cmd_name]
+
+
+class TemporaryDir(TemporaryDirectory):
+    def __enter__(self) -> Path:
+        return Path(self.name)

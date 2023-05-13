@@ -44,8 +44,7 @@ class PassThru(Parameter):
     def take_action(  # pylint: disable=W0237
         self, values: Strings, short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
     ):
-        value = ctx.get_parsed_value(self)
-        if value is not _NotSet:
+        if (value := ctx.get_parsed_value(self)) is not _NotSet:
             raise ParamUsageError(
                 self, f'can only be specified once - found {values=} but a stored {value=} already exists'
             )

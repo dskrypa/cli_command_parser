@@ -26,6 +26,8 @@ NameFunc = Callable[[str], str]
 
 
 class CommandHelpFormatter:
+    __slots__ = ('command', 'params', 'pos_group', 'opt_group', 'groups')
+
     def __init__(self, command: CommandType, params: CommandParameters):
         self.command = command
         self.params = params
@@ -52,16 +54,16 @@ class CommandHelpFormatter:
     def maybe_add_options(self, params: Iterable[BaseOption]):
         self.opt_group.extend(param for param in params if not param.group)
 
-    def format_usage(self, delim: str = ' ', sub_cmd_choice: str = None) -> str:
+    def format_usage(self, delim: str = ' ', sub_cmd_choice: str = None, allow_sys_argv: Bool = True) -> str:
         meta = get_metadata(self.command)
-        if meta.usage:
-            return meta.usage
+        if usage := meta.usage:
+            return usage
 
         params = self.params.all_positionals + self.params.options  # noqa
         if (pass_thru := self.params.pass_thru) is not None:
             params.append(pass_thru)
 
-        parts = ['usage:', meta.prog]
+        parts = ['usage:', meta.get_prog(allow_sys_argv)]
         if sub_cmd_choice:
             parts.append(sub_cmd_choice)
         else:
@@ -70,30 +72,34 @@ class CommandHelpFormatter:
         parts.extend(param.formatter.format_basic_usage() for param in params if param.show_in_help)
         return delim.join(parts)
 
-    def format_help(self) -> str:
+    def format_help(self, allow_sys_argv: Bool = True) -> str:
+        parts = [self.format_usage(allow_sys_argv=allow_sys_argv), '']
+
         meta = get_metadata(self.command)
-        parts = [self.format_usage(), '']
-        if meta.description:
-            parts += [meta.description, '']
+        if description := meta.description:
+            parts += [description, '']
 
         for group in self.groups:
             if group.show_in_help:
                 parts.append(group.formatter.format_help())
 
-        if epilog := meta.format_epilog(ctx.config.extended_epilog):
+        if epilog := meta.format_epilog(ctx.config.extended_epilog, allow_sys_argv):
             parts.append(epilog)
 
         return '\n'.join(parts)
 
     def _format_rst(
-        self, include_epilog: Bool = False, sub_cmd_choice: str = None, no_sys_argv: Bool = False
+        self, include_epilog: Bool = False, sub_cmd_choice: str = None, allow_sys_argv: Bool = False
     ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
-        meta = get_metadata(self.command, no_sys_argv=no_sys_argv)
+        yield from ('::', '')
         # TODO: Line wrap usage text?
-        yield from ('::', '', '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice), '', '')
-        if meta.description:
-            yield meta.description
+        yield '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice, allow_sys_argv=allow_sys_argv)
+        yield from ('', '')
+
+        meta = get_metadata(self.command)
+        if description := meta.description:
+            yield description
             yield ''
 
         # TODO: The subcommand names in the group containing subcommand targets should link to their respective
@@ -103,43 +109,40 @@ class CommandHelpFormatter:
                 table: RstTable = group.formatter.rst_table()  # noqa
                 yield from table.iter_build()  # noqa
 
-        if include_epilog and (epilog := meta.format_epilog(ctx.config.extended_epilog)):
+        if include_epilog and (epilog := meta.format_epilog(ctx.config.extended_epilog, allow_sys_argv)):
             yield epilog
 
     def format_rst(
-        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, no_sys_argv: Bool = False
+        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
     ) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         # TODO: Nested subcommands do not have full sections, but they should
-        meta = get_metadata(self.command, no_sys_argv=no_sys_argv)
+        meta = get_metadata(self.command)
         name = meta.doc_name
-        # TODO: Usage name for subcommands seems to always be ``build_docs.py``
         if fix_name:
-            name = fix_name_func(name) if fix_name_func else _fix_name(name)
-
-        # TODO: Use class docstring as description if no description is provided?
+            name = fix_name_func(name) if fix_name_func else _fix_name(name)  # noqa
 
         parts = [rst_header(name, init_level), '']
         if ctx.config.show_docstring and (doc_str := meta.get_doc_str()):
             parts += [doc_str, '']
 
         parts.append('')
-        parts.extend(self._format_rst(True, no_sys_argv=no_sys_argv))
+        parts.extend(self._format_rst(True, allow_sys_argv=allow_sys_argv))
 
         if (sub_command := get_params(self.command).sub_command) and sub_command.show_in_help:
             parts += ['', rst_header('Subcommands', init_level + 1), '']
             for cmd_name, choice in sub_command.choices.items():
-                # TODO: Config to disable inherited docstring/description from being printed for each subcommand
+                # TODO: Config to disable inherited description from being printed for each subcommand
                 parts += ['', rst_header(f'Subcommand: {cmd_name}', init_level + 2), '']
-                if choice.help:
-                    parts += [choice.help, '']
+                if choice_help := choice.help:
+                    parts += [choice_help, '']
 
                 try:
                     formatter = get_formatter(choice.target)
                 except TypeError:  # choice.target is None (it is the default choice, pointing back to the same Command)
                     formatter = self
 
-                parts.extend(formatter._format_rst(sub_cmd_choice=cmd_name, no_sys_argv=no_sys_argv))
+                parts.extend(formatter._format_rst(sub_cmd_choice=cmd_name, allow_sys_argv=allow_sys_argv))
 
         return '\n'.join(parts)
 

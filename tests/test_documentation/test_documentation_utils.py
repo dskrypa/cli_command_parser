@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 
 import sys
+from abc import ABC
 from pathlib import Path
 from unittest import main
 
-from cli_command_parser import Command
+from cli_command_parser import Command, Option
 from cli_command_parser.config import OptionNameMode
 from cli_command_parser.core import get_config
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.typing import CommandCls
 from cli_command_parser.documentation import top_level_commands, _render_commands_rst, import_module, load_commands
+from cli_command_parser.documentation import filtered_commands
 
 THIS_FILE = Path(__file__).resolve()
 TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data')
@@ -28,6 +30,15 @@ class DocumentationUtilsTest(ParserTest):
 
         commands = {'Foo': Foo, 'Bar': Bar}
         self.assertEqual(commands, top_level_commands(commands))
+
+    def test_filter_out_abc_parent(self):
+        class Foo(Command, ABC):
+            opt = Option()
+
+        class Bar(Foo):
+            pass
+
+        self.assert_dict_equal({'Bar': Bar}, filtered_commands({'Foo': Foo, 'Bar': Bar}))
 
     def test_multi_command_rst(self):
         expected = THIS_DATA_DIR.joinpath('basic_command_multi.rst').read_text('utf-8')

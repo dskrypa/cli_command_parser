@@ -381,8 +381,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         **kwargs,
     ):
         expected = {'action': 'store_const', 'default': False, 'const': _NotSet}
-        found = {k: kwargs.setdefault(k, v) for k, v in expected.items()}
-        if bad := {k: v for k, v in found.items() if expected[k] != v}:
+        if bad := {k: fv for k, ev in expected.items() if (fv := kwargs.setdefault(k, ev)) != ev}:
             raise ParameterDefinitionError(f'Unsupported kwargs for {self.__class__.__name__}: {bad}')
         elif always_available and not before_main:
             raise ParameterDefinitionError('always_available=True cannot be combined with before_main=False')

@@ -320,7 +320,7 @@ Optional arguments:\n  --help, -h                  Show this help message and ex
         self.assertEqual(['--no-a-c'], Foo.a_c.option_strs.display_long_alt)
         formatter = get_formatter(Foo)
         help_text = formatter.format_help()
-        rst_text = formatter.format_rst(no_sys_argv=True)
+        rst_text = formatter.format_rst()
         for expected in ('--a-b', '--a-c', '--no-a-c'):
             with self.subTest(expected=expected):
                 self.assertIn(expected, help_text)

@@ -64,8 +64,7 @@ class FileInput(InputType[T], ABC):
 
     def validated_path(self, path: PathLike) -> _Path:
         if not isinstance(path, _Path):
-            path = path.strip()
-            if not path:
+            if not (path := path.strip()):
                 raise ValueError('A valid path is required')
             path = _Path(path)
         if path.parts == ('-',):
