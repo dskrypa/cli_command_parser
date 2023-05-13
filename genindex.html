@@ -161,6 +161,7 @@
 <li class="toctree-l3"><a class="reference internal" href="configuration.html#actionflag-options">ActionFlag Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="configuration.html#parsing-options">Parsing Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="configuration.html#usage-help-text-options">Usage &amp; Help Text Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#documentation-generation-options">Documentation Generation Options</a></li>
 </ul>
 </li>
 </ul>
@@ -301,6 +302,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem.name"><code class="docutils literal notranslate"><span class="pre">ConfigItem.name</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem"><code class="docutils literal notranslate"><span class="pre">DynamicConfigItem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.config_item"><code class="docutils literal notranslate"><span class="pre">config_item()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig"><code class="docutils literal notranslate"><span class="pre">CommandConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.FIELDS"><code class="docutils literal notranslate"><span class="pre">CommandConfig.FIELDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.error_handler"><code class="docutils literal notranslate"><span class="pre">CommandConfig.error_handler</span></code></a></li>
@@ -319,15 +322,17 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_tree"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_tree</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_type"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.command_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.command_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.param_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.param_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.extended_epilog"><code class="docutils literal notranslate"><span class="pre">CommandConfig.extended_epilog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -540,6 +545,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html">Restructured_Text Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_bar"><code class="docutils literal notranslate"><span class="pre">rst_bar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_header"><code class="docutils literal notranslate"><span class="pre">rst_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.spaced_rst_header"><code class="docutils literal notranslate"><span class="pre">spaced_rst_header()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_directive"><code class="docutils literal notranslate"><span class="pre">rst_directive()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
@@ -1806,8 +1812,6 @@
 </li>
         <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst.params.command">(cli_command_parser.documentation.render_command_rst parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.command">(cli_command_parser.formatting.commands.CommandHelpFormatter attribute)</a>
-</li>
         <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command">(cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.command">(cli_command_parser.parameters.base.ParamBase attribute)</a>
@@ -1844,6 +1848,8 @@
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.config">config() (cli_command_parser.core.CommandMeta class method)</a>
+</li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.config_item">config_item() (in module cli_command_parser.config)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">ConfigItem (class in cli_command_parser.config)</a>
 </li>
@@ -2062,6 +2068,8 @@
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput">DTInput (class in cli_command_parser.inputs.time)</a>
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.dynamic_metadata">dynamic_metadata() (in module cli_command_parser.metadata)</a>
+</li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem">DynamicConfigItem (class in cli_command_parser.config)</a>
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata">DynamicMetadata (class in cli_command_parser.metadata)</a>
 </li>
@@ -2471,8 +2479,6 @@
 
       <ul>
         <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.groups">(cli_command_parser.conversion.argparse_ast.ArgCollection attribute)</a>
-</li>
-        <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.groups">(cli_command_parser.formatting.commands.CommandHelpFormatter attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -3182,8 +3188,6 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.opt_group">opt_group (cli_command_parser.formatting.commands.CommandHelpFormatter attribute)</a>
-</li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option">Option (class in cli_command_parser.parameters.options)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.option_map">option_map (cli_command_parser.command_parameters.CommandParameters attribute)</a>
@@ -3295,8 +3299,6 @@
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.params">params (cli_command_parser.context.Context property)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.params">(cli_command_parser.formatting.commands.CommandHelpFormatter attribute)</a>
-</li>
         <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.params">(cli_command_parser.parser.CommandParser attribute)</a>
 </li>
       </ul></li>
@@ -3416,8 +3418,6 @@
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.pop_last">(cli_command_parser.parameters.base.Parameter method)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.pos_group">pos_group (cli_command_parser.formatting.commands.CommandHelpFormatter attribute)</a>
-</li>
       <li><a href="api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional">Positional (class in cli_command_parser.parameters.positionals)</a>
 </li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.PositionalHelpFormatter">PositionalHelpFormatter (class in cli_command_parser.formatting.params)</a>
@@ -3727,6 +3727,8 @@
         <li><a href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.show_in_help">(cli_command_parser.parameters.groups.ParamGroup property)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions">show_inherited_descriptions (cli_command_parser.config.CommandConfig attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.show_title">show_title (cli_command_parser.formatting.restructured_text.RstTable attribute)</a>
 
       <ul>
@@ -3760,6 +3762,8 @@
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices">sort_choices (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.SubParser.sp_parent">sp_parent (cli_command_parser.conversion.argparse_ast.SubParser attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.spaced_rst_header">spaced_rst_header() (in module cli_command_parser.formatting.restructured_text)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.split_action_flags">split_action_flags (cli_command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
@@ -4098,6 +4102,8 @@
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.word">word (cli_command_parser.parse_tree.PosNode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.would_accept">would_accept() (cli_command_parser.parameters.base.Parameter method)</a>
+</li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">wrap_usage_str (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>

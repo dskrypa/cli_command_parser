@@ -164,6 +164,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../configuration.html#actionflag-options">ActionFlag Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../configuration.html#parsing-options">Parsing Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../configuration.html#usage-help-text-options">Usage &amp; Help Text Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../configuration.html#documentation-generation-options">Documentation Generation Options</a></li>
 </ul>
 </li>
 </ul>
@@ -304,6 +305,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.ConfigItem.name"><code class="docutils literal notranslate"><span class="pre">ConfigItem.name</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.DynamicConfigItem"><code class="docutils literal notranslate"><span class="pre">DynamicConfigItem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.config_item"><code class="docutils literal notranslate"><span class="pre">config_item()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.config.CommandConfig"><code class="docutils literal notranslate"><span class="pre">CommandConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.FIELDS"><code class="docutils literal notranslate"><span class="pre">CommandConfig.FIELDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.error_handler"><code class="docutils literal notranslate"><span class="pre">CommandConfig.error_handler</span></code></a></li>
@@ -322,15 +325,17 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_group_tree"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_tree</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_group_type"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.command_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.command_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.param_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.param_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.extended_epilog"><code class="docutils literal notranslate"><span class="pre">CommandConfig.extended_epilog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -543,6 +548,7 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html">Restructured_Text Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_bar"><code class="docutils literal notranslate"><span class="pre">rst_bar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_header"><code class="docutils literal notranslate"><span class="pre">rst_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.spaced_rst_header"><code class="docutils literal notranslate"><span class="pre">spaced_rst_header()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_directive"><code class="docutils literal notranslate"><span class="pre">rst_directive()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
@@ -1157,7 +1163,7 @@ not the Command level.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.config.ConfigItem">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">ConfigItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">CV</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#ConfigItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.ConfigItem" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">ConfigItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">CV</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#ConfigItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.ConfigItem" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">CV</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">DV</span></code>]</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.ConfigItem.default">
@@ -1177,13 +1183,24 @@ not the Command level.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="cli_command_parser.config.DynamicConfigItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">DynamicConfigItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">CV</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#DynamicConfigItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.DynamicConfigItem" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cli_command_parser.config.ConfigItem" title="cli_command_parser.config.ConfigItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigItem</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.config.config_item">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">config_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DV</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#config_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.config_item" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.config.</span></span><span class="sig-name descname"><span class="pre">CommandConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><span class="pre">CommandConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/config.html#CommandConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.CommandConfig" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Configuration options for Commands.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.FIELDS">
-<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_annotation_type',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'ambiguous_short_combos',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'reject_ambiguous_pos_combos',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'sort_choices',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'action_after_action_flags',</span> <span class="pre">'add_help',</span> <span class="pre">'allow_annotation_type',</span> <span class="pre">'allow_backtrack',</span> <span class="pre">'allow_missing',</span> <span class="pre">'always_run_after_main',</span> <span class="pre">'ambiguous_short_combos',</span> <span class="pre">'choice_delim',</span> <span class="pre">'cmd_alias_mode',</span> <span class="pre">'command_formatter',</span> <span class="pre">'error_handler',</span> <span class="pre">'extended_epilog',</span> <span class="pre">'ignore_unknown',</span> <span class="pre">'min_usage_column_width',</span> <span class="pre">'multiple_action_flags',</span> <span class="pre">'option_name_mode',</span> <span class="pre">'param_formatter',</span> <span class="pre">'reject_ambiguous_pos_combos',</span> <span class="pre">'show_defaults',</span> <span class="pre">'show_docstring',</span> <span class="pre">'show_group_tree',</span> <span class="pre">'show_group_type',</span> <span class="pre">'show_inherited_descriptions',</span> <span class="pre">'sort_choices',</span> <span class="pre">'usage_column_width',</span> <span class="pre">'use_type_metavar',</span> <span class="pre">'wrap_usage_str'}</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.FIELDS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1274,7 +1291,7 @@ not the Command level.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.cmd_alias_mode">
-<span class="sig-name descname"><span class="pre">cmd_alias_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CmdAliasMode</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.cmd_alias_mode" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cmd_alias_mode</span></span><a class="reference internal" href="../_modules/cli_command_parser/config.html#CommandConfig.cmd_alias_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.CommandConfig.cmd_alias_mode" title="Permalink to this definition"></a></dt>
 <dd><p>How subcommand aliases should be displayed in help text.</p>
 </dd></dl>
 
@@ -1282,6 +1299,12 @@ not the Command level.</p>
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.sort_choices">
 <span class="sig-name descname"><span class="pre">sort_choices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Bool</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.sort_choices" title="Permalink to this definition"></a></dt>
 <dd><p>Whether Parameter <cite>choices</cite> values and Action / Subcommand choices should be sorted</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.choice_delim">
+<span class="sig-name descname"><span class="pre">choice_delim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.choice_delim" title="Permalink to this definition"></a></dt>
+<dd><p>Delimiter to use between choices in usage / help text</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1317,18 +1340,6 @@ they were successfully detected</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.show_docstring">
-<span class="sig-name descname"><span class="pre">show_docstring</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Bool</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.show_docstring" title="Permalink to this definition"></a></dt>
-<dd><p>Whether the top level script’s docstring should be included in generated documentation</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.choice_delim">
-<span class="sig-name descname"><span class="pre">choice_delim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.choice_delim" title="Permalink to this definition"></a></dt>
-<dd><p>Delimiter to use between choices in usage / help text</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.usage_column_width">
 <span class="sig-name descname"><span class="pre">usage_column_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.usage_column_width" title="Permalink to this definition"></a></dt>
 <dd><p>Width (in characters) for the usage column in help text</p>
@@ -1338,6 +1349,25 @@ they were successfully detected</p>
 <dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.min_usage_column_width">
 <span class="sig-name descname"><span class="pre">min_usage_column_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.min_usage_column_width" title="Permalink to this definition"></a></dt>
 <dd><p>Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.wrap_usage_str">
+<span class="sig-name descname"><span class="pre">wrap_usage_str</span></span><a class="reference internal" href="../_modules/cli_command_parser/config.html#CommandConfig.wrap_usage_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.config.CommandConfig.wrap_usage_str" title="Permalink to this definition"></a></dt>
+<dd><p>Wrap the basic usage string after the specified number of characters, or automatically based on terminal size
+if <code class="docutils literal notranslate"><span class="pre">True</span></code> is specified instead.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.show_docstring">
+<span class="sig-name descname"><span class="pre">show_docstring</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Bool</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.show_docstring" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the top level script’s docstring should be included in generated documentation</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cli_command_parser.config.CommandConfig.show_inherited_descriptions">
+<span class="sig-name descname"><span class="pre">show_inherited_descriptions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Bool</span></em><a class="headerlink" href="#cli_command_parser.config.CommandConfig.show_inherited_descriptions" title="Permalink to this definition"></a></dt>
+<dd><p>Whether inherited descriptions should be included in subcommand sections of generated documentation</p>
 </dd></dl>
 
 <dl class="py method">

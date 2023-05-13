@@ -164,6 +164,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#actionflag-options">ActionFlag Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parsing-options">Parsing Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage-help-text-options">Usage &amp; Help Text Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation-generation-options">Documentation Generation Options</a></li>
 </ul>
 </li>
 </ul>
@@ -304,6 +305,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem.name"><code class="docutils literal notranslate"><span class="pre">ConfigItem.name</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem"><code class="docutils literal notranslate"><span class="pre">DynamicConfigItem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.config_item"><code class="docutils literal notranslate"><span class="pre">config_item()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig"><code class="docutils literal notranslate"><span class="pre">CommandConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.FIELDS"><code class="docutils literal notranslate"><span class="pre">CommandConfig.FIELDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.error_handler"><code class="docutils literal notranslate"><span class="pre">CommandConfig.error_handler</span></code></a></li>
@@ -322,15 +325,17 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_tree"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_tree</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_type"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.command_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.command_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.param_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.param_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.extended_epilog"><code class="docutils literal notranslate"><span class="pre">CommandConfig.extended_epilog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -543,6 +548,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html">Restructured_Text Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_bar"><code class="docutils literal notranslate"><span class="pre">rst_bar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_header"><code class="docutils literal notranslate"><span class="pre">rst_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.spaced_rst_header"><code class="docutils literal notranslate"><span class="pre">spaced_rst_header()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_directive"><code class="docutils literal notranslate"><span class="pre">rst_directive()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
@@ -1040,6 +1046,8 @@ from even being defined.</p>
 </section>
 <section id="usage-help-text-options">
 <h3>Usage &amp; Help Text Options<a class="headerlink" href="#usage-help-text-options" title="Permalink to this heading"></a></h3>
+<p>Options that affect what is shown in the usage and help text output.  Some of these options also affect RST
+documentation generation as well.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="usage &amp; help text options:add_help">add_help<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action_flag should be added (default: True)</p>
@@ -1064,40 +1072,54 @@ a <a class="reference internal" href="api/cli_command_parser.formatting.params.h
 <dt class="field-odd" id="usage &amp; help text options:sort_choices">sort_choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether Parameter <cite>choices</cite> values and Action / Subcommand choices should be sorted (default: False)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:show_group_tree">show_group_tree<span class="colon">:</span></dt>
-<dd class="field-even"><p>Whether there should be a visual indicator in help text for the parameters that are members
-of a given group.  See <a class="reference internal" href="documentation.html#group-formatting"><span class="std std-ref">Group Formatting</span></a> for more info.  (default: False)</p>
-</dd>
-<dt class="field-odd" id="usage &amp; help text options:show_group_type">show_group_type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Whether mutually exclusive / dependent groups should include that fact in their
-descriptions (default: True)</p>
-</dd>
-<dt class="field-even" id="usage &amp; help text options:command_formatter">command_formatter<span class="colon">:</span></dt>
-<dd class="field-even"><p>A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
-<a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
-same methods).</p>
-</dd>
-<dt class="field-odd" id="usage &amp; help text options:param_formatter">param_formatter<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
-<a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p>
-</dd>
-<dt class="field-even" id="usage &amp; help text options:extended_epilog">extended_epilog<span class="colon">:</span></dt>
-<dd class="field-even"><p>Whether the program version, author email, and documentation URL should be included in the
-help text epilog, if they were successfully detected (default: True)</p>
-</dd>
-<dt class="field-odd" id="usage &amp; help text options:show_docstring">show_docstring<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Whether the top level script’s docstring should be included in generated documentation
-(default: True)</p>
-</dd>
 <dt class="field-even" id="usage &amp; help text options:choice_delim">choice_delim<span class="colon">:</span></dt>
 <dd class="field-even"><p>Delimiter to use between choices in usage / help text.  Defaults to <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p>
 </dd>
-<dt class="field-odd" id="usage &amp; help text options:usage_column_width">usage_column_width<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Width (in characters) for the usage column in help text.  Defaults to 30.</p>
+<dt class="field-odd" id="usage &amp; help text options:show_group_tree">show_group_tree<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether there should be a visual indicator in help text for the parameters that are members
+of a given group.  See <a class="reference internal" href="documentation.html#group-formatting"><span class="std std-ref">Group Formatting</span></a> for more info.  (default: False)</p>
 </dd>
-<dt class="field-even" id="usage &amp; help text options:min_usage_column_width">min_usage_column_width<span class="colon">:</span></dt>
-<dd class="field-even"><p>Minimum width (in characters) for the usage column in help text after adjusting for group
+<dt class="field-even" id="usage &amp; help text options:show_group_type">show_group_type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether mutually exclusive / dependent groups should include that fact in their
+descriptions (default: True)</p>
+</dd>
+<dt class="field-odd" id="usage &amp; help text options:command_formatter">command_formatter<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A callable that accepts 2 arguments, a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class (not object) and a
+<a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters" title="cli_command_parser.command_parameters.CommandParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandParameters</span></code></a> object, and returns a <a class="reference internal" href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter" title="cli_command_parser.formatting.commands.CommandHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandHelpFormatter</span></code></a> (or a class that implements the
+same methods).</p>
+</dd>
+<dt class="field-even" id="usage &amp; help text options:param_formatter">param_formatter<span class="colon">:</span></dt>
+<dd class="field-even"><p>A callable that accepts a <a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or <a class="reference internal" href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup" title="cli_command_parser.parameters.groups.ParamGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamGroup</span></code></a> and returns a
+<a class="reference internal" href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter" title="cli_command_parser.formatting.params.ParamHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParamHelpFormatter</span></code></a> (or a class that implements the same methods).</p>
+</dd>
+<dt class="field-odd" id="usage &amp; help text options:extended_epilog">extended_epilog<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether the program version, author email, and documentation URL should be included in the
+help text epilog, if they were successfully detected (default: True)</p>
+</dd>
+<dt class="field-even" id="usage &amp; help text options:usage_column_width">usage_column_width<span class="colon">:</span></dt>
+<dd class="field-even"><p>Width (in characters) for the usage column in help text.  Defaults to 30.</p>
+</dd>
+<dt class="field-odd" id="usage &amp; help text options:min_usage_column_width">min_usage_column_width<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Minimum width (in characters) for the usage column in help text after adjusting for group
 indentation / terminal width.  Defaults to 20.</p>
+</dd>
+<dt class="field-even" id="usage &amp; help text options:wrap_usage_str">wrap_usage_str<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wrap the basic usage string after the specified number of characters, or automatically based on
+terminal size if <code class="docutils literal notranslate"><span class="pre">True</span></code> is specified instead.</p>
+</dd>
+</dl>
+</section>
+<section id="documentation-generation-options">
+<h3>Documentation Generation Options<a class="headerlink" href="#documentation-generation-options" title="Permalink to this heading"></a></h3>
+<p>Options that only affect RST documentation generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="documentation generation options:show_docstring">show_docstring<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether the top level script’s docstring should be included in generated documentation
+(default: True)</p>
+</dd>
+<dt class="field-even" id="documentation generation options:show_inherited_descriptions">show_inherited_descriptions<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether inherited descriptions should be included in subcommand sections of generated
+documentation (default: False)</p>
 </dd>
 </dl>
 </section>

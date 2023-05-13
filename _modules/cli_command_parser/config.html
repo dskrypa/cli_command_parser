@@ -161,6 +161,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#actionflag-options">ActionFlag Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#parsing-options">Parsing Options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#usage-help-text-options">Usage &amp; Help Text Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration.html#documentation-generation-options">Documentation Generation Options</a></li>
 </ul>
 </li>
 </ul>
@@ -301,6 +302,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem.name"><code class="docutils literal notranslate"><span class="pre">ConfigItem.name</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem"><code class="docutils literal notranslate"><span class="pre">DynamicConfigItem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.config_item"><code class="docutils literal notranslate"><span class="pre">config_item()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig"><code class="docutils literal notranslate"><span class="pre">CommandConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.FIELDS"><code class="docutils literal notranslate"><span class="pre">CommandConfig.FIELDS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.error_handler"><code class="docutils literal notranslate"><span class="pre">CommandConfig.error_handler</span></code></a></li>
@@ -319,15 +322,17 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_tree"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_tree</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_type"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.command_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.command_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.param_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.param_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.extended_epilog"><code class="docutils literal notranslate"><span class="pre">CommandConfig.extended_epilog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -540,6 +545,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html">Restructured_Text Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_bar"><code class="docutils literal notranslate"><span class="pre">rst_bar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_header"><code class="docutils literal notranslate"><span class="pre">rst_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.spaced_rst_header"><code class="docutils literal notranslate"><span class="pre">spaced_rst_header()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_directive"><code class="docutils literal notranslate"><span class="pre">rst_directive()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
@@ -1072,13 +1078,6 @@
 <span class="n">CmdAliasMode</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">SubcommandAliasHelpMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_cmd_alias_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CmdAliasMode</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">mode</span>
-
-
 <div class="viewcode-block" id="AmbiguousComboMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousComboMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.</span>
@@ -1135,7 +1134,7 @@
 <div class="viewcode-block" id="ConfigItem"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">[docs]</a><span class="k">class</span> <span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">CV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
 
@@ -1159,8 +1158,8 @@
     <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ConfigValue</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to set attribute </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> because </span><span class="si">{</span><span class="n">instance</span><span class="si">}</span><span class="s1"> is read-only&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">type_func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">type_func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="fm">__delete__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">):</span>
@@ -1173,6 +1172,23 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">!r}</span><span class="s1">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">)&gt;&#39;</span></div>
+
+
+<div class="viewcode-block" id="DynamicConfigItem"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem">[docs]</a><span class="k">class</span> <span class="nc">DynamicConfigItem</span><span class="p">(</span><span class="n">ConfigItem</span><span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]):</span>  <span class="c1"># noqa</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="vm">__doc__</span>
+
+    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ConfigValue</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to set attribute </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> because </span><span class="si">{</span><span class="n">instance</span><span class="si">}</span><span class="s1"> is read-only&#39;</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="config_item"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.config_item">[docs]</a><span class="k">def</span> <span class="nf">config_item</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">func</span><span class="p">:</span> <span class="n">DynamicConfigItem</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CommandConfig"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig">[docs]</a><span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>
@@ -1247,11 +1263,19 @@
     <span class="c1">#: Whether the default value for Parameters should be shown in help text, and related behavior</span>
     <span class="n">show_defaults</span><span class="p">:</span> <span class="n">ShowDefaults</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">)</span>
 
-    <span class="c1">#: How subcommand aliases should be displayed in help text.</span>
-    <span class="n">cmd_alias_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_cmd_alias_mode</span><span class="p">)</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="CommandConfig.cmd_alias_mode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode">[docs]</a>    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cmd_alias_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CmdAliasMode</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;How subcommand aliases should be displayed in help text.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span></div>
 
     <span class="c1">#: Whether Parameter `choices` values and Action / Subcommand choices should be sorted</span>
     <span class="n">sort_choices</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+
+    <span class="c1">#: Delimiter to use between choices in usage / help text</span>
+    <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
     <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
@@ -1270,17 +1294,37 @@
     <span class="c1">#: they were successfully detected</span>
     <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
-    <span class="c1">#: Whether the top level script&#39;s docstring should be included in generated documentation</span>
-    <span class="n">show_docstring</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
-
-    <span class="c1">#: Delimiter to use between choices in usage / help text</span>
-    <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-
     <span class="c1">#: Width (in characters) for the usage column in help text</span>
     <span class="n">usage_column_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 
     <span class="c1">#: Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width</span>
     <span class="n">min_usage_column_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CommandConfig.wrap_usage_str"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">[docs]</a>    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrap_usage_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrap the basic usage string after the specified number of characters, or automatically based on terminal size</span>
+<span class="sd">        if ``True`` is specified instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid wrap_usage_str </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> - expected a bool or a positive integer&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid wrap_usage_str </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> - expected a bool or a positive integer&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Documentation Generation Options</span>
+
+    <span class="c1">#: Whether the top level script&#39;s docstring should be included in generated documentation</span>
+    <span class="n">show_docstring</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+
+    <span class="c1">#: Whether inherited descriptions should be included in subcommand sections of generated documentation</span>
+    <span class="n">show_inherited_descriptions</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
