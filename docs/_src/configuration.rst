@@ -92,6 +92,10 @@ Parsing Options
 Usage & Help Text Options
 -------------------------
 
+Options that affect what is shown in the usage and help text output.  Some of these options also affect RST
+documentation generation as well.
+
+
 :add_help: Whether the ``--help`` / ``-h`` action_flag should be added (default: True)
 :use_type_metavar: Whether the metavar for Parameters that accept values should default to the name of the
   specified type (default: False / the name of the parameter)
@@ -105,6 +109,7 @@ Usage & Help Text Options
   text and documentation.  Supports :class:`.SubcommandAliasHelpMode` values (or string equivalents).  Alternatively,
   a :meth:`format string<.ChoiceGroup.prepare_aliases>` for aliases may be provided here.
 :sort_choices: Whether Parameter `choices` values and Action / Subcommand choices should be sorted (default: False)
+:choice_delim: Delimiter to use between choices in usage / help text.  Defaults to ``|``.
 :show_group_tree: Whether there should be a visual indicator in help text for the parameters that are members
   of a given group.  See :ref:`documentation:Group Formatting` for more info.  (default: False)
 :show_group_type: Whether mutually exclusive / dependent groups should include that fact in their
@@ -116,9 +121,17 @@ Usage & Help Text Options
   :class:`.ParamHelpFormatter` (or a class that implements the same methods).
 :extended_epilog: Whether the program version, author email, and documentation URL should be included in the
   help text epilog, if they were successfully detected (default: True)
-:show_docstring: Whether the top level script's docstring should be included in generated documentation
-  (default: True)
-:choice_delim: Delimiter to use between choices in usage / help text.  Defaults to ``|``.
 :usage_column_width: Width (in characters) for the usage column in help text.  Defaults to 30.
 :min_usage_column_width: Minimum width (in characters) for the usage column in help text after adjusting for group
   indentation / terminal width.  Defaults to 20.
+:wrap_usage_str: Wrap the basic usage string after the specified number of characters, or automatically based on
+  terminal size if ``True`` is specified instead.
+
+
+Documentation Generation Options
+--------------------------------
+
+Options that only affect RST documentation generation.
+
+:show_docstring: Whether the top level script's docstring should be included in generated documentation
+  (default: True)

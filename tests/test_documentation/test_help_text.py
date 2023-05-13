@@ -161,6 +161,18 @@ class UsageTextTest(ParserTest):
         self.assertEqual('usage: foo.py BAR [--help]', get_usage_text(Foo))
         self.assertEqual('usage: foo.py BAR [--help]', get_usage_text(Baz))
 
+    def test_wrapped_usage_explicit(self):
+        usage = 'usage: foo_bar.py [--abcdef ABCDEF] [--ghijkl GHIJKL] [--mnopqr MNOPQR] [--stuvwx STUVWX] [--yz YZ]'
+
+        class Foo(Command, wrap_usage_str=50, usage=usage):
+            pass
+
+        expected = """\
+usage: foo_bar.py [--abcdef ABCDEF] [--ghijkl
+    GHIJKL] [--mnopqr MNOPQR] [--stuvwx STUVWX]
+    [--yz YZ]"""
+        self.assert_strings_equal(expected, get_usage_text(Foo))
+
 
 class HelpTextTest(ParserTest):
     def test_custom_choice_map(self):
@@ -338,6 +350,20 @@ Optional arguments:
                     bar = Flag('-b', **kwargs)
 
             self.assert_str_contains(expected_text, get_help_text(Foo))
+
+    def test_wrapped_usage_auto_width(self):
+        class Foo(Command, wrap_usage_str=True, prog='foo_bar.py'):
+            abcdef = Option()
+            ghijkl = Option()
+            mnopqr = Option()
+            stuvwx = Option()
+            yz = Option()
+
+        expected = """\
+usage: foo_bar.py [--abcdef ABCDEF]
+    [--ghijkl GHIJKL] [--mnopqr MNOPQR]
+    [--stuvwx STUVWX] [--yz YZ]"""
+        self.assert_str_contains(expected, get_help_text(Foo, 50))
 
 
 class SubcommandHelpAndRstTest(ParserTest):
@@ -749,7 +775,7 @@ class FormatterTest(ParserTest):
             pass
 
         with patch('cli_command_parser.core.CommandMeta.parent', lambda c, x=None: Foo if c is Bar else None):
-            self.assertEqual([], get_usage_sub_cmds(Bar))
+            self.assertEqual([], list(get_usage_sub_cmds(Bar)))
 
     def test_non_base_formatter_cls_does_not_lookup_subclass(self):
         formatter = PositionalHelpFormatter(SubCommand())

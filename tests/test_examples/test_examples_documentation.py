@@ -5,7 +5,7 @@ from unittest import main
 
 from cli_command_parser import Context, Command
 from cli_command_parser.documentation import load_commands, render_command_rst, render_script_rst, top_level_commands
-from cli_command_parser.testing import ParserTest, get_help_text, load_command
+from cli_command_parser.testing import ParserTest, load_command, get_help_text, get_usage_text
 
 THIS_FILE = Path(__file__).resolve()
 EXAMPLES_DIR = THIS_FILE.parents[2].joinpath('examples')
@@ -44,6 +44,17 @@ class ExampleHelpTest(ParserTest):
                 with load_command(EXAMPLES_DIR, file_name, cmd_name) as command:
                     expected = load_expected(expected_file_name)
                     self.assert_strings_equal(expected, get_help_text(command()).rstrip())
+
+    def test_wrapped_usage(self):
+        expected = """\
+usage: custom_inputs.py [--path PATH]
+    [--in-file IN_FILE] [--out-file OUT_FILE]
+    [--json JSON] [--simple-range {0 <= N <= 49}]
+    [--skip-range {1 <= N <= 29, step=2}]
+    [--float-range {0.0 <= N < 1.0}]
+    [--choice-range {0 <= N <= 19}] [--help]"""
+        with load_command(EXAMPLES_DIR, 'custom_inputs.py', 'InputsExample', config={'wrap_usage_str': 50}) as command:
+            self.assert_strings_equal(expected, get_usage_text(command))
 
 
 class ExampleRstFormatTest(ParserTest):
@@ -88,6 +99,14 @@ class ExampleRstFormatTest(ParserTest):
 
         with Context([], DocBuilder):
             self._test_example_rst_texts()
+
+    def test_wrapped_usage(self):
+        InputsExample = next(iter(load_commands(EXAMPLES_DIR.joinpath('custom_inputs.py')).values()))
+
+        class Inputs(InputsExample, wrap_usage_str=55, prog='custom_inputs.py'):
+            pass
+
+        self.assert_strings_equal(load_expected('custom_inputs.rst'), render_command_rst(Inputs).rstrip())
 
 
 if __name__ == '__main__':

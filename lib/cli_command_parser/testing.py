@@ -321,9 +321,9 @@ def sealed_mock(*args, **kwargs):
 
 
 @contextmanager
-def load_command(directory: Path, name: str, cmd_name: str) -> ContextManager[CommandCls]:
+def load_command(directory: Path, name: str, cmd_name: str, **kwargs) -> ContextManager[CommandCls]:
     path = directory.joinpath(name)
-    with Context.for_prog(path):
+    with Context.for_prog(path, **kwargs):
         yield load_commands(path)[cmd_name]
 
 

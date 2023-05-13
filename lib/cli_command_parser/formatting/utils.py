@@ -62,7 +62,7 @@ def combine_and_wrap(parts: Iterable[str], max_width: int, cont_indent: int = 0,
     line_parts = []
     last = None
     for part in parts:
-        part_len = len(part)
+        part_len = wcswidth(part)
         line_len += part_len + delim_len
         if line_len >= max_width:
             if last:
