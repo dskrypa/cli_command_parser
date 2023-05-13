@@ -448,6 +448,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst"><code class="docutils literal notranslate"><span class="pre">render_script_rst()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst"><code class="docutils literal notranslate"><span class="pre">render_command_rst()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands"><code class="docutils literal notranslate"><span class="pre">load_commands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.filtered_commands"><code class="docutils literal notranslate"><span class="pre">filtered_commands()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.top_level_commands"><code class="docutils literal notranslate"><span class="pre">top_level_commands()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.import_module"><code class="docutils literal notranslate"><span class="pre">import_module()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter"><code class="docutils literal notranslate"><span class="pre">RstWriter</span></code></a><ul>
@@ -611,19 +612,31 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.metadata.html">Metadata Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata"><code class="docutils literal notranslate"><span class="pre">Metadata</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.default"><code class="docutils literal notranslate"><span class="pre">Metadata.default</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.name"><code class="docutils literal notranslate"><span class="pre">Metadata.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata"><code class="docutils literal notranslate"><span class="pre">Metadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.default"><code class="docutils literal notranslate"><span class="pre">Metadata.default</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.get_value"><code class="docutils literal notranslate"><span class="pre">Metadata.get_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.dynamic_metadata"><code class="docutils literal notranslate"><span class="pre">dynamic_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.parent"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.parent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.path"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.package"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.package</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.module</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog_src"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog_src</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
@@ -631,10 +644,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.epilog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.pkg_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.pkg_doc_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.for_command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.for_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 </ul>
@@ -789,6 +804,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text"><code class="docutils literal notranslate"><span class="pre">get_rst_text()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.sealed_mock"><code class="docutils literal notranslate"><span class="pre">sealed_mock()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.load_command"><code class="docutils literal notranslate"><span class="pre">load_command()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.typing.html">Typing Module</a></li>
@@ -929,7 +945,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_parsed&#39;</span><span class="p">,</span> <span class="s1">&#39;get_raw_arg&#39;</span><span class="p">]</span>
 
-<span class="n">_context_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.context.stack&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">_context_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.context.stack&#39;</span><span class="p">)</span>
 <span class="n">_TERMINAL</span> <span class="o">=</span> <span class="n">Terminal</span><span class="p">()</span>
 
 
@@ -1004,10 +1020,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[command=</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;__name__&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s1">]&gt;&#39;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prog</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">allow_argv_prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prog</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_argv_prog</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="n">command</span><span class="si">=!s}</span><span class="s1">, </span><span class="si">{</span><span class="n">prog</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">allow_argv_prog</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">argv</span><span class="si">=}</span><span class="s1">]&gt;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
-        <span class="n">_context_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_context_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
+            <span class="n">_context_stack</span><span class="o">.</span><span class="n">set</span><span class="p">([</span><span class="bp">self</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
@@ -1033,8 +1054,8 @@
 <div class="viewcode-block" id="Context.terminal_width"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.terminal_width">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">terminal_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the current terminal width as the number of characters that fit on a single line.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">width</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminal_width</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">width</span>
         <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span></div>
 
 <div class="viewcode-block" id="Context.get_parsed"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed">[docs]</a>    <span class="k">def</span> <span class="nf">get_parsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -1229,23 +1250,24 @@
         <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">get_current_context</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+        <span class="c1"># The current context is already active, so there&#39;s no need to re-enter it - it can just be returned</span>
+        <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span>
+        <span class="k">pass</span>
 
 <div class="viewcode-block" id="ContextProxy.terminal_width"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ContextProxy.terminal_width">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">terminal_width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">terminal_width</span>
-        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="o">:=</span> <span class="n">get_current_context</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">terminal_width</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span></div>
 
 <div class="viewcode-block" id="ContextProxy.config"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.ContextProxy.config">[docs]</a>    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">config</span>
-        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="o">:=</span> <span class="n">get_current_context</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">DEFAULT_CONFIG</span></div></div>
 
 
@@ -1265,7 +1287,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_context_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">silent</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">raise</span> <span class="n">NoActiveContext</span><span class="p">(</span><span class="s1">&#39;There is no active context&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span></div>
@@ -1276,15 +1298,12 @@
 <span class="sd">    Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was</span>
 <span class="sd">    no active Context.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">get_current_context</span><span class="p">()</span>
-    <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">context</span> <span class="o">:=</span> <span class="n">get_current_context</span><span class="p">(</span><span class="kc">True</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">Context</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">command_cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">command</span> <span class="ow">is</span> <span class="n">command_cls</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">context</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">command</span> <span class="ow">is</span> <span class="n">command_cls</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">context</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="n">command_cls</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">_sub_context</span><span class="p">(</span><span class="n">command_cls</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_context"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_context">[docs]</a><span class="k">def</span> <span class="nf">get_context</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>

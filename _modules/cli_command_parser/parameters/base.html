@@ -448,6 +448,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst"><code class="docutils literal notranslate"><span class="pre">render_script_rst()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst"><code class="docutils literal notranslate"><span class="pre">render_command_rst()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands"><code class="docutils literal notranslate"><span class="pre">load_commands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.filtered_commands"><code class="docutils literal notranslate"><span class="pre">filtered_commands()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.top_level_commands"><code class="docutils literal notranslate"><span class="pre">top_level_commands()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.import_module"><code class="docutils literal notranslate"><span class="pre">import_module()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter"><code class="docutils literal notranslate"><span class="pre">RstWriter</span></code></a><ul>
@@ -611,19 +612,31 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html">Metadata Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata"><code class="docutils literal notranslate"><span class="pre">Metadata</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.default"><code class="docutils literal notranslate"><span class="pre">Metadata.default</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.name"><code class="docutils literal notranslate"><span class="pre">Metadata.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata"><code class="docutils literal notranslate"><span class="pre">Metadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.default"><code class="docutils literal notranslate"><span class="pre">Metadata.default</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.get_value"><code class="docutils literal notranslate"><span class="pre">Metadata.get_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.dynamic_metadata"><code class="docutils literal notranslate"><span class="pre">dynamic_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.parent"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.parent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.path"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.package"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.package</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.module</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog_src"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog_src</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
@@ -631,10 +644,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.epilog</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.pkg_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.pkg_doc_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.for_command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.for_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 </ul>
@@ -789,6 +804,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text"><code class="docutils literal notranslate"><span class="pre">get_rst_text()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.sealed_mock"><code class="docutils literal notranslate"><span class="pre">sealed_mock()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.load_command"><code class="docutils literal notranslate"><span class="pre">load_command()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
@@ -915,10 +931,10 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">FrozenSet</span>
 
 <span class="kn">from</span> <span class="nn">..annotations</span> <span class="kn">import</span> <span class="n">get_descriptor_value_type</span>
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="p">,</span> <span class="n">AllowLeadingDash</span>
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="p">,</span> <span class="n">AllowLeadingDash</span><span class="p">,</span> <span class="n">DEFAULT_CONFIG</span>
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">get_current_context</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span>
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">UnsupportedAction</span>
 <span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span> <span class="nn">..inputs.choices</span> <span class="kn">import</span> <span class="n">_ChoicesBase</span><span class="p">,</span> <span class="n">Choices</span><span class="p">,</span> <span class="n">ChoiceMap</span> <span class="k">as</span> <span class="n">ChoiceMapInput</span>
 <span class="kn">from</span> <span class="nn">..inputs.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
@@ -934,7 +950,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;BasePositional&#39;</span><span class="p">,</span> <span class="s1">&#39;BaseOption&#39;</span><span class="p">]</span>
 
-<span class="n">_group_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.parameters.base.group_stack&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">_group_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.parameters.base.group_stack&#39;</span><span class="p">)</span>
 <span class="n">_is_numeric</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^-\d+$|^-\d*\.\d+?$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
 
 
@@ -990,7 +1006,7 @@
 <span class="sd">    :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>              <span class="c1">#: Always the name of the attr that points to this object</span>
+    <span class="n">_attr_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>          <span class="c1">#: Always the name of the attr that points to this object</span>
     <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>               <span class="c1">#: An explicitly provided name, or the name of the attr that points to this object</span>
     <span class="n">group</span><span class="p">:</span> <span class="n">ParamGroup</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1">#: The group this object is a member of, if any</span>
     <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1">#: The :class:`.Command` this object is a member of</span>
@@ -1025,32 +1041,28 @@
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span> <span class="o">=</span> <span class="n">name</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__name</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_current_context</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
-            <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Context</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="o">:=</span> <span class="n">get_current_context</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">context</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">_Command__ctx</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">raise</span> <span class="n">NoActiveContext</span><span class="p">(</span><span class="s1">&#39;There is no active context&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">config</span>
-        <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
-            <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">context</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
+        <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">DEFAULT_CONFIG</span><span class="p">)</span>
 
     <span class="c1"># region Usage / Help Text</span>
 
@@ -1225,7 +1237,7 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># Skip __get__ on subsequent accesses</span>
         <span class="k">return</span> <span class="n">value</span>
 
@@ -1511,7 +1523,6 @@
         <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">_validate_opt_strs</span><span class="p">(</span><span class="n">option_strs</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opt_str_cls</span><span class="p">(</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">name_mode</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">env_var</span><span class="p">:</span>
@@ -1519,9 +1530,9 @@
 
     <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">name_mode</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">name_mode</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">option_strs</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="p">)</span><span class="o">.</span><span class="n">name_mode</span><span class="p">:</span>
+            <span class="n">option_strs</span><span class="o">.</span><span class="n">name_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
+        <span class="n">option_strs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseOption.env_vars"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.env_vars">[docs]</a>    <span class="k">def</span> <span class="nf">env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">env_var</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span><span class="p">:</span>
@@ -1534,14 +1545,8 @@
 <div class="viewcode-block" id="get_active_param_group"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.get_active_param_group">[docs]</a><span class="k">def</span> <span class="nf">get_active_param_group</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_group_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span></div>
-
-
-<span class="k">def</span> <span class="nf">_validate_opt_strs</span><span class="p">(</span><span class="n">opt_strs</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-    <span class="k">if</span> <span class="n">bad</span> <span class="o">:=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opt_strs</span> <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">opt</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;=&#39;</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">):</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bad option(s) - they must start with &#39;--&#39; or &#39;-&#39;, may not end with &#39;-&#39;, and may not contain &#39;=&#39;: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 
            </div>
