@@ -133,6 +133,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#enumchoices">EnumChoices</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#regex-glob-patterns">Regex &amp; Glob Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#regex">Regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#glob">Glob</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#date-time">Date &amp; Time</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#day-month">Day &amp; Month</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../inputs.html#day">Day</a></li>
@@ -592,6 +597,13 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput"><code class="docutils literal notranslate"><span class="pre">PatternInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode"><code class="docutils literal notranslate"><span class="pre">RegexMode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex"><code class="docutils literal notranslate"><span class="pre">Regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob"><code class="docutils literal notranslate"><span class="pre">Glob</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html">Time Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale"><code class="docutils literal notranslate"><span class="pre">different_locale</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput"><code class="docutils literal notranslate"><span class="pre">DTInput</span></code></a></li>
@@ -945,6 +957,7 @@
 
 <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Converter</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">InputParam</span><span class="p">,</span> <span class="n">StatMode</span><span class="p">,</span> <span class="n">FileWrapper</span><span class="p">,</span> <span class="n">allows_write</span><span class="p">,</span> <span class="n">fix_windows_path</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Path&#39;</span><span class="p">,</span> <span class="s1">&#39;File&#39;</span><span class="p">,</span> <span class="s1">&#39;Serialized&#39;</span><span class="p">,</span> <span class="s1">&#39;Json&#39;</span><span class="p">,</span> <span class="s1">&#39;Pickle&#39;</span><span class="p">]</span>
@@ -997,11 +1010,11 @@
 <div class="viewcode-block" id="FileInput.validated_path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.validated_path">[docs]</a>    <span class="k">def</span> <span class="nf">validated_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_Path</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path</span> <span class="o">:=</span> <span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;A valid path is required&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;A valid path is required&#39;</span><span class="p">)</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">_Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_dash</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Dash (-) is not supported for this parameter&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;Dash (-) is not supported for this parameter&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">path</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_windows_fix</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1014,15 +1027,15 @@
             <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;it does not exist&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;it does not exist&#39;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;it already exists&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;it already exists&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">ANY</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mode</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">readable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;it is not readable&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;it is not readable&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;it is not writable&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;it is not writable&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">path</span></div></div>
 
 

@@ -133,6 +133,11 @@
 <li class="toctree-l3"><a class="reference internal" href="inputs.html#enumchoices">EnumChoices</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="inputs.html#regex-glob-patterns">Regex &amp; Glob Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="inputs.html#regex">Regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inputs.html#glob">Glob</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="inputs.html#date-time">Date &amp; Time</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="inputs.html#day-month">Day &amp; Month</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="inputs.html#day">Day</a></li>
@@ -592,6 +597,13 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput"><code class="docutils literal notranslate"><span class="pre">PatternInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode"><code class="docutils literal notranslate"><span class="pre">RegexMode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex"><code class="docutils literal notranslate"><span class="pre">Regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob"><code class="docutils literal notranslate"><span class="pre">Glob</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.time.html">Time Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale"><code class="docutils literal notranslate"><span class="pre">different_locale</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput"><code class="docutils literal notranslate"><span class="pre">DTInput</span></code></a></li>
@@ -980,6 +992,10 @@
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.__call__">(cli_command_parser.inputs.numeric.NumRange method)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.__call__">(cli_command_parser.inputs.numeric.Range method)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob.__call__">(cli_command_parser.inputs.patterns.Glob method)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.__call__">(cli_command_parser.inputs.patterns.Regex method)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__call__">(cli_command_parser.inputs.time.CalendarUnitInput method)</a>
 </li>
@@ -1667,12 +1683,21 @@
 </li>
       </ul></li>
       <li>
+    cli_command_parser.inputs.patterns
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#module-cli_command_parser.inputs.patterns">module</a>
+</li>
+      </ul></li>
+      <li>
     cli_command_parser.inputs.time
 
       <ul>
         <li><a href="api/cli_command_parser.inputs.time.html#module-cli_command_parser.inputs.time">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.inputs.utils
 
@@ -1680,8 +1705,6 @@
         <li><a href="api/cli_command_parser.inputs.utils.html#module-cli_command_parser.inputs.utils">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.metadata
 
@@ -2014,6 +2037,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.DICT">DICT (cli_command_parser.inputs.patterns.RegexMode attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale">different_locale (class in cli_command_parser.inputs.time)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.DIR">DIR (cli_command_parser.inputs.utils.StatMode attribute)</a>
@@ -2321,6 +2346,8 @@
 </li>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput.format_metavar">(cli_command_parser.inputs.numeric.NumericInput method)</a>
 </li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput.format_metavar">(cli_command_parser.inputs.patterns.PatternInput method)</a>
+</li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.format_metavar">(cli_command_parser.inputs.time.CalendarUnitInput method)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.format_metavar">(cli_command_parser.inputs.time.DateTimeInput method)</a>
@@ -2436,8 +2463,6 @@
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed">(in module cli_command_parser.context)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed_value">get_parsed_value() (cli_command_parser.context.Context method)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.get_pos_args">get_pos_args() (cli_command_parser.conversion.command_builder.ParamConverter method)</a>
@@ -2446,6 +2471,8 @@
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog">get_prog() (cli_command_parser.metadata.ProgramMetadata method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_raw_arg">get_raw_arg() (in module cli_command_parser.context)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text">get_rst_text() (in module cli_command_parser.testing)</a>
@@ -2476,6 +2503,16 @@
         <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value">(cli_command_parser.metadata.MetadataBase method)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob">Glob (class in cli_command_parser.inputs.patterns)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.group">group (cli_command_parser.inputs.patterns.Regex attribute)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.params.group">(cli_command_parser.inputs.patterns.Regex parameter)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.GROUP">GROUP (cli_command_parser.inputs.patterns.RegexMode attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.group">group (cli_command_parser.parameters.base.ParamBase attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.group_choices">group_choices() (cli_command_parser.formatting.params.ChoiceGroup class method)</a>
@@ -2493,7 +2530,13 @@
       <ul>
         <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.groups">(cli_command_parser.conversion.argparse_ast.ArgCollection attribute)</a>
 </li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.groups">(cli_command_parser.inputs.patterns.Regex attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.params.groups">(cli_command_parser.inputs.patterns.Regex parameter)</a>
+</li>
       </ul></li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.GROUPS">GROUPS (cli_command_parser.inputs.patterns.RegexMode attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -2846,6 +2889,10 @@
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.main">(in module cli_command_parser.commands)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.MATCH">MATCH (cli_command_parser.inputs.patterns.RegexMode attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob.params.match_case">match_case (cli_command_parser.inputs.patterns.Glob parameter)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.matches">matches() (cli_command_parser.inputs.utils.StatMode method)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.max">max (cli_command_parser.inputs.numeric.NumRange attribute)</a>
@@ -2941,6 +2988,10 @@
       <ul>
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.params.mode">(cli_command_parser.inputs.files.File parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.mode">(cli_command_parser.inputs.patterns.Regex attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.params.mode">(cli_command_parser.inputs.patterns.Regex parameter)</a>
+</li>
       </ul></li>
       <li>
     module
@@ -2993,6 +3044,8 @@
         <li><a href="api/cli_command_parser.inputs.files.html#module-cli_command_parser.inputs.files">cli_command_parser.inputs.files</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.numeric.html#module-cli_command_parser.inputs.numeric">cli_command_parser.inputs.numeric</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#module-cli_command_parser.inputs.patterns">cli_command_parser.inputs.patterns</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#module-cli_command_parser.inputs.time">cli_command_parser.inputs.time</a>
 </li>
@@ -3173,10 +3226,20 @@
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode.NONE">NONE (cli_command_parser.config.OptionNameMode attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.normalize">normalize() (cli_command_parser.metadata.ProgFinder method)</a>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.normalize">normalize() (cli_command_parser.inputs.patterns.RegexMode class method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.normalize">(cli_command_parser.metadata.ProgFinder method)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.normalize_dt">normalize_dt() (in module cli_command_parser.inputs.time)</a>
 </li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob.normcase">normcase (cli_command_parser.inputs.patterns.Glob attribute)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob.params.normcase">(cli_command_parser.inputs.patterns.Glob parameter)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoSuchOption">NoSuchOption</a>
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.NullErrorHandler">NullErrorHandler (class in cli_command_parser.error_handling)</a>
@@ -3379,12 +3442,12 @@
 </li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">ParserExit</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.Script.parsers">parsers (cli_command_parser.conversion.argparse_ast.Script property)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized.pass_file">pass_file (cli_command_parser.inputs.files.Serialized attribute)</a>
 
       <ul>
@@ -3413,6 +3476,16 @@
       </ul></li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.path_repr">path_repr() (cli_command_parser.parse_tree.PosNode method)</a>
 </li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput">PatternInput (class in cli_command_parser.inputs.patterns)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob.params.patterns">patterns (cli_command_parser.inputs.patterns.Glob parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput.patterns">(cli_command_parser.inputs.patterns.PatternInput attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex.params.patterns">(cli_command_parser.inputs.patterns.Regex parameter)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode.PERMISSIVE">PERMISSIVE (cli_command_parser.config.AmbiguousComboMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.iter_action_flags.params.phase">phase (cli_command_parser.context.Context.iter_action_flags parameter)</a>
@@ -3535,6 +3608,10 @@
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed.params.recursive">recursive (cli_command_parser.context.Context.get_parsed parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams">RedirectStreams (class in cli_command_parser.testing)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex">Regex (class in cli_command_parser.inputs.patterns)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode">RegexMode (class in cli_command_parser.inputs.patterns)</a>
 </li>
       <li><a href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler.register">register() (cli_command_parser.error_handling.ErrorHandler method)</a>
 
@@ -3808,6 +3885,8 @@
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.params.strict_env">(cli_command_parser.parameters.options.TriFlag parameter)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.STRING">STRING (cli_command_parser.inputs.patterns.RegexMode attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sub_cmd_doc_depth">sub_cmd_doc_depth (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.sub_command">sub_command (cli_command_parser.command_parameters.CommandParameters attribute)</a>

@@ -133,6 +133,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#enumchoices">EnumChoices</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#regex-glob-patterns">Regex &amp; Glob Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#regex">Regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#glob">Glob</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#date-time">Date &amp; Time</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#day-month">Day &amp; Month</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../inputs.html#day">Day</a></li>
@@ -590,6 +595,13 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput"><code class="docutils literal notranslate"><span class="pre">NumericInput</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput"><code class="docutils literal notranslate"><span class="pre">PatternInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode"><code class="docutils literal notranslate"><span class="pre">RegexMode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex"><code class="docutils literal notranslate"><span class="pre">Regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob"><code class="docutils literal notranslate"><span class="pre">Glob</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html">Time Module</a><ul>
@@ -1193,6 +1205,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">dow_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Note: The use of ValueError here is intentional and is handled by :meth:`.parse`</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid numeric weekday=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
         <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
@@ -1244,6 +1257,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Note: The use of ValueError here is intentional and is handled by :meth:`.parse`</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid numeric weekday=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
         <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">month</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">:</span>

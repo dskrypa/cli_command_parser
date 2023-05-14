@@ -133,6 +133,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#enumchoices">EnumChoices</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#regex-glob-patterns">Regex &amp; Glob Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#regex">Regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#glob">Glob</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#date-time">Date &amp; Time</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#day-month">Day &amp; Month</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../inputs.html#day">Day</a></li>
@@ -592,6 +597,13 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput"><code class="docutils literal notranslate"><span class="pre">PatternInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode"><code class="docutils literal notranslate"><span class="pre">RegexMode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex"><code class="docutils literal notranslate"><span class="pre">Regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob"><code class="docutils literal notranslate"><span class="pre">Glob</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html">Time Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale"><code class="docutils literal notranslate"><span class="pre">different_locale</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput"><code class="docutils literal notranslate"><span class="pre">DTInput</span></code></a></li>
@@ -944,6 +956,7 @@
 
 <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">NT</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">NumType</span><span class="p">,</span> <span class="n">RngType</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Range&#39;</span><span class="p">,</span> <span class="s1">&#39;NumRange&#39;</span><span class="p">]</span>
 
@@ -1026,7 +1039,7 @@
                 <span class="k">return</span> <span class="n">rng_min</span>
             <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="NumRange"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange">[docs]</a><span class="k">class</span> <span class="nc">NumRange</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
@@ -1119,7 +1132,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bound</span> <span class="k">if</span> <span class="n">inclusive</span> <span class="k">else</span> <span class="p">(</span><span class="n">bound</span> <span class="o">+</span> <span class="n">snap_dir</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="NumRange.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>

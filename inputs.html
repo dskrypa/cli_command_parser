@@ -136,6 +136,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#enumchoices">EnumChoices</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#regex-glob-patterns">Regex &amp; Glob Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#regex">Regex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#glob">Glob</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#date-time">Date &amp; Time</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#day-month">Day &amp; Month</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#day">Day</a></li>
@@ -593,6 +598,13 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput"><code class="docutils literal notranslate"><span class="pre">NumericInput</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.PatternInput"><code class="docutils literal notranslate"><span class="pre">PatternInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode"><code class="docutils literal notranslate"><span class="pre">RegexMode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Regex"><code class="docutils literal notranslate"><span class="pre">Regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob"><code class="docutils literal notranslate"><span class="pre">Glob</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.time.html">Time Module</a><ul>
@@ -1229,6 +1241,58 @@ automatically be wrapped in a <a class="reference internal" href="api/cli_comman
 </dd>
 <dt class="field-even" id="enumchoices:case_sensitive">case_sensitive<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether choices should be case-sensitive.  Defaults to False.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="regex-glob-patterns">
+<h2>Regex &amp; Glob Patterns<a class="headerlink" href="#regex-glob-patterns" title="Permalink to this heading"></a></h2>
+<p>Regex and Glob patterns provide a way to validate that input strings match an expected pattern.  Both related input
+helper classes support initialization with one or more patterns, which allows more flexibility in case acceptable
+values cannot easily be represented by a single pattern.</p>
+<section id="regex">
+<h3>Regex<a class="headerlink" href="#regex" title="Permalink to this heading"></a></h3>
+<p>Validates that values match one of the provided regex patterns.  Patterns may be provided as strings, or as
+pre-compiled patterns (i.e., the result of calling <a class="reference external" href="https://docs.python.org/3/library/re.html#re.compile" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">re.compile()</span></code></a>).  To include flags like
+<a class="reference external" href="https://docs.python.org/3/library/re.html#re.IGNORECASE" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">re.IGNORECASE</span></code></a>, pre-compiled patterns must be used.</p>
+<p>Matches are checked for using <a class="reference external" href="https://docs.python.org/3/library/re.html#re.Pattern.search" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">re.Pattern.search()</span></code></a>, so if full matches or matches that start at the
+beginning of the string are necessary, then start (<code class="docutils literal notranslate"><span class="pre">^</span></code>) / end (<code class="docutils literal notranslate"><span class="pre">$</span></code>) anchors should be included where appropriate.
+See <a class="reference external" href="https://docs.python.org/3/library/re.html#search-vs-match" title="(in Python v3.11)"><span>search() vs. match()</span></a> for more related info, or
+<a class="reference external" href="https://www.regular-expressions.info/">regular-expressions.info</a> for more general info about writing regular
+expressions.</p>
+<p id="regex-init-params"><strong>Regex initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="regex:patterns">patterns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>One or more regex pattern strings or pre-compiled <a class="reference external" href="https://docs.python.org/3/library/re.html#re-objects" title="(in Python v3.11)"><span>Regular Expression Objects</span></a>.</p>
+</dd>
+<dt class="field-even" id="regex:group">group<span class="colon">:</span></dt>
+<dd class="field-even"><p>Identifier for a capturing group.  If specified, the string captured in this group will be returned instead
+of the full / original input string.</p>
+</dd>
+<dt class="field-odd" id="regex:groups">groups<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Collection of identifiers for capturing groups.  If specified, a tuple containing the strings from the
+specified capturing groups will be returned instead of the full / original input string.</p>
+</dd>
+<dt class="field-even" id="regex:mode">mode<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <a class="reference internal" href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode" title="cli_command_parser.inputs.patterns.RegexMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegexMode</span></code></a> (or string name of a RegexMode member) representing the type of value that should be
+returned during parsing.  When a value is provided for <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">groups</span></code>, this does not need to be explicitly
+provided - it will automatically pick the appropriate mode.  Defaults to <code class="docutils literal notranslate"><span class="pre">STRING</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="glob">
+<h3>Glob<a class="headerlink" href="#glob" title="Permalink to this heading"></a></h3>
+<p>Validates that values match one of the provided glob / <a class="reference external" href="https://docs.python.org/3/library/fnmatch.html" title="(in Python v3.11)"><span class="xref std std-doc">fnmatch</span></a> patterns.</p>
+<p id="glob-init-params"><strong>Glob initialization parameters:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="glob:patterns">patterns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>One or more glob pattern strings.</p>
+</dd>
+<dt class="field-even" id="glob:match_case">match_case<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether matches should be case sensitive or not (default: False).</p>
+</dd>
+<dt class="field-odd" id="glob:normcase">normcase<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether <a class="reference external" href="https://docs.python.org/3/library/os.path.html#os.path.normcase" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">os.path.normcase()</span></code></a> should be called on patterns and values (default: False).</p>
 </dd>
 </dl>
 </section>
