@@ -46,7 +46,7 @@ class RegexMode(MissingMixin, Enum):
     """The RegexMode for a given Regex input governs the type of value it returns during parsing."""
 
     STRING = 'string'   #: Return the full original string if it matches a given pattern
-    MATCH = 'match'     #: Return a Match object
+    MATCH = 'match'     #: Return a :ref:`Match <python:match-objects>` object
     GROUP = 'group'     #: Return the string from the specified capturing group
     GROUPS = 'groups'   #: Return a tuple containing all captured groups, or specific captured groups
     DICT = 'dict'       #: Return a dictionary containing all named capturing groups and their captured values
