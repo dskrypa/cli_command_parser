@@ -336,6 +336,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sub_cmd_doc_depth"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sub_cmd_doc_depth</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -661,6 +662,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder"><code class="docutils literal notranslate"><span class="pre">ProgFinder</span></code></a><ul>
@@ -833,6 +835,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool"><code class="docutils literal notranslate"><span class="pre">str_to_bool()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.utils.html#cli_command_parser.utils.positive_int"><code class="docutils literal notranslate"><span class="pre">positive_int()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -866,6 +869,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#subcommand-hello">Subcommand: hello</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#subcommand-logs">Subcommand: logs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#subcommand-update">Subcommand: update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-update-foo">Subcommand: update foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-update-bar">Subcommand: update bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-update-user">Subcommand: update user</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-update-group">Subcommand: update group</a></li>
 </ul>
 </li>
 </ul>
@@ -879,6 +886,10 @@
 <li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-show">Subcommand: show</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-sync">Subcommand: sync</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-find">Subcommand: find</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-find-foo">Subcommand: find foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-find-bar">Subcommand: find bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-find-baz">Subcommand: find baz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rest_api_wrapper.html#subcommand-find-bazs">Subcommand: find bazs</a></li>
 </ul>
 </li>
 </ul>
@@ -1051,6 +1062,237 @@ base Command so that the base Command is made aware of the presence of the subco
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code></p></td>
 <td><p>Print the actions that would be taken instead of taking them</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common Fields options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">NAME</span></code></p></td>
+<td><p>The new name for the specified item(s)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--description</span> <span class="pre">DESCRIPTION</span></code>, <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">DESCRIPTION</span></code></p></td>
+<td><p>The new description to use for the specified item(s)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Mutually exclusive options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--ids</span> <span class="pre">IDS</span></code>, <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">IDS</span></code></p></td>
+<td><p>The IDs of the item to update</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all</span></code>, <code class="docutils literal notranslate"><span class="pre">-A</span></code></p></td>
+<td><p>Update all items</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-update-foo">
+<h3>Subcommand: update foo<a class="headerlink" href="#subcommand-update-foo" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">foo</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">user</span><span class="o">|</span><span class="n">group</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Positional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Subcommands</p></td>
+<td><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">foo</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bar</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">user</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">group</span></code></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code></p></td>
+<td><p>Print the actions that would be taken instead of taking them</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common Fields options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">NAME</span></code></p></td>
+<td><p>The new name for the specified item(s)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--description</span> <span class="pre">DESCRIPTION</span></code>, <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">DESCRIPTION</span></code></p></td>
+<td><p>The new description to use for the specified item(s)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Mutually exclusive options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--ids</span> <span class="pre">IDS</span></code>, <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">IDS</span></code></p></td>
+<td><p>The IDs of the item to update</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all</span></code>, <code class="docutils literal notranslate"><span class="pre">-A</span></code></p></td>
+<td><p>Update all items</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-update-bar">
+<h3>Subcommand: update bar<a class="headerlink" href="#subcommand-update-bar" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">bar</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">user</span><span class="o">|</span><span class="n">group</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Positional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Subcommands</p></td>
+<td><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">foo</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bar</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">user</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">group</span></code></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code></p></td>
+<td><p>Print the actions that would be taken instead of taking them</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common Fields options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">NAME</span></code></p></td>
+<td><p>The new name for the specified item(s)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--description</span> <span class="pre">DESCRIPTION</span></code>, <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">DESCRIPTION</span></code></p></td>
+<td><p>The new description to use for the specified item(s)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Mutually exclusive options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--ids</span> <span class="pre">IDS</span></code>, <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">IDS</span></code></p></td>
+<td><p>The IDs of the item to update</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all</span></code>, <code class="docutils literal notranslate"><span class="pre">-A</span></code></p></td>
+<td><p>Update all items</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-update-user">
+<h3>Subcommand: update user<a class="headerlink" href="#subcommand-update-user" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">user</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">location</span> <span class="n">LOCATION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">role</span> <span class="p">{</span><span class="n">admin</span><span class="o">|</span><span class="n">user</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code></p></td>
+<td><p>Print the actions that would be taken instead of taking them</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--location</span> <span class="pre">LOCATION</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">LOCATION</span></code></p></td>
+<td><p>The new location for the specified item(s)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--role</span> <span class="pre">{admin|user}</span></code>, <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">{admin|user}</span></code></p></td>
+<td><p>The new role for the specified user(s)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common Fields options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--name</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">NAME</span></code></p></td>
+<td><p>The new name for the specified item(s)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--description</span> <span class="pre">DESCRIPTION</span></code>, <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">DESCRIPTION</span></code></p></td>
+<td><p>The new description to use for the specified item(s)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Mutually exclusive options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--ids</span> <span class="pre">IDS</span></code>, <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">IDS</span></code></p></td>
+<td><p>The IDs of the item to update</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all</span></code>, <code class="docutils literal notranslate"><span class="pre">-A</span></code></p></td>
+<td><p>Update all items</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-update-group">
+<h3>Subcommand: update group<a class="headerlink" href="#subcommand-update-group" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">group</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">IDS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">location</span> <span class="n">LOCATION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">add</span> <span class="n">ADD</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">remove</span> <span class="n">REMOVE</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>, <code class="docutils literal notranslate"><span class="pre">-D</span></code></p></td>
+<td><p>Print the actions that would be taken instead of taking them</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--location</span> <span class="pre">LOCATION</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">LOCATION</span></code></p></td>
+<td><p>The new location for the specified item(s)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--add</span> <span class="pre">ADD</span></code>, <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">ADD</span></code></p></td>
+<td><p>Members to add</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--remove</span> <span class="pre">REMOVE</span></code>, <code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">REMOVE</span></code></p></td>
+<td><p>Members to remove</p></td>
 </tr>
 </tbody>
 </table>

@@ -333,6 +333,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sub_cmd_doc_depth"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sub_cmd_doc_depth</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -658,6 +659,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder"><code class="docutils literal notranslate"><span class="pre">ProgFinder</span></code></a><ul>
@@ -830,6 +832,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool"><code class="docutils literal notranslate"><span class="pre">str_to_bool()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.positive_int"><code class="docutils literal notranslate"><span class="pre">positive_int()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -863,6 +866,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-hello">Subcommand: hello</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-logs">Subcommand: logs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-update">Subcommand: update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-update-foo">Subcommand: update foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-update-bar">Subcommand: update bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-update-user">Subcommand: update user</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/complex.html#subcommand-update-group">Subcommand: update group</a></li>
 </ul>
 </li>
 </ul>
@@ -876,6 +883,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-show">Subcommand: show</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-sync">Subcommand: sync</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-find">Subcommand: find</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-find-foo">Subcommand: find foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-find-bar">Subcommand: find bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-find-baz">Subcommand: find baz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/rest_api_wrapper.html#subcommand-find-bazs">Subcommand: find bazs</a></li>
 </ul>
 </li>
 </ul>
@@ -946,17 +957,23 @@
 
 <span class="n">Bases</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">type</span><span class="p">]]</span>
 <span class="n">Choices</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="n">OptChoices</span> <span class="o">=</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Choices</span><span class="p">]</span>
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
 
+<span class="n">_NotSet</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
 <span class="n">META_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;prog&#39;</span><span class="p">,</span> <span class="s1">&#39;usage&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;epilog&#39;</span><span class="p">,</span> <span class="s1">&#39;doc_name&#39;</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="CommandMeta"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta">[docs]</a><span class="k">class</span> <span class="nc">CommandMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
     <span class="c1"># noinspection PyUnresolvedReferences</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param choice: SubCommand value to map to this command.</span>
+<span class="sd">    :param choice: SubCommand value to map to this command.  If specified, this single choice value will override</span>
+<span class="sd">      the default value that is based on the name of the class.  Use ``None`` (and do not provide a value for</span>
+<span class="sd">      ``choices``) to prevent the class from being registered as a subcommand choice.</span>
 <span class="sd">    :param choices: SubCommand values to map to this command.  Optionally, a mapping of ``{choice: help text}`` may be</span>
-<span class="sd">      provided to customize the help text displayed for each choice.</span>
+<span class="sd">      provided to customize the help text displayed for each choice.  If specified, these choice values will</span>
+<span class="sd">      override the default value that is based on the name of the class.  It is possible, but not necessary, for</span>
+<span class="sd">      values to be provided for both ``choice`` and this parameter.</span>
 <span class="sd">    :param prog: The name of the program (default: ``sys.argv[0]`` or the name of the module in which the top-level</span>
 <span class="sd">      Command was defined in some cases)</span>
 <span class="sd">    :param usage: Usage message (default: auto-generated)</span>
@@ -989,7 +1006,7 @@
         <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span>
         <span class="n">namespace</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">Choices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">AnyConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1012,20 +1029,35 @@
         <span class="k">return</span> <span class="bp">cls</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_maybe_register_sub_cmd</span><span class="p">(</span>
-        <span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Choices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_maybe_register_sub_cmd</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">OptChoices</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">):</span>  <span class="c1"># noqa</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the given class does not directly extend ABC, and it extends a Command subclass with a :class:`.SubCommand`</span>
+<span class="sd">        parameter, then this method will register the class as a subcommand choice for that parameter.</span>
+
+<span class="sd">        If no explicit ``choice`` or ``choices`` values are provided, then the name of the class (converted to camel</span>
+<span class="sd">        case) will be used as the subcommand choice.</span>
+
+<span class="sd">        :param cls: A Command (sub)class.</span>
+<span class="sd">        :param bases: The classes that the given class directly extends.</span>
+<span class="sd">        :param choice: SubCommand value to map to this command.  If specified, this single choice value will override</span>
+<span class="sd">          the default value that is based on the name of the class.  Use ``None`` (and do not provide a value for</span>
+<span class="sd">          ``choices``) to prevent the class from being registered as a subcommand choice.</span>
+<span class="sd">        :param choices: SubCommand values to map to this command.  Optionally, a mapping of ``{choice: help text}`` may</span>
+<span class="sd">          be provided to customize the help text displayed for each choice.  If specified, these choice values will</span>
+<span class="sd">          override the default value that is based on the name of the class.  It is possible, but not necessary, for</span>
+<span class="sd">          values to be provided for both ``choice`` and this parameter.</span>
+<span class="sd">        :param help: The help text that was provided when the class was defined, if any.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ABC</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">has_both</span> <span class="o">=</span> <span class="n">choices</span> <span class="ow">or</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">parent</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">choice_help</span> <span class="ow">in</span> <span class="n">_choice_items</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
                     <span class="n">sub_cmd</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">choice_help</span> <span class="ow">or</span> <span class="n">help</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">has_both</span><span class="p">:</span>
-                <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choices</span><span class="si">=}</span><span class="s1"> were not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because its </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> has no SubCommand parameter&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">has_both</span><span class="p">:</span>
-            <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choices</span><span class="si">=}</span><span class="s1"> were not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because it has no parent Command&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">choices</span> <span class="ow">or</span> <span class="p">(</span><span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">):</span>
+                <span class="n">_no_choices_registered_warning</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;its </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> has no SubCommand parameter&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">choices</span> <span class="ow">or</span> <span class="p">(</span><span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">):</span>
+            <span class="n">_no_choices_registered_warning</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;it has no parent Command&#39;</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_from_parent</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">meth</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCls</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
@@ -1060,6 +1092,8 @@
             <span class="k">return</span> <span class="n">default</span></div>
 
     <span class="c1"># endregion</span>
+
+    <span class="c1"># region Metaclass-Managed Command Attributes</span>
 
 <div class="viewcode-block" id="CommandMeta.parent"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
@@ -1111,6 +1145,8 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">__metadata</span> <span class="o">=</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="o">.</span><span class="n">for_command</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_meta</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">meta</span></div></div>
 
+    <span class="c1"># endregion</span>
+
 
 <span class="k">def</span> <span class="nf">_mro</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1120,18 +1156,28 @@
         <span class="k">return</span> <span class="n">cmd_cls</span><span class="p">,</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_choice_items</span><span class="p">(</span><span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Choices</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+<span class="k">def</span> <span class="nf">_choice_items</span><span class="p">(</span><span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">OptChoices</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">choices</span><span class="p">:</span>
-        <span class="k">yield</span> <span class="n">choice</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="c1"># Automatic use of the subcommand class name is handled by SubCommand.register_command when choice is None</span>
+        <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Allow an explicit None to be used to prevent registration</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="kc">None</span> <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="n">choice</span><span class="p">),</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">items</span> <span class="o">=</span> <span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># Choices is not a dict of choice:help</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">((</span><span class="n">c</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">choice</span> <span class="ow">and</span> <span class="n">choice</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">choice</span> <span class="ow">and</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="n">choice</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">choice</span><span class="p">,</span> <span class="kc">None</span>
         <span class="k">yield from</span> <span class="n">items</span>
+
+
+<span class="k">def</span> <span class="nf">_no_choices_registered_warning</span><span class="p">(</span><span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">OptChoices</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">choices</span> <span class="ow">and</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> and </span><span class="si">{</span><span class="n">choices</span><span class="si">=}</span><span class="s1"> were&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choices</span><span class="si">=}</span><span class="s1"> were&#39;</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> was&#39;</span>
+    <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> not registered for </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s1"> because </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 
 <span class="n">get_parent</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">parent</span>

@@ -336,6 +336,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sub_cmd_doc_depth"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sub_cmd_doc_depth</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -661,6 +662,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder"><code class="docutils literal notranslate"><span class="pre">ProgFinder</span></code></a><ul>
@@ -833,6 +835,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool"><code class="docutils literal notranslate"><span class="pre">str_to_bool()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.utils.html#cli_command_parser.utils.positive_int"><code class="docutils literal notranslate"><span class="pre">positive_int()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -866,6 +869,10 @@
 <li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-hello">Subcommand: hello</a></li>
 <li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-logs">Subcommand: logs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-update">Subcommand: update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-update-foo">Subcommand: update foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-update-bar">Subcommand: update bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-update-user">Subcommand: update user</a></li>
+<li class="toctree-l4"><a class="reference internal" href="complex.html#subcommand-update-group">Subcommand: update group</a></li>
 </ul>
 </li>
 </ul>
@@ -879,6 +886,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#subcommand-show">Subcommand: show</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#subcommand-sync">Subcommand: sync</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#subcommand-find">Subcommand: find</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-find-foo">Subcommand: find foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-find-bar">Subcommand: find bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-find-baz">Subcommand: find baz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subcommand-find-bazs">Subcommand: find bazs</a></li>
 </ul>
 </li>
 </ul>
@@ -1106,6 +1117,158 @@
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-find-foo">
+<h3>Subcommand: find foo<a class="headerlink" href="#subcommand-find-foo" title="Permalink to this heading"></a></h3>
+<p>Find foo objects</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">foo</span> <span class="n">QUERY</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Positional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">QUERY</span></code></p></td>
+<td><p>Find foo objects that match the specified query</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--limit</span> <span class="pre">LIMIT</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">LIMIT</span></code></p></td>
+<td><p>The number of results to show (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
+<td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-find-bar">
+<h3>Subcommand: find bar<a class="headerlink" href="#subcommand-find-bar" title="Permalink to this heading"></a></h3>
+<p>Find bar objects</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">bar</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pattern</span> <span class="n">PATTERN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--limit</span> <span class="pre">LIMIT</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">LIMIT</span></code></p></td>
+<td><p>The number of results to show (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--pattern</span> <span class="pre">PATTERN</span></code>, <code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">PATTERN</span></code></p></td>
+<td><p>Pattern to find</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--all</span></code>, <code class="docutils literal notranslate"><span class="pre">-a</span></code></p></td>
+<td><p>Show all (default: only even)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
+<td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-find-baz">
+<h3>Subcommand: find baz<a class="headerlink" href="#subcommand-find-baz" title="Permalink to this heading"></a></h3>
+<p>Find baz objects</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">baz</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">foo</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bar</span> <span class="n">ID</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--limit</span> <span class="pre">LIMIT</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">LIMIT</span></code></p></td>
+<td><p>The number of results to show (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
+<td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Filter Choices (mutually exclusive)</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--foo</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">NAME</span></code></p></td>
+<td><p>Find baz objects related to the foo object with the specified name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bar</span> <span class="pre">ID</span></code>, <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">ID</span></code></p></td>
+<td><p>Find baz objects related to the bar object with the specified ID</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subcommand-find-bazs">
+<h3>Subcommand: find bazs<a class="headerlink" href="#subcommand-find-bazs" title="Permalink to this heading"></a></h3>
+<p>Find baz objects</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">bazs</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">foo</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bar</span> <span class="n">ID</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Optional arguments</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">-h</span></code></p></td>
+<td><p>Show this help message and exit</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--limit</span> <span class="pre">LIMIT</span></code>, <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">LIMIT</span></code></p></td>
+<td><p>The number of results to show (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Common options</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
+<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
+<td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Filter Choices (mutually exclusive)</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--foo</span> <span class="pre">NAME</span></code>, <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">NAME</span></code></p></td>
+<td><p>Find baz objects related to the foo object with the specified name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bar</span> <span class="pre">ID</span></code>, <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">ID</span></code></p></td>
+<td><p>Find baz objects related to the bar object with the specified ID</p></td>
 </tr>
 </tbody>
 </table>

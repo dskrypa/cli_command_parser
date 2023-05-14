@@ -333,6 +333,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sub_cmd_doc_depth"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sub_cmd_doc_depth</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict"><code class="docutils literal notranslate"><span class="pre">CommandConfig.as_dict()</span></code></a></li>
 </ul>
 </li>
@@ -658,6 +659,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder"><code class="docutils literal notranslate"><span class="pre">ProgFinder</span></code></a><ul>
@@ -830,6 +832,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool"><code class="docutils literal notranslate"><span class="pre">str_to_bool()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.positive_int"><code class="docutils literal notranslate"><span class="pre">positive_int()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -863,6 +866,10 @@
 <li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-hello">Subcommand: hello</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-logs">Subcommand: logs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-update">Subcommand: update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-update-foo">Subcommand: update foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-update-bar">Subcommand: update bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-update-user">Subcommand: update user</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/complex.html#subcommand-update-group">Subcommand: update group</a></li>
 </ul>
 </li>
 </ul>
@@ -876,6 +883,10 @@
 <li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-show">Subcommand: show</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-sync">Subcommand: sync</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-find">Subcommand: find</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-find-foo">Subcommand: find foo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-find-bar">Subcommand: find bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-find-baz">Subcommand: find baz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/rest_api_wrapper.html#subcommand-find-bazs">Subcommand: find bazs</a></li>
 </ul>
 </li>
 </ul>
@@ -2391,6 +2402,8 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_current_context">get_current_context() (in module cli_command_parser.context)</a>
 </li>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description">get_description() (cli_command_parser.metadata.ProgramMetadata method)</a>
+</li>
       <li><a href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type">get_descriptor_value_type() (in module cli_command_parser.annotations)</a>
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str">get_doc_str() (cli_command_parser.metadata.ProgramMetadata method)</a>
@@ -2423,10 +2436,10 @@
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed">(in module cli_command_parser.context)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed_value">get_parsed_value() (cli_command_parser.context.Context method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed_value">get_parsed_value() (cli_command_parser.context.Context method)</a>
+</li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.get_pos_args">get_pos_args() (cli_command_parser.conversion.command_builder.ParamConverter method)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse">get_positionals_to_parse() (cli_command_parser.command_parameters.CommandParameters method)</a>
@@ -3364,10 +3377,10 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter">ParserConverter (class in cli_command_parser.conversion.command_builder)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">ParserExit</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.Script.parsers">parsers (cli_command_parser.conversion.argparse_ast.Script property)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
@@ -3428,6 +3441,8 @@
         <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.positionals">(cli_command_parser.parser.CommandParser attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.positive_int">positive_int() (in module cli_command_parser.utils)</a>
+</li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode">PosNode (class in cli_command_parser.parse_tree)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.pprint">pprint() (cli_command_parser.conversion.argparse_ast.ArgCollection method)</a>
@@ -3793,6 +3808,8 @@
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.params.strict_env">(cli_command_parser.parameters.options.TriFlag parameter)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sub_cmd_doc_depth">sub_cmd_doc_depth (cli_command_parser.config.CommandConfig attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.sub_command">sub_command (cli_command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.sub_parser_converters">sub_parser_converters (cli_command_parser.conversion.command_builder.ParserConverter property)</a>

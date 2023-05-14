@@ -206,3 +206,181 @@ Find objects
     +-------------------------------------------------------+--------------------------------------------------------------------------+
     | ``--env {dev|qa|uat|prod}``, ``-e {dev|qa|uat|prod}`` | Environment to connect to (default: ``'prod'``)                          |
     +-------------------------------------------------------+--------------------------------------------------------------------------+
+
+
+Subcommand: find foo
+--------------------
+
+Find foo objects
+
+::
+
+    usage: rest_api_wrapper.py find foo QUERY [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT]
+
+
+
+.. rubric:: Positional arguments
+
+.. table::
+    :widths: auto
+
+    +-----------+-------------------------------------------------+
+    | ``QUERY`` | Find foo objects that match the specified query |
+    +-----------+-------------------------------------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +---------------------------------+-------------------------------------------------+
+    | ``--help``, ``-h``              | Show this help message and exit                 |
+    +---------------------------------+-------------------------------------------------+
+    | ``--limit LIMIT``, ``-L LIMIT`` | The number of results to show (default: ``10``) |
+    +---------------------------------+-------------------------------------------------+
+
+
+.. rubric:: Common options
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]``             | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--env {dev|qa|uat|prod}``, ``-e {dev|qa|uat|prod}`` | Environment to connect to (default: ``'prod'``)                          |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+
+
+Subcommand: find bar
+--------------------
+
+Find bar objects
+
+::
+
+    usage: rest_api_wrapper.py find bar [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT] [--pattern PATTERN] [--all]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------+-------------------------------------------------+
+    | ``--help``, ``-h``                    | Show this help message and exit                 |
+    +---------------------------------------+-------------------------------------------------+
+    | ``--limit LIMIT``, ``-L LIMIT``       | The number of results to show (default: ``10``) |
+    +---------------------------------------+-------------------------------------------------+
+    | ``--pattern PATTERN``, ``-p PATTERN`` | Pattern to find                                 |
+    +---------------------------------------+-------------------------------------------------+
+    | ``--all``, ``-a``                     | Show all (default: only even)                   |
+    +---------------------------------------+-------------------------------------------------+
+
+
+.. rubric:: Common options
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]``             | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--env {dev|qa|uat|prod}``, ``-e {dev|qa|uat|prod}`` | Environment to connect to (default: ``'prod'``)                          |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+
+
+Subcommand: find baz
+--------------------
+
+Find baz objects
+
+::
+
+    usage: rest_api_wrapper.py find baz [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT] [--foo NAME] [--bar ID]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +---------------------------------+-------------------------------------------------+
+    | ``--help``, ``-h``              | Show this help message and exit                 |
+    +---------------------------------+-------------------------------------------------+
+    | ``--limit LIMIT``, ``-L LIMIT`` | The number of results to show (default: ``10``) |
+    +---------------------------------+-------------------------------------------------+
+
+
+.. rubric:: Common options
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]``             | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--env {dev|qa|uat|prod}``, ``-e {dev|qa|uat|prod}`` | Environment to connect to (default: ``'prod'``)                          |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Filter Choices (mutually exclusive)
+
+.. table::
+    :widths: auto
+
+    +-----------------------------+--------------------------------------------------------------------+
+    | ``--foo NAME``, ``-f NAME`` | Find baz objects related to the foo object with the specified name |
+    +-----------------------------+--------------------------------------------------------------------+
+    | ``--bar ID``, ``-b ID``     | Find baz objects related to the bar object with the specified ID   |
+    +-----------------------------+--------------------------------------------------------------------+
+
+
+Subcommand: find bazs
+---------------------
+
+Find baz objects
+
+::
+
+    usage: rest_api_wrapper.py find bazs [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--limit LIMIT] [--foo NAME] [--bar ID]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +---------------------------------+-------------------------------------------------+
+    | ``--help``, ``-h``              | Show this help message and exit                 |
+    +---------------------------------+-------------------------------------------------+
+    | ``--limit LIMIT``, ``-L LIMIT`` | The number of results to show (default: ``10``) |
+    +---------------------------------+-------------------------------------------------+
+
+
+.. rubric:: Common options
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]``             | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--env {dev|qa|uat|prod}``, ``-e {dev|qa|uat|prod}`` | Environment to connect to (default: ``'prod'``)                          |
+    +-------------------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Filter Choices (mutually exclusive)
+
+.. table::
+    :widths: auto
+
+    +-----------------------------+--------------------------------------------------------------------+
+    | ``--foo NAME``, ``-f NAME`` | Find baz objects related to the foo object with the specified name |
+    +-----------------------------+--------------------------------------------------------------------+
+    | ``--bar ID``, ``-b ID``     | Find baz objects related to the bar object with the specified ID   |
+    +-----------------------------+--------------------------------------------------------------------+
