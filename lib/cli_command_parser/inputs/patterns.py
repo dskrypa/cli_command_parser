@@ -6,10 +6,11 @@ Custom regex/glob input validation handlers for Parameters
 
 from __future__ import annotations
 
+import os
 import re
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import Enum
-from fnmatch import fnmatch, fnmatchcase
+from fnmatch import translate
 from typing import TypeVar, Union, Collection, Sequence, Pattern, Match, Tuple, Dict
 
 from ..utils import MissingMixin
@@ -23,10 +24,13 @@ RegexResult = TypeVar('RegexResult', str, Match, Tuple[str, ...], Dict[str, str]
 
 class PatternInput(InputType[T], ABC):
     __slots__ = ('patterns',)
+    patterns: Tuple[Pattern, ...]
 
-    @abstractmethod
     def _pattern_strings(self, sort: bool = False) -> Sequence[str]:
-        raise NotImplementedError
+        patterns = [p.pattern for p in self.patterns]
+        if sort:
+            patterns.sort()
+        return patterns
 
     def format_metavar(self, choice_delim: str = ' | ', sort_choices: bool = False) -> str:
         return choice_delim.join(self._pattern_strings(sort_choices))
@@ -87,7 +91,6 @@ class Regex(PatternInput[RegexResult]):
     """
 
     __slots__ = ('mode', 'group', 'groups')
-    patterns: Tuple[Pattern, ...]
 
     def __init__(
         self,
@@ -108,12 +111,6 @@ class Regex(PatternInput[RegexResult]):
     def __repr__(self) -> str:
         mode, group, groups, patterns = self.mode, self.group, self.groups, self.patterns
         return f'<{self.__class__.__name__}({mode=}, {group=}, {groups=}, {patterns=})>'
-
-    def _pattern_strings(self, sort: bool = False) -> Sequence[str]:
-        patterns = [p.pattern for p in self.patterns]
-        if sort:
-            patterns.sort()
-        return patterns
 
     def __call__(self, value: str) -> RegexResult:
         if not (m := next((pm for p in self.patterns if (pm := p.search(value))), None)):
@@ -139,24 +136,32 @@ class Glob(PatternInput[str]):
 
     :param patterns: One or more glob pattern strings.
     :param match_case: Whether matches should be case sensitive or not (default: False).
+    :param normcase: Whether :func:`python:os.path.normcase` should be called on patterns and values (default: False).
     """
 
-    __slots__ = ('match_case',)
+    __slots__ = ('_original_patterns', 'normcase')
 
-    def __init__(self, *patterns: str, match_case: bool = False):
+    def __init__(self, *patterns: str, match_case: bool = False, normcase: bool = False):
         if not patterns:
             raise TypeError('At least one glob/fnmatch pattern is required')
-        self.patterns = patterns
-        self.match_case = match_case
+        if normcase:
+            patterns = tuple(os.path.normcase(p) for p in patterns)
+        self._original_patterns = patterns
+        if match_case:
+            self.patterns = tuple(re.compile(translate(p)) for p in patterns)
+        else:
+            self.patterns = tuple(re.compile(translate(p), re.IGNORECASE) for p in patterns)
+        self.normcase = normcase
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}(patterns={self.patterns})>'
 
     def _pattern_strings(self, sort: bool = False) -> Sequence[str]:
-        return sorted(self.patterns) if sort else self.patterns
+        return sorted(self._original_patterns) if sort else self._original_patterns
 
     def __call__(self, value: str) -> str:
-        func = fnmatchcase if self.match_case else fnmatch
-        if any(func(value, p) for p in self.patterns):
+        if self.normcase:
+            value = os.path.normcase(value)
+        if any(p.match(value) for p in self.patterns):
             return value
         raise InputValidationError(f'expected a value matching {self._describe_patterns()}')

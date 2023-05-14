@@ -333,7 +333,7 @@ Validates that values match one of the provided glob / :doc:`fnmatch <python:lib
 
 :patterns: One or more glob pattern strings.
 :match_case: Whether matches should be case sensitive or not (default: False).
-
+:normcase: Whether :func:`python:os.path.normcase` should be called on patterns and values (default: False).
 
 
 Date & Time

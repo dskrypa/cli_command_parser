@@ -121,6 +121,7 @@ class GlobInputTest(TestCase):
 
     def test_match(self):
         self.assertEqual('foobarbaz', Glob('foo*')('foobarbaz'))
+        self.assertEqual('foobarbaz', Glob('foo*', normcase=True)('foobarbaz'))
         self.assertEqual('barbaz', Glob('foo*', '*bar*')('barbaz'))
         self.assertEqual('foo', Glob('FOO')('foo'))
 
