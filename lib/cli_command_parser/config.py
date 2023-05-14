@@ -10,7 +10,7 @@ from collections import ChainMap
 from enum import Enum
 from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, Generic, overload, Dict
 
-from .utils import FixedFlag, MissingMixin, _NotSet
+from .utils import FixedFlag, MissingMixin, _NotSet, positive_int
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -210,6 +210,9 @@ class AllowLeadingDash(Enum):
 # endregion
 
 
+# region Config Item Descriptors / Decorators
+
+
 class ConfigItem(Generic[CV, DV]):
     __slots__ = ('default', 'type', 'name')
 
@@ -268,6 +271,9 @@ class DynamicConfigItem(ConfigItem):
 
 def config_item(default: DV):
     return lambda func: DynamicConfigItem(default, func)
+
+
+# endregion
 
 
 class CommandConfig:
@@ -387,13 +393,7 @@ class CommandConfig:
         """
         if value is True or value is False:
             return value
-        try:
-            value = int(value)
-        except (ValueError, TypeError) as e:
-            raise TypeError(f'Invalid wrap_usage_str {value=} - expected a bool or a positive integer') from e
-        if value < 1:
-            raise ValueError(f'Invalid wrap_usage_str {value=} - expected a bool or a positive integer')
-        return value
+        return positive_int(value, 'a bool or a positive integer', min_val=1)
 
     # endregion
 
@@ -404,6 +404,9 @@ class CommandConfig:
 
     #: Whether inherited descriptions should be included in subcommand sections of generated documentation
     show_inherited_descriptions: Bool = ConfigItem(False, bool)
+
+    #: Maximum subcommand depth to include in generated documentation (default: include all)
+    sub_cmd_doc_depth: int = ConfigItem(None, positive_int)
 
     # endregion
 

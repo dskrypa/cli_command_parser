@@ -140,3 +140,4 @@ Options that only affect RST documentation generation.
   (default: True)
 :show_inherited_descriptions: Whether inherited descriptions should be included in subcommand sections of generated
   documentation (default: False)
+:sub_cmd_doc_depth: Maximum subcommand depth to include in generated documentation (default: include all)

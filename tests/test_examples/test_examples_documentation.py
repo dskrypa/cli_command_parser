@@ -80,7 +80,7 @@ class ExampleRstFormatTest(ParserTest):
             ('action_with_args.py', 'Example', 'action_with_args.rst'),
             ('hello_world.py', 'HelloWorld', 'hello_world.rst'),
             ('advanced_subcommand.py', 'Base', 'advanced_subcommand.rst'),
-            ('complex', 'Example', 'complex.rst'),
+            ('complex', 'Example', 'complex__all.rst'),
         ]
         for file_name, cmd_name, expected_file_name in cases:
             with self.subTest(file=file_name, command=cmd_name):
@@ -107,6 +107,14 @@ class ExampleRstFormatTest(ParserTest):
             pass
 
         self.assert_strings_equal(load_expected('custom_inputs.rst'), render_command_rst(Inputs).rstrip())
+
+    def test_nested_subcommands_limited_depths(self):
+        Example = next(iter(load_commands(EXAMPLES_DIR.joinpath('complex')).values()))
+        for depth in (0, 1):
+            with self.subTest(depth=depth):
+                Command.__class__.config(Example).sub_cmd_doc_depth = depth
+                expected = load_expected(f'complex__depth_{depth}.rst')
+                self.assert_strings_equal(expected, render_command_rst(Example).rstrip())
 
 
 if __name__ == '__main__':
