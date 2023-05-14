@@ -3,7 +3,7 @@
 from unittest import main, TestCase
 
 from cli_command_parser import Command, Option
-from cli_command_parser.exceptions import UsageError
+from cli_command_parser.exceptions import ParameterDefinitionError
 from cli_command_parser.inputs import Range, NumRange
 from cli_command_parser.testing import ParserTest
 
@@ -18,9 +18,9 @@ class NumericInputTest(TestCase):
         self.assertIsInstance(Foo.baz.type, Range)  # noqa
 
     def test_range_with_choices_rejected(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Cannot combine type=.* with choices='):
             Option(type=range(10), choices=(1, 2))
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Cannot combine type=.* with choices='):
             Option(type=Range(range(10)), choices=(1, 2))
 
     def test_range_no_snap(self):
@@ -153,9 +153,8 @@ class ParseInputTest(ParserTest):
             (['-b', '5'], {'bar': 5}),
             (['--bar', '9'], {'bar': 9}),
         ]
-        fail_cases = [['-ba'], ['-b', '-1'], ['-b', '11']]
         self.assert_parse_results_cases(Foo, success_cases)
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+        self.assert_argv_parse_fails_cases(Foo, [['-ba'], ['-b', '-1'], ['-b', '11']])
 
 
 if __name__ == '__main__':

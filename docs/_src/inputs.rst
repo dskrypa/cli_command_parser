@@ -288,6 +288,53 @@ automatically be wrapped in a :class:`.EnumChoices` input handler.  If an Enum i
 :case_sensitive: Whether choices should be case-sensitive.  Defaults to False.
 
 
+Regex & Glob Patterns
+=====================
+
+Regex and Glob patterns provide a way to validate that input strings match an expected pattern.  Both related input
+helper classes support initialization with one or more patterns, which allows more flexibility in case acceptable
+values cannot easily be represented by a single pattern.
+
+Regex
+-----
+
+Validates that values match one of the provided regex patterns.  Patterns may be provided as strings, or as
+pre-compiled patterns (i.e., the result of calling :func:`python:re.compile`).  To include flags like
+:data:`python:re.IGNORECASE`, pre-compiled patterns must be used.
+
+Matches are checked for using :meth:`python:re.Pattern.search`, so if full matches or matches that start at the
+beginning of the string are necessary, then start (``^``) / end (``$``) anchors should be included where appropriate.
+See :ref:`python:search-vs-match` for more related info, or
+`regular-expressions.info <https://www.regular-expressions.info/>`__ for more general info about writing regular
+expressions.
+
+.. _regex_init_params:
+
+**Regex initialization parameters:**
+
+:patterns: One or more regex pattern strings or pre-compiled :ref:`python:re-objects`.
+:group: Identifier for a capturing group.  If specified, the string captured in this group will be returned instead
+  of the full / original input string.
+:groups: Collection of identifiers for capturing groups.  If specified, a tuple containing the strings from the
+  specified capturing groups will be returned instead of the full / original input string.
+:mode: The :class:`.RegexMode` (or string name of a RegexMode member) representing the type of value that should be
+  returned during parsing.  When a value is provided for ``group`` or ``groups``, this does not need to be explicitly
+  provided - it will automatically pick the appropriate mode.  Defaults to ``STRING``.
+
+
+Glob
+----
+
+Validates that values match one of the provided glob / :doc:`fnmatch <python:library/fnmatch>` patterns.
+
+.. _glob_init_params:
+
+**Glob initialization parameters:**
+
+:patterns: One or more glob pattern strings.
+:match_case: Whether matches should be case sensitive or not (default: False).
+:normcase: Whether :func:`python:os.path.normcase` should be called on patterns and values (default: False).
+
 
 Date & Time
 ===========

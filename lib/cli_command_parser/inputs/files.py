@@ -13,6 +13,7 @@ from typing import Union, Optional
 
 from ..typing import Bool, T, PathLike, Converter
 from .base import InputType
+from .exceptions import InputValidationError
 from .utils import InputParam, StatMode, FileWrapper, allows_write, fix_windows_path
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
@@ -65,11 +66,11 @@ class FileInput(InputType[T], ABC):
     def validated_path(self, path: PathLike) -> _Path:
         if not isinstance(path, _Path):
             if not (path := path.strip()):
-                raise ValueError('A valid path is required')
+                raise InputValidationError('A valid path is required')
             path = _Path(path)
         if path.parts == ('-',):
             if not self.allow_dash:
-                raise ValueError('Dash (-) is not supported for this parameter')
+                raise InputValidationError('Dash (-) is not supported for this parameter')
             return path
         if self.use_windows_fix and os.name == 'nt':
             try:
@@ -82,15 +83,15 @@ class FileInput(InputType[T], ABC):
             path = path.resolve()
         if self.exists is not None:
             if self.exists and not path.exists():
-                raise ValueError('it does not exist')
+                raise InputValidationError('it does not exist')
             elif not self.exists and path.exists():
-                raise ValueError('it already exists')
+                raise InputValidationError('it already exists')
         if self.type != StatMode.ANY and path.exists() and not self.type.matches(path.stat().st_mode):
-            raise ValueError(f'expected a {self.type}')
+            raise InputValidationError(f'expected a {self.type}')
         if self.readable and not os.access(path, os.R_OK):
-            raise ValueError('it is not readable')
+            raise InputValidationError('it is not readable')
         if self.writable and not os.access(path, os.W_OK):
-            raise ValueError('it is not writable')
+            raise InputValidationError('it is not writable')
         return path
 
 
