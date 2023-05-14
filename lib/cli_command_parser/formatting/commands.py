@@ -20,6 +20,7 @@ from .utils import combine_and_wrap
 if TYPE_CHECKING:
     from ..core import CommandMeta
     from ..command_parameters import CommandParameters
+    from ..config import CommandConfig
     from ..metadata import ProgramMetadata
     from ..parameters import Parameter, BasePositional, BaseOption, SubCommand, PassThru
     from ..typing import Bool, CommandType, CommandCls, CommandAny
@@ -113,10 +114,10 @@ class CommandHelpFormatter:
 
     def _format_rst(
         self,
+        config: CommandConfig,
         include_epilog: Bool = False,
         sub_cmd_choice: str = None,
         allow_sys_argv: Bool = False,
-        show_description: Bool = True,
     ) -> Iterator[str]:
         """Generate the RST content for the specific Command associated with this formatter"""
         yield '::'
@@ -125,7 +126,7 @@ class CommandHelpFormatter:
         yield ''
         yield ''
 
-        if show_description and (description := self._meta.description):
+        if description := self._meta.get_description(config.show_inherited_descriptions):
             yield description
             yield ''
 
@@ -136,7 +137,7 @@ class CommandHelpFormatter:
                 table: RstTable = group.formatter.rst_table()  # noqa
                 yield from table.iter_build()
 
-        if include_epilog and (epilog := self._meta.format_epilog(ctx.config.extended_epilog, allow_sys_argv)):
+        if include_epilog and (epilog := self._meta.format_epilog(config.extended_epilog, allow_sys_argv)):
             yield epilog
 
     def _format_rst_lines(
@@ -155,10 +156,9 @@ class CommandHelpFormatter:
             yield ''
 
         yield ''
-        yield from self._format_rst(True, allow_sys_argv=allow_sys_argv)
+        yield from self._format_rst(config, True, allow_sys_argv=allow_sys_argv)
 
         if (sub_command := get_params(self.command).sub_command) and sub_command.show_in_help:
-            show_inherited_descriptions, description = config.show_inherited_descriptions, self._meta.description
             yield from spaced_rst_header('Subcommands', init_level + 1)
             for cmd_name, choice in sub_command.choices.items():
                 yield from spaced_rst_header(f'Subcommand: {cmd_name}', init_level + 2)
@@ -170,16 +170,8 @@ class CommandHelpFormatter:
                     formatter = get_formatter(choice.target)
                 except TypeError:  # choice.target is None (it is the default choice, pointing back to the same Command)
                     formatter = self
-                    show_description = show_inherited_descriptions
-                else:
-                    if description and not show_inherited_descriptions:
-                        show_description = formatter._meta.description != description
-                    else:
-                        show_description = True
 
-                yield from formatter._format_rst(
-                    sub_cmd_choice=cmd_name, allow_sys_argv=allow_sys_argv, show_description=show_description
-                )
+                yield from formatter._format_rst(config, sub_cmd_choice=cmd_name, allow_sys_argv=allow_sys_argv)
 
     def format_rst(
         self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False

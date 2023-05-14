@@ -231,13 +231,19 @@ class ProgramMetadata:
             parts.append(f'Online documentation: {url}')
         return '\n\n'.join(parts)
 
-    def get_doc_str(self, strip: bool = True) -> OptStr:
+    def get_doc_str(self, strip: Bool = True) -> OptStr:
         if (doc_str := self.pkg_doc_str) and strip:
             doc_str = doc_str.strip()
         if not doc_str:
             if (doc_str := self.doc_str) and strip:
                 doc_str = doc_str.strip()
         return doc_str
+
+    def get_description(self, allow_inherited: Bool = True) -> OptStr:
+        if description := self.description:
+            if not allow_inherited and (parent := self.parent) and (parent_description := parent.description):  # noqa
+                return description if parent_description != description else None
+        return description
 
 
 def _repr(obj, indent=0) -> str:
