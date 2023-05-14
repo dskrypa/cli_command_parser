@@ -1,0 +1,407 @@
+Complex Example
+***************
+
+Simplified example of a complex set of Commands defined across multiple modules.
+
+The expected / intended use case would be for a program that would define an entry point like the following::
+
+    complex_example.py = examples.complex:main
+
+
+Any number of additional modules could be used, as long as they are imported in the package's ``__init__.py`` with the
+base Command so that the base Command is made aware of the presence of the subcommands.
+
+:author: Doug Skrypa
+
+
+::
+
+    usage: complex_example.py {hello|logs|update} [--verbose [VERBOSE]] [--help]
+
+
+
+.. rubric:: Positional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------+-----------------------+
+    | Subcommands | .. table::            |
+    |             |     :widths: auto     |
+    |             |                       |
+    |             |     +------------+--+ |
+    |             |     | ``hello``  |  | |
+    |             |     +------------+--+ |
+    |             |     | ``logs``   |  | |
+    |             |     +------------+--+ |
+    |             |     | ``update`` |  | |
+    |             |     +------------+--+ |
+    +-------------+-----------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+Subcommands
+===========
+
+
+Subcommand: hello
+-----------------
+
+::
+
+    usage: complex_example.py hello [--verbose [VERBOSE]] [--help] [--name NAME]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--name NAME``, ``-n NAME``              | The person to say hello to (default: ``'World'``)                        |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+Subcommand: logs
+----------------
+
+::
+
+    usage: complex_example.py logs [--verbose [VERBOSE]] [--help]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+Subcommand: update
+------------------
+
+::
+
+    usage: complex_example.py update {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+
+
+
+.. rubric:: Positional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------+----------------------+
+    | Subcommands | .. table::           |
+    |             |     :widths: auto    |
+    |             |                      |
+    |             |     +-----------+--+ |
+    |             |     | ``foo``   |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``bar``   |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``user``  |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``group`` |  | |
+    |             |     +-----------+--+ |
+    +-------------+----------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--dry-run``, ``-D``                     | Print the actions that would be taken instead of taking them             |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Common Fields options
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--name NAME``, ``-n NAME``                      | The new name for the specified item(s)               |
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--description DESCRIPTION``, ``-d DESCRIPTION`` | The new description to use for the specified item(s) |
+    +---------------------------------------------------+------------------------------------------------------+
+
+
+.. rubric:: Mutually exclusive options
+
+.. table::
+    :widths: auto
+
+    +---------------------------+-------------------------------+
+    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
+    +---------------------------+-------------------------------+
+    | ``--all``, ``-A``         | Update all items              |
+    +---------------------------+-------------------------------+
+
+
+Subcommand: update foo
+----------------------
+
+::
+
+    usage: complex_example.py update foo {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+
+
+
+.. rubric:: Positional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------+----------------------+
+    | Subcommands | .. table::           |
+    |             |     :widths: auto    |
+    |             |                      |
+    |             |     +-----------+--+ |
+    |             |     | ``foo``   |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``bar``   |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``user``  |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``group`` |  | |
+    |             |     +-----------+--+ |
+    +-------------+----------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--dry-run``, ``-D``                     | Print the actions that would be taken instead of taking them             |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Common Fields options
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--name NAME``, ``-n NAME``                      | The new name for the specified item(s)               |
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--description DESCRIPTION``, ``-d DESCRIPTION`` | The new description to use for the specified item(s) |
+    +---------------------------------------------------+------------------------------------------------------+
+
+
+.. rubric:: Mutually exclusive options
+
+.. table::
+    :widths: auto
+
+    +---------------------------+-------------------------------+
+    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
+    +---------------------------+-------------------------------+
+    | ``--all``, ``-A``         | Update all items              |
+    +---------------------------+-------------------------------+
+
+
+Subcommand: update bar
+----------------------
+
+::
+
+    usage: complex_example.py update bar {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+
+
+
+.. rubric:: Positional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------+----------------------+
+    | Subcommands | .. table::           |
+    |             |     :widths: auto    |
+    |             |                      |
+    |             |     +-----------+--+ |
+    |             |     | ``foo``   |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``bar``   |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``user``  |  | |
+    |             |     +-----------+--+ |
+    |             |     | ``group`` |  | |
+    |             |     +-----------+--+ |
+    +-------------+----------------------+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--dry-run``, ``-D``                     | Print the actions that would be taken instead of taking them             |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Common Fields options
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--name NAME``, ``-n NAME``                      | The new name for the specified item(s)               |
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--description DESCRIPTION``, ``-d DESCRIPTION`` | The new description to use for the specified item(s) |
+    +---------------------------------------------------+------------------------------------------------------+
+
+
+.. rubric:: Mutually exclusive options
+
+.. table::
+    :widths: auto
+
+    +---------------------------+-------------------------------+
+    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
+    +---------------------------+-------------------------------+
+    | ``--all``, ``-A``         | Update all items              |
+    +---------------------------+-------------------------------+
+
+
+Subcommand: update user
+-----------------------
+
+::
+
+    usage: complex_example.py update user [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION] [--location LOCATION] [--role {admin|user}]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +----------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]``    | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +----------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                           | Show this help message and exit                                          |
+    +----------------------------------------------+--------------------------------------------------------------------------+
+    | ``--dry-run``, ``-D``                        | Print the actions that would be taken instead of taking them             |
+    +----------------------------------------------+--------------------------------------------------------------------------+
+    | ``--location LOCATION``, ``-L LOCATION``     | The new location for the specified item(s)                               |
+    +----------------------------------------------+--------------------------------------------------------------------------+
+    | ``--role {admin|user}``, ``-r {admin|user}`` | The new role for the specified user(s)                                   |
+    +----------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Common Fields options
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--name NAME``, ``-n NAME``                      | The new name for the specified item(s)               |
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--description DESCRIPTION``, ``-d DESCRIPTION`` | The new description to use for the specified item(s) |
+    +---------------------------------------------------+------------------------------------------------------+
+
+
+.. rubric:: Mutually exclusive options
+
+.. table::
+    :widths: auto
+
+    +---------------------------+-------------------------------+
+    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
+    +---------------------------+-------------------------------+
+    | ``--all``, ``-A``         | Update all items              |
+    +---------------------------+-------------------------------+
+
+
+Subcommand: update group
+------------------------
+
+::
+
+    usage: complex_example.py update group [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION] [--location LOCATION] [--add ADD] [--remove REMOVE]
+
+
+
+.. rubric:: Optional arguments
+
+.. table::
+    :widths: auto
+
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit                                          |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--dry-run``, ``-D``                     | Print the actions that would be taken instead of taking them             |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--location LOCATION``, ``-L LOCATION``  | The new location for the specified item(s)                               |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--add ADD``, ``-a ADD``                 | Members to add                                                           |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+    | ``--remove REMOVE``, ``-r REMOVE``        | Members to remove                                                        |
+    +-------------------------------------------+--------------------------------------------------------------------------+
+
+
+.. rubric:: Common Fields options
+
+.. table::
+    :widths: auto
+
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--name NAME``, ``-n NAME``                      | The new name for the specified item(s)               |
+    +---------------------------------------------------+------------------------------------------------------+
+    | ``--description DESCRIPTION``, ``-d DESCRIPTION`` | The new description to use for the specified item(s) |
+    +---------------------------------------------------+------------------------------------------------------+
+
+
+.. rubric:: Mutually exclusive options
+
+.. table::
+    :widths: auto
+
+    +---------------------------+-------------------------------+
+    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
+    +---------------------------+-------------------------------+
+    | ``--all``, ``-A``         | Update all items              |
+    +---------------------------+-------------------------------+

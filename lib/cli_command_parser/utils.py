@@ -160,3 +160,13 @@ def str_to_bool(value: str) -> bool:
     elif lower in {'f', 'false', 'n', 'no'}:
         return False
     raise ValueError(f'Unable to parse boolean value from {value=}')
+
+
+def positive_int(value: Any, expected: str = 'a positive integer', min_val: int = 0) -> int:
+    try:
+        value = int(value)
+    except (ValueError, TypeError) as e:
+        raise TypeError(f'Invalid {value=} - expected {expected} >= {min_val}') from e
+    if value < min_val:
+        raise ValueError(f'Invalid {value=} - expected {expected} >= {min_val}')
+    return value

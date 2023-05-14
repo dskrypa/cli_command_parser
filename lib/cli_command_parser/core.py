@@ -25,17 +25,23 @@ __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadat
 
 Bases = Union[Tuple[type, ...], Iterable[type]]
 Choices = Union[Mapping[str, Optional[str]], Collection[str]]
+OptChoices = Optional[Choices]
 T = TypeVar('T')
 
+_NotSet = object()
 META_KEYS = {'prog', 'usage', 'description', 'epilog', 'doc_name'}
 
 
 class CommandMeta(ABCMeta, type):
     # noinspection PyUnresolvedReferences
     """
-    :param choice: SubCommand value to map to this command.
+    :param choice: SubCommand value to map to this command.  If specified, this single choice value will override
+      the default value that is based on the name of the class.  Use ``None`` (and do not provide a value for
+      ``choices``) to prevent the class from being registered as a subcommand choice.
     :param choices: SubCommand values to map to this command.  Optionally, a mapping of ``{choice: help text}`` may be
-      provided to customize the help text displayed for each choice.
+      provided to customize the help text displayed for each choice.  If specified, these choice values will
+      override the default value that is based on the name of the class.  It is possible, but not necessary, for
+      values to be provided for both ``choice`` and this parameter.
     :param prog: The name of the program (default: ``sys.argv[0]`` or the name of the module in which the top-level
       Command was defined in some cases)
     :param usage: Usage message (default: auto-generated)
@@ -68,7 +74,7 @@ class CommandMeta(ABCMeta, type):
         bases: Bases,
         namespace: Dict[str, Any],
         *,
-        choice: str = None,
+        choice: str = _NotSet,
         choices: Choices = None,
         help: str = None,  # noqa
         config: AnyConfig = None,
@@ -91,20 +97,35 @@ class CommandMeta(ABCMeta, type):
         return cls
 
     @classmethod
-    def _maybe_register_sub_cmd(
-        mcs, cls, bases: Bases, choice: str = None, choices: Choices = None, help: str = None  # noqa
-    ):
+    def _maybe_register_sub_cmd(mcs, cls, bases: Bases, choice: OptStr, choices: OptChoices, help: OptStr):  # noqa
+        """
+        If the given class does not directly extend ABC, and it extends a Command subclass with a :class:`.SubCommand`
+        parameter, then this method will register the class as a subcommand choice for that parameter.
+
+        If no explicit ``choice`` or ``choices`` values are provided, then the name of the class (converted to camel
+        case) will be used as the subcommand choice.
+
+        :param cls: A Command (sub)class.
+        :param bases: The classes that the given class directly extends.
+        :param choice: SubCommand value to map to this command.  If specified, this single choice value will override
+          the default value that is based on the name of the class.  Use ``None`` (and do not provide a value for
+          ``choices``) to prevent the class from being registered as a subcommand choice.
+        :param choices: SubCommand values to map to this command.  Optionally, a mapping of ``{choice: help text}`` may
+          be provided to customize the help text displayed for each choice.  If specified, these choice values will
+          override the default value that is based on the name of the class.  It is possible, but not necessary, for
+          values to be provided for both ``choice`` and this parameter.
+        :param help: The help text that was provided when the class was defined, if any.
+        """
         if ABC in bases:
             return
-        has_both = choices or choice is not None
-        if parent := mcs.parent(cls, False):
+        elif parent := mcs.parent(cls, False):
             if sub_cmd := mcs.params(parent).sub_command:
                 for choice, choice_help in _choice_items(choice, choices):
                     sub_cmd.register_command(choice, cls, choice_help or help)
-            elif has_both:
-                warn(f'{choices=} were not registered for {cls} because its {parent=} has no SubCommand parameter')
-        elif has_both:
-            warn(f'{choices=} were not registered for {cls} because it has no parent Command')
+            elif choices or (choice is not None and choice is not _NotSet):
+                _no_choices_registered_warning(choice, choices, cls, f'its {parent=} has no SubCommand parameter')
+        elif choices or (choice is not None and choice is not _NotSet):
+            _no_choices_registered_warning(choice, choices, cls, 'it has no parent Command')
 
     @classmethod
     def _from_parent(mcs, meth: Callable[[CommandCls], T], bases: Bases) -> Optional[T]:
@@ -139,6 +160,8 @@ class CommandMeta(ABCMeta, type):
             return default
 
     # endregion
+
+    # region Metaclass-Managed Command Attributes
 
     @classmethod
     def parent(mcs, cls: CommandAny, include_abc: bool = True) -> Optional[CommandCls]:
@@ -190,6 +213,8 @@ class CommandMeta(ABCMeta, type):
             cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta)
         return meta
 
+    # endregion
+
 
 def _mro(cmd_cls):
     try:
@@ -199,18 +224,28 @@ def _mro(cmd_cls):
         return cmd_cls, type.mro(cmd_cls)[1:-1]
 
 
-def _choice_items(choice: OptStr, choices: Optional[Choices]) -> Iterator[Tuple[OptStr, OptStr]]:
+def _choice_items(choice: OptStr, choices: OptChoices) -> Iterator[Tuple[OptStr, OptStr]]:
     if not choices:
-        yield choice, None
+        # Automatic use of the subcommand class name is handled by SubCommand.register_command when choice is None
+        if choice is not None:  # Allow an explicit None to be used to prevent registration
+            yield (None if choice is _NotSet else choice), None
     else:
         try:
             items = choices.items()
         except AttributeError:  # Choices is not a dict of choice:help
             items = ((c, None) for c in choices)
 
-        if choice and choice not in choices:
+        if choice and choice is not _NotSet and choice not in choices:
             yield choice, None
         yield from items
+
+
+def _no_choices_registered_warning(choice: OptStr, choices: OptChoices, cls, reason: str):
+    if choices and choice is not _NotSet:
+        prefix = f'{choice=} and {choices=} were'
+    else:
+        prefix = f'{choices=} were' if choices else f'{choice=} was'
+    warn(f'{prefix} not registered for {cls} because {reason}')
 
 
 get_parent = CommandMeta.parent

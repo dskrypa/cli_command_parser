@@ -20,6 +20,7 @@ from .utils import combine_and_wrap
 if TYPE_CHECKING:
     from ..core import CommandMeta
     from ..command_parameters import CommandParameters
+    from ..config import CommandConfig
     from ..metadata import ProgramMetadata
     from ..parameters import Parameter, BasePositional, BaseOption, SubCommand, PassThru
     from ..typing import Bool, CommandType, CommandCls, CommandAny
@@ -111,38 +112,17 @@ class CommandHelpFormatter:
 
         return '\n'.join(parts)
 
+    # region RST Formatting
+
+    def format_rst(
+        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
+    ) -> str:
+        """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
+        return '\n'.join(self._format_rst(fix_name, fix_name_func, init_level, allow_sys_argv))
+
     def _format_rst(
-        self,
-        include_epilog: Bool = False,
-        sub_cmd_choice: str = None,
-        allow_sys_argv: Bool = False,
-        show_description: Bool = True,
-    ) -> Iterator[str]:
-        """Generate the RST content for the specific Command associated with this formatter"""
-        yield '::'
-        yield ''
-        yield '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice, allow_sys_argv=allow_sys_argv, cont_indent=8)
-        yield ''
-        yield ''
-
-        if show_description and (description := self._meta.description):
-            yield description
-            yield ''
-
-        # TODO: The subcommand names in the group containing subcommand targets should link to their respective
-        #  subcommand sections
-        for group in self.groups:
-            if group.show_in_help:
-                table: RstTable = group.formatter.rst_table()  # noqa
-                yield from table.iter_build()
-
-        if include_epilog and (epilog := self._meta.format_epilog(ctx.config.extended_epilog, allow_sys_argv)):
-            yield epilog
-
-    def _format_rst_lines(
         self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
     ) -> Iterator[str]:
-        # TODO: Nested subcommands do not have full sections, but they should
         name = self._meta.doc_name
         if fix_name:
             name = fix_name_func(name) if fix_name_func else _fix_name(name)  # noqa
@@ -155,37 +135,72 @@ class CommandHelpFormatter:
             yield ''
 
         yield ''
-        yield from self._format_rst(True, allow_sys_argv=allow_sys_argv)
+        yield from self._cmd_rst_lines(config, allow_sys_argv=allow_sys_argv, include_epilog=True)
+        if sub_command := self.params.sub_command:
+            yield from self._sub_cmds_rst_lines(config, sub_command, init_level + 2, allow_sys_argv=allow_sys_argv)
 
-        if (sub_command := get_params(self.command).sub_command) and sub_command.show_in_help:
-            show_inherited_descriptions, description = config.show_inherited_descriptions, self._meta.description
-            yield from spaced_rst_header('Subcommands', init_level + 1)
-            for cmd_name, choice in sub_command.choices.items():
-                yield from spaced_rst_header(f'Subcommand: {cmd_name}', init_level + 2)
-                if choice_help := choice.help:
-                    yield choice_help
-                    yield ''
+    def _cmd_rst_lines(
+        self,
+        config: CommandConfig,
+        sub_cmd_choice: str = None,
+        allow_sys_argv: Bool = False,
+        include_epilog: Bool = False,
+    ) -> Iterator[str]:
+        """Generate the RST content for the specific Command associated with this formatter"""
+        yield '::'
+        yield ''
+        yield '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice, allow_sys_argv=allow_sys_argv, cont_indent=8)
+        yield ''
+        yield ''
 
-                try:
-                    formatter = get_formatter(choice.target)
-                except TypeError:  # choice.target is None (it is the default choice, pointing back to the same Command)
-                    formatter = self
-                    show_description = show_inherited_descriptions
-                else:
-                    if description and not show_inherited_descriptions:
-                        show_description = formatter._meta.description != description
-                    else:
-                        show_description = True
+        if description := self._meta.get_description(config.show_inherited_descriptions):
+            yield description
+            yield ''
 
-                yield from formatter._format_rst(
-                    sub_cmd_choice=cmd_name, allow_sys_argv=allow_sys_argv, show_description=show_description
-                )
+        # TODO: The subcommand names in the group containing subcommand targets should link to their respective
+        #  subcommand sections
+        for group in self.groups:
+            if group.show_in_help:
+                table: RstTable = group.formatter.rst_table()  # noqa
+                yield from table.iter_build()
 
-    def format_rst(
-        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
-    ) -> str:
-        """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
-        return '\n'.join(self._format_rst_lines(fix_name, fix_name_func, init_level, allow_sys_argv))
+        if include_epilog and (epilog := self._meta.format_epilog(config.extended_epilog, allow_sys_argv)):
+            yield epilog
+
+    def _sub_cmds_rst_lines(
+        self,
+        config: CommandConfig,
+        sub_command: SubCommand,
+        level: int,
+        choice_base: str = None,
+        depth: int = 0,
+        allow_sys_argv: Bool = False,
+    ):
+        if not sub_command.show_in_help or ((max_depth := config.sub_cmd_doc_depth) is not None and depth == max_depth):
+            return
+        elif depth == 0:
+            yield from spaced_rst_header('Subcommands', level - 1)
+
+        for cmd_name, choice in sub_command.choices.items():
+            choice_str = f'{choice_base} {cmd_name}' if choice_base else cmd_name
+            yield from spaced_rst_header(f'Subcommand: {choice_str}', level)
+            if choice_help := choice.help:
+                yield choice_help
+                yield ''
+
+            if (command := choice.target) is None:
+                # When choice.target is None, that means it is the default choice, pointing back to the same Command
+                yield from self._cmd_rst_lines(config, choice_str, allow_sys_argv)
+            else:
+                params = get_params(command)
+                formatter = params.formatter
+                yield from formatter._cmd_rst_lines(config, choice_str, allow_sys_argv)
+                if nested_sub_cmd := params.sub_command:
+                    yield from formatter._sub_cmds_rst_lines(
+                        config, nested_sub_cmd, level, choice_str, depth + 1, allow_sys_argv
+                    )
+
+    # endregion
 
 
 def _fix_name(name: str) -> str:

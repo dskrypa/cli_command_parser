@@ -100,14 +100,27 @@ class ConfigTest(TestCase):
     # endregion
 
     def test_validate_wrap_usage_str(self):
-        with self.assertRaisesRegex(TypeError, 'Invalid wrap_usage_str value=.*'):
+        with self.assertRaisesRegex(TypeError, 'Invalid value=.*a bool or a positive integer'):
             CommandConfig(wrap_usage_str='foo')
-        with self.assertRaisesRegex(ValueError, 'Invalid wrap_usage_str value=.*'):
+        with self.assertRaisesRegex(ValueError, 'Invalid value=.*a bool or a positive integer'):
             CommandConfig(wrap_usage_str=-1)
+        with self.assertRaisesRegex(ValueError, 'Invalid value=.*a bool or a positive integer'):
+            CommandConfig(wrap_usage_str=0)
 
         self.assertEqual(False, CommandConfig().wrap_usage_str)
         self.assertEqual(True, CommandConfig(wrap_usage_str=True).wrap_usage_str)
+        self.assertEqual(1, CommandConfig(wrap_usage_str=1).wrap_usage_str)
         self.assertEqual(123, CommandConfig(wrap_usage_str=123).wrap_usage_str)
+
+    def test_validate_sub_cmd_doc_depth(self):
+        with self.assertRaisesRegex(TypeError, 'Invalid value=.*a positive integer'):
+            CommandConfig(sub_cmd_doc_depth='foo')
+        with self.assertRaisesRegex(ValueError, 'Invalid value=.*a positive integer'):
+            CommandConfig(sub_cmd_doc_depth=-1)
+
+        self.assertEqual(0, CommandConfig(sub_cmd_doc_depth=0).sub_cmd_doc_depth)
+        self.assertEqual(1, CommandConfig(sub_cmd_doc_depth=1).sub_cmd_doc_depth)
+        self.assertEqual(123, CommandConfig(sub_cmd_doc_depth=123).sub_cmd_doc_depth)
 
 
 if __name__ == '__main__':

@@ -12,11 +12,14 @@ Command Metadata
 The following options cannot be provided in a CommandConfig object or ``config`` dictionary, and must be specified as
 keyword arguments when defining a Command subclass.  All of these options are optional:
 
-:choice: SubCommand value that should be mapped to this command, if different than this class's (lower case)
-  name.  Only used when the Command is a subcommand of another Command.
+:choice: SubCommand value that should be mapped to this command, if different than this class's (lower, camel case)
+  name.  Only used when the Command is a subcommand of another Command.  If necessary, it is possible to prevent
+  automatic registration as a subcommand choice entirely by using ``choice=None`` (additionally, no value should be
+  provided for ``choices``).
 :choices: SubCommand values to map to this command.  Similar to ``choice``, but accepts multiple values.  A mapping
   of ``{choice: help text}`` may be provided to customize the help text displayed for each choice.
-:prog: The name of the program (default: ``sys.argv[0]``)
+:prog: The name of the program (default: based on ``sys.argv[0]`` or entry_points or the name of the file in which the
+  Command was defined)
 :doc_name: The name of the program / title to use in documentation
 :usage: Usage message to be printed with help text or when incorrect arguments are provided (default:
   auto-generated)
@@ -24,8 +27,8 @@ keyword arguments when defining a Command subclass.  All of these options are op
   value will be used unless this parameter is provided.
 :epilog: Text to follow parameter descriptions
 :help: Help text to be displayed as a SubCommand option.  Ignored for top-level commands.
-:config: A :class:`python:dict` or :class:`.CommandConfig` object containing the config options to use.  May not
-  be combined with separate kwargs that would be stored in a CommandConfig object.
+:config: A :class:`python:dict` or :class:`.CommandConfig` object containing the config options (see below) to use.
+  May not be combined with separate kwargs that would be stored in a CommandConfig object.
 
 
 Configuration Options
@@ -137,3 +140,4 @@ Options that only affect RST documentation generation.
   (default: True)
 :show_inherited_descriptions: Whether inherited descriptions should be included in subcommand sections of generated
   documentation (default: False)
+:sub_cmd_doc_depth: Maximum subcommand depth to include in generated documentation (default: include all)

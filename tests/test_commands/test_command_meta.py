@@ -10,22 +10,36 @@ _get_config = CommandMeta.config
 
 
 class TestCommandMeta(TestCase):
+    # region Subcommand Choice Tests
+
     def test_choice_with_no_sub_cmd_param_warns(self):
         class Foo(Command):
             pass
 
-        for kwargs in ({'choice': 'bar'}, {'choice': 'bar', 'choices': ('bar1',)}, {'choices': ('bar', 'bar1')}):
-            with self.subTest(kwargs=kwargs), self.assertWarnsRegex(Warning, 'has no SubCommand parameter'):
+        cases = [
+            ({'choice': 'bar'}, "choice='bar' was not registered.*"),
+            ({'choice': 'bar', 'choices': ('bar1',)}, r"choice='bar' and choices=\('bar1',\) were not registered.*"),
+            ({'choices': ('bar', 'bar1')}, r"choices=\('bar', 'bar1'\) were not registered.*"),
+        ]
+        for kwargs, exp_pat_prefix in cases:
+            with self.subTest(kwargs=kwargs):
+                with self.assertWarnsRegex(Warning, exp_pat_prefix + 'has no SubCommand parameter'):
 
-                class Bar(Foo, **kwargs):
-                    pass
+                    class Bar(Foo, **kwargs):
+                        pass
 
     def test_choice_with_no_parent_warns(self):
-        for kwargs in ({'choice': 'foo'}, {'choice': 'foo', 'choices': ('foo1',)}, {'choices': ('foo', 'foo1')}):
-            with self.subTest(kwargs=kwargs), self.assertWarnsRegex(Warning, 'because it has no parent Command'):
+        cases = [
+            ({'choice': 'foo'}, "choice='foo' was not registered.*"),
+            ({'choice': 'foo', 'choices': ('foo1',)}, r"choice='foo' and choices=\('foo1',\) were not registered.*"),
+            ({'choices': ('foo', 'foo1')}, r"choices=\('foo', 'foo1'\) were not registered.*"),
+        ]
+        for kwargs, exp_pat_prefix in cases:
+            with self.subTest(kwargs=kwargs):
+                with self.assertWarnsRegex(Warning, exp_pat_prefix + 'because it has no parent Command'):
 
-                class Foo(Command, **kwargs):
-                    pass
+                    class Foo(Command, **kwargs):
+                        pass
 
     def test_no_warn_on_parent_without_choice(self):
         class Foo(Command):
@@ -35,6 +49,24 @@ class TestCommandMeta(TestCase):
             pass
 
         self.assertEqual(get_params(Bar).command_parent, Foo)
+
+    def test_choice_items_results(self):
+        cases = [
+            ((None, None), set()),
+            (('a', None), {('a', None)}),
+            (('a', ['c', 'b']), {('a', None), ('b', None), ('c', None)}),
+            (('a', ['b', 'b']), {('a', None), ('b', None)}),
+            (('a', {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
+            ((None, {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
+            (('', {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
+        ]
+        for args, expected in cases:
+            with self.subTest(args=args, expected=expected):
+                self.assertSetEqual(expected, set(_choice_items(*args)))
+
+    # endregion
+
+    # region Config Tests
 
     def test_double_config_rejected(self):
         with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine .* with keyword config'):
@@ -100,6 +132,8 @@ class TestCommandMeta(TestCase):
         self.assertIs(cfg, get_config(Foo))
         self.assertIs(cfg, get_config(Foo()))
 
+    # endregion
+
     def test_get_parent(self):
         class Foo(Command):
             pass
@@ -123,20 +157,6 @@ class TestCommandMeta(TestCase):
 
             class Foo(Command, test123='test'):
                 pass
-
-    def test_choice_items_results(self):
-        cases = [
-            ((None, None), {(None, None)}),
-            (('a', None), {('a', None)}),
-            (('a', ['c', 'b']), {('a', None), ('b', None), ('c', None)}),
-            (('a', ['b', 'b']), {('a', None), ('b', None)}),
-            (('a', {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
-            ((None, {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
-            (('', {'a': None, 'b': 'foo'}), {('a', None), ('b', 'foo')}),
-        ]
-        for args, expected in cases:
-            with self.subTest(args=args, expected=expected):
-                self.assertSetEqual(expected, set(_choice_items(*args)))
 
 
 if __name__ == '__main__':

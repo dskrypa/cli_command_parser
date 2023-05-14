@@ -24,8 +24,19 @@ class SubCommandTest(ParserTest):
             pass
 
         self.assertNotIn('foo_bar', Foo.sub_cmd.choices)
+        self.assertIn('bar', Foo.sub_cmd.choices)
         self.assertIsInstance(Foo.parse(['bar']), FooBar)
         self.assertIsInstance(Foo.parse(['baz']), Baz)
+
+    def test_default_choice_registered(self):
+        class Foo(Command):
+            sub_cmd = SubCommand()
+
+        class FooBar(Foo):
+            pass
+
+        self.assertIn('foo_bar', Foo.sub_cmd.choices)
+        self.assertIsInstance(Foo.parse(['foo_bar']), FooBar)
 
     def test_manual_register(self):
         class Foo(Command):
@@ -69,6 +80,15 @@ class SubCommandTest(ParserTest):
             with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
                 Foo.parse(args)
 
+    def test_choice_none_not_registered(self):
+        class Foo(Command):
+            sub = SubCommand()
+
+        class Bar(Foo, choice=None):
+            pass
+
+        self.assertEqual({}, Foo.sub.choices)
+
     # endregion
 
     # region Parsing Behavior Tests
@@ -104,16 +124,6 @@ class SubCommandTest(ParserTest):
         cmd = Foo.parse(['bar', '-v'])
         self.assertIsInstance(cmd, Bar)
         self.assertEqual(cmd.verbose, 1)
-
-    def test_default_choice_registered(self):
-        class Foo(Command):
-            sub_cmd = SubCommand()
-
-        class FooBar(Foo):
-            pass
-
-        self.assertIn('foo_bar', Foo.sub_cmd.choices)
-        self.assertIsInstance(Foo.parse(['foo_bar']), FooBar)
 
     def test_missing_sub_cmd_but_help(self):
         class Foo(Command):
