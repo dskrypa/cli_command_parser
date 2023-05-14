@@ -7,7 +7,7 @@ Type checking aliases.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, Type, Union, Optional, Collection, Sequence, TextIO, BinaryIO
-from typing import Tuple, List, Dict
+from typing import Pattern, Tuple, List, Dict
 
 if TYPE_CHECKING:
     from datetime import datetime, date, time, timedelta
@@ -29,7 +29,7 @@ Number = Union[NT, None]
 NumType = Callable[[Union[str, float, int]], NT]
 RngType = Union[range, int, Sequence[int]]
 
-InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum']]
+InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum'], Pattern]
 ChoicesType = Optional[Collection[Any]]
 ValSrc = Union['ValueSource', Tuple['ValueSource', str]]
 

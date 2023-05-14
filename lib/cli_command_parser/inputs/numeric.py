@@ -12,6 +12,7 @@ from typing import Union, Optional
 
 from ..typing import Bool, NT, Number, NumType, RngType
 from .base import InputType
+from .exceptions import InputValidationError
 
 __all__ = ['Range', 'NumRange']
 
@@ -94,7 +95,7 @@ class Range(NumericInput[NT]):
                 return rng_min
             return max(self.range)
 
-        raise ValueError(f'expected a value in the range {self._range_str()}')
+        raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
 
 class NumRange(NumericInput[NT]):
@@ -187,7 +188,7 @@ class NumRange(NumericInput[NT]):
         """
         if self.snap:
             return bound if inclusive else (bound + snap_dir)
-        raise ValueError(f'expected a value in the range {self._range_str()}')
+        raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
     def __call__(self, value: str) -> NT:
         value = self.type(value)

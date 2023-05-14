@@ -261,6 +261,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         try:
             dow_num = int(value)
         except (ValueError, TypeError) as e:
+            # Note: The use of ValueError here is intentional and is handled by :meth:`.parse`
             raise ValueError(f'Invalid numeric weekday={value!r}') from e
 
         start, stop = (1, 7) if self.iso else (0, 6)
@@ -312,6 +313,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         try:
             month = int(value)
         except (ValueError, TypeError) as e:
+            # Note: The use of ValueError here is intentional and is handled by :meth:`.parse`
             raise ValueError(f'Invalid numeric weekday={value!r}') from e
 
         if 1 <= month <= 12:
