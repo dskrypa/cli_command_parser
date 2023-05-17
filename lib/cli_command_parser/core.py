@@ -68,6 +68,16 @@ class CommandMeta(ABCMeta, type):
 
     _commands = WeakSet()
 
+    @classmethod
+    def __prepare__(mcs, name: str, bases: Bases, **kwargs) -> Dict[str, Any]:
+        """Called before ``__new__`` and before evaluating the contents of a class."""
+        return {
+            '_CommandMeta__params': None,  # Prevent commands from inheriting parent params
+            '_CommandMeta__metadata': None,  # Prevent commands from inheriting parent metadata directly
+            '_CommandMeta__parents': None,  # Prevent commands from inheriting parents directly
+            '_is_subcommand_': False,
+        }
+
     def __new__(
         mcs,
         name: str,
@@ -80,24 +90,21 @@ class CommandMeta(ABCMeta, type):
         config: AnyConfig = None,
         **kwargs,
     ) -> CommandCls:
-        metadata = {k: v for k, v in ((k, kwargs.pop(k)) for k in META_KEYS.intersection(kwargs)) if v}
-        namespace['_CommandMeta__params'] = None  # Prevent commands from inheriting parent params
-        namespace['_CommandMeta__metadata'] = None  # Prevent commands from inheriting parent metadata directly
-        namespace['_CommandMeta__parents'] = None  # Prevent commands from inheriting parents directly
-
+        metadata = {k: v for k in META_KEYS.intersection(kwargs) if (v := kwargs.pop(k))}
         if config := mcs._prepare_config(bases, config, kwargs):
             namespace['_CommandMeta__config'] = config
 
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
-        mcs._commands.add(cls)
-        mcs._maybe_register_sub_cmd(cls, bases, choice, choices, help)
+        if ABC not in bases:
+            mcs._commands.add(cls)
+            mcs._maybe_register_sub_cmd(cls, choice, choices, help)
         if metadata:  # If no overrides were provided, then initialize lazily later
             cls.__metadata = ProgramMetadata.for_command(cls, parent=mcs._from_parent(mcs.meta, bases), **metadata)
 
         return cls
 
     @classmethod
-    def _maybe_register_sub_cmd(mcs, cls, bases: Bases, choice: OptStr, choices: OptChoices, help: OptStr):  # noqa
+    def _maybe_register_sub_cmd(mcs, cls, choice: OptStr, choices: OptChoices, help: OptStr):  # noqa
         """
         If the given class does not directly extend ABC, and it extends a Command subclass with a :class:`.SubCommand`
         parameter, then this method will register the class as a subcommand choice for that parameter.
@@ -106,7 +113,6 @@ class CommandMeta(ABCMeta, type):
         case) will be used as the subcommand choice.
 
         :param cls: A Command (sub)class.
-        :param bases: The classes that the given class directly extends.
         :param choice: SubCommand value to map to this command.  If specified, this single choice value will override
           the default value that is based on the name of the class.  Use ``None`` (and do not provide a value for
           ``choices``) to prevent the class from being registered as a subcommand choice.
@@ -116,9 +122,7 @@ class CommandMeta(ABCMeta, type):
           values to be provided for both ``choice`` and this parameter.
         :param help: The help text that was provided when the class was defined, if any.
         """
-        if ABC in bases:
-            return
-        elif parent := mcs.parent(cls, False):
+        if parent := mcs.parent(cls, False):
             if sub_cmd := mcs.params(parent).sub_command:
                 for choice, choice_help in _choice_items(choice, choices):
                     sub_cmd.register_command(choice, cls, choice_help or help)
@@ -194,13 +198,15 @@ class CommandMeta(ABCMeta, type):
         return first if include_abc else parent
 
     @classmethod
-    def params(mcs, cls: CommandCls) -> CommandParameters:
+    def params(mcs, cls: CommandAny) -> CommandParameters:
         # Late initialization is necessary to allow late assignment of Parameters for now
         try:
             params = cls.__params
         except AttributeError:
             raise TypeError('CommandParameters are only available for Command subclasses') from None
         if not params:
+            if not isinstance(cls, mcs):
+                cls = cls.__class__
             parent = mcs.parent(cls, True)
             parent_params = mcs.params(parent) if parent is not None else None
             cls.__params = params = CommandParameters(cls, parent, parent_params, mcs.config(cls, DEFAULT_CONFIG))
@@ -251,12 +257,7 @@ def _no_choices_registered_warning(choice: OptStr, choices: OptChoices, cls, rea
 get_parent = CommandMeta.parent
 get_config = CommandMeta.config
 get_metadata = CommandMeta.meta
-
-
-def get_params(command: CommandAny) -> CommandParameters:
-    if not isinstance(command, CommandMeta):
-        command = command.__class__
-    return CommandMeta.params(command)
+get_params = CommandMeta.params
 
 
 def get_top_level_commands() -> List[CommandCls]:
@@ -266,4 +267,4 @@ def get_top_level_commands() -> List[CommandCls]:
     This was implemented because ``Command.__subclasses__()`` does not release dead references to subclasses quickly
     enough for tests.
     """
-    return [cmd for cmd in CommandMeta._commands if sum(isinstance(cls, CommandMeta) for cls in type.mro(cmd)) == 2]
+    return [cmd for cmd in CommandMeta._commands if not cmd._is_subcommand_]

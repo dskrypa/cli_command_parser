@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from abc import ABC
 from unittest import TestCase, main
 from unittest.mock import Mock
 
@@ -38,10 +39,21 @@ class MainTest(TestCase):
             parse_and_run = Mock()
 
         class Bar(Foo):
-            pass
+            parse_and_run = Mock()
 
         cmd_main([])
         self.assertTrue(Foo.parse_and_run.called)
+        self.assertFalse(Bar.parse_and_run.called)
+
+    def test_main_ignores_abc(self):
+        class Foo(Command, ABC):
+            pass
+
+        class Bar(Foo):
+            main = Mock()
+
+        cmd_main([])
+        self.assertTrue(Bar.main.called)
 
     def test_main_returns_none(self):
         class Foo(Command):
@@ -58,6 +70,6 @@ class MainTest(TestCase):
 
 if __name__ == '__main__':
     try:
-        main(warnings='ignore', verbosity=2, exit=False)
+        main(verbosity=2, exit=False)
     except KeyboardInterrupt:
         print()
