@@ -1012,6 +1012,16 @@
 
     <span class="n">_commands</span> <span class="o">=</span> <span class="n">WeakSet</span><span class="p">()</span>
 
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="fm">__prepare__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called before ``__new__`` and before evaluating the contents of a class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;_CommandMeta__params&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Prevent commands from inheriting parent params</span>
+            <span class="s1">&#39;_CommandMeta__metadata&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Prevent commands from inheriting parent metadata directly</span>
+            <span class="s1">&#39;_CommandMeta__parents&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Prevent commands from inheriting parents directly</span>
+            <span class="s1">&#39;_is_subcommand_&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span>
+
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span>
         <span class="n">mcs</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1024,24 +1034,21 @@
         <span class="n">config</span><span class="p">:</span> <span class="n">AnyConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCls</span><span class="p">:</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">META_KEYS</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span> <span class="k">if</span> <span class="n">v</span><span class="p">}</span>
-        <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prevent commands from inheriting parent params</span>
-        <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prevent commands from inheriting parent metadata directly</span>
-        <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__parents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prevent commands from inheriting parents directly</span>
-
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">META_KEYS</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">))}</span>
         <span class="k">if</span> <span class="n">config</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_prepare_config</span><span class="p">(</span><span class="n">bases</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
             <span class="n">namespace</span><span class="p">[</span><span class="s1">&#39;_CommandMeta__config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span>
 
         <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">mcs</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-        <span class="n">mcs</span><span class="o">.</span><span class="n">_maybe_register_sub_cmd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ABC</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+            <span class="n">mcs</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+            <span class="n">mcs</span><span class="o">.</span><span class="n">_maybe_register_sub_cmd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">metadata</span><span class="p">:</span>  <span class="c1"># If no overrides were provided, then initialize lazily later</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__metadata</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="o">.</span><span class="n">for_command</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">mcs</span><span class="o">.</span><span class="n">_from_parent</span><span class="p">(</span><span class="n">mcs</span><span class="o">.</span><span class="n">meta</span><span class="p">,</span> <span class="n">bases</span><span class="p">),</span> <span class="o">**</span><span class="n">metadata</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_maybe_register_sub_cmd</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">OptChoices</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="nf">_maybe_register_sub_cmd</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">OptChoices</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">):</span>  <span class="c1"># noqa</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the given class does not directly extend ABC, and it extends a Command subclass with a :class:`.SubCommand`</span>
 <span class="sd">        parameter, then this method will register the class as a subcommand choice for that parameter.</span>
@@ -1050,7 +1057,6 @@
 <span class="sd">        case) will be used as the subcommand choice.</span>
 
 <span class="sd">        :param cls: A Command (sub)class.</span>
-<span class="sd">        :param bases: The classes that the given class directly extends.</span>
 <span class="sd">        :param choice: SubCommand value to map to this command.  If specified, this single choice value will override</span>
 <span class="sd">          the default value that is based on the name of the class.  Use ``None`` (and do not provide a value for</span>
 <span class="sd">          ``choices``) to prevent the class from being registered as a subcommand choice.</span>
@@ -1060,9 +1066,7 @@
 <span class="sd">          values to be provided for both ``choice`` and this parameter.</span>
 <span class="sd">        :param help: The help text that was provided when the class was defined, if any.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">ABC</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">parent</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sub_cmd</span> <span class="o">:=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">choice_help</span> <span class="ow">in</span> <span class="n">_choice_items</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
                     <span class="n">sub_cmd</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">choice_help</span> <span class="ow">or</span> <span class="n">help</span><span class="p">)</span>
@@ -1138,13 +1142,15 @@
         <span class="k">return</span> <span class="n">first</span> <span class="k">if</span> <span class="n">include_abc</span> <span class="k">else</span> <span class="n">parent</span></div>
 
 <div class="viewcode-block" id="CommandMeta.params"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>
         <span class="c1"># Late initialization is necessary to allow late assignment of Parameters for now</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;CommandParameters are only available for Command subclasses&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mcs</span><span class="p">):</span>
+                <span class="bp">cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span>
             <span class="n">parent</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="n">parent_params</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="o">=</span> <span class="n">params</span> <span class="o">=</span> <span class="n">CommandParameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">parent_params</span><span class="p">,</span> <span class="n">mcs</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">DEFAULT_CONFIG</span><span class="p">))</span>
@@ -1195,12 +1201,7 @@
 <span class="n">get_parent</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">parent</span>
 <span class="n">get_config</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">config</span>
 <span class="n">get_metadata</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">meta</span>
-
-
-<div class="viewcode-block" id="get_params"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_params">[docs]</a><span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">):</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>
-    <span class="k">return</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></div>
+<span class="n">get_params</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">params</span>
 
 
 <div class="viewcode-block" id="get_top_level_commands"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_top_level_commands">[docs]</a><span class="k">def</span> <span class="nf">get_top_level_commands</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
@@ -1210,7 +1211,7 @@
 <span class="sd">    This was implemented because ``Command.__subclasses__()`` does not release dead references to subclasses quickly</span>
 <span class="sd">    enough for tests.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span> <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_commands</span> <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">)</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span> <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_commands</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cmd</span><span class="o">.</span><span class="n">_is_subcommand_</span><span class="p">]</span></div>
 </pre></div>
 
            </div>
