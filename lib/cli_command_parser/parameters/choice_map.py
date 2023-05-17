@@ -270,6 +270,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             msg = f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
             raise CommandDefinitionError(msg) from None
 
+        command._is_subcommand_ = True
         return command
 
     def register(
