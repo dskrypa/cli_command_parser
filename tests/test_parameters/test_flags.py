@@ -153,6 +153,12 @@ class FlagTest(ParserTest):
 
     # endregion
 
+    def test_empty_str_ignored(self):
+        class Foo(Command):
+            bar = Flag('-b', '')
+
+        self.assertEqual(['--bar', '-b'], list(Foo.bar.option_strs.option_strs()))
+
 
 class TriFlagTest(ParserTest):
     def test_trinary(self):
@@ -359,6 +365,18 @@ class TriFlagTest(ParserTest):
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     # endregion
+
+    def test_empty_str_ignored_alt_empty(self):
+        class Foo(Command):
+            bar = TriFlag('-b', '', alt_long='', alt_short='')
+
+        self.assertEqual(['--bar', '-b', '--no-bar'], list(Foo.bar.option_strs.all_option_strs()))
+
+    def test_empty_str_ignored(self):
+        class Foo(Command):
+            bar = TriFlag('-b', '', alt_short='-B')
+
+        self.assertEqual(['--bar', '-b', '--no-bar', '-B'], list(Foo.bar.option_strs.all_option_strs()))
 
 
 if __name__ == '__main__':

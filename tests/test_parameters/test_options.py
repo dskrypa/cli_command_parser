@@ -261,6 +261,12 @@ class OptionTest(ParserTest):
                     class Foo(Command):
                         bar = Option(nargs=(1, REMAINDER), allow_leading_dash=allow_leading_dash)
 
+    def test_empty_str_ignored(self):
+        class Foo(Command):
+            bar = Option('', '-b')
+
+        self.assertEqual(['--bar', '-b'], list(Foo.bar.option_strs.option_strs()))
+
 
 class EnvVarTest(ParserTest):
     def test_no_env_vars(self):
