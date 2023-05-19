@@ -305,7 +305,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
                 f'Invalid {default=} with {consts=} - the default must not match either value'
             )
 
-        alt_opt_strs = filter(None, (alt_short, alt_long))
+        alt_opt_strs = (opt for opt in (alt_short, alt_long) if opt)
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
         self.consts = consts
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)

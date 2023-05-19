@@ -190,7 +190,9 @@ def _sort_options(options: Collection[str]):
 def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:
     long_opts, short_opts, bad_opts, bad_short = set(), set(), [], []
     for opt in opt_strs:
-        if not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt:
+        if not opt:
+            continue
+        elif not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt:
             bad_opts.append(opt)
         elif opt.startswith('--'):
             long_opts.add(opt)
