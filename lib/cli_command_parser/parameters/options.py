@@ -37,8 +37,8 @@ class Option(BasicActionMixin, BaseOption[T_co]):
 
     :param option_strs: The long and/or short option prefixes for this option.  If no long prefixes are specified,
       then one will automatically be added based on the name assigned to this parameter.
-    :param nargs: The number of values that are expected/required when this parameter is specified.  Defaults to 1.
-      See :class:`.Nargs` for more info.
+    :param nargs: The number of values that are expected/required when this parameter is specified.  Defaults to ``+``
+      when ``action='append'``, and to ``1`` otherwise. See :class:`.Nargs` for more info.
     :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
       that extend Parameter, and must be registered via :class:`.parameter_action`.  Defaults to ``store`` when
       ``nargs=1``, and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list

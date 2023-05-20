@@ -138,7 +138,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         :param locale: An alternate locale to use when parsing input
         :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
-        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
         """
         if not (full or abbreviation or numeric):
             raise ValueError('At least one of full, abbreviation, or numeric must be True')
@@ -254,7 +254,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         :param locale: An alternate locale to use when parsing input
         :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
-        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
         """
         ...
 
@@ -309,7 +309,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         :param locale: An alternate locale to use when parsing input
         :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full month name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
-        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
         """
         ...
 
@@ -489,7 +489,7 @@ class DateTime(DateTimeInput[datetime], type=datetime):
         :param locale: An alternate locale to use when parsing input
         :param earliest: If specified, the parsed value must be later than or equal to this
         :param latest: If specified, the parsed value must be earlier than or equal to this
-        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
         """
         super().__init__(
             formats or (DEFAULT_DT_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
@@ -514,7 +514,7 @@ class Date(DateTimeInput[date], type=date):
         :param locale: An alternate locale to use when parsing input
         :param earliest: If specified, the parsed value must be later than or equal to this
         :param latest: If specified, the parsed value must be earlier than or equal to this
-        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
         """
         super().__init__(
             formats or (DEFAULT_DATE_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
@@ -539,7 +539,7 @@ class Time(DateTimeInput[time], type=time):
         :param locale: An alternate locale to use when parsing input
         :param earliest: If specified, the parsed value must be later than or equal to this
         :param latest: If specified, the parsed value must be earlier than or equal to this
-        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
         """
         super().__init__(
             formats or (DEFAULT_TIME_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default

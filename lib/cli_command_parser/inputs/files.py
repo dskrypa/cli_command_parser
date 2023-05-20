@@ -112,7 +112,7 @@ class Path(FileInput[_Path]):
     :param allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
     :param use_windows_fix: If True (the default) and the program is running on Windows, then :func:`.fix_windows_path`
       will be called to fix issues caused by auto-completion via Git Bash.
-    :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+    :param fix_default: Whether default values should be normalized using :meth:`~FileInput.fix_default`.
     """
 
     def __call__(self, value: PathLike) -> _Path:

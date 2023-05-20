@@ -62,7 +62,7 @@ class Range(NumericInput[NT]):
       value is closer to.
     :param type: Callable that returns a numeric type, to be used on parsed values before validating whether they are
       in the allowed range.  Defaults to :class:`python:int`.
-    :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+    :param fix_default: Whether default values should be normalized using :meth:`~NumericInput.fix_default`.
     """
 
     type: NumType = int
@@ -117,7 +117,7 @@ class NumRange(NumericInput[NT]):
     :param max: The maximum allowed value, or None to have no upper bound
     :param include_min: Whether the minimum is inclusive (default: True)
     :param include_max: Whether the maximum is inclusive (default: False)
-    :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
+    :param fix_default: Whether default values should be normalized using :meth:`~NumericInput.fix_default`.
     """
 
     __slots__ = ('type', 'snap', 'min', 'max', 'include_min', 'include_max')

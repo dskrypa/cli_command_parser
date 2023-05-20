@@ -125,6 +125,12 @@ The generic :class:`.Option` parameter that accepts arbitrary values or lists of
 **Unique Option initialization parameters:**
 
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
+:nargs: The number of values that are expected/required when this parameter is specified.  Defaults to ``+``
+  when ``action='append'``, and to ``1`` otherwise. See :ref:`parameters:Parameters:nargs` for more info.
+:action: The action to take on individual parsed values.  Supported actions include ``store`` and ``append``.
+  Defaults to ``store`` when ``nargs=1`` (the default if neither action nor nargs are specified), and to ``append``
+  otherwise.  A single value will be stored when ``action='store'``, and a list of values will be stored when
+  ``action='append'``.
 :allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with a dash,
   it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
   ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for an
