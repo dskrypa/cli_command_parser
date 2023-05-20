@@ -23,9 +23,10 @@ EnumT = TypeVar('EnumT', bound=Enum)
 
 
 class _ChoicesBase(InputType[T], ABC):
+    __slots__ = ('choices', 'type', 'case_sensitive')
     choices: Collection[T]
-    type: Optional[TypeFunc] = None
-    case_sensitive: bool = True
+    type: Optional[TypeFunc]
+    case_sensitive: bool
 
     def __contains__(self, value: str) -> bool:
         try:
@@ -86,10 +87,12 @@ class Choices(_ChoicesBase[T]):
       all strings, then this cannot be set to False.
     """
 
+    __slots__ = ()
+
     def __init__(self, choices: Collection[T], type: TypeFunc = None, case_sensitive: Bool = True):  # noqa
         if not case_sensitive and not all(isinstance(c, str) for c in choices):
             raise TypeError(f'Cannot combine case_sensitive=False with non-str {choices=}')
-        elif isinstance(type, EnumChoices) and not any(isinstance(c, type.enum) for c in choices):
+        elif isinstance(type, EnumChoices) and not any(isinstance(c, type.type) for c in choices):
             raise TypeError(f'Invalid {choices=} for {type=}')
 
         self.choices = choices
@@ -127,6 +130,7 @@ class ChoiceMap(Choices[T]):
       all strings, then this cannot be set to False.
     """
 
+    __slots__ = ()
     choices: Mapping[Any, T]
 
     def __init__(self, choices: Mapping[Any, T], *args, **kwargs):
@@ -151,21 +155,22 @@ class EnumChoices(_ChoicesBase[EnumT]):
     :param case_sensitive: Whether choices should be case-sensitive.  Defaults to False.
     """
 
-    enum: Type[EnumT]
+    __slots__ = ()
+    type: Type[EnumT]
 
     def __init__(self, enum: Type[EnumT], case_sensitive: Bool = False):
-        self.enum = enum
+        self.type = enum
         self.case_sensitive = case_sensitive
         self.choices = enum._member_map_
 
     def _type_str(self) -> str:
-        return f'type={self.enum.__name__}, '
+        return f'type={self.type.__name__}, '
 
     def _choices_repr(self, delim: str = ',') -> str:
-        return delim.join(self.enum._member_map_)
+        return delim.join(self.type._member_map_)
 
     def __call__(self, value: str) -> EnumT:
-        enum = self.enum
+        enum = self.type
         for val in self._iter_normalized(value):
             try:
                 return enum[val]

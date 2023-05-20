@@ -19,6 +19,8 @@ __all__ = ['OptionStrings', 'TriFlagOptionStrings']
 
 
 class OptionStrings:
+    """Container for the option strings registered for a given BaseOption (or subclass thereof)."""
+
     __slots__ = ('name_mode', '_long', '_short', 'combinable', '_display_long')
     name_mode: Optional[OptionNameMode]
     combinable: Set[str]
@@ -90,6 +92,8 @@ class OptionStrings:
 
 
 class TriFlagOptionStrings(OptionStrings):
+    """Container for the option strings registered for a given TriFlag."""
+
     __slots__ = ('_alt_prefix', '_alt_long', '_alt_short')
     _alt_prefix: Optional[str]
     _alt_short: Optional[str]
@@ -184,14 +188,16 @@ class TriFlagOptionStrings(OptionStrings):
 
 
 def _sort_options(options: Collection[str]):
+    """Sort option strings in descending length order (alphanumeric order for options with the same length)"""
     return sorted(options, key=lambda opt: (-len(opt), opt))
 
 
 def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:
+    """Split long and short option strings and ensure that all of the provided option strings are valid."""
     long_opts, short_opts, bad_opts, bad_short = set(), set(), [], []
     for opt in opt_strs:
-        if not opt:
-            continue
+        if not opt:     # Ignore None / empty strings / etc
+            continue    # Only raise an exception if invalid values that were intended to be used were provided
         elif not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt:
             bad_opts.append(opt)
         elif opt.startswith('--'):
@@ -202,11 +208,13 @@ def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:
             short_opts.add(opt)
 
     if bad_opts:
-        bad = ', '.join(bad_opts)
+        bad = ', '.join(map(repr, bad_opts))
         raise ParameterDefinitionError(
             f"Bad option(s) - they must start with '--' or '-', may not end with '-', and may not contain '=': {bad}"
         )
     elif bad_short:
-        raise ParameterDefinitionError(f"Bad short option(s) - they may not contain '-': {', '.join(bad_short)}")
+        raise ParameterDefinitionError(
+            f"Bad short option(s) - they may not contain '-': {', '.join(map(repr, bad_short))}"
+        )
 
     return long_opts, short_opts

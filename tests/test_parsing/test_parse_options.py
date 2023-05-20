@@ -262,6 +262,19 @@ class OptionTest(ParserTest):
         fail_cases = [['bar', '-fby'], ['bar', '-fbx'], ['bar', '-fbar']]
         self.assert_parse_fails_cases(Foo, fail_cases, AmbiguousCombo)
 
+    def test_action_append_default_nargs(self):
+        class Foo(Command):
+            bar = Option('-b', action='append')
+
+        success_cases = [
+            ([], {'bar': []}),
+            (['-b', 'a'], {'bar': ['a']}),
+            # (['-b', 'a', '-b', 'b'], {'bar': ['a', 'b']}),  # TODO
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-b'], ['-b', 'a', 'b']]
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
 
 if __name__ == '__main__':
     # import logging

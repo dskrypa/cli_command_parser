@@ -15,7 +15,7 @@ from ..utils import _NotSet, ValueSource
 from .base import Parameter, parameter_action
 
 if TYPE_CHECKING:
-    from ..typing import Bool, Strings, ValSrc
+    from ..typing import Strings, ValSrc
 
 __all__ = ['PassThru']
 
@@ -32,10 +32,11 @@ class PassThru(Parameter):
     nargs = Nargs('REMAINDER')
     missing_hint: str = "missing pass thru args separated from others with '--'"
 
-    def __init__(self, action: str = 'store_all', default: Any = _NotSet, required: Bool = False, **kwargs):
-        if not required and default is _NotSet:
-            default = None
-        super().__init__(action=action, required=required, default=default, **kwargs)
+    def __init__(self, action: str = 'store_all', **kwargs):
+        super().__init__(action=action, **kwargs)
+
+    def _init_default(self):
+        return _NotSet if self.required else None
 
     @parameter_action
     def store_all(self, values: Strings):

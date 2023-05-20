@@ -33,10 +33,10 @@ class InputParam:
         self.name = name
 
     def __get__(self, instance, owner) -> Any:
-        if instance is None:
-            return self
         try:
             return instance.__dict__[self.name]
+        except AttributeError:  # instance is None
+            return self
         except KeyError:
             return self.default
 
@@ -108,7 +108,7 @@ class FileWrapper:
         self._finalizer = None
 
     def __eq__(self, other: FileWrapper) -> bool:
-        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'pass_file')
+        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'pass_file', 'parents')
         try:
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
         except AttributeError:
