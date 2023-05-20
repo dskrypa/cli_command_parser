@@ -4,9 +4,9 @@ from itertools import product, starmap
 from operator import or_
 from unittest import TestCase, main
 
-from cli_command_parser import Command, SubCommand
+from cli_command_parser import Command, SubCommand, CommandConfig, ShowDefaults, AllowLeadingDash, OptionNameMode
 from cli_command_parser.core import get_config
-from cli_command_parser.config import CommandConfig, ShowDefaults, ConfigItem, DEFAULT_CONFIG, AllowLeadingDash
+from cli_command_parser.config import ConfigItem, DEFAULT_CONFIG
 
 
 class ConfigItemTest(TestCase):
@@ -41,6 +41,8 @@ class ConfigItemTest(TestCase):
 
 
 class ConfigEnumTest(TestCase):
+    # region Show Default
+
     def test_invalid_show_defaults(self):
         with self.assertRaisesRegex(ValueError, 'Invalid.*- expected one of'):
             ShowDefaults('foo')
@@ -61,11 +63,34 @@ class ConfigEnumTest(TestCase):
         config.show_defaults = 'never'  # noqa
         self.assertIs(ShowDefaults.NEVER, config.show_defaults)
 
+    # endregion
+
     def test_invalid_allow_leading_dash(self):
         with self.assertRaises(ValueError):
             AllowLeadingDash('foo')
         with self.assertRaises(ValueError):
             AllowLeadingDash(1)
+
+    def test_name_mode_aliases(self):
+        cases = {
+            'underscore': OptionNameMode.UNDERSCORE,
+            'dash': OptionNameMode.DASH,
+            'both': OptionNameMode.BOTH,
+            'both_dash': OptionNameMode.BOTH_DASH,
+            'both_underscore': OptionNameMode.BOTH_UNDERSCORE,
+            'none': OptionNameMode.NONE,
+            None: OptionNameMode.NONE,
+            '-': OptionNameMode.DASH,
+            '_': OptionNameMode.UNDERSCORE,
+            '*': OptionNameMode.BOTH,
+            '-*': OptionNameMode.BOTH_DASH,
+            '*-': OptionNameMode.BOTH_DASH,
+            '*_': OptionNameMode.BOTH_UNDERSCORE,
+            '_*': OptionNameMode.BOTH_UNDERSCORE,
+        }
+        for alias, expected in cases.items():
+            with self.subTest(alias=alias):
+                self.assertEqual(expected, OptionNameMode(alias))
 
 
 class ConfigTest(TestCase):

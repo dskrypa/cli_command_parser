@@ -32,8 +32,8 @@ class MetadataTest(TestCase):
     def test_metadata_self(self):
         self.assertIsInstance(ProgramMetadata.url, Metadata)
         self.assertIsInstance(ProgramMetadata.prog, DynamicMetadata)
-        self.assertEqual('Metadata(default=None)', repr(ProgramMetadata.url))
-        self.assertEqual('DynamicMetadata(func=ProgramMetadata.prog)', repr(ProgramMetadata.prog))
+        self.assertEqual('Metadata(default=None, inheritable=True)', repr(ProgramMetadata.url))
+        self.assertEqual('DynamicMetadata(func=ProgramMetadata.prog, inheritable=True)', repr(ProgramMetadata.prog))
 
     def test_bad_arg(self):
         with self.assertRaisesRegex(TypeError, 'Invalid arguments for ProgramMetadata: bar, foo'):

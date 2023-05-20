@@ -78,26 +78,30 @@ class OptionNameMode(FixedFlag):
     Given a Parameter defined as ``foo_bar = Option(...)``, the default long form handling based on this setting would
     be:
 
-    :UNDERSCORE: ``--foo_bar``
-    :DASH: ``--foo-bar``
-    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted
+    :UNDERSCORE: ``--foo_bar`` - the attribute name is used verbatim.
+    :DASH: ``--foo-bar`` - any underscores present in the attribute name will be replaced with dashes (this is
+      the default behavior).
+    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, and both will be displayed in help text.
     :BOTH_UNDERSCORE: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo_bar`` with be displayed
-      in help text
+      in help text.  This may be useful for compatibility purposes, and helps prevent help text from being too
+      cluttered.
     :BOTH_DASH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo-bar`` with be displayed
-      in help text
+      in help text.  This may be useful for compatibility purposes, and helps prevent help text from being too
+      cluttered.
     :NONE: No long form option string will be added.  At least one short form option string must be defined.  Note that
-      it is NOT necessary to use ``name_mode=None`` to prevent the automatic creation of long form option strings - if
-      any long form option strings are explicitly provided for a given Parameter, then no automatic ones will be added.
+      it is NOT necessary to use ``name_mode=None`` to prevent the automatic creation of long form option strings in
+      general.  If any long form option strings are explicitly provided for a given Parameter, then an automatic one
+      will not be added, regardless of value for this configuration option.
 
     If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.
 
     The value may be specified to Commands as ``option_name_mode=<mode>`` or to Parameters as ``name_mode=<mode>``,
     where ``<mode>`` is one of:
 
+        - ``'_'`` or ``'-'`` or ``'*'`` or ``'*_'`` or ``'*-'`` or ``'_*'`` or ``'-*'`` or ``None``
         - ``OptionNameMode.UNDERSCORE`` or ``OptionNameMode.DASH`` or ``OptionNameMode.BOTH``
-          or ``OptionNameMode.BOTH_UNDERSCORE`` or ``OptionNameMode.BOTH_DASH``
-        - ``'underscore'`` or ``'dash'`` or ``'both'`` or ``'both_underscore'`` or ``'both_dash'``
-        - ``'_'`` or ``'-'`` or ``'*'`` or ``'*_'`` or ``'*-'``
+          or ``OptionNameMode.BOTH_UNDERSCORE`` or ``OptionNameMode.BOTH_DASH`` or ``OptionNameMode.NONE``
+        - ``'underscore'`` or ``'dash'`` or ``'both'`` or ``'both_underscore'`` or ``'both_dash'`` or ``'none'``
     """
 
     UNDERSCORE = 1
