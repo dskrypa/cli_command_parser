@@ -33,7 +33,7 @@ class ChoiceInputTest(ParserTest):
 
         self.assertIsInstance(Foo.bar.type, Choices)
         self.assertIsInstance(Foo.bar.type.type, EnumChoices)
-        self.assertIs(Foo.bar.type.type.enum, EnumExample)
+        self.assertIs(Foo.bar.type.type.type, EnumExample)
 
     def test_enum_repr(self):
         expected = '<EnumChoices[type=EnumExample, case_sensitive=False, choices=(FOO,Bar,baz)]>'

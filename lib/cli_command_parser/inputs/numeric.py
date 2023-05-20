@@ -46,7 +46,7 @@ class NumericInput(InputType[NT], ABC):
         return f'{{{self._range_str()}}}'
 
     def fix_default(self, value: Union[str, NT, None]) -> Optional[NT]:
-        if value is None or not isinstance(value, str):
+        if value is None or not isinstance(value, str) or not self._fix_default:
             return value
         return self(value)
 
@@ -60,13 +60,17 @@ class Range(NumericInput[NT]):
     :param snap: If True and a provided value is outside the allowed range, snap to the nearest bound.  The min or max
       of the provided range (not necessarily the start/stop values) will be used, depending on which one the provided
       value is closer to.
+    :param type: Callable that returns a numeric type, to be used on parsed values before validating whether they are
+      in the allowed range.  Defaults to :class:`python:int`.
+    :param fix_default: Whether default values should be normalized using :meth:`~NumericInput.fix_default`.
     """
 
     type: NumType = int
     range: Optional[_range]
     snap: bool
 
-    def __init__(self, range: RngType, snap: Bool = False, type: NumType = None):  # noqa
+    def __init__(self, range: RngType, snap: Bool = False, type: NumType = None, fix_default: Bool = True):  # noqa
+        super().__init__(fix_default)
         self.snap = snap
         if isinstance(range, int):
             self.range = _range(range)
@@ -113,6 +117,7 @@ class NumRange(NumericInput[NT]):
     :param max: The maximum allowed value, or None to have no upper bound
     :param include_min: Whether the minimum is inclusive (default: True)
     :param include_max: Whether the maximum is inclusive (default: False)
+    :param fix_default: Whether default values should be normalized using :meth:`~NumericInput.fix_default`.
     """
 
     __slots__ = ('type', 'snap', 'min', 'max', 'include_min', 'include_max')
@@ -131,12 +136,14 @@ class NumRange(NumericInput[NT]):
         max: Number = None,  # noqa
         include_min: Bool = True,
         include_max: Bool = False,
+        fix_default: Bool = True,
     ):
         if min is None and max is None:
             raise ValueError('NumRange inputs must be initialized with at least one of min and/or max values')
         elif min is not None and max is not None and min >= max:
             raise ValueError(f'Invalid {min=} >= {max=} - min must be less than max')
 
+        super().__init__(fix_default)
         if type is None:
             self.type = float if isinstance(min, float) or isinstance(max, float) else int
         else:

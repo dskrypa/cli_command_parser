@@ -40,7 +40,9 @@ class FileInput(InputType[T], ABC):
         writable: Bool = False,
         allow_dash: Bool = False,
         use_windows_fix: Bool = True,
+        fix_default: Bool = True,
     ):
+        super().__init__(fix_default)
         self.exists = exists
         self.expand = expand
         self.resolve = resolve
@@ -59,7 +61,7 @@ class FileInput(InputType[T], ABC):
         Fixes the default value to conform to the expected return type for this input.  Allows the default value for a
         path to be provided as a string, for example.
         """
-        if value is None:
+        if value is None or not self._fix_default:
             return value
         return self(value)
 
@@ -96,6 +98,7 @@ class FileInput(InputType[T], ABC):
 
 
 class Path(FileInput[_Path]):
+    # noinspection PyUnresolvedReferences
     """
     :param exists: If set, then the provided path must already exist if True, or must not already exist if False.
       Default: existence is not checked.
@@ -109,6 +112,7 @@ class Path(FileInput[_Path]):
     :param allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
     :param use_windows_fix: If True (the default) and the program is running on Windows, then :func:`.fix_windows_path`
       will be called to fix issues caused by auto-completion via Git Bash.
+    :param fix_default: Whether default values should be normalized using :meth:`~FileInput.fix_default`.
     """
 
     def __call__(self, value: PathLike) -> _Path:

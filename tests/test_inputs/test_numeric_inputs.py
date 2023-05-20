@@ -4,7 +4,7 @@ from unittest import main, TestCase
 
 from cli_command_parser import Command, Option
 from cli_command_parser.exceptions import ParameterDefinitionError
-from cli_command_parser.inputs import Range, NumRange
+from cli_command_parser.inputs import Range, NumRange, InputValidationError
 from cli_command_parser.testing import ParserTest
 
 
@@ -155,6 +155,16 @@ class ParseInputTest(ParserTest):
         ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_argv_parse_fails_cases(Foo, [['-ba'], ['-b', '-1'], ['-b', '11']])
+
+    def test_fix_default(self):
+        class Foo(Command):
+            bar = Option(type=Range(range(10), fix_default=True), default='-10')
+            baz = Option(type=Range(range(10), fix_default=False), default='-10')
+
+        with self.assertRaisesRegex(InputValidationError, 'expected a value in the range'):
+            _ = Foo().bar
+
+        self.assertEqual('-10', Foo().baz)
 
 
 if __name__ == '__main__':

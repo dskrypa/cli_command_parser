@@ -256,34 +256,41 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
             )
         if required and default is not _NotSet:
+            # TODO: For required mutually dependent groups, or a required group with all params having a default,
+            #  is another check needed, or does this check make sense, or should this check be removed?
             raise ParameterDefinitionError(
                 f'Invalid combination of required=True with {default=} for {self.__class__.__name__} -'
                 ' required Parameters cannot have a default value'
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = action
-        self.default = None if default is _NotSet and not required and self.nargs.max == 1 else default
+        self.default = self._init_default() if default is _NotSet else default
         self.metavar = metavar
         if show_default is not None:
             self.show_default = show_default
+
+    def _init_default(self):
+        if not self.required and self.nargs.max == 1:
+            return None
+        return _NotSet
 
     def _init_value_factory(self):
         return _NotSet
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
-        type_attr = self.type
-        choices = isinstance(type_attr, (ChoiceMapInput, Choices)) and type_attr.type is None
-        if (
-            not (choices or type_attr is None)
-            or not self._config(command).allow_annotation_type
-            or self.nargs.max is REMAINDER
-        ):
+        # If self.type is None, a type may still be inferred from an annotation, which happens in this method.
+        if untyped_choices := (type_attr := self.type) is not None:
+            if not isinstance(type_attr, _ChoicesBase) or type_attr.type is not None:
+                return  # An explicit type was provided to either stand alone or be used for Choices values
+            # self.type is therefore a Choices object with no explicit type provided, so from here on, the var
+            # name `untyped_choices` is accurate.  The type for its values may still be inferred from an annotation.
+        elif self.nargs.max is REMAINDER or not self._config(command).allow_annotation_type:
             return
 
         if (annotated_type := get_descriptor_value_type(command, name)) is None:
             return
-        elif choices:
+        elif untyped_choices:
             type_attr.type = annotated_type
         else:  # self.type must be None
             # Choices present earlier would have already been converted
@@ -291,8 +298,9 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     @property
     def has_choices(self) -> bool:
-        type_attr = self.type
-        return isinstance(type_attr, _ChoicesBase) and type_attr.choices
+        if type_attr := self.type:
+            return isinstance(type_attr, _ChoicesBase) and type_attr.choices
+        return False
 
     # endregion
 
@@ -305,26 +313,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         kwargs = ', '.join(f'{a}={v!r}' for a, v in attrs if v not in (None, _NotSet) and not (a == 'hide' and not v))
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
-    # region Argument Handling
-
-    @overload
-    def __get__(self: Param, command: None, owner: CommandCls) -> Param:
-        ...
-
-    @overload
-    def __get__(self, command: CommandObj, owner: CommandCls) -> Optional[T_co]:
-        ...
-
-    def __get__(self, command, owner):
-        if command is None:
-            return self
-
-        with self._ctx(command):
-            value = self.result()
-
-        if (name := self._attr_name) is not None:
-            command.__dict__[name] = value  # Skip __get__ on subsequent accesses
-        return value
+    # region Parsing / Argument Handling
 
     def _get_parsed_and_max_reached(self) -> Tuple[List[T_co], bool]:
         parsed = ctx.get_parsed_value(self)
@@ -397,17 +386,34 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         else:
             return True
 
-    def _fix_default(self, value) -> Optional[T_co]:
-        type_func = self.type
-        if type_func is not None and isinstance(type_func, InputType):
-            return type_func.fix_default(value)
-        return value
+    def can_pop_counts(self) -> List[int]:  # noqa
+        return []
 
-    def _fix_default_collection(self, values) -> Optional[T_co]:
-        type_func = self.type
-        if type_func is None or not isinstance(type_func, InputType) or not isinstance(values, (list, tuple, set)):
-            return values
-        return values.__class__(map(type_func.fix_default, values))
+    def pop_last(self, count: int = 1) -> List[str]:
+        raise UnsupportedAction
+
+    # endregion
+
+    # region Parse Results / Argument Value Handling
+
+    @overload
+    def __get__(self: Param, command: None, owner: CommandCls) -> Param:
+        ...
+
+    @overload
+    def __get__(self, command: CommandObj, owner: CommandCls) -> Optional[T_co]:
+        ...
+
+    def __get__(self, command, owner):
+        if command is None:
+            return self
+
+        with self._ctx(command):
+            value = self.result()
+
+        if (name := self._attr_name) is not None:
+            command.__dict__[name] = value  # Skip __get__ on subsequent accesses
+        return value
 
     def result_value(self) -> Optional[T_co]:
         if (value := ctx.get_parsed_value(self)) is _NotSet:
@@ -415,17 +421,15 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 raise MissingArgument(self)
             else:
                 return self._fix_default(self.default)
-
-        if self.action == 'store':
+        elif self.action == 'store':
             return value
 
-        # action == 'append' or 'store_all'
-        if not value:
-            if (default := self.default) is not _NotSet:
-                if isinstance(default, Collection) and not isinstance(default, str):
-                    value = self._fix_default_collection(default)
-                else:
-                    value.append(self._fix_default(default))
+        # Implied: action == 'append' or 'store_all'
+        if not value and (default := self.default) is not _NotSet:
+            if isinstance(default, Collection) and not isinstance(default, str):
+                value = self._fix_default_collection(default)
+            else:
+                value.append(self._fix_default(default))
 
         nargs = self.nargs
         if (val_count := len(value)) == 0 and 0 not in nargs:
@@ -438,11 +442,15 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     result = result_value
 
-    def can_pop_counts(self) -> List[int]:  # noqa
-        return []
+    def _fix_default(self, value) -> Optional[T_co]:
+        if (type_func := self.type) and isinstance(type_func, InputType):
+            return type_func.fix_default(value)
+        return value
 
-    def pop_last(self, count: int = 1) -> List[str]:
-        raise UnsupportedAction
+    def _fix_default_collection(self, values) -> Optional[T_co]:
+        if (type_func := self.type) and isinstance(type_func, InputType) and isinstance(values, (list, tuple, set)):
+            return values.__class__(map(type_func.fix_default, values))
+        return values
 
     # endregion
 
@@ -462,12 +470,41 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 class BasicActionMixin:
     action: str
     nargs: Nargs
+    required: bool
     type: Optional[Callable]
+
+    # region Initialization
+
+    def _validate_nargs_and_allow_leading_dash(self, allow_leading_dash: LeadingDash):
+        if allow_leading_dash is not None:
+            allow_leading_dash = AllowLeadingDash(allow_leading_dash)
+
+        if self.nargs.max is REMAINDER:
+            if self.type is not None:
+                raise ParameterDefinitionError(f'Type casting and choices are not supported with nargs={self.nargs!r}')
+            elif allow_leading_dash not in (None, AllowLeadingDash.ALWAYS):
+                raise ParameterDefinitionError(
+                    f'With nargs={self.nargs!r}, only allow_leading_dash=AllowLeadingDash.ALWAYS is supported - found:'
+                    f' {allow_leading_dash!r}'
+                )
+            allow_leading_dash = AllowLeadingDash.ALWAYS
+
+        if allow_leading_dash is not None:
+            self.allow_leading_dash = allow_leading_dash
+
+    def _init_default(self):
+        if not self.required and self.nargs.max == 1 and self.action != 'append':
+            return None
+        return _NotSet
 
     def _init_value_factory(self):
         if self.action == 'append':
             return []
         return super()._init_value_factory()  # noqa
+
+    # endregion
+
+    # region Actions
 
     @parameter_action
     def store(self: Parameter, value: T_co):
@@ -483,6 +520,10 @@ class BasicActionMixin:
                 self, f'cannot accept any additional args with nargs={self.nargs} - already found {len(parsed)} values'
             )
         parsed.append(value)
+
+    # endregion
+
+    # region Parsing - Backtracking Methods
 
     def _pre_pop_values(self: Parameter):
         if self.action != 'append' or not self.nargs.variable or self.type not in (None, str):
@@ -517,22 +558,7 @@ class BasicActionMixin:
         ctx.record_action(self, -count)
         return values[-count:]
 
-    def _validate_nargs_and_allow_leading_dash(self, allow_leading_dash: LeadingDash):
-        if allow_leading_dash is not None:
-            allow_leading_dash = AllowLeadingDash(allow_leading_dash)
-
-        if self.nargs.max is REMAINDER:
-            if self.type is not None:
-                raise ParameterDefinitionError(f'Type casting and choices are not supported with nargs={self.nargs!r}')
-            elif allow_leading_dash not in (None, AllowLeadingDash.ALWAYS):
-                raise ParameterDefinitionError(
-                    f'With nargs={self.nargs!r}, only allow_leading_dash=AllowLeadingDash.ALWAYS is supported - found:'
-                    f' {allow_leading_dash!r}'
-                )
-            allow_leading_dash = AllowLeadingDash.ALWAYS
-
-        if allow_leading_dash is not None:
-            self.allow_leading_dash = allow_leading_dash
+    # endregion
 
 
 class BasePositional(Parameter[T_co], ABC):

@@ -103,6 +103,7 @@ class Regex(PatternInput[RegexResult]):
             raise TypeError('At least one regex pattern is required')
         elif group is not None and groups is not None:
             raise TypeError(f'Invalid combination of {group=} with {groups=} - only one may be provided')
+        super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         self.mode = mode = RegexMode.normalize(mode, group, groups)
         self.patterns = tuple(re.compile(p) if isinstance(p, str) else p for p in patterns)
         self.group = 0 if group is None and mode == RegexMode.GROUP else group
@@ -144,6 +145,7 @@ class Glob(PatternInput[str]):
     def __init__(self, *patterns: str, match_case: bool = False, normcase: bool = False):
         if not patterns:
             raise TypeError('At least one glob/fnmatch pattern is required')
+        super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         if normcase:
             patterns = tuple(os.path.normcase(p) for p in patterns)
         self._original_patterns = patterns

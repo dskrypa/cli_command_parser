@@ -160,6 +160,8 @@ class CommandHelpFormatter:
         # TODO: The subcommand names in the group containing subcommand targets should link to their respective
         #  subcommand sections
         for group in self.groups:
+            # TODO: Nested subcommands' local choices should not repeat the `subcommands` positional arguments section
+            #  that includes the nested subcommand choice being documented
             if group.show_in_help:
                 table: RstTable = group.formatter.rst_table()  # noqa
                 yield from table.iter_build()
@@ -182,6 +184,9 @@ class CommandHelpFormatter:
             yield from spaced_rst_header('Subcommands', level - 1)
 
         for cmd_name, choice in sub_command.choices.items():
+            # TODO: There are some cases where multiple aliases for the same command (possibly local choices, possibly
+            #  multiple choices all handled by a single class) would be better documented without separate sections for
+            #  each choice value (should probably be configurable to explode or condense)
             choice_str = f'{choice_base} {cmd_name}' if choice_base else cmd_name
             yield from spaced_rst_header(f'Subcommand: {choice_str}', level)
             if choice_help := choice.help:

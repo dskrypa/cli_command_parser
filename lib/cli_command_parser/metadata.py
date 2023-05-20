@@ -14,7 +14,7 @@ from inspect import getmodule
 from pathlib import Path
 from sys import modules
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Type, Callable, Optional, Union, Tuple, Dict
+from typing import TYPE_CHECKING, Any, Type, Callable, Optional, Union, Iterator, Tuple, Dict
 from urllib.parse import urlparse
 
 from .context import ctx, NoActiveContext
@@ -25,9 +25,6 @@ if TYPE_CHECKING:
 __all__ = ['ProgramMetadata']
 
 DEFAULT_FILE_NAME: str = 'UNKNOWN'
-
-# TODO: Make it possible to auto-detect author email/url more centrally without needing to import version vars in every
-#  CLI module
 
 
 # region Metadata Descriptors
@@ -44,22 +41,35 @@ class MetadataBase:
         owner._fields.add(name)
 
     def __get__(self, instance: Optional[ProgramMetadata], owner: Type[ProgramMetadata]):
-        if instance is None:
-            return self
         try:
             return instance.__dict__[self.name]
+        except AttributeError:  # instance is None
+            return self
         except KeyError:
             pass
-        if self.inheritable:
-            try:
-                return getattr(instance.parent, self.name)
-            except AttributeError:  # parent is None
-                pass
+        if self.inheritable and (parent := self.get_parent(instance)):
+            return getattr(parent, self.name)
         return self.get_value(instance)
 
     def __set__(self, instance: ProgramMetadata, value: Union[str, Path, None]):
         if value is not None:
             instance.__dict__[self.name] = value
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({", ".join(f"{a}={v}" for a, v in self._attrs())})'
+
+    def _attrs(self) -> Iterator[Tuple[str, Any]]:
+        for base in self.__class__.mro()[:-1]:
+            for attr in base.__slots__:
+                if attr != 'name':
+                    value = getattr(self, attr)
+                    yield attr, (getattr(value, '__qualname__', value) if attr == 'func' else repr(value))
+
+    def get_parent(self, instance: ProgramMetadata) -> Optional[ProgramMetadata]:
+        # if (parent := instance.parent) and parent.distribution == instance.distribution:
+        if (parent := instance.parent) and parent.package == instance.package:
+            return parent
+        return None
 
     def get_value(self, instance: ProgramMetadata):
         raise NotImplementedError
@@ -75,37 +85,24 @@ class Metadata(MetadataBase):
     def get_value(self, instance: ProgramMetadata):
         return self.default
 
-    def __repr__(self) -> str:
-        return f'Metadata(default={self.default!r})'
-
 
 class DynamicMetadata(MetadataBase):
-    __slots__ = ('func', 'cache_result')
+    __slots__ = ('func',)
 
-    def __init__(self, func: Callable[[ProgramMetadata], Any], cache_result: bool = True, inheritable: bool = True):
+    def __init__(self, func: Callable[[ProgramMetadata], Any], inheritable: bool = True):
         super().__init__(inheritable)
         self.func = func
-        self.cache_result = cache_result
 
     def get_value(self, instance: ProgramMetadata):
-        result = self.func(instance)
-        if self.cache_result:
-            instance.__dict__[self.name] = result
+        instance.__dict__[self.name] = result = self.func(instance)
         return result
 
-    def __repr__(self) -> str:
-        return f'DynamicMetadata(func={getattr(self.func, "__qualname__", self.func)})'
 
-
-def dynamic_metadata(func=None, *, cache_result: bool = True, inheritable: bool = True):
+def dynamic_metadata(func=None, *, inheritable: bool = True):
     if func is None:
-
-        def _dynamic_metadata(func):
-            return DynamicMetadata(func, cache_result, inheritable)
-
-        return _dynamic_metadata
+        return lambda f: DynamicMetadata(f, inheritable)
     else:
-        return DynamicMetadata(func, cache_result, inheritable)
+        return DynamicMetadata(func, inheritable)
 
 
 # endregion
@@ -114,11 +111,11 @@ def dynamic_metadata(func=None, *, cache_result: bool = True, inheritable: bool 
 class ProgramMetadata:
     _fields = {'parent'}
     parent: Optional[ProgramMetadata] = None
-    path: Path = Metadata(None)
-    package: str = Metadata(None)
-    module: str = Metadata(None)
-    cmd_module: str = Metadata(None)
-    command: str = Metadata(None)
+    path: Path = Metadata(None, inheritable=False)
+    package: str = Metadata(None, inheritable=False)
+    module: str = Metadata(None, inheritable=False)
+    cmd_module: str = Metadata(None, inheritable=False)
+    command: str = Metadata(None, inheritable=False)
     url: str = Metadata(None)
     docs_url: str = Metadata(None)
     email: str = Metadata(None)
@@ -175,7 +172,7 @@ class ProgramMetadata:
             command=command.__qualname__,
             prog=prog,
             url=url or g.get('__url__'),
-            docs_url=docs_url or _docs_url_from_repo_url(url) or _docs_url_from_repo_url(g.get('__url__')),
+            docs_url=docs_url,
             email=email or g.get('__author_email__'),
             version=version or g.get('__version__'),
             usage=usage,
@@ -196,7 +193,7 @@ class ProgramMetadata:
             return prog, 'class kwargs'
         return _prog_finder.normalize(self.path, self.parent, None, self.cmd_module, self.command)
 
-    @dynamic_metadata(cache_result=False)
+    @dynamic_metadata
     def prog(self) -> str:
         return self._prog_and_src[0]
 
@@ -217,6 +214,10 @@ class ProgramMetadata:
         return Path(self._doc_prog_and_src[0]).stem
 
     # endregion
+
+    @dynamic_metadata
+    def docs_url(self) -> OptStr:
+        return _docs_url_from_repo_url(self.url)
 
     def format_epilog(self, extended: Bool = True, allow_sys_argv: Bool = None) -> str:
         parts = [self.epilog] if self.epilog else []
@@ -314,6 +315,7 @@ class ProgFinder:
         return None
 
     def _iter_entry_point_candidates(self, cmd_module: str):
+        # TODO: Use ProgramMetadata.distribution.entry_points() instead?
         try:
             # TODO: This likely won't work for a base command in one module, sub commands defined in separate modules,
             #  and main imported from cli_command_parser in the package's __init__/__main__ module...
@@ -350,7 +352,7 @@ _prog_finder = ProgFinder()
 
 
 def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Dict[str, Any]]:
-    module = getmodule(command)
+    module = getmodule(command)  # Returns the module object (obj.__module__ just provides the name of the module)
     if path is None:
         try:
             path = Path(module.__file__).resolve()
@@ -363,7 +365,7 @@ def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Di
     return path, module.__dict__
 
 
-def _description(description: Optional[str], doc: Optional[str]) -> Optional[str]:
+def _description(description: OptStr, doc: OptStr) -> OptStr:
     if description:
         return description
     elif doc:
@@ -373,7 +375,7 @@ def _description(description: Optional[str], doc: Optional[str]) -> Optional[str
     return None
 
 
-def _docs_url_from_repo_url(repo_url: Optional[str]) -> Optional[str]:
+def _docs_url_from_repo_url(repo_url: OptStr) -> OptStr:
     if not repo_url:
         return None
 
