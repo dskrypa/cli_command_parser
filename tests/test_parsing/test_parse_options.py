@@ -269,10 +269,11 @@ class OptionTest(ParserTest):
         success_cases = [
             ([], {'bar': []}),
             (['-b', 'a'], {'bar': ['a']}),
-            # (['-b', 'a', '-b', 'b'], {'bar': ['a', 'b']}),  # TODO
+            (['-b', 'a', '-b', 'b'], {'bar': ['a', 'b']}),
+            (['-b', 'a', 'b'], {'bar': ['a', 'b']}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
-        fail_cases = [['-b'], ['-b', 'a', 'b']]
+        fail_cases = [['-b']]
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
 
