@@ -7,13 +7,16 @@ Custom input handlers for Parameters
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional
 
-from ..typing import T
+from ..typing import T, Bool
 
 __all__ = ['InputType']
 
 
 class InputType(Generic[T], ABC):
-    __slots__ = ()
+    __slots__ = ('_fix_default',)
+
+    def __init__(self, fix_default: Bool = True):
+        self._fix_default = fix_default
 
     @abstractmethod
     def __call__(self, value: str) -> T:

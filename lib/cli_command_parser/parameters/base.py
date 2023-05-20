@@ -421,8 +421,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 raise MissingArgument(self)
             else:
                 return self._fix_default(self.default)
-
-        if self.action == 'store':
+        elif self.action == 'store':
             return value
 
         # Implied: action == 'append' or 'store_all'

@@ -94,7 +94,7 @@ class Choices(_ChoicesBase[T]):
             raise TypeError(f'Cannot combine case_sensitive=False with non-str {choices=}')
         elif isinstance(type, EnumChoices) and not any(isinstance(c, type.type) for c in choices):
             raise TypeError(f'Invalid {choices=} for {type=}')
-
+        super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         self.choices = choices
         self.type = type
         self.case_sensitive = case_sensitive
@@ -159,6 +159,7 @@ class EnumChoices(_ChoicesBase[EnumT]):
     type: Type[EnumT]
 
     def __init__(self, enum: Type[EnumT], case_sensitive: Bool = False):
+        super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         self.type = enum
         self.case_sensitive = case_sensitive
         self.choices = enum._member_map_

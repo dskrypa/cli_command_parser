@@ -85,7 +85,8 @@ class DTInput(InputType[T], ABC):
         super().__init_subclass__(**kwargs)
         cls.dt_type = dt_type
 
-    def __init__(self, locale: Locale = None):
+    def __init__(self, locale: Locale = None, fix_default: Bool = True):
+        super().__init__(fix_default)
         self.locale = locale
 
     @abstractmethod
@@ -93,7 +94,7 @@ class DTInput(InputType[T], ABC):
         raise NotImplementedError
 
     def fix_default(self, value: Union[str, T, None]) -> Optional[T]:
-        if value is None or not isinstance(value, str):
+        if value is None or not isinstance(value, str) or not self._fix_default:
             return value
         return self(value)
 
@@ -126,6 +127,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         locale: Locale = None,
         out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
+        fix_default: Bool = True,
     ):
         """
         Input type representing a date/time unit.
@@ -136,10 +138,11 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         :param locale: An alternate locale to use when parsing input
         :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
         """
         if not (full or abbreviation or numeric):
             raise ValueError('At least one of full, abbreviation, or numeric must be True')
-        super().__init__(locale=locale)
+        super().__init__(locale=locale, fix_default=fix_default)
         self.full = full
         self.abbreviation = abbreviation
         self.numeric = numeric
@@ -238,6 +241,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         locale: Locale = None,
         out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
+        fix_default: Bool = True,
     ):
         """
         Input type representing a day of the week.
@@ -250,6 +254,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         :param locale: An alternate locale to use when parsing input
         :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
         """
         ...
 
@@ -293,6 +298,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         locale: Locale = None,
         out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
+        fix_default: Bool = True,
     ):
         """
         Input type representing a month.
@@ -303,6 +309,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         :param locale: An alternate locale to use when parsing input
         :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full month name.
         :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
         """
         ...
 
@@ -331,10 +338,11 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
 class TimeDelta(InputType[timedelta]):
     __slots__ = ('unit',)
 
-    def __init__(self, unit: TimeUnit):
+    def __init__(self, unit: TimeUnit, fix_default: Bool = True):
         unit = unit.lower()
         if unit not in _TIMEDELTA_UNITS:
             raise TypeError(f'Invalid {unit=} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
+        super().__init__(fix_default)
         self.unit = unit
         # TODO: min/max params like NumRange?
 
@@ -350,7 +358,7 @@ class TimeDelta(InputType[timedelta]):
         return timedelta(**{self.unit: value})
 
     def fix_default(self, value: Union[int, float, timedelta, None]) -> Optional[timedelta]:
-        if value is None or isinstance(value, timedelta):
+        if value is None or isinstance(value, timedelta) or not self._fix_default:
             return value
         return self(value)
 
@@ -372,9 +380,14 @@ class DateTimeInput(DTInput[DT], ABC):
         cls._type = type
 
     def __init__(
-        self, formats: Collection[str], locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None
+        self,
+        formats: Collection[str],
+        locale: Locale = None,
+        earliest: TimeBound = None,
+        latest: TimeBound = None,
+        fix_default: Bool = True,
     ):
-        super().__init__(locale=locale)
+        super().__init__(locale=locale, fix_default=fix_default)
         self.formats = formats
         self.earliest = earliest
         self.latest = latest
@@ -459,7 +472,14 @@ class DateTimeInput(DTInput[DT], ABC):
 
 
 class DateTime(DateTimeInput[datetime], type=datetime):
-    def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+    def __init__(
+        self,
+        *formats: str,
+        locale: Locale = None,
+        earliest: TimeBound = None,
+        latest: TimeBound = None,
+        fix_default: Bool = True,
+    ):
         """
         Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
         a :class:`python:datetime.datetime` object.
@@ -469,12 +489,22 @@ class DateTime(DateTimeInput[datetime], type=datetime):
         :param locale: An alternate locale to use when parsing input
         :param earliest: If specified, the parsed value must be later than or equal to this
         :param latest: If specified, the parsed value must be earlier than or equal to this
+        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
         """
-        super().__init__(formats or (DEFAULT_DT_FMT,), locale=locale, earliest=earliest, latest=latest)
+        super().__init__(
+            formats or (DEFAULT_DT_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
+        )
 
 
 class Date(DateTimeInput[date], type=date):
-    def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+    def __init__(
+        self,
+        *formats: str,
+        locale: Locale = None,
+        earliest: TimeBound = None,
+        latest: TimeBound = None,
+        fix_default: Bool = True,
+    ):
         """
         Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
         a :class:`python:datetime.date` object.
@@ -484,12 +514,22 @@ class Date(DateTimeInput[date], type=date):
         :param locale: An alternate locale to use when parsing input
         :param earliest: If specified, the parsed value must be later than or equal to this
         :param latest: If specified, the parsed value must be earlier than or equal to this
+        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
         """
-        super().__init__(formats or (DEFAULT_DATE_FMT,), locale=locale, earliest=earliest, latest=latest)
+        super().__init__(
+            formats or (DEFAULT_DATE_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
+        )
 
 
 class Time(DateTimeInput[time], type=time):
-    def __init__(self, *formats: str, locale: Locale = None, earliest: TimeBound = None, latest: TimeBound = None):
+    def __init__(
+        self,
+        *formats: str,
+        locale: Locale = None,
+        earliest: TimeBound = None,
+        latest: TimeBound = None,
+        fix_default: Bool = True,
+    ):
         """
         Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
         a :class:`python:datetime.time` object.
@@ -499,8 +539,11 @@ class Time(DateTimeInput[time], type=time):
         :param locale: An alternate locale to use when parsing input
         :param earliest: If specified, the parsed value must be later than or equal to this
         :param latest: If specified, the parsed value must be earlier than or equal to this
+        :param fix_default: Whether default values should be normalized using :meth:`.fix_default`.
         """
-        super().__init__(formats or (DEFAULT_TIME_FMT,), locale=locale, earliest=earliest, latest=latest)
+        super().__init__(
+            formats or (DEFAULT_TIME_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
+        )
 
 
 # endregion
