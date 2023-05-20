@@ -633,6 +633,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -644,7 +645,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
 </ul>
 </li>
@@ -657,7 +657,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
@@ -669,6 +668,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
@@ -984,7 +984,9 @@
         <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="o">=</span> <span class="n">exists</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand</span> <span class="o">=</span> <span class="n">expand</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span> <span class="o">=</span> <span class="n">resolve</span>
@@ -1003,7 +1005,7 @@
 <span class="sd">        Fixes the default value to conform to the expected return type for this input.  Allows the default value for a</span>
 <span class="sd">        path to be provided as a string, for example.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
@@ -1040,6 +1042,7 @@
 
 
 <div class="viewcode-block" id="Path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">_Path</span><span class="p">]):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param exists: If set, then the provided path must already exist if True, or must not already exist if False.</span>
 <span class="sd">      Default: existence is not checked.</span>
@@ -1053,6 +1056,7 @@
 <span class="sd">    :param allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).</span>
 <span class="sd">    :param use_windows_fix: If True (the default) and the program is running on Windows, then :func:`.fix_windows_path`</span>
 <span class="sd">      will be called to fix issues caused by auto-completion via Git Bash.</span>
+<span class="sd">    :param fix_default: Whether default values should be normalized using :meth:`~FileInput.fix_default`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Path.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>

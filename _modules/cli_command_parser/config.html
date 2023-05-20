@@ -633,6 +633,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -644,7 +645,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
 </ul>
 </li>
@@ -657,7 +657,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
@@ -669,6 +668,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
@@ -1022,26 +1022,30 @@
 <span class="sd">    Given a Parameter defined as ``foo_bar = Option(...)``, the default long form handling based on this setting would</span>
 <span class="sd">    be:</span>
 
-<span class="sd">    :UNDERSCORE: ``--foo_bar``</span>
-<span class="sd">    :DASH: ``--foo-bar``</span>
-<span class="sd">    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted</span>
+<span class="sd">    :UNDERSCORE: ``--foo_bar`` - the attribute name is used verbatim.</span>
+<span class="sd">    :DASH: ``--foo-bar`` - any underscores present in the attribute name will be replaced with dashes (this is</span>
+<span class="sd">      the default behavior).</span>
+<span class="sd">    :BOTH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, and both will be displayed in help text.</span>
 <span class="sd">    :BOTH_UNDERSCORE: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo_bar`` with be displayed</span>
-<span class="sd">      in help text</span>
+<span class="sd">      in help text.  This may be useful for compatibility purposes, and helps prevent help text from being too</span>
+<span class="sd">      cluttered.</span>
 <span class="sd">    :BOTH_DASH: Both ``--foo-bar`` and ``--foo_bar`` will be accepted, but only ``--foo-bar`` with be displayed</span>
-<span class="sd">      in help text</span>
+<span class="sd">      in help text.  This may be useful for compatibility purposes, and helps prevent help text from being too</span>
+<span class="sd">      cluttered.</span>
 <span class="sd">    :NONE: No long form option string will be added.  At least one short form option string must be defined.  Note that</span>
-<span class="sd">      it is NOT necessary to use ``name_mode=None`` to prevent the automatic creation of long form option strings - if</span>
-<span class="sd">      any long form option strings are explicitly provided for a given Parameter, then no automatic ones will be added.</span>
+<span class="sd">      it is NOT necessary to use ``name_mode=None`` to prevent the automatic creation of long form option strings in</span>
+<span class="sd">      general.  If any long form option strings are explicitly provided for a given Parameter, then an automatic one</span>
+<span class="sd">      will not be added, regardless of value for this configuration option.</span>
 
 <span class="sd">    If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</span>
 
 <span class="sd">    The value may be specified to Commands as ``option_name_mode=&lt;mode&gt;`` or to Parameters as ``name_mode=&lt;mode&gt;``,</span>
 <span class="sd">    where ``&lt;mode&gt;`` is one of:</span>
 
+<span class="sd">        - ``&#39;_&#39;`` or ``&#39;-&#39;`` or ``&#39;*&#39;`` or ``&#39;*_&#39;`` or ``&#39;*-&#39;`` or ``&#39;_*&#39;`` or ``&#39;-*&#39;`` or ``None``</span>
 <span class="sd">        - ``OptionNameMode.UNDERSCORE`` or ``OptionNameMode.DASH`` or ``OptionNameMode.BOTH``</span>
-<span class="sd">          or ``OptionNameMode.BOTH_UNDERSCORE`` or ``OptionNameMode.BOTH_DASH``</span>
-<span class="sd">        - ``&#39;underscore&#39;`` or ``&#39;dash&#39;`` or ``&#39;both&#39;`` or ``&#39;both_underscore&#39;`` or ``&#39;both_dash&#39;``</span>
-<span class="sd">        - ``&#39;_&#39;`` or ``&#39;-&#39;`` or ``&#39;*&#39;`` or ``&#39;*_&#39;`` or ``&#39;*-&#39;``</span>
+<span class="sd">          or ``OptionNameMode.BOTH_UNDERSCORE`` or ``OptionNameMode.BOTH_DASH`` or ``OptionNameMode.NONE``</span>
+<span class="sd">        - ``&#39;underscore&#39;`` or ``&#39;dash&#39;`` or ``&#39;both&#39;`` or ``&#39;both_underscore&#39;`` or ``&#39;both_dash&#39;`` or ``&#39;none&#39;``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">UNDERSCORE</span> <span class="o">=</span> <span class="mi">1</span>

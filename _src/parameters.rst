@@ -94,8 +94,9 @@ Options support two additional initialization parameters:
       ``-`` characters.
     - Long forms must begin with a ``--`` prefix, and may be one or more characters.  If provided, the automatically
       generated long form based on the Parameter's name will not be added.
-:name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this
-  Option/Flag/Counter/etc.
+:name_mode: Override the :ref:`configuration:Parsing Options:option_name_mode` that was configured for all options in
+  the Command for this specific Option/Flag/Counter/etc.  To only include a short form option string, ``name_mode=None``
+  may be used to prevent a long form from being automatically added.  See :class:`.OptionNameMode` for more info.
 :env_var: A string or sequence (tuple, list, etc) of strings representing environment variables that should
   be searched for a value when no value was provided via CLI.  If a value was provided via CLI, then these variables
   will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
@@ -124,6 +125,12 @@ The generic :class:`.Option` parameter that accepts arbitrary values or lists of
 **Unique Option initialization parameters:**
 
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
+:nargs: The number of values that are expected/required when this parameter is specified.  Defaults to ``+``
+  when ``action='append'``, and to ``1`` otherwise. See :ref:`parameters:Parameters:nargs` for more info.
+:action: The action to take on individual parsed values.  Supported actions include ``store`` and ``append``.
+  Defaults to ``store`` when ``nargs=1`` (the default if neither action nor nargs are specified), and to ``append``
+  otherwise.  A single value will be stored when ``action='store'``, and a list of values will be stored when
+  ``action='append'``.
 :allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with a dash,
   it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
   ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for an

@@ -636,6 +636,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -647,7 +648,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
 </ul>
 </li>
@@ -660,7 +660,6 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
@@ -672,6 +671,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
@@ -1052,8 +1052,9 @@ generated long form based on the Parameter’s name will not be added.</p></li>
 </div></blockquote>
 </dd>
 <dt class="field-even" id="options:name_mode">name_mode<span class="colon">:</span></dt>
-<dd class="field-even"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for this
-Option/Flag/Counter/etc.</p>
+<dd class="field-even"><p>Override the <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> that was configured for all options in
+the Command for this specific Option/Flag/Counter/etc.  To only include a short form option string, <code class="docutils literal notranslate"><span class="pre">name_mode=None</span></code>
+may be used to prevent a long form from being automatically added.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a> for more info.</p>
 </dd>
 <dt class="field-odd" id="options:env_var">env_var<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A string or sequence (tuple, list, etc) of strings representing environment variables that should
@@ -1082,6 +1083,16 @@ explicitly registered (the automatically added long form based on param name cou
 <dl class="field-list simple">
 <dt class="field-odd" id="option:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
+</dd>
+<dt class="field-even" id="option:nargs">nargs<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of values that are expected/required when this parameter is specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">+</span></code>
+when <code class="docutils literal notranslate"><span class="pre">action='append'</span></code>, and to <code class="docutils literal notranslate"><span class="pre">1</span></code> otherwise. See <a class="reference internal" href="#parameters:nargs"><span class="std std-ref">nargs</span></a> for more info.</p>
+</dd>
+<dt class="field-odd" id="option:action">action<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The action to take on individual parsed values.  Supported actions include <code class="docutils literal notranslate"><span class="pre">store</span></code> and <code class="docutils literal notranslate"><span class="pre">append</span></code>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">store</span></code> when <code class="docutils literal notranslate"><span class="pre">nargs=1</span></code> (the default if neither action nor nargs are specified), and to <code class="docutils literal notranslate"><span class="pre">append</span></code>
+otherwise.  A single value will be stored when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code>, and a list of values will be stored when
+<code class="docutils literal notranslate"><span class="pre">action='append'</span></code>.</p>
 </dd>
 <dt class="field-even" id="option:allow_leading_dash">allow_leading_dash<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether string values may begin with a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  By default, if a value begins with a dash,

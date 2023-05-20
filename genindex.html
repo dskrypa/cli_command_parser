@@ -633,6 +633,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -644,7 +645,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
 </ul>
 </li>
@@ -657,7 +657,6 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
@@ -669,6 +668,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
@@ -1406,8 +1406,6 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result">cache_result (cli_command_parser.metadata.DynamicMetadata attribute)</a>
-</li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput">CalendarUnitInput (class in cli_command_parser.inputs.time)</a>
 </li>
       <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case">camel_to_snake_case() (in module cli_command_parser.utils)</a>
@@ -1494,8 +1492,6 @@
         <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.choices">(cli_command_parser.formatting.params.ChoiceGroup attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.group_choices.params.choices">(cli_command_parser.formatting.params.ChoiceGroup.group_choices parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap.choices">(cli_command_parser.inputs.choices.ChoiceMap attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap.params.choices">(cli_command_parser.inputs.choices.ChoiceMap parameter)</a>
 </li>
@@ -1696,8 +1692,6 @@
         <li><a href="api/cli_command_parser.inputs.time.html#module-cli_command_parser.inputs.time">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.inputs.utils
 
@@ -1705,6 +1699,8 @@
         <li><a href="api/cli_command_parser.inputs.utils.html#module-cli_command_parser.inputs.utils">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.metadata
 
@@ -2133,12 +2129,8 @@
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.params.encoding">(cli_command_parser.inputs.files.File parameter)</a>
 </li>
       </ul></li>
-      <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices.enum">enum (cli_command_parser.inputs.choices.EnumChoices attribute)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices.params.enum">(cli_command_parser.inputs.choices.EnumChoices parameter)</a>
+      <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices.params.enum">enum (cli_command_parser.inputs.choices.EnumChoices parameter)</a>
 </li>
-      </ul></li>
       <li><a href="api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices">EnumChoices (class in cli_command_parser.inputs.choices)</a>
 </li>
       <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.ValueSource.ENV">ENV (cli_command_parser.utils.ValueSource attribute)</a>
@@ -2241,6 +2233,14 @@
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.find_option_that_accepts_values">find_option_that_accepts_values() (cli_command_parser.command_parameters.CommandParameters method)</a>
 </li>
+      <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.params.fix_default">fix_default (cli_command_parser.inputs.files.Path parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.params.fix_default">(cli_command_parser.inputs.numeric.NumRange parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.params.fix_default">(cli_command_parser.inputs.numeric.Range parameter)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.fix_default">fix_default() (cli_command_parser.inputs.base.InputType method)</a>
 
       <ul>
@@ -2455,8 +2455,12 @@
 </li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_params">get_params() (in module cli_command_parser.core)</a>
 </li>
-      <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_parent">get_parent() (in module cli_command_parser.core)</a>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent">get_parent() (cli_command_parser.metadata.MetadataBase method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_parent">(in module cli_command_parser.core)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed">get_parsed() (cli_command_parser.context.Context method)</a>
 
       <ul>
@@ -2469,10 +2473,10 @@
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse">get_positionals_to_parse() (cli_command_parser.command_parameters.CommandParameters method)</a>
 </li>
-      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog">get_prog() (cli_command_parser.metadata.ProgramMetadata method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog">get_prog() (cli_command_parser.metadata.ProgramMetadata method)</a>
+</li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_raw_arg">get_raw_arg() (in module cli_command_parser.context)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text">get_rst_text() (in module cli_command_parser.testing)</a>
@@ -3668,6 +3672,8 @@
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamBaseArgs.required">required (cli_command_parser.conversion.command_builder.ParamBaseArgs attribute)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasicActionMixin.required">(cli_command_parser.parameters.base.BasicActionMixin attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.required">(cli_command_parser.parameters.base.ParamBase attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.params.required">(cli_command_parser.parameters.base.ParamBase parameter)</a>
@@ -3993,10 +3999,10 @@
       </ul></li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_callable">track_callable() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_refs_to">track_refs_to() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.TrackedRef">TrackedRef (class in cli_command_parser.conversion.visitor)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">TriFlag (class in cli_command_parser.parameters.options)</a>
@@ -4037,6 +4043,8 @@
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.params.type">(cli_command_parser.inputs.numeric.NumRange parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.type">(cli_command_parser.inputs.numeric.Range attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.params.type">(cli_command_parser.inputs.numeric.Range parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasicActionMixin.type">(cli_command_parser.parameters.base.BasicActionMixin attribute)</a>
 </li>

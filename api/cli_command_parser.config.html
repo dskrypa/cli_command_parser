@@ -636,6 +636,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -647,7 +648,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.func</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.cache_result"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.cache_result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value"><code class="docutils literal notranslate"><span class="pre">DynamicMetadata.get_value()</span></code></a></li>
 </ul>
 </li>
@@ -660,7 +660,6 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
@@ -672,6 +671,7 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_description()</span></code></a></li>
@@ -1005,26 +1005,30 @@ is equivalent to <code class="docutils literal notranslate"><span class="pre">Sh
 be:</p>
 <dl class="field-list simple">
 <dt class="field-odd">UNDERSCORE<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> - the attribute name is used verbatim.</p>
 </dd>
 <dt class="field-even">DASH<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code></p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> - any underscores present in the attribute name will be replaced with dashes (this is
+the default behavior).</p>
 </dd>
 <dt class="field-odd">BOTH<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted</p>
+<dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, and both will be displayed in help text.</p>
 </dd>
 <dt class="field-even">BOTH_UNDERSCORE<span class="colon">:</span></dt>
 <dd class="field-even"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, but only <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> with be displayed
-in help text</p>
+in help text.  This may be useful for compatibility purposes, and helps prevent help text from being too
+cluttered.</p>
 </dd>
 <dt class="field-odd">BOTH_DASH<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Both <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> and <code class="docutils literal notranslate"><span class="pre">--foo_bar</span></code> will be accepted, but only <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code> with be displayed
-in help text</p>
+in help text.  This may be useful for compatibility purposes, and helps prevent help text from being too
+cluttered.</p>
 </dd>
 <dt class="field-even">NONE<span class="colon">:</span></dt>
 <dd class="field-even"><p>No long form option string will be added.  At least one short form option string must be defined.  Note that
-it is NOT necessary to use <code class="docutils literal notranslate"><span class="pre">name_mode=None</span></code> to prevent the automatic creation of long form option strings - if
-any long form option strings are explicitly provided for a given Parameter, then no automatic ones will be added.</p>
+it is NOT necessary to use <code class="docutils literal notranslate"><span class="pre">name_mode=None</span></code> to prevent the automatic creation of long form option strings in
+general.  If any long form option strings are explicitly provided for a given Parameter, then an automatic one
+will not be added, regardless of value for this configuration option.</p>
 </dd>
 </dl>
 <p>If a long form is provided explicitly for a given optional Parameter, then this setting will be ignored.</p>
@@ -1032,10 +1036,10 @@ any long form option strings are explicitly provided for a given Parameter, then
 where <code class="docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> is one of:</p>
 <blockquote>
 <div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'-'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*-'</span></code> or <code class="docutils literal notranslate"><span class="pre">'_*'</span></code> or <code class="docutils literal notranslate"><span class="pre">'-*'</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">OptionNameMode.UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.DASH</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH</span></code>
-or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_DASH</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'dash'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_dash'</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'-'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*_'</span></code> or <code class="docutils literal notranslate"><span class="pre">'*-'</span></code></p></li>
+or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_UNDERSCORE</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.BOTH_DASH</span></code> or <code class="docutils literal notranslate"><span class="pre">OptionNameMode.NONE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'dash'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_underscore'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both_dash'</span></code> or <code class="docutils literal notranslate"><span class="pre">'none'</span></code></p></li>
 </ul>
 </div></blockquote>
 <dl class="py attribute">
