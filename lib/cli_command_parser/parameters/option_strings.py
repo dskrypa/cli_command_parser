@@ -69,17 +69,20 @@ class OptionStrings:
             if mode_val & 8:  # OptionNameMode.BOTH_UNDERSCORE = OptionNameMode.DASH | 4 | 8
                 self._display_long.add(option)
 
+    def get_sets(self) -> Tuple[Set[str], Set[str]]:
+        return self._long, self._short
+
     @property
     def long(self) -> List[str]:
-        return _sort_options(self._long)
+        return sorted(self._long, key=_options_sort_key)
 
     @property
     def short(self) -> List[str]:
-        return _sort_options(self._short)
+        return sorted(self._short, key=_options_sort_key)
 
     @property
     def display_long(self) -> List[str]:
-        return _sort_options(self._display_long)
+        return sorted(self._display_long, key=_options_sort_key)
 
     def get_usage_opt(self) -> str:
         return next(self.option_strs())
@@ -155,7 +158,7 @@ class TriFlagOptionStrings(OptionStrings):
 
     # @property
     # def long_alt(self) -> List[str]:
-    #     return _sort_options(self._alt_long)
+    #     return sorted(self._alt_long, key=_options_sort_key)
 
     @property
     def display_long_alt(self) -> List[str]:
@@ -187,9 +190,9 @@ class TriFlagOptionStrings(OptionStrings):
         yield from self.option_strs(True)
 
 
-def _sort_options(options: Collection[str]):
-    """Sort option strings in descending length order (alphanumeric order for options with the same length)"""
-    return sorted(options, key=lambda opt: (-len(opt), opt))
+def _options_sort_key(opt: str):
+    """Used to sort option strings in descending length order (alphanumeric order for options with the same length)"""
+    return -len(opt), opt
 
 
 def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:

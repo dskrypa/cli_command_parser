@@ -31,7 +31,7 @@ TC = TypeVar('TC')
 TA = TypeVar('TA')
 
 
-class Option(BasicActionMixin, BaseOption[T_co]):
+class Option(BasicActionMixin, BaseOption[Union[T_co, TD]]):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -61,12 +61,14 @@ class Option(BasicActionMixin, BaseOption[T_co]):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
+    default: TD
+
     def __init__(
         self,
         *option_strs: str,
         nargs: NargsValue = None,
         action: str = _NotSet,
-        default: Any = _NotSet,
+        default: TD = _NotSet,
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
         choices: ChoicesType = None,
@@ -82,7 +84,7 @@ class Option(BasicActionMixin, BaseOption[T_co]):
 
         if 0 in nargs:
             nargs = nargs._orig
-            details = 'use Flag or Counter for Options with 0 args'
+            details = 'use Flag or Counter for Options that can be specified without a value'
             if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
                 suffix = f', {nargs.step}' if nargs.step != 1 else ''
                 details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
@@ -92,6 +94,8 @@ class Option(BasicActionMixin, BaseOption[T_co]):
             action = 'store' if nargs == 1 else 'append'
         elif action == 'store' and nargs != 1:
             raise ParameterDefinitionError(f'Invalid {nargs=} for {action=}')
+        elif action in ('store_const', 'append_const'):
+            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - use Flag instead')
 
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
@@ -212,8 +216,9 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
             try:
                 const = self.__default_const_map[default]
             except KeyError as e:
-                cls = self.__class__.__name__
-                raise ParameterDefinitionError(f"Missing parameter='const' for {cls} with {default=}") from e
+                raise ParameterDefinitionError(
+                    f"A 'const' value is required for {self.__class__.__name__} since {default=} is not True or False"
+                ) from e
         if default is _NotSet:
             default = self.__default_const_map.get(const)  # will be True, False, or None
         if default is False:  # Avoid surprises for custom non-truthy values

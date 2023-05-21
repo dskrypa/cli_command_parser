@@ -4,7 +4,7 @@ import re
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Flag, Option, TriFlag, ParamGroup
+from cli_command_parser import Command, Flag, Option, ParamGroup
 from cli_command_parser.exceptions import UsageError, ParameterDefinitionError
 from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument, ParamsMissing, ParamConflict
 from cli_command_parser.nargs import REMAINDER
@@ -14,95 +14,36 @@ STANDALONE_DASH_B = re.compile(r'(?<!-)-b\b')
 
 
 class OptionTest(ParserTest):
-    def test_choice_ok(self):
-        class Foo(Command):
-            foo = Option('-f', choices=('a', 'b'))
-
-        self.assertEqual(Foo.parse(['-f', 'a']).foo, 'a')
-        self.assertEqual(Foo.parse(['-f', 'b']).foo, 'b')
-        self.assertEqual(Foo.parse(['--foo', 'a']).foo, 'a')
-        self.assertEqual(Foo.parse(['--foo', 'b']).foo, 'b')
-
-    def test_choice_bad(self):
-        class Foo(Command):
-            foo = Option('-f', choices=('a', 'b'))
-
-        with self.assertRaises(UsageError):
-            Foo.parse(['-f', 'c'])
+    # region Parsed Direct Access Values
 
     def test_instance_values(self):
         class Foo(Command):
             foo = Option('-f', choices=('a', 'b'))
 
-        a = Foo.parse(['-f', 'a'])
-        b = Foo.parse(['-f', 'b'])
-        self.assertEqual(a.foo, 'a')
-        self.assertEqual(b.foo, 'b')
+        self.assertEqual(Foo.parse(['-f', 'a']).foo, 'a')
+        self.assertEqual(Foo.parse(['-f', 'b']).foo, 'b')
 
-    def test_value_missing(self):
+    def test_not_required_nargs_plus_default(self):
         class Foo(Command):
-            foo = Flag('-f')
-            bar = Option('-b')
+            bar = Option('-b', nargs='+')
 
-        cases = (
-            ['--foo', '--bar'],
-            ['--foo', '-b'],
-            ['--bar', '--foo'],
-            ['-b', '--foo'],
-            ['-f', '--bar'],
-            ['-f', '-b'],
-            ['--bar', '-f'],
-            ['-b', '-f'],
-            ['-b'],
-            ['--bar'],
-        )
-        for case in cases:
-            with self.subTest(case=case), self.assertRaises(MissingArgument):
-                Foo.parse(case)
+        foo = Foo.parse_and_run([])
+        self.assertFalse(foo.bar)
+        self.assertEqual([], foo.bar)
 
-        self.assertTrue(Foo.parse(['--foo']).foo)
+    # endregion
 
-    def test_invalid_value(self):
-        class Foo(Command):
-            bar = Option(type=Mock(side_effect=TypeError))
+    # region May Become Obsolete After Refactoring
 
-        with self.assertRaises(BadArgument):
-            Foo.parse(['--bar', '1'])
+    def test_action_nargs_mismatch_rejected(self):
+        with self.assertRaises(ParameterDefinitionError):
+            Option(nargs=2, action='store')
 
-    def test_nargs_0_rejected(self):
-        fail_cases = [
-            ({'nargs': 0}, ParameterDefinitionError),
-            ({'nargs': (0, 2)}, ParameterDefinitionError),
-            ({'nargs': range(2)}, ParameterDefinitionError),
-        ]
-        for val in ('?', '*', 'REMAINDER'):
-            fail_cases += [
-                ({'nargs': val}, ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'),
-                ({'nargs': val, 'required': True}, ParameterDefinitionError),
-                ({'nargs': val, 'required': False}, ParameterDefinitionError),
-            ]
+        self.assertEqual(1, Option(action='store').nargs)
 
-        self.assert_call_fails_cases(Option, fail_cases)
+    # endregion
 
-    def test_nargs_0_range_tip_step_1(self):
-        expected = r'try using range\(1, 2\) instead, or use Flag or Counter for Options with 0 args'
-        with self.assertRaisesRegex(ParameterDefinitionError, expected):
-
-            class Foo(Command):
-                bar = Option(nargs=range(2))
-
-    def test_nargs_0_range_tip_step_2_matches_stop(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'use Flag or Counter for Options with 0 args'):
-
-            class Foo(Command):
-                bar = Option(nargs=range(0, 2, 2))
-
-    def test_nargs_0_range_tip_step_2(self):
-        expected = r'try using range\(2, 3, 2\) instead, or use Flag or Counter for Options with 0 args'
-        with self.assertRaisesRegex(ParameterDefinitionError, expected):
-
-            class Foo(Command):
-                bar = Option(nargs=range(0, 3, 2))
+    # region Initialization / Validation
 
     def test_bad_option_strs_rejected(self):
         # fmt: off
@@ -114,18 +55,20 @@ class OptionTest(ParserTest):
             with self.subTest(option_str=option_str), self.assertRaises(ParameterDefinitionError):
                 Option(option_str)
 
-    def test_re_assign_rejected(self):
-        class Foo(Command):
-            bar = Option('-b')
+    def test_required_default_rejected(self):
+        cases = (None, 1, 'test')
+        for case in cases:
+            with self.subTest(case=case), self.assertRaises(ParameterDefinitionError):
+                Option(required=True, default=case)
 
-        self.assert_parse_fails(Foo, ['-b', 'a', '-b', 'b'], ParamUsageError)
+    def test_rejected_const_action_hint(self):
+        for action in ('store_const', 'append_const'):
+            with self.assertRaisesRegex(ParameterDefinitionError, 'Invalid action=.* for Option - use Flag instead'):
+                Option(action=action)
 
-    def test_too_many_rejected(self):
-        class Foo(Command):
-            bar = Option('-b', nargs=2)
+    # endregion
 
-        self.assert_parse_results(Foo, ['-b', 'a', 'b'], {'bar': ['a', 'b']})
-        self.assert_parse_fails(Foo, ['-b', 'a', 'b', '-b', 'b'], ParamUsageError)
+    # region Option Strings
 
     def test_explicit_long_opt(self):
         class Foo(Command):
@@ -133,30 +76,18 @@ class OptionTest(ParserTest):
 
         self.assertNotIn('--foo', Foo.foo.option_strs.long)
 
-    def test_action_nargs_mismatch_rejected(self):
-        with self.assertRaises(ParameterDefinitionError):
-            Option(nargs=2, action='store')
+    def test_empty_str_ignored(self):
+        class Foo(Command):
+            bar = Option('', '-b')
 
-        self.assertEqual(1, Option(action='store').nargs)
+        self.assertEqual(['--bar', '-b'], list(Foo.bar.option_strs.option_strs()))
+
+    # endregion
 
     def test_usage(self):
         self.assertEqual('--foo', Option('--foo').format_usage())
         self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
         self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
-
-    def test_not_required_nargs_plus_default(self):
-        class Foo(Command):
-            bar = Option('-b', nargs='+')
-
-        foo = Foo.parse_and_run([])
-        self.assertFalse(foo.bar)
-        self.assertEqual([], foo.bar)
-
-    def test_required_default_rejected(self):
-        cases = (None, 1, 'test')
-        for case in cases:
-            with self.subTest(case=case), self.assertRaises(ParameterDefinitionError):
-                Option(required=True, default=case)
 
     # region Name Mode
 
@@ -225,14 +156,46 @@ class OptionTest(ParserTest):
 
     # endregion
 
-    def test_option_strs_repr(self):
-        class Foo(Command, option_name_mode='-'):
-            a_b = Flag()
-            a_c = TriFlag()
 
-        self.assertEqual('<OptionStrings[name_mode=OptionNameMode.DASH][--a-b]>', repr(Foo.a_b.option_strs))
-        expected = '<TriFlagOptionStrings[name_mode=OptionNameMode.DASH][--a-c, --no-a-c]>'
-        self.assertEqual(expected, repr(Foo.a_c.option_strs))
+class OptionNargsTest(ParserTest):
+    # region Nargs=0
+
+    def test_nargs_0_rejected(self):
+        fail_cases = [
+            ({'nargs': 0}, ParameterDefinitionError),
+            ({'nargs': (0, 2)}, ParameterDefinitionError),
+            ({'nargs': range(2)}, ParameterDefinitionError),
+        ]
+        for val in ('?', '*', 'REMAINDER'):
+            fail_cases += [
+                ({'nargs': val}, ParameterDefinitionError, 'specified without a value'),
+                ({'nargs': val, 'required': True}, ParameterDefinitionError),
+                ({'nargs': val, 'required': False}, ParameterDefinitionError),
+            ]
+
+        self.assert_call_fails_cases(Option, fail_cases)
+
+    def test_nargs_0_range_tip_step_1(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, r'try using range\(1, 2\) instead'):
+
+            class Foo(Command):
+                bar = Option(nargs=range(2))
+
+    def test_nargs_0_range_tip_step_2_matches_stop(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'specified without a value'):
+
+            class Foo(Command):
+                bar = Option(nargs=range(0, 2, 2))
+
+    def test_nargs_0_range_tip_step_2(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, r'try using range\(2, 3, 2\) instead'):
+
+            class Foo(Command):
+                bar = Option(nargs=range(0, 3, 2))
+
+    # endregion
+
+    # region nargs=REMAINDER
 
     def test_type_annotation_with_remainder_ignored(self):
         class Foo(Command):
@@ -244,7 +207,7 @@ class OptionTest(ParserTest):
         with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
 
             class Foo(Command):
-                bar = Option(nargs=(1, REMAINDER), type=int)
+                bar = Option(nargs=(1, REMAINDER), type=int)  # TODO: Should this be supported?  Why not?
 
     def test_choices_with_remainder_rejected(self):
         with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
@@ -261,11 +224,64 @@ class OptionTest(ParserTest):
                     class Foo(Command):
                         bar = Option(nargs=(1, REMAINDER), allow_leading_dash=allow_leading_dash)
 
-    def test_empty_str_ignored(self):
-        class Foo(Command):
-            bar = Option('', '-b')
+    # endregion
 
-        self.assertEqual(['--bar', '-b'], list(Foo.bar.option_strs.option_strs()))
+
+class OptionBasicParsingTest(ParserTest):
+    def test_choice_ok(self):
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
+        for opt in ('-f', '--foo'):
+            for val in ('a', 'b'):
+                self.assertEqual(Foo.parse([opt, val]).foo, val)
+
+    def test_choice_bad(self):
+        class Foo(Command):
+            foo = Option('-f', choices=('a', 'b'))
+
+        with self.assertRaises(UsageError):
+            Foo.parse(['-f', 'c'])
+
+    def test_value_missing(self):
+        class Foo(Command):
+            foo = Flag('-f')
+            bar = Option('-b')
+
+        cases = (
+            ['--foo', '--bar'],
+            ['--foo', '-b'],
+            ['--bar', '--foo'],
+            ['-b', '--foo'],
+            ['-f', '--bar'],
+            ['-f', '-b'],
+            ['--bar', '-f'],
+            ['-b', '-f'],
+            ['-b'],
+            ['--bar'],
+        )
+        self.assert_parse_fails_cases(Foo, cases, MissingArgument)
+        self.assertTrue(Foo.parse(['--foo']).foo)
+
+    def test_invalid_value(self):
+        class Foo(Command):
+            bar = Option(type=Mock(side_effect=TypeError))
+
+        with self.assertRaises(BadArgument):
+            Foo.parse(['--bar', '1'])
+
+    def test_too_many_values_rejected(self):
+        class Foo(Command):
+            bar = Option('-b', nargs=2)
+
+        self.assert_parse_results(Foo, ['-b', 'a', 'b'], {'bar': ['a', 'b']})
+        self.assert_parse_fails(Foo, ['-b', 'a', 'b', '-b', 'b'], ParamUsageError)
+
+    def test_re_assign_rejected(self):
+        class Foo(Command):
+            bar = Option('-b')
+
+        self.assert_parse_fails(Foo, ['-b', 'a', '-b', 'b'], ParamUsageError)
 
 
 class EnvVarTest(ParserTest):

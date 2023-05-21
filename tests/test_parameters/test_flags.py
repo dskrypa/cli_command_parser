@@ -19,7 +19,7 @@ class FlagTest(ParserTest):
                 self.assertEqual(expected, Flag(default=default).const)
 
         self.assert_call_fails(
-            Flag, {'default': 42}, ParameterDefinitionError, "Missing parameter='const' for Flag with default=42"
+            Flag, {'default': 42}, ParameterDefinitionError, "A 'const' value is required for Flag since default=42"
         )
 
     def test_default_defaults(self):
@@ -158,6 +158,15 @@ class FlagTest(ParserTest):
             bar = Flag('-b', '')
 
         self.assertEqual(['--bar', '-b'], list(Foo.bar.option_strs.option_strs()))
+
+    def test_option_strs_repr(self):
+        class Foo(Command, option_name_mode='-'):
+            a_b = Flag()
+            a_c = TriFlag()
+
+        self.assertEqual('<OptionStrings[name_mode=OptionNameMode.DASH][--a-b]>', repr(Foo.a_b.option_strs))
+        expected = '<TriFlagOptionStrings[name_mode=OptionNameMode.DASH][--a-c, --no-a-c]>'
+        self.assertEqual(expected, repr(Foo.a_c.option_strs))
 
 
 class TriFlagTest(ParserTest):

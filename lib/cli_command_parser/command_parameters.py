@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Iterator, List, Dict, Set, Tuple
 
 from .actions import help_action
 from .config import CommandConfig, AmbiguousComboMode
@@ -24,7 +24,7 @@ from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Op
 if TYPE_CHECKING:
     from .context import Context
     from .formatting.commands import CommandHelpFormatter
-    from .typing import CommandCls
+    from .typing import CommandCls, Strings
 
 __all__ = ['CommandParameters']
 
@@ -161,8 +161,9 @@ class CommandParameters:
                     ' BasePositional, BaseOption, or ParamGroup'
                 )
 
-            if param.group:
-                _find_groups(groups, param)
+            param_group = param
+            while param_group := param_group.group:
+                groups.add(param_group)
 
         if self.config.add_help and self.command_parent is not None and (not self.parent or not self.parent._has_help):
             options.append(help_action)
@@ -172,16 +173,15 @@ class CommandParameters:
         self._process_groups(groups)
 
     def _process_groups(self, groups: Set[ParamGroup]):
-        if self.parent:
-            _groups, groups = groups, self.parent.groups.copy()
-            groups.extend(_groups)
-
-        self.groups = sorted(groups)
+        if parent := self.parent:
+            self.groups = sorted((*parent.groups, *groups)) if groups else parent.groups.copy()
+        else:
+            self.groups = sorted(groups) if groups else []
 
     def _process_positionals(self, params: List[BasePositional]):
         unfollowable = action_or_sub_cmd = split_index = None
-        if (parent := self.parent) and parent._deferred_positionals:
-            params = parent._deferred_positionals + params
+        if (parent := self.parent) and (deferred := parent._deferred_positionals):
+            params = deferred + params
 
         for i, param in enumerate(params):
             if unfollowable:
@@ -218,49 +218,48 @@ class CommandParameters:
 
         self.positionals = params
 
-    def _process_options(self, params: Collection[BaseOption]):
+    def _process_options(self, params: List[BaseOption]):
         if parent := self.parent:
             option_map = parent.option_map.copy()
             combo_option_map = parent.combo_option_map.copy()
-            options = parent.options.copy()
+            self.options = parent.options + params
         else:
             option_map = {}
             combo_option_map = {}
-            options = []
+            self.options = params
 
         for param in params:
-            options.append(param)
             opts = param.option_strs
-            if not opts.has_min_opts():
+            if not opts.has_min_opts():  # This is checked here and not earlier due to possible additions in set_name
                 raise ParameterDefinitionError(f'No option strings were registered for {param=}')
-            self._process_option_strs(param, 'long', opts.long, option_map, combo_option_map)
-            self._process_option_strs(param, 'short', opts.short, option_map, combo_option_map)
 
-        self.options = options
+            long_opts, short_opts = opts.get_sets()
+            self._process_option_strs(param, 'long', long_opts, option_map)
+            if short_opts:
+                self._process_option_strs(param, 'short', short_opts, option_map)
+                for opt in short_opts:
+                    combo_option_map[opt[1:]] = param
+
         self.option_map = option_map
-        self._process_action_flags(options)
-        self.combo_option_map = dict(sorted(combo_option_map.items(), key=lambda kv: (-len(kv[0]), kv[0])))  # noqa
-
+        self._process_action_flags()
+        self.combo_option_map = dict(sorted(combo_option_map.items(), key=_sort_kv))
         if self.config.ambiguous_short_combos == AmbiguousComboMode.STRICT:
             self._strict_ambiguous_short_combo_check()
 
-    def _process_option_strs(
-        self, param: BaseOption, opt_type: str, opt_strs: List[str], option_map: OptionMap, combo_option_map: OptionMap
-    ):
-        for opt in opt_strs:
-            try:
-                existing = option_map[opt]
-            except KeyError:
-                option_map[opt] = param
-                if opt_type == 'short':
-                    combo_option_map[opt[1:]] = param
+    def _process_option_strs(self, param: BaseOption, opt_type: str, opt_strs: Strings, option_map: OptionMap):
+        for option in opt_strs:
+            if option not in option_map:
+                option_map[option] = param
             else:
+                # It is more efficient for the typical code path to avoid a try/except or .get call since the
+                # likelihood of a conflict is extremely low, and the extra lookup is acceptable for the error case.
+                existing = option_map[option]
                 raise CommandDefinitionError(
-                    f'{opt_type} option={opt!r} conflict for command={self.command!r} between {existing} and {param}'
+                    f'{opt_type} {option=} conflict for command={self.command!r} between {existing} and {param}'
                 )
 
-    def _process_action_flags(self, options: List[BaseOption]):
-        action_flags = sorted((p for p in options if isinstance(p, ActionFlag)))
+    def _process_action_flags(self):
+        action_flags = sorted(p for p in self.options if isinstance(p, ActionFlag))
         grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
         for param in action_flags:
             if param.func is None:
@@ -278,7 +277,7 @@ class CommandParameters:
                     found_non_always = True
 
                 if len(params) > 1:
-                    group = next((p.group for p in params if p.group), None)
+                    group = next((g for p in params if (g := p.group)), None)
                     if group and group.mutually_exclusive:
                         if any(p.group != group for p in params):
                             invalid[(before_main, prio)] = params
@@ -313,13 +312,14 @@ class CommandParameters:
     @cached_property
     def _classified_combo_options(self) -> Tuple[OptionMap, OptionMap]:
         multi_char_combos = {}
-        single_char_combos = {}
-        for combo, param in self.combo_option_map.items():
-            if len(combo) == 1:
-                single_char_combos[combo] = param
-            else:
-                multi_char_combos[combo] = param
-        return single_char_combos, multi_char_combos
+        items = self.combo_option_map.items()
+        for combo, param in items:
+            if len(combo) == 1:  # combo_option_map is sorted in reverse length order, so all following will be 1 char
+                single_char_combos = {combo: param}
+                single_char_combos.update(items)
+                return single_char_combos, multi_char_combos
+            multi_char_combos[combo] = param
+        return {}, multi_char_combos
 
     @cached_property
     def _potentially_ambiguous_combo_options(self) -> Dict[str, Tuple[BaseOption, OptionMap]]:
@@ -331,6 +331,8 @@ class CommandParameters:
     @cached_property
     def _nested_potentially_ambiguous_combo_options(self):
         single_char_combos, multi_char_combos = self._classified_combo_options
+        single_char_combos = single_char_combos.copy()
+        multi_char_combos = multi_char_combos.copy()
         for params in self._iter_nested_params():
             nested_single_char_combos, nested_multi_char_combos = params._classified_combo_options
             single_char_combos.update(nested_single_char_combos)
@@ -367,53 +369,30 @@ class CommandParameters:
     # region Option Processing
 
     def _iter_nested_params(self) -> Iterator[CommandParameters]:
-        if not self.sub_command:
-            return
-        for choice in self.sub_command.choices.values():
-            command = choice.target
-            try:
-                yield command.__class__.params(command)
-            except AttributeError:  # The target was None (it's a subcommand's local choice)
-                pass
-
-    def get_option_param_value_pairs(self, option: str) -> Optional[Tuple[BaseOption, ...]]:
-        if option.startswith('---'):
-            return None
-        elif option.startswith('--'):
-            try:
-                opt, param, value = self.long_option_to_param_value_pair(option)
-            except KeyError:
-                return None
-            else:
-                return (param,)  # noqa
-        elif option.startswith('-'):
-            try:
-                param_value_pairs = self.short_option_to_param_value_pairs(option)
-            except KeyError:
-                return None
-            else:
-                return tuple(param for opt, param, value in param_value_pairs)
-        else:
-            return None
+        if sub_command := self.sub_command:
+            get_params = self.command.__class__.params
+            for choice in sub_command.choices.values():
+                if (command := choice.target) is not None:  # None indicates it's a subcommand's local choice
+                    yield get_params(command)
 
     def long_option_to_param_value_pair(self, option: str) -> Tuple[str, BaseOption, Optional[str]]:
+        option, eq, value = option.partition('=')
+        return option, self.option_map[option], (value if eq else None)
+
+    def has_matching_short_option(self, option: str) -> bool:
         try:
-            return option, self.option_map[option], None
+            self.short_option_to_param_value_pairs(option)
         except KeyError:
-            if '=' in option:
-                option, value = option.split('=', 1)
-                return option, self.option_map[option], value
-            else:
-                raise
+            return False
+        return True
 
     def short_option_to_param_value_pairs(self, option: str) -> List[Tuple[str, BaseOption, Optional[str]]]:
-        try:
-            option, value = option.split('=', 1)
-        except ValueError:
-            value = None
-        else:
+        option, eq, value = option.partition('=')
+        if eq:  # An `=` was present in the string
             # Note: if the option is not in this Command's option_map, the KeyError is handled by CommandParser
             return [(option, self.option_map[option], value)]
+        else:
+            value = None
 
         try:
             param = self.option_map[option]
@@ -497,13 +476,6 @@ class CommandParameters:
             yield pass_thru
 
 
-def _find_groups(groups: Set[ParamGroup], param: ParamBase):
-    group = param.group
-    while group:
-        groups.add(group)
-        group = group.group
-
-
 def _find_ambiguous_combos(
     single_char_combos: OptionMap, multi_char_combos: OptionMap
 ) -> Dict[str, Tuple[BaseOption, OptionMap]]:
@@ -513,3 +485,8 @@ def _find_ambiguous_combos(
             ambiguous_combo_options[combo] = (param, singles)
 
     return ambiguous_combo_options
+
+
+def _sort_kv(kv):
+    k = kv[0]
+    return -len(k), k
