@@ -21,7 +21,7 @@ from ..context import Context, ctx, get_current_context
 from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
 from ..exceptions import ParamUsageError, UnsupportedAction
 from ..inputs import InputType, normalize_input_type
-from ..inputs.choices import _ChoicesBase, Choices, ChoiceMap as ChoiceMapInput
+from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs, REMAINDER
 from ..typing import Bool, ValSrc, OptStrs, CommandCls, CommandObj, CommandAny, Param, LeadingDash, T_co
@@ -106,8 +106,8 @@ class ParamBase(ABC):
         self.name = name
         self.help = help
         self.hide = hide
-        if group := get_active_param_group():
-            group.register(self)  # noqa  # This sets self.group = group
+        if param_groups := _group_stack.get(None):  # If truthy, there's at least 1 active ParamGroup
+            param_groups[-1].register(self)  # This sets self.group = group
 
     @property
     def name(self) -> str:
@@ -204,9 +204,9 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # Class attributes
     _actions: FrozenSet[str] = frozenset()          #: The actions supported by this Parameter
     _repr_attrs: Optional[Collection[str]] = None   #: Attributes to include in ``repr()`` output
-    accepts_none: bool = False                      #: Whether this Parameter can be provided without a value
     accepts_values: bool = True                     #: Whether this Parameter can be provided with at least 1 value
     # Instance attributes with class defaults
+    accepts_none: bool = False                      #: Whether this Parameter can be provided without a value
     metavar: str = None
     nargs: Nargs = Nargs(1)                         # Set in subclasses
     type: Optional[Callable[[str], T_co]] = None    # Only set here if not set by __init__ in Option/Positional
@@ -326,6 +326,15 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def take_action(
         self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
     ):
+        """
+        :param value: The parsed value or None
+        :param short_combo: Only True when a short option was provided, where the option string was combined with
+          either a real value or a sequence of 1-char combinable versions of short option strings.
+        :param opt_str: The option string that preceded the given value, or a single char that was combined with
+          other 1-char combinable versions of short option strings.
+        :param src: The source for the value - either CLI or env var
+        :return: The number of new values discovered
+        """
         ctx.record_action(self)
         return getattr(self, self.action)(self.prepare_and_validate(value, short_combo))
 
@@ -651,10 +660,3 @@ class BaseOption(Parameter[T_co], ABC):
                 yield env_var
             else:
                 yield from env_var
-
-
-def get_active_param_group() -> Optional[ParamGroup]:
-    try:
-        return _group_stack.get()[-1]
-    except (LookupError, IndexError):
-        return None

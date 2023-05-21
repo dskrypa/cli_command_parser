@@ -201,8 +201,8 @@ class CommandParser:
             last = param_val_combos.pop()
             if param_val_combos:
                 # Note: This loop is only executed for single char combined flags, where the values will always be None
-                for opt, param, value in param_val_combos:
-                    param.take_action(value, short_combo=True, opt_str=opt)
+                for opt, param, none_value in param_val_combos:
+                    param.take_action(none_value, short_combo=True, opt_str=opt)
             self._handle_short_value(*last)
 
     def _handle_short_not_found(self, arg: str):
