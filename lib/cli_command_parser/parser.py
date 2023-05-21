@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from .config import CommandConfig
     from .typing import CommandType, OptStr
 
-__all__ = ['CommandParser']
+__all__ = ['CommandParser', 'parse_args_and_get_next_cmd']
 # log = logging.getLogger(__name__)
 
 _PRE_INIT = ActionPhase.PRE_INIT
@@ -56,7 +56,7 @@ class CommandParser:
         try:
             return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
         except UsageError:
-            if not ctx.categorized_action_flags[ActionPhase.PRE_INIT]:
+            if not ctx.categorized_action_flags[_PRE_INIT]:
                 raise
             return None
 
@@ -343,6 +343,9 @@ class CommandParser:
 
         s = '' if (n := nargs.min) == 1 else 's'
         raise MissingArgument(param, f'expected {n} value{s}, but only found {found}')
+
+
+parse_args_and_get_next_cmd = CommandParser.parse_args_and_get_next_cmd
 
 
 def _to_pop(positionals: Iterable[BasePositional], can_pop: List[int], available: int, req_mod: int = 0) -> int:

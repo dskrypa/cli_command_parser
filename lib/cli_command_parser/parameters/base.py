@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from functools import partial, update_wrapper, cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, overload
-from typing import Iterable, List, Tuple, FrozenSet
+from typing import List, Tuple, FrozenSet
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
@@ -131,7 +131,7 @@ class ParamBase(ABC):
         self._attr_name = name
 
     def __hash__(self) -> int:
-        return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self.name) ^ hash(self.command)
+        return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
 
     def _ctx(self, command: CommandAny = None) -> Optional[Context]:
         if context := get_current_context(True):
