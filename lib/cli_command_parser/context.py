@@ -217,7 +217,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self._provided[param]
 
     def get_missing(self) -> List[Parameter]:
-        return [p for p in self.params.required_check_params() if self._provided[p] == 0]
+        provided = self._provided
+        return [p for p in self.params.required_check_params() if not provided[p]]
 
     # endregion
 
@@ -235,8 +236,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return 0, [], []
 
         parsed = self._parsed
-        before_main = [p for p in before_main if p in parsed]
-        after_main = [p for p in after_main if p in parsed]
+        before_main = [p for p in before_main if p in parsed] if before_main else []
+        after_main = [p for p in after_main if p in parsed] if after_main else []
         return len(before_main) + len(after_main), before_main, after_main
 
     @property
@@ -247,7 +248,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     @cached_property
     def all_action_flags(self) -> List[ActionFlag]:
         """Not intended to be accessed by users.  Returns all parsed action flags."""
-        before_main, after_main = self._parsed_action_flags[1:]
+        _, before_main, after_main = self._parsed_action_flags
         return before_main + after_main
 
     @cached_property
@@ -256,7 +257,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         Not intended to be accessed by users.  Returns a dict of parsed action flags, categorized by the
         :class:`ActionPhase` during which they will run.
         """
-        before_main, after_main = self._parsed_action_flags[1:]
+        _, before_main, after_main = self._parsed_action_flags
         init_actions, before_actions = [], []
         for flag in before_main:
             if flag.always_available:

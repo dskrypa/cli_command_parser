@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from functools import partial, update_wrapper, cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, overload
-from typing import List, Tuple, FrozenSet
+from typing import Iterable, List, Tuple, FrozenSet
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
@@ -24,13 +24,14 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs, REMAINDER
-from ..typing import Bool, ValSrc, OptStrs, CommandCls, CommandObj, CommandAny, Param, LeadingDash, T_co
+from ..typing import T_co
 from ..utils import _NotSet, ValueSource
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from types import MethodType
     from ..formatting.params import ParamHelpFormatter
+    from ..typing import OptStr, OptStrs, Bool, ValSrc, CommandCls, CommandObj, CommandAny, Param, LeadingDash
     from .groups import ParamGroup
 
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
@@ -324,8 +325,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         return parsed, nargs_max_reached
 
     def take_action(
-        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
-    ):
+        self, value: OptStr, short_combo: Bool = False, opt_str: OptStr = None, src: ValSrc = ValueSource.CLI
+    ) -> int:
         """
         :param value: The parsed value or None
         :param short_combo: Only True when a short option was provided, where the option string was combined with
@@ -338,7 +339,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         ctx.record_action(self)
         return getattr(self, self.action)(self.prepare_and_validate(value, short_combo))
 
-    def would_accept(self, value: str, short_combo: bool = False) -> bool:
+    def would_accept(self, value: str, short_combo: Bool = False) -> bool:
         action = self.action
         if action in {'store', 'store_all'} and ctx.get_parsed_value(self) is not _NotSet:
             return False
@@ -350,7 +351,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             return False
         return self.is_valid_arg(normalized)
 
-    def prepare_and_validate(self, value: str, short_combo: bool = False) -> T_co:
+    def prepare_and_validate(self, value: OptStr, short_combo: Bool = False) -> T_co:
         """Called by :meth:`.take_action` to prepare/validate the value before it is passed to the action method."""
         if value is not None:
             value = self.prepare_value(value, short_combo)
@@ -358,7 +359,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         return value
 
     def prepare_value(  # pylint: disable=W0613
-        self, value: str, short_combo: bool = False, pre_action: bool = False
+        self, value: str, short_combo: Bool = False, pre_action: Bool = False
     ) -> T_co:
         type_func = self.type
         if type_func is None or (pre_action and isinstance(type_func, InputType) and type_func.is_valid_type(value)):

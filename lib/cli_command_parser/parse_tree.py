@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union, Optional, Collection, Iterable, Iterator, MutableMapping, Dict, Set, Tuple
 
 from .exceptions import AmbiguousParseTree
-from .nargs import nargs_max_sum, nargs_min_sum
+from .nargs import nargs_min_and_max_sums
 from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
@@ -89,11 +89,8 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             for node in self.values():
                 yield from node._link_params(_has_upper_bound(node))
 
-    def nargs_min(self) -> int:
-        return nargs_min_sum(p.nargs for p in self.link_params(True))
-
-    def nargs_max(self) -> Union[int, float]:
-        return nargs_max_sum(p.nargs for p in self.link_params(True))
+    def nargs_min_and_max(self) -> Tuple[int, Union[int, float]]:
+        return nargs_min_and_max_sums(p.nargs for p in self.link_params(True))
 
     # region AnyWord Methods
 

@@ -4,7 +4,7 @@ from abc import ABC
 from unittest import TestCase, main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Context
+from cli_command_parser import Command
 from cli_command_parser.core import CommandMeta, get_params
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
 from cli_command_parser.parameters import Action, SubCommand, Positional, Counter, Flag, Option
@@ -101,51 +101,6 @@ class CommandParamsTest(TestCase):
 
         with self.assertRaises(ValueError):
             get_params(Foo).find_option_that_accepts_values('bar')
-
-    # region get_option_param_value_pairs
-
-    def test_params_contain_long(self):
-        class Foo(Command):
-            bar = Option()
-
-        self.assertIs(Foo.bar, get_params(Foo).get_option_param_value_pairs('--bar')[0])
-
-    def test_params_do_not_contain_triple_dash(self):
-        class Foo(Command):
-            pass
-
-        self.assertIs(None, get_params(Foo).get_option_param_value_pairs('---'))
-
-    def test_params_do_not_contain_combined_short(self):
-        class Foo(Command):
-            test = Flag('-t')
-
-        with Context():
-            self.assertIs(None, get_params(Foo).get_option_param_value_pairs('-test'))
-
-    def test_params_contain_combined_short(self):
-        class Foo(Command):
-            foo = Flag('-f')
-            bar = Flag('-b')
-
-        with Context():
-            self.assertIsNot(None, get_params(Foo).get_option_param_value_pairs('-fb'))
-
-    def test_params_do_not_contain_non_optional(self):
-        class Foo(Command):
-            foo = Flag('-f')
-            bar = Flag('-b')
-
-        self.assertIs(None, get_params(Foo).get_option_param_value_pairs('f'))
-
-    def test_params_do_not_contain_long(self):
-        class Foo(Command):
-            foo = Flag('-f')
-            bar = Flag('-b')
-
-        self.assertIs(None, get_params(Foo).get_option_param_value_pairs('--baz'))
-
-    # endregion
 
     def test_bad_custom_param_rejected(self):
         class TestParam(Parameter):

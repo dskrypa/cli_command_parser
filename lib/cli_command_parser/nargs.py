@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Union, Optional, Sequence, Collection, Iterable, Tuple, Set, FrozenSet
 
-__all__ = ['Nargs', 'NargsValue', 'REMAINDER', 'nargs_max_sum', 'nargs_min_sum']
+__all__ = ['Nargs', 'NargsValue', 'REMAINDER', 'nargs_min_and_max_sums']
 
 REMAINDER = type('REMAINDER', (), {})()
 _UNBOUND = (None, REMAINDER)
@@ -169,9 +169,18 @@ class Nargs:
         return self.max if self._has_upper_bound else float('inf')
 
 
-def nargs_max_sum(nargs_objects: Iterable[Nargs]) -> Union[int, float]:
-    return sum(obj.upper_bound for obj in nargs_objects)
+def nargs_min_and_max_sums(nargs_objects: Iterable[Nargs]) -> Tuple[int, Union[int, float]]:
+    min_sum, max_sum = 0, 0
+    iter_nargs = iter(nargs_objects)
+    for obj in iter_nargs:
+        min_sum += obj.min
+        if obj._has_upper_bound:
+            max_sum += obj.max
+        else:
+            max_sum = float('inf')
+            break
 
+    for obj in iter_nargs:  # If any had no upper bound, then this loop will complete the min total
+        min_sum += obj.min  # Otherwise, it will not have anything to iterate over
 
-def nargs_min_sum(nargs_objects: Iterable[Nargs]) -> int:
-    return sum(obj.min for obj in nargs_objects)
+    return min_sum, max_sum

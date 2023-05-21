@@ -29,9 +29,7 @@ class TestPosNode(ParserTest):
             foo = Positional(nargs=2)
             bar = Positional(nargs='+')
 
-        node = PosNode.build_tree(Foo)
-        self.assertEqual(3, node.nargs_min())
-        self.assertEqual(float('inf'), node.nargs_max())
+        self.assertEqual((3, float('inf')), PosNode.build_tree(Foo).nargs_min_and_max())
 
     def test_nargs_variable_then_fixed(self):
         # Note: Positionals accepting any value with variable nargs can't be followed by ones with a fixed # of args
@@ -39,9 +37,7 @@ class TestPosNode(ParserTest):
             foo = Positional(nargs=range(1, 5), choices=('a', 'b'))
             bar = Positional()
 
-        node = PosNode.build_tree(Foo)
-        self.assertEqual(2, node.nargs_min())
-        self.assertEqual(5, node.nargs_max())
+        self.assertEqual((2, 5), PosNode.build_tree(Foo).nargs_min_and_max())
 
     @skip('This case needs to be handled')
     def test_nargs_pair_extreme(self):
@@ -49,18 +45,14 @@ class TestPosNode(ParserTest):
             foo = Positional(nargs=sys.maxsize)
             bar = Positional(nargs='+')
 
-        node = PosNode.build_tree(Foo)
-        self.assertEqual(sys.maxsize, node.nargs_min())
-        self.assertEqual(float('inf'), node.nargs_max())
+        self.assertEqual((sys.maxsize, float('inf')), PosNode.build_tree(Foo).nargs_min_and_max())
 
     def test_nargs_min_max_bound(self):
         class Foo(Command):
             foo = Positional(choices=('a', 'b'))
             bar = Positional()
 
-        node = PosNode.build_tree(Foo)
-        self.assertEqual(2, node.nargs_min())
-        self.assertEqual(2, node.nargs_max())
+        self.assertEqual((2, 2), PosNode.build_tree(Foo).nargs_min_and_max())
 
     # endregion
 

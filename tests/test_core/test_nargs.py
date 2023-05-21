@@ -2,7 +2,7 @@
 
 from unittest import TestCase, main
 
-from cli_command_parser.nargs import Nargs, REMAINDER
+from cli_command_parser.nargs import Nargs, REMAINDER, nargs_min_and_max_sums
 
 
 class NargsTest(TestCase):
@@ -336,6 +336,9 @@ class NargsTest(TestCase):
         self.assertNotEqual(b, c)
         self.assertNotEqual(c, a)
         self.assertNotEqual(c, b)
+
+    def test_min_max_unbound_mid(self):
+        self.assertEqual((3, float('inf')), nargs_min_and_max_sums([Nargs(1), Nargs('+'), Nargs(1)]))
 
     # endregion
 

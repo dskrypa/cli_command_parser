@@ -210,6 +210,19 @@ class ParseFlagsTest(ParserTest):
         success_cases = [([], {'bar': 'foo'}), (['-b'], {'bar': 'bar'}), (['--bar'], {'bar': 'bar'})]
         self.assert_parse_results_cases(Foo, success_cases)
 
+    def test_multi_char_combo(self):
+        class Foo(Command, add_help=False):  # add_help=False ensures a branch is hit in command_parameters
+            bar = Flag('-bar')
+            baz = Flag('-ba')
+
+        success_cases = [
+            ([], {'bar': False, 'baz': False}),
+            (['-bar'], {'bar': True, 'baz': False}),
+            (['--bar'], {'bar': True, 'baz': False}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails(Foo, ['-baz'])
+
     # region Env Var Handling
 
     def test_env_var(self):
