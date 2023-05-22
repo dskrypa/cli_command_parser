@@ -169,7 +169,7 @@ class _Flag(BaseOption[T_co], ABC):
     def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:  # noqa
         return value is None
 
-    def result_value(self) -> Any:
+    def result_value(self, missing_default=_NotSet) -> Any:
         return ctx.get_parsed_value(self)
 
     result = result_value
@@ -524,8 +524,7 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
     def append(self, value: Optional[int]):
         if value is None:
             value = self.const
-        current = ctx.get_parsed_value(self)
-        ctx.set_parsed_value(self, current + value)
+        ctx.increment_parsed_value(self, value)
 
     def validate(self, value: Any):
         if value is None or isinstance(value, self.type):
@@ -537,7 +536,7 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
         else:
             return
 
-    def result_value(self) -> int:
+    def result_value(self, missing_default=_NotSet) -> int:
         return ctx.get_parsed_value(self)
 
     result = result_value

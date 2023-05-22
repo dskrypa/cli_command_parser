@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import partial, update_wrapper, cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, overload
+from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, TypeVar, overload
 from typing import List, Tuple, FrozenSet
 
 from ..annotations import get_descriptor_value_type
@@ -38,6 +38,7 @@ __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
+TD = TypeVar('TD')
 
 
 class parameter_action:  # pylint: disable=C0103
@@ -396,6 +397,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         else:
             return True
 
+    # endregion
+
+    # region Parsing - Backtracking Methods
+
     def can_pop_counts(self) -> List[int]:  # noqa
         return []
 
@@ -425,10 +430,12 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             command.__dict__[name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def result_value(self) -> Optional[T_co]:
+    def result_value(self, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
         if (value := ctx.get_parsed_value(self)) is _NotSet:
             if self.required:
-                raise MissingArgument(self)
+                if missing_default is _NotSet:
+                    raise MissingArgument(self)
+                return missing_default
             else:
                 return self._fix_default(self.default)
         elif self.action == 'store':
@@ -444,7 +451,9 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         nargs = self.nargs
         if (val_count := len(value)) == 0 and 0 not in nargs:
             if self.required:
-                raise MissingArgument(self)
+                if missing_default is _NotSet:
+                    raise MissingArgument(self)
+                return missing_default
         elif val_count not in nargs:
             raise BadArgument(self, f'expected {nargs=} values but found {val_count}')
 

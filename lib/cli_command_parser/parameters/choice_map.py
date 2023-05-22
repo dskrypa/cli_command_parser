@@ -22,6 +22,7 @@ from .base import BasePositional, parameter_action
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
 
 T = TypeVar('T')
+TD = TypeVar('TD')
 OptStr = Optional[str]
 # TODO: Combine SubCommand and Action, replacing `local_choices` with stackable decorators on the target method,
 #  optionally injecting the selected choice into positional args for the decorated method, which may be main?
@@ -175,13 +176,15 @@ class ChoiceMap(BasePositional[str], Generic[T]):
         if not any(c.startswith(prefix) for c in choices if c):
             raise InvalidChoice(self, prefix[:-1], choices)
 
-    def result_value(self) -> OptStr:
+    def result_value(self, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
         if not (choices := self.choices):
             self._no_choices_error()
         if not (values := ctx.get_parsed_value(self)):
             if None in choices:
                 return None
-            raise MissingArgument(self)
+            elif missing_default is _NotSet:
+                raise MissingArgument(self)
+            return missing_default
         if (val_count := len(values)) not in self.nargs:
             raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
         if (choice := ' '.join(values)) not in choices:

@@ -27,13 +27,11 @@ class PassThruTest(ParserTest):
         self.assert_parse_fails(Foo, ['bar', 'a', '--', 'x'], NoSuchOption)
 
     def test_required_pass_thru(self):
-        class Foo(Command):
+        class Foo(Command, add_help=False):
             bar = PassThru(required=True)
 
-        success_cases = [
-            (['--', 'a', 'b'], {'bar': ['a', 'b']}),
-            (['--'], {'bar': []}),
-        ]
+        self.assertEqual({'bar': 123}, Foo().ctx.get_parsed(default=123))
+        success_cases = [(['--', 'a', 'b'], {'bar': ['a', 'b']}), (['--'], {'bar': []})]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails(Foo, [], ParamsMissing)
 

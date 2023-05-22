@@ -275,14 +275,15 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
             bar = Option(required=True)
 
         with self.assertRaises(MissingArgument):
-            Foo.parse([]).bar  # noqa
+            Foo().bar  # noqa
 
     def test_missing_required_value_multi(self):
-        class Foo(Command, allow_missing=True):
+        class Foo(Command, allow_missing=True, add_help=False):
             bar = Option(nargs='+', required=True)
 
+        self.assertEqual({'bar': 123}, Foo().ctx.get_parsed(default=123))
         with self.assertRaises(MissingArgument):
-            Foo.parse([]).bar  # noqa
+            Foo().bar  # noqa
 
     def test_too_few_values(self):
         class Foo(Command):

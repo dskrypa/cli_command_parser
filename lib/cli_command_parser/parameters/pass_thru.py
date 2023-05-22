@@ -30,7 +30,7 @@ class PassThru(Parameter):
     """
 
     nargs = Nargs('REMAINDER')
-    missing_hint: str = "missing pass thru args separated from others with '--'"
+    missing_hint: str = " (missing pass thru args separated from others with '--')"  # leading space is intentional
 
     def __init__(self, action: str = 'store_all', **kwargs):
         super().__init__(action=action, **kwargs)
@@ -54,10 +54,12 @@ class PassThru(Parameter):
         normalized = list(map(self.prepare_value, values))
         return getattr(self, self.action)(normalized)
 
-    def result_value(self) -> Any:
+    def result_value(self, missing_default=_NotSet) -> Any:
         if (value := ctx.get_parsed_value(self)) is _NotSet:
             if self.required:
-                raise MissingArgument(self)
+                if missing_default is _NotSet:
+                    raise MissingArgument(self)
+                return missing_default
             return self.default
         return value
 

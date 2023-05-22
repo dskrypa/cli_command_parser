@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Iterator, List, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
 
 from .actions import help_action
 from .config import CommandConfig, AmbiguousComboMode
@@ -467,6 +467,16 @@ class CommandParameters:
         for param in self.options:
             if param.env_var and ctx.num_provided(param) == 0:
                 yield param
+
+    def iter_params(self, exclude: Collection[Parameter] = ()) -> Iterator[Parameter]:
+        if exclude:
+            yield from (p for p in self.all_positionals if p not in exclude)
+            yield from (p for p in self.options if p not in exclude)
+        else:
+            yield from self.all_positionals
+            yield from self.options
+        if (pass_thru := self.pass_thru) and pass_thru not in exclude:
+            yield pass_thru
 
     def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand

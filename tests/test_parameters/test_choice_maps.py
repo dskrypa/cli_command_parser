@@ -165,6 +165,15 @@ class ChoiceMapTest(ParserTest):
         choice = Choice('test', help='Example choice')
         self.assertEqual('    test                      Example choice', choice.format_help())
 
+    def test_default_when_missing(self):
+        class Foo(Command, add_help=False):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            pass
+
+        self.assertEqual({'sub': 123}, Foo().ctx.get_parsed(default=123))
+
 
 if __name__ == '__main__':
     try:
