@@ -52,7 +52,7 @@ class PassThru(Parameter):
 
         ctx.record_action(self)
         normalized = list(map(self.prepare_value, values))
-        return getattr(self, self.action)(normalized)
+        return getattr(self, self._action_name)(normalized)
 
     def result_value(self, missing_default=_NotSet) -> Any:
         if (value := ctx.get_parsed_value(self)) is _NotSet:

@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from functools import partial, update_wrapper, cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, TypeVar, overload
-from typing import List, Tuple, FrozenSet
+from typing import List, FrozenSet
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
@@ -265,7 +265,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 ' required Parameters cannot have a default value'
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
-        self.action = action
+        self._action_name = action
         self.default = self._init_default() if default is _NotSet else default
         self.metavar = metavar
         if show_default is not None:
@@ -307,12 +307,14 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # endregion
 
     def __repr__(self) -> str:
-        attr_names = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
+        names = ('_action_name', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
         if extra_attrs := self._repr_attrs:
-            attr_names = chain(attr_names, extra_attrs)
+            names = chain(names, extra_attrs)
 
-        attrs = ((a, getattr(self, a, None)) for a in attr_names)
-        kwargs = ', '.join(f'{a}={v!r}' for a, v in attrs if v not in (None, _NotSet) and not (a == 'hide' and not v))
+        a_name = {'_action_name': 'action'}.get
+        skip = (None, _NotSet)
+        attrs = ((a, v) for a in names if (v := getattr(self, a, None)) not in skip and not (a == 'hide' and not v))
+        kwargs = ', '.join(f'{a_name(a, a)}={v!r}' for a, v in attrs)
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
     # region Parsing / Argument Handling
@@ -336,10 +338,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         :return: The number of new values discovered
         """
         ctx.record_action(self)
-        return getattr(self, self.action)(self.prepare_and_validate(value, short_combo))
+        return getattr(self, self._action_name)(self.prepare_and_validate(value, short_combo))
 
     def would_accept(self, value: str, short_combo: Bool = False) -> bool:
-        action = self.action
+        action = self._action_name
         if action in {'store', 'store_all'} and ctx.get_parsed_value(self) is not _NotSet:
             return False
         elif action == 'append' and self.nargs.max_reached(ctx.get_parsed_value(self)):
@@ -436,7 +438,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 return missing_default
             else:
                 return self._fix_default(self.default)
-        elif self.action == 'store':
+        elif self._action_name == 'store':
             return value
 
         # Implied: action == 'append' or 'store_all'
@@ -485,7 +487,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
 
 class BasicActionMixin:
-    action: str
+    _action_name: str
     nargs: Nargs
     required: bool
     type: Optional[Callable]
@@ -510,12 +512,12 @@ class BasicActionMixin:
             self.allow_leading_dash = allow_leading_dash
 
     def _init_default(self):
-        if not self.required and self.nargs.max == 1 and self.action != 'append':
+        if not self.required and self.nargs.max == 1 and self._action_name != 'append':
             return None
         return _NotSet
 
     def _init_value_factory(self):
-        if self.action == 'append':
+        if self._action_name == 'append':
             return []
         return super()._init_value_factory()  # noqa
 
@@ -541,7 +543,7 @@ class BasicActionMixin:
     # region Parsing - Backtracking Methods
 
     def _pre_pop_values(self: Parameter):
-        if self.action != 'append' or not self.nargs.variable or self.type not in (None, str):
+        if self._action_name != 'append' or not self.nargs.variable or self.type not in (None, str):
             return []
 
         return ctx.get_parsed_value(self)
@@ -554,7 +556,7 @@ class BasicActionMixin:
         return [i for i in range(1, n_values) if self.nargs.satisfied(n_values - i)]
 
     def _reset(self: Union[Parameter, BasicActionMixin]) -> List[str]:
-        if self.action != 'append' or self.type not in (None, str):
+        if self._action_name != 'append' or self.type not in (None, str):
             raise UnsupportedAction
 
         if not (values := ctx.get_parsed_value(self)):

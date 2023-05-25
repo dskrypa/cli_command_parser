@@ -33,7 +33,7 @@ class PositionalTest(ParserTest):
             bar = Positional(nargs=2)
             baz = Positional()
 
-        self.assertEqual('append', Foo.bar.action)
+        self.assertEqual('append', Foo.bar._action_name)
         self.assert_parse_results(Foo, ['a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'})
         fail_cases = [[], ['a', 'b', 'c', 'd'], ['a', 'b']]
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)

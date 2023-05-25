@@ -30,7 +30,7 @@ class ParamComboTest(ParserTest):
             bar = Option(nargs=2)
             baz = Positional()
 
-        self.assertEqual('append', Foo.bar.action)
+        self.assertEqual('append', Foo.bar._action_name)
         success_cases = [
             (['--bar', 'a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'}),
             (['c', '--bar', 'a', 'b'], {'bar': ['a', 'b'], 'baz': 'c'}),

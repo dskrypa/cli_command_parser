@@ -131,7 +131,7 @@ class _Flag(BaseOption[T_co], ABC):
             self.type = type
 
     def _init_value_factory(self):
-        if self.action == 'store_const':
+        if self._action_name == 'store_const':
             return self.default
         else:
             return []
@@ -142,7 +142,7 @@ class _Flag(BaseOption[T_co], ABC):
         # log.debug(f'{self!r}.take_action({value!r})')
         ctx.record_action(self)
         if value is None:
-            action_method = getattr(self, self.action)
+            action_method = getattr(self, self._action_name)
             return action_method(opt_str) if self._use_opt_str else action_method()
         elif src != ValueSource.CLI:
             src, env_var = src
@@ -154,7 +154,7 @@ class _Flag(BaseOption[T_co], ABC):
                     return
                 raise
 
-        raise ParamUsageError(self, f'received {value=} but no values are accepted for action={self.action!r}')
+        raise ParamUsageError(self, f'received {value=} but no values are accepted for action={self._action_name!r}')
 
     def normalize_env_var_value(self, value: str, env_var: str) -> T_co:
         try:
@@ -230,11 +230,11 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
         parsed = self.normalize_env_var_value(value, env_var)
         if self.use_env_value:
             if parsed == self.const:
-                getattr(self, self.action)()
+                getattr(self, self._action_name)()
             elif parsed != self.default:
                 raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
         elif parsed:
-            getattr(self, self.action)()
+            getattr(self, self._action_name)()
 
     def get_const(self, opt_str: OptStr = None) -> TC:
         return self.const
