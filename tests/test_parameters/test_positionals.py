@@ -3,8 +3,8 @@
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, ParamGroup, SubCommand, Positional
-from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, UsageError
+from cli_command_parser import Command, ParamGroup, SubCommand, Positional, Context
+from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, UsageError, TooManyArguments
 from cli_command_parser.parameters.base import parameter_action, BasePositional
 from cli_command_parser.testing import ParserTest
 
@@ -127,6 +127,20 @@ class PositionalTest(ParserTest):
 
                     class Foo(Command):
                         bar = Positional(nargs='REMAINDER', allow_leading_dash=allow_leading_dash)
+
+    def test_default_get_const(self):
+        self.assertIs(NotImplemented, Positional().get_const())
+
+    def test_default_normalize_env_val(self):
+        value = '123456'
+        self.assertIs(value, Positional().normalize_env_var_value(value, ''))
+
+    def test_too_many_arguments(self):
+        with Context():
+            param = Positional(nargs=1, action='append')
+            param.append('foo')
+            with self.assertRaisesRegex(TooManyArguments, 'cannot accept any additional args with nargs='):
+                param.append('bar')
 
 
 if __name__ == '__main__':

@@ -23,6 +23,7 @@ from .exceptions import (
     BadArgument,
     InvalidChoice,
     MissingArgument,
+    TooManyArguments,
     NoSuchOption,
     ParserExit,
     ParamConflict,

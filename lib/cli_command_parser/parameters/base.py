@@ -18,7 +18,7 @@ from typing import List, Tuple, FrozenSet
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
 from ..context import Context, ctx, get_current_context
-from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
+from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, TooManyArguments
 from ..exceptions import ParamUsageError, UnsupportedAction
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
@@ -317,13 +317,11 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     # region Parsing / Argument Handling
 
-    def _get_parsed_and_max_reached(self) -> Tuple[List[T_co], bool]:
-        parsed = ctx.get_parsed_value(self)
-        try:
-            nargs_max_reached = len(parsed) >= self.nargs.max
-        except TypeError:  # None or REMAINDER
-            nargs_max_reached = False
-        return parsed, nargs_max_reached
+    def get_const(self, opt_str: OptStr = None):
+        return NotImplemented
+
+    def normalize_env_var_value(self, value: str, env_var: str) -> T_co:
+        return value
 
     def take_action(
         self, value: OptStr, short_combo: Bool = False, opt_str: OptStr = None, src: ValSrc = ValueSource.CLI
@@ -344,7 +342,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         action = self.action
         if action in {'store', 'store_all'} and ctx.get_parsed_value(self) is not _NotSet:
             return False
-        elif action == 'append' and self._get_parsed_and_max_reached()[1]:
+        elif action == 'append' and self.nargs.max_reached(ctx.get_parsed_value(self)):
             return False
         try:
             normalized = self.prepare_value(value, short_combo, True)
@@ -533,11 +531,9 @@ class BasicActionMixin:
 
     @parameter_action
     def append(self: Parameter, value: T_co):
-        parsed, nargs_max_reached = self._get_parsed_and_max_reached()
-        if nargs_max_reached:
-            raise ParamUsageError(
-                self, f'cannot accept any additional args with nargs={self.nargs} - already found {len(parsed)} values'
-            )
+        parsed = ctx.get_parsed_value(self)
+        if self.nargs.max_reached(parsed):
+            raise TooManyArguments(self, f'already found {len(parsed)} values')
         parsed.append(value)
 
     # endregion

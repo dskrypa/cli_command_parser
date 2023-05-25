@@ -6,7 +6,7 @@ Helpers for handling ``nargs=...`` for Parameters.
 
 from __future__ import annotations
 
-from typing import Union, Optional, Sequence, Collection, Iterable, Tuple, Set, FrozenSet
+from typing import Any, Union, Optional, Sequence, Collection, Iterable, Tuple, Set, FrozenSet
 
 __all__ = ['Nargs', 'NargsValue', 'REMAINDER', 'nargs_min_and_max_sums']
 
@@ -159,6 +159,19 @@ class Nargs:
             return count in self.allowed
         else:
             return count >= self.min
+
+    def max_reached(self, parsed_values: Any) -> bool:
+        """
+        :param parsed_values: The value(s) parsed so far for a Parameter.
+        :return: True if ``parsed_values`` has a length and that length meets or exceeds the maximum count allowed,
+          False otherwise.
+        """
+        if self._has_upper_bound:
+            try:
+                return len(parsed_values) >= self.max
+            except TypeError:
+                pass
+        return False
 
     @property
     def has_upper_bound(self) -> bool:

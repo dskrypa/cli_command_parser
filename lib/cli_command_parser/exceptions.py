@@ -33,6 +33,7 @@ __all__ = [
     'BadArgument',
     'InvalidChoice',
     'MissingArgument',
+    'TooManyArguments',
     'NoSuchOption',
     'NoActiveContext',
 ]
@@ -223,6 +224,14 @@ class MissingArgument(BadArgument):
     """Error raised when a value for a Parameter was not provided"""
 
     message = 'missing required argument value'
+
+
+class TooManyArguments(BadArgument):
+    """Error raised when too many values were provided for a Parameter"""
+
+    def __str__(self) -> str:
+        nargs = self.param.nargs
+        return f'argument {self.usage_str}: cannot accept any additional args with {nargs=} - {self.message}'
 
 
 class NoSuchOption(UsageError):

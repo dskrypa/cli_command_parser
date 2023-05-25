@@ -156,7 +156,7 @@ class _Flag(BaseOption[T_co], ABC):
 
         raise ParamUsageError(self, f'received {value=} but no values are accepted for action={self.action!r}')
 
-    def prepare_env_var_value(self, value: str, env_var: str) -> T_co:
+    def normalize_env_var_value(self, value: str, env_var: str) -> T_co:
         try:
             return self.type(value)
         except Exception as e:
@@ -227,7 +227,7 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
         self.const = const
 
     def take_env_var_action(self, value: str, env_var: str):
-        parsed = self.prepare_env_var_value(value, env_var)
+        parsed = self.normalize_env_var_value(value, env_var)
         if self.use_env_value:
             if parsed == self.const:
                 getattr(self, self.action)()
@@ -236,13 +236,16 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
         elif parsed:
             getattr(self, self.action)()
 
+    def get_const(self, opt_str: OptStr = None) -> TC:
+        return self.const
+
     @parameter_action
     def store_const(self):
-        ctx.set_parsed_value(self, self.const)
+        ctx.set_parsed_value(self, self.get_const())
 
     @parameter_action
     def append_const(self):
-        ctx.get_parsed_value(self).append(self.const)
+        ctx.get_parsed_value(self).append(self.get_const())
 
 
 class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True, use_opt_str=True):
@@ -329,7 +332,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         super().__set_name__(command, name)
         self.option_strs.update_alts(name)
 
-    def _get_const(self, opt_str: str) -> Union[TC, TA]:
+    def get_const(self, opt_str: OptStr = None) -> TC:
         if opt_str in self.option_strs.alt_allowed:
             return self.consts[1]
         else:
@@ -337,7 +340,7 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
 
     @parameter_action
     def store_const(self, opt_str: str):
-        self._store_const(self._get_const(opt_str))
+        self._store_const(self.get_const(opt_str))
 
     def _store_const(self, const: Union[TC, TA]):
         ctx.set_parsed_value(self, const)
@@ -347,13 +350,13 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
     ):
         if value is None:
             prev_parsed = ctx.get_parsed_value(self)
-            const = self._get_const(opt_str)
+            const = self.get_const(opt_str)
             if prev_parsed is not self.default and prev_parsed != const:
                 raise ParamConflict([self])
         return super().take_action(value, short_combo, opt_str, src)
 
     def take_env_var_action(self, value: str, env_var: str):
-        parsed = self.prepare_env_var_value(value, env_var)
+        parsed = self.normalize_env_var_value(value, env_var)
         if self.use_env_value:
             if parsed in self.consts:
                 self._store_const(parsed)
