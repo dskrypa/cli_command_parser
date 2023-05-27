@@ -2,11 +2,11 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption, ctx
+from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument, AmbiguousShortForm, AmbiguousCombo
 from cli_command_parser.nargs import Nargs
-from cli_command_parser.parameters.base import parameter_action
+from cli_command_parser.parameters.actions import Store
 from cli_command_parser.testing import ParserTest
 
 get_config = CommandMeta.config
@@ -151,14 +151,10 @@ class OptionTest(ParserTest):
         self.assert_parse_fails_cases(Foo, fail_cases)
 
     def test_nargs_question(self):
-        class CustomOption(BaseOption):
+        class CustomOption(BaseOption, actions=(Store,)):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, action='store', **kwargs)
                 self.nargs = Nargs('?')
-
-            @parameter_action
-            def store(self, value):
-                ctx.set_parsed_value(self, value)
 
         class Foo(Command):
             bar = CustomOption('-b')
@@ -216,9 +212,9 @@ class OptionTest(ParserTest):
     def test_defaults_with_nargs_multi(self):
         success_cases = [
             ([], {'bar': [1]}),
-            (['-b', '2'], {'bar': [2]}),
-            (['-b=2'], {'bar': [2]}),
-            (['--bar', '2', '3'], {'bar': [2, 3]}),
+            (['-b', '2'], {'bar': [1, 2]}),
+            (['-b=2'], {'bar': [1, 2]}),
+            (['--bar', '2', '3'], {'bar': [1, 2, 3]}),
         ]
         fail_cases = [
             ['-b=2', '3'],  # argparse also rejects this

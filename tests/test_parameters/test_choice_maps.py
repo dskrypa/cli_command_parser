@@ -4,7 +4,7 @@ from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Context
-from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice
+from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice, ParameterDefinitionError
 from cli_command_parser.parameters.choice_map import SubCommand, Action, Choice
 from cli_command_parser.testing import ParserTest
 
@@ -33,9 +33,9 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo')
+            Foo.action.action.add_value('foo')
             with self.assertRaises(InvalidChoice):
-                Foo.action.append('baz')
+                Foo.action.action.add_value('baz')
 
     def test_missing_action_target(self):
         class Foo(Command):
@@ -52,7 +52,7 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo')
+            Foo.action.action.add_value('foo')
             with self.assertRaises(BadArgument):
                 Foo.action.validate('bar')
 
@@ -78,7 +78,7 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo')
+            Foo.action.action.add_value('foo')
             with self.assertRaises(BadArgument):
                 Foo.action.result()
 
@@ -95,7 +95,7 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo bar')
+            Foo.action.action.add_value('foo bar')
             del Foo.action.choices['foo bar']
             with self.assertRaises(BadArgument):
                 Foo.action.result()
@@ -142,6 +142,10 @@ class ChoiceMapTest(ParserTest):
     def test_allow_leading_dash_not_allowed_sub_cmd(self):
         with self.assertRaises(TypeError):
             SubCommand(allow_leading_dash=True)
+
+    def test_default_not_allowed_sub_cmd(self):
+        with self.assertRaises(ParameterDefinitionError):
+            SubCommand(default='foo')
 
     def test_nargs_not_allowed_action(self):
         with self.assertRaises(TypeError):

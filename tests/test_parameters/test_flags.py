@@ -26,7 +26,7 @@ class FlagTest(ParserTest):
         cases = [(True, False), (False, True), (42, None)]
         for const, expected in cases:
             with self.subTest(const=const, expected=expected):
-                self.assertEqual(expected, Flag(const=const).default)
+                self.assertEqual(expected, Flag(const=const).action.get_default())
 
     def test_annotation_ignored(self):
         for annotation in (bool, int, str, None):

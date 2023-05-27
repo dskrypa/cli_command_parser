@@ -7,21 +7,21 @@ Optional Parameters
 from __future__ import annotations
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 from functools import partial, update_wrapper
 from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, Tuple
 
-from ..context import ctx
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, ParamConflict
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import T_co, TypeFunc
-from ..utils import _NotSet, ValueSource, str_to_bool
-from .base import BasicActionMixin, BaseOption, parameter_action
+from ..utils import _NotSet, str_to_bool
+from .actions import Store, StoreConst, Append, AppendConst, Count
+from .base import BasicActionMixin, BaseOption
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
-    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, ValSrc, LeadingDash
+    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
 
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
 log = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ TC = TypeVar('TC')
 TA = TypeVar('TA')
 
 
-class Option(BasicActionMixin, BaseOption[Union[T_co, TD]]):
+class Option(BasicActionMixin, BaseOption[Union[T_co, TD]], actions=(Store, Append)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -102,77 +102,30 @@ class Option(BasicActionMixin, BaseOption[Union[T_co, TD]]):
         self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
 
 
-class _Flag(BaseOption[T_co], ABC):
+class _Flag(BaseOption[T_co], ABC, actions=(StoreConst, AppendConst)):
     nargs = Nargs(0)
     type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
-    strict_env: bool
     use_env_value: bool = False
-    _use_opt_str: bool = False
-
-    def __init_subclass__(cls, use_opt_str: bool = False, **kwargs):  # pylint: disable=W0222
-        super().__init_subclass__(**kwargs)
-        cls._use_opt_str = use_opt_str
 
     def __init__(
         self,
         *option_strs: str,
         type: TypeFunc = None,  # noqa
-        strict_env: bool = True,
         use_env_value: bool = False,
         **kwargs,
     ):
         if 'metavar' in kwargs:
             raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
-        super().__init__(*option_strs, **kwargs)
-        self.strict_env = strict_env
-        if use_env_value:
-            self.use_env_value = use_env_value
+        super().__init__(*option_strs, use_env_value=use_env_value, **kwargs)
         if type is not None:
             self.type = type
 
-    def _init_value_factory(self):
-        if self._action_name == 'store_const':
-            return self.default
-        else:
-            return []
-
-    def take_action(
-        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
-    ):
-        # log.debug(f'{self!r}.take_action({value!r})')
-        ctx.record_action(self)
-        if value is None:
-            action_method = getattr(self, self._action_name)
-            return action_method(opt_str) if self._use_opt_str else action_method()
-        elif src != ValueSource.CLI:
-            src, env_var = src
-            try:
-                return self.take_env_var_action(value, env_var)
-            except ParamUsageError as e:
-                if not self.strict_env:
-                    log.warning(e)
-                    return
-                raise
-
-        raise ParamUsageError(self, f'received {value=} but no values are accepted for action={self._action_name!r}')
-
-    def normalize_env_var_value(self, value: str, env_var: str) -> T_co:
+    def get_env_const(self, value: str, env_var: str) -> Tuple[T_co, bool]:
         try:
-            return self.type(value)
+            const = self.type(value)
         except Exception as e:
             raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
-
-    @abstractmethod
-    def take_env_var_action(self, value: str, env_var: str):
-        raise NotImplementedError
-
-    def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:  # noqa
-        return value is None
-
-    def result_value(self, missing_default=_NotSet) -> Any:
-        return ctx.get_parsed_value(self)
-
-    result = result_value
+        return const, self.use_env_value
 
 
 class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
@@ -220,35 +173,20 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
                     f"A 'const' value is required for {self.__class__.__name__} since {default=} is not True or False"
                 ) from e
         if default is _NotSet:
-            default = self.__default_const_map.get(const)  # will be True, False, or None
+            default = self.__default_const_map.get(const, _NotSet)  # will be True or False
         if default is False:  # Avoid surprises for custom non-truthy values
             kwargs.setdefault('show_default', False)
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
 
-    def take_env_var_action(self, value: str, env_var: str):
-        parsed = self.normalize_env_var_value(value, env_var)
-        if self.use_env_value:
-            if parsed == self.const:
-                getattr(self, self._action_name)()
-            elif parsed != self.default:
-                raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
-        elif parsed:
-            getattr(self, self._action_name)()
-
-    def get_const(self, opt_str: OptStr = None) -> TC:
-        return self.const
-
-    @parameter_action
-    def store_const(self):
-        ctx.set_parsed_value(self, self.get_const())
-
-    @parameter_action
-    def append_const(self):
-        ctx.get_parsed_value(self).append(self.get_const())
+    def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TD], bool]:
+        parsed, use_env_value = super().get_env_const(value, env_var)
+        if use_env_value and parsed != self.const and parsed != self.default:
+            raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
+        return parsed, use_env_value
 
 
-class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True, use_opt_str=True):
+class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -332,38 +270,21 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         super().__set_name__(command, name)
         self.option_strs.update_alts(name)
 
-    def get_const(self, opt_str: OptStr = None) -> TC:
+    def get_const(self, opt_str: OptStr = None) -> Union[TC, TA]:
         if opt_str in self.option_strs.alt_allowed:
             return self.consts[1]
         else:
             return self.consts[0]
 
-    @parameter_action
-    def store_const(self, opt_str: str):
-        self._store_const(self.get_const(opt_str))
-
-    def _store_const(self, const: Union[TC, TA]):
-        ctx.set_parsed_value(self, const)
-
-    def take_action(
-        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
-    ):
-        if value is None:
-            prev_parsed = ctx.get_parsed_value(self)
-            const = self.get_const(opt_str)
-            if prev_parsed is not self.default and prev_parsed != const:
-                raise ParamConflict([self])
-        return super().take_action(value, short_combo, opt_str, src)
-
-    def take_env_var_action(self, value: str, env_var: str):
-        parsed = self.normalize_env_var_value(value, env_var)
-        if self.use_env_value:
-            if parsed in self.consts:
-                self._store_const(parsed)
-            elif parsed != self.default:
+    def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TA, TD], bool]:
+        parsed, use_env_value = super().get_env_const(value, env_var)
+        if use_env_value:
+            if parsed not in self.consts and parsed != self.default:
                 raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
+            return parsed, True
         else:
-            self._store_const(self.consts[0] if parsed else self.consts[1])
+            const = self.consts[0] if parsed else self.consts[1]
+            return const, True
 
 
 # region Action Flag
@@ -482,7 +403,7 @@ def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable =
 # endregion
 
 
-class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
+class Counter(BaseOption[int], accepts_values=True, accepts_none=True, actions=(Count,)):
     """
     A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
     to explicitly increase the stored value by that amount.
@@ -491,8 +412,9 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
       then one will automatically be added based on the name assigned to this parameter.
     :param action: The action to take on individual parsed values.  Defaults to ``append``, and no other actions
       are supported (unless this class is extended).
-    :param default: The default value for this parameter if it is not specified.  This value is also be used as the
-      initial value that will be incremented when this parameter is specified.  Defaults to ``0``.
+    :param init: The initial value that will be incremented when this parameter is specified.  Defaults to ``0``.
+    :param default: The default value for this parameter if it is not specified.  Defaults to ``0`` unless this
+      Parameter is required.
     :param const: The value by which the stored value should increase whenever this parameter is specified.
       Defaults to ``1``.  If a different ``const`` value is used, and if an explicit value is provided by a user,
       the user-provided value will be added verbatim - it will NOT be multiplied by ``const``.
@@ -501,20 +423,32 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
 
     type = int
     nargs = Nargs('?')
+    init: int
+    default: int
+    const: int
 
-    def __init__(self, *option_strs: str, action: str = 'append', default: int = 0, const: int = 1, **kwargs):
-        vals = {'const': const, 'default': default}
-        if bad_types := ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type)):
+    def __init__(
+        self,
+        *option_strs: str,
+        action: str = 'count',
+        init: int = 0,
+        const: int = 1,
+        default: int = _NotSet,
+        required: bool = False,
+        **kwargs,
+    ):
+        type_check_vals = {'const': const, 'init': init}
+        if default is not _NotSet:
+            type_check_vals['default'] = default
+        elif not required:
+            default = 0
+        if bad_types := ', '.join(f'{k}={v!r}' for k, v in type_check_vals.items() if not isinstance(v, self.type)):
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')
-        super().__init__(*option_strs, action=action, default=default, **kwargs)
+        super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
+        self.init = init
         self.const = const
 
-    def _init_value_factory(self):
-        return self.default
-
     def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:
-        if value is None:
-            return self.const
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
@@ -522,12 +456,6 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
             if short_combo and combinable and all(c in combinable for c in value):
                 return len(value) + 1  # +1 for the -short that preceded this value
             raise BadArgument(self, f'bad counter {value=}') from e
-
-    @parameter_action
-    def append(self, value: Optional[int]):
-        if value is None:
-            value = self.const
-        ctx.increment_parsed_value(self, value)
 
     def validate(self, value: Any):
         if value is None or isinstance(value, self.type):
@@ -538,8 +466,3 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
             raise BadArgument(self, f'invalid {value=} (expected an integer)') from e
         else:
             return
-
-    def result_value(self, missing_default=_NotSet) -> int:
-        return ctx.get_parsed_value(self)
-
-    result = result_value

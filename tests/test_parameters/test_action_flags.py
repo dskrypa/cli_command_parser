@@ -264,14 +264,14 @@ class ActionFlagTest(ParserTest):
 
     def test_no_func(self):
         flag = ActionFlag()
-        with Context() as ctx:
-            flag.store_const()
+        with Context():
+            flag.action.add_const()
             with self.assertRaises(ParameterDefinitionError):
                 flag.result()
 
     def test_not_provided(self):
         flag = ActionFlag()
-        with Context() as ctx:
+        with Context():
             self.assertFalse(flag.result())
 
     def test_before_main_sorts_before_after_main(self):

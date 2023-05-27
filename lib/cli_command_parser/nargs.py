@@ -160,17 +160,14 @@ class Nargs:
         else:
             return count >= self.min
 
-    def max_reached(self, parsed_values: Any) -> bool:
+    def max_reached(self, parsed_values: Collection[Any]) -> bool:
         """
         :param parsed_values: The value(s) parsed so far for a Parameter.
         :return: True if ``parsed_values`` has a length and that length meets or exceeds the maximum count allowed,
           False otherwise.
         """
         if self._has_upper_bound:
-            try:
-                return len(parsed_values) >= self.max
-            except TypeError:
-                pass
+            return len(parsed_values) >= self.max
         return False
 
     @property

@@ -274,7 +274,7 @@ class ParseFlagsTest(ParserTest):
         class Foo(Command):
             bar = Flag('-b', env_var='BAR', strict_env=False)
 
-        with self.assertLogs('cli_command_parser.parameters.options', 'WARNING'):
+        with self.assertLogs('cli_command_parser.parser', 'WARNING'):
             self.assert_env_parse_results(Foo, [], {'BAR': 'foo'}, {'bar': False})
 
     def test_non_default_const_stored_from_env_var(self):
@@ -356,13 +356,6 @@ class ParseFlagsTest(ParserTest):
 
 
 class ParseTriFlagsTest(ParserTest):
-    def test_tri_flag_rejects_value(self):
-        class Foo(Command):
-            bar = TriFlag('-b', alt_short='-B')
-
-        with Foo().ctx, self.assertRaises(UsageError):
-            Foo.bar.take_action('foo')
-
     def test_alt_opt_mutual_exclusivity(self):
         class Foo(Command):
             bar = TriFlag('-b', alt_short='-B')

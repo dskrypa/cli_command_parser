@@ -187,24 +187,21 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     # region Parsing Methods
 
-    def get_parsed_value(self, param: Parameter):
+    def has_parsed_value(self, param: Parameter) -> bool:
+        return param in self._parsed
+
+    def get_parsed_value(self, param: Parameter, default=_NotSet):
         """Not intended to be called by users.  Used by Parameters to access their parsed values."""
-        try:
-            return self._parsed[param]
-        except KeyError:
-            self._parsed[param] = value = param._init_value_factory()
-            return value
+        return self._parsed.get(param, default)
 
     def set_parsed_value(self, param: Parameter, value: Any):
         """Not intended to be called by users.  Used by Parameters during parsing to store parsed values."""
         self._parsed[param] = value
 
-    def increment_parsed_value(self, param: Parameter, value: Any):
-        """Not intended to be called by users.  Used by Parameters during parsing to increment parsed values."""
-        try:
-            self._parsed[param] += value
-        except KeyError:
-            self._parsed[param] = param._init_value_factory() + value
+    def pop_parsed_value(self, param: Parameter):
+        """Not intended to be called by users.  Used by Parameters during parsing if backtracking is necessary."""
+        self._provided[param] = 0
+        return self._parsed.pop(param)
 
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
         """
@@ -348,14 +345,14 @@ class ContextProxy:
 
     # region Proxied Parsing Methods
 
+    def has_parsed_value(self, param: Parameter) -> bool:
+        return get_current_context().has_parsed_value(param)
+
     def get_parsed_value(self, param: Parameter):
         return get_current_context().get_parsed_value(param)
 
     def set_parsed_value(self, param: Parameter, value: Any):
         get_current_context().set_parsed_value(param, value)
-
-    def increment_parsed_value(self, param: Parameter, value: Any):
-        get_current_context().increment_parsed_value(param, value)
 
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
         get_current_context().record_action(param, val_count)

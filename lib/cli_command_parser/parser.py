@@ -6,7 +6,7 @@ The class that handles parsing input.
 
 from __future__ import annotations
 
-# import logging
+import logging
 from collections import deque
 from os import environ
 from typing import TYPE_CHECKING, Optional, Union, Any, Iterable, Deque, List
@@ -14,11 +14,10 @@ from typing import TYPE_CHECKING, Optional, Union, Any, Iterable, Deque, List
 from .core import get_parent
 from .context import ActionPhase, Context
 from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import Backtrack, NextCommand, UnsupportedAction
+from .exceptions import Backtrack, NextCommand
 from .nargs import REMAINDER, nargs_min_and_max_sums
 from .parse_tree import PosNode
 from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
-from .utils import ValueSource
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
     from .typing import CommandType, OptStr
 
 __all__ = ['CommandParser', 'parse_args_and_get_next_cmd']
-# log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 _PRE_INIT = ActionPhase.PRE_INIT
 
@@ -34,7 +33,7 @@ _PRE_INIT = ActionPhase.PRE_INIT
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
 
-    __slots__ = ('_last', 'arg_deque', 'config', 'deferred', 'params', 'positionals')
+    __slots__ = ('_last', 'arg_deque', 'ctx', 'config', 'deferred', 'params', 'positionals')
 
     arg_deque: Optional[Deque[str]]
     config: CommandConfig
@@ -45,6 +44,7 @@ class CommandParser:
 
     def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
         self._last = None
+        self.ctx = ctx
         self.params = params
         self.positionals = params.get_positionals_to_parse(ctx)
         self.config = config
@@ -95,7 +95,6 @@ class CommandParser:
     def _parse_env_vars(self, ctx: Context):
         # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
         #  mutually exclusive params when they were provided via env
-        env = ValueSource.ENV
         for param in self.params.try_env_params(ctx):
             for env_var in param.env_vars():
                 try:
@@ -103,7 +102,12 @@ class CommandParser:
                 except KeyError:
                     pass
                 else:
-                    param.take_action(value, src=(env, env_var))
+                    try:
+                        param.action.add_env_value(value, env_var)
+                    except ParamUsageError as e:
+                        if param.strict_env:
+                            raise
+                        log.warning(e)
                     break
 
     def _handle_arg(self, arg: str):
@@ -141,7 +145,7 @@ class CommandParser:
                 pass  # If required, it's handled by the normal missing param handler
             else:
                 remainder_start = separator_pos + 1
-                pass_thru.take_action(remaining[remainder_start:])
+                pass_thru.action.add_values(remaining[remainder_start:])
                 return deque(remaining[:separator_pos])
         return deque(remaining)
 
@@ -154,10 +158,10 @@ class CommandParser:
         return False
 
     def handle_remainder(self, param: Parameter, value: str) -> int:
-        found = param.take_action(value)
+        found = param.action.add_value(value)
         arg_deque = self.arg_deque
         while arg_deque:
-            found += param.take_action(arg_deque.popleft())
+            found += param.action.add_value(arg_deque.popleft())
         return found
 
     # endregion
@@ -170,7 +174,7 @@ class CommandParser:
                 self.handle_remainder(param, arg)
             else:
                 try:
-                    found = param.take_action(arg)
+                    found = param.action.add_value(arg)
                 except UsageError:
                     positionals.insert(0, param)
                     raise
@@ -192,10 +196,11 @@ class CommandParser:
                 self._check_sub_command_options(arg)
                 self.deferred.append(arg)
         else:
+            # TODO: Split this for separate None/const vs value handling, and rely on action, not param
             if value is not None or (param.accepts_none and not param.accepts_values):
-                param.take_action(value, opt_str=opt)
+                param.action.add_value(value, opt=opt)
             elif not self.consume_values(param) and param.accepts_none:
-                param.take_action(None, opt_str=opt)
+                param.action.add_const(opt=opt)
             self._last = param
 
     # region Short Option Handling
@@ -211,8 +216,8 @@ class CommandParser:
             last = param_val_combos.pop()
             if param_val_combos:
                 # Note: This loop is only executed for single char combined flags, where the values will always be None
-                for opt, param, none_value in param_val_combos:
-                    param.take_action(none_value, short_combo=True, opt_str=opt)
+                for opt, param, _none_value in param_val_combos:
+                    param.action.add_const(opt=opt, combo=True)
             self._handle_short_value(*last)
 
     def _handle_short_not_found(self, arg: str):
@@ -230,9 +235,9 @@ class CommandParser:
     def _handle_short_value(self, opt: str, param: BaseOption, value: Any):
         # log.debug(f'Handling short {value=} for {param=}')
         if value is not None or (param.accepts_none and not param.accepts_values):
-            param.take_action(value, short_combo=True, opt_str=opt)
+            param.action.add_value(value, opt=opt, combo=True)
         elif not self.consume_values(param) and param.accepts_none:
-            param.take_action(None, short_combo=True, opt_str=opt)
+            param.action.add_const(opt=opt, combo=True)
         self._last = param
         # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
@@ -274,16 +279,10 @@ class CommandParser:
 
         can_pop = self._last.can_pop_counts()
         if to_pop := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
-            try:
-                reset = param._reset()
-            except UnsupportedAction:
-                return
-
+            reset = self.ctx.pop_parsed_value(param)
             self.arg_deque.extendleft(reversed(reset))
             self.arg_deque.extendleft(reversed(self._last.pop_last(to_pop)))
             raise Backtrack
-        else:
-            return
 
     # endregion
 
@@ -311,13 +310,13 @@ class CommandParser:
                 except (ParamUsageError, NextCommand) as e:
                     return self._finalize_consume(param, value, found, e)
 
-                if not param.would_accept(value):
+                if not param.action.would_accept(value):
                     # log.debug(f'{value=} will not be used with {param=} - it would not be accepted')
                     return self._finalize_consume(param, value, found, NoSuchOption(f'invalid argument: {value}'))
                 # log.debug(f'{value=} may be used with {param=} as a value')
 
             try:
-                found += param.take_action(value)
+                found += param.action.add_value(value)
             except UsageError as e:
                 # log.debug(f'{value=} was rejected by {param=}', exc_info=True)
                 return self._finalize_consume(param, value, found, e)
@@ -338,7 +337,7 @@ class CommandParser:
             return found
         elif exc:
             raise exc
-        elif self._last and isinstance(param, BasePositional) and hasattr(param, '_reset'):
+        elif self._last and isinstance(param, BasePositional) and param.action.can_reset():
             self._maybe_backtrack_last(param, found)
 
         s = '' if (n := nargs.min) == 1 else 's'

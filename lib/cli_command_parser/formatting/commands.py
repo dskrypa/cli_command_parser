@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Union, Type, Callable, Iterator, Iterable, Opt
 from ..context import ctx, NoActiveContext
 from ..core import get_params, get_metadata
 from ..parameters.groups import ParamGroup
-from ..utils import camel_to_snake_case
+from ..utils import camel_to_snake_case, _NotSet
 from .restructured_text import RstTable, spaced_rst_header
 from .utils import combine_and_wrap
 
@@ -232,7 +232,7 @@ def get_usage_sub_cmds(command: CommandCls):
     except NoActiveContext:
         parsed = []
 
-    if parsed:  # May have been called directly on the subcommand without parsing
+    if parsed and parsed is not _NotSet:  # May have been called directly on the subcommand without parsing
         yield from parsed
     elif chosen := next((name for name, choice in sub_cmd_param.choices.items() if choice.target is command), None):
         yield chosen

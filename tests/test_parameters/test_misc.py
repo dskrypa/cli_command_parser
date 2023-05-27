@@ -24,7 +24,7 @@ from cli_command_parser.formatting.params import (
     PassThruHelpFormatter,
     GroupHelpFormatter,
 )
-from cli_command_parser.parameters.base import parameter_action, Parameter, BaseOption, BasePositional
+from cli_command_parser.parameters.base import Parameter, BaseOption, BasePositional
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
 from cli_command_parser.parser import CommandParser
@@ -97,9 +97,9 @@ class PassThruTest(ParserTest):
     def test_extra_rejected(self):
         with Context():
             pt = PassThru()
-            pt.take_action(['a'])
+            pt.action.add_values(['a'])
             with self.assertRaises(ParamUsageError):
-                pt.take_action(['a'])
+                pt.action.add_values(['a'])
 
     def test_usage(self):
         self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).formatter.format_basic_usage())
@@ -140,9 +140,6 @@ class MiscParameterTest(ParserTest):
     def test_empty_choices(self):
         with self.assertRaises(ParameterDefinitionError):
             Option(choices=())
-
-    def test_action_is_parameter_action(self):
-        self.assertIsInstance(Flag.store_const, parameter_action)
 
     def test_explicit_name(self):
         class Foo(Command):
@@ -236,14 +233,14 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
     def test_too_many_rejected(self):
         option = Option(action='append', nargs=1)
         with Context():
-            option.take_action('foo')
+            option.action.add_value('foo')
             with self.assertRaises(ParamUsageError):
-                option.take_action('foo')
+                option.action.add_value('foo')
 
     def test_non_none_rejected(self):
         flag = Flag()
         with self.assertRaises(ParamUsageError), Context():
-            flag.take_action('foo')
+            flag.action.add_value('foo')
 
     def test_sort_mixed_types(self):
         sort_cases = [
@@ -258,17 +255,9 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
             with self.subTest(group=group), self.assertRaises(TypeError):
                 sorted(group)
 
-    def test_none_invalid(self):
-        with self.assertRaises(MissingArgument), Context():
-            Option().validate(None)
-
     def test_none_valid(self):
         with Context():
             self.assertIs(None, Flag().validate(None))
-
-    def test_value_invalid(self):
-        with self.assertRaises(BadArgument), Context():
-            Flag().validate(1)
 
     def test_missing_required_value_single(self):
         class Foo(Command, allow_missing=True):
@@ -300,12 +289,8 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         with self.assertRaises(UnsupportedAction):
             Flag().pop_last()
 
-    def test_empty_reset(self):
-        class Foo(Command):
-            bar = Positional(nargs='+')
-
-        with Context():
-            self.assertEqual([], Foo.bar._reset())
+    def test_empty_can_pop_counts(self):
+        self.assertEqual([], PassThru().can_pop_counts())
 
     def test_unsupported_pop(self):
         class Foo(Command):

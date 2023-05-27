@@ -5,6 +5,7 @@ from unittest import main
 from cli_command_parser import Command, Counter, Flag
 from cli_command_parser.exceptions import NoSuchOption, ParameterDefinitionError, BadArgument
 from cli_command_parser.testing import ParserTest
+from cli_command_parser.utils import _NotSet
 
 
 class CounterTest(ParserTest):
@@ -104,8 +105,8 @@ class CounterTest(ParserTest):
         with self.assertRaises(ParameterDefinitionError):
             Counter(default=1.5)  # noqa
 
-    def test_prepare_value(self):
-        self.assertEqual(1, Counter().prepare_value(None))
+    def test_required_no_default(self):
+        self.assertIs(_NotSet, Counter(required=True).default)
 
     def test_validate(self):
         self.assertTrue(Counter().is_valid_arg('1'))

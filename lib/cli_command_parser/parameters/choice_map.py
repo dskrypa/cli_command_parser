@@ -12,12 +12,13 @@ from typing import Type, TypeVar, Generic, Optional, Callable, Union, Collection
 from types import MethodType
 
 from ..context import ctx
-from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, CommandDefinitionError
+from ..exceptions import ParameterDefinitionError, BadArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
 from ..typing import Bool, CommandCls
 from ..utils import _NotSet, camel_to_snake_case, short_repr
-from .base import BasePositional, parameter_action
+from .actions import Concatenate
+from .base import BasePositional
 
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
 
@@ -55,7 +56,7 @@ class Choice(Generic[T]):
         return format_help_entry((self.format_usage(),), self.help, prefix, tw_offset, lpad=lpad)
 
 
-class ChoiceMap(BasePositional[str], Generic[T]):
+class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     """
     Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.
 
@@ -95,14 +96,11 @@ class ChoiceMap(BasePositional[str], Generic[T]):
         if choice_validation_exc is not None:
             cls._choice_validation_exc = choice_validation_exc
 
-    def __init__(self, *, action: str = 'append', title: str = None, description: str = None, **kwargs):
+    def __init__(self, *, action: str = 'concatenate', title: str = None, description: str = None, **kwargs):
         super().__init__(action=action, **kwargs)
         self.title = title
         self.description = description
         self.choices = {}
-
-    def _init_value_factory(self):
-        return []
 
     # region Choice Registration
 
@@ -152,22 +150,12 @@ class ChoiceMap(BasePositional[str], Generic[T]):
 
     # region Argument Handling
 
-    @parameter_action
-    def append(self, value: str):
-        values = value.split()
-        if not self.is_valid_arg(' '.join(values)):
-            raise InvalidChoice(self, value, self.choices)
-
-        ctx.get_parsed_value(self).extend(values)
-        n_values = len(values)
-        ctx.record_action(self, n_values - 1)  # - 1 because it was already called before dispatching to this method
-        return n_values
-
     def validate(self, value: str):
         if not (choices := self.choices):
             self._no_choices_error()
 
-        values = (*ctx.get_parsed_value(self), value)
+        parsed = ctx.get_parsed_value(self)
+        values = (value,) if parsed is _NotSet else (*parsed, value)
         if (choice := ' '.join(values)) in choices:
             return
         elif len(values) > self.nargs.max:
@@ -177,25 +165,14 @@ class ChoiceMap(BasePositional[str], Generic[T]):
             raise InvalidChoice(self, prefix[:-1], choices)
 
     def result_value(self, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
-        if not (choices := self.choices):
+        if not self.choices:
             self._no_choices_error()
-        if not (values := ctx.get_parsed_value(self)):
-            if None in choices:
-                return None
-            elif missing_default is _NotSet:
-                raise MissingArgument(self)
-            return missing_default
-        if (val_count := len(values)) not in self.nargs:
-            raise BadArgument(self, f'expected nargs={self.nargs} values but found {val_count}')
-        if (choice := ' '.join(values)) not in choices:
-            raise InvalidChoice(self, choice, choices)
-        return choice
+        return super().result_value(missing_default)
 
     result = result_value
 
     def target(self) -> T:
-        choice = self.result_value()
-        return self.choices[choice].target
+        return self.choices[self.result_value()].target
 
     # endregion
 
@@ -242,6 +219,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         if not required:
             # This results in next_cmd=None in parse_args, so the base cmd will run
             self._register_choice(None, None, default_help)
+            self.default = None
         if local_choices:
             self._register_local_choices(local_choices)
 
@@ -332,6 +310,8 @@ class Action(ChoiceMap[MethodType], title='Actions'):
             if choice:  # register both the explicit and the default choices
                 self.register_choice(choice, method, help)
             self._register_choice(None, method, help)
+            self.default = None
+            self.required = False
         else:
             self.register_choice(choice or method.__name__, method, help)
 

@@ -229,9 +229,9 @@ class MissingArgument(BadArgument):
 class TooManyArguments(BadArgument):
     """Error raised when too many values were provided for a Parameter"""
 
-    def __str__(self) -> str:
-        nargs = self.param.nargs
-        return f'argument {self.usage_str}: cannot accept any additional args with {nargs=} - {self.message}'
+    def __init__(self, param: ParamOrGroup, message: str = None):
+        msg = f'expected {param.nargs} args - cannot accept any additional args'
+        super().__init__(param, f'{msg} - {message}' if message else msg)
 
 
 class NoSuchOption(UsageError):

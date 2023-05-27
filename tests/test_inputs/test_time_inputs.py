@@ -25,6 +25,10 @@ KO_KR = 'ko_KR.utf-8'
 FR_FR = 'fr_FR.utf-8'
 # fmt: on
 
+JAN_1_2022 = date(2022, 1, 1)
+FEB_2_2022 = date(2022, 2, 2)
+MAR_3_2022 = date(2022, 3, 3)
+
 
 class MiscDTInputTest(TestCase):
     def test_setlocale_not_called_without_locale(self):
@@ -340,9 +344,9 @@ class ParseInputTest(ParserTest):
     def test_date_default_type_fix(self):
         class Foo(Command):
             start = Option('-s', type=Date(), default='2022-01-01')
-            end = Option('-e', type=Date(), default=date(2022, 1, 1))
+            end = Option('-e', type=Date(), default=JAN_1_2022)
 
-        cases = {date(2022, 1, 1): [], date(2022, 2, 2): ['-s', '2022-02-02', '-e', '2022-02-02']}
+        cases = {JAN_1_2022: [], FEB_2_2022: ['-s', '2022-02-02', '-e', '2022-02-02']}
         for expected, argv in cases.items():
             with self.subTest(expected=expected, argv=argv):
                 foo = Foo.parse(argv)
@@ -351,11 +355,11 @@ class ParseInputTest(ParserTest):
 
     def test_date_default_collection_type_fix_tuple(self):
         class Foo(Command):
-            bar = Option('-b', type=Date(), nargs='+', default=('2022-01-01', date(2022, 1, 1)))
+            bar = Option('-b', type=Date(), nargs='+', default=('2022-01-01', JAN_1_2022))
 
         cases = [
-            ([], (date(2022, 1, 1), date(2022, 1, 1))),
-            (['-b', '2022-02-02', '2022-03-03'], [date(2022, 2, 2), date(2022, 3, 3)]),
+            ([], [JAN_1_2022, JAN_1_2022]),
+            (['-b', '2022-02-02', '2022-03-03'], [JAN_1_2022, JAN_1_2022, FEB_2_2022, MAR_3_2022]),
         ]
         for argv, expected in cases:
             with self.subTest(expected=expected, argv=argv):
@@ -364,11 +368,11 @@ class ParseInputTest(ParserTest):
 
     def test_date_default_collection_type_fix_single(self):
         class Foo(Command):
-            bar = Option('-b', type=Date(), nargs='+', default=date(2022, 1, 1))
+            bar = Option('-b', type=Date(), nargs='+', default=JAN_1_2022)
 
         cases = [
-            ([], [date(2022, 1, 1)]),
-            (['-b', '2022-02-02', '2022-03-03'], [date(2022, 2, 2), date(2022, 3, 3)]),
+            ([], [JAN_1_2022]),
+            (['-b', '2022-02-02', '2022-03-03'], [JAN_1_2022, FEB_2_2022, MAR_3_2022]),
         ]
         for argv, expected in cases:
             with self.subTest(expected=expected, argv=argv):
@@ -394,14 +398,14 @@ class ParseInputTest(ParserTest):
             def __contains__(self, item):
                 return item in self.data
 
-        default = Custom((date(2022, 1, 1),))
+        default = Custom((JAN_1_2022,))
 
         class Foo(Command):
             bar = Option('-b', type=Date(), nargs='+', default=default)
 
         cases = [
-            ([], default),
-            (['-b', '2022-02-02', '2022-03-03'], [date(2022, 2, 2), date(2022, 3, 3)]),
+            ([], [JAN_1_2022]),
+            (['-b', '2022-02-02', '2022-03-03'], [JAN_1_2022, FEB_2_2022, MAR_3_2022]),
         ]
         for argv, expected in cases:
             with self.subTest(expected=expected, argv=argv):

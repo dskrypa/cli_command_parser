@@ -10,28 +10,27 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from contextvars import ContextVar
-from functools import partial, update_wrapper, cached_property
+from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, TypeVar, overload
-from typing import List, FrozenSet
+from typing import List, Dict, Tuple
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
 from ..context import Context, ctx, get_current_context
-from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, TooManyArguments
-from ..exceptions import ParamUsageError, UnsupportedAction
+from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, UnsupportedAction
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs, REMAINDER
 from ..typing import T_co
-from ..utils import _NotSet, ValueSource
+from ..utils import _NotSet
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
-    from types import MethodType
     from ..formatting.params import ParamHelpFormatter
-    from ..typing import OptStr, OptStrs, Bool, ValSrc, CommandCls, CommandObj, CommandAny, Param, LeadingDash
+    from ..typing import OptStr, OptStrs, Strings, Bool, CommandCls, CommandObj, CommandAny, Param, LeadingDash
+    from .actions import ParamAction
     from .groups import ParamGroup
 
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
@@ -39,47 +38,6 @@ __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
 TD = TypeVar('TD')
-
-
-class parameter_action:  # pylint: disable=C0103
-    """
-    Decorator that is used to register :paramref:`Parameter.__init__.action` handler methods to store values that are
-    provided for that type of :class:`Parameter`.  The name of the decorated method is used as the ``action`` name.
-
-    :param method: The method that should be used to handle storing values
-    """
-
-    def __init__(self, method: MethodType):
-        self.method = method
-        update_wrapper(self, method)
-
-    def __set_name__(self, parameter_cls: Type[Parameter], name: str):
-        """
-        Registers the decorated method in the Parameter subclass's _actions dict, then replaces the action decorator
-        with the original method.
-
-        Since `__set_name__` is called on descriptors before their containing class's parent's `__init_subclass__` is
-        called, name action/method name conflicts are handled by imitating a name mangled dunder attribute that will be
-        unique to each subclass.  The mangled name is replaced with the friendlier `_actions` in
-        :meth:`Parameter.__init_subclass__`.
-        """
-        attr = f'_{parameter_cls.__name__}__actions'
-        try:
-            actions = getattr(parameter_cls, attr)
-        except AttributeError:
-            actions = set()
-            setattr(parameter_cls, attr, actions)
-
-        actions.add(name)
-
-    def __call__(self, *args, **kwargs) -> int:
-        result = self.method(*args, **kwargs)
-        return 1 if result is None else result
-
-    def __get__(self, instance: Optional[Parameter], owner: Type[Parameter]):
-        if instance is None:
-            return self
-        return partial(self.__call__, instance)
 
 
 class ParamBase(ABC):
@@ -93,23 +51,27 @@ class ParamBase(ABC):
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
+    # Class Attributes
+    missing_hint: str = None        #: Hint to provide if this param/group is missing
+    # Instance Attributes
     _attr_name: str = None          #: Always the name of the attr that points to this object
     _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
     group: ParamGroup = None        #: The group this object is a member of, if any
     command: CommandCls = None      #: The :class:`.Command` this object is a member of
-    required: Bool = False          #: Whether this param/group is required
-    help: str = None                #: The description for this param/group that will appear in ``--help`` text
-    hide: Bool = False              #: Whether this param/group should be hidden in ``--help`` text
-    missing_hint: str = None        #: Hint to provide if this param/group is missing
+    required: Bool                  #: Whether this param/group is required
+    help: str                       #: The description for this param/group that will appear in ``--help`` text
+    hide: Bool                      #: Whether this param/group should be hidden in ``--help`` text
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
         self.__doc__ = help  # Prevent this class's docstring from showing up for params in generated documentation
         self.required = required
-        self.name = name
         self.help = help
         self.hide = hide
+        self.name = name
         if param_groups := _group_stack.get(None):  # If truthy, there's at least 1 active ParamGroup
             param_groups[-1].register(self)  # This sets self.group = group
+
+    # region Name
 
     @property
     def name(self) -> str:
@@ -130,6 +92,8 @@ class ParamBase(ABC):
         if self._name is None:
             self._name = name
         self._attr_name = name
+
+    # endregion
 
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
@@ -204,19 +168,26 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # region Attributes & Initialization
 
     # Class attributes
-    _actions: FrozenSet[str] = frozenset()          #: The actions supported by this Parameter
-    _repr_attrs: Optional[Collection[str]] = None   #: Attributes to include in ``repr()`` output
-    accepts_values: bool = True                     #: Whether this Parameter can be provided with at least 1 value
+    _action_map: Dict[str, Type[ParamAction]] = {}
+    _repr_attrs: Optional[Strings] = None           #: Attributes to include in ``repr()`` output
+    accepts_values: Bool = True                     #: Whether this Parameter can be provided with at least 1 value
     # Instance attributes with class defaults
-    accepts_none: bool = False                      #: Whether this Parameter can be provided without a value
+    accepts_none: Bool = False                      #: Whether this Parameter can be provided without a value
     metavar: str = None
     nargs: Nargs = Nargs(1)                         # Set in subclasses
+    # nargs: Nargs  # TODO
     type: Optional[Callable[[str], T_co]] = None    # Only set here if not set by __init__ in Option/Positional
-    show_default: bool = None
+    show_default: Bool = None
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
+    strict_default: Bool = False
 
     def __init_subclass__(
-        cls, accepts_values: bool = None, accepts_none: bool = None, repr_attrs: Collection[str] = None, **kwargs
+        cls,
+        accepts_values: bool = None,
+        accepts_none: bool = None,
+        repr_attrs: Strings = None,
+        actions: Collection[Type[ParamAction]] = None,
+        **kwargs,
     ):
         """
         :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`.Flag`
@@ -226,15 +197,9 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         :param repr_attrs: Additional attributes to include in the repr.
         """
         super().__init_subclass__(**kwargs)
-        actions = set(cls._actions)  # Inherit actions from parent
-        actions.update(getattr(cls, '_BasicActionMixin__actions', ()))  # Inherit from mixin, if present
-        try:
-            actions.update(getattr(cls, f'_{cls.__name__}__actions'))
-        except AttributeError:
-            pass
-        else:
-            delattr(cls, f'_{cls.__name__}__actions')
-        cls._actions = frozenset(actions)
+        if actions:
+            cls._action_map = action_map = cls._action_map.copy()
+            action_map.update((action.name, action) for action in actions)
         if accepts_values is not None:
             cls.accepts_values = accepts_values
         if accepts_none is not None:
@@ -252,10 +217,11 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         help: str = None,  # noqa
         hide: Bool = False,
         show_default: Bool = None,
+        strict_default: Bool = False,
     ):
-        if action not in self._actions:
+        if not (param_action := self._action_map.get(action)):
             raise ParameterDefinitionError(
-                f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._actions)}'
+                f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._action_map)}'
             )
         if required and default is not _NotSet:
             # TODO: For required mutually dependent groups, or a required group with all params having a default,
@@ -265,19 +231,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 ' required Parameters cannot have a default value'
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
+        self.action = param_action(self)
         self._action_name = action
-        self.default = self._init_default() if default is _NotSet else default
+        self.default = default
         self.metavar = metavar
+        self.strict_default = strict_default
         if show_default is not None:
             self.show_default = show_default
-
-    def _init_default(self):
-        if not self.required and self.nargs.max == 1:
-            return None
-        return _NotSet
-
-    def _init_value_factory(self):
-        return _NotSet
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
@@ -320,48 +280,12 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # region Parsing / Argument Handling
 
     def get_const(self, opt_str: OptStr = None):
-        return NotImplemented
+        return _NotSet
 
-    def normalize_env_var_value(self, value: str, env_var: str) -> T_co:
-        return value
+    def get_env_const(self, value: str, env_var: str) -> Tuple[T_co, bool]:
+        return _NotSet, False
 
-    def take_action(
-        self, value: OptStr, short_combo: Bool = False, opt_str: OptStr = None, src: ValSrc = ValueSource.CLI
-    ) -> int:
-        """
-        :param value: The parsed value or None
-        :param short_combo: Only True when a short option was provided, where the option string was combined with
-          either a real value or a sequence of 1-char combinable versions of short option strings.
-        :param opt_str: The option string that preceded the given value, or a single char that was combined with
-          other 1-char combinable versions of short option strings.
-        :param src: The source for the value - either CLI or env var
-        :return: The number of new values discovered
-        """
-        ctx.record_action(self)
-        return getattr(self, self._action_name)(self.prepare_and_validate(value, short_combo))
-
-    def would_accept(self, value: str, short_combo: Bool = False) -> bool:
-        action = self._action_name
-        if action in {'store', 'store_all'} and ctx.get_parsed_value(self) is not _NotSet:
-            return False
-        elif action == 'append' and self.nargs.max_reached(ctx.get_parsed_value(self)):
-            return False
-        try:
-            normalized = self.prepare_value(value, short_combo, True)
-        except BadArgument:
-            return False
-        return self.is_valid_arg(normalized)
-
-    def prepare_and_validate(self, value: OptStr, short_combo: Bool = False) -> T_co:
-        """Called by :meth:`.take_action` to prepare/validate the value before it is passed to the action method."""
-        if value is not None:
-            value = self.prepare_value(value, short_combo)
-        self.validate(value)
-        return value
-
-    def prepare_value(  # pylint: disable=W0613
-        self, value: str, short_combo: Bool = False, pre_action: Bool = False
-    ) -> T_co:
+    def prepare_value(self, value: str, short_combo: Bool = False, pre_action: Bool = False) -> T_co:
         type_func = self.type
         if type_func is None or (pre_action and isinstance(type_func, InputType) and type_func.is_valid_type(value)):
             return value
@@ -377,17 +301,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
     def validate(self, value: Optional[T_co]):
-        if isinstance(value, str) and value.startswith('-'):
-            if self.allow_leading_dash == AllowLeadingDash.NUMERIC:
-                if len(value) > 1 and not _is_numeric(value):
-                    raise BadArgument(self, f'invalid {value=}')
-            elif self.allow_leading_dash == AllowLeadingDash.NEVER:
+        if not isinstance(value, str) or not value or not value[0] == '-':
+            return
+        elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
+            if len(value) > 1 and not _is_numeric(value):
                 raise BadArgument(self, f'invalid {value=}')
-        elif value is None:
-            if not self.accepts_none:
-                raise MissingArgument(self)
-        elif not self.accepts_values:
-            raise BadArgument(self, f'does not accept values, but {value=} was provided')
+        elif self.allow_leading_dash == AllowLeadingDash.NEVER:
+            raise BadArgument(self, f'invalid {value=}')
 
     def is_valid_arg(self, value: Any) -> bool:
         try:
@@ -431,45 +351,18 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         return value
 
     def result_value(self, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
-        if (value := ctx.get_parsed_value(self)) is _NotSet:
+        value = ctx.get_parsed_value(self)
+        if value is _NotSet:
             if self.required:
                 if missing_default is _NotSet:
                     raise MissingArgument(self)
                 return missing_default
             else:
-                return self._fix_default(self.default)
-        elif self._action_name == 'store':
-            return value
+                return self.action.get_default(missing_default)
 
-        # Implied: action == 'append' or 'store_all'
-        if not value and (default := self.default) is not _NotSet:
-            if isinstance(default, Collection) and not isinstance(default, str):
-                value = self._fix_default_collection(default)
-            else:
-                value.append(self._fix_default(default))
-
-        nargs = self.nargs
-        if (val_count := len(value)) == 0 and 0 not in nargs:
-            if self.required:
-                if missing_default is _NotSet:
-                    raise MissingArgument(self)
-                return missing_default
-        elif val_count not in nargs:
-            raise BadArgument(self, f'expected {nargs=} values but found {val_count}')
-
-        return value
+        return self.action.finalize_value(value)
 
     result = result_value
-
-    def _fix_default(self, value) -> Optional[T_co]:
-        if (type_func := self.type) and isinstance(type_func, InputType):
-            return type_func.fix_default(value)
-        return value
-
-    def _fix_default_collection(self, values) -> Optional[T_co]:
-        if (type_func := self.type) and isinstance(type_func, InputType) and isinstance(values, (list, tuple, set)):
-            return values.__class__(map(type_func.fix_default, values))
-        return values
 
     # endregion
 
@@ -511,33 +404,6 @@ class BasicActionMixin:
         if allow_leading_dash is not None:
             self.allow_leading_dash = allow_leading_dash
 
-    def _init_default(self):
-        if not self.required and self.nargs.max == 1 and self._action_name != 'append':
-            return None
-        return _NotSet
-
-    def _init_value_factory(self):
-        if self._action_name == 'append':
-            return []
-        return super()._init_value_factory()  # noqa
-
-    # endregion
-
-    # region Actions
-
-    @parameter_action
-    def store(self: Parameter, value: T_co):
-        if (prev := ctx.get_parsed_value(self)) is not _NotSet:
-            raise ParamUsageError(self, f'can only be specified once - found multiple values: {prev!r}, {value!r}')
-        ctx.set_parsed_value(self, value)
-
-    @parameter_action
-    def append(self: Parameter, value: T_co):
-        parsed = ctx.get_parsed_value(self)
-        if self.nargs.max_reached(parsed):
-            raise TooManyArguments(self, f'already found {len(parsed)} values')
-        parsed.append(value)
-
     # endregion
 
     # region Parsing - Backtracking Methods
@@ -554,17 +420,6 @@ class BasicActionMixin:
 
         n_values = len(values)
         return [i for i in range(1, n_values) if self.nargs.satisfied(n_values - i)]
-
-    def _reset(self: Union[Parameter, BasicActionMixin]) -> List[str]:
-        if self._action_name != 'append' or self.type not in (None, str):
-            raise UnsupportedAction
-
-        if not (values := ctx.get_parsed_value(self)):
-            return values
-
-        ctx.set_parsed_value(self, self._init_value_factory())
-        ctx._provided[self] = 0
-        return values
 
     def pop_last(self: Union[Parameter, BasicActionMixin], count: int = 1) -> List[str]:
         values = self._pre_pop_values()
@@ -636,12 +491,23 @@ class BaseOption(Parameter[T_co], ABC):
       will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
       that they were provided.  When enabled, values from env variables take precedence over the default value.  When
       enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
+    :param strict_env: When ``True`` (the default), if an :paramref:`.BaseOption.env_var` is used as the source of a
+      value for this Parameter and that value is invalid, then parsing will fail.  When ``False``, invalid values from
+      environment variables will be ignored (and a warning message will be logged).
+    :param use_env_value: For optional Parameters that support storing a constant (such as Flag), this option controls
+      behavior when an :paramref:`.BaseOption.env_var` is used as the source of a value for this Parameter.
+      If ``True``, the parsed value will be stored as this Parameter's value (it must be a valid value).  If ``False``
+      (the default), then the parsed value will be used to determine whether the store/append const action should be
+      taken as if it was specified as a CLI flag (e.g., ``--foo`` with no value).
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
     _opt_str_cls: Type[OptionStrings] = OptionStrings
     option_strs: OptionStrings
     env_var: OptStrs = None
+    strict_env: Bool
+    use_env_value: Bool
+    const = _NotSet
 
     def __init__(
         self,
@@ -649,12 +515,17 @@ class BaseOption(Parameter[T_co], ABC):
         action: str,
         name_mode: Union[OptionNameMode, str, None] = _NotSet,
         env_var: OptStrs = None,
+        strict_env: bool = True,
+        use_env_value: Bool = None,
         **kwargs,
     ):
         super().__init__(action, **kwargs)
         self.option_strs = self._opt_str_cls(option_strs, name_mode)
+        self.strict_env = strict_env
         if env_var:
             self.env_var = env_var
+        if use_env_value is not None:
+            self.use_env_value = use_env_value
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
@@ -668,3 +539,6 @@ class BaseOption(Parameter[T_co], ABC):
                 yield env_var
             else:
                 yield from env_var
+
+    def get_const(self, opt_str: OptStr = None):
+        return self.const

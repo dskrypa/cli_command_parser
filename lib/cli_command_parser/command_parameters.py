@@ -407,7 +407,7 @@ class CommandParameters:
         # value will never be empty if key is a valid option because by this point, option is not a short option
         combo_option_map = self.combo_option_map
         param = combo_option_map[key]
-        if param.would_accept(value, short_combo=True):
+        if param.action.would_accept(value, combo=True):
             return [(key, param, value)]
         else:
             # Multi-char short options can never be combined with each other, but single-char ones can

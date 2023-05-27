@@ -12,6 +12,7 @@ from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet
+from .actions import Store, Append
 from .base import BasicActionMixin, BasePositional
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 __all__ = ['Positional']
 
 
-class Positional(BasicActionMixin, BasePositional, default_ok=True):
+class Positional(BasicActionMixin, BasePositional, default_ok=True, actions=(Store, Append)):
     """
     A parameter that must be provided positionally.
 
@@ -65,6 +66,7 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
             if self.nargs == 0:
                 cls_name = self.__class__.__name__
                 raise ParameterDefinitionError(f'Invalid nargs={self.nargs} - {cls_name} must allow at least 1 value')
+
         if action is _NotSet:
             action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
         elif action == 'store' and self.nargs.max != 1:

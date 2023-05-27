@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from .core import CommandMeta
     from .inputs import InputType
     from .parameters import Parameter, ParamGroup
-    from .utils import ValueSource
 
 T = TypeVar('T')
 T_co = TypeVar('T_co', covariant=True)
@@ -31,7 +30,6 @@ RngType = Union[range, int, Sequence[int]]
 
 InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum'], Pattern]
 ChoicesType = Optional[Collection[Any]]
-ValSrc = Union['ValueSource', Tuple['ValueSource', str]]
 
 Bool = Union[bool, Any]
 Strs = Union[str, Sequence[str]]
