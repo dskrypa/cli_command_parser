@@ -12,7 +12,7 @@ Path
 ----
 
 To automatically handle common normalization steps / checks that are done for paths, the :class:`.Path` class is
-available.
+available.  When this input type is used, the parsed value will be provided as a :class:`python:pathlib.Path` object.
 
 .. _path_init_params:
 
@@ -25,7 +25,7 @@ available.
   False.
 :type: To restrict the acceptable types of files/directories that are accepted, specify the :class:`.StatMode` that
   matches the desired type.  By default, any type is accepted.  To accept specifically only regular files or
-  directories, for example, use ``type=StatMode.DIR | StatMode.FILE``.
+  directories, for example, use ``type=StatMode.DIR | StatMode.FILE`` or ``'dir|file'``.
 :readable: If True, the path must be readable.
 :writable: If True, the path must be writable.
 :allow_dash: Allow a dash (``-``) to be provided to indicate stdin/stdout (default: False).
