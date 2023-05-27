@@ -247,10 +247,6 @@ class NoActiveContext(CommandParserException, RuntimeError):
 # region Internal Exceptions
 
 
-class UnsupportedAction(CommandParserException):
-    """Indicates that an attempted action cannot be completed.  Only used internally."""
-
-
 class Backtrack(CommandParserException):
     """Raised when backtracking took place.  Only used internally."""
 

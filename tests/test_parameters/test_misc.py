@@ -13,7 +13,6 @@ from cli_command_parser.exceptions import (
     ParamUsageError,
     MissingArgument,
     BadArgument,
-    UnsupportedAction,
     ParamsMissing,
 )
 from cli_command_parser.formatting.params import (
@@ -285,19 +284,20 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
             with self.assertRaisesRegex(BadArgument, r'expected nargs=.* values but found \d+'):
                 foo.bar  # noqa
 
-    def test_flag_pop_last(self):
-        with self.assertRaises(UnsupportedAction):
-            Flag().pop_last()
+    def test_flag_backtrack(self):
+        flag_act = Flag().action
+        self.assertEqual([], flag_act.get_maybe_poppable_values())
+        self.assertFalse(flag_act.can_reset())
 
-    def test_empty_can_pop_counts(self):
-        self.assertEqual([], PassThru().can_pop_counts())
+    def test_flag_add_values(self):
+        flag_act = Flag().action
+        self.assertEqual(0, flag_act.add_values([]))
+        with Context():
+            self.assertEqual(1, flag_act.add_values([None]))
 
-    def test_unsupported_pop(self):
-        class Foo(Command):
-            bar = Positional()
-
-        with Context(), self.assertRaises(UnsupportedAction):
-            Foo.bar.pop_last()
+    def test_store_add_const(self):
+        with Context(), self.assertRaises(MissingArgument):
+            Positional().action.add_const()
 
 
 if __name__ == '__main__':

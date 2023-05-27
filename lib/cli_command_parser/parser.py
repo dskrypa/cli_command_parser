@@ -264,11 +264,12 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if (positionals := self.positionals) and (to_pop := _to_pop(positionals, param.can_pop_counts(), found - 1)):
-            self.arg_deque.extendleft(reversed(param.pop_last(to_pop)))
-            return found - to_pop
-        else:
-            return found
+        if positionals := self.positionals:
+            values, can_pop = param.action.get_maybe_poppable_values_and_counts()
+            if to_pop := _to_pop(positionals, can_pop, found - 1):
+                self.arg_deque.extendleft(reversed(param._pop_last(values, to_pop)))  # noqa
+                return found - to_pop
+        return found
 
     def _maybe_backtrack_last(self, param: Union[BasePositional, BasicActionMixin], found: int):
         """
@@ -277,11 +278,11 @@ class CommandParser:
         if not self.config.allow_backtrack:
             return
 
-        can_pop = self._last.can_pop_counts()
+        values, can_pop = self._last.action.get_maybe_poppable_values_and_counts()
         if to_pop := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
             reset = self.ctx.pop_parsed_value(param)
             self.arg_deque.extendleft(reversed(reset))
-            self.arg_deque.extendleft(reversed(self._last.pop_last(to_pop)))
+            self.arg_deque.extendleft(reversed(self._last._pop_last(values, to_pop)))  # noqa
             raise Backtrack
 
     # endregion

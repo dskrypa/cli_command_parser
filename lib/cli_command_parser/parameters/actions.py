@@ -92,6 +92,17 @@ class ParamAction(ABC):
     def finalize_value(self, value):
         return value
 
+    def get_maybe_poppable_values(self):
+        return []
+
+    def get_maybe_poppable_values_and_counts(self):
+        values = self.get_maybe_poppable_values()
+        if not values:
+            return [], []
+        n_values = len(values)
+        satisfied = self.param.nargs.satisfied
+        return values, [i for i in range(1, n_values) if satisfied(n_values - i)]
+
     def can_reset(self) -> bool:
         return False
 
@@ -110,6 +121,9 @@ class ParamAction(ABC):
         except BadArgument:
             return False
         return param.is_valid_arg(normalized)
+
+
+# region Mixins
 
 
 class ValueMixin:
@@ -203,6 +217,9 @@ class ConstMixin:
             return self.add_const()
 
 
+# endregion
+
+
 class Store(ValueMixin, ParamAction, default=None):
     __slots__ = ()
     default_nargs = Nargs(1)
@@ -288,6 +305,12 @@ class Append(ValueMixin, ParamAction):
         if (val_count := len(value)) not in (nargs := self.param.nargs):
             raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
         return value
+
+    def get_maybe_poppable_values(self):
+        param = self.param
+        if not param.nargs.variable or param.type not in (None, str):
+            return []
+        return ctx.get_parsed_value(param)
 
     def can_reset(self) -> bool:
         if self.param.type not in (None, str):

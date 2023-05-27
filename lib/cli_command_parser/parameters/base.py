@@ -18,7 +18,7 @@ from typing import List, Dict, Tuple
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
 from ..context import Context, ctx, get_current_context
-from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice, UnsupportedAction
+from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
@@ -319,16 +319,6 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     # endregion
 
-    # region Parsing - Backtracking Methods
-
-    def can_pop_counts(self) -> List[int]:  # noqa
-        return []
-
-    def pop_last(self, count: int = 1) -> List[str]:
-        raise UnsupportedAction
-
-    # endregion
-
     # region Parse Results / Argument Value Handling
 
     @overload
@@ -408,24 +398,7 @@ class BasicActionMixin:
 
     # region Parsing - Backtracking Methods
 
-    def _pre_pop_values(self: Parameter):
-        if self._action_name != 'append' or not self.nargs.variable or self.type not in (None, str):
-            return []
-
-        return ctx.get_parsed_value(self)
-
-    def can_pop_counts(self) -> List[int]:
-        if not (values := self._pre_pop_values()):
-            return []
-
-        n_values = len(values)
-        return [i for i in range(1, n_values) if self.nargs.satisfied(n_values - i)]
-
-    def pop_last(self: Union[Parameter, BasicActionMixin], count: int = 1) -> List[str]:
-        values = self._pre_pop_values()
-        if not values or count >= len(values) or not self.nargs.satisfied(len(values) - count):
-            raise UnsupportedAction
-
+    def _pop_last(self: Union[Parameter, BasicActionMixin], values, count: int = 1) -> List[str]:
         ctx.set_parsed_value(self, values[:-count])
         ctx.record_action(self, -count)
         return values[-count:]
