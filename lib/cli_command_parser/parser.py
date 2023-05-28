@@ -17,7 +17,7 @@ from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgume
 from .exceptions import Backtrack, NextCommand
 from .nargs import REMAINDER, nargs_min_and_max_sums
 from .parse_tree import PosNode
-from .parameters.base import BasicActionMixin, Parameter, BasePositional, BaseOption
+from .parameters.base import Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
@@ -270,7 +270,7 @@ class CommandParser:
                 return found - rollback_count
         return found
 
-    def _maybe_backtrack_last(self, param: Union[BasePositional, BasicActionMixin], found: int):
+    def _maybe_backtrack_last(self, param: BasePositional, found: int):
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """

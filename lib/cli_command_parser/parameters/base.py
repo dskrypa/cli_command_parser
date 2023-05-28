@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, TypeVar, overload
-from typing import List, Dict, Tuple
+from typing import Dict, Tuple
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
@@ -353,34 +353,6 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # endregion
 
 
-class BasicActionMixin:
-    _action_name: str
-    nargs: Nargs
-    required: bool
-    type: Optional[Callable]
-
-    # region Initialization
-
-    def _validate_nargs_and_allow_leading_dash(self, allow_leading_dash: LeadingDash):
-        if allow_leading_dash is not None:
-            allow_leading_dash = AllowLeadingDash(allow_leading_dash)
-
-        if self.nargs.max is REMAINDER:
-            if self.type is not None:
-                raise ParameterDefinitionError(f'Type casting and choices are not supported with nargs={self.nargs!r}')
-            elif allow_leading_dash not in (None, AllowLeadingDash.ALWAYS):
-                raise ParameterDefinitionError(
-                    f'With nargs={self.nargs!r}, only allow_leading_dash=AllowLeadingDash.ALWAYS is supported - found:'
-                    f' {allow_leading_dash!r}'
-                )
-            allow_leading_dash = AllowLeadingDash.ALWAYS
-
-        if allow_leading_dash is not None:
-            self.allow_leading_dash = allow_leading_dash
-
-    # endregion
-
-
 class BasePositional(Parameter[T_co], ABC):
     """
     Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are
@@ -490,3 +462,39 @@ class BaseOption(Parameter[T_co], ABC):
 
     def get_const(self, opt_str: OptStr = None):
         return self.const
+
+
+class AllowLeadingDashProperty:
+    """
+    Custom value normalizer/validator for the ``allow_leading_dash`` property of ``Positional`` and ``Option`` classes.
+    """
+
+    __slots__ = ('name', 'default')
+
+    def __init__(self, default: AllowLeadingDash = AllowLeadingDash.NUMERIC):
+        self.default = default
+
+    def __set_name__(self, owner, name: str):
+        self.name = name
+
+    def __get__(self, instance: Optional[Parameter], owner) -> Union[AllowLeadingDash, AllowLeadingDashProperty]:
+        if instance is None:
+            return self
+        return instance.__dict__.get(self.name, self.default)
+
+    def __set__(self, instance: Parameter, value: LeadingDash):
+        if value is not None:
+            value = AllowLeadingDash(value)
+
+        nargs = instance.nargs
+        if nargs.max is REMAINDER:
+            if instance.type is not None:
+                raise ParameterDefinitionError(f'Type casting and choices are not supported with {nargs=}')
+            elif value not in (None, AllowLeadingDash.ALWAYS):
+                raise ParameterDefinitionError(
+                    f'With {nargs=}, only allow_leading_dash=AllowLeadingDash.ALWAYS is supported - found: {value!r}'
+                )
+            value = AllowLeadingDash.ALWAYS
+
+        if value is not None:
+            instance.__dict__[self.name] = value

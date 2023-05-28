@@ -17,7 +17,7 @@ from ..nargs import Nargs, NargsValue
 from ..typing import T_co, TypeFunc
 from ..utils import _NotSet, str_to_bool
 from .actions import Store, StoreConst, Append, AppendConst, Count
-from .base import BasicActionMixin, BaseOption
+from .base import BaseOption, AllowLeadingDashProperty
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ TC = TypeVar('TC')
 TA = TypeVar('TA')
 
 
-class Option(BasicActionMixin, BaseOption[Union[T_co, TD]], actions=(Store, Append)):
+class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -62,6 +62,7 @@ class Option(BasicActionMixin, BaseOption[Union[T_co, TD]], actions=(Store, Appe
     """
 
     default: TD
+    allow_leading_dash = AllowLeadingDashProperty()
 
     def __init__(
         self,
@@ -99,7 +100,7 @@ class Option(BasicActionMixin, BaseOption[Union[T_co, TD]], actions=(Store, Appe
 
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.type = normalize_input_type(type, choices)
-        self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
+        self.allow_leading_dash = allow_leading_dash
 
 
 class _Flag(BaseOption[T_co], ABC, actions=(StoreConst, AppendConst)):

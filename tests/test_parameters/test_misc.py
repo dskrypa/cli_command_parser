@@ -14,7 +14,7 @@ from cli_command_parser.formatting.params import (
     GroupHelpFormatter,
 )
 from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
-from cli_command_parser.parameters.base import Parameter, BaseOption, BasePositional
+from cli_command_parser.parameters.base import Parameter, BaseOption, BasePositional, AllowLeadingDashProperty
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
 from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest, sealed_mock
@@ -126,6 +126,9 @@ class MiscParameterTest(ParserTest):
         act = Flag().action
         self.assertEqual('store_const', str(act))
         self.assertIn('<StoreConst[values=False, consts=True]', repr(act))
+
+    def test_leading_dash_property(self):
+        self.assertIsInstance(Option.allow_leading_dash, AllowLeadingDashProperty)
 
 
 class UnlikelyToBeReachedParameterTest(ParserTest):

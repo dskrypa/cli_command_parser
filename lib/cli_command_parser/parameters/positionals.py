@@ -13,7 +13,7 @@ from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet
 from .actions import Store, Append
-from .base import BasicActionMixin, BasePositional
+from .base import BasePositional, AllowLeadingDashProperty
 
 if TYPE_CHECKING:
     from ..typing import InputTypeFunc, ChoicesType, LeadingDash
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 __all__ = ['Positional']
 
 
-class Positional(BasicActionMixin, BasePositional, default_ok=True, actions=(Store, Append)):
+class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
     """
     A parameter that must be provided positionally.
 
@@ -49,6 +49,8 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True, actions=(Sto
       ``AllowLeadingDash.NEVER``.
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
+
+    allow_leading_dash = AllowLeadingDashProperty()
 
     def __init__(
         self,
@@ -79,4 +81,4 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True, actions=(Sto
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)
         self.type = normalize_input_type(type, choices)
-        self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
+        self.allow_leading_dash = allow_leading_dash
