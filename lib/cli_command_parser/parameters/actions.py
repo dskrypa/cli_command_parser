@@ -224,9 +224,9 @@ class ConstMixin:
 
     def add_env_value(self, value: str, env_var: str):
         const, use_value = self.param.get_env_const(value, env_var)
-        if const is _NotSet:
+        if const is _NotSet:  # It does not support storing constants
             return self.add_value(value)
-        elif use_value:
+        elif use_value:  # Due to config or Param type (TriFlag needs this even when invoking the positive action)
             ctx.record_action(self.param)
             if self._append:
                 self.append_const(const)

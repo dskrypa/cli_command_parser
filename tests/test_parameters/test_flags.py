@@ -38,6 +38,10 @@ class FlagTest(ParserTest):
                 self.assertNotEqual(Foo.bar.type, annotation)
                 self.assert_parse_results_cases(Foo, [(['--bar'], {'bar': True}), ([], {'bar': False})])
 
+    def test_invalid_action_hint(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, r"Invalid action=.*- did you mean 'store_const'\?"):
+            Flag(action='store')
+
     # region Test Param Actions
 
     def test_store_false(self):

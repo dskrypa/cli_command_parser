@@ -352,6 +352,18 @@ class ParseFlagsTest(ParserTest):
                 with self.assertRaisesRegex(BadArgument, 'invalid value=.*? from env_var='):
                     Foo.parse([])
 
+    def test_env_var_append_const(self):
+        class Foo(Command):
+            bar = Flag('-b', env_var='BAR', action='append_const', use_env_value=True)
+
+        cases = [
+            ([], {}, {'bar': []}),
+            (['-b'], {'BAR': '0'}, {'bar': [True]}),  # cli takes precedence
+            ([], {'BAR': '1'}, {'bar': [True]}),
+            ([], {'BAR': '0'}, {'bar': [False]}),
+        ]
+        self.assert_env_parse_results_cases(Foo, cases)
+
     # endregion
 
 

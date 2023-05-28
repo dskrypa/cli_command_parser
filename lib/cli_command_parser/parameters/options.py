@@ -126,6 +126,12 @@ class _Flag(BaseOption[T_co], ABC, actions=(StoreConst, AppendConst)):
         if type is not None:
             self.type = type
 
+    def _handle_bad_action(self, action: str) -> NoReturn:
+        if action in ('store', 'append'):
+            fixed = f'{action}_const'
+            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - did you mean {fixed!r}?')
+        super()._handle_bad_action(action)
+
     def get_env_const(self, value: str, env_var: str) -> Tuple[T_co, bool]:
         try:
             const = self.type(value)

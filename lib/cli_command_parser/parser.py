@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from collections import deque
 from os import environ
-from typing import TYPE_CHECKING, Optional, Union, Any, Iterable, Deque, List
+from typing import TYPE_CHECKING, Optional, Iterable, Deque, List
 
 from .core import get_parent
 from .context import ActionPhase, Context
@@ -279,6 +279,7 @@ class CommandParser:
             return
 
         can_pop = self._last.action.get_maybe_poppable_counts()
+        # It is extremely unlikely for this point to be reached without this resulting in triggering a backtrack
         if rollback_count := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
             self.arg_deque.extendleft(reversed(self.ctx.pop_parsed_value(param)))
             self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(self._last, rollback_count)))
