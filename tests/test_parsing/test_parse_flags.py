@@ -223,6 +223,12 @@ class ParseFlagsTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails(Foo, ['-baz'])
 
+    def test_append_const_value_rejected(self):
+        class Foo(Command):
+            bar = Flag('-b', action='append_const')
+
+        self.assert_parse_fails(Foo, ['-b=123'])
+
     # region Env Var Handling
 
     def test_env_var(self):

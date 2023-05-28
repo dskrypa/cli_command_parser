@@ -194,11 +194,6 @@ class ConstMixin:
         super().__init_subclass__(**kwargs)
         cls._append = append
 
-    def get_const(self, value: OptStr, opt: str = None):
-        if value is None:
-            return self.param.get_const(opt)
-        raise BadArgument(self.param, f'does not accept values, but {value=} was provided')
-
     def set_const(self, const):
         parsed = ctx.get_parsed_value(self.param)
         if parsed is not _NotSet and parsed != const:
@@ -371,9 +366,28 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
     # endregion
 
 
-class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
+class BasicConstAction(ConstMixin, ParamAction, ABC, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs(0)
+
+    # region Add Parsed Value / Constant Methods
+
+    def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:  # noqa
+        ctx.record_action(self.param)
+        raise BadArgument(self.param, f'does not accept values, but {value=} was provided')
+
+    # endregion
+
+    # region Parsing
+
+    def would_accept(self, value: str, combo: bool = False) -> bool:
+        return False
+
+    # endregion
+
+
+class StoreConst(BasicConstAction, default=None):
+    __slots__ = ()
 
     # region Add Parsed Value / Constant Methods
 
@@ -382,24 +396,11 @@ class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
         self.set_const(self.param.get_const(opt))
         return 1
 
-    def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
-        ctx.record_action(self.param)
-        self.set_const(self.get_const(value, opt))
-        return 1
-
-    # endregion
-
-    # region Parsing
-
-    def would_accept(self, value: str, combo: bool = False) -> bool:
-        return False
-
     # endregion
 
 
-class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
+class AppendConst(BasicConstAction, append=True):
     __slots__ = ()
-    default_nargs = Nargs(0)
 
     # region Add Parsed Value / Constant Methods
 
@@ -408,19 +409,6 @@ class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
         # TODO: Fix nargs consistency for overall vs per-arg
         self.append_const(self.param.get_const(opt))
         return 1
-
-    def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
-        ctx.record_action(self.param)
-        # TODO: Fix nargs consistency for overall vs per-arg
-        self.append_const(self.get_const(value, opt))
-        return 1
-
-    # endregion
-
-    # region Parsing
-
-    def would_accept(self, value: str, combo: bool = False) -> bool:
-        return False
 
     # endregion
 

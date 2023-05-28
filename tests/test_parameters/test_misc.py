@@ -139,10 +139,6 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
             with self.assertRaises(ParamUsageError):
                 action.add_value('foo')
 
-    def test_non_none_rejected(self):
-        with self.assertRaises(ParamUsageError), Context():
-            Flag().action.add_value('foo')
-
     def test_sort_mixed_types(self):
         sort_cases = [
             (ParamGroup(), Flag(), ActionFlag()),
@@ -190,12 +186,6 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
         flag_act = Flag().action
         self.assertEqual([], flag_act.get_maybe_poppable_counts())
         self.assertFalse(flag_act.can_reset())
-
-    def test_flag_add_values(self):
-        flag_act = Flag().action
-        self.assertEqual(0, flag_act.add_values([]))
-        with Context():
-            self.assertEqual(1, flag_act.add_values([None]))
 
     def test_store_add_const(self):
         with Context(), self.assertRaises(MissingArgument):
