@@ -2,19 +2,9 @@
 
 from unittest import main
 
-from cli_command_parser import Command
+from cli_command_parser import Command, Context, ParameterDefinitionError, CommandDefinitionError
 from cli_command_parser.config import CommandConfig
-from cli_command_parser.context import Context
-from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import (
-    NoSuchOption,
-    ParameterDefinitionError,
-    CommandDefinitionError,
-    ParamUsageError,
-    MissingArgument,
-    BadArgument,
-    ParamsMissing,
-)
+from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument
 from cli_command_parser.formatting.params import (
     ParamHelpFormatter,
     PositionalHelpFormatter,
@@ -23,106 +13,11 @@ from cli_command_parser.formatting.params import (
     PassThruHelpFormatter,
     GroupHelpFormatter,
 )
+from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
 from cli_command_parser.parameters.base import Parameter, BaseOption, BasePositional
 from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
-from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
 from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest, sealed_mock
-
-
-class PassThruTest(ParserTest):
-    def test_pass_thru(self):
-        class Foo(Command):
-            bar = Flag()
-            baz = PassThru()
-
-        success_cases = [
-            (['--bar', '--', 'a', 'b', '--c', '---x'], {'bar': True, 'baz': ['a', 'b', '--c', '---x']}),
-            (['--', '--bar', '--', 'a', '-b', 'c'], {'bar': False, 'baz': ['--bar', '--', 'a', '-b', 'c']}),
-            (['--bar', '--'], {'bar': True, 'baz': []}),
-            (['--', '--bar'], {'bar': False, 'baz': ['--bar']}),
-            (['--'], {'bar': False, 'baz': []}),
-            (['--bar'], {'bar': True, 'baz': None}),
-        ]
-        self.assert_parse_results_cases(Foo, success_cases)
-
-    def test_pass_thru_missing(self):
-        class Foo(Command):
-            bar = Flag()
-            baz = PassThru(required=True)
-
-        self.assertTrue(Foo.baz.default is not None)
-        foo = Foo()
-        with self.assertRaisesRegex(ParamsMissing, "missing pass thru args separated from others with '--'"):
-            foo.parse([])
-        with self.assertRaises(MissingArgument):
-            foo.baz  # noqa
-
-    def test_multiple_rejected(self):
-        class Foo(Command):
-            bar = PassThru()
-            baz = PassThru()
-
-        with self.assertRaisesRegex(CommandDefinitionError, 'it cannot follow another PassThru param'):
-            Foo.parse([])
-
-    def test_double_dash_without_pass_thru_rejected(self):
-        class Foo(Command):
-            bar = Flag()
-
-        with self.assertRaises(NoSuchOption):
-            Foo.parse(['--'])
-
-    def test_parser_has_pass_thru(self):
-        class Foo(Command):
-            pt = PassThru()
-
-        class Bar(Foo):
-            pass
-
-        self.assertTrue(get_params(Bar).pass_thru)
-
-    def test_sub_cmd_multiple_rejected(self):
-        class Foo(Command):
-            sub = SubCommand()
-            pt1 = PassThru()
-
-        class Bar(Foo):
-            pt2 = PassThru()
-
-        with self.assertRaisesRegex(CommandDefinitionError, 'it cannot follow another PassThru param'):
-            Bar.parse([])
-
-    def test_extra_rejected(self):
-        with Context():
-            pt = PassThru()
-            pt.action.add_values(['a'])
-            with self.assertRaises(ParamUsageError):
-                pt.action.add_values(['a'])
-
-    def test_usage(self):
-        self.assertEqual('[-- FOO]', PassThru(name='foo', required=False).formatter.format_basic_usage())
-        self.assertEqual('-- FOO', PassThru(name='foo', required=True).formatter.format_basic_usage())
-
-    # region Unsupported Kwargs
-
-    def test_nargs_not_allowed(self):
-        with self.assertRaises(TypeError):
-            PassThru(nargs='+')
-
-    def test_type_not_allowed(self):
-        with self.assertRaises(TypeError):
-            PassThru(type=int)
-
-    def test_choices_not_allowed(self):
-        with self.assertRaises(TypeError):
-            PassThru(choices=(1, 2))
-
-    def test_allow_leading_dash_not_allowed(self):
-        with self.assertRaises(TypeError):
-            PassThru(allow_leading_dash=True)
-
-    # endregion
 
 
 class MiscParameterTest(ParserTest):
@@ -227,19 +122,23 @@ class MiscParameterTest(ParserTest):
         with self.assertRaisesRegex(CommandDefinitionError, expected_error):
             A.parse(['b', 'c'])
 
+    def test_param_action_strs(self):
+        act = Flag().action
+        self.assertEqual('store_const', str(act))
+        self.assertIn('<StoreConst[values=False, consts=True]', repr(act))
+
 
 class UnlikelyToBeReachedParameterTest(ParserTest):
     def test_too_many_rejected(self):
-        option = Option(action='append', nargs=1)
+        action = Option(action='append', nargs=1).action
         with Context():
-            option.action.add_value('foo')
+            action.add_value('foo')
             with self.assertRaises(ParamUsageError):
-                option.action.add_value('foo')
+                action.add_value('foo')
 
     def test_non_none_rejected(self):
-        flag = Flag()
         with self.assertRaises(ParamUsageError), Context():
-            flag.action.add_value('foo')
+            Flag().action.add_value('foo')
 
     def test_sort_mixed_types(self):
         sort_cases = [

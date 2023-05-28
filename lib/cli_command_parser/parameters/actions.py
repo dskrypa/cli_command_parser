@@ -67,6 +67,8 @@ class ParamAction(ABC):
     def default_nargs(self) -> Nargs:
         raise NotImplementedError
 
+    # region Add Parsed Value / Constant Methods
+
     @abstractmethod
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
         """
@@ -93,6 +95,8 @@ class ParamAction(ABC):
 
     def add_env_value(self, value: str, env_var: str):
         return self.add_value(value)
+
+    # endregion
 
     def get_default(self, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
@@ -232,6 +236,8 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
     __slots__ = ()
     default_nargs = Nargs(1)
 
+    # region Add Parsed Value / Constant Methods
+
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
         value = self.param.prepare_value(value, combo)
@@ -249,6 +255,8 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
         self.set_value([value for value in self.prep_and_validate(values, combo)])
         return val_count
 
+    # endregion
+
     def would_accept(self, value: str, combo: bool = False) -> bool:
         if ctx.get_parsed_value(self.param) is not _NotSet:
             return False
@@ -258,6 +266,8 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
 class Append(ValueMixin, ParamAction, accepts_values=True):
     __slots__ = ()
     default_nargs = Nargs('+')
+
+    # region Add Parsed Value / Constant Methods
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
@@ -275,6 +285,8 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
 
         self.extend_values(value for value in self.prep_and_validate(values, combo))
         return val_count
+
+    # endregion
 
     def get_default(self, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
@@ -330,6 +342,8 @@ class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs(0)
 
+    # region Add Parsed Value / Constant Methods
+
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
         self.set_const(self.param.get_const(opt))
@@ -340,6 +354,8 @@ class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
         self.set_const(self.get_const(value, opt))
         return 1
 
+    # endregion
+
     def would_accept(self, value: str, combo: bool = False) -> bool:
         return False
 
@@ -347,6 +363,8 @@ class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
 class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs(0)
+
+    # region Add Parsed Value / Constant Methods
 
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
@@ -359,6 +377,8 @@ class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
         # TODO: Fix nargs consistency for overall vs per-arg
         self.append_const(self.get_const(value, opt))
         return 1
+
+    # endregion
 
     def get_default(self, missing_default=_NotSet):
         return []
@@ -398,6 +418,8 @@ class Count(ParamAction, accepts_values=True, accepts_consts=True):
 
         ctx.set_parsed_value(self.param, parsed + value)
 
+    # region Add Parsed Value / Constant Methods
+
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
         self._add(self.param.get_const(opt))
@@ -410,9 +432,13 @@ class Count(ParamAction, accepts_values=True, accepts_consts=True):
         self._add(value)
         return 1
 
+    # endregion
+
 
 class Concatenate(Append):
     __slots__ = ()
+
+    # region Add Parsed Value / Constant Methods
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
         param = self.param
@@ -431,6 +457,8 @@ class Concatenate(Append):
         ctx.record_action(param, n_values)
         return n_values
 
+    # endregion
+
     def finalize_default(self, value):
         return value
 
@@ -445,6 +473,8 @@ class StoreAll(Store):
     __slots__ = ()
     default_nargs = Nargs('REMAINDER')
 
+    # region Add Parsed Value / Constant Methods
+
     def add_values(self, values: List[str], *, opt: str = None, combo: bool = False) -> Found:
         param = self.param
         ctx.record_action(param)
@@ -457,3 +487,5 @@ class StoreAll(Store):
         values = [param.prepare_value(v) for v in values]
         ctx.set_parsed_value(param, values)
         return len(values)
+
+    # endregion
