@@ -416,11 +416,11 @@ class CommandParameters:
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if option.startswith('--'):
             param = self.long_option_to_param_value_pair(option)[1]
-            if param.accepts_values:
+            if param.action.accepts_values:
                 return param
         elif option.startswith('-'):
             for _, param, _ in self.short_option_to_param_value_pairs(option):
-                if param.accepts_values:
+                if param.action.accepts_values:
                     return param
         else:
             raise ValueError(f'Invalid {option=}')

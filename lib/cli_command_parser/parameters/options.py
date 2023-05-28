@@ -128,7 +128,7 @@ class _Flag(BaseOption[T_co], ABC, actions=(StoreConst, AppendConst)):
         return const, self.use_env_value
 
 
-class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
+class Flag(_Flag[Union[TD, TC]]):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -186,7 +186,7 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
         return parsed, use_env_value
 
 
-class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True):
+class TriFlag(_Flag[Union[TD, TC, TA]]):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -403,7 +403,7 @@ def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable =
 # endregion
 
 
-class Counter(BaseOption[int], accepts_values=True, accepts_none=True, actions=(Count,)):
+class Counter(BaseOption[int], actions=(Count,)):
     """
     A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
     to explicitly increase the stored value by that amount.

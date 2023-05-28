@@ -170,9 +170,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # Class attributes
     _action_map: Dict[str, Type[ParamAction]] = {}
     _repr_attrs: Optional[Strings] = None           #: Attributes to include in ``repr()`` output
-    accepts_values: Bool = True                     #: Whether this Parameter can be provided with at least 1 value
     # Instance attributes with class defaults
-    accepts_none: Bool = False                      #: Whether this Parameter can be provided without a value
     metavar: str = None
     nargs: Nargs = Nargs(1)                         # Set in subclasses
     # nargs: Nargs  # TODO
@@ -181,29 +179,15 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
     strict_default: Bool = False
 
-    def __init_subclass__(
-        cls,
-        accepts_values: bool = None,
-        accepts_none: bool = None,
-        repr_attrs: Strings = None,
-        actions: Collection[Type[ParamAction]] = None,
-        **kwargs,
-    ):
+    def __init_subclass__(cls, repr_attrs: Strings = None, actions: Collection[Type[ParamAction]] = None, **kwargs):
         """
-        :param accepts_values: Indicates whether a given subclass of Parameter accepts values, or not.  :class:`.Flag`
-          is an example of a class that does not accept values.
-        :param accepts_none: Indicates whether a given subclass of Parameter accepts being specified without a value,
-          like :class:`.Flag` and :class:`.Counter`.
         :param repr_attrs: Additional attributes to include in the repr.
+        :param actions: Collection of ParamAction classes that this type of Parameter supports
         """
         super().__init_subclass__(**kwargs)
         if actions:
             cls._action_map = action_map = cls._action_map.copy()
             action_map.update((action.name, action) for action in actions)
-        if accepts_values is not None:
-            cls.accepts_values = accepts_values
-        if accepts_none is not None:
-            cls.accepts_none = accepts_none
         if repr_attrs is not None:
             cls._repr_attrs = repr_attrs
 

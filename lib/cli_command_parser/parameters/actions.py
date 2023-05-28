@@ -37,15 +37,30 @@ class ParamAction(ABC):
     __slots__ = ('param',)
     name: str
     default: TD = _NotSet
+    accepts_values: bool = False
+    accepts_consts: bool = False
 
-    def __init_subclass__(cls, default: TD = _PANotSet, **kwargs):
+    def __init_subclass__(
+        cls, default: TD = _PANotSet, accepts_values: bool = None, accepts_consts: bool = None, **kwargs
+    ):
         super().__init_subclass__(**kwargs)
         cls.name = camel_to_snake_case(cls.__name__)
         if default is not _PANotSet:
             cls.default = default
+        if accepts_values is not None:
+            cls.accepts_values = accepts_values
+        if accepts_consts is not None:
+            cls.accepts_consts = accepts_consts
 
     def __init__(self, param: Param):
         self.param = param
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __repr__(self) -> str:
+        values, consts = self.accepts_values, self.accepts_consts
+        return f'<{self.__class__.__name__}[{values=}, {consts=}](param={self.param.name})>'
 
     @property
     @abstractmethod
@@ -107,20 +122,18 @@ class ParamAction(ABC):
         return False
 
     def prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
-        param = self.param
-        prepare_value, validate = param.prepare_value, param.validate
+        prepare_value, validate = self.param.prepare_value, self.param.validate
         for value in values:
             value = prepare_value(value, combo)
             validate(value)
             yield value
 
     def would_accept(self, value: str, combo: bool = False) -> bool:
-        param = self.param
         try:
-            normalized = param.prepare_value(value, combo, True)
+            normalized = self.param.prepare_value(value, combo, True)
         except BadArgument:
             return False
-        return param.is_valid_arg(normalized)
+        return self.param.is_valid_arg(normalized)
 
 
 # region Mixins
@@ -132,29 +145,28 @@ class ValueMixin:
     get_default: Callable
 
     def set_value(self, value):
-        param = self.param
-        if (prev := ctx.get_parsed_value(param)) is not _NotSet:
-            raise ParamUsageError(param, f'can only be specified once - found multiple values: {prev!r}, {value!r}')
+        if (prev := ctx.get_parsed_value(self.param)) is not _NotSet:
+            raise ParamUsageError(
+                self.param, f'can only be specified once - found multiple values: {prev!r}, {value!r}'
+            )
 
-        ctx.set_parsed_value(param, value)
+        ctx.set_parsed_value(self.param, value)
 
     def append_value(self, value):
-        param = self.param
-        parsed = ctx.get_parsed_value(param)
+        parsed = ctx.get_parsed_value(self.param)
         if parsed is _NotSet:
             parsed = self.get_default()
-            ctx.set_parsed_value(param, parsed)
-        elif param.nargs.max_reached(parsed):
-            raise TooManyArguments(param, f'already found {len(parsed)} values')
+            ctx.set_parsed_value(self.param, parsed)
+        elif self.param.nargs.max_reached(parsed):
+            raise TooManyArguments(self.param, f'already found {len(parsed)} values')
 
         parsed.append(value)
 
     def extend_values(self, values: Iterable[T_co]):
-        param = self.param
-        parsed = ctx.get_parsed_value(param)
+        parsed = ctx.get_parsed_value(self.param)
         if parsed is _NotSet:
             parsed = self.get_default()
-            ctx.set_parsed_value(param, parsed)
+            ctx.set_parsed_value(self.param, parsed)
 
         parsed.extend(values)
 
@@ -176,38 +188,34 @@ class ConstMixin:
         raise BadArgument(self.param, f'does not accept values, but {value=} was provided')
 
     def set_const(self, const):
-        param = self.param
-        parsed = ctx.get_parsed_value(param)
+        parsed = ctx.get_parsed_value(self.param)
         if parsed is not _NotSet and parsed != const:
-            raise ParamConflict([param])
+            raise ParamConflict([self.param])
 
-        ctx.set_parsed_value(param, const)
+        ctx.set_parsed_value(self.param, const)
 
     def append_const(self, const):
-        param = self.param
-        parsed = ctx.get_parsed_value(param)
+        parsed = ctx.get_parsed_value(self.param)
         if parsed is _NotSet:
             parsed = self.get_default()
-            ctx.set_parsed_value(param, parsed)
+            ctx.set_parsed_value(self.param, parsed)
 
         parsed.append(const)
 
     # def extend_consts(self, consts):
-    #     param = self.param
-    #     parsed = ctx.get_parsed_value(param)
+    #     parsed = ctx.get_parsed_value(self.param)
     #     if parsed is _NotSet:
     #         parsed = self.get_default()
-    #         ctx.set_parsed_value(param, parsed)
+    #         ctx.set_parsed_value(self.param, parsed)
     #
     #     parsed.extend(consts)
 
     def add_env_value(self, value: str, env_var: str):
-        param = self.param
-        const, use_value = param.get_env_const(value, env_var)
+        const, use_value = self.param.get_env_const(value, env_var)
         if const is _NotSet:
             return self.add_value(value)
         elif use_value:
-            ctx.record_action(param)
+            ctx.record_action(self.param)
             if self._append:
                 self.append_const(const)
             else:
@@ -220,25 +228,23 @@ class ConstMixin:
 # endregion
 
 
-class Store(ValueMixin, ParamAction, default=None):
+class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
     __slots__ = ()
     default_nargs = Nargs(1)
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
-        value = param.prepare_value(value, combo)
-        param.validate(value)
+        ctx.record_action(self.param)
+        value = self.param.prepare_value(value, combo)
+        self.param.validate(value)
         self.set_value(value)
         return 1
 
     def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
+        ctx.record_action(self.param)
         if not values:
-            raise MissingArgument(param)
-        elif (val_count := len(values)) not in (nargs := param.nargs):
-            raise BadArgument(param, f'expected {nargs=} values but found {val_count}')
+            raise MissingArgument(self.param)
+        elif (val_count := len(values)) not in (nargs := self.param.nargs):
+            raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
 
         self.set_value([value for value in self.prep_and_validate(values, combo)])
         return val_count
@@ -249,25 +255,23 @@ class Store(ValueMixin, ParamAction, default=None):
         return super().would_accept(value, combo)
 
 
-class Append(ValueMixin, ParamAction):
+class Append(ValueMixin, ParamAction, accepts_values=True):
     __slots__ = ()
     default_nargs = Nargs('+')
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
-        value = param.prepare_value(value, combo)
-        param.validate(value)
+        ctx.record_action(self.param)
+        value = self.param.prepare_value(value, combo)
+        self.param.validate(value)
         self.append_value(value)
         return 1
 
     def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
+        ctx.record_action(self.param)
         if not values:
-            raise MissingArgument(param)
-        elif (val_count := len(values)) not in (nargs := param.nargs):
-            raise BadArgument(param, f'expected {nargs=} values but found {val_count}')
+            raise MissingArgument(self.param)
+        elif (val_count := len(values)) not in (nargs := self.param.nargs):
+            raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
 
         self.extend_values(value for value in self.prep_and_validate(values, combo))
         return val_count
@@ -278,11 +282,10 @@ class Append(ValueMixin, ParamAction):
         return []
 
     def finalize_default(self, value):
-        param = self.param
-        if param.strict_default:
+        if self.param.strict_default:
             return value
 
-        if (type_func := param.type) and isinstance(type_func, InputType):
+        if (type_func := self.param.type) and isinstance(type_func, InputType):
             fix_default = type_func.fix_default
         else:
             fix_default = None
@@ -302,15 +305,14 @@ class Append(ValueMixin, ParamAction):
         return [fix_default(value)] if fix_default else [value]
 
     def finalize_value(self, value):
-        if (val_count := len(value)) not in (nargs := self.param.nargs):
-            raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
+        if (val_count := len(value)) not in self.param.nargs:
+            raise BadArgument(self.param, f'expected nargs={self.param.nargs} values but found {val_count}')
         return value
 
     def get_maybe_poppable_values(self):
-        param = self.param
-        if not param.nargs.variable or param.type not in (None, str):
+        if not self.param.nargs.variable or self.param.type not in (None, str):
             return []
-        return ctx.get_parsed_value(param)
+        return ctx.get_parsed_value(self.param)
 
     def can_reset(self) -> bool:
         if self.param.type not in (None, str):
@@ -318,21 +320,19 @@ class Append(ValueMixin, ParamAction):
         return ctx.has_parsed_value(self.param)
 
     def would_accept(self, value: str, combo: bool = False) -> bool:
-        param = self.param
-        parsed = ctx.get_parsed_value(param)
-        if parsed is not _NotSet and param.nargs.max_reached(parsed):
+        parsed = ctx.get_parsed_value(self.param)
+        if parsed is not _NotSet and self.param.nargs.max_reached(parsed):
             return False
         return super().would_accept(value, combo)
 
 
-class StoreConst(ConstMixin, ParamAction, default=None):
+class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs(0)
 
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
-        self.set_const(param.get_const(opt))
+        ctx.record_action(self.param)
+        self.set_const(self.param.get_const(opt))
         return 1
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
@@ -344,15 +344,14 @@ class StoreConst(ConstMixin, ParamAction, default=None):
         return False
 
 
-class AppendConst(ConstMixin, ParamAction, append=True):
+class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs(0)
 
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
+        ctx.record_action(self.param)
         # TODO: Fix nargs consistency for overall vs per-arg
-        self.append_const(param.get_const(opt))
+        self.append_const(self.param.get_const(opt))
         return 1
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
@@ -368,51 +367,46 @@ class AppendConst(ConstMixin, ParamAction, append=True):
         return False
 
 
-# class StoreValueOrConst(ConstMixin, Store):
+# class StoreValueOrConst(ConstMixin, Store, accepts_values=True, accepts_consts=True):
 #     __slots__ = ()
 #     default_nargs = Nargs('?')
 #
 #     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
-#         param = self.param
-#         ctx.record_action(param)
-#         self.set_const(param.get_const(opt))
+#         ctx.record_action(self.param)
+#         self.set_const(self.param.get_const(opt))
 #         return 1
 #
 #
-# class AppendValueOrConst(ConstMixin, Append, append=True):
+# class AppendValueOrConst(ConstMixin, Append, append=True, accepts_values=True, accepts_consts=True):
 #     __slots__ = ()
 #     default_nargs = Nargs('?')
 #
 #     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
-#         param = self.param
-#         ctx.record_action(param)
-#         self.append_const(param.get_const(opt))
+#         ctx.record_action(self.param)
+#         self.append_const(self.param.get_const(opt))
 #         return 1
 
 
-class Count(ParamAction):
+class Count(ParamAction, accepts_values=True, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs('?')
 
     def _add(self, value: int):
-        param = self.param
-        parsed = ctx.get_parsed_value(param)
+        parsed = ctx.get_parsed_value(self.param)
         if parsed is _NotSet:
-            parsed = param.init
+            parsed = self.param.init
 
-        ctx.set_parsed_value(param, parsed + value)
+        ctx.set_parsed_value(self.param, parsed + value)
 
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
-        self._add(param.get_const(opt))
+        ctx.record_action(self.param)
+        self._add(self.param.get_const(opt))
         return 1
 
     def add_value(self, value: str, *, opt: str = None, combo: bool = False) -> Found:
-        param = self.param
-        ctx.record_action(param)
-        value = param.prepare_value(value, combo)
-        param.validate(value)
+        ctx.record_action(self.param)
+        value = self.param.prepare_value(value, combo)
+        self.param.validate(value)
         self._add(value)
         return 1
 

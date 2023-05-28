@@ -187,6 +187,8 @@ class CommandParser:
         else:
             self.deferred.append(arg)
 
+    # region Option Handling
+
     def handle_long(self, arg: str):
         # log.debug(f'handle_long({arg=})')
         try:
@@ -196,14 +198,20 @@ class CommandParser:
                 self._check_sub_command_options(arg)
                 self.deferred.append(arg)
         else:
-            # TODO: Split this for separate None/const vs value handling, and rely on action, not param
-            if value is not None or (param.accepts_none and not param.accepts_values):
-                param.action.add_value(value, opt=opt)
-            elif not self.consume_values(param) and param.accepts_none:
-                param.action.add_const(opt=opt)
-            self._last = param
+            self._handle_option_value(opt, param, value)
 
-    # region Short Option Handling
+    def _handle_option_value(self, opt: str, param: BaseOption, value: OptStr, combo: bool = False):
+        if value is not None:
+            param.action.add_value(value, opt=opt, combo=combo)
+        elif param.action.accepts_consts and not param.action.accepts_values:
+            param.action.add_const(opt=opt, combo=combo)
+        elif not self.consume_values(param) and param.action.accepts_consts:
+            # The order of conditions here is important - consume_values has an intended side effect even when
+            # the action does not accept constants
+            param.action.add_const(opt=opt, combo=combo)
+
+        self._last = param
+        # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
     def handle_short(self, arg: str):
         # log.debug(f'handle_short({arg=})')
@@ -218,7 +226,7 @@ class CommandParser:
                 # Note: This loop is only executed for single char combined flags, where the values will always be None
                 for opt, param, _none_value in param_val_combos:
                     param.action.add_const(opt=opt, combo=True)
-            self._handle_short_value(*last)
+            self._handle_option_value(*last, combo=True)
 
     def _handle_short_not_found(self, arg: str):
         if self._maybe_consume_remainder(arg):
@@ -231,15 +239,6 @@ class CommandParser:
                 self.deferred.append(arg)
         else:
             self.deferred.append(arg)
-
-    def _handle_short_value(self, opt: str, param: BaseOption, value: Any):
-        # log.debug(f'Handling short {value=} for {param=}')
-        if value is not None or (param.accepts_none and not param.accepts_values):
-            param.action.add_value(value, opt=opt, combo=True)
-        elif not self.consume_values(param) and param.accepts_none:
-            param.action.add_const(opt=opt, combo=True)
-        self._last = param
-        # No need to raise MissingArgument if values were not consumed - consume_values handles checking nargs
 
     # endregion
 
