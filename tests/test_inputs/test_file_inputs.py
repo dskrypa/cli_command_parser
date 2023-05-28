@@ -262,6 +262,17 @@ class FileInputTest(TestCase):
 
     # endregion
 
+    def test_fix_default_handling(self):
+        class Cmd(Command):
+            foo = Option(type=PathInput(), default='/var/tmp')
+            bar = Option(type=PathInput(fix_default=False), default='123')
+            baz = Option(type=PathInput(), default=None)
+
+        cmd = Cmd()
+        self.assertEqual(Path('/var/tmp'), cmd.foo)
+        self.assertEqual('123', cmd.bar)
+        self.assertIsNone(cmd.baz)
+
 
 class WriteFileTest(TestCase):
     def test_plain_write_with(self):
