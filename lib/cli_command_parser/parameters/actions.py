@@ -98,18 +98,25 @@ class ParamAction(ABC):
 
     # endregion
 
-    def get_default(self, missing_default=_NotSet):
-        if (default := self.param.default) is not _NotSet:
-            return self.finalize_default(default)
-        return self.default
+    # region Parsing
 
-    def finalize_default(self, value):
-        if (type_func := self.param.type) and isinstance(type_func, InputType):
-            return type_func.fix_default(value)
-        return value
+    def would_accept(self, value: str, combo: bool = False) -> bool:
+        try:
+            normalized = self.param.prepare_value(value, combo, True)
+        except BadArgument:
+            return False
+        return self.param.is_valid_arg(normalized)
 
-    def finalize_value(self, value):
-        return value
+    def _prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
+        prepare_value, validate = self.param.prepare_value, self.param.validate
+        for value in values:
+            value = prepare_value(value, combo)
+            validate(value)
+            yield value
+
+    # endregion
+
+    # region Backtracking
 
     def get_maybe_poppable_values(self):
         return []
@@ -125,19 +132,24 @@ class ParamAction(ABC):
     def can_reset(self) -> bool:
         return False
 
-    def prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
-        prepare_value, validate = self.param.prepare_value, self.param.validate
-        for value in values:
-            value = prepare_value(value, combo)
-            validate(value)
-            yield value
+    # endregion
 
-    def would_accept(self, value: str, combo: bool = False) -> bool:
-        try:
-            normalized = self.param.prepare_value(value, combo, True)
-        except BadArgument:
-            return False
-        return self.param.is_valid_arg(normalized)
+    # region Parsed Value / Default Finalization
+
+    def get_default(self, missing_default=_NotSet):
+        if (default := self.param.default) is not _NotSet:
+            return self.finalize_default(default)
+        return self.default
+
+    def finalize_default(self, value):
+        if (type_func := self.param.type) and isinstance(type_func, InputType):
+            return type_func.fix_default(value)
+        return value
+
+    def finalize_value(self, value):
+        return value
+
+    # endregion
 
 
 # region Mixins
@@ -252,15 +264,19 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
         elif (val_count := len(values)) not in (nargs := self.param.nargs):
             raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
 
-        self.set_value([value for value in self.prep_and_validate(values, combo)])
+        self.set_value([value for value in self._prep_and_validate(values, combo)])
         return val_count
 
     # endregion
 
+    # region Parsing
+
     def would_accept(self, value: str, combo: bool = False) -> bool:
-        if ctx.get_parsed_value(self.param) is not _NotSet:
+        if ctx.has_parsed_value(self.param):
             return False
         return super().would_accept(value, combo)
+
+    # endregion
 
 
 class Append(ValueMixin, ParamAction, accepts_values=True):
@@ -283,10 +299,36 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
         elif (val_count := len(values)) not in (nargs := self.param.nargs):
             raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
 
-        self.extend_values(value for value in self.prep_and_validate(values, combo))
+        self.extend_values(value for value in self._prep_and_validate(values, combo))
         return val_count
 
     # endregion
+
+    # region Parsing
+
+    def would_accept(self, value: str, combo: bool = False) -> bool:
+        parsed = ctx.get_parsed_value(self.param)
+        if parsed is not _NotSet and self.param.nargs.max_reached(parsed):
+            return False
+        return super().would_accept(value, combo)
+
+    # endregion
+
+    # region Backtracking
+
+    def get_maybe_poppable_values(self):
+        if not self.param.nargs.variable or self.param.type not in (None, str):
+            return []
+        return ctx.get_parsed_value(self.param)
+
+    def can_reset(self) -> bool:
+        if self.param.type not in (None, str):
+            return False
+        return ctx.has_parsed_value(self.param)
+
+    # endregion
+
+    # region Parsed Value / Default Finalization
 
     def get_default(self, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
@@ -321,21 +363,7 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
             raise BadArgument(self.param, f'expected nargs={self.param.nargs} values but found {val_count}')
         return value
 
-    def get_maybe_poppable_values(self):
-        if not self.param.nargs.variable or self.param.type not in (None, str):
-            return []
-        return ctx.get_parsed_value(self.param)
-
-    def can_reset(self) -> bool:
-        if self.param.type not in (None, str):
-            return False
-        return ctx.has_parsed_value(self.param)
-
-    def would_accept(self, value: str, combo: bool = False) -> bool:
-        parsed = ctx.get_parsed_value(self.param)
-        if parsed is not _NotSet and self.param.nargs.max_reached(parsed):
-            return False
-        return super().would_accept(value, combo)
+    # endregion
 
 
 class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
@@ -356,8 +384,12 @@ class StoreConst(ConstMixin, ParamAction, default=None, accepts_consts=True):
 
     # endregion
 
+    # region Parsing
+
     def would_accept(self, value: str, combo: bool = False) -> bool:
         return False
+
+    # endregion
 
 
 class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
@@ -380,11 +412,19 @@ class AppendConst(ConstMixin, ParamAction, append=True, accepts_consts=True):
 
     # endregion
 
-    def get_default(self, missing_default=_NotSet):
-        return []
+    # region Parsing
 
     def would_accept(self, value: str, combo: bool = False) -> bool:
         return False
+
+    # endregion
+
+    # region Parsed Value / Default Finalization
+
+    def get_default(self, missing_default=_NotSet):
+        return []
+
+    # endregion
 
 
 # class StoreValueOrConst(ConstMixin, Store, accepts_values=True, accepts_consts=True):
@@ -459,6 +499,8 @@ class Concatenate(Append):
 
     # endregion
 
+    # region Parsed Value / Default Finalization
+
     def finalize_default(self, value):
         return value
 
@@ -467,6 +509,8 @@ class Concatenate(Append):
         if choice not in self.param.choices:
             raise InvalidChoice(self.param, choice, self.param.choices)
         return choice
+
+    # endregion
 
 
 class StoreAll(Store):

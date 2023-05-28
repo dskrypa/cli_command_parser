@@ -274,9 +274,6 @@ class CommandParser:
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
-        if not self.config.allow_backtrack:
-            return
-
         values, can_pop = self._last.action.get_maybe_poppable_values_and_counts()
         if to_pop := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
             reset = self.ctx.pop_parsed_value(param)
@@ -337,7 +334,12 @@ class CommandParser:
             return found
         elif exc:
             raise exc
-        elif self._last and isinstance(param, BasePositional) and param.action.can_reset():
+        elif (
+            self._last
+            and isinstance(param, BasePositional)
+            and param.action.can_reset()
+            and self.config.allow_backtrack
+        ):
             self._maybe_backtrack_last(param, found)
 
         s = '' if (n := nargs.min) == 1 else 's'
