@@ -203,6 +203,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self._provided[param] = 0
         return self._parsed.pop(param)
 
+    def roll_back_parsed_values(self, param: Parameter, count: int):
+        """Not intended to be called by users.  Used during parsing as part of backtracking."""
+        values = self._parsed[param]
+        self._parsed[param] = values[:-count]
+        self._provided[param] -= count
+        return values[-count:]
+
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
         """
         Not intended to be called by users.  Used by Parameters during parsing to indicate that they were provided.

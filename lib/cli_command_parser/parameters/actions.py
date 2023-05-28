@@ -118,16 +118,12 @@ class ParamAction(ABC):
 
     # region Backtracking
 
-    def get_maybe_poppable_values(self):
+    def get_maybe_poppable_counts(self) -> List[int]:
+        """
+        :return: The indexes on which the parsed values may be split such that the remaining number of values will
+          still be acceptable for the Parameter's nargs.
+        """
         return []
-
-    def get_maybe_poppable_values_and_counts(self):
-        values = self.get_maybe_poppable_values()
-        if not values:
-            return [], []
-        n_values = len(values)
-        satisfied = self.param.nargs.satisfied
-        return values, [i for i in range(1, n_values) if satisfied(n_values - i)]
 
     def can_reset(self) -> bool:
         return False
@@ -316,10 +312,19 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
 
     # region Backtracking
 
-    def get_maybe_poppable_values(self):
+    def get_maybe_poppable_counts(self) -> List[int]:
+        """
+        :return: The indexes on which the parsed values may be split such that the remaining number of values will
+          still be acceptable for the Parameter's nargs.
+        """
         if not self.param.nargs.variable or self.param.type not in (None, str):
             return []
-        return ctx.get_parsed_value(self.param)
+        elif values := ctx.get_parsed_value(self.param):
+            n_values = len(values)
+            satisfied = self.param.nargs.satisfied
+            return [i for i in range(1, n_values) if satisfied(n_values - i)]
+        else:
+            return []
 
     def can_reset(self) -> bool:
         if self.param.type not in (None, str):

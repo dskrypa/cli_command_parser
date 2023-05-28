@@ -380,15 +380,6 @@ class BasicActionMixin:
 
     # endregion
 
-    # region Parsing - Backtracking Methods
-
-    def _pop_last(self: Union[Parameter, BasicActionMixin], values, count: int = 1) -> List[str]:
-        ctx.set_parsed_value(self, values[:-count])
-        ctx.record_action(self, -count)
-        return values[-count:]
-
-    # endregion
-
 
 class BasePositional(Parameter[T_co], ABC):
     """

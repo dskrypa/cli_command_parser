@@ -289,16 +289,15 @@ class NargsParsingTest(ParserTest):
         for n in range(1, 4):
 
             class Foo(Command):
-                foo = Positional(nargs=n)
+                foo = Positional(nargs=n, action='append')
                 bar = Option(nargs='+')
 
             foo = ['a'] * n
-            exp = 'a' if n == 1 else foo
             success_cases = [
-                ([*foo, '--bar', 'w', 'x'], {'foo': exp, 'bar': ['w', 'x']}),
-                ([*foo, '--bar', 'w', 'x', 'y', 'z'], {'foo': exp, 'bar': ['w', 'x', 'y', 'z']}),
-                (['--bar', 'w', 'x', *foo], {'foo': exp, 'bar': ['w', 'x']}),
-                (['--bar', 'w', 'x', 'y', 'z', *foo], {'foo': exp, 'bar': ['w', 'x', 'y', 'z']}),
+                ([*foo, '--bar', 'w', 'x'], {'foo': foo, 'bar': ['w', 'x']}),
+                ([*foo, '--bar', 'w', 'x', 'y', 'z'], {'foo': foo, 'bar': ['w', 'x', 'y', 'z']}),
+                (['--bar', 'w', 'x', *foo], {'foo': foo, 'bar': ['w', 'x']}),
+                (['--bar', 'w', 'x', 'y', 'z', *foo], {'foo': foo, 'bar': ['w', 'x', 'y', 'z']}),
             ]
             self.assert_parse_results_cases(Foo, success_cases)
 

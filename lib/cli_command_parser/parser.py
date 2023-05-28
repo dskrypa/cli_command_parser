@@ -264,21 +264,24 @@ class CommandParser:
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
         if positionals := self.positionals:
-            values, can_pop = param.action.get_maybe_poppable_values_and_counts()
-            if to_pop := _to_pop(positionals, can_pop, found - 1):
-                self.arg_deque.extendleft(reversed(param._pop_last(values, to_pop)))  # noqa
-                return found - to_pop
+            can_pop = param.action.get_maybe_poppable_counts()
+            if rollback_count := _to_pop(positionals, can_pop, found - 1):
+                self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(param, rollback_count)))
+                return found - rollback_count
         return found
 
     def _maybe_backtrack_last(self, param: Union[BasePositional, BasicActionMixin], found: int):
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
         """
-        values, can_pop = self._last.action.get_maybe_poppable_values_and_counts()
-        if to_pop := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
-            reset = self.ctx.pop_parsed_value(param)
-            self.arg_deque.extendleft(reversed(reset))
-            self.arg_deque.extendleft(reversed(self._last._pop_last(values, to_pop)))  # noqa
+        if not self.config.allow_backtrack:
+            # This method is called relatively rarely & it's cleaner to have this check here than in _finalize_consume
+            return
+
+        can_pop = self._last.action.get_maybe_poppable_counts()
+        if rollback_count := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
+            self.arg_deque.extendleft(reversed(self.ctx.pop_parsed_value(param)))
+            self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(self._last, rollback_count)))
             raise Backtrack
 
     # endregion
@@ -334,12 +337,7 @@ class CommandParser:
             return found
         elif exc:
             raise exc
-        elif (
-            self._last
-            and isinstance(param, BasePositional)
-            and param.action.can_reset()
-            and self.config.allow_backtrack
-        ):
+        elif self._last and isinstance(param, BasePositional) and param.action.can_reset():
             self._maybe_backtrack_last(param, found)
 
         s = '' if (n := nargs.min) == 1 else 's'
