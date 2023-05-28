@@ -7,6 +7,7 @@ from unittest.mock import Mock
 from cli_command_parser import Command
 from cli_command_parser.core import CommandMeta, get_params
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
+from cli_command_parser.nargs import Nargs
 from cli_command_parser.parameters import Action, SubCommand, Positional, Counter, Flag, Option
 from cli_command_parser.parameters.actions import Store
 from cli_command_parser.parameters.base import Parameter
@@ -108,7 +109,7 @@ class CommandParamsTest(TestCase):
             pass
 
         class TestParam(Parameter, actions=(Test,)):
-            pass
+            nargs = Nargs(1)
 
         class Foo(Command):
             bar = TestParam('test')

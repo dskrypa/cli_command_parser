@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, NoReturn, Literal, Tuple
 
 from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
@@ -68,7 +68,7 @@ class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
         self,
         *option_strs: str,
         nargs: NargsValue = None,
-        action: str = _NotSet,
+        action: Literal['store', 'append'] = None,
         default: TD = _NotSet,
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
@@ -76,31 +76,36 @@ class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
         allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
-        if nargs is not None:
-            self.nargs = nargs = Nargs(nargs)
-        elif action == 'append':
-            self.nargs = nargs = Nargs('+')
-        else:
-            nargs = self.nargs  # default: Nargs(1)
+        if nargs_provided := nargs is not None:
+            nargs = Nargs(nargs)
+            if 0 in nargs:
+                nargs = nargs._orig
+                details = 'use Flag or Counter for Options that can be specified without a value'
+                if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
+                    suffix = f', {nargs.step}' if nargs.step != 1 else ''
+                    details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
+                raise ParameterDefinitionError(f'Invalid {nargs=} - {details}')
 
-        if 0 in nargs:
-            nargs = nargs._orig
-            details = 'use Flag or Counter for Options that can be specified without a value'
-            if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
-                suffix = f', {nargs.step}' if nargs.step != 1 else ''
-                details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
-            raise ParameterDefinitionError(f'Invalid {nargs=} - {details}')
-
-        if action is _NotSet:
-            action = 'store' if nargs == 1 else 'append'
-        elif action == 'store' and nargs != 1:
+        if not action:
+            if nargs_provided:
+                action = 'store' if nargs == 1 else 'append'
+            else:
+                action = 'store'
+        elif nargs_provided and action == 'store' and nargs != 1:
             raise ParameterDefinitionError(f'Invalid {nargs=} for {action=}')
-        elif action in ('store_const', 'append_const'):
-            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - use Flag instead')
 
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
+        if not nargs_provided:
+            nargs = self.action.default_nargs
+
+        self.nargs = nargs
         self.type = normalize_input_type(type, choices)
         self.allow_leading_dash = allow_leading_dash
+
+    def _handle_bad_action(self, action: str) -> NoReturn:
+        if action in ('store_const', 'append_const'):
+            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - use Flag instead')
+        super()._handle_bad_action(action)
 
 
 class _Flag(BaseOption[T_co], ABC, actions=(StoreConst, AppendConst)):

@@ -13,7 +13,7 @@ from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, TypeVar, overload
-from typing import Dict, Tuple
+from typing import NoReturn, Dict, Tuple
 
 from ..annotations import get_descriptor_value_type
 from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
@@ -172,9 +172,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     _repr_attrs: Optional[Strings] = None           #: Attributes to include in ``repr()`` output
     # Instance attributes with class defaults
     metavar: str = None
-    nargs: Nargs = Nargs(1)                         # Set in subclasses
-    # nargs: Nargs  # TODO
-    type: Optional[Callable[[str], T_co]] = None    # Only set here if not set by __init__ in Option/Positional
+    nargs: Nargs                                    # Expected to be set in subclasses
+    type: Optional[Callable[[str], T_co]] = None    # Expected to be set in subclasses
     show_default: Bool = None
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
     strict_default: Bool = False
@@ -204,9 +203,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         strict_default: Bool = False,
     ):
         if not (param_action := self._action_map.get(action)):
-            raise ParameterDefinitionError(
-                f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._action_map)}'
-            )
+            self._handle_bad_action(action)
         if required and default is not _NotSet:
             # TODO: For required mutually dependent groups, or a required group with all params having a default,
             #  is another check needed, or does this check make sense, or should this check be removed?
@@ -216,12 +213,16 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = param_action(self)
-        self._action_name = action
         self.default = default
         self.metavar = metavar
         self.strict_default = strict_default
         if show_default is not None:
             self.show_default = show_default
+
+    def _handle_bad_action(self, action: str) -> NoReturn:
+        raise ParameterDefinitionError(
+            f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._action_map)}'
+        )
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
@@ -251,14 +252,17 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # endregion
 
     def __repr__(self) -> str:
-        names = ('_action_name', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
+        names = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
         if extra_attrs := self._repr_attrs:
             names = chain(names, extra_attrs)
 
-        a_name = {'_action_name': 'action'}.get
         skip = (None, _NotSet)
-        attrs = ((a, v) for a in names if (v := getattr(self, a, None)) not in skip and not (a == 'hide' and not v))
-        kwargs = ', '.join(f'{a_name(a, a)}={v!r}' for a, v in attrs)
+        attrs = (
+            (a, str(v) if a == 'action' else v)
+            for a in names
+            if (v := getattr(self, a, None)) not in skip and not (a == 'hide' and not v)
+        )
+        kwargs = ', '.join(f'{a}={v!r}' for a, v in attrs)
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
     # region Parsing / Argument Handling
@@ -380,13 +384,13 @@ class BasePositional(Parameter[T_co], ABC):
             cls._default_ok = default_ok
 
     def __init__(self, action: str, *, required: Bool = True, default: Any = _NotSet, **kwargs):
-        default_bad = not self._default_ok or 0 not in self.nargs
-        if not required and default_bad:
-            cls_name = self.__class__.__name__
-            raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
-        elif default_bad and default is not _NotSet:
-            cls_name = self.__class__.__name__
-            raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
+        if not (self._default_ok and 0 in self.nargs):  # Indicates that having a default is bad
+            if not required:
+                cls_name = self.__class__.__name__
+                raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
+            elif default is not _NotSet:
+                cls_name = self.__class__.__name__
+                raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
         super().__init__(action, default=default, required=required, **kwargs)
 
 

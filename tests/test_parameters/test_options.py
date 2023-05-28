@@ -64,7 +64,11 @@ class OptionTest(ParserTest):
     def test_rejected_const_action_hint(self):
         for action in ('store_const', 'append_const'):
             with self.assertRaisesRegex(ParameterDefinitionError, 'Invalid action=.* for Option - use Flag instead'):
-                Option(action=action)
+                Option(action=action)  # noqa
+
+    def test_bad_action_rejected(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Invalid action=.*- valid actions:'):
+            Option(action='foo')  # noqa
 
     # endregion
 
