@@ -247,6 +247,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.find_nested_pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParameters.find_nested_pass_thru()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.validate_groups"><code class="docutils literal notranslate"><span class="pre">CommandParameters.validate_groups()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.try_env_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.try_env_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
 </ul>
 </li>
@@ -357,8 +358,11 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed"><code class="docutils literal notranslate"><span class="pre">Context.get_parsed()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.params"><code class="docutils literal notranslate"><span class="pre">Context.params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.get_error_handler"><code class="docutils literal notranslate"><span class="pre">Context.get_error_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.has_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.has_parsed_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.get_parsed_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.set_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.set_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.pop_parsed_value"><code class="docutils literal notranslate"><span class="pre">Context.pop_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.roll_back_parsed_values"><code class="docutils literal notranslate"><span class="pre">Context.roll_back_parsed_values()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.record_action"><code class="docutils literal notranslate"><span class="pre">Context.record_action()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.num_provided"><code class="docutils literal notranslate"><span class="pre">Context.num_provided()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context.get_missing"><code class="docutils literal notranslate"><span class="pre">Context.get_missing()</span></code></a></li>
@@ -375,6 +379,11 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy"><code class="docutils literal notranslate"><span class="pre">ContextProxy</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.has_parsed_value"><code class="docutils literal notranslate"><span class="pre">ContextProxy.has_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.get_parsed_value"><code class="docutils literal notranslate"><span class="pre">ContextProxy.get_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.set_parsed_value"><code class="docutils literal notranslate"><span class="pre">ContextProxy.set_parsed_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.record_action"><code class="docutils literal notranslate"><span class="pre">ContextProxy.record_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.num_provided"><code class="docutils literal notranslate"><span class="pre">ContextProxy.num_provided()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.terminal_width"><code class="docutils literal notranslate"><span class="pre">ContextProxy.terminal_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.ContextProxy.config"><code class="docutils literal notranslate"><span class="pre">ContextProxy.config</span></code></a></li>
 </ul>
@@ -526,9 +535,9 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.MissingArgument.message"><code class="docutils literal notranslate"><span class="pre">MissingArgument.message</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.TooManyArguments"><code class="docutils literal notranslate"><span class="pre">TooManyArguments</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoSuchOption"><code class="docutils literal notranslate"><span class="pre">NoSuchOption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.NoActiveContext"><code class="docutils literal notranslate"><span class="pre">NoActiveContext</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.UnsupportedAction"><code class="docutils literal notranslate"><span class="pre">UnsupportedAction</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.Backtrack"><code class="docutils literal notranslate"><span class="pre">Backtrack</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.NextCommand"><code class="docutils literal notranslate"><span class="pre">NextCommand</span></code></a></li>
 </ul>
@@ -692,6 +701,7 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.allowed"><code class="docutils literal notranslate"><span class="pre">Nargs.allowed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable"><code class="docutils literal notranslate"><span class="pre">Nargs.variable</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied"><code class="docutils literal notranslate"><span class="pre">Nargs.satisfied()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached"><code class="docutils literal notranslate"><span class="pre">Nargs.max_reached()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.has_upper_bound</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.upper_bound</span></code></a></li>
 </ul>
@@ -700,13 +710,26 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.actions.html">Actions Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ValueMixin"><code class="docutils literal notranslate"><span class="pre">ValueMixin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ConstMixin"><code class="docutils literal notranslate"><span class="pre">ConstMixin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append"><code class="docutils literal notranslate"><span class="pre">Append</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction"><code class="docutils literal notranslate"><span class="pre">BasicConstAction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreConst"><code class="docutils literal notranslate"><span class="pre">StoreConst</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst"><code class="docutils literal notranslate"><span class="pre">AppendConst</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Count"><code class="docutils literal notranslate"><span class="pre">Count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate"><code class="docutils literal notranslate"><span class="pre">Concatenate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreAll"><code class="docutils literal notranslate"><span class="pre">StoreAll</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html">Base Module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.parameter_action"><code class="docutils literal notranslate"><span class="pre">parameter_action</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase"><code class="docutils literal notranslate"><span class="pre">ParamBase</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasicActionMixin"><code class="docutils literal notranslate"><span class="pre">BasicActionMixin</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -779,6 +802,7 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser"><code class="docutils literal notranslate"><span class="pre">CommandParser</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.arg_deque"><code class="docutils literal notranslate"><span class="pre">CommandParser.arg_deque</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.deferred"><code class="docutils literal notranslate"><span class="pre">CommandParser.deferred</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.ctx"><code class="docutils literal notranslate"><span class="pre">CommandParser.ctx</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.params"><code class="docutils literal notranslate"><span class="pre">CommandParser.params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.positionals"><code class="docutils literal notranslate"><span class="pre">CommandParser.positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.config"><code class="docutils literal notranslate"><span class="pre">CommandParser.config</span></code></a></li>
@@ -792,12 +816,21 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.consume_values"><code class="docutils literal notranslate"><span class="pre">CommandParser.consume_values()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.parse_args_and_get_next_cmd"><code class="docutils literal notranslate"><span class="pre">parse_args_and_get_next_cmd()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parser.html#cli_command_parser.parser.get_opt_prefix"><code class="docutils literal notranslate"><span class="pre">get_opt_prefix()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.testing.html">Testing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext"><code class="docutils literal notranslate"><span class="pre">AssertRaisesWithStringContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext.test_case"><code class="docutils literal notranslate"><span class="pre">AssertRaisesWithStringContext.test_case</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext.expected_exc"><code class="docutils literal notranslate"><span class="pre">AssertRaisesWithStringContext.expected_exc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext.expected_text"><code class="docutils literal notranslate"><span class="pre">AssertRaisesWithStringContext.expected_text</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext.msg"><code class="docutils literal notranslate"><span class="pre">AssertRaisesWithStringContext.msg</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest"><code class="docutils literal notranslate"><span class="pre">ParserTest</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_dict_equal"><code class="docutils literal notranslate"><span class="pre">ParserTest.assert_dict_equal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_raises_contains_str"><code class="docutils literal notranslate"><span class="pre">ParserTest.assert_raises_contains_str()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results"><code class="docutils literal notranslate"><span class="pre">ParserTest.assert_parse_results()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results_cases"><code class="docutils literal notranslate"><span class="pre">ParserTest.assert_parse_results_cases()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_env_parse_results"><code class="docutils literal notranslate"><span class="pre">ParserTest.assert_env_parse_results()</span></code></a></li>
@@ -837,11 +870,6 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.FixedFlag"><code class="docutils literal notranslate"><span class="pre">FixedFlag</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.Terminal"><code class="docutils literal notranslate"><span class="pre">Terminal</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.Terminal.width"><code class="docutils literal notranslate"><span class="pre">Terminal.width</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.ValueSource"><code class="docutils literal notranslate"><span class="pre">ValueSource</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.ValueSource.CLI"><code class="docutils literal notranslate"><span class="pre">ValueSource.CLI</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.ValueSource.ENV"><code class="docutils literal notranslate"><span class="pre">ValueSource.ENV</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool"><code class="docutils literal notranslate"><span class="pre">str_to_bool()</span></code></a></li>
@@ -1099,6 +1127,11 @@ failed (such as the one for <code class="docutils literal notranslate"><span cla
 <span class="sig-name descname"><span class="pre">try_env_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cli_command_parser.context.html#cli_command_parser.context.Context" title="cli_command_parser.context.Context"><span class="pre">Context</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option" title="cli_command_parser.parameters.options.Option"><span class="pre">Option</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/command_parameters.html#CommandParameters.try_env_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.command_parameters.CommandParameters.try_env_params" title="Permalink to this definition"></a></dt>
 <dd><p>Yields Option parameters that have an environment variable configured, and did not have any CLI values.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cli_command_parser.command_parameters.CommandParameters.iter_params">
+<span class="sig-name descname"><span class="pre">iter_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Collection" title="(in Python v3.11)"><span class="pre">Collection</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.11)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter" title="cli_command_parser.parameters.base.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cli_command_parser/command_parameters.html#CommandParameters.iter_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.command_parameters.CommandParameters.iter_params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.command_parameters.CommandParameters.required_check_params">
