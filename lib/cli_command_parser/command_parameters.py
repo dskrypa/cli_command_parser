@@ -14,12 +14,11 @@ from collections import defaultdict
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
 
-from .actions import help_action
 from .config import CommandConfig, AmbiguousComboMode
 from .exceptions import CommandDefinitionError, ParameterDefinitionError, ParamsMissing
 from .exceptions import AmbiguousShortForm, AmbiguousCombo
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
-from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option
+from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option, help_action
 
 if TYPE_CHECKING:
     from .context import Context

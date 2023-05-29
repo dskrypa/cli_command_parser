@@ -28,6 +28,20 @@ class OptionTest(ParserTest):
         fail_cases = [['----'], ['----bar'], ['--bar', '----'], ['--bar', '----bar'], ['-'], ['--bar', '-'], ['---bar']]
         self.assert_parse_fails_cases(Foo, fail_cases, NoSuchOption)
 
+    def test_eq_with_eq_in_value(self):
+        class Foo(Command):
+            bar = Option('-b', allow_leading_dash=True)
+
+        success_cases = [
+            (['-b', 'a=b'], {'bar': 'a=b'}),
+            (['-b=a=b'], {'bar': 'a=b'}),
+            (['--bar', 'a=b'], {'bar': 'a=b'}),
+            (['--bar=a=b'], {'bar': 'a=b'}),
+            # TODO: Should allow_leading_dash really be necessary for the following case?
+            (['--bar=--baz=abc'], {'bar': '--baz=abc'}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
     def test_extra_long_option_deferred(self):
         class Foo(Command):
             bar = Positional()
@@ -53,6 +67,8 @@ class OptionTest(ParserTest):
         self.assertEqual(Foo.parse(['bar', '-b']).ctx.remaining, ['-b'])
         self.assertEqual(Foo.parse(['bar', '-b', 'a']).ctx.remaining, ['-b', 'a'])
         self.assertEqual(Foo.parse(['bar', '-b=a']).ctx.remaining, ['-b=a'])
+
+    # region Short Values
 
     def test_short_value_invalid(self):
         class Foo(Command):
@@ -114,6 +130,8 @@ class OptionTest(ParserTest):
 
         with self.assertRaises(AmbiguousShortForm):
             Foo.parse([])
+
+    # endregion
 
     def test_custom_type_starting_with_dash(self):
         class TimeOffset:
@@ -258,6 +276,8 @@ class OptionTest(ParserTest):
         fail_cases = [['bar', '-fby'], ['bar', '-fbx'], ['bar', '-fbar']]
         self.assert_parse_fails_cases(Foo, fail_cases, AmbiguousCombo)
 
+    # region action=append
+
     def test_action_append_default_nargs(self):
         class Foo(Command):
             bar = Option('-b', action='append')
@@ -306,6 +326,8 @@ class OptionTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['-b'], ['-b', 'a']]
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    # endregion
 
 
 if __name__ == '__main__':

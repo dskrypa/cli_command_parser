@@ -7,10 +7,11 @@ docs:
 	bin/build_docs.py -uco
 
 publish:
+	rm -rf dist
 	pip install twine build -U --require-virtualenv
 	python -m build
 	twine upload dist/*
-	rm -rf dist lib/cli_command_parser.egg-info
+	rm -rf lib/cli_command_parser.egg-info
 
 tag:
 	bin/tag.py

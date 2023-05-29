@@ -17,12 +17,12 @@ from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, Cont
 from unittest import TestCase
 from unittest.mock import Mock, seal, patch
 
-from .actions import help_action
 from .commands import Command
 from .context import Context
 from .core import get_params
 from .documentation import load_commands
 from .exceptions import UsageError
+from .parameters import help_action
 
 if TYPE_CHECKING:
     from .typing import CommandCls, OptStr
