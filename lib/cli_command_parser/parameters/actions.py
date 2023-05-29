@@ -224,9 +224,10 @@ class ConstMixin:
 
     def add_env_value(self, value: str, env_var: str):
         const, use_value = self.param.get_env_const(value, env_var)
-        if const is _NotSet:  # It does not support storing constants
-            return self.add_value(value)
-        elif use_value:  # Due to config or Param type (TriFlag needs this even when invoking the positive action)
+        # The const may only be _NotSet once StoreValueOrConst / AppendValueOrConst are put into use
+        # if const is _NotSet:  # It does not support storing constants
+        #     return self.add_value(value)
+        if use_value:  # Due to config or Param type (TriFlag needs this even when invoking the positive action)
             ctx.record_action(self.param)
             if self._append:
                 self.append_const(const)
@@ -321,7 +322,7 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
         """
         if not self.param.nargs.variable or self.param.type not in (None, str):
             return []
-        elif values := ctx.get_parsed_value(self.param):
+        elif (values := ctx.get_parsed_value(self.param)) is not _NotSet:
             n_values = len(values)
             satisfied = self.param.nargs.satisfied
             return [i for i in range(1, n_values) if satisfied(n_values - i)]

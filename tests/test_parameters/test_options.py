@@ -4,7 +4,7 @@ import re
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Flag, Option, ParamGroup
+from cli_command_parser import Command, Flag, Option, ParamGroup, Context
 from cli_command_parser.exceptions import UsageError, ParameterDefinitionError
 from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument, ParamsMissing, ParamConflict
 from cli_command_parser.nargs import REMAINDER
@@ -91,11 +91,6 @@ class OptionTest(ParserTest):
 
     # endregion
 
-    def test_usage(self):
-        self.assertEqual('--foo', Option('--foo').format_usage())
-        self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
-        self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
-
     # region Name Mode
 
     def test_name_both(self):
@@ -162,6 +157,15 @@ class OptionTest(ParserTest):
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     # endregion
+
+    def test_usage(self):
+        self.assertEqual('--foo', Option('--foo').format_usage())
+        self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
+        self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
+
+    def test_append_get_maybe_poppable_counts(self):
+        with Context():
+            self.assertEqual([], Option(action='append').action.get_maybe_poppable_counts())
 
 
 class OptionNargsTest(ParserTest):

@@ -272,6 +272,41 @@ class OptionTest(ParserTest):
         fail_cases = [['-b']]
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
+    def test_append_strict_default(self):
+        default = {'xyz': 'abc'}
+
+        class Foo(Command):
+            bar = Option('-b', nargs='+', action='append', default=default)
+            baz = Option('-B', nargs='+', action='append', default=default, strict_default=True)
+
+        success_cases = [
+            ([], {'bar': ['xyz'], 'baz': default}),
+            (['-b', 'a'], {'bar': ['xyz', 'a'], 'baz': default}),
+            (['-b', 'a', '-b', 'b'], {'bar': ['xyz', 'a', 'b'], 'baz': default}),
+            (['-b', 'a', 'b'], {'bar': ['xyz', 'a', 'b'], 'baz': default}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [
+            (['-B'], UsageError),
+            (['-b'], UsageError),
+            (['-B', 'a'], AttributeError, "'dict' object has no attribute 'append'"),
+        ]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_append_fix_str_to_range(self):
+        class Foo(Command):
+            bar = Option('-b', type=range(10), nargs='+', action='append', default='5')
+
+        success_cases = [
+            ([], {'bar': [5]}),
+            (['-b', '1'], {'bar': [5, 1]}),
+            (['-b', '1', '-b', '2'], {'bar': [5, 1, 2]}),
+            (['-b', '1', '2'], {'bar': [5, 1, 2]}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-b'], ['-b', 'a']]
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
 
 if __name__ == '__main__':
     # import logging
