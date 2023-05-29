@@ -39,7 +39,7 @@ class ParseFlagsTest(ParserTest):
             de = Flag('-de')
 
         exp_pat = "part of argument='-abc' may match multiple parameters: --a / -a, --ab / -ab, --b / -b"
-        with self.assertRaisesRegex(AmbiguousCombo, exp_pat):
+        with self.assert_raises_contains_str(AmbiguousCombo, exp_pat):
             Foo.parse(['-abc'])
 
     def test_combined_flags_ambiguous(self):
@@ -101,7 +101,7 @@ class ParseFlagsTest(ParserTest):
             'Ambiguous short form for --abc / -abc - it conflicts with: --a / -a, --b / -b, --c / -c\n'
             'Ambiguous short form for --bc / -bc - it conflicts with: --b / -b, --c / -c'
         )
-        with self.assertRaisesRegex(AmbiguousShortForm, exp_error_pat):
+        with self.assert_raises_contains_str(AmbiguousShortForm, exp_error_pat):
             get_params(Foo)
 
     def test_combined_flags_ambiguous_strict_parsing(self):
@@ -223,6 +223,12 @@ class ParseFlagsTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails(Foo, ['-baz'])
 
+    def test_append_const_value_rejected(self):
+        class Foo(Command):
+            bar = Flag('-b', action='append_const')
+
+        self.assert_parse_fails(Foo, ['-b=123'])
+
     # region Env Var Handling
 
     def test_env_var(self):
@@ -274,7 +280,7 @@ class ParseFlagsTest(ParserTest):
         class Foo(Command):
             bar = Flag('-b', env_var='BAR', strict_env=False)
 
-        with self.assertLogs('cli_command_parser.parameters.options', 'WARNING'):
+        with self.assertLogs('cli_command_parser.parser', 'WARNING'):
             self.assert_env_parse_results(Foo, [], {'BAR': 'foo'}, {'bar': False})
 
     def test_non_default_const_stored_from_env_var(self):
@@ -352,17 +358,22 @@ class ParseFlagsTest(ParserTest):
                 with self.assertRaisesRegex(BadArgument, 'invalid value=.*? from env_var='):
                     Foo.parse([])
 
+    def test_env_var_append_const(self):
+        class Foo(Command):
+            bar = Flag('-b', env_var='BAR', action='append_const', use_env_value=True)
+
+        cases = [
+            ([], {}, {'bar': []}),
+            (['-b'], {'BAR': '0'}, {'bar': [True]}),  # cli takes precedence
+            ([], {'BAR': '1'}, {'bar': [True]}),
+            ([], {'BAR': '0'}, {'bar': [False]}),
+        ]
+        self.assert_env_parse_results_cases(Foo, cases)
+
     # endregion
 
 
 class ParseTriFlagsTest(ParserTest):
-    def test_tri_flag_rejects_value(self):
-        class Foo(Command):
-            bar = TriFlag('-b', alt_short='-B')
-
-        with Foo().ctx, self.assertRaises(UsageError):
-            Foo.bar.take_action('foo')
-
     def test_alt_opt_mutual_exclusivity(self):
         class Foo(Command):
             bar = TriFlag('-b', alt_short='-B')

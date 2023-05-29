@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Iterator, List, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
 
 from .actions import help_action
 from .config import CommandConfig, AmbiguousComboMode
@@ -407,7 +407,7 @@ class CommandParameters:
         # value will never be empty if key is a valid option because by this point, option is not a short option
         combo_option_map = self.combo_option_map
         param = combo_option_map[key]
-        if param.would_accept(value, short_combo=True):
+        if param.action.would_accept(value, combo=True):
             return [(key, param, value)]
         else:
             # Multi-char short options can never be combined with each other, but single-char ones can
@@ -416,11 +416,11 @@ class CommandParameters:
     def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
         if option.startswith('--'):
             param = self.long_option_to_param_value_pair(option)[1]
-            if param.accepts_values:
+            if param.action.accepts_values:
                 return param
         elif option.startswith('-'):
             for _, param, _ in self.short_option_to_param_value_pairs(option):
-                if param.accepts_values:
+                if param.action.accepts_values:
                     return param
         else:
             raise ValueError(f'Invalid {option=}')
@@ -467,6 +467,16 @@ class CommandParameters:
         for param in self.options:
             if param.env_var and ctx.num_provided(param) == 0:
                 yield param
+
+    def iter_params(self, exclude: Collection[Parameter] = ()) -> Iterator[Parameter]:
+        if exclude:
+            yield from (p for p in self.all_positionals if p not in exclude)
+            yield from (p for p in self.options if p not in exclude)
+        else:
+            yield from self.all_positionals
+            yield from self.options
+        if (pass_thru := self.pass_thru) and pass_thru not in exclude:
+            yield pass_thru
 
     def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand

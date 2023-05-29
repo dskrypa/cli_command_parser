@@ -61,25 +61,20 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.command = command
         self.parent = parent
         self.config = _normalize_config(config, kwargs, parent, command)
+        self.actions_taken = 0
         if parent:
             self._set_argv(parent.prog, argv)
             self._parsed = parent._parsed.copy()
-            self.unknown = parent.unknown.copy()
             self._provided = parent._provided.copy()
-            if terminal_width is None:
-                terminal_width = parent._terminal_width
-            if allow_argv_prog is None:
-                allow_argv_prog = parent.allow_argv_prog
+            self._terminal_width = parent._terminal_width if terminal_width is None else terminal_width
+            self.allow_argv_prog = parent.allow_argv_prog if allow_argv_prog is None else allow_argv_prog
         else:
             self._set_argv(None, argv)
             self._parsed = {}
-            self.unknown = {}
             self._provided = defaultdict(int)
-
-        self._terminal_width = terminal_width
-        if allow_argv_prog is not None:
-            self.allow_argv_prog = allow_argv_prog
-        self.actions_taken = 0
+            self._terminal_width = terminal_width
+            if allow_argv_prog is not None:
+                self.allow_argv_prog = allow_argv_prog
 
     # region Internal Methods
 
@@ -143,7 +138,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return width
         return _TERMINAL.width
 
-    def get_parsed(self, exclude: Collection[Parameter] = (), recursive: Bool = True) -> Dict[str, Any]:
+    def get_parsed(
+        self, exclude: Collection[Parameter] = (), recursive: Bool = True, default: Any = None
+    ) -> Dict[str, Any]:
         """
         Returns all of the parsed arguments as a dictionary.
 
@@ -152,23 +149,20 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
         :param exclude: Parameter objects that should be excluded from the returned results
         :param recursive: Whether parsed arguments should be recursively gathered from parent Commands
+        :param default: The default value to use for parameters that raise :class:`.MissingArgument` when attempting to
+          obtain their result values.
         :return: A dictionary containing all of the arguments that were parsed.  The keys in the returned dict match
           the names assigned to the Parameters in the Command associated with this Context.
         """
         with self:
-            if recursive and self.parent:
-                parsed = self.parent.get_parsed(exclude, recursive)
+            if recursive and (parent := self.parent):
+                parsed = parent.get_parsed(exclude, recursive)
             else:
                 parsed = {}
 
             if params := self.params:
-                for group in (params.all_positionals, params.options, (params.pass_thru,)):
-                    for param in group:
-                        if param and param not in exclude:
-                            try:
-                                parsed[param.name] = param.result_value()
-                            except MissingArgument:
-                                parsed[param.name] = None
+                for param in params.iter_params(exclude):
+                    parsed[param.name] = param.result_value(default)
 
         return parsed
 
@@ -178,10 +172,9 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated
         with this Context.
         """
-        try:
-            return self.command.__class__.params(self.command)
-        except AttributeError:  # self.command is None
-            return None
+        if (command := self.command) is not None:
+            return command.__class__.params(command)
+        return None
 
     def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
         """Returns the :class:`.ErrorHandler` configured to be used."""
@@ -192,19 +185,30 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         else:
             return error_handler
 
-    # region Parsing
+    # region Parsing Methods
 
-    def get_parsed_value(self, param: Parameter):
+    def has_parsed_value(self, param: Parameter) -> bool:
+        return param in self._parsed
+
+    def get_parsed_value(self, param: Parameter, default=_NotSet):
         """Not intended to be called by users.  Used by Parameters to access their parsed values."""
-        try:
-            return self._parsed[param]
-        except KeyError:
-            self._parsed[param] = value = param._init_value_factory()
-            return value
+        return self._parsed.get(param, default)
 
     def set_parsed_value(self, param: Parameter, value: Any):
         """Not intended to be called by users.  Used by Parameters during parsing to store parsed values."""
         self._parsed[param] = value
+
+    def pop_parsed_value(self, param: Parameter):
+        """Not intended to be called by users.  Used by Parameters during parsing if backtracking is necessary."""
+        self._provided[param] = 0
+        return self._parsed.pop(param)
+
+    def roll_back_parsed_values(self, param: Parameter, count: int):
+        """Not intended to be called by users.  Used during parsing as part of backtracking."""
+        values = self._parsed[param]
+        self._parsed[param] = values[:-count]
+        self._provided[param] -= count
+        return values[-count:]
 
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
         """
@@ -323,6 +327,8 @@ class ContextProxy:
 
     __slots__ = ()
 
+    # region Generic Proxy Methods
+
     def __getattr__(self, attr: str):
         return getattr(get_current_context(), attr)
 
@@ -342,6 +348,29 @@ class ContextProxy:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+    # endregion
+
+    # region Proxied Parsing Methods
+
+    def has_parsed_value(self, param: Parameter) -> bool:
+        return get_current_context().has_parsed_value(param)
+
+    def get_parsed_value(self, param: Parameter):
+        return get_current_context().get_parsed_value(param)
+
+    def set_parsed_value(self, param: Parameter, value: Any):
+        get_current_context().set_parsed_value(param, value)
+
+    def record_action(self, param: ParamOrGroup, val_count: int = 1):
+        get_current_context().record_action(param, val_count)
+
+    def num_provided(self, param: ParamOrGroup) -> int:
+        return get_current_context().num_provided(param)
+
+    # endregion
+
+    # region Properties with Inactive Handlers
+
     @property
     def terminal_width(self) -> int:
         if context := get_current_context(True):
@@ -355,6 +384,8 @@ class ContextProxy:
             return context.config
         else:
             return DEFAULT_CONFIG
+
+    # endregion
 
 
 ctx: Context = cast(Context, ContextProxy())
@@ -403,7 +434,7 @@ def get_context(command: Command) -> Context:
         raise TypeError('get_context only supports Command objects') from e
 
 
-def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
+def get_parsed(command: Command, to_call: Callable = None, default: Any = None) -> Dict[str, Any]:
     """
     Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.
 
@@ -422,10 +453,12 @@ def get_parsed(command: Command, to_call: Callable = None) -> Dict[str, Any]:
     :param to_call: A :class:`callable <python:collections.abc.Callable>` (function, method, class, etc.) that should
       be used to filter the parsed arguments.  If provided, then only the keys that match the callable's signature will
       be included in the returned dictionary of parsed arguments.
+    :param default: The default value to use for parameters that raise :class:`.MissingArgument` when attempting to
+      obtain their result values.
     :return: A dictionary containing all of the (optionally filtered) arguments that were parsed.  The keys in the
       returned dict match the names assigned to the Parameters in the given Command.
     """
-    parsed = get_context(command).get_parsed()
+    parsed = get_context(command).get_parsed(default=default)
     if to_call is not None:
         sig = Signature.from_callable(to_call)
         keys = {k for k, p in sig.parameters.items() if p.kind != _Parameter.VAR_KEYWORD}

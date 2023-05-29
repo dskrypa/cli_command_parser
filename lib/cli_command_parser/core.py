@@ -109,8 +109,8 @@ class CommandMeta(ABCMeta, type):
         If the given class does not directly extend ABC, and it extends a Command subclass with a :class:`.SubCommand`
         parameter, then this method will register the class as a subcommand choice for that parameter.
 
-        If no explicit ``choice`` or ``choices`` values are provided, then the name of the class (converted to camel
-        case) will be used as the subcommand choice.
+        If no explicit ``choice`` or ``choices`` values are provided, then the name of the class (converted from camel
+        case to snake case) will be used as the subcommand choice.
 
         :param cls: A Command (sub)class.
         :param choice: SubCommand value to map to this command.  If specified, this single choice value will override

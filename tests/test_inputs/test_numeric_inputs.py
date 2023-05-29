@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from unittest import main, TestCase
+from unittest import main
 
 from cli_command_parser import Command, Option
 from cli_command_parser.exceptions import ParameterDefinitionError
@@ -8,7 +8,7 @@ from cli_command_parser.inputs import Range, NumRange, InputValidationError
 from cli_command_parser.testing import ParserTest
 
 
-class NumericInputTest(TestCase):
+class NumericInputTest(ParserTest):
     def test_range_replaced(self):
         class Foo(Command):
             bar: int = Option(type=range(10))
@@ -69,19 +69,19 @@ class NumericInputTest(TestCase):
         self.assertEqual("<NumRange(<class 'int'>, snap=False)[0 <= N]>", repr(NumRange(min=0)))
 
     def test_num_range_requires_min_max(self):
-        with self.assertRaisesRegex(ValueError, 'at least one of min and/or max values'):
+        with self.assert_raises_contains_str(ValueError, 'at least one of min and/or max values'):
             NumRange()
 
     def test_num_range_requires_min_lt_max(self):
-        with self.assertRaisesRegex(ValueError, 'min must be less than max'):
+        with self.assert_raises_contains_str(ValueError, 'min must be less than max'):
             NumRange(min=10, max=0)
 
     def test_num_range_snap_requires_strict_range(self):
-        with self.assertRaisesRegex(ValueError, 'snap would produce invalid values'):
+        with self.assert_raises_contains_str(ValueError, 'snap would produce invalid values'):
             NumRange(snap=True, min=1, max=2)
 
     def test_snap_rejects_float(self):
-        with self.assertRaisesRegex(TypeError, 'Unable to snap to extrema with type=float'):
+        with self.assert_raises_contains_str(TypeError, 'Unable to snap to extrema with type=float'):
             NumRange(snap=True, type=float, min=1)
 
     def test_num_range_auto_type(self):
@@ -161,8 +161,8 @@ class ParseInputTest(ParserTest):
             bar = Option(type=Range(range(10), fix_default=True), default='-10')
             baz = Option(type=Range(range(10), fix_default=False), default='-10')
 
-        with self.assertRaisesRegex(InputValidationError, 'expected a value in the range'):
-            _ = Foo().bar
+        with self.assert_raises_contains_str(InputValidationError, 'expected a value in the range'):
+            Foo().bar  # noqa
 
         self.assertEqual('-10', Foo().baz)
 

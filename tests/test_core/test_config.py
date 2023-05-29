@@ -7,6 +7,7 @@ from unittest import TestCase, main
 from cli_command_parser import Command, SubCommand, CommandConfig, ShowDefaults, AllowLeadingDash, OptionNameMode
 from cli_command_parser.core import get_config
 from cli_command_parser.config import ConfigItem, DEFAULT_CONFIG
+from cli_command_parser.testing import ParserTest
 
 
 class ConfigItemTest(TestCase):
@@ -93,12 +94,12 @@ class ConfigEnumTest(TestCase):
                 self.assertEqual(expected, OptionNameMode(alias))
 
 
-class ConfigTest(TestCase):
+class ConfigTest(ParserTest):
     def test_config_no_overrides_empty(self):
         self.assertDictEqual({}, CommandConfig().as_dict(False))
 
     def test_config_invalid_key(self):
-        with self.assertRaisesRegex(TypeError, 'unsupported options: bar, foo'):
+        with self.assert_raises_contains_str(TypeError, 'unsupported options: bar, foo'):
             CommandConfig(foo=1, bar=2)
 
     # region Inheritance

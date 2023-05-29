@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
 from abc import ABC
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, main as cmd_main, SubCommand
 from cli_command_parser.core import CommandMeta
+from cli_command_parser.testing import ParserTest
 
 
-class MainTest(TestCase):
+class MainTest(ParserTest):
     def setUp(self):
         CommandMeta._commands.clear()
 
@@ -20,7 +21,7 @@ class MainTest(TestCase):
         self.assertTrue(Foo.main.called)
 
     def test_main_raises_error_on_0_cmds(self):
-        with self.assertRaisesRegex(RuntimeError, 'no commands were found'):
+        with self.assert_raises_contains_str(RuntimeError, 'no commands were found'):
             cmd_main([])
 
     def test_main_raises_error_on_2_cmds(self):
@@ -30,7 +31,7 @@ class MainTest(TestCase):
         class Bar(Command):
             pass
 
-        with self.assertRaisesRegex(RuntimeError, 'found 2 commands:'):
+        with self.assert_raises_contains_str(RuntimeError, 'found 2 commands:'):
             cmd_main([])
 
     def test_main_ignores_sub_cmd(self):

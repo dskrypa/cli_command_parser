@@ -26,7 +26,7 @@ class FlagTest(ParserTest):
         cases = [(True, False), (False, True), (42, None)]
         for const, expected in cases:
             with self.subTest(const=const, expected=expected):
-                self.assertEqual(expected, Flag(const=const).default)
+                self.assertEqual(expected, Flag(const=const).action.get_default())
 
     def test_annotation_ignored(self):
         for annotation in (bool, int, str, None):
@@ -37,6 +37,10 @@ class FlagTest(ParserTest):
 
                 self.assertNotEqual(Foo.bar.type, annotation)
                 self.assert_parse_results_cases(Foo, [(['--bar'], {'bar': True}), ([], {'bar': False})])
+
+    def test_invalid_action_hint(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, r"Invalid action=.*- did you mean 'store_const'\?"):
+            Flag(action='store')  # noqa
 
     # region Test Param Actions
 
@@ -73,10 +77,6 @@ class FlagTest(ParserTest):
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
             Flag(nargs='+')
-
-    def test_metavar_not_allowed(self):
-        with self.assertRaisesRegex(TypeError, 'got an unexpected keyword argument:'):
-            Flag(metavar='foo')
 
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
@@ -135,7 +135,7 @@ class FlagTest(ParserTest):
         class Foo(Command, option_name_mode=None):
             bar = Flag()
 
-        with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'No option strings were registered'):
             Foo().parse([])
 
     def test_name_none(self):
@@ -198,10 +198,6 @@ class TriFlagTest(ParserTest):
         with self.assertRaises(TypeError):
             TriFlag(choices=(1, 2))
 
-    def test_metavar_not_allowed(self):
-        with self.assertRaises(TypeError):
-            TriFlag(metavar='foo')
-
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
             TriFlag(allow_leading_dash=True)
@@ -214,10 +210,11 @@ class TriFlagTest(ParserTest):
         self.assert_call_fails_cases(TriFlag, fail_cases)
 
     def test_default_in_consts_rejected(self):
+        expected = 'the default must not match either value'
         cases = [((None, 'foo'), None), (('foo', None), None), ((True, False), True), ((True, False), False)]
         for consts, default in cases:
             with self.subTest(consts=consts, default=default):
-                with self.assertRaisesRegex(ParameterDefinitionError, 'the default must not match either value'):
+                with self.assert_raises_contains_str(ParameterDefinitionError, expected):
                     TriFlag(consts=consts, default=default)
 
     # region Option Strings
@@ -354,7 +351,7 @@ class TriFlagTest(ParserTest):
                 class Foo(Command, option_name_mode=None):
                     bar = TriFlag(*args, **kwargs)
 
-                with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+                with self.assert_raises_contains_str(ParameterDefinitionError, 'No option strings were registered'):
                     Foo().parse([])
 
     def test_name_none(self):

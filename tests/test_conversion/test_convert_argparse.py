@@ -211,11 +211,11 @@ class Command9(Command1, choice='123 456'):\n    pass\n\n
     # region Actions
 
     def test_bad_positional_action(self):
-        with self.assertRaisesRegex(ConversionError, 'is not supported for Positional parameters'):
+        with self.assert_raises_contains_str(ConversionError, 'is not supported for Positional parameters'):
             prep_and_convert("'foo', action='store_true'")
 
     def test_bad_option_action(self):
-        with self.assertRaisesRegex(ConversionError, 'is not supported for Option parameters'):
+        with self.assert_raises_contains_str(ConversionError, 'is not supported for Option parameters'):
             prep_and_convert("'--foo', action='extend'")
 
     def test_explicit_option_action(self):
@@ -266,7 +266,7 @@ group.add_argument('--foo')"""
         self.assertEqual(expected, prep_and_convert("'--foo', help='The foo (default: %(default)s)'"))
 
     def test_bad_param_type(self):
-        with self.assertRaisesRegex(ConversionError, 'Unable to determine a suitable Parameter type'):
+        with self.assert_raises_contains_str(ConversionError, 'Unable to determine a suitable Parameter type'):
             prep_and_convert('')
 
     def test_param_order(self):

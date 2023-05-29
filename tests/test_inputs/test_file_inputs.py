@@ -262,6 +262,17 @@ class FileInputTest(TestCase):
 
     # endregion
 
+    def test_fix_default_handling(self):
+        class Cmd(Command):
+            foo = Option(type=PathInput(), default='/var/tmp')
+            bar = Option(type=PathInput(fix_default=False), default='123')
+            baz = Option(type=PathInput(), default=None)
+
+        cmd = Cmd()
+        self.assertEqual(Path('/var/tmp'), cmd.foo)
+        self.assertEqual('123', cmd.bar)
+        self.assertIsNone(cmd.baz)
+
 
 class WriteFileTest(TestCase):
     def test_plain_write_with(self):
@@ -317,7 +328,7 @@ class WriteFileTest(TestCase):
             self.assertEqual('{"a": 1}', a.read_text())
 
 
-class ReadFileTest(TestCase):
+class ReadFileTest(ParserTest):
     def test_plain_read_with(self):
         with temp_path('a') as a:
             a.write_text('{"a": 1}')
@@ -380,7 +391,7 @@ class ReadFileTest(TestCase):
         with temp_path() as tmp_path:
             b = tmp_path.joinpath('b')
             b.mkdir()
-            with self.assertRaisesRegex(BadArgument, 'Unable to open'):
+            with self.assert_raises_contains_str(BadArgument, 'Unable to open'):
                 Foo.parse_and_run(['-b', b.as_posix()])
 
 

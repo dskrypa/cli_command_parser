@@ -7,21 +7,21 @@ Optional Parameters
 from __future__ import annotations
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, NoReturn, Literal, Tuple
 
-from ..context import ctx
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, ParamConflict
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import T_co, TypeFunc
-from ..utils import _NotSet, ValueSource, str_to_bool
-from .base import BasicActionMixin, BaseOption, parameter_action
+from ..utils import _NotSet, str_to_bool
+from .actions import Store, StoreConst, Append, AppendConst, Count
+from .base import BaseOption, AllowLeadingDashProperty
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
-    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, ValSrc, LeadingDash
+    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
 
 __all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
 log = logging.getLogger(__name__)
@@ -29,9 +29,10 @@ log = logging.getLogger(__name__)
 TD = TypeVar('TD')
 TC = TypeVar('TC')
 TA = TypeVar('TA')
+ConstAct = Literal['store_const', 'append_const']
 
 
-class Option(BasicActionMixin, BaseOption[Union[T_co, TD]]):
+class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -62,12 +63,13 @@ class Option(BasicActionMixin, BaseOption[Union[T_co, TD]]):
     """
 
     default: TD
+    allow_leading_dash = AllowLeadingDashProperty()
 
     def __init__(
         self,
         *option_strs: str,
         nargs: NargsValue = None,
-        action: str = _NotSet,
+        action: Literal['store', 'append'] = None,
         default: TD = _NotSet,
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
@@ -75,107 +77,39 @@ class Option(BasicActionMixin, BaseOption[Union[T_co, TD]]):
         allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
-        if nargs is not None:
-            self.nargs = nargs = Nargs(nargs)
-        elif action == 'append':
-            self.nargs = nargs = Nargs('+')
-        else:
-            nargs = self.nargs  # default: Nargs(1)
+        if nargs_provided := nargs is not None:
+            nargs = Nargs(nargs)
+            if 0 in nargs:
+                nargs = nargs._orig
+                details = 'use Flag or Counter for Options that can be specified without a value'
+                if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
+                    suffix = f', {nargs.step}' if nargs.step != 1 else ''
+                    details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
+                raise ParameterDefinitionError(f'Invalid {nargs=} - {details}')
 
-        if 0 in nargs:
-            nargs = nargs._orig
-            details = 'use Flag or Counter for Options that can be specified without a value'
-            if isinstance(nargs, range) and nargs.start == 0 and nargs.step != nargs.stop:
-                suffix = f', {nargs.step}' if nargs.step != 1 else ''
-                details = f'try using range({nargs.step}, {nargs.stop}{suffix}) instead, or {details}'
-            raise ParameterDefinitionError(f'Invalid {nargs=} - {details}')
-
-        if action is _NotSet:
-            action = 'store' if nargs == 1 else 'append'
-        elif action == 'store' and nargs != 1:
+        if not action:
+            if nargs_provided:
+                action = 'store' if nargs == 1 else 'append'
+            else:
+                action = 'store'
+        elif nargs_provided and action == 'store' and nargs != 1:
             raise ParameterDefinitionError(f'Invalid {nargs=} for {action=}')
-        elif action in ('store_const', 'append_const'):
-            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - use Flag instead')
 
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
+        if not nargs_provided:
+            nargs = self.action.default_nargs
+
+        self.nargs = nargs
         self.type = normalize_input_type(type, choices)
-        self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
+        self.allow_leading_dash = allow_leading_dash
+
+    def _handle_bad_action(self, action: str) -> NoReturn:
+        if action in ('store_const', 'append_const'):
+            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - use Flag instead')
+        super()._handle_bad_action(action)
 
 
-class _Flag(BaseOption[T_co], ABC):
-    nargs = Nargs(0)
-    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
-    strict_env: bool
-    use_env_value: bool = False
-    _use_opt_str: bool = False
-
-    def __init_subclass__(cls, use_opt_str: bool = False, **kwargs):  # pylint: disable=W0222
-        super().__init_subclass__(**kwargs)
-        cls._use_opt_str = use_opt_str
-
-    def __init__(
-        self,
-        *option_strs: str,
-        type: TypeFunc = None,  # noqa
-        strict_env: bool = True,
-        use_env_value: bool = False,
-        **kwargs,
-    ):
-        if 'metavar' in kwargs:
-            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
-        super().__init__(*option_strs, **kwargs)
-        self.strict_env = strict_env
-        if use_env_value:
-            self.use_env_value = use_env_value
-        if type is not None:
-            self.type = type
-
-    def _init_value_factory(self):
-        if self.action == 'store_const':
-            return self.default
-        else:
-            return []
-
-    def take_action(
-        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
-    ):
-        # log.debug(f'{self!r}.take_action({value!r})')
-        ctx.record_action(self)
-        if value is None:
-            action_method = getattr(self, self.action)
-            return action_method(opt_str) if self._use_opt_str else action_method()
-        elif src != ValueSource.CLI:
-            src, env_var = src
-            try:
-                return self.take_env_var_action(value, env_var)
-            except ParamUsageError as e:
-                if not self.strict_env:
-                    log.warning(e)
-                    return
-                raise
-
-        raise ParamUsageError(self, f'received {value=} but no values are accepted for action={self.action!r}')
-
-    def prepare_env_var_value(self, value: str, env_var: str) -> T_co:
-        try:
-            return self.type(value)
-        except Exception as e:
-            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
-
-    @abstractmethod
-    def take_env_var_action(self, value: str, env_var: str):
-        raise NotImplementedError
-
-    def would_accept(self, value: Optional[str], short_combo: bool = False) -> bool:  # noqa
-        return value is None
-
-    def result_value(self) -> Any:
-        return ctx.get_parsed_value(self)
-
-    result = result_value
-
-
-class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
+class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -205,12 +139,21 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
+    nargs = Nargs(0)
+    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    use_env_value: bool = False
     __default_const_map = {True: False, False: True, _NotSet: True}
     default: TD
     const: TC
 
     def __init__(
-        self, *option_strs: str, action: str = 'store_const', default: TD = _NotSet, const: TC = _NotSet, **kwargs
+        self,
+        *option_strs: str,
+        action: ConstAct = 'store_const',
+        default: TD = _NotSet,
+        const: TC = _NotSet,
+        type: TypeFunc = None,  # noqa
+        **kwargs,
     ):
         if const is _NotSet:
             try:
@@ -220,32 +163,25 @@ class Flag(_Flag[Union[TD, TC]], accepts_values=False, accepts_none=True):
                     f"A 'const' value is required for {self.__class__.__name__} since {default=} is not True or False"
                 ) from e
         if default is _NotSet:
-            default = self.__default_const_map.get(const)  # will be True, False, or None
+            default = self.__default_const_map.get(const, _NotSet)  # will be True or False
         if default is False:  # Avoid surprises for custom non-truthy values
             kwargs.setdefault('show_default', False)
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
+        if type is not None:
+            self.type = type
 
-    def take_env_var_action(self, value: str, env_var: str):
-        parsed = self.prepare_env_var_value(value, env_var)
-        if self.use_env_value:
-            if parsed == self.const:
-                getattr(self, self.action)()
-            elif parsed != self.default:
-                raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
-        elif parsed:
-            getattr(self, self.action)()
-
-    @parameter_action
-    def store_const(self):
-        ctx.set_parsed_value(self, self.const)
-
-    @parameter_action
-    def append_const(self):
-        ctx.get_parsed_value(self).append(self.const)
+    def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TD], bool]:
+        try:
+            parsed = self.type(value)
+        except Exception as e:
+            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
+        if self.use_env_value and parsed != self.const and parsed != self.default:
+            raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
+        return parsed, self.use_env_value
 
 
-class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True, use_opt_str=True):
+class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendConst)):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -280,6 +216,9 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
+    nargs = Nargs(0)
+    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    use_env_value: bool = False
     _opt_str_cls = TriFlagOptionStrings
     option_strs: TriFlagOptionStrings
     alt_help: OptStr = None
@@ -294,8 +233,9 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         alt_long: str = None,
         alt_short: str = None,
         alt_help: str = None,
-        action: str = 'store_const',
+        action: ConstAct = 'store_const',
         default: TD = _NotSet,
+        type: TypeFunc = None,  # noqa
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -324,43 +264,31 @@ class TriFlag(_Flag[Union[TD, TC, TA]], accepts_values=False, accepts_none=True,
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)
         if alt_help:
             self.alt_help = alt_help
+        if type is not None:
+            self.type = type
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         self.option_strs.update_alts(name)
 
-    def _get_const(self, opt_str: str) -> Union[TC, TA]:
+    def get_const(self, opt_str: OptStr = None) -> Union[TC, TA]:
         if opt_str in self.option_strs.alt_allowed:
             return self.consts[1]
         else:
             return self.consts[0]
 
-    @parameter_action
-    def store_const(self, opt_str: str):
-        self._store_const(self._get_const(opt_str))
-
-    def _store_const(self, const: Union[TC, TA]):
-        ctx.set_parsed_value(self, const)
-
-    def take_action(
-        self, value: Optional[str], short_combo: bool = False, opt_str: str = None, src: ValSrc = ValueSource.CLI
-    ):
-        if value is None:
-            prev_parsed = ctx.get_parsed_value(self)
-            const = self._get_const(opt_str)
-            if prev_parsed is not self.default and prev_parsed != const:
-                raise ParamConflict([self])
-        return super().take_action(value, short_combo, opt_str, src)
-
-    def take_env_var_action(self, value: str, env_var: str):
-        parsed = self.prepare_env_var_value(value, env_var)
+    def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TA, TD], bool]:
+        try:
+            parsed = self.type(value)
+        except Exception as e:
+            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
         if self.use_env_value:
-            if parsed in self.consts:
-                self._store_const(parsed)
-            elif parsed != self.default:
+            if parsed not in self.consts and parsed != self.default:
                 raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
+            return parsed, True
         else:
-            self._store_const(self.consts[0] if parsed else self.consts[1])
+            const = self.consts[0] if parsed else self.consts[1]
+            return const, True
 
 
 # region Action Flag
@@ -479,7 +407,7 @@ def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable =
 # endregion
 
 
-class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
+class Counter(BaseOption[int], actions=(Count,)):
     """
     A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
     to explicitly increase the stored value by that amount.
@@ -488,8 +416,9 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
       then one will automatically be added based on the name assigned to this parameter.
     :param action: The action to take on individual parsed values.  Defaults to ``append``, and no other actions
       are supported (unless this class is extended).
-    :param default: The default value for this parameter if it is not specified.  This value is also be used as the
-      initial value that will be incremented when this parameter is specified.  Defaults to ``0``.
+    :param init: The initial value that will be incremented when this parameter is specified.  Defaults to ``0``.
+    :param default: The default value for this parameter if it is not specified.  Defaults to ``0`` unless this
+      Parameter is required.
     :param const: The value by which the stored value should increase whenever this parameter is specified.
       Defaults to ``1``.  If a different ``const`` value is used, and if an explicit value is provided by a user,
       the user-provided value will be added verbatim - it will NOT be multiplied by ``const``.
@@ -498,20 +427,32 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
 
     type = int
     nargs = Nargs('?')
+    init: int
+    default: int
+    const: int
 
-    def __init__(self, *option_strs: str, action: str = 'append', default: int = 0, const: int = 1, **kwargs):
-        vals = {'const': const, 'default': default}
-        if bad_types := ', '.join(f'{k}={v!r}' for k, v in vals.items() if not isinstance(v, self.type)):
+    def __init__(
+        self,
+        *option_strs: str,
+        action: str = 'count',
+        init: int = 0,
+        const: int = 1,
+        default: int = _NotSet,
+        required: bool = False,
+        **kwargs,
+    ):
+        type_check_vals = {'const': const, 'init': init}
+        if default is not _NotSet:
+            type_check_vals['default'] = default
+        elif not required:
+            default = 0
+        if bad_types := ', '.join(f'{k}={v!r}' for k, v in type_check_vals.items() if not isinstance(v, self.type)):
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')
-        super().__init__(*option_strs, action=action, default=default, **kwargs)
+        super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
+        self.init = init
         self.const = const
 
-    def _init_value_factory(self):
-        return self.default
-
     def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:
-        if value is None:
-            return self.const
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
@@ -519,13 +460,6 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
             if short_combo and combinable and all(c in combinable for c in value):
                 return len(value) + 1  # +1 for the -short that preceded this value
             raise BadArgument(self, f'bad counter {value=}') from e
-
-    @parameter_action
-    def append(self, value: Optional[int]):
-        if value is None:
-            value = self.const
-        current = ctx.get_parsed_value(self)
-        ctx.set_parsed_value(self, current + value)
 
     def validate(self, value: Any):
         if value is None or isinstance(value, self.type):
@@ -536,8 +470,3 @@ class Counter(BaseOption[int], accepts_values=True, accepts_none=True):
             raise BadArgument(self, f'invalid {value=} (expected an integer)') from e
         else:
             return
-
-    def result_value(self) -> int:
-        return ctx.get_parsed_value(self)
-
-    result = result_value

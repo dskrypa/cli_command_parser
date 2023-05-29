@@ -6,13 +6,14 @@ Positional Parameters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet
-from .base import BasicActionMixin, BasePositional
+from .actions import Store, Append
+from .base import BasePositional, AllowLeadingDashProperty
 
 if TYPE_CHECKING:
     from ..typing import InputTypeFunc, ChoicesType, LeadingDash
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 __all__ = ['Positional']
 
 
-class Positional(BasicActionMixin, BasePositional, default_ok=True):
+class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
     """
     A parameter that must be provided positionally.
 
@@ -49,10 +50,12 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
+    allow_leading_dash = AllowLeadingDashProperty()
+
     def __init__(
         self,
         nargs: NargsValue = None,
-        action: str = _NotSet,
+        action: Literal['store', 'append'] = None,
         type: InputTypeFunc = None,  # noqa
         default: Any = _NotSet,
         *,
@@ -60,21 +63,28 @@ class Positional(BasicActionMixin, BasePositional, default_ok=True):
         allow_leading_dash: LeadingDash = None,
         **kwargs,
     ):
-        if nargs is not None:
-            self.nargs = Nargs(nargs)
-            if self.nargs == 0:
-                cls_name = self.__class__.__name__
-                raise ParameterDefinitionError(f'Invalid nargs={self.nargs} - {cls_name} must allow at least 1 value')
-        if action is _NotSet:
-            action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
-        elif action == 'store' and self.nargs.max != 1:
-            raise ParameterDefinitionError(f'Invalid {action=} for nargs={self.nargs}')
-        required = 0 not in self.nargs
-        if default is not _NotSet and required:
+        if nargs_provided := nargs is not None:
+            self.nargs = nargs = Nargs(nargs)
+            if nargs == 0:
+                raise ParameterDefinitionError(
+                    f'Invalid {nargs=} - {self.__class__.__name__} must allow at least 1 value'
+                )
+        else:
+            self.nargs = nargs = Nargs(1)
+
+        if not action:
+            if nargs_provided:
+                action = 'store' if nargs == 1 or nargs == Nargs('?') else 'append'
+            else:
+                action = 'store'
+        elif nargs_provided and action == 'store' and nargs.max != 1:
+            raise ParameterDefinitionError(f'Invalid {action=} for {nargs=}')
+
+        if (required := 0 not in nargs) and default is not _NotSet:
             raise ParameterDefinitionError(
                 f'Invalid {default=} - only allowed for Positional parameters when nargs=? or nargs=*'
             )
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, **kwargs)
         self.type = normalize_input_type(type, choices)
-        self._validate_nargs_and_allow_leading_dash(allow_leading_dash)
+        self.allow_leading_dash = allow_leading_dash

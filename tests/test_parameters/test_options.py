@@ -4,7 +4,7 @@ import re
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Flag, Option, ParamGroup
+from cli_command_parser import Command, Flag, Option, ParamGroup, Context
 from cli_command_parser.exceptions import UsageError, ParameterDefinitionError
 from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument, ParamsMissing, ParamConflict
 from cli_command_parser.nargs import REMAINDER
@@ -64,7 +64,14 @@ class OptionTest(ParserTest):
     def test_rejected_const_action_hint(self):
         for action in ('store_const', 'append_const'):
             with self.assertRaisesRegex(ParameterDefinitionError, 'Invalid action=.* for Option - use Flag instead'):
-                Option(action=action)
+                Option(action=action)  # noqa
+
+    def test_bad_action_rejected(self):
+        with self.assertRaisesRegex(ParameterDefinitionError, 'Invalid action=.*- valid actions:'):
+            Option(action='foo')  # noqa
+
+    def test_metavar_is_stored(self):
+        self.assertEqual('foo', Option(metavar='foo').metavar)
 
     # endregion
 
@@ -83,11 +90,6 @@ class OptionTest(ParserTest):
         self.assertEqual(['--bar', '-b'], list(Foo.bar.option_strs.option_strs()))
 
     # endregion
-
-    def test_usage(self):
-        self.assertEqual('--foo', Option('--foo').format_usage())
-        self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
-        self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
 
     # region Name Mode
 
@@ -136,7 +138,7 @@ class OptionTest(ParserTest):
         class Foo(Command, option_name_mode=None):
             bar = Option()
 
-        with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'No option strings were registered'):
             Foo().parse([])
 
     def test_name_none(self):
@@ -155,6 +157,15 @@ class OptionTest(ParserTest):
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
     # endregion
+
+    def test_usage(self):
+        self.assertEqual('--foo', Option('--foo').format_usage())
+        self.assertEqual('[--foo bar]', Option('--foo', metavar='bar', required=False).formatter.format_basic_usage())
+        self.assertEqual('--foo bar', Option('--foo', metavar='bar', required=True).formatter.format_basic_usage())
+
+    def test_append_get_maybe_poppable_counts(self):
+        with Context():
+            self.assertEqual([], Option(action='append').action.get_maybe_poppable_counts())
 
 
 class OptionNargsTest(ParserTest):
@@ -176,19 +187,19 @@ class OptionNargsTest(ParserTest):
         self.assert_call_fails_cases(Option, fail_cases)
 
     def test_nargs_0_range_tip_step_1(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, r'try using range\(1, 2\) instead'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'try using range(1, 2) instead'):
 
             class Foo(Command):
                 bar = Option(nargs=range(2))
 
     def test_nargs_0_range_tip_step_2_matches_stop(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'specified without a value'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'specified without a value'):
 
             class Foo(Command):
                 bar = Option(nargs=range(0, 2, 2))
 
     def test_nargs_0_range_tip_step_2(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, r'try using range\(2, 3, 2\) instead'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'try using range(2, 3, 2) instead'):
 
             class Foo(Command):
                 bar = Option(nargs=range(0, 3, 2))
@@ -204,13 +215,13 @@ class OptionNargsTest(ParserTest):
         self.assertIsNone(Foo.bar.type)  # noqa
 
     def test_type_with_remainder_rejected(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'Type casting and choices are not supported'):
 
             class Foo(Command):
                 bar = Option(nargs=(1, REMAINDER), type=int)  # TODO: Should this be supported?  Why not?
 
     def test_choices_with_remainder_rejected(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'Type casting and choices are not supported'):
 
             class Foo(Command):
                 bar = Option(nargs=(1, REMAINDER), choices=('a', 'b'))
@@ -219,7 +230,7 @@ class OptionNargsTest(ParserTest):
         expected = 'only allow_leading_dash=AllowLeadingDash.ALWAYS'
         for allow_leading_dash in ('numeric', False):
             with self.subTest(allow_leading_dash=allow_leading_dash):
-                with self.assertRaisesRegex(ParameterDefinitionError, expected):
+                with self.assert_raises_contains_str(ParameterDefinitionError, expected):
 
                     class Foo(Command):
                         bar = Option(nargs=(1, REMAINDER), allow_leading_dash=allow_leading_dash)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from unittest import TestCase, main
+from unittest import main
 
 from cli_command_parser import Command, CommandConfig
 from cli_command_parser.core import CommandMeta
@@ -8,9 +8,10 @@ from cli_command_parser.context import Context, ActionPhase, ctx, get_current_co
 from cli_command_parser.context import get_context, get_parsed, get_raw_arg
 from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.parameters import Flag, SubCommand, Positional
+from cli_command_parser.testing import ParserTest
 
 
-class ContextTest(TestCase):
+class ContextTest(ParserTest):
     # region Config
 
     def test_no_command_results_in_config_default(self):
@@ -33,7 +34,7 @@ class ContextTest(TestCase):
         self.assertNotEqual(default, c.config.ignore_unknown)
 
     def test_double_config_rejected(self):
-        with self.assertRaisesRegex(TypeError, 'Cannot combine config='):
+        with self.assert_raises_contains_str(TypeError, 'Cannot combine config='):
             Context(config=CommandConfig(), add_help=False)
 
     def test_explicitly_provided_config_used(self):

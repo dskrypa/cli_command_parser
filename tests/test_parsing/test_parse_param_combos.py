@@ -30,7 +30,7 @@ class ParamComboTest(ParserTest):
             bar = Option(nargs=2)
             baz = Positional()
 
-        self.assertEqual('append', Foo.bar.action)
+        self.assertEqual('append', Foo.bar.action.name)
         success_cases = [
             (['--bar', 'a', 'b', 'c'], {'bar': ['a', 'b'], 'baz': 'c'}),
             (['c', '--bar', 'a', 'b'], {'bar': ['a', 'b'], 'baz': 'c'}),
@@ -237,7 +237,7 @@ class ParseParamsWithSubcommandsTest(ParserTest):
             sub = SubCommand()
             pre = Positional()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'has no sub Commands'):
             Cmd.parse([])
 
     def test_positional_nargs_star_after_local_choices(self):

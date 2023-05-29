@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Type, Sequence, Optional, overload
 from .core import CommandMeta, get_top_level_commands, get_params
 from .context import Context, ActionPhase, get_or_create_context
 from .exceptions import ParamConflict
-from .parser import CommandParser
+from .parser import parse_args_and_get_next_cmd
 
 if TYPE_CHECKING:
     from .typing import Bool, CommandObj
@@ -33,11 +33,10 @@ class Command(ABC, metaclass=CommandMeta):
     ctx: Context
 
     def __new__(cls):
-        ctx = get_or_create_context(cls)
         # By storing the Context here instead of __init__, every single subclass won't need to
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
-        self.__ctx = ctx
+        self.__ctx = ctx = get_or_create_context(cls)
         if not hasattr(self, 'ctx'):
             self.ctx: Context = ctx  # noqa  # PyCharm complains this is invalid, but doesn't understand it without it
         return self
@@ -112,7 +111,7 @@ class Command(ABC, metaclass=CommandMeta):
         cmd_cls = cls
         with ExitStack() as stack:
             stack.enter_context(ctx)
-            while sub_cmd := CommandParser.parse_args_and_get_next_cmd(ctx):
+            while sub_cmd := parse_args_and_get_next_cmd(ctx):
                 cmd_cls = sub_cmd
                 ctx = stack.enter_context(ctx._sub_context(cmd_cls))
 

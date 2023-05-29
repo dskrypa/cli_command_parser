@@ -6,7 +6,7 @@ Utilities for working with terminals, strings, and Enums.
 
 from __future__ import annotations
 
-from enum import Flag, Enum, EnumMeta
+from enum import Flag, EnumMeta
 from shutil import get_terminal_size
 from time import monotonic
 from typing import Any, Callable, TypeVar, List
@@ -142,11 +142,6 @@ class Terminal:  # pylint: disable=R0903
             self._width = get_terminal_size()[0]
             self._last_time = monotonic()
         return self._width
-
-
-class ValueSource(Enum):
-    CLI = 'cli'
-    ENV = 'env'
 
 
 def str_to_bool(value: str) -> bool:

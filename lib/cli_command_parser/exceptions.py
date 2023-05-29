@@ -33,6 +33,7 @@ __all__ = [
     'BadArgument',
     'InvalidChoice',
     'MissingArgument',
+    'TooManyArguments',
     'NoSuchOption',
     'NoActiveContext',
 ]
@@ -225,6 +226,14 @@ class MissingArgument(BadArgument):
     message = 'missing required argument value'
 
 
+class TooManyArguments(BadArgument):
+    """Error raised when too many values were provided for a Parameter"""
+
+    def __init__(self, param: ParamOrGroup, message: str = None):
+        msg = f'expected {param.nargs} args - cannot accept any additional args'
+        super().__init__(param, f'{msg} - {message}' if message else msg)
+
+
 class NoSuchOption(UsageError):
     """Error raised when an option that was not defined as a Parameter was provided"""
 
@@ -236,10 +245,6 @@ class NoActiveContext(CommandParserException, RuntimeError):
 # endregion
 
 # region Internal Exceptions
-
-
-class UnsupportedAction(CommandParserException):
-    """Indicates that an attempted action cannot be completed.  Only used internally."""
 
 
 class Backtrack(CommandParserException):

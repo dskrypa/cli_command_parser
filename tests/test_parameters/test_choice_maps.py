@@ -4,7 +4,7 @@ from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Context
-from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice
+from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice, ParameterDefinitionError
 from cli_command_parser.parameters.choice_map import SubCommand, Action, Choice
 from cli_command_parser.testing import ParserTest
 
@@ -33,9 +33,9 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo')
+            Foo.action.action.add_value('foo')
             with self.assertRaises(InvalidChoice):
-                Foo.action.append('baz')
+                Foo.action.action.add_value('baz')
 
     def test_missing_action_target(self):
         class Foo(Command):
@@ -52,7 +52,7 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo')
+            Foo.action.action.add_value('foo')
             with self.assertRaises(BadArgument):
                 Foo.action.validate('bar')
 
@@ -64,7 +64,7 @@ class ChoiceMapTest(ParserTest):
             def foo(self):
                 pass
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'No choices were registered for Action'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'No choices were registered for Action'):
             foo = Foo.parse([])
             del Foo.action.choices['foo']
             foo.action  # noqa
@@ -78,7 +78,7 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo')
+            Foo.action.action.add_value('foo')
             with self.assertRaises(BadArgument):
                 Foo.action.result()
 
@@ -95,7 +95,7 @@ class ChoiceMapTest(ParserTest):
                 pass
 
         with Context():
-            Foo.action.take_action('foo bar')
+            Foo.action.action.add_value('foo bar')
             del Foo.action.choices['foo bar']
             with self.assertRaises(BadArgument):
                 Foo.action.result()
@@ -112,7 +112,7 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             sub = SubCommand()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine a positional command_or_choice='):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Cannot combine a positional command_or_choice='):
             Foo.sub.register('foo', choice='foo')
 
     def test_custom_action_choice(self):
@@ -143,6 +143,10 @@ class ChoiceMapTest(ParserTest):
         with self.assertRaises(TypeError):
             SubCommand(allow_leading_dash=True)
 
+    def test_default_not_allowed_sub_cmd(self):
+        with self.assertRaises(ParameterDefinitionError):
+            SubCommand(default='foo')
+
     def test_nargs_not_allowed_action(self):
         with self.assertRaises(TypeError):
             Action(nargs='+')
@@ -164,6 +168,15 @@ class ChoiceMapTest(ParserTest):
     def test_choice_format_help(self):
         choice = Choice('test', help='Example choice')
         self.assertEqual('    test                      Example choice', choice.format_help())
+
+    def test_default_when_missing(self):
+        class Foo(Command, add_help=False):
+            sub = SubCommand()
+
+        class Bar(Foo):
+            pass
+
+        self.assertEqual({'sub': 123}, Foo().ctx.get_parsed(default=123))
 
 
 if __name__ == '__main__':

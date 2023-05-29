@@ -25,7 +25,7 @@ from .documentation import load_commands
 from .exceptions import UsageError
 
 if TYPE_CHECKING:
-    from .typing import CommandCls
+    from .typing import CommandCls, OptStr
 
 __all__ = [
     'ParserTest',
@@ -45,10 +45,41 @@ Kwargs = Dict[str, Any]
 Env = Dict[str, str]
 Case = Tuple[Argv, Expected]
 EnvCase = Tuple[Argv, Env, Expected]
-ExceptionCase = Union[Argv, Tuple[Argv, Type[Exception]], Tuple[Argv, Type[Exception], str]]
-CallExceptionCase = Union[Tuple[Kwargs, Type[Exception]], Tuple[Kwargs, Type[Exception], str]]
+ExcType = Type[Exception]
+ExceptionCase = Union[Argv, Tuple[Argv, ExcType], Tuple[Argv, ExcType, str]]
+ExcCases = Iterable[ExceptionCase]
+CallExceptionCase = Union[Tuple[Kwargs, ExcType], Tuple[Kwargs, ExcType, str]]
+CallExceptionCases = Iterable[CallExceptionCase]
 
 OPT_ENV_MOD = 'cli_command_parser.parser.environ'
+
+
+class AssertRaisesWithStringContext:
+    """
+    Simplified version of the stdlib ``_AssertRaisesContext`` that tests whether the raised exception's string contains
+    the given text rather than matching it against a regex pattern.  This avoids the regex overhead when it isn't
+    necessary, which is the majority of the time for such checks in this project.
+    """
+
+    __slots__ = ('test_case', 'expected_exc', 'expected_text', 'msg')
+
+    def __init__(self, test_case: TestCase, expected_exc: Type[BaseException], text: OptStr = None, msg: OptStr = None):
+        self.test_case = test_case
+        self.expected_exc = expected_exc
+        self.expected_text = text
+        self.msg = (' - ' + msg) if msg else ''
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            self.test_case.fail(f'{self.expected_exc.__name__} not raised{self.msg}')
+        elif not issubclass(exc_type, self.expected_exc):
+            return False  # Let unexpected exceptions be propagated
+        elif self.expected_text and self.expected_text not in str(exc_val):
+            self.test_case.fail(f'{self.expected_text!r} not found in {str(exc_val)!r}{self.msg}')
+        return True
 
 
 class ParserTest(TestCase):
@@ -63,97 +94,77 @@ class ParserTest(TestCase):
         self.assertIsInstance(d1, dict, 'First argument is not a dictionary')
         self.assertIsInstance(d2, dict, 'Second argument is not a dictionary')
         if d1 != d2:
-            standard_msg = f'{d1} != {d2}\n{format_dict_diff(d1, d2)}'
-            self.fail(self._formatMessage(msg, standard_msg))
+            self.fail(self._formatMessage(msg, f'{d1} != {d2}\n{format_dict_diff(d1, d2)}'))
 
-    def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, message: str = None) -> Command:
+    def assert_raises_contains_str(self, expected_exc: Type[BaseException], expected_text: str, msg: str = None):
+        return AssertRaisesWithStringContext(self, expected_exc, expected_text, msg)
+
+    def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, msg: str = None) -> Command:
         cmd = cmd_cls.parse(argv)
         parsed = cmd.ctx.get_parsed((help_action,))
-        self.assert_dict_equal(expected, parsed, message)
+        self.assert_dict_equal(expected, parsed, msg)
         return cmd
 
-    def assert_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[Case], message: str = None):
+    def assert_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[Case], msg: str = None):
         for argv, expected in cases:
             with self.subTest(expected='results', argv=argv):
-                self.assert_parse_results(cmd_cls, argv, expected, message)
+                self.assert_parse_results(cmd_cls, argv, expected, msg)
 
     def assert_env_parse_results(
-        self, cmd_cls: CommandCls, argv: Argv, env: Env, expected: Expected, message: str = None
+        self, cmd_cls: CommandCls, argv: Argv, env: Env, expected: Expected, msg: str = None
     ) -> Command:
         with patch(OPT_ENV_MOD, env):
-            return self.assert_parse_results(cmd_cls, argv, expected, message)
+            return self.assert_parse_results(cmd_cls, argv, expected, msg)
 
-    def assert_env_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[EnvCase], message: str = None):
+    def assert_env_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[EnvCase], msg: str = None):
         for argv, env, expected in cases:
             with self.subTest(expected='results', argv=argv, env=env):
-                self.assert_env_parse_results(cmd_cls, argv, env, expected, message)
+                self.assert_env_parse_results(cmd_cls, argv, env, expected, msg)
 
     def assert_parse_fails(
         self,
         cmd_cls: CommandCls,
         argv: Argv,
-        expected_exc: Type[Exception] = UsageError,
+        expected_exc: ExcType = UsageError,
         expected_pattern: str = None,
-        message: str = None,
+        msg: str = None,
+        regex: bool = False,
     ):
-        if expected_pattern:
-            with self.assertRaisesRegex(expected_exc, expected_pattern, msg=message):
+        if expected_pattern and regex:
+            with self.assertRaisesRegex(expected_exc, expected_pattern, msg=msg):
                 cmd_cls.parse(argv)
         else:
-            with self.assertRaises(expected_exc, msg=message):
+            with AssertRaisesWithStringContext(self, expected_exc, expected_pattern, msg):
                 cmd_cls.parse(argv)
 
-    def assert_parse_fails_cases(
-        self, cmd_cls: CommandCls, cases: Iterable[ExceptionCase], exc: Type[Exception] = None, message: str = None
-    ):
-        if exc is not None:
-            for argv in cases:
-                with self.subTest(expected='exception', argv=argv):
-                    self.assert_parse_fails(cmd_cls, argv, exc, message=message)
-        else:
-            for case in cases:
-                try:
-                    argv, exc = case
-                except ValueError:
-                    argv, exc, pat = case
-                else:
-                    pat = None
-
-                with self.subTest(expected='exception', argv=argv):
-                    self.assert_parse_fails(cmd_cls, argv, exc, pat, message=message)
+    def assert_parse_fails_cases(self, cmd_cls: CommandCls, cases: ExcCases, exc: ExcType = None, msg: str = None):
+        for argv, exc, pat in _iter_exc_cases(cases, exc):
+            with self.subTest(expected='exception', argv=argv):
+                with AssertRaisesWithStringContext(self, exc, pat, msg):
+                    cmd_cls.parse(argv)
 
     def assert_argv_parse_fails_cases(
-        self, cmd_cls: CommandCls, cases: Iterable[Argv], exc: Type[Exception] = UsageError, message: str = None
+        self, cmd_cls: CommandCls, cases: Iterable[Argv], exc: ExcType = UsageError, msg: str = None
     ):
         """Convenience method for calling :meth:`.assert_parse_fails_cases` with a default exception type."""
-        self.assert_parse_fails_cases(cmd_cls, cases, exc, message)
+        self.assert_parse_fails_cases(cmd_cls, cases, exc, msg)
 
     def assert_call_fails(
         self,
         func: Callable,
         kwargs: Kwargs,
-        exc: Type[Exception] = Exception,
-        pattern: str = None,
-        message: str = None,
+        exc: ExcType = Exception,
+        expected_exc_msg: str = None,
+        msg: str = None,
     ):
-        if pattern:
-            with self.assertRaisesRegex(exc, pattern, msg=message):
-                func(**kwargs)
-        else:
-            with self.assertRaises(exc, msg=message):
-                func(**kwargs)
+        with AssertRaisesWithStringContext(self, exc, expected_exc_msg, msg):
+            func(**kwargs)
 
-    def assert_call_fails_cases(self, func: Callable, cases: Iterable[CallExceptionCase], message: str = None):
-        for case in cases:
-            try:
-                kwargs, exc = case
-            except ValueError:
-                kwargs, exc, pat = case
-            else:
-                pat = None
-
+    def assert_call_fails_cases(self, func: Callable, cases: Iterable[CallExceptionCase], msg: str = None):
+        for kwargs, exc, pat in _iter_exc_cases(cases):
             with self.subTest(expected='exception', kwargs=kwargs):
-                self.assert_call_fails(func, kwargs, exc, pat, message=message)
+                with AssertRaisesWithStringContext(self, exc, pat, msg):
+                    func(**kwargs)
 
     def assert_strings_equal(
         self, expected: str, actual: str, message: str = None, diff_lines: int = 3, trim: bool = False
@@ -183,6 +194,20 @@ class ParserTest(TestCase):
     def env_vars(self, case: str, **env_vars):
         with self.subTest(case=case), patch(OPT_ENV_MOD, env_vars):
             yield
+
+
+def _iter_exc_cases(cases: Union[ExcCases, CallExceptionCases], exc: ExcType = None):
+    if exc is not None:
+        for args in cases:
+            yield args, exc, None
+    else:
+        for case in cases:
+            try:
+                args, exc = case
+            except ValueError:
+                yield case  # Assume it is a 3-tuple of ([argv|kwargs], exc, pattern)
+            else:
+                yield args, exc, None
 
 
 # region Formatting

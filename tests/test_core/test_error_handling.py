@@ -11,7 +11,7 @@ from cli_command_parser.error_handling import ErrorHandler, Handler, no_exit_han
 from cli_command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
 from cli_command_parser.exceptions import ParamConflict, ParamsMissing, MultiParamUsageError
 from cli_command_parser import Command, Flag
-from cli_command_parser.testing import RedirectStreams
+from cli_command_parser.testing import ParserTest, RedirectStreams
 
 MODULE = 'cli_command_parser.error_handling'
 
@@ -152,7 +152,7 @@ with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', cr
     reload(cli_command_parser.error_handling)
     from cli_command_parser.error_handling import extended_error_handler, handle_win_os_pipe_error
 
-    class BrokenPipeHandlingTest(TestCase):
+    class BrokenPipeHandlingTest(ParserTest):
         def test_broken_pipe(self):
             self.assertIn(OSError, extended_error_handler.exc_handler_map)
             self.assertEqual([handle_win_os_pipe_error], list(extended_error_handler.iter_handlers(OSError, OSError())))
@@ -174,7 +174,7 @@ with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', cr
                 raise OSError(21, 'test')
 
         def test_keyboard_interrupt_print(self):
-            with self.assertRaisesRegex(SystemExit, '130'):
+            with self.assert_raises_contains_str(SystemExit, '130'):
                 with RedirectStreams() as streams, extended_error_handler:
                     raise KeyboardInterrupt
 
@@ -183,7 +183,7 @@ with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', cr
         def test_keyboard_interrupt_print_pipe_error(self):
             with ExitStack() as stack:
                 stack.enter_context(patch(f'{MODULE}.print', side_effect=BrokenPipeError))
-                stack.enter_context(self.assertRaisesRegex(SystemExit, '130'))
+                stack.enter_context(self.assert_raises_contains_str(SystemExit, '130'))
                 streams = stack.enter_context(RedirectStreams())
                 stack.enter_context(extended_error_handler)
                 raise KeyboardInterrupt
@@ -194,7 +194,7 @@ with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', cr
             with ExitStack() as stack:
                 stack.enter_context(patch(f'{MODULE}.print', side_effect=OSError))
                 stack.enter_context(patch(f'{MODULE}.handle_win_os_pipe_error', return_value=True))
-                stack.enter_context(self.assertRaisesRegex(SystemExit, '130'))
+                stack.enter_context(self.assert_raises_contains_str(SystemExit, '130'))
                 streams = stack.enter_context(RedirectStreams())
                 stack.enter_context(extended_error_handler)
                 raise KeyboardInterrupt
