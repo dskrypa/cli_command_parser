@@ -3,7 +3,7 @@
 from unittest import main, skip
 
 from cli_command_parser import Command, Positional, Option, Flag, SubCommand, ParamGroup
-from cli_command_parser.actions import help_action
+from cli_command_parser.parameters import help_action
 from cli_command_parser.exceptions import ParamsMissing, MissingArgument, ParserExit
 from cli_command_parser.testing import ParserTest, RedirectStreams
 

@@ -11,7 +11,7 @@ from abc import ABC
 from functools import partial, update_wrapper
 from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, NoReturn, Literal, Tuple
 
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError
+from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import T_co, TypeFunc
@@ -23,7 +23,17 @@ from .option_strings import TriFlagOptionStrings
 if TYPE_CHECKING:
     from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
 
-__all__ = ['Option', 'Flag', 'TriFlag', 'ActionFlag', 'Counter', 'action_flag', 'before_main', 'after_main']
+__all__ = [
+    'Option',
+    'Flag',
+    'TriFlag',
+    'ActionFlag',
+    'Counter',
+    'action_flag',
+    'before_main',
+    'after_main',
+    'help_action',
+]
 log = logging.getLogger(__name__)
 
 TD = TypeVar('TD')
@@ -402,6 +412,16 @@ def before_main(*option_strs: str, order: Union[int, float] = 1, func: Callable 
 def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable = None, **kwargs) -> ActionFlag:
     """An ActionFlag that will be executed after :meth:`.Command.main`"""
     return ActionFlag(*option_strs, order=order, func=func, before_main=False, **kwargs)
+
+
+@action_flag(
+    '--help', '-h', order=float('-inf'), name='help', always_available=True, help='Show this help message and exit'
+)
+def help_action(self):
+    """The ``--help`` / ``-h`` action.  Prints help text, then exits."""
+    cls = self.__class__
+    print(cls.__class__.params(cls).formatter.format_help())
+    raise ParserExit
 
 
 # endregion

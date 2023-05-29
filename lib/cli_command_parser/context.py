@@ -19,13 +19,13 @@ from typing import Dict, Tuple, List
 
 from .config import CommandConfig, DEFAULT_CONFIG
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
-from .exceptions import NoActiveContext, MissingArgument
+from .exceptions import NoActiveContext
 from .utils import _NotSet, Terminal
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
-    from .parameters import Parameter, ActionFlag
+    from .parameters import Parameter, Option, ActionFlag
     from .typing import Bool, ParamOrGroup, CommandType, AnyConfig, OptStr, PathLike
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
@@ -185,7 +185,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         else:
             return error_handler
 
-    # region Parsing Methods
+    # region Parsing Methods - Generally not intended to be called by users
 
     def has_parsed_value(self, param: Parameter) -> bool:
         return param in self._parsed
@@ -221,8 +221,12 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self._provided[param]
 
     def get_missing(self) -> List[Parameter]:
-        provided = self._provided
-        return [p for p in self.params.required_check_params() if not provided[p]]
+        """Not intended to be called by users.  Used during parsing to determine if any Parameters are missing."""
+        return [p for p in self.params.required_check_params() if not self._provided[p]]
+
+    def missing_options_with_env_var(self) -> Iterator[Option]:
+        """Yields Option parameters that have an environment variable configured, and did not have any CLI values."""
+        yield from (p for p in self.params.options if p.env_var and not self._provided[p])
 
     # endregion
 
