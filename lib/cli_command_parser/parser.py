@@ -62,19 +62,30 @@ class CommandParser:
 
     def get_next_cmd(self, ctx: Context) -> Optional[CommandType]:
         self._parse_args(ctx)
-        params = self.params
-        params.validate_groups()
+        self._validate_groups()
         missing = ctx.get_missing()
-        if (sub_cmd_param := params.sub_command) and (next_cmd := sub_cmd_param.target()) is not None:
+        if (sub_cmd_param := self.params.sub_command) and (next_cmd := sub_cmd_param.target()) is not None:
             if missing and not ctx.categorized_action_flags[_PRE_INIT] and get_parent(next_cmd) is not ctx.command:
                 raise ParamsMissing(missing)
             return next_cmd
-        elif missing and not ctx.config.allow_missing and (not params.action or params.action not in missing):
+        elif missing and not ctx.config.allow_missing and (not self.params.action or self.params.action not in missing):
             if not ctx.categorized_action_flags[_PRE_INIT]:  # No pre-init action was triggered
                 raise ParamsMissing(missing)
         elif ctx.remaining and not ctx.config.ignore_unknown:  # Note: ctx.remaining is self.deferred at this point
             raise NoSuchOption(f'unrecognized arguments: {" ".join(ctx.remaining)}') from None
         return None
+
+    def _validate_groups(self):
+        exc = None
+        for group in self.params.groups:
+            try:
+                group.validate()
+            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
+                if exc is None:
+                    exc = e
+
+        if exc is not None:
+            raise exc
 
     def _parse_args(self, ctx: Context):
         self.arg_deque = arg_deque = self.handle_pass_thru(ctx)
@@ -95,7 +106,7 @@ class CommandParser:
     def _parse_env_vars(self, ctx: Context):
         # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
         #  mutually exclusive params when they were provided via env
-        for param in self.params.try_env_params(ctx):
+        for param in ctx.missing_options_with_env_var():
             for env_var in param.env_vars():
                 try:
                     value = environ[env_var]
@@ -124,7 +135,7 @@ class CommandParser:
     def _handle_double_dash(self, arg: str):
         if self._maybe_consume_remainder(arg):
             return True
-        elif self.params.find_nested_pass_thru():  # pylint: disable=R1723
+        elif self.params.has_nested_pass_thru:  # pylint: disable=R1723
             # TODO: Make sure a test exists where parsing fails because required params were not provided yet
             raise NextCommand
         else:
@@ -191,14 +202,12 @@ class CommandParser:
 
     def handle_long(self, arg: str):
         # log.debug(f'handle_long({arg=})')
-        try:
-            opt, param, value = self.params.long_option_to_param_value_pair(arg)
-        except KeyError:
-            if not self._maybe_consume_remainder(arg):
-                self._check_sub_command_options(arg)
-                self.deferred.append(arg)
-        else:
-            self._handle_option_value(opt, param, value)
+        opt, eq, value = arg.partition('=')
+        if param := self.params.option_map.get(opt):
+            self._handle_option_value(opt, param, value if eq else None)
+        elif not self._maybe_consume_remainder(arg):
+            self._check_sub_command_options(arg)
+            self.deferred.append(arg)
 
     def _handle_option_value(self, opt: str, param: BaseOption, value: OptStr, combo: bool = False):
         if value is not None:
@@ -245,8 +254,13 @@ class CommandParser:
     def _check_sub_command_options(self, arg: str):
         # log.debug(f'_check_sub_command_options({arg=})')
         # This check is only needed when subcommand option values may be misinterpreted as positional values
-        if (positionals := self.positionals) and (param := self.params.find_nested_option_that_accepts_values(arg)):
-            if len(positionals) == 1 and 0 in positionals[0].nargs:
+        if not self.positionals:
+            return
+        option = arg.split('=', 1)[0]  # Strip any `=value` suffix if it exists
+        ncps = self.params._iter_nested_params()
+        # Try to find a nested Option that accepts values
+        if param := next((p for cp in ncps if (p := cp.option_map.get(option)) and p.action.accepts_values), None):
+            if len(self.positionals) == 1 and 0 in self.positionals[0].nargs:
                 raise NextCommand
             else:
                 raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')
@@ -287,6 +301,13 @@ class CommandParser:
 
     # endregion
 
+    def _has_matching_short_option(self, arg: str) -> bool:
+        try:
+            self.params.short_option_to_param_value_pairs(arg)
+        except KeyError:
+            return False
+        return True
+
     def consume_values(self, param: Parameter, found: int = 0) -> int:
         """
         Consume values for the given Parameter.
@@ -303,7 +324,7 @@ class CommandParser:
             value = arg_deque.popleft()
             # log.debug(f'Found {value=} in deque - may use it for {param=}')
             if prefix := get_opt_prefix(value):
-                if prefix == '--' or self.params.has_matching_short_option(value):
+                if prefix == '--' or self._has_matching_short_option(value):
                     return self._finalize_consume(param, value, found)
                 # Beyond this point, prefix == '-'
                 try:

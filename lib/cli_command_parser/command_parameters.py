@@ -15,10 +15,9 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
 
 from .config import CommandConfig, AmbiguousComboMode
-from .exceptions import CommandDefinitionError, ParameterDefinitionError, ParamsMissing
-from .exceptions import AmbiguousShortForm, AmbiguousCombo
+from .exceptions import CommandDefinitionError, ParameterDefinitionError, AmbiguousShortForm, AmbiguousCombo
 from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
-from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, Option, help_action
+from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, help_action
 
 if TYPE_CHECKING:
     from .context import Context
@@ -67,13 +66,21 @@ class CommandParameters:
         cls_name = self.__class__.__name__
         return f'<{cls_name}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
+    # region PassThru Properties
+
     @property
     def pass_thru(self) -> Optional[PassThru]:
-        if pass_thru := self._pass_thru:
-            return pass_thru
+        if self._pass_thru:
+            return self._pass_thru
         elif self.parent:
             return self.parent.pass_thru
         return None
+
+    @property
+    def has_nested_pass_thru(self) -> bool:
+        return any(params._pass_thru for params in self._iter_nested_params())
+
+    # endregion
 
     @cached_property
     def all_positionals(self) -> List[BasePositional]:
@@ -93,14 +100,6 @@ class CommandParameters:
         return []
 
     @cached_property
-    def always_available_action_flags(self) -> Tuple[ActionFlag, ...]:
-        """
-        The :paramref:`.ActionFlag.before_main` :class:`.ActionFlag` actions that are always available, even if parsing
-        failed (such as the one for ``--help``).
-        """
-        return tuple(af for af in self.action_flags if af.always_available)
-
-    @cached_property
     def formatter(self) -> CommandHelpFormatter:
         from .formatting.commands import CommandHelpFormatter
 
@@ -112,9 +111,9 @@ class CommandParameters:
         formatter.maybe_add_groups(self.groups)
         return formatter
 
-    @property
+    @cached_property
     def _has_help(self) -> bool:
-        return help_action in self.always_available_action_flags or (self.parent and self.parent._has_help)
+        return help_action in self.action_flags or (self.parent and self.parent._has_help)
 
     # region Initialization
 
@@ -172,14 +171,14 @@ class CommandParameters:
         self._process_groups(groups)
 
     def _process_groups(self, groups: Set[ParamGroup]):
-        if parent := self.parent:
-            self.groups = sorted((*parent.groups, *groups)) if groups else parent.groups.copy()
+        if self.parent:
+            self.groups = sorted((*self.parent.groups, *groups)) if groups else self.parent.groups.copy()
         else:
             self.groups = sorted(groups) if groups else []
 
     def _process_positionals(self, params: List[BasePositional]):
         unfollowable = action_or_sub_cmd = split_index = None
-        if (parent := self.parent) and (deferred := parent._deferred_positionals):
+        if self.parent and (deferred := self.parent._deferred_positionals):
             params = deferred + params
 
         for i, param in enumerate(params):
@@ -242,8 +241,8 @@ class CommandParameters:
         self.option_map = option_map
         self._process_action_flags()
         self.combo_option_map = dict(sorted(combo_option_map.items(), key=_sort_kv))
-        if self.config.ambiguous_short_combos == AmbiguousComboMode.STRICT:
-            self._strict_ambiguous_short_combo_check()
+        if self.config.ambiguous_short_combos == AmbiguousComboMode.STRICT and self._potentially_ambiguous_combo_opts:
+            raise AmbiguousShortForm({p: c.values() for p, c in self._potentially_ambiguous_combo_opts.values()})
 
     def _process_option_strs(self, param: BaseOption, opt_type: str, opt_strs: Strings, option_map: OptionMap):
         for option in opt_strs:
@@ -276,7 +275,7 @@ class CommandParameters:
                     found_non_always = True
 
                 if len(params) > 1:
-                    group = next((g for p in params if (g := p.group)), None)
+                    group = next((p.group for p in params if p.group), None)
                     if group and group.mutually_exclusive:
                         if any(p.group != group for p in params):
                             invalid[(before_main, prio)] = params
@@ -298,62 +297,41 @@ class CommandParameters:
 
     # region Ambiguous Short Combo Handling
 
-    def _strict_ambiguous_short_combo_check(self):
-        # Called during initial Option processing when using AmbiguousComboMode.STRICT
-        if not (potentially_ambiguous_combo_options := self._potentially_ambiguous_combo_options):
-            return
-
-        param_conflicts_map = {
-            param: singles.values() for param, singles in potentially_ambiguous_combo_options.values()
-        }
-        raise AmbiguousShortForm(param_conflicts_map)
-
     @cached_property
     def _classified_combo_options(self) -> Tuple[OptionMap, OptionMap]:
         multi_char_combos = {}
         items = self.combo_option_map.items()
         for combo, param in items:
             if len(combo) == 1:  # combo_option_map is sorted in reverse length order, so all following will be 1 char
-                single_char_combos = {combo: param}
-                single_char_combos.update(items)
-                return single_char_combos, multi_char_combos
+                return dict([(combo, param), *items]), multi_char_combos
             multi_char_combos[combo] = param
         return {}, multi_char_combos
 
     @cached_property
-    def _potentially_ambiguous_combo_options(self) -> Dict[str, Tuple[BaseOption, OptionMap]]:
-        single_char_combos, multi_char_combos = self._classified_combo_options
-        if not multi_char_combos:
-            return {}
-        return _find_ambiguous_combos(single_char_combos, multi_char_combos)
+    def _potentially_ambiguous_combo_opts(self) -> Dict[str, Tuple[BaseOption, OptionMap]]:
+        return _find_ambiguous_combos(*self._classified_combo_options)
 
     @cached_property
     def _nested_potentially_ambiguous_combo_options(self):
-        single_char_combos, multi_char_combos = self._classified_combo_options
-        single_char_combos = single_char_combos.copy()
-        multi_char_combos = multi_char_combos.copy()
+        single_char_combos, multi_char_combos = (xcc.copy() for xcc in self._classified_combo_options)
         for params in self._iter_nested_params():
             nested_single_char_combos, nested_multi_char_combos = params._classified_combo_options
             single_char_combos.update(nested_single_char_combos)
             multi_char_combos.update(nested_multi_char_combos)
-
-        if not multi_char_combos:
-            return {}
         return _find_ambiguous_combos(single_char_combos, multi_char_combos)
 
     def _is_combo_potentially_ambiguous(self, option: str) -> Optional[bool]:
         # Called by short_option_to_param_value_pairs after ensuring the length is > 1
         to_check = option[1:]  # Strip leading '-'
         # Note: len(to_check) will never be 2 here - this is only called if len(option) > 2
-        potentially_ambiguous_combo_options = self._nested_potentially_ambiguous_combo_options
         acm = self.config.ambiguous_short_combos
-        if acm == AmbiguousComboMode.PERMISSIVE and to_check in potentially_ambiguous_combo_options:
+        if acm == AmbiguousComboMode.PERMISSIVE and to_check in self._nested_potentially_ambiguous_combo_options:
             return True  # Permissive mode allows exact matches of multi-char short forms
         elif acm == AmbiguousComboMode.IGNORE:
             return None
 
         ambiguous = set()
-        for multi, (param, singles) in potentially_ambiguous_combo_options.items():
+        for multi, (param, singles) in self._nested_potentially_ambiguous_combo_options.items():
             if multi in to_check:
                 ambiguous.add(param)
                 ambiguous.update(p for c, p in singles.items() if c in to_check)
@@ -365,25 +343,17 @@ class CommandParameters:
 
     # endregion
 
-    # region Option Processing
-
     def _iter_nested_params(self) -> Iterator[CommandParameters]:
-        if sub_command := self.sub_command:
-            get_params = self.command.__class__.params
-            for choice in sub_command.choices.values():
-                if (command := choice.target) is not None:  # None indicates it's a subcommand's local choice
-                    yield get_params(command)
+        if not self.sub_command:
+            return
+        get_params = self.command.__class__.params
+        for choice in self.sub_command.choices.values():
+            if choice.target is not None:  # None indicates it's a subcommand's local choice
+                params: CommandParameters = get_params(choice.target)
+                yield params
+                yield from params._iter_nested_params()
 
-    def long_option_to_param_value_pair(self, option: str) -> Tuple[str, BaseOption, Optional[str]]:
-        option, eq, value = option.partition('=')
-        return option, self.option_map[option], (value if eq else None)
-
-    def has_matching_short_option(self, option: str) -> bool:
-        try:
-            self.short_option_to_param_value_pairs(option)
-        except KeyError:
-            return False
-        return True
+    # region Option Processing
 
     def short_option_to_param_value_pairs(self, option: str) -> List[Tuple[str, BaseOption, Optional[str]]]:
         option, eq, value = option.partition('=')
@@ -404,73 +374,18 @@ class CommandParameters:
 
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
-        combo_option_map = self.combo_option_map
-        param = combo_option_map[key]
+        param = self.combo_option_map[key]
         if param.action.would_accept(value, combo=True):
             return [(key, param, value)]
         else:
             # Multi-char short options can never be combined with each other, but single-char ones can
-            return [(c, combo_option_map[c], None) for c in option[1:]]
-
-    def find_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
-        if option.startswith('--'):
-            param = self.long_option_to_param_value_pair(option)[1]
-            if param.action.accepts_values:
-                return param
-        elif option.startswith('-'):
-            for _, param, _ in self.short_option_to_param_value_pairs(option):
-                if param.action.accepts_values:
-                    return param
-        else:
-            raise ValueError(f'Invalid {option=}')
-        return None
-
-    def find_nested_option_that_accepts_values(self, option: str) -> Optional[BaseOption]:
-        for params in self._iter_nested_params():
-            try:
-                param = params.find_option_that_accepts_values(option)
-            except KeyError:
-                pass
-            else:
-                if param is not None:
-                    return param
-
-            if (param := params.find_nested_option_that_accepts_values(option)) is not None:
-                return param
-
-        return None
-
-    def find_nested_pass_thru(self) -> Optional[PassThru]:
-        for params in self._iter_nested_params():
-            if params._pass_thru:
-                return params._pass_thru
-
-        return None
+            return [(c, self.combo_option_map[c], None) for c in option[1:]]
 
     # endregion
 
-    def validate_groups(self):
-        exc = None
-        for group in self.groups:
-            try:
-                group.validate()
-            except ParamsMissing as e:  # Let ParamConflict propagate before ParamsMissing
-                if exc is None:
-                    exc = e
-
-        if exc is not None:
-            raise exc
-
-    def try_env_params(self, ctx: Context) -> Iterator[Option]:
-        """Yields Option parameters that have an environment variable configured, and did not have any CLI values."""
-        for param in self.options:
-            if param.env_var and ctx.num_provided(param) == 0:
-                yield param
-
     def iter_params(self, exclude: Collection[Parameter] = ()) -> Iterator[Parameter]:
         if exclude:
-            yield from (p for p in self.all_positionals if p not in exclude)
-            yield from (p for p in self.options if p not in exclude)
+            yield from (p for g in (self.all_positionals, self.options) for p in g if p not in exclude)
         else:
             yield from self.all_positionals
             yield from self.options

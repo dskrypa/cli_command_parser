@@ -97,13 +97,6 @@ class CommandParamsTest(ParserTest):
 
         self.assertIs(get_params(Baz).parent, get_params(Foo))
 
-    def test_params_find_option_rejects_non_option(self):
-        class Foo(Command):
-            pass
-
-        with self.assertRaises(ValueError):
-            get_params(Foo).find_option_that_accepts_values('bar')
-
     def test_bad_custom_param_rejected(self):
         class Test(Store):
             pass
