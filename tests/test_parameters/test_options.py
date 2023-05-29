@@ -70,6 +70,9 @@ class OptionTest(ParserTest):
         with self.assertRaisesRegex(ParameterDefinitionError, 'Invalid action=.*- valid actions:'):
             Option(action='foo')  # noqa
 
+    def test_metavar_is_stored(self):
+        self.assertEqual('foo', Option(metavar='foo').metavar)
+
     # endregion
 
     # region Option Strings

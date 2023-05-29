@@ -40,7 +40,7 @@ class FlagTest(ParserTest):
 
     def test_invalid_action_hint(self):
         with self.assertRaisesRegex(ParameterDefinitionError, r"Invalid action=.*- did you mean 'store_const'\?"):
-            Flag(action='store')
+            Flag(action='store')  # noqa
 
     # region Test Param Actions
 
@@ -77,10 +77,6 @@ class FlagTest(ParserTest):
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
             Flag(nargs='+')
-
-    def test_metavar_not_allowed(self):
-        with self.assertRaisesRegex(TypeError, 'got an unexpected keyword argument:'):
-            Flag(metavar='foo')
 
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
@@ -201,10 +197,6 @@ class TriFlagTest(ParserTest):
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
             TriFlag(choices=(1, 2))
-
-    def test_metavar_not_allowed(self):
-        with self.assertRaises(TypeError):
-            TriFlag(metavar='foo')
 
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):

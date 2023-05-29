@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 TD = TypeVar('TD')
 TC = TypeVar('TC')
 TA = TypeVar('TA')
+ConstAct = Literal['store_const', 'append_const']
 
 
 class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
@@ -108,39 +109,7 @@ class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
         super()._handle_bad_action(action)
 
 
-class _Flag(BaseOption[T_co], ABC, actions=(StoreConst, AppendConst)):
-    nargs = Nargs(0)
-    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
-    use_env_value: bool = False
-
-    def __init__(
-        self,
-        *option_strs: str,
-        type: TypeFunc = None,  # noqa
-        use_env_value: bool = False,
-        **kwargs,
-    ):
-        if 'metavar' in kwargs:
-            raise TypeError(f"{self.__class__.__name__}.__init__() got an unexpected keyword argument: 'metavar'")
-        super().__init__(*option_strs, use_env_value=use_env_value, **kwargs)
-        if type is not None:
-            self.type = type
-
-    def _handle_bad_action(self, action: str) -> NoReturn:
-        if action in ('store', 'append'):
-            fixed = f'{action}_const'
-            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - did you mean {fixed!r}?')
-        super()._handle_bad_action(action)
-
-    def get_env_const(self, value: str, env_var: str) -> Tuple[T_co, bool]:
-        try:
-            const = self.type(value)
-        except Exception as e:
-            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
-        return const, self.use_env_value
-
-
-class Flag(_Flag[Union[TD, TC]]):
+class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -170,12 +139,21 @@ class Flag(_Flag[Union[TD, TC]]):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
+    nargs = Nargs(0)
+    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    use_env_value: bool = False
     __default_const_map = {True: False, False: True, _NotSet: True}
     default: TD
     const: TC
 
     def __init__(
-        self, *option_strs: str, action: str = 'store_const', default: TD = _NotSet, const: TC = _NotSet, **kwargs
+        self,
+        *option_strs: str,
+        action: ConstAct = 'store_const',
+        default: TD = _NotSet,
+        const: TC = _NotSet,
+        type: TypeFunc = None,  # noqa
+        **kwargs,
     ):
         if const is _NotSet:
             try:
@@ -190,15 +168,20 @@ class Flag(_Flag[Union[TD, TC]]):
             kwargs.setdefault('show_default', False)
         super().__init__(*option_strs, action=action, default=default, **kwargs)
         self.const = const
+        if type is not None:
+            self.type = type
 
     def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TD], bool]:
-        parsed, use_env_value = super().get_env_const(value, env_var)
-        if use_env_value and parsed != self.const and parsed != self.default:
+        try:
+            parsed = self.type(value)
+        except Exception as e:
+            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
+        if self.use_env_value and parsed != self.const and parsed != self.default:
             raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
-        return parsed, use_env_value
+        return parsed, self.use_env_value
 
 
-class TriFlag(_Flag[Union[TD, TC, TA]]):
+class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendConst)):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -233,6 +216,9 @@ class TriFlag(_Flag[Union[TD, TC, TA]]):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
+    nargs = Nargs(0)
+    type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    use_env_value: bool = False
     _opt_str_cls = TriFlagOptionStrings
     option_strs: TriFlagOptionStrings
     alt_help: OptStr = None
@@ -247,8 +233,9 @@ class TriFlag(_Flag[Union[TD, TC, TA]]):
         alt_long: str = None,
         alt_short: str = None,
         alt_help: str = None,
-        action: str = 'store_const',
+        action: ConstAct = 'store_const',
         default: TD = _NotSet,
+        type: TypeFunc = None,  # noqa
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -277,6 +264,8 @@ class TriFlag(_Flag[Union[TD, TC, TA]]):
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)
         if alt_help:
             self.alt_help = alt_help
+        if type is not None:
+            self.type = type
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
@@ -289,8 +278,11 @@ class TriFlag(_Flag[Union[TD, TC, TA]]):
             return self.consts[0]
 
     def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TA, TD], bool]:
-        parsed, use_env_value = super().get_env_const(value, env_var)
-        if use_env_value:
+        try:
+            parsed = self.type(value)
+        except Exception as e:
+            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
+        if self.use_env_value:
             if parsed not in self.consts and parsed != self.default:
                 raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
             return parsed, True

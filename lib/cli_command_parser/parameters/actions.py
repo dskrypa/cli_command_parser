@@ -1,4 +1,6 @@
 """
+Parameter actions define how Parameters behave when processing values that were provided via CLI or environment
+variables.
 """
 
 from __future__ import annotations
@@ -83,11 +85,12 @@ class ParamAction(ABC):
         """
         raise NotImplementedError
 
-    def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
-        added = 0
-        for value in values:
-            added += self.add_value(value, opt=opt, combo=combo)
-        return added
+    # Note: Not used yet
+    # def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
+    #     added = 0
+    #     for value in values:
+    #         added += self.add_value(value, opt=opt, combo=combo)
+    #     return added
 
     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:  # noqa
         ctx.record_action(self.param)
@@ -107,12 +110,13 @@ class ParamAction(ABC):
             return False
         return self.param.is_valid_arg(normalized)
 
-    def _prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
-        prepare_value, validate = self.param.prepare_value, self.param.validate
-        for value in values:
-            value = prepare_value(value, combo)
-            validate(value)
-            yield value
+    # Note: Not used yet
+    # def _prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
+    #     prepare_value, validate = self.param.prepare_value, self.param.validate
+    #     for value in values:
+    #         value = prepare_value(value, combo)
+    #         validate(value)
+    #         yield value
 
     # endregion
 
@@ -174,13 +178,14 @@ class ValueMixin:
 
         parsed.append(value)
 
-    def extend_values(self, values: Iterable[T_co]):
-        parsed = ctx.get_parsed_value(self.param)
-        if parsed is _NotSet:
-            parsed = self.get_default()
-            ctx.set_parsed_value(self.param, parsed)
-
-        parsed.extend(values)
+    # Note: Not used yet
+    # def extend_values(self, values: Iterable[T_co]):
+    #     parsed = ctx.get_parsed_value(self.param)
+    #     if parsed is _NotSet:
+    #         parsed = self.get_default()
+    #         ctx.set_parsed_value(self.param, parsed)
+    #
+    #     parsed.extend(values)
 
 
 class ConstMixin:
@@ -248,15 +253,16 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
         self.set_value(value)
         return 1
 
-    def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
-        ctx.record_action(self.param)
-        if not values:
-            raise MissingArgument(self.param)
-        elif (val_count := len(values)) not in (nargs := self.param.nargs):
-            raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
-
-        self.set_value([value for value in self._prep_and_validate(values, combo)])
-        return val_count
+    # Note: Not used yet
+    # def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
+    #     ctx.record_action(self.param)
+    #     if not values:
+    #         raise MissingArgument(self.param)
+    #     elif (val_count := len(values)) not in (nargs := self.param.nargs):
+    #         raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
+    #
+    #     self.set_value([value for value in self._prep_and_validate(values, combo)])
+    #     return val_count
 
     # endregion
 
@@ -283,15 +289,16 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
         self.append_value(value)
         return 1
 
-    def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
-        ctx.record_action(self.param)
-        if not values:
-            raise MissingArgument(self.param)
-        elif (val_count := len(values)) not in (nargs := self.param.nargs):
-            raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
-
-        self.extend_values(value for value in self._prep_and_validate(values, combo))
-        return val_count
+    # Note: Not used yet
+    # def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -> Found:
+    #     ctx.record_action(self.param)
+    #     if not values:
+    #         raise MissingArgument(self.param)
+    #     elif (val_count := len(values)) not in (nargs := self.param.nargs):
+    #         raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
+    #
+    #     self.extend_values(value for value in self._prep_and_validate(values, combo))
+    #     return val_count
 
     # endregion
 

@@ -68,7 +68,7 @@ class ParamHelpFormatter:
 
     def format_metavar(self) -> str:
         param = self.param
-        if param.metavar:
+        if param.metavar and param.action.accepts_values:
             return param.metavar
         if (t := param.type) is not None:
             try:

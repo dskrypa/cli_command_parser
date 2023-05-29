@@ -185,9 +185,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         """
         super().__init_subclass__(**kwargs)
         if actions:
+            # Extend the parent class's actions without modifying the parent's supported actions
             cls._action_map = action_map = cls._action_map.copy()
             action_map.update((action.name, action) for action in actions)
-        if repr_attrs is not None:
+        if repr_attrs:
             cls._repr_attrs = repr_attrs
 
     def __init__(  # pylint: disable=R0913
@@ -220,6 +221,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             self.show_default = show_default
 
     def _handle_bad_action(self, action: str) -> NoReturn:
+        """
+        Called when an action not supported by this type of Parameter was provided.  May be overwritten in subclasses
+        to provide hints about more appropriate options.
+        """
         raise ParameterDefinitionError(
             f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._action_map)}'
         )
@@ -227,8 +232,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         # If self.type is None, a type may still be inferred from an annotation, which happens in this method.
-        if untyped_choices := (type_attr := self.type) is not None:
-            if not isinstance(type_attr, _ChoicesBase) or type_attr.type is not None:
+        if untyped_choices := self.type is not None:
+            if not isinstance(self.type, _ChoicesBase) or self.type.type is not None:
                 return  # An explicit type was provided to either stand alone or be used for Choices values
             # self.type is therefore a Choices object with no explicit type provided, so from here on, the var
             # name `untyped_choices` is accurate.  The type for its values may still be inferred from an annotation.
@@ -238,7 +243,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         if (annotated_type := get_descriptor_value_type(command, name)) is None:
             return
         elif untyped_choices:
-            type_attr.type = annotated_type
+            self.type.type = annotated_type
         else:  # self.type must be None
             # Choices present earlier would have already been converted
             self.type = normalize_input_type(annotated_type, None)
@@ -450,6 +455,11 @@ class BaseOption(Parameter[T_co], ABC):
             self.env_var = env_var
         if use_env_value is not None:
             self.use_env_value = use_env_value
+
+    def _handle_bad_action(self, action: str) -> NoReturn:
+        if action in ('store', 'append') and (fixed := f'{action}_const') in self._action_map:
+            raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - did you mean {fixed!r}?')
+        super()._handle_bad_action(action)
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
