@@ -31,7 +31,7 @@ class PassThruTest(ParserTest):
 
         self.assertTrue(Foo.baz.default is not None)
         foo = Foo()
-        with self.assertRaisesRegex(ParamsMissing, "missing pass thru args separated from others with '--'"):
+        with self.assert_raises_contains_str(ParamsMissing, "missing pass thru args separated from others with '--'"):
             foo.parse([])
         with self.assertRaises(MissingArgument):
             foo.baz  # noqa
@@ -41,7 +41,7 @@ class PassThruTest(ParserTest):
             bar = PassThru()
             baz = PassThru()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'it cannot follow another PassThru param'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'it cannot follow another PassThru param'):
             Foo.parse([])
 
     def test_double_dash_without_pass_thru_rejected(self):
@@ -68,7 +68,7 @@ class PassThruTest(ParserTest):
         class Bar(Foo):
             pt2 = PassThru()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'it cannot follow another PassThru param'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'it cannot follow another PassThru param'):
             Bar.parse([])
 
     def test_extra_rejected(self):

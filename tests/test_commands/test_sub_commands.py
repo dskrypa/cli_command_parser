@@ -77,7 +77,7 @@ class SubCommandTest(ParserTest):
             sub_cmd = SubCommand()
 
         for args in ([], ['foo']):
-            with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
+            with self.assert_raises_contains_str(CommandDefinitionError, 'has no sub Commands'):
                 Foo.parse(args)
 
     def test_choice_none_not_registered(self):

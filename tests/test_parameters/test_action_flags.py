@@ -31,7 +31,7 @@ class ActionFlagTest(ParserTest):
         class Foo(Command):
             foo = ActionFlag()
 
-        with self.assertRaisesRegex(ParameterDefinitionError, 'No function was registered'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'No function was registered'):
             Foo.parse([])
 
     def test_af_order_conflict(self):
@@ -39,7 +39,7 @@ class ActionFlagTest(ParserTest):
             foo = ActionFlag()(Mock())
             bar = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_non_me_group_conflict(self):
@@ -48,7 +48,7 @@ class ActionFlagTest(ParserTest):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_md_group_conflict(self):
@@ -57,7 +57,7 @@ class ActionFlagTest(ParserTest):
                 foo = ActionFlag()(Mock())
                 bar = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_me_group_ok(self):
@@ -75,7 +75,7 @@ class ActionFlagTest(ParserTest):
                 bar = ActionFlag()(Mock())
             baz = ActionFlag()(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'different order values'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'different order values'):
             Foo.parse([])
 
     def test_af_mixed_grouping_ordered_ok(self):
@@ -102,7 +102,8 @@ class ActionFlagTest(ParserTest):
                     self.assertFalse(parsed[a])
 
     def test_no_reassign(self):
-        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot re-assign the func to call for ActionFlag'):
+        expected = 'Cannot re-assign the func to call for ActionFlag'
+        with self.assert_raises_contains_str(CommandDefinitionError, expected):
 
             class Foo(Command):
                 foo = ActionFlag()(Mock())
@@ -116,7 +117,7 @@ class ActionFlagTest(ParserTest):
             bar = ActionFlag('-b', order=1)(Mock())
             baz = ActionFlag('-b', order=2)(Mock())
 
-        with self.assertRaisesRegex(CommandDefinitionError, "short option='-b' conflict for command="):
+        with self.assert_raises_contains_str(CommandDefinitionError, "short option='-b' conflict for command="):
             Foo.parse([])
 
     def test_extra_flags_provided_cause_error(self):
@@ -126,11 +127,11 @@ class ActionFlagTest(ParserTest):
             foo = ActionFlag('-f', order=1)(mocks[0])
             bar = ActionFlag('-b', order=2)(mocks[1])
 
-        expected_error_text = r'--bar / -b, --foo / -f \(combining multiple action flags is disabled\)'
-        with self.assertRaisesRegex(ParamConflict, expected_error_text):
+        expected_error_text = '--bar / -b, --foo / -f (combining multiple action flags is disabled)'
+        with self.assert_raises_contains_str(ParamConflict, expected_error_text):
             Foo.parse_and_run(['-fb'])
 
-        with self.assertRaisesRegex(ParamConflict, expected_error_text):
+        with self.assert_raises_contains_str(ParamConflict, expected_error_text):
             Foo.parse_and_run(['--foo', '--bar'])
 
     def test_multi_flag_order_followed(self):
@@ -280,7 +281,7 @@ class ActionFlagTest(ParserTest):
         self.assertListEqual(expected, sorted([a, b]))
 
     def test_after_main_always_available(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'cannot be combined with'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'cannot be combined with'):
             ActionFlag(before_main=False, always_available=True)
 
     def test_nargs_not_allowed(self):
@@ -296,7 +297,8 @@ class ActionFlagTest(ParserTest):
             foo = before_main(order=1)(Mock(__doc__=''))
             bar = before_main(order=2, always_available=True)(Mock(__doc__=''))
 
-        with self.assertRaisesRegex(CommandDefinitionError, r"invalid parameters: \{\(True, 2\): ActionFlag\('bar',"):
+        expected = "invalid parameters: {(True, 2): ActionFlag('bar',"
+        with self.assert_raises_contains_str(CommandDefinitionError, expected):
             Foo.parse([])
 
 

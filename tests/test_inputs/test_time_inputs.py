@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import datetime, date, timedelta, time
-from unittest import main, TestCase
+from unittest import main
 from unittest.mock import patch
 
 from cli_command_parser import Command, Option, BadArgument
@@ -30,7 +30,7 @@ FEB_2_2022 = date(2022, 2, 2)
 MAR_3_2022 = date(2022, 3, 3)
 
 
-class MiscDTInputTest(TestCase):
+class MiscDTInputTest(ParserTest):
     def test_setlocale_not_called_without_locale(self):
         with patch('cli_command_parser.inputs.time.setlocale') as setlocale:
             with different_locale(None):
@@ -41,7 +41,7 @@ class MiscDTInputTest(TestCase):
     # region normalize_dt
 
     def test_normalize_dt_bad_type(self):
-        with self.assertRaisesRegex(TypeError, 'Unexpected datetime specifier type=int'):
+        with self.assert_raises_contains_str(TypeError, 'Unexpected datetime specifier type=int'):
             normalize_dt(15)  # noqa
 
     def test_normalize_dt_timedelta(self):
@@ -85,7 +85,7 @@ class MiscDTInputTest(TestCase):
     # endregion
 
 
-class DayInputTest(TestCase):
+class DayInputTest(ParserTest):
     # region Alternate Locale Handling
 
     def test_ko_in_en_out(self):
@@ -107,7 +107,7 @@ class DayInputTest(TestCase):
         self.assertDictEqual(NON_ISO_DAYS, {num: day(num) for num in NON_ISO_DAYS})
 
     def test_invalid_numeric_input(self):
-        with self.assertRaisesRegex(InputValidationError, 'Invalid weekday=9'):
+        with self.assert_raises_contains_str(InputValidationError, 'Invalid weekday=9'):
             Day(numeric=True).parse_numeric('9')
 
     def test_numeric_output_iso(self):
@@ -132,17 +132,17 @@ class DayInputTest(TestCase):
                 Day(locale=EN_US, full=False, **kwargs)('Monday')
 
     def test_bad_output_format_value(self):
-        with self.assertRaisesRegex(ValueError, 'is not a valid DTFormatMode'):
+        with self.assert_raises_contains_str(ValueError, 'is not a valid DTFormatMode'):
             Day(out_format='%Y', numeric=True)('1')
 
     def test_bad_output_format_type(self):
-        with self.assertRaisesRegex(ValueError, 'is not a valid DTFormatMode'):
+        with self.assert_raises_contains_str(ValueError, 'is not a valid DTFormatMode'):
             Day(out_format=None, numeric=True)('1')  # noqa
 
     def test_bad_output_format_set_late(self):
         day = Day(numeric=True)
         day.out_format = 'test'
-        with self.assertRaisesRegex(ValueError, 'Unexpected output format='):
+        with self.assert_raises_contains_str(ValueError, 'Unexpected output format='):
             day('1')
 
     # endregion
@@ -167,20 +167,21 @@ class DayInputTest(TestCase):
     # endregion
 
 
-class MonthInputTest(TestCase):
+class MonthInputTest(ParserTest):
     def test_invalid_output_format(self):
-        with self.assertRaisesRegex(ValueError, 'Unsupported out_format='):
+        with self.assert_raises_contains_str(ValueError, 'Unsupported out_format='):
             Month(out_format='numeric_iso')
 
     def test_invalid_parsed_number(self):
         with patch.object(Month, 'parse', return_value=0):
-            with self.assertRaisesRegex(InvalidChoiceError, 'invalid month:'):
+            with self.assert_raises_contains_str(InvalidChoiceError, 'invalid month:'):
                 Month(numeric=True)('0')
 
     def test_invalid_number(self):
         for case in ('0', '13', '-1'):
-            with self.subTest(case=case), self.assertRaisesRegex(InputValidationError, 'expected a value between'):
-                Month(numeric=True).parse(case)
+            with self.subTest(case=case):
+                with self.assert_raises_contains_str(InputValidationError, 'expected a value between'):
+                    Month(numeric=True).parse(case)
 
     def test_numeric_output(self):
         month = Month(out_format='numeric', locale=EN_US)
@@ -215,9 +216,9 @@ class MonthInputTest(TestCase):
     # endregion
 
 
-class TimeDeltaInputTest(TestCase):
+class TimeDeltaInputTest(ParserTest):
     def test_invalid_unit(self):
-        with self.assertRaisesRegex(TypeError, 'Invalid unit='):
+        with self.assert_raises_contains_str(TypeError, 'Invalid unit='):
             TimeDelta('foo')  # noqa
 
     def test_default_handling(self):
@@ -252,11 +253,12 @@ class TimeDeltaInputTest(TestCase):
             with self.subTest(args=args, expected=expected):
                 self.assertEqual(expected, Foo.parse(args).bar)
 
-        with self.assertRaisesRegex(BadArgument, "Invalid numeric hours='potato' - expected an integer or float"):
-            Foo.parse(['-b', 'potato'])
+        self.assert_parse_fails(
+            Foo, ['-b', 'potato'], BadArgument, "Invalid numeric hours='potato' - expected an integer or float"
+        )
 
 
-class DateTimeInputTest(TestCase):
+class DateTimeInputTest(ParserTest):
     _CASES = {
         DateTime: (datetime(2000, 1, 1, 2, 30, 45), '2000-01-01 2:30:45'),
         Date: (date(2000, 1, 1), '2000-01-01'),
@@ -271,11 +273,11 @@ class DateTimeInputTest(TestCase):
                 self.assertIs(parsed.__class__, expected.__class__)
 
     def test_no_format_match(self):
-        with self.assertRaisesRegex(InputValidationError, 'matching one of the following formats'):
+        with self.assert_raises_contains_str(InputValidationError, 'matching one of the following formats'):
             Date()('2000')
 
     def test_bad_dt_bounds(self):
-        with self.assertRaisesRegex(ValueError, 'Invalid combination of earliest='):
+        with self.assert_raises_contains_str(ValueError, 'Invalid combination of earliest='):
             Date(earliest=date(2005, 1, 1), latest=date(2000, 1, 1))
 
     def test_dt_too_early(self):

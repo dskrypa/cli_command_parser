@@ -60,7 +60,7 @@ class PositionalTest(ParserTest):
                     bar = Positional(nargs=nargs)
                     baz = Positional()
 
-                with self.assertRaisesRegex(CommandDefinitionError, pat):
+                with self.assert_raises_contains_str(CommandDefinitionError, pat):
                     Foo.parse([])
 
     def test_sub_cmd_pos_after_unbound_nargs_rejected(self):
@@ -76,7 +76,7 @@ class PositionalTest(ParserTest):
                 class Bar(Foo):
                     baz = Positional()
 
-                with self.assertRaisesRegex(CommandDefinitionError, pat):
+                with self.assert_raises_contains_str(CommandDefinitionError, pat):
                     Foo.parse(['bar'])
 
     def test_pos_after_non_required_sub_cmd_rejected(self):
@@ -84,7 +84,7 @@ class PositionalTest(ParserTest):
             sub = SubCommand(required=False)
             bar = Positional()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'it is a positional that is not required'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'it is a positional that is not required'):
             Foo.parse([])
 
     def test_pos_grouped_pos_both_required(self):
@@ -105,13 +105,13 @@ class PositionalTest(ParserTest):
         self.assertIsNone(Foo.bar.type)  # noqa
 
     def test_type_with_remainder_rejected(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'Type casting and choices are not supported'):
 
             class Foo(Command):
                 bar = Positional(nargs='REMAINDER', type=int)
 
     def test_choices_with_remainder_rejected(self):
-        with self.assertRaisesRegex(ParameterDefinitionError, 'Type casting and choices are not supported'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'Type casting and choices are not supported'):
 
             class Foo(Command):
                 bar = Positional(nargs='REMAINDER', choices=('a', 'b'))
@@ -120,7 +120,7 @@ class PositionalTest(ParserTest):
         expected = 'only allow_leading_dash=AllowLeadingDash.ALWAYS'
         for allow_leading_dash in ('numeric', False):
             with self.subTest(allow_leading_dash=allow_leading_dash):
-                with self.assertRaisesRegex(ParameterDefinitionError, expected):
+                with self.assert_raises_contains_str(ParameterDefinitionError, expected):
 
                     class Foo(Command):
                         bar = Positional(nargs='REMAINDER', allow_leading_dash=allow_leading_dash)
@@ -135,7 +135,7 @@ class PositionalTest(ParserTest):
         with Context():
             param = Positional(nargs=1, action='append')
             param.action.add_value('foo')
-            with self.assertRaisesRegex(TooManyArguments, 'cannot accept any additional args'):
+            with self.assert_raises_contains_str(TooManyArguments, 'cannot accept any additional args'):
                 param.action.add_value('bar')
 
 

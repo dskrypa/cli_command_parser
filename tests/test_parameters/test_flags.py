@@ -135,7 +135,7 @@ class FlagTest(ParserTest):
         class Foo(Command, option_name_mode=None):
             bar = Flag()
 
-        with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'No option strings were registered'):
             Foo().parse([])
 
     def test_name_none(self):
@@ -210,10 +210,11 @@ class TriFlagTest(ParserTest):
         self.assert_call_fails_cases(TriFlag, fail_cases)
 
     def test_default_in_consts_rejected(self):
+        expected = 'the default must not match either value'
         cases = [((None, 'foo'), None), (('foo', None), None), ((True, False), True), ((True, False), False)]
         for consts, default in cases:
             with self.subTest(consts=consts, default=default):
-                with self.assertRaisesRegex(ParameterDefinitionError, 'the default must not match either value'):
+                with self.assert_raises_contains_str(ParameterDefinitionError, expected):
                     TriFlag(consts=consts, default=default)
 
     # region Option Strings
@@ -350,7 +351,7 @@ class TriFlagTest(ParserTest):
                 class Foo(Command, option_name_mode=None):
                     bar = TriFlag(*args, **kwargs)
 
-                with self.assertRaisesRegex(ParameterDefinitionError, 'No option strings were registered'):
+                with self.assert_raises_contains_str(ParameterDefinitionError, 'No option strings were registered'):
                     Foo().parse([])
 
     def test_name_none(self):

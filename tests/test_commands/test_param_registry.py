@@ -14,14 +14,14 @@ from cli_command_parser.parameters.base import Parameter
 from cli_command_parser.testing import RedirectStreams, ParserTest
 
 
-class TestParamRegistry(TestCase):
+class TestParamRegistry(ParserTest):
     def test_multiple_actions_rejected(self):
         class Foo(Command):
             a = Action()
             b = Action()
             a(Mock(__name__='baz'))
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parse([])
 
     def test_multiple_sub_cmds_rejected(self):
@@ -29,7 +29,7 @@ class TestParamRegistry(TestCase):
             a = SubCommand()
             b = SubCommand()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parse([])
 
     def test_action_with_sub_cmd_rejected(self):
@@ -38,7 +38,7 @@ class TestParamRegistry(TestCase):
             bar = SubCommand()
             foo(Mock(__name__='baz'))
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parse([])
 
     def test_action_after_sub_cmd_rejected(self):
@@ -46,7 +46,7 @@ class TestParamRegistry(TestCase):
             a = SubCommand()
             b = Action()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Only 1 Action xor SubCommand is allowed'):
             Foo.parse([])
 
     def test_no_help(self):
@@ -74,11 +74,11 @@ class TestParamRegistry(TestCase):
                     foo = Positional(nargs=a)
                     bar = Positional(nargs=b)
 
-                with self.assertRaisesRegex(CommandDefinitionError, 'it is a positional that is not required'):
+                with self.assert_raises_contains_str(CommandDefinitionError, 'it is a positional that is not required'):
                     CommandMeta.params(Foo)
 
 
-class CommandParamsTest(TestCase):
+class CommandParamsTest(ParserTest):
     def test_reprs(self):
         class Foo(Command):
             bar = Positional()
@@ -114,7 +114,7 @@ class CommandParamsTest(TestCase):
         class Foo(Command):
             bar = TestParam('test')
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'custom parameters must extend'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'custom parameters must extend'):
             Foo.parse([])
 
     def test_redefined_param_rejected(self):
@@ -154,8 +154,8 @@ class ParamNameConflictHandlingTest(ParserTest):
         class Baz(Foo):
             bar = Option()
 
-        self.assert_parse_fails(Baz, [], CommandDefinitionError, 'conflict for command=.* between')
-        self.assert_parse_fails(Foo, ['baz'], CommandDefinitionError, 'conflict for command=.* between')
+        self.assert_parse_fails(Baz, [], CommandDefinitionError, 'conflict for command=.* between', regex=True)
+        self.assert_parse_fails(Foo, ['baz'], CommandDefinitionError, 'conflict for command=.* between', regex=True)
 
     def test_sub_cmd_param_name_override_ok(self):
         class Foo(Command):

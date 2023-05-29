@@ -29,7 +29,7 @@ class MiscParameterTest(ParserTest):
 
     def test_unregistered_action_rejected(self):
         with self.assertRaises(ParameterDefinitionError):
-            Flag(action='foo')
+            Flag(action='foo')  # noqa
 
     def test_empty_choices(self):
         with self.assertRaises(ParameterDefinitionError):
@@ -58,7 +58,7 @@ class MiscParameterTest(ParserTest):
         class Foo(Command):
             bar = Positional(type=sealed_mock(side_effect=OSError))
 
-        self.assert_parse_fails(Foo, ['a'], BadArgument, 'unable to cast value=.* to type=')
+        self.assert_parse_fails(Foo, ['a'], BadArgument, 'unable to cast value=.* to type=', regex=True)
 
     def test_formatter_class(self):
         param_fmt_cls_map = {
@@ -85,7 +85,7 @@ class MiscParameterTest(ParserTest):
             bar = Flag('-b')
             baz = Option('-b')
 
-        with self.assertRaisesRegex(CommandDefinitionError, "short option='-b' conflict for command="):
+        with self.assert_raises_contains_str(CommandDefinitionError, "short option='-b' conflict for command="):
             Foo.parse([])
 
     def test_config_no_context_explicit_command(self):

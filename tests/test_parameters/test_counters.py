@@ -149,7 +149,7 @@ class CounterTest(ParserTest):
 
         with self.env_vars('invalid value', BAR='foo'):
             # TODO: Improve this error so it indicates which env var had a bad value
-            with self.assertRaisesRegex(BadArgument, "bad counter value='foo'"):
+            with self.assert_raises_contains_str(BadArgument, "bad counter value='foo'"):
                 Foo.parse([])
 
     # endregion

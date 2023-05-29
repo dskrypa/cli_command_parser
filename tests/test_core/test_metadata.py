@@ -9,6 +9,7 @@ from cli_command_parser import Command, Context, main as ccp_main
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.metadata import ProgramMetadata, Metadata, DynamicMetadata, ProgFinder, dynamic_metadata
 from cli_command_parser.metadata import _path_and_globals, _description, _prog_finder, EntryPoint
+from cli_command_parser.testing import ParserTest
 
 MODULE = 'cli_command_parser.metadata'
 THIS_FILE = Path(__file__)
@@ -23,7 +24,7 @@ def ep_scripts(*name_val_tuples):
     return tuple(EntryPoint(name, val, cs) for name, val in name_val_tuples)  # noqa
 
 
-class MetadataTest(TestCase):
+class MetadataTest(ParserTest):
     def test_repr(self):
         meta_repr = repr(CommandMeta.meta(Foo))
         self.assertRegex(meta_repr, r'\s{8}path=.*?/commands.py')
@@ -36,7 +37,7 @@ class MetadataTest(TestCase):
         self.assertEqual('DynamicMetadata(func=ProgramMetadata.prog, inheritable=True)', repr(ProgramMetadata.prog))
 
     def test_bad_arg(self):
-        with self.assertRaisesRegex(TypeError, 'Invalid arguments for ProgramMetadata: bar, foo'):
+        with self.assert_raises_contains_str(TypeError, 'Invalid arguments for ProgramMetadata: bar, foo'):
             ProgramMetadata(foo=123, bar=456)
 
     def test_dynamic_metadata_no_args(self):

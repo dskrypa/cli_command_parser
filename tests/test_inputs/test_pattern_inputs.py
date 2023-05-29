@@ -2,7 +2,7 @@
 
 import re
 from typing import Match
-from unittest import main, TestCase
+from unittest import main
 
 from cli_command_parser import Command, Option
 from cli_command_parser.exceptions import ParameterDefinitionError
@@ -12,7 +12,7 @@ from cli_command_parser.testing import ParserTest
 PAT = re.compile('foo')
 
 
-class RegexInputTest(TestCase):
+class RegexInputTest(ParserTest):
     # region Inputs.__init__ Replacement / Validation
 
     def test_pattern_type_replaced(self):
@@ -38,7 +38,7 @@ class RegexInputTest(TestCase):
     # region Initialization
 
     def test_no_patterns(self):
-        with self.assertRaisesRegex(TypeError, 'At least one regex pattern is required'):
+        with self.assert_raises_contains_str(TypeError, 'At least one regex pattern is required'):
             Regex()
 
     def test_group_and_groups(self):
@@ -86,9 +86,9 @@ class RegexInputTest(TestCase):
     # endregion
 
     def test_non_match(self):
-        with self.assertRaisesRegex(InputValidationError, 'expected a value matching'):
+        with self.assert_raises_contains_str(InputValidationError, 'expected a value matching'):
             Regex(PAT)('barbaz')
-        with self.assertRaisesRegex(InputValidationError, 'expected a value matching'):
+        with self.assert_raises_contains_str(InputValidationError, 'expected a value matching'):
             Regex(PAT, 'foobar')('barbaz')
 
     def test_strings(self):
@@ -97,13 +97,13 @@ class RegexInputTest(TestCase):
         self.assertEqual('foo | bar', r.format_metavar())
 
 
-class GlobInputTest(TestCase):
+class GlobInputTest(ParserTest):
     def test_pattern_with_choices_rejected(self):
         with self.assertRaisesRegex(ParameterDefinitionError, 'Cannot combine type=.* with choices='):
             Option(type=Glob('foo'), choices=('a', 'b'))
 
     def test_no_patterns(self):
-        with self.assertRaisesRegex(TypeError, 'At least one glob/fnmatch pattern is required'):
+        with self.assert_raises_contains_str(TypeError, 'At least one glob/fnmatch pattern is required'):
             Glob()
 
     def test_strings(self):
@@ -112,11 +112,11 @@ class GlobInputTest(TestCase):
         self.assertEqual('foo | bar', g.format_metavar())
 
     def test_non_match(self):
-        with self.assertRaisesRegex(InputValidationError, 'expected a value matching'):
+        with self.assert_raises_contains_str(InputValidationError, 'expected a value matching'):
             Glob('foo')('barbaz')
-        with self.assertRaisesRegex(InputValidationError, 'expected a value matching'):
+        with self.assert_raises_contains_str(InputValidationError, 'expected a value matching'):
             Glob('foo', 'foobar')('barbaz')
-        with self.assertRaisesRegex(InputValidationError, 'expected a value matching'):
+        with self.assert_raises_contains_str(InputValidationError, 'expected a value matching'):
             Glob('FOO', match_case=True)('foo')
 
     def test_match(self):

@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Context
 from cli_command_parser.exceptions import ParamConflict
 from cli_command_parser.parameters import Action, ActionFlag
-from cli_command_parser.testing import sealed_mock
+from cli_command_parser.testing import ParserTest, sealed_mock
 
 
-class TestCommands(TestCase):
+class TestCommands(ParserTest):
     def test_true_on_action_handled(self):
         mock = sealed_mock(__name__='foo')
 
@@ -94,7 +94,7 @@ class TestCommands(TestCase):
             def main(self):
                 raise RuntimeError('test')
 
-        with self.assertRaisesRegex(RuntimeError, 'test'):
+        with self.assert_raises_contains_str(RuntimeError, 'test'):
             Foo.parse_and_run([])
 
         self.assertFalse(Foo._after_main_.called)
@@ -106,7 +106,7 @@ class TestCommands(TestCase):
             def main(self):
                 raise RuntimeError('test')
 
-        with self.assertRaisesRegex(RuntimeError, 'test'):
+        with self.assert_raises_contains_str(RuntimeError, 'test'):
             Foo.parse_and_run([])
 
         self.assertTrue(Foo._after_main_.called)
@@ -120,7 +120,7 @@ class TestCommands(TestCase):
             c = Action()
             c(action_mock)
 
-        with self.assertRaisesRegex(ParamConflict, 'combining an action with action flags is disabled'):
+        with self.assert_raises_contains_str(ParamConflict, 'combining an action with action flags is disabled'):
             Foo.parse_and_run(['b', '-a'])
 
         self.assertFalse(act_flag_mock.called)

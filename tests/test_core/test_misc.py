@@ -33,6 +33,23 @@ class MiscTest(ParserTest):
         with self.assertRaises(AssertionError):
             self.assert_dict_equal({'a': 1}, {'b': 1})
 
+    def test_assert_raises_contains_str(self):
+        with self.assertRaises(AssertionError) as exc_ctx:
+            with self.assert_raises_contains_str(ValueError, 'foo'):
+                raise ValueError('bar')
+
+        self.assertEqual("'foo' not found in 'bar'", str(exc_ctx.exception))
+
+        with self.assertRaises(AssertionError) as exc_ctx:
+            with self.assert_raises_contains_str(ValueError, 'foo'):
+                pass
+
+        self.assertEqual('ValueError not raised', str(exc_ctx.exception))
+
+        with self.assertRaises(RuntimeError):  # The unexpected exception was allowed to propagate
+            with self.assert_raises_contains_str(ValueError, 'foo'):
+                raise RuntimeError('foo')
+
 
 if __name__ == '__main__':
     # import logging

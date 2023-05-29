@@ -64,7 +64,7 @@ class ChoiceMapTest(ParserTest):
             def foo(self):
                 pass
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'No choices were registered for Action'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'No choices were registered for Action'):
             foo = Foo.parse([])
             del Foo.action.choices['foo']
             foo.action  # noqa
@@ -112,7 +112,7 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             sub = SubCommand()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine a positional command_or_choice='):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Cannot combine a positional command_or_choice='):
             Foo.sub.register('foo', choice='foo')
 
     def test_custom_action_choice(self):

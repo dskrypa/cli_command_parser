@@ -251,7 +251,7 @@ class ParseTreeTestBad(ParserTest):
         class ShowFooBar(Show, choice='foo bar'):
             pass
 
-        with self.assertRaisesRegex(AmbiguousParseTree, 'Conflicting targets'):
+        with self.assert_raises_contains_str(AmbiguousParseTree, 'Conflicting targets'):
             Show.parse([])
 
         get_config(Show).reject_ambiguous_pos_combos = False
@@ -267,7 +267,7 @@ class ParseTreeTestBad(ParserTest):
         class ShowFooBar(Show, choice='foo bar'):
             pass
 
-        with self.assertRaisesRegex(AmbiguousParseTree, 'Conflicting choices'):
+        with self.assert_raises_contains_str(AmbiguousParseTree, 'Conflicting choices'):
             Show.parse([])
 
     def test_overlap_deep_choice_conflict_bad(self):

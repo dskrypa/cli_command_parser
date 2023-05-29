@@ -39,7 +39,7 @@ class ParseFlagsTest(ParserTest):
             de = Flag('-de')
 
         exp_pat = "part of argument='-abc' may match multiple parameters: --a / -a, --ab / -ab, --b / -b"
-        with self.assertRaisesRegex(AmbiguousCombo, exp_pat):
+        with self.assert_raises_contains_str(AmbiguousCombo, exp_pat):
             Foo.parse(['-abc'])
 
     def test_combined_flags_ambiguous(self):
@@ -101,7 +101,7 @@ class ParseFlagsTest(ParserTest):
             'Ambiguous short form for --abc / -abc - it conflicts with: --a / -a, --b / -b, --c / -c\n'
             'Ambiguous short form for --bc / -bc - it conflicts with: --b / -b, --c / -c'
         )
-        with self.assertRaisesRegex(AmbiguousShortForm, exp_error_pat):
+        with self.assert_raises_contains_str(AmbiguousShortForm, exp_error_pat):
             get_params(Foo)
 
     def test_combined_flags_ambiguous_strict_parsing(self):

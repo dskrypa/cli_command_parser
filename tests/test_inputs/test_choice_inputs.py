@@ -62,7 +62,7 @@ class ChoiceInputTest(ParserTest):
         for val in ('bar', 'test', 'foo', 'BAZ', '0', '4'):
             with self.subTest(val=val):
                 self.assertNotIn(val, ec)
-                with self.assertRaisesRegex(InvalidChoiceError, "choose from: 'FOO', 'Bar', 'baz'"):
+                with self.assert_raises_contains_str(InvalidChoiceError, "choose from: 'FOO', 'Bar', 'baz'"):
                     ec(val)
 
     def test_enum_case_insensitive(self):
@@ -81,15 +81,15 @@ class ChoiceInputTest(ParserTest):
         for val in ('test', 'BAT', '0', '4'):
             with self.subTest(val=val):
                 self.assertNotIn(val, ec)
-                with self.assertRaisesRegex(InvalidChoiceError, "choose from: 'FOO', 'Bar', 'baz'"):
+                with self.assert_raises_contains_str(InvalidChoiceError, "choose from: 'FOO', 'Bar', 'baz'"):
                     ec(val)
 
     def test_choices_rejects_typed_insensitive(self):
-        with self.assertRaisesRegex(TypeError, 'Cannot combine case_sensitive=False'):
+        with self.assert_raises_contains_str(TypeError, 'Cannot combine case_sensitive=False'):
             Choices((1, 2, 3), case_sensitive=False)
 
     def test_choices_rejects_bad_enum_choices(self):
-        with self.assertRaisesRegex(TypeError, 'Invalid choices='):
+        with self.assert_raises_contains_str(TypeError, 'Invalid choices='):
             Choices(EnumExample._member_map_, EnumChoices(EnumExample))
 
     def test_choices_typed_repr(self):
@@ -103,7 +103,7 @@ class ChoiceInputTest(ParserTest):
 
         for val in ('-1', '0', '4', '10', 'foo'):
             with self.subTest(val=val):
-                with self.assertRaisesRegex(InvalidChoiceError, 'choose from: 1, 2, 3'):
+                with self.assert_raises_contains_str(InvalidChoiceError, 'choose from: 1, 2, 3'):
                     choices(val)
 
     def test_choices_strs_sensitive(self):

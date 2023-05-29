@@ -237,7 +237,7 @@ class ParseParamsWithSubcommandsTest(ParserTest):
             sub = SubCommand()
             pre = Positional()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'has no sub Commands'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'has no sub Commands'):
             Cmd.parse([])
 
     def test_positional_nargs_star_after_local_choices(self):

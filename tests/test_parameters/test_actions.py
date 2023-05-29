@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock, PropertyMock, patch
 
 from cli_command_parser import Command, Action, Positional, action_flag, ParameterDefinitionError
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, InvalidChoice
-from cli_command_parser.testing import RedirectStreams, sealed_mock
+from cli_command_parser.testing import ParserTest, RedirectStreams, sealed_mock
 
 # TODO: Test multi-word actions; multi-word actions combined with subcommands (with multiple words)
 # TODO: Test space/-/_ switch for multi-word?
 
 
 @patch('cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos.default', True)
-class ActionTest(TestCase):
+class ActionTest(ParserTest):
     def test_action_requires_targets(self):
         class Foo(Command):
             a = Action()
 
-        with self.assertRaisesRegex(CommandDefinitionError, 'No choices were registered for Action'):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'No choices were registered for Action'):
             Foo.parse([])
 
     def test_action_called(self):
@@ -94,7 +94,7 @@ class ActionTest(TestCase):
         self.assertEqual(foo.text, ['bar'])
 
     def test_reject_double_choice(self):
-        with self.assertRaisesRegex(CommandDefinitionError, 'Cannot combine a positional method_or_choice='):
+        with self.assert_raises_contains_str(CommandDefinitionError, 'Cannot combine a positional method_or_choice='):
 
             class Foo(Command):
                 action = Action()
