@@ -481,7 +481,7 @@ class Counter(BaseOption[int], actions=(Count,)):
                 return len(value) + 1  # +1 for the -short that preceded this value
             raise BadArgument(self, f'bad counter {value=}') from e
 
-    def validate(self, value: Any):
+    def validate(self, value: Any, joined: Bool = False):
         if value is None or isinstance(value, self.type):
             return
         try:

@@ -293,11 +293,11 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         except Exception as e:
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
-    def validate(self, value: Optional[T_co]):
+    def validate(self, value: Optional[T_co], joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
-            if len(value) > 1 and not _is_numeric(value):
+            if not joined and len(value) > 1 and not _is_numeric(value):
                 raise BadArgument(self, f'invalid {value=}')
         elif self.allow_leading_dash == AllowLeadingDash.NEVER:
             raise BadArgument(self, f'invalid {value=}')

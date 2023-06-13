@@ -22,7 +22,7 @@ from .parameters.base import Parameter, BasePositional, BaseOption
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .config import CommandConfig
-    from .typing import CommandType, OptStr
+    from .typing import CommandType, OptStr, Bool
 
 __all__ = ['CommandParser', 'parse_args_and_get_next_cmd']
 log = logging.getLogger(__name__)
@@ -204,14 +204,16 @@ class CommandParser:
         # log.debug(f'handle_long({arg=})')
         opt, eq, value = arg.partition('=')
         if param := self.params.option_map.get(opt):
-            self._handle_option_value(opt, param, value if eq else None)
+            self._handle_option_value(opt, param, value if eq else None, joined=eq)
         elif not self._maybe_consume_remainder(arg):
             self._check_sub_command_options(arg)
             self.deferred.append(arg)
 
-    def _handle_option_value(self, opt: str, param: BaseOption, value: OptStr, combo: bool = False):
+    def _handle_option_value(
+        self, opt: str, param: BaseOption, value: OptStr, combo: bool = False, joined: Bool = False
+    ):
         if value is not None:
-            param.action.add_value(value, opt=opt, combo=combo)
+            param.action.add_value(value, opt=opt, combo=combo, joined=joined)
         elif param.action.accepts_consts and not param.action.accepts_values:
             param.action.add_const(opt=opt, combo=combo)
         elif not self.consume_values(param) and param.action.accepts_consts:
@@ -225,7 +227,7 @@ class CommandParser:
     def handle_short(self, arg: str):
         # log.debug(f'handle_short({arg=})')
         try:
-            param_val_combos = self.params.short_option_to_param_value_pairs(arg)
+            param_val_combos, joined = self.params.short_option_to_param_value_pairs(arg)
         except KeyError:  # Handles 3 potential KeyErrors for either the full short option or a single-char combo
             self._handle_short_not_found(arg)
         else:
@@ -235,7 +237,7 @@ class CommandParser:
                 # Note: This loop is only executed for single char combined flags, where the values will always be None
                 for opt, param, _none_value in param_val_combos:
                     param.action.add_const(opt=opt, combo=True)
-            self._handle_option_value(*last, combo=True)
+            self._handle_option_value(*last, combo=True, joined=joined)
 
     def _handle_short_not_found(self, arg: str):
         if self._maybe_consume_remainder(arg):
