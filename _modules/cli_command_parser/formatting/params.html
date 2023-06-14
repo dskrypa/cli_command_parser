@@ -981,6 +981,7 @@
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">format_help_entry</span><span class="p">,</span> <span class="n">_should_add_default</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
     <span class="kn">from</span> <span class="nn">..parameters.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
     <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">OptStr</span>
 
@@ -1031,9 +1032,10 @@
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">metavar</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">param</span><span class="o">.</span><span class="n">metavar</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">:=</span> <span class="n">param</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span>
                 <span class="n">metavar</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">choice_delim</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">sort_choices</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa  # pylint: disable=W0703</span>
                 <span class="k">pass</span>
@@ -1041,7 +1043,7 @@
                 <span class="k">if</span> <span class="n">metavar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">NotImplemented</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">metavar</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">use_type_metavar</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">use_type_metavar</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -1104,8 +1106,12 @@
 <div class="viewcode-block" id="OptionHelpFormatter"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter">[docs]</a><span class="k">class</span> <span class="nc">OptionHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">BaseOption</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_format_usage_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">metavar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">()</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
-            <span class="n">metavar</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1">]&#39;</span>
+        <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span>
+        <span class="n">variable</span> <span class="o">=</span> <span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">and</span> <span class="n">nargs</span><span class="o">.</span><span class="n">max</span> <span class="o">!=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">nargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1"> ...]&#39;</span> <span class="k">if</span> <span class="n">variable</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1">]&#39;</span>
+        <span class="k">elif</span> <span class="n">variable</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">metavar</span><span class="si">}</span><span class="s1"> ...]&#39;</span>
         <span class="k">return</span> <span class="n">metavar</span>
 
 <div class="viewcode-block" id="OptionHelpFormatter.iter_usage_parts"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.iter_usage_parts">[docs]</a>    <span class="k">def</span> <span class="nf">iter_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>

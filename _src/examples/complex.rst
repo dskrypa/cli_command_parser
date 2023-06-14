@@ -104,7 +104,7 @@ Subcommand: update
 
 ::
 
-    usage: complex_example.py update {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+    usage: complex_example.py update {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids ID [ID ...]] [--all] [--name NAME] [--description DESCRIPTION]
 
 
 
@@ -160,11 +160,11 @@ Subcommand: update
 .. table::
     :widths: auto
 
-    +---------------------------+-------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
-    +---------------------------+-------------------------------+
-    | ``--all``, ``-A``         | Update all items              |
-    +---------------------------+-------------------------------+
+    +-------------------------------------------+-------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the item to update |
+    +-------------------------------------------+-------------------------------+
+    | ``--all``, ``-A``                         | Update all items              |
+    +-------------------------------------------+-------------------------------+
 
 
 Subcommand: update foo
@@ -172,7 +172,7 @@ Subcommand: update foo
 
 ::
 
-    usage: complex_example.py update foo {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+    usage: complex_example.py update foo {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids ID [ID ...]] [--all] [--name NAME] [--description DESCRIPTION]
 
 
 
@@ -228,11 +228,11 @@ Subcommand: update foo
 .. table::
     :widths: auto
 
-    +---------------------------+-------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
-    +---------------------------+-------------------------------+
-    | ``--all``, ``-A``         | Update all items              |
-    +---------------------------+-------------------------------+
+    +-------------------------------------------+-------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the item to update |
+    +-------------------------------------------+-------------------------------+
+    | ``--all``, ``-A``                         | Update all items              |
+    +-------------------------------------------+-------------------------------+
 
 
 Subcommand: update bar
@@ -240,7 +240,7 @@ Subcommand: update bar
 
 ::
 
-    usage: complex_example.py update bar {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+    usage: complex_example.py update bar {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids ID [ID ...]] [--all] [--name NAME] [--description DESCRIPTION]
 
 
 
@@ -296,11 +296,11 @@ Subcommand: update bar
 .. table::
     :widths: auto
 
-    +---------------------------+-------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
-    +---------------------------+-------------------------------+
-    | ``--all``, ``-A``         | Update all items              |
-    +---------------------------+-------------------------------+
+    +-------------------------------------------+-------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the item to update |
+    +-------------------------------------------+-------------------------------+
+    | ``--all``, ``-A``                         | Update all items              |
+    +-------------------------------------------+-------------------------------+
 
 
 Subcommand: update user
@@ -308,7 +308,7 @@ Subcommand: update user
 
 ::
 
-    usage: complex_example.py update user [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION] [--location LOCATION] [--role {admin|user}]
+    usage: complex_example.py update user [--verbose [VERBOSE]] [--help] [--dry-run] [--ids ID [ID ...]] [--all] [--name NAME] [--description DESCRIPTION] [--location LOCATION] [--role {admin|user}]
 
 
 
@@ -347,11 +347,11 @@ Subcommand: update user
 .. table::
     :widths: auto
 
-    +---------------------------+-------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
-    +---------------------------+-------------------------------+
-    | ``--all``, ``-A``         | Update all items              |
-    +---------------------------+-------------------------------+
+    +-------------------------------------------+-------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the item to update |
+    +-------------------------------------------+-------------------------------+
+    | ``--all``, ``-A``                         | Update all items              |
+    +-------------------------------------------+-------------------------------+
 
 
 Subcommand: update group
@@ -359,7 +359,7 @@ Subcommand: update group
 
 ::
 
-    usage: complex_example.py update group [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION] [--location LOCATION] [--add ADD] [--remove REMOVE]
+    usage: complex_example.py update group [--verbose [VERBOSE]] [--help] [--dry-run] [--ids ID [ID ...]] [--all] [--name NAME] [--description DESCRIPTION] [--location LOCATION] [--add MEMBER [MEMBER ...]] [--remove MEMBER [MEMBER ...]]
 
 
 
@@ -368,19 +368,19 @@ Subcommand: update group
 .. table::
     :widths: auto
 
-    +-------------------------------------------+--------------------------------------------------------------------------+
-    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]`` | Increase logging verbosity (can specify multiple times) (default: ``0``) |
-    +-------------------------------------------+--------------------------------------------------------------------------+
-    | ``--help``, ``-h``                        | Show this help message and exit                                          |
-    +-------------------------------------------+--------------------------------------------------------------------------+
-    | ``--dry-run``, ``-D``                     | Print the actions that would be taken instead of taking them             |
-    +-------------------------------------------+--------------------------------------------------------------------------+
-    | ``--location LOCATION``, ``-L LOCATION``  | The new location for the specified item(s)                               |
-    +-------------------------------------------+--------------------------------------------------------------------------+
-    | ``--add ADD``, ``-a ADD``                 | Members to add                                                           |
-    +-------------------------------------------+--------------------------------------------------------------------------+
-    | ``--remove REMOVE``, ``-r REMOVE``        | Members to remove                                                        |
-    +-------------------------------------------+--------------------------------------------------------------------------+
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--verbose [VERBOSE]``, ``-v [VERBOSE]``                    | Increase logging verbosity (can specify multiple times) (default: ``0``) |
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--help``, ``-h``                                           | Show this help message and exit                                          |
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--dry-run``, ``-D``                                        | Print the actions that would be taken instead of taking them             |
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--location LOCATION``, ``-L LOCATION``                     | The new location for the specified item(s)                               |
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--add MEMBER [MEMBER ...]``, ``-a MEMBER [MEMBER ...]``    | Members to add                                                           |
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
+    | ``--remove MEMBER [MEMBER ...]``, ``-r MEMBER [MEMBER ...]`` | Members to remove                                                        |
+    +--------------------------------------------------------------+--------------------------------------------------------------------------+
 
 
 .. rubric:: Common Fields options
@@ -400,8 +400,8 @@ Subcommand: update group
 .. table::
     :widths: auto
 
-    +---------------------------+-------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
-    +---------------------------+-------------------------------+
-    | ``--all``, ``-A``         | Update all items              |
-    +---------------------------+-------------------------------+
+    +-------------------------------------------+-------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the item to update |
+    +-------------------------------------------+-------------------------------+
+    | ``--all``, ``-A``                         | Update all items              |
+    +-------------------------------------------+-------------------------------+

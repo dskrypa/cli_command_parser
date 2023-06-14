@@ -60,7 +60,7 @@ Show an object
 
 ::
 
-    usage: rest_api_wrapper.py show {foo|bar|baz} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--ids IDS]
+    usage: rest_api_wrapper.py show {foo|bar|baz} [--verbose [VERBOSE]] [--env {dev|qa|uat|prod}] [--help] [--ids ID [ID ...]]
 
 
 
@@ -79,11 +79,11 @@ Show an object
 .. table::
     :widths: auto
 
-    +---------------------------+---------------------------------+
-    | ``--help``, ``-h``        | Show this help message and exit |
-    +---------------------------+---------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the objects to show  |
-    +---------------------------+---------------------------------+
+    +-------------------------------------------+---------------------------------+
+    | ``--help``, ``-h``                        | Show this help message and exit |
+    +-------------------------------------------+---------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the objects to show  |
+    +-------------------------------------------+---------------------------------+
 
 
 .. rubric:: Common options
