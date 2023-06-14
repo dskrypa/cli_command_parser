@@ -355,11 +355,13 @@ class CommandParameters:
 
     # region Option Processing
 
-    def short_option_to_param_value_pairs(self, option: str) -> List[Tuple[str, BaseOption, Optional[str]]]:
+    def short_option_to_param_value_pairs(
+        self, option: str
+    ) -> Tuple[List[Tuple[str, BaseOption, Optional[str]]], bool]:
         option, eq, value = option.partition('=')
         if eq:  # An `=` was present in the string
             # Note: if the option is not in this Command's option_map, the KeyError is handled by CommandParser
-            return [(option, self.option_map[option], value)]
+            return [(option, self.option_map[option], value)], True
         else:
             value = None
 
@@ -370,16 +372,16 @@ class CommandParameters:
             if opt_len < 2 or (opt_len > 2 and self._is_combo_potentially_ambiguous(option)):
                 raise
         else:
-            return [(option, param, value)]
+            return [(option, param, value)], False
 
         key, value = option[1], option[2:]
         # value will never be empty if key is a valid option because by this point, option is not a short option
         param = self.combo_option_map[key]
         if param.action.would_accept(value, combo=True):
-            return [(key, param, value)]
+            return [(key, param, value)], False
         else:
             # Multi-char short options can never be combined with each other, but single-char ones can
-            return [(c, self.combo_option_map[c], None) for c in option[1:]]
+            return [(c, self.combo_option_map[c], None) for c in option[1:]], False
 
     # endregion
 

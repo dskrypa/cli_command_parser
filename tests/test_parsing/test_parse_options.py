@@ -30,14 +30,13 @@ class OptionTest(ParserTest):
 
     def test_eq_with_eq_in_value(self):
         class Foo(Command):
-            bar = Option('-b', allow_leading_dash=True)
+            bar = Option('-b')
 
         success_cases = [
             (['-b', 'a=b'], {'bar': 'a=b'}),
             (['-b=a=b'], {'bar': 'a=b'}),
             (['--bar', 'a=b'], {'bar': 'a=b'}),
             (['--bar=a=b'], {'bar': 'a=b'}),
-            # TODO: Should allow_leading_dash really be necessary for the following case?
             (['--bar=--baz=abc'], {'bar': '--baz=abc'}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)

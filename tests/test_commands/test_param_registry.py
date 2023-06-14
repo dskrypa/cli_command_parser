@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from abc import ABC
-from unittest import TestCase, main
+from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command

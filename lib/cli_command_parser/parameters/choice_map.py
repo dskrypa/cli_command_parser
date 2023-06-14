@@ -150,7 +150,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
 
     # region Argument Handling
 
-    def validate(self, value: str):
+    def validate(self, value: str, joined: Bool = False):
         if not (choices := self.choices):
             self._no_choices_error()
 
