@@ -59,6 +59,8 @@ class CommandHelpFormatter:
         self.pos_group.extend(param for param in params if not param.group)
 
     def maybe_add_options(self, params: Iterable[BaseOption]):
+        # TODO: It would be good for required options' default group to indicate they are required, instead of the
+        #  default group saying "Optional"
         self.opt_group.extend(param for param in params if not param.group)
 
     def _iter_params(self) -> Iterator[Union[BasePositional, BaseOption, PassThru]]:

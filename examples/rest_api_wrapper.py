@@ -23,7 +23,7 @@ class ApiWrapper(Command):
 
 class Show(ApiWrapper, help='Show an object'):
     type = Positional(choices=('foo', 'bar', 'baz'), help='The type of object to show')
-    ids = Option('-i', nargs='+', help='The IDs of the objects to show')
+    ids = Option('-i', metavar='ID', nargs='+', help='The IDs of the objects to show')
 
     def main(self):
         log.info(f'Would show {self.type} objects: {self.ids}')

@@ -173,6 +173,18 @@ usage: foo_bar.py [--abcdef ABCDEF] [--ghijkl
     [--yz YZ]"""
         self.assert_strings_equal(expected, get_usage_text(Foo))
 
+    def test_nargs_plus_usage(self):
+        class Foo(Command, prog='foo.py'):
+            bar = Option(nargs='+')
+
+        self.assert_strings_equal('usage: foo.py [--bar BAR [BAR ...]] [--help]', get_usage_text(Foo))
+
+    # def test_nargs_star_usage(self):
+    #     class Foo(Command, prog='foo.py'):
+    #         bar = Option(nargs='*')
+    #
+    #     self.assert_strings_equal('usage: foo.py [--bar [BAR ...]] [--help]', get_usage_text(Foo))
+
 
 class HelpTextTest(ParserTest):
     def test_custom_choice_map(self):

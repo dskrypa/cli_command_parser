@@ -104,7 +104,7 @@ Subcommand: update
 
 ::
 
-    usage: complex_example.py update {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids IDS] [--all] [--name NAME] [--description DESCRIPTION]
+    usage: complex_example.py update {foo|bar|user|group} [--verbose [VERBOSE]] [--help] [--dry-run] [--ids ID [ID ...]] [--all] [--name NAME] [--description DESCRIPTION]
 
 
 
@@ -160,8 +160,8 @@ Subcommand: update
 .. table::
     :widths: auto
 
-    +---------------------------+-------------------------------+
-    | ``--ids IDS``, ``-i IDS`` | The IDs of the item to update |
-    +---------------------------+-------------------------------+
-    | ``--all``, ``-A``         | Update all items              |
-    +---------------------------+-------------------------------+
+    +-------------------------------------------+-------------------------------+
+    | ``--ids ID [ID ...]``, ``-i ID [ID ...]`` | The IDs of the item to update |
+    +-------------------------------------------+-------------------------------+
+    | ``--all``, ``-A``                         | Update all items              |
+    +-------------------------------------------+-------------------------------+

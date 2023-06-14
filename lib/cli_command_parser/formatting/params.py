@@ -20,6 +20,7 @@ from .restructured_text import RstTable
 from .utils import format_help_entry, _should_add_default
 
 if TYPE_CHECKING:
+    from ..nargs import Nargs
     from ..parameters.option_strings import TriFlagOptionStrings
     from ..typing import Bool, ParamOrGroup, OptStr
 
@@ -70,9 +71,10 @@ class ParamHelpFormatter:
         param = self.param
         if param.metavar and param.action.accepts_values:
             return param.metavar
+
+        config = ctx.config
         if (t := param.type) is not None:
             try:
-                config = ctx.config
                 metavar = t.format_metavar(config.choice_delim, config.sort_choices)
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
@@ -80,7 +82,7 @@ class ParamHelpFormatter:
                 if metavar is not NotImplemented:
                     return metavar
 
-        if ctx.config.use_type_metavar and t is not None:
+        if config.use_type_metavar and t is not None:
             try:
                 name = t.__name__
             except AttributeError:
@@ -143,8 +145,12 @@ class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
 class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
     def _format_usage_metavar(self) -> str:
         metavar = self.format_metavar()
-        if 0 in self.param.nargs:
-            metavar = f'[{metavar}]'
+        nargs: Nargs = self.param.nargs
+        variable = nargs.variable and nargs.max != 1
+        if 0 in nargs:
+            return f'[{metavar} ...]' if variable else f'[{metavar}]'
+        elif variable:
+            return f'{metavar} [{metavar} ...]'
         return metavar
 
     def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:

@@ -26,7 +26,7 @@ class Update(Example):
     item_type = SubCommand(local_choices=('foo', 'bar'), help='The type of item to update')
     dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
     with ParamGroup(mutually_exclusive=True):
-        ids = Option('-i', nargs='+', help='The IDs of the item to update')
+        ids = Option('-i', metavar='ID', nargs='+', help='The IDs of the item to update')
         all = Flag('-A', help='Update all items')
     with ParamGroup('Common Fields'):
         name = Option('-n', help='The new name for the specified item(s)')
@@ -79,8 +79,8 @@ class UpdateUser(UpdateUserOrGroup, choice='user'):
 
 
 class UpdateGroup(UpdateUserOrGroup, choice='group'):
-    add = Option('-a', nargs='+', help='Members to add')
-    remove = Option('-r', nargs='+', help='Members to remove')
+    add = Option('-a', metavar='MEMBER', nargs='+', help='Members to add')
+    remove = Option('-r', metavar='MEMBER', nargs='+', help='Members to remove')
 
     def get_updates(self):
         updates = super().get_updates()
