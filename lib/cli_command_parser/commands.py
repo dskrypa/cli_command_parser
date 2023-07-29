@@ -166,6 +166,8 @@ class Command(ABC, metaclass=CommandMeta):
         :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
         :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
         """
+        # TODO: --help should take precedence over input validation - right now, if a Path input expecting a
+        #  non-existent file receives a file that exists, that error is reported instead of showing help text
         ctx = self.__ctx
         n_flags = ctx.action_flag_count
         if n_flags and not ctx.config.multiple_action_flags and n_flags > 1:

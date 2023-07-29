@@ -835,6 +835,25 @@ class FormatterTest(ParserTest):
 
         self.assertEqual('test 12345', Foo.group.formatter.format_description(description='test 12345'))
 
+    def test_required_default_group(self):
+        class Foo(Command):
+            out_path = Option('-o', required=True, help='Output file path')
+            verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
+            dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
+
+        expected = """
+Required arguments:
+  --out-path OUT_PATH, -o OUT_PATH
+                              Output file path
+
+Optional arguments:
+  --verbose [VERBOSE], -v [VERBOSE]
+                              Increase logging verbosity (can specify multiple times) (default: 0)
+  --dry-run, -D               Print the actions that would be taken instead of taking them
+  --help, -h                  Show this help message and exit
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Foo))
+
 
 def _get_output(command: CommandCls, args: Sequence[str]) -> Tuple[str, str]:
     with RedirectStreams() as streams:
