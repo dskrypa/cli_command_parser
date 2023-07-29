@@ -139,7 +139,11 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return _TERMINAL.width
 
     def get_parsed(
-        self, exclude: Collection[Parameter] = (), recursive: Bool = True, default: Any = None
+        self,
+        exclude: Collection[Parameter] = (),
+        recursive: Bool = True,
+        default: Any = None,
+        include_defaults: Bool = True,
     ) -> Dict[str, Any]:
         """
         Returns all of the parsed arguments as a dictionary.
@@ -151,18 +155,22 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         :param recursive: Whether parsed arguments should be recursively gathered from parent Commands
         :param default: The default value to use for parameters that raise :class:`.MissingArgument` when attempting to
           obtain their result values.
+        :param include_defaults: Whether default values should be included in the returned results.  If False, only
+          user-provided values will be included.
         :return: A dictionary containing all of the arguments that were parsed.  The keys in the returned dict match
           the names assigned to the Parameters in the Command associated with this Context.
         """
         with self:
             if recursive and (parent := self.parent):
-                parsed = parent.get_parsed(exclude, recursive)
+                parsed = parent.get_parsed(exclude, recursive, default, include_defaults)
             else:
                 parsed = {}
 
+            # TODO: Add way to get a nested dict with ParamGroup names as the keys of the nested sections?
             if params := self.params:
                 for param in params.iter_params(exclude):
-                    parsed[param.name] = param.result_value(default)
+                    if include_defaults or param in self._parsed:
+                        parsed[param.name] = param.result_value(default)
 
         return parsed
 
@@ -438,7 +446,9 @@ def get_context(command: Command) -> Context:
         raise TypeError('get_context only supports Command objects') from e
 
 
-def get_parsed(command: Command, to_call: Callable = None, default: Any = None) -> Dict[str, Any]:
+def get_parsed(
+    command: Command, to_call: Callable = None, default: Any = None, include_defaults: Bool = True
+) -> Dict[str, Any]:
     """
     Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.
 
@@ -462,7 +472,7 @@ def get_parsed(command: Command, to_call: Callable = None, default: Any = None) 
     :return: A dictionary containing all of the (optionally filtered) arguments that were parsed.  The keys in the
       returned dict match the names assigned to the Parameters in the given Command.
     """
-    parsed = get_context(command).get_parsed(default=default)
+    parsed = get_context(command).get_parsed(default=default, include_defaults=include_defaults)
     if to_call is not None:
         sig = Signature.from_callable(to_call)
         keys = {k for k, p in sig.parameters.items() if p.kind != _Parameter.VAR_KEYWORD}

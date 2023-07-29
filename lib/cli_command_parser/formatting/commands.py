@@ -35,8 +35,9 @@ class CommandHelpFormatter:
         self.command = command
         self.params = params
         self.pos_group = ParamGroup(description='Positional arguments')
+        self.req_group = ParamGroup(description='Required arguments')
         self.opt_group = ParamGroup(description='Optional arguments')
-        self.groups = [self.pos_group, self.opt_group]
+        self.groups = [self.pos_group, self.req_group, self.opt_group]
 
     @cached_property
     def _meta(self) -> ProgramMetadata:
@@ -51,17 +52,19 @@ class CommandHelpFormatter:
             else:
                 self.groups.append(group)
 
-    def maybe_add_option(self, param: Optional[Parameter]):
-        if param is not None and not param.group:
-            self.opt_group.add(param)
-
     def maybe_add_positionals(self, params: Iterable[BasePositional]):
         self.pos_group.extend(param for param in params if not param.group)
 
+    def maybe_add_option(self, param: Optional[Parameter]):
+        if param is not None and not param.group:
+            if param.required:
+                self.req_group.add(param)
+            else:
+                self.opt_group.add(param)
+
     def maybe_add_options(self, params: Iterable[BaseOption]):
-        # TODO: It would be good for required options' default group to indicate they are required, instead of the
-        #  default group saying "Optional"
-        self.opt_group.extend(param for param in params if not param.group)
+        for param in params:
+            self.maybe_add_option(param)
 
     def _iter_params(self) -> Iterator[Union[BasePositional, BaseOption, PassThru]]:
         params = self.params
@@ -105,10 +108,7 @@ class CommandHelpFormatter:
         if description := self._meta.description:
             parts += [description, '']
 
-        for group in self.groups:
-            if group.show_in_help:
-                parts.append(group.formatter.format_help())
-
+        parts.extend(group.formatter.format_help() for group in self.groups if group.show_in_help)
         if epilog := self._meta.format_epilog(ctx.config.extended_epilog, allow_sys_argv):
             parts.append(epilog)
 
