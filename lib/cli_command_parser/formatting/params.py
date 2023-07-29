@@ -10,7 +10,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Tuple, Dict
 
-from ..config import SubcommandAliasHelpMode
+from ..config import SubcommandAliasHelpMode, CmdAliasMode
 from ..context import ctx
 from ..core import get_config
 from ..parameters.base import BasePositional, BaseOption
@@ -304,9 +304,10 @@ class ChoiceGroup:
         if choice_str := choice.choice:
             self.choice_strs.append(choice_str)
 
-    def format(self, default_mode: SubcommandAliasHelpMode, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
+    def format(self, default_mode: CmdAliasMode, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
         """
-        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.
+        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured,
+          or the format string to use for subcommand aliases.
         :param tw_offset: Terminal width offset for text width calculations.
         :param prefix: Prefix to add to every line (primarily intended for use with nested groups).
         :return: Generator that yields formatted help text entries (strings) for the Choices in this group.
@@ -314,12 +315,13 @@ class ChoiceGroup:
         for choice, usage, description in self.prepare(default_mode):
             yield format_help_entry((usage,), description, lpad=4, tw_offset=tw_offset, prefix=prefix)
 
-    def prepare(self, default_mode: SubcommandAliasHelpMode) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+    def prepare(self, default_mode: CmdAliasMode) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
         """
         Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias
         mode.
 
-        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured.
+        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured,
+          or the format string to use for subcommand aliases.
         :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and
           the help text / description for that choice / alias.
         """

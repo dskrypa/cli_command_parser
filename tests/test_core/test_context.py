@@ -2,12 +2,11 @@
 
 from unittest import main
 
-from cli_command_parser import Command, CommandConfig
+from cli_command_parser import Command, CommandConfig, Option, Flag, SubCommand, Positional
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.context import Context, ActionPhase, ctx, get_current_context
 from cli_command_parser.context import get_context, get_parsed, get_raw_arg
 from cli_command_parser.error_handling import extended_error_handler
-from cli_command_parser.parameters import Flag, SubCommand, Positional
 from cli_command_parser.testing import ParserTest
 
 
@@ -158,6 +157,19 @@ class ContextTest(ParserTest):
         self.assertDictEqual({'a': True}, get_parsed(foo, bar))
         self.assertDictEqual({'a': True}, get_parsed(foo, baz))
         self.assertDictEqual({'a': True}, get_parsed(foo, zab))
+
+    def test_get_parsed_defaults(self):
+        class Foo(Command):
+            a = Option('-a')
+            b = Option('-b', default=123)
+
+        foo = Foo.parse(['-a', 'bar'])
+        self.assertDictEqual({'a': 'bar', 'b': 123, 'help': False}, get_parsed(foo))
+        self.assertDictEqual({'a': 'bar'}, get_parsed(foo, include_defaults=False))
+
+        bar = Foo.parse([])
+        self.assertDictEqual({'a': None, 'b': 123, 'help': False}, get_parsed(bar))
+        self.assertDictEqual({}, get_parsed(bar, include_defaults=False))
 
     def test_get_raw_arg(self):
         class Foo(Command):
