@@ -1100,7 +1100,11 @@
         <span class="k">return</span> <span class="n">_TERMINAL</span><span class="o">.</span><span class="n">width</span></div>
 
 <div class="viewcode-block" id="Context.get_parsed"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed">[docs]</a>    <span class="k">def</span> <span class="nf">get_parsed</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">recursive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_defaults</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all of the parsed arguments as a dictionary.</span>
@@ -1112,18 +1116,22 @@
 <span class="sd">        :param recursive: Whether parsed arguments should be recursively gathered from parent Commands</span>
 <span class="sd">        :param default: The default value to use for parameters that raise :class:`.MissingArgument` when attempting to</span>
 <span class="sd">          obtain their result values.</span>
+<span class="sd">        :param include_defaults: Whether default values should be included in the returned results.  If False, only</span>
+<span class="sd">          user-provided values will be included.</span>
 <span class="sd">        :return: A dictionary containing all of the arguments that were parsed.  The keys in the returned dict match</span>
 <span class="sd">          the names assigned to the Parameters in the Command associated with this Context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">recursive</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">):</span>
-                <span class="n">parsed</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="n">recursive</span><span class="p">)</span>
+                <span class="n">parsed</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="n">recursive</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">include_defaults</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">parsed</span> <span class="o">=</span> <span class="p">{}</span>
 
+            <span class="c1"># TODO: Add way to get a nested dict with ParamGroup names as the keys of the nested sections?</span>
             <span class="k">if</span> <span class="n">params</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">iter_params</span><span class="p">(</span><span class="n">exclude</span><span class="p">):</span>
-                    <span class="n">parsed</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">result_value</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">include_defaults</span> <span class="ow">or</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">:</span>
+                        <span class="n">parsed</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">result_value</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">parsed</span></div>
 
@@ -1399,7 +1407,9 @@
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;get_context only supports Command objects&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
 
 
-<div class="viewcode-block" id="get_parsed"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_parsed">[docs]</a><span class="k">def</span> <span class="nf">get_parsed</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">,</span> <span class="n">to_call</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_parsed"><a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_parsed">[docs]</a><span class="k">def</span> <span class="nf">get_parsed</span><span class="p">(</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">,</span> <span class="n">to_call</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">include_defaults</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.</span>
 
@@ -1423,7 +1433,7 @@
 <span class="sd">    :return: A dictionary containing all of the (optionally filtered) arguments that were parsed.  The keys in the</span>
 <span class="sd">      returned dict match the names assigned to the Parameters in the given Command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parsed</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">include_defaults</span><span class="o">=</span><span class="n">include_defaults</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">to_call</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sig</span> <span class="o">=</span> <span class="n">Signature</span><span class="o">.</span><span class="n">from_callable</span><span class="p">(</span><span class="n">to_call</span><span class="p">)</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">_Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">}</span>

@@ -1127,6 +1127,8 @@
 <span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: --help should take precedence over input validation - right now, if a Path input expecting a</span>
+        <span class="c1">#  non-existent file receives a file that exists, that error is reported instead of showing help text</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span>
         <span class="n">n_flags</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">action_flag_count</span>
         <span class="k">if</span> <span class="n">n_flags</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="n">n_flags</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
