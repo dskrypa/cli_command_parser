@@ -2,7 +2,7 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption
+from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption, Counter
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument, AmbiguousShortForm, AmbiguousCombo
 from cli_command_parser.nargs import Nargs
@@ -325,6 +325,74 @@ class OptionTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [['-b'], ['-b', 'a']]
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    # endregion
+
+    # region Default Callback
+
+    def test_default_cb_simple(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b', default_cb=lambda: 123)
+
+        success_cases = [
+            ([], {'foo': False, 'bar': 123}),
+            (['-f'], {'foo': True, 'bar': 123}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': 'baz'}),
+            (['-b=baz'], {'foo': False, 'bar': 'baz'}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    def test_default_cb_method_store(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b')
+
+            @bar.register_default_cb
+            def _bar_cb(self):
+                return str(self.foo)
+
+        success_cases = [
+            ([], {'foo': False, 'bar': 'False'}),
+            (['-f'], {'foo': True, 'bar': 'True'}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': 'baz'}),
+            (['-b=baz'], {'foo': False, 'bar': 'baz'}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    def test_default_cb_method_append(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b', nargs='+')
+
+            @bar.register_default_cb
+            def _bar_cb(self):
+                return [str(self.foo)]
+
+        success_cases = [
+            ([], {'foo': False, 'bar': ['False']}),
+            (['-f'], {'foo': True, 'bar': ['True']}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': ['baz']}),
+            (['-b', 'baz', 'xyz'], {'foo': False, 'bar': ['baz', 'xyz']}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    def test_counter_default_cb_method(self):
+        class Cmd(Command):
+            foo = Flag()
+            bar = Counter('-b')
+
+            @bar.register_default_cb
+            def _bar(self):
+                return 10 if self.foo else -10
+
+        success_cases = [
+            ([], {'foo': False, 'bar': -10}),
+            (['--foo'], {'foo': True, 'bar': 10}),
+            (['--foo', '-bb'], {'foo': True, 'bar': 2}),
+            (['-b=3'], {'foo': False, 'bar': 3}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
 
     # endregion
 

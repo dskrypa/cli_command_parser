@@ -63,7 +63,7 @@ class TestCommands(ParserTest):
         for context in (Context(['a'], Foo, ignore_unknown=True), Context(['a'], ignore_unknown=True)):
             with context as ctx:
                 foo = Foo.parse_and_run(['b'])
-                self.assertIs(ctx, foo.ctx.parent)
+                self.assertIs(ctx, foo.ctx.parent.parent)
                 self.assertListEqual(['a'], ctx.argv)
                 self.assertListEqual(['b'], foo.ctx.argv)
 
@@ -73,7 +73,7 @@ class TestCommands(ParserTest):
 
         with Context(['a'], Foo, ignore_unknown=True) as ctx:
             foo = Foo.parse_and_run()
-            self.assertIs(ctx, foo.ctx)
+            self.assertIs(ctx, foo.ctx.parent)
             self.assertListEqual(['a'], ctx.argv)
             self.assertListEqual(['a'], foo.ctx.argv)
 
@@ -83,7 +83,7 @@ class TestCommands(ParserTest):
 
         with Context(['a'], ignore_unknown=True) as ctx:
             foo = Foo.parse_and_run()
-            self.assertIs(ctx, foo.ctx.parent)
+            self.assertIs(ctx, foo.ctx.parent.parent)
             self.assertListEqual(['a'], ctx.argv)
             self.assertListEqual(['a'], foo.ctx.argv)
 

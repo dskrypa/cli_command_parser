@@ -411,6 +411,25 @@ class ParseTriFlagsTest(ParserTest):
         # fmt: on
         self.assert_parse_results_cases(Foo, success_cases)
 
+    def test_default_cb_method(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = TriFlag('-b', alt_short='-B')
+
+            @bar.register_default_cb
+            def _bar(self):
+                return not self.foo
+
+        success_cases = [
+            ([], {'foo': False, 'bar': True}),
+            (['-f'], {'foo': True, 'bar': False}),
+            (['-fb'], {'foo': True, 'bar': True}),
+            (['-fB'], {'foo': True, 'bar': False}),
+            (['-B'], {'foo': False, 'bar': False}),
+            (['-b'], {'foo': False, 'bar': True}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
     # region Env Var Handling
 
     def test_env_var(self):

@@ -16,6 +16,11 @@ try:
 except ImportError:
     CONFORM = None
 
+try:
+    from wcwidth import wcwidth
+except ImportError:
+    wcwidth = len
+
 FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
 _NotSet = object()
 
@@ -39,6 +44,20 @@ def _parse_tree_target_repr(target) -> str:
         return target.__name__
     except AttributeError:
         return repr(target)
+
+
+if wcwidth is len:
+    wcswidth = len
+else:
+
+    def wcswidth(text: str, unicode_version: str = 'auto') -> int:
+        """A version of wcswidth from the wcwidth library, optimized for how it is used in this repo."""
+        width = 0
+        for c in text:
+            if (char_width := wcwidth(c, unicode_version)) < 0:
+                return -1
+            width += char_width
+        return width
 
 
 # endregion

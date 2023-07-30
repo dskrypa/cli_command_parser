@@ -36,7 +36,7 @@ class Command(ABC, metaclass=CommandMeta):
         # By storing the Context here instead of __init__, every single subclass won't need to
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
-        self.__ctx = ctx = get_or_create_context(cls)
+        self.__ctx = ctx = get_or_create_context(cls, command=self)
         if not hasattr(self, 'ctx'):
             self.ctx: Context = ctx  # noqa  # PyCharm complains this is invalid, but doesn't understand it without it
         return self

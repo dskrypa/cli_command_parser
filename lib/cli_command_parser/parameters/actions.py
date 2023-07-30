@@ -15,7 +15,7 @@ from ..nargs import Nargs
 from ..utils import _NotSet, camel_to_snake_case
 
 if TYPE_CHECKING:
-    from ..typing import OptStr, Param, Bool, T_co
+    from ..typing import CommandObj, Param, Bool, T_co
 
 __all__ = [
     'ParamAction',
@@ -137,9 +137,11 @@ class ParamAction(ABC):
 
     # region Parsed Value / Default Finalization
 
-    def get_default(self, missing_default=_NotSet):
+    def get_default(self, command: CommandObj | None = None, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
             return self.finalize_default(default)
+        elif (default_cb := self.param.default_cb) and command is not None:
+            return self.finalize_default(default_cb(command))
         return self.default
 
     def finalize_default(self, value):
@@ -339,9 +341,11 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
 
     # region Parsed Value / Default Finalization
 
-    def get_default(self, missing_default=_NotSet):
+    def get_default(self, command: CommandObj | None = None, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
             return self.finalize_default(default)
+        elif (default_cb := self.param.default_cb) and command is not None:
+            return self.finalize_default(default_cb(command))
         return []
 
     def finalize_default(self, value):
@@ -423,7 +427,7 @@ class AppendConst(BasicConstAction, append=True):
 
     # region Parsed Value / Default Finalization
 
-    def get_default(self, missing_default=_NotSet):
+    def get_default(self, command: CommandObj | None = None, missing_default=_NotSet):
         return []
 
     # endregion

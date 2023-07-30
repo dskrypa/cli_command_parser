@@ -11,10 +11,7 @@ characters.
 from textwrap import TextWrapper
 from typing import List
 
-try:
-    from wcwidth import wcswidth
-except ImportError:
-    wcswidth = len
+from .utils import wcswidth
 
 __all__ = ['WCTextWrapper']
 

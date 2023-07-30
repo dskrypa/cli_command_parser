@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
+import sys
+from importlib import reload
 from unittest import main
-from unittest.mock import patch
+from unittest.mock import Mock, patch, seal
 
-from cli_command_parser.utils import camel_to_snake_case, Terminal, short_repr, FixedFlag
+import cli_command_parser.utils
+from cli_command_parser.utils import camel_to_snake_case, Terminal, short_repr, FixedFlag, wcswidth
 from cli_command_parser.formatting.utils import _description_start_line, _normalize_column_width, _single_line_strs
 from cli_command_parser.formatting.utils import combine_and_wrap
 from cli_command_parser.testing import ParserTest
@@ -28,7 +31,7 @@ class UtilsTest(ParserTest):
         self.assertEqual(0, _description_start_line((), -5))
 
     def test_normalize_column_uneven(self):
-        result = _normalize_column_width(('a' * 10, 'b' * 3), 5)
+        result = list(_normalize_column_width(('a' * 10, 'b' * 3), 5))
         self.assertListEqual(['aaaaa', 'aaaaa', 'bbb'], result)  # noqa
 
     def test_single_line_strs_split(self):
@@ -99,6 +102,23 @@ class UtilsTest(ParserTest):
                     raise TypeError
 
                 BAR = 1
+
+    def test_wcswidth_non_printable(self):
+        self.assertEqual(-1, wcswidth('foo\rbar'))
+
+    def test_wcswidth_not_available(self):
+        real_wcwidth = sys.modules['wcwidth']
+        mock_module = Mock()
+        seal(mock_module)
+        sys.modules['wcwidth'] = mock_module
+        try:
+            reload(cli_command_parser.utils)
+            from cli_command_parser.utils import wcswidth
+
+            self.assertIs(len, wcswidth)
+        finally:
+            sys.modules['wcwidth'] = real_wcwidth
+            reload(cli_command_parser.utils)
 
 
 if __name__ == '__main__':

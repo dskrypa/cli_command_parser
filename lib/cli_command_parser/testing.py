@@ -52,6 +52,7 @@ CallExceptionCase = Union[Tuple[Kwargs, ExcType], Tuple[Kwargs, ExcType, str]]
 CallExceptionCases = Iterable[CallExceptionCase]
 
 OPT_ENV_MOD = 'cli_command_parser.parser.environ'
+EXCLUDE_ACTIONS = (help_action,)
 
 
 class AssertRaisesWithStringContext:
@@ -101,7 +102,7 @@ class ParserTest(TestCase):
 
     def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, msg: str = None) -> Command:
         cmd = cmd_cls.parse(argv)
-        parsed = cmd.ctx.get_parsed((help_action,))
+        parsed = cmd.ctx.get_parsed(cmd, exclude=EXCLUDE_ACTIONS)
         self.assert_dict_equal(expected, parsed, msg)
         return cmd
 

@@ -86,7 +86,21 @@ class FlagTest(ParserTest):
         with self.assertRaises(TypeError):
             Flag(allow_leading_dash=True)
 
+    def test_default_cb_rejected(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, "The 'default_cb' arg is not supported"):
+            Flag(default_cb=lambda: 123)
+
     # endregion
+
+    def test_register_default_cb_rejected(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'Flags do not support default callback methods'):
+
+            class Foo(Command):
+                bar = Flag()
+
+                @bar.register_default_cb
+                def baz(self):
+                    pass
 
     # region Name Mode
 
@@ -216,6 +230,16 @@ class TriFlagTest(ParserTest):
             with self.subTest(consts=consts, default=default):
                 with self.assert_raises_contains_str(ParameterDefinitionError, expected):
                     TriFlag(consts=consts, default=default)
+
+    def test_register_default_cb_rejected(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'because it already has default='):
+
+            class Foo(Command):
+                bar = TriFlag(default=123)
+
+                @bar.register_default_cb
+                def baz(self):
+                    pass
 
     # region Option Strings
 

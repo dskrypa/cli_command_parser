@@ -21,7 +21,7 @@ from .base import BaseOption, AllowLeadingDashProperty
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
-    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash
+    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash, CommandMethod
 
 __all__ = [
     'Option',
@@ -161,6 +161,7 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
         *option_strs: str,
         action: ConstAct = 'store_const',
         default: TD = _NotSet,
+        default_cb=_NotSet,
         const: TC = _NotSet,
         type: TypeFunc = None,  # noqa
         **kwargs,
@@ -172,6 +173,9 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
                 raise ParameterDefinitionError(
                     f"A 'const' value is required for {self.__class__.__name__} since {default=} is not True or False"
                 ) from e
+        if default_cb is not _NotSet:
+            cls_name = self.__class__.__name__
+            raise ParameterDefinitionError(f"The 'default_cb' arg is not supported for {cls_name} parameters")
         if default is _NotSet:
             default = self.__default_const_map.get(const, _NotSet)  # will be True or False
         if default is False:  # Avoid surprises for custom non-truthy values
@@ -180,6 +184,9 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
         self.const = const
         if type is not None:
             self.type = type
+
+    def register_default_cb(self, method):
+        raise ParameterDefinitionError(f'{self.__class__.__name__}s do not support default callback methods')
 
     def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TD], bool]:
         try:
@@ -229,6 +236,7 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
     nargs = Nargs(0)
     type = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
     use_env_value: bool = False
+    _default_cb_ok = True
     _opt_str_cls = TriFlagOptionStrings
     option_strs: TriFlagOptionStrings
     alt_help: OptStr = None
@@ -245,6 +253,7 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
         alt_help: str = None,
         action: ConstAct = 'store_const',
         default: TD = _NotSet,
+        default_cb: Callable[[], TD] = None,
         type: TypeFunc = None,  # noqa
         **kwargs,
     ):
@@ -261,15 +270,18 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
             msg = f'Invalid {consts=} - expected a 2-tuple of (positive, negative) constants to store'
             raise ParameterDefinitionError(msg) from e
 
-        if default is _NotSet and not kwargs.get('required', False):
-            default = None
+        if default is _NotSet and default_cb is None:
+            if not kwargs.get('required', False):
+                default = None
+        else:
+            self._default_cb_ok = False
         if default in consts:
             raise ParameterDefinitionError(
                 f'Invalid {default=} with {consts=} - the default must not match either value'
             )
 
         alt_opt_strs = (opt for opt in (alt_short, alt_long) if opt)
-        super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, **kwargs)
+        super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, default_cb=default_cb, **kwargs)
         self.consts = consts
         self.option_strs.add_alts(alt_prefix, alt_long, alt_short)
         if alt_help:
@@ -280,6 +292,11 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
         self.option_strs.update_alts(name)
+
+    def register_default_cb(self, method: CommandMethod) -> CommandMethod:
+        if self._default_cb_ok and self.default is not _NotSet:
+            self.default = _NotSet  # The default was set by __init__ - remove it so the method can be registered
+        return super().register_default_cb(method)
 
     def get_const(self, opt_str: OptStr = None) -> Union[TC, TA]:
         if opt_str in self.option_strs.alt_allowed:
@@ -392,10 +409,10 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
             return self
         return partial(self.func, command)  # imitates a bound method
 
-    def result(self) -> Optional[Callable]:
-        if self.result_value():
-            if func := self.func:
-                return func
+    def result(self, command: CommandObj | None = None) -> Optional[Callable]:
+        if self.result_value(command):
+            if self.func:
+                return self.func
             raise ParameterDefinitionError(f'No function was registered for {self}')
         return None
 
@@ -458,19 +475,27 @@ class Counter(BaseOption[int], actions=(Count,)):
         init: int = 0,
         const: int = 1,
         default: int = _NotSet,
+        default_cb: Callable[[], int] = None,
         required: bool = False,
         **kwargs,
     ):
         type_check_vals = {'const': const, 'init': init}
         if default is not _NotSet:
             type_check_vals['default'] = default
-        elif not required:
-            default = 0
+        elif not required and default_cb is None:
+            default_cb = _counter_default  # This makes it easier to allow a method to override it
         if bad_types := ', '.join(f'{k}={v!r}' for k, v in type_check_vals.items() if not isinstance(v, self.type)):
             raise ParameterDefinitionError(f'Invalid type for parameters (expected int): {bad_types}')
-        super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
+        super().__init__(
+            *option_strs, action=action, default=default, default_cb=default_cb, required=required, **kwargs
+        )
         self.init = init
         self.const = const
+
+    def register_default_cb(self, method: CommandMethod) -> CommandMethod:
+        if self.default_cb and self.default_cb.func is _counter_default:
+            self.default_cb = None
+        return super().register_default_cb(method)
 
     def prepare_value(self, value: Optional[str], short_combo: bool = False, pre_action: bool = False) -> int:
         try:
@@ -490,3 +515,7 @@ class Counter(BaseOption[int], actions=(Count,)):
             raise BadArgument(self, f'invalid {value=} (expected an integer)') from e
         else:
             return
+
+
+def _counter_default():
+    return 0

@@ -49,7 +49,7 @@ class CommandParser:
         self.positionals = params.get_positionals_to_parse(ctx)
         self.config = config
         if config.reject_ambiguous_pos_combos:
-            PosNode.build_tree(ctx.command)
+            PosNode.build_tree(ctx.command_cls)
 
     @classmethod
     def parse_args_and_get_next_cmd(cls, ctx: Context) -> Optional[CommandType]:
@@ -65,7 +65,7 @@ class CommandParser:
         self._validate_groups()
         missing = ctx.get_missing()
         if (sub_cmd_param := self.params.sub_command) and (next_cmd := sub_cmd_param.target()) is not None:
-            if missing and not ctx.categorized_action_flags[_PRE_INIT] and get_parent(next_cmd) is not ctx.command:
+            if missing and not ctx.categorized_action_flags[_PRE_INIT] and get_parent(next_cmd) is not ctx.command_cls:
                 raise ParamsMissing(missing)
             return next_cmd
         elif missing and not ctx.config.allow_missing and (not self.params.action or self.params.action not in missing):

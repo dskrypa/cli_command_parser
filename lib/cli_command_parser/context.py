@@ -26,12 +26,14 @@ if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
     from .parameters import Parameter, Option, ActionFlag
-    from .typing import Bool, ParamOrGroup, CommandType, AnyConfig, OptStr, PathLike
+    from .typing import Bool, ParamOrGroup, CommandType, CommandObj, AnyConfig, OptStr, StrSeq, PathLike  # noqa
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
 _context_stack = ContextVar('cli_command_parser.context.stack')
 _TERMINAL = Terminal()
+
+Argv = Optional['StrSeq']
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -44,24 +46,28 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     config: CommandConfig
     prog: OptStr = None
-    _terminal_width: Optional[int]
     allow_argv_prog: Bool = True
+    _command_obj: CommandObj = None
+    _terminal_width: Optional[int]
     _provided: Dict[ParamOrGroup, int]
 
     def __init__(
         self,
-        argv: Optional[Sequence[str]] = None,
-        command: Optional[CommandType] = None,
+        argv: Argv = None,
+        command_cls: Optional[CommandType] = None,
+        *,
         parent: Optional[Context] = None,
         config: AnyConfig = None,
         terminal_width: int = None,
         allow_argv_prog: Bool = None,
+        command: Optional[CommandObj] = None,
         **kwargs,
     ):
+        self.command_cls = command_cls
         self.command = command
         self.parent = parent
-        self.config = _normalize_config(config, kwargs, parent, command)
         self.actions_taken = 0
+        self.config = _normalize_config(config, kwargs, parent, command_cls)
         if parent:
             self._set_argv(parent.prog, argv)
             self._parsed = parent._parsed.copy()
@@ -84,7 +90,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.prog = getattr(prog, 'name', prog)
         return self
 
-    def _set_argv(self, prog: OptStr, argv: Optional[Sequence[str]]):
+    def _set_argv(self, prog: OptStr, argv: Argv):
         if prog:
             self.prog = prog
             self.argv = sys.argv[1:] if argv is None else argv
@@ -94,13 +100,19 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             self.argv = argv
         self.remaining = list(self.argv)
 
-    def _sub_context(self, command: CommandType, argv: Optional[Sequence[str]] = None, **kwargs) -> Context:
-        if argv is None:
-            argv = self.remaining
-        return self.__class__(argv, command, parent=self, **kwargs)
+    def _sub_context(
+        self, command_cls: CommandType, argv: Argv = None, command: CommandObj = None, **kwargs
+    ) -> Context:
+        return self.__class__(
+            self.remaining if argv is None else argv,
+            command_cls,
+            parent=self,
+            command=self.command if command is None else command,
+            **kwargs,
+        )
 
     def __repr__(self) -> str:
-        command = getattr(self.command, '__name__', None)
+        command = getattr(self.command_cls, '__name__', None)
         prog, argv, allow_argv_prog = self.prog, self.argv, self.allow_argv_prog
         return f'<{self.__class__.__name__}[{command=!s}, {prog=}, {allow_argv_prog=}, {argv=}]>'
 
@@ -140,6 +152,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def get_parsed(
         self,
+        command: Command = None,
+        *,
         exclude: Collection[Parameter] = (),
         recursive: Bool = True,
         default: Any = None,
@@ -151,6 +165,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         The :ref:`get_parsed() <advanced:Parsed Args as a Dictionary>` helper function provides an easier way to access
         this functionality.
 
+        :param command: An initialized Command object for which arguments were already parsed.
         :param exclude: Parameter objects that should be excluded from the returned results
         :param recursive: Whether parsed arguments should be recursively gathered from parent Commands
         :param default: The default value to use for parameters that raise :class:`.MissingArgument` when attempting to
@@ -160,9 +175,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         :return: A dictionary containing all of the arguments that were parsed.  The keys in the returned dict match
           the names assigned to the Parameters in the Command associated with this Context.
         """
+        if command is None:
+            command = self.command
         with self:
             if recursive and (parent := self.parent):
-                parsed = parent.get_parsed(exclude, recursive, default, include_defaults)
+                parsed = parent.get_parsed(
+                    command, exclude=exclude, recursive=recursive, default=default, include_defaults=include_defaults
+                )
             else:
                 parsed = {}
 
@@ -170,7 +189,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             if params := self.params:
                 for param in params.iter_params(exclude):
                     if include_defaults or param in self._parsed:
-                        parsed[param.name] = param.result_value(default)
+                        parsed[param.name] = param.result_value(command, default)
 
         return parsed
 
@@ -180,8 +199,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated
         with this Context.
         """
-        if (command := self.command) is not None:
-            return command.__class__.params(command)
+        if self.command_cls is not None:
+            return self.command_cls.__class__.params(self.command_cls)
         return None
 
     def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
@@ -248,7 +267,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         """
         try:
             before_main, after_main = self.params.split_action_flags  # Each part is already sorted
-        except AttributeError:  # self.command is None
+        except AttributeError:  # self.command_cls is None
             return 0, [], []
 
         parsed = self._parsed
@@ -302,7 +321,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
 
 def _normalize_config(
-    config: AnyConfig, kwargs: Dict[str, Any], parent: Optional[Context], command: Optional[CommandType]
+    config: AnyConfig, kwargs: Dict[str, Any], parent: Context | None, command: CommandType | None
 ) -> CommandConfig:
     if config is not None:
         if kwargs:
@@ -422,17 +441,19 @@ def get_current_context(silent: bool = False) -> Optional[Context]:
         raise NoActiveContext('There is no active context') from None
 
 
-def get_or_create_context(command_cls: CommandType, argv: Sequence[str] = None, **kwargs) -> Context:
+def get_or_create_context(
+    command_cls: CommandType, argv: Argv = None, *, command: CommandObj = None, **kwargs
+) -> Context:
     """
     Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
     no active Context.
     """
     if not (context := get_current_context(True)):
-        return Context(argv, command_cls, **kwargs)
-    elif argv is None and context.command is command_cls and not kwargs:
+        return Context(argv, command_cls, command=command, **kwargs)
+    elif argv is None and command is None and context.command_cls is command_cls and not kwargs:
         return context
     else:
-        return context._sub_context(command_cls, argv=argv, **kwargs)
+        return context._sub_context(command_cls, argv=argv, command=command, **kwargs)
 
 
 def get_context(command: Command) -> Context:
@@ -469,10 +490,12 @@ def get_parsed(
       be included in the returned dictionary of parsed arguments.
     :param default: The default value to use for parameters that raise :class:`.MissingArgument` when attempting to
       obtain their result values.
+    :param include_defaults: Whether default values should be included in the returned results.  If False, only
+      user-provided values will be included.
     :return: A dictionary containing all of the (optionally filtered) arguments that were parsed.  The keys in the
       returned dict match the names assigned to the Parameters in the given Command.
     """
-    parsed = get_context(command).get_parsed(default=default, include_defaults=include_defaults)
+    parsed = get_context(command).get_parsed(command, default=default, include_defaults=include_defaults)
     if to_call is not None:
         sig = Signature.from_callable(to_call)
         keys = {k for k, p in sig.parameters.items() if p.kind != _Parameter.VAR_KEYWORD}

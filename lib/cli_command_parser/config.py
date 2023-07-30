@@ -352,6 +352,9 @@ class CommandConfig:
     #: Whether the default value for Parameters should be shown in help text, and related behavior
     show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
 
+    #: Whether Parameters that support reading their values from env variables should include the var names in help text
+    show_env_vars: Bool = ConfigItem(True, bool)
+
     @config_item(None)
     def cmd_alias_mode(self, value: CmdAliasMode) -> CmdAliasMode:
         """How subcommand aliases should be displayed in help text."""

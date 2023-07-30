@@ -32,7 +32,8 @@ InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum'], Pattern]
 ChoicesType = Optional[Collection[Any]]
 
 Bool = Union[bool, Any]
-Strs = Union[str, Sequence[str]]
+StrSeq = Sequence[str]
+Strs = Union[str, StrSeq]
 OptStr = Optional[str]
 OptStrs = Optional[Strs]
 Strings = Collection[str]
@@ -58,3 +59,6 @@ CommandObj = TypeVar('CommandObj', bound='Command')
 CommandType = TypeVar('CommandType', bound='CommandMeta')
 CommandCls = Union[CommandType, Type[CommandObj]]
 CommandAny = Union[CommandCls, CommandObj]
+
+DefaultFunc = Callable[[], T_co]
+CommandMethod = Callable[[CommandObj], T_co]

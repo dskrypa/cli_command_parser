@@ -112,6 +112,16 @@ class CounterTest(ParserTest):
         self.assertTrue(Counter().is_valid_arg('1'))
         self.assertFalse(Counter().is_valid_arg('1.5'))
 
+    def test_register_default_cb_rejected(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'because it already has default_cb='):
+
+            class Foo(Command):
+                bar = Counter(default_cb=lambda: 123)
+
+                @bar.register_default_cb
+                def baz(self):
+                    pass
+
     # region Unsupported Kwargs
 
     def test_nargs_not_allowed(self):

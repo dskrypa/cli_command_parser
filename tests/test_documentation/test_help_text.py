@@ -377,6 +377,51 @@ usage: foo_bar.py [--abcdef ABCDEF]
     [--stuvwx STUVWX] [--yz YZ]"""
         self.assert_str_contains(expected, get_help_text(Foo, 50))
 
+    # region Show Env Vars
+
+    def test_env_vars_shown(self):
+        class Cmd(Command):
+            foo = Option('-f', env_var='FOO', help='The foo to foo')
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = """
+  --foo FOO, -f FOO           The foo to foo (may be provided via env var: FOO)
+  --bar BAR, -b BAR           What to bar (may be provided via any of the following env vars: BAR, BAZ)
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    def test_env_vars_not_shown(self):
+        class Cmd(Command, show_env_vars=False):
+            foo = Option('-f', env_var='FOO', help='The foo to foo')
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = '  --foo FOO, -f FOO           The foo to foo\n  --bar BAR, -b BAR           What to bar\n'
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    def test_one_env_var_not_shown(self):
+        class Cmd(Command):
+            foo = Option('-f', env_var='FOO', help='The foo to foo', show_env_var=False)
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = """
+  --foo FOO, -f FOO           The foo to foo
+  --bar BAR, -b BAR           What to bar (may be provided via any of the following env vars: BAR, BAZ)
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    def test_one_env_var_shown(self):
+        class Cmd(Command, show_env_vars=False):
+            foo = Option('-f', env_var='FOO', help='The foo to foo', show_env_var=True)
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = """
+  --foo FOO, -f FOO           The foo to foo (may be provided via env var: FOO)
+  --bar BAR, -b BAR           What to bar
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    # endregion
+
 
 class SubcommandHelpAndRstTest(ParserTest):
     @contextmanager
@@ -643,7 +688,7 @@ class GroupHelpTextTest(ParserTest):
 
         help_line = '  --help, -h                  Show this help message and exit'
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
-        verbose_desc = 'Increase logging verbosity (can specify multiple times) (default: 0)'
+        verbose_desc = 'Increase logging verbosity (can specify multiple times)'
 
         for use_type_metavar in (False, True):
             with self.subTest(use_type_metavar=use_type_metavar):
@@ -848,7 +893,7 @@ Required arguments:
 
 Optional arguments:
   --verbose [VERBOSE], -v [VERBOSE]
-                              Increase logging verbosity (can specify multiple times) (default: 0)
+                              Increase logging verbosity (can specify multiple times)
   --dry-run, -D               Print the actions that would be taken instead of taking them
   --help, -h                  Show this help message and exit
         """.rstrip()
