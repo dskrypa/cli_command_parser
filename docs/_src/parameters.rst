@@ -102,6 +102,10 @@ Options support two additional initialization parameters:
   will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
   that they were provided.  When enabled, values from env variables take precedence over the default value.  When
   enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
+:show_env_var: Whether this option's help text should include a hint about supported environment variables.  Ignored if
+  this option does not support reading from env variables (if it wasn't initialized with a value for ``env_var``).
+  If specified, this setting takes precedence over the :ref:`configuration:Usage & Help Text Options:show_env_vars`
+  setting configured at the Command level.
 
 .. note::
     Automatically abbreviated option strings are not supported.  To accept a particular option string, it must be

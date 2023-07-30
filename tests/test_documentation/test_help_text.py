@@ -377,6 +377,51 @@ usage: foo_bar.py [--abcdef ABCDEF]
     [--stuvwx STUVWX] [--yz YZ]"""
         self.assert_str_contains(expected, get_help_text(Foo, 50))
 
+    # region Show Env Vars
+
+    def test_env_vars_shown(self):
+        class Cmd(Command):
+            foo = Option('-f', env_var='FOO', help='The foo to foo')
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = """
+  --foo FOO, -f FOO           The foo to foo (may be provided via env var: FOO)
+  --bar BAR, -b BAR           What to bar (may be provided via any of the following env vars: BAR, BAZ)
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    def test_env_vars_not_shown(self):
+        class Cmd(Command, show_env_vars=False):
+            foo = Option('-f', env_var='FOO', help='The foo to foo')
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = '  --foo FOO, -f FOO           The foo to foo\n  --bar BAR, -b BAR           What to bar\n'
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    def test_one_env_var_not_shown(self):
+        class Cmd(Command):
+            foo = Option('-f', env_var='FOO', help='The foo to foo', show_env_var=False)
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = """
+  --foo FOO, -f FOO           The foo to foo
+  --bar BAR, -b BAR           What to bar (may be provided via any of the following env vars: BAR, BAZ)
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    def test_one_env_var_shown(self):
+        class Cmd(Command, show_env_vars=False):
+            foo = Option('-f', env_var='FOO', help='The foo to foo', show_env_var=True)
+            bar = Option('-b', env_var=('BAR', 'BAZ'), help='What to bar')
+
+        expected = """
+  --foo FOO, -f FOO           The foo to foo (may be provided via env var: FOO)
+  --bar BAR, -b BAR           What to bar
+        """.rstrip()
+        self.assert_str_contains(expected, get_help_text(Cmd))
+
+    # endregion
+
 
 class SubcommandHelpAndRstTest(ParserTest):
     @contextmanager

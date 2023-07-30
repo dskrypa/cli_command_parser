@@ -109,8 +109,7 @@ class ParamHelpFormatter:
         if description is None:
             description = param.help or ''
         if _should_add_default(param.default, description, param.show_default):
-            pad = ' ' if description else ''
-            quote = '``' if rst else ''
+            pad, quote = _pad_and_quote(description, rst)
             description += f'{pad}(default: {quote}{param.default!r}{quote})'
 
         return description
@@ -161,6 +160,19 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
         else:
             metavar = self._format_usage_metavar()
             yield from (f'{opt} {metavar}' for opt in opts.option_strs())
+
+    def format_description(self, rst: Bool = False, description: str = None) -> str:
+        description = super().format_description(rst, description)
+        param: BaseOption = self.param
+        if param.env_var and (param.show_env_var or (param.show_env_var is None and ctx.config.show_env_vars)):
+            pad, quote = _pad_and_quote(description, rst)
+            var_names = [f'{quote}{var_name}{quote}' for var_name in param.env_vars()]
+            if len(var_names) == 1:
+                description += f'{pad}(may be provided via env var: {var_names[0]})'
+            else:
+                description += f'{pad}(may be provided via any of the following env vars: {", ".join(var_names)})'
+
+        return description
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         if full:
@@ -500,3 +512,9 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
                     table.add_row(sub_table.title, str(sub_table))
 
         return table
+
+
+def _pad_and_quote(description: str, rst: bool) -> Tuple[str, str]:
+    pad = ' ' if description else ''
+    quote = '``' if rst else ''
+    return pad, quote

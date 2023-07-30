@@ -434,6 +434,7 @@ class BaseOption(Parameter[T_co], ABC):
     _opt_str_cls: Type[OptionStrings] = OptionStrings
     option_strs: OptionStrings
     env_var: OptStrs = None
+    show_env_var: Bool = None
     strict_env: Bool
     use_env_value: Bool
     const = _NotSet
@@ -446,6 +447,7 @@ class BaseOption(Parameter[T_co], ABC):
         env_var: OptStrs = None,
         strict_env: bool = True,
         use_env_value: Bool = None,
+        show_env_var: Bool = None,
         **kwargs,
     ):
         super().__init__(action, **kwargs)
@@ -455,6 +457,8 @@ class BaseOption(Parameter[T_co], ABC):
             self.env_var = env_var
         if use_env_value is not None:
             self.use_env_value = use_env_value
+        if show_env_var is not None:
+            self.show_env_var = show_env_var
 
     def _handle_bad_action(self, action: str) -> NoReturn:
         if action in ('store', 'append') and (fixed := f'{action}_const') in self._action_map:
