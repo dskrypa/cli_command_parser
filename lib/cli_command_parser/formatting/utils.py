@@ -6,17 +6,12 @@ Utils for usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Any, Collection, Sequence, Iterator, Iterable, Tuple, List
-
-try:
-    from wcwidth import wcswidth
-except ImportError:
-    wcswidth = len
+from typing import TYPE_CHECKING, Optional, Any, Collection, Sequence, Iterator, Iterable, List
 
 from ..compat import WCTextWrapper
 from ..config import ShowDefaults
 from ..context import ctx
-from ..utils import _NotSet
+from ..utils import _NotSet, wcswidth
 
 if TYPE_CHECKING:
     from ..typing import Bool, Strs, OptStrs
@@ -43,8 +38,9 @@ def format_help_entry(
     term_width = ctx.terminal_width - tw_offset
     usage_width = max(config.min_usage_column_width, config.usage_column_width - tw_offset - 2)
     if not description:
-        usage_line_iter = combine_and_wrap(usage_parts, term_width, cont_indent, usage_delim)
-        return '\n'.join(line_prefix + line for line in usage_line_iter)
+        return '\n'.join(
+            line_prefix + line for line in combine_and_wrap(usage_parts, term_width, cont_indent, usage_delim)
+        )
 
     after_pad_width = usage_width - lpad
     usage_lines = tuple(combine_and_wrap(usage_parts, term_width, cont_indent, usage_delim))
@@ -114,20 +110,16 @@ def _single_line_strs(lines: Strs) -> List[str]:
     return [line for full_line in lines for line in full_line.splitlines()]
 
 
-def _normalize_column_width(lines: Sequence[str], column_width: int, cont_indent: int = 0) -> Sequence[str]:
-    max_width = max(map(wcswidth, lines)) + cont_indent
-    if max_width <= column_width:
-        return lines
-
-    tw = WCTextWrapper(column_width, break_long_words=True, break_on_hyphens=True)
-    fixed = []
-    for line in lines:
-        if wcswidth(line) + cont_indent >= column_width:
-            fixed.extend(tw.wrap(line))
-        else:
-            fixed.append(line)
-
-    return fixed
+def _normalize_column_width(lines: Sequence[str], column_width: int, cont_indent: int = 0) -> Iterator[str]:
+    if max(map(wcswidth, lines)) + cont_indent <= column_width:
+        yield from lines
+    else:
+        tw = WCTextWrapper(column_width, break_long_words=True, break_on_hyphens=True)
+        for line in lines:
+            if wcswidth(line) + cont_indent >= column_width:
+                yield from tw.wrap(line)
+            else:
+                yield line
 
 
 def _should_add_default(default: Any, help_text: Optional[str], param_show_default: Optional[Bool]) -> bool:
@@ -146,7 +138,7 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
         return bool(default)
 
 
-def line_iter(*columns: Strs) -> Iterator[Tuple[str, ...]]:
+def line_iter(*columns: Strs) -> Iterator[List[str, ...]]:
     """More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+"""
     exhausted = 0
     column_count = len(columns)
@@ -158,9 +150,9 @@ def line_iter(*columns: Strs) -> Iterator[Tuple[str, ...]]:
         while True:
             yield ''
 
-    column_iters = tuple(_iter(c) for c in columns)
+    column_iters = [_iter(c) for c in columns]
     while True:
-        row = tuple(next(ci) for ci in column_iters)  # pylint: disable=R1708
+        row = [next(ci) for ci in column_iters]  # pylint: disable=R1708
         if exhausted == column_count:  # `while exhausted < column_count:` always results in 1 extra row
             break
         yield row
