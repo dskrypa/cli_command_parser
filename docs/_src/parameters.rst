@@ -38,6 +38,11 @@ Common parameters that are supported when initializing most Parameters:
 :default: The default value to use when no argument is provided.  When a Parameter is not required, this defaults
   to ``None`` if ``nargs`` would only accept 1 value, and to an empty list if multiple values would be accepted.  Not
   used if the Parameter is required.  Some specialized Parameters have different defaults.
+:default_cb: A default callback function may be provided instead of a static default value (they cannot both be
+  provided for the same Parameter).  It must be a function or other callable that can be called with no arguments.
+  Similar to when the ``default`` value would be used, it will only be called when no argument was provided.  It is
+  also possible to :ref:`register a method in a Command to be the default callback
+  <advanced:Dynamic Parameter Defaults>`.
 :required: Whether a Parameter must be provided or not.  Generally defaults to ``False``, but Positionals, for
   example, default to ``True``.
 :nargs: The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
