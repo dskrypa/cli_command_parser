@@ -147,6 +147,10 @@ class ChoiceMapTest(ParserTest):
         with self.assertRaises(ParameterDefinitionError):
             SubCommand(default='foo')
 
+    def test_default_cb_not_allowed_sub_cmd(self):
+        with self.assertRaises(ParameterDefinitionError):
+            SubCommand(default_cb=lambda: 123)
+
     def test_nargs_not_allowed_action(self):
         with self.assertRaises(TypeError):
             Action(nargs='+')

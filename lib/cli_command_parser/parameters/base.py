@@ -23,7 +23,7 @@ from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..nargs import Nargs, REMAINDER
-from ..typing import T_co
+from ..typing import T_co, DefaultFunc, CommandMethod
 from ..utils import _NotSet
 from .option_strings import OptionStrings
 
@@ -38,8 +38,6 @@ __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
 TD = TypeVar('TD')
-DefaultFunc = Callable[[], T_co]
-CommandMethod = Callable[['CommandObj'], T_co]
 
 
 class ParamBase(ABC):
@@ -178,7 +176,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     type: Optional[Callable[[str], T_co]] = None    # Expected to be set in subclasses
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
     default = _NotSet
-    default_cb: DefaultCallback = None
+    default_cb: DefaultCallback | None = None
     show_default: Bool = None
     strict_default: Bool = False
 
@@ -425,15 +423,17 @@ class BasePositional(Parameter[T_co], ABC):
         if default_ok is not None:
             cls._default_ok = default_ok
 
-    def __init__(self, action: str, *, required: Bool = True, default: Any = _NotSet, **kwargs):
+    def __init__(
+        self, action: str, *, required: Bool = True, default: Any = _NotSet, default_cb: DefaultFunc = None, **kwargs
+    ):
         if not (self._default_ok and 0 in self.nargs):  # Indicates that having a default is bad
             if not required:
                 cls_name = self.__class__.__name__
                 raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
-            elif default is not _NotSet:
+            elif kw := ('default' if default is not _NotSet else 'default_cb' if default_cb is not None else None):
                 cls_name = self.__class__.__name__
-                raise ParameterDefinitionError(f"The 'default' arg is not supported for {cls_name} parameters")
-        super().__init__(action, default=default, required=required, **kwargs)
+                raise ParameterDefinitionError(f'The {kw!r} arg is not supported for {cls_name} parameters')
+        super().__init__(action, default=default, required=required, default_cb=default_cb, **kwargs)
 
 
 class BaseOption(Parameter[T_co], ABC):

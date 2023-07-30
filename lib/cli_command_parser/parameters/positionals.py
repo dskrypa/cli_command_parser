@@ -16,7 +16,7 @@ from .actions import Store, Append
 from .base import BasePositional, AllowLeadingDashProperty
 
 if TYPE_CHECKING:
-    from ..typing import InputTypeFunc, ChoicesType, LeadingDash
+    from ..typing import InputTypeFunc, ChoicesType, LeadingDash, DefaultFunc
 
 __all__ = ['Positional']
 
@@ -59,6 +59,7 @@ class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
         type: InputTypeFunc = None,  # noqa
         default: Any = _NotSet,
         *,
+        default_cb: DefaultFunc = None,
         choices: ChoicesType = None,
         allow_leading_dash: LeadingDash = None,
         **kwargs,
@@ -80,11 +81,11 @@ class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
         elif nargs_provided and action == 'store' and nargs.max != 1:
             raise ParameterDefinitionError(f'Invalid {action=} for {nargs=}')
 
-        if (required := 0 not in nargs) and default is not _NotSet:
+        if (required := 0 not in nargs) and (default is not _NotSet or default_cb is not None):
             raise ParameterDefinitionError(
-                f'Invalid {default=} - only allowed for Positional parameters when nargs=? or nargs=*'
+                f'Invalid {default=} or {default_cb=} - only allowed for Positional parameters when nargs=? or nargs=*'
             )
         kwargs.setdefault('required', required)
-        super().__init__(action=action, default=default, **kwargs)
+        super().__init__(action=action, default=default, default_cb=default_cb, **kwargs)
         self.type = normalize_input_type(type, choices)
         self.allow_leading_dash = allow_leading_dash

@@ -59,3 +59,6 @@ CommandObj = TypeVar('CommandObj', bound='Command')
 CommandType = TypeVar('CommandType', bound='CommandMeta')
 CommandCls = Union[CommandType, Type[CommandObj]]
 CommandAny = Union[CommandCls, CommandObj]
+
+DefaultFunc = Callable[[], T_co]
+CommandMethod = Callable[[CommandObj], T_co]

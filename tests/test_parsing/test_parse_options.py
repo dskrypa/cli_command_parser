@@ -2,7 +2,7 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption
+from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption, Counter
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument, AmbiguousShortForm, AmbiguousCombo
 from cli_command_parser.nargs import Nargs
@@ -374,6 +374,23 @@ class OptionTest(ParserTest):
             (['-f'], {'foo': True, 'bar': ['True']}),
             (['-f', '-b=baz'], {'foo': True, 'bar': ['baz']}),
             (['-b', 'baz', 'xyz'], {'foo': False, 'bar': ['baz', 'xyz']}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    def test_counter_default_cb_method(self):
+        class Cmd(Command):
+            foo = Flag()
+            bar = Counter('-b')
+
+            @bar.register_default_cb
+            def _bar(self):
+                return 10 if self.foo else -10
+
+        success_cases = [
+            ([], {'foo': False, 'bar': -10}),
+            (['--foo'], {'foo': True, 'bar': 10}),
+            (['--foo', '-bb'], {'foo': True, 'bar': 2}),
+            (['-b=3'], {'foo': False, 'bar': 3}),
         ]
         self.assert_parse_results_cases(Cmd, success_cases)
 

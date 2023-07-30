@@ -688,7 +688,7 @@ class GroupHelpTextTest(ParserTest):
 
         help_line = '  --help, -h                  Show this help message and exit'
         expected_sub_cmd = 'Subcommands:\n  {show}\n    show                      Show the results of an action'
-        verbose_desc = 'Increase logging verbosity (can specify multiple times) (default: 0)'
+        verbose_desc = 'Increase logging verbosity (can specify multiple times)'
 
         for use_type_metavar in (False, True):
             with self.subTest(use_type_metavar=use_type_metavar):
@@ -893,7 +893,7 @@ Required arguments:
 
 Optional arguments:
   --verbose [VERBOSE], -v [VERBOSE]
-                              Increase logging verbosity (can specify multiple times) (default: 0)
+                              Increase logging verbosity (can specify multiple times)
   --dry-run, -D               Print the actions that would be taken instead of taking them
   --help, -h                  Show this help message and exit
         """.rstrip()

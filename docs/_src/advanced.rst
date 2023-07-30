@@ -7,7 +7,7 @@ Dynamic Parameter Defaults
 In most cases, a simple default value for a given Parameter is sufficient, but sometimes it can be helpful to
 dynamically generate a default based on the runtime environment or the value of other parsed arguments.
 
-All Parameters that support a using a :ref:`parameters:parameters:default_cb` also support registering a method in a
+Most Parameters that support a using a :ref:`parameters:parameters:default_cb` also support registering a method in a
 Command as their default callback.  A very simple example that references another Parameter::
 
     class MyCommand(Command):
