@@ -15,7 +15,7 @@ from ..context import ctx
 from ..exceptions import ParameterDefinitionError, BadArgument, InvalidChoice, CommandDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
-from ..typing import Bool, CommandCls
+from ..typing import Bool, CommandCls, CommandObj
 from ..utils import _NotSet, camel_to_snake_case, short_repr
 from .actions import Concatenate
 from .base import BasePositional
@@ -102,6 +102,9 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         self.description = description
         self.choices = {}
 
+    def register_default_cb(self, method):
+        raise ParameterDefinitionError(f'{self.__class__.__name__}s do not support default callback methods')
+
     # region Choice Registration
 
     @property
@@ -164,15 +167,15 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         if not any(c.startswith(prefix) for c in choices if c):
             raise InvalidChoice(self, prefix[:-1], choices)
 
-    def result_value(self, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
+    def result_value(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
         if not self.choices:
             self._no_choices_error()
-        return super().result_value(missing_default)
+        return super().result_value(command, missing_default)
 
     result = result_value
 
     def target(self) -> T:
-        return self.choices[self.result_value()].target
+        return self.choices[self.result_value(None)].target
 
     # endregion
 
@@ -282,7 +285,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             return self.register_command(choice, command_or_choice, help=help)  # noqa
 
     def _no_choices_error(self) -> NoReturn:
-        raise CommandDefinitionError(f'{ctx.command}.{self.name} = {self} has no sub Commands')
+        raise CommandDefinitionError(f'{ctx.command_cls}.{self.name} = {self} has no sub Commands')
 
 
 class Action(ChoiceMap[MethodType], title='Actions'):

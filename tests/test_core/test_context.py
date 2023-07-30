@@ -53,14 +53,14 @@ class ContextTest(ParserTest):
         class Foo(Command, add_help=False):
             pass
 
-        context = Context(command=Foo, show_docstring=False)
+        context = Context(command_cls=Foo, show_docstring=False)
         self.assertDictEqual({'show_docstring': False, 'add_help': False}, context.config.as_dict(False))
         self.assertEqual(2, len(context.config._data.maps))
         self.assertFalse(context.config.add_help)
         self.assertFalse(context.config.show_docstring)
 
     def test_config_from_command_with_no_config(self):
-        context = Context(command=Command, show_docstring=False)
+        context = Context(command_cls=Command, show_docstring=False)
         self.assertEqual(1, len(context.config._data.maps))
         self.assertFalse(context.config.show_docstring)
 
@@ -213,7 +213,7 @@ class ContextTest(ParserTest):
 
         with Context() as c1:
             foo = Foo.parse_and_run([])
-            self.assertIs(c1, foo.ctx.parent)
+            self.assertIs(c1, foo.ctx.parent.parent)
 
     # endregion
 

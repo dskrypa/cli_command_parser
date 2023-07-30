@@ -38,6 +38,8 @@ __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 _group_stack = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
 TD = TypeVar('TD')
+DefaultFunc = Callable[[], T_co]
+CommandMethod = Callable[['CommandObj'], T_co]
 
 
 class ParamBase(ABC):
@@ -174,8 +176,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     metavar: str = None
     nargs: Nargs                                    # Expected to be set in subclasses
     type: Optional[Callable[[str], T_co]] = None    # Expected to be set in subclasses
-    show_default: Bool = None
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
+    default = _NotSet
+    default_cb: DefaultCallback = None
+    show_default: Bool = None
     strict_default: Bool = False
 
     def __init_subclass__(cls, repr_attrs: Strings = None, actions: Collection[Type[ParamAction]] = None, **kwargs):
@@ -194,12 +198,14 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def __init__(  # pylint: disable=R0913
         self,
         action: str,
-        name: str = None,
-        default: Any = _NotSet,
-        required: Bool = False,
-        metavar: str = None,
+        *,
         help: str = None,  # noqa
         hide: Bool = False,
+        metavar: str = None,
+        name: str = None,
+        required: Bool = False,
+        default: Any = _NotSet,
+        default_cb: DefaultFunc = None,
         show_default: Bool = None,
         strict_default: Bool = False,
     ):
@@ -214,8 +220,15 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             )
         super().__init__(name=name, required=required, help=help, hide=hide)
         self.action = param_action(self)
-        self.default = default
         self.metavar = metavar
+        if default is not _NotSet:
+            if default_cb is not None:
+                raise ParameterDefinitionError(
+                    f'{self.__class__.__name__}s can only have a {default=} xor {default_cb=}, not both'
+                )
+            self.default = default
+        elif default_cb is not None:
+            self.default_cb = DefaultCallback(default_cb)
         self.strict_default = strict_default
         if show_default is not None:
             self.show_default = show_default
@@ -254,10 +267,34 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             return isinstance(type_attr, _ChoicesBase) and type_attr.choices
         return False
 
+    def register_default_cb(self, method: CommandMethod) -> CommandMethod:
+        """
+        Intended to be used as a decorator to register a method in a Command to be used as the default callback for
+        this Parameter.  The method will only be called during parsing if no value was explicitly provided for this
+        Parameter.  The decorated method is returned unchanged, so it can still be called directly if necessary.
+
+        :param method: A method that does not accept any arguments (except ``self``), and returns the value that should
+          be used for this Parameter.
+        :return: The method, unchanged.
+        """
+        if self.default is not _NotSet:
+            problem = f'default={self.default!r}'
+        elif self.default_cb:
+            problem = f'default_cb={self.default_cb!r}'
+        else:
+            problem = None
+
+        if problem:
+            raise ParameterDefinitionError(
+                f'Cannot register a default callback method for {self} because it already has {problem}'
+            )
+        self.default_cb = DefaultCallback(method, True)
+        return method
+
     # endregion
 
     def __repr__(self) -> str:
-        names = ('action', 'const', 'default', 'type', 'choices', 'required', 'hide', 'help')
+        names = ('action', 'const', 'default', 'default_cb', 'type', 'choices', 'required', 'hide', 'help')
         if extra_attrs := self._repr_attrs:
             names = chain(names, extra_attrs)
 
@@ -327,13 +364,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             return self
 
         with self._ctx(command):
-            value = self.result()
+            value = self.result(command)
 
-        if (name := self._attr_name) is not None:
-            command.__dict__[name] = value  # Skip __get__ on subsequent accesses
+        if self._attr_name:
+            command.__dict__[self._attr_name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def result_value(self, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
+    def result_value(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
         value = ctx.get_parsed_value(self)
         if value is _NotSet:
             if self.required:
@@ -341,7 +378,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                     raise MissingArgument(self)
                 return missing_default
             else:
-                return self.action.get_default(missing_default)
+                return self.action.get_default(command, missing_default)
 
         return self.action.finalize_value(value)
 
@@ -516,3 +553,19 @@ class AllowLeadingDashProperty:
 
         if value is not None:
             instance.__dict__[self.name] = value
+
+
+class DefaultCallback:
+    __slots__ = ('func', 'is_method')
+
+    def __init__(self, func: CommandMethod | DefaultFunc, is_method: bool = False):
+        self.func = func
+        self.is_method = is_method
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__}({self.func!r}, is_method={self.is_method})>'
+
+    def __call__(self, command: CommandObj | None) -> T_co:
+        # If the func is not a method, then `command` must not be None, but the default callback is intentionally
+        # not called by ParamAction.get_default (and its subclasses) when command is None.
+        return self.func(command) if self.is_method else self.func()

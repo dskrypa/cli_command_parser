@@ -178,6 +178,16 @@ class ChoiceMapTest(ParserTest):
 
         self.assertEqual({'sub': 123}, Foo().ctx.get_parsed(default=123))
 
+    def test_register_default_cb_rejected(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'SubCommands do not support default callback'):
+
+            class Foo(Command):
+                sub = SubCommand()
+
+                @sub.register_default_cb
+                def bar(self):
+                    pass
+
 
 if __name__ == '__main__':
     try:

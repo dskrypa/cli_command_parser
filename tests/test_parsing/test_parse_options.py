@@ -328,6 +328,57 @@ class OptionTest(ParserTest):
 
     # endregion
 
+    # region Default Callback
+
+    def test_default_cb_simple(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b', default_cb=lambda: 123)
+
+        success_cases = [
+            ([], {'foo': False, 'bar': 123}),
+            (['-f'], {'foo': True, 'bar': 123}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': 'baz'}),
+            (['-b=baz'], {'foo': False, 'bar': 'baz'}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    def test_default_cb_method_store(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b')
+
+            @bar.register_default_cb
+            def _bar_cb(self):
+                return str(self.foo)
+
+        success_cases = [
+            ([], {'foo': False, 'bar': 'False'}),
+            (['-f'], {'foo': True, 'bar': 'True'}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': 'baz'}),
+            (['-b=baz'], {'foo': False, 'bar': 'baz'}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    def test_default_cb_method_append(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b', nargs='+')
+
+            @bar.register_default_cb
+            def _bar_cb(self):
+                return [str(self.foo)]
+
+        success_cases = [
+            ([], {'foo': False, 'bar': ['False']}),
+            (['-f'], {'foo': True, 'bar': ['True']}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': ['baz']}),
+            (['-b', 'baz', 'xyz'], {'foo': False, 'bar': ['baz', 'xyz']}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
+    # endregion
+
 
 if __name__ == '__main__':
     # import logging

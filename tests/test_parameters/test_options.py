@@ -73,6 +73,27 @@ class OptionTest(ParserTest):
     def test_metavar_is_stored(self):
         self.assertEqual('foo', Option(metavar='foo').metavar)
 
+    def test_both_defaults_rejected(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'can only have a default=123 xor default_cb='):
+
+            class Foo(Command):
+                bar = Option(default=123, default_cb=lambda: None)
+
+    def test_default_cb_method_rejected_with_default(self):
+        cases = [
+            ({'default': 123}, 'because it already has default=123'),
+            ({'default_cb': lambda: 123}, 'because it already has default_cb='),
+        ]
+        for kwargs, error_msg in cases:
+            with self.subTest(kwargs=kwargs), self.assert_raises_contains_str(ParameterDefinitionError, error_msg):
+
+                class Foo(Command):
+                    bar = Option(**kwargs)
+
+                    @bar.register_default_cb
+                    def bar_cb(self):
+                        pass
+
     # endregion
 
     # region Option Strings

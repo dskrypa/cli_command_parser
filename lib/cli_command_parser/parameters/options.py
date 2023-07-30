@@ -392,10 +392,10 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
             return self
         return partial(self.func, command)  # imitates a bound method
 
-    def result(self) -> Optional[Callable]:
-        if self.result_value():
-            if func := self.func:
-                return func
+    def result(self, command: CommandObj | None = None) -> Optional[Callable]:
+        if self.result_value(command):
+            if self.func:
+                return self.func
             raise ParameterDefinitionError(f'No function was registered for {self}')
         return None
 
