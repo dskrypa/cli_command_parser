@@ -86,7 +86,7 @@ Python Version Compatibility
 ============================
 
 Python versions 3.8 and above are currently supported.  The last release of CLI Command Parser that supported 3.7 was
-2023-04-30.  Support for Python 3.7 `officially ends on 2023-06-27 <https://devguide.python.org/versions/>`__.
+2023-04-30.  Support for Python 3.7 `officially ended on 2023-06-27 <https://devguide.python.org/versions/>`__.
 
 When using Python 3.8, some additional packages that backport functionality that was added in later Python versions
 are required for compatibility.
