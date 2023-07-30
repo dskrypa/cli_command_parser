@@ -192,6 +192,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -318,6 +319,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -720,6 +722,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -962,6 +965,24 @@
              
   <section id="advanced-usage">
 <h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading"></a></h1>
+<section id="dynamic-parameter-defaults">
+<h2>Dynamic Parameter Defaults<a class="headerlink" href="#dynamic-parameter-defaults" title="Permalink to this heading"></a></h2>
+<p>In most cases, a simple default value for a given Parameter is sufficient, but sometimes it can be helpful to
+dynamically generate a default based on the runtime environment or the value of other parsed arguments.</p>
+<p>Most Parameters that support a using a <a class="reference internal" href="parameters.html#parameters:default_cb"><span class="std std-ref">default_cb</span></a> also support registering a method in a
+Command as their default callback.  A very simple example that references another Parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">)</span>
+
+    <span class="nd">@bar</span><span class="o">.</span><span class="n">register_default_cb</span>
+    <span class="k">def</span> <span class="nf">_bar_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">foo</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above example, if <code class="docutils literal notranslate"><span class="pre">--bar</span> <span class="pre">baz</span></code> was provided, then within MyCommand, <code class="docutils literal notranslate"><span class="pre">self.bar</span></code> would be <code class="docutils literal notranslate"><span class="pre">'baz'</span></code>.  If no
+value was provided, then it would be the string <code class="docutils literal notranslate"><span class="pre">'True'</span></code> or <code class="docutils literal notranslate"><span class="pre">'False'</span></code>, depending on whether <code class="docutils literal notranslate"><span class="pre">--foo</span></code> was specified.</p>
+</section>
 <section id="post-run-context">
 <h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Permalink to this heading"></a></h2>
 <p>While Commands are intended to be self-contained, it is possible to interact with them after calling

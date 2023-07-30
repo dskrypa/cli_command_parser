@@ -189,6 +189,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -315,6 +316,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -717,6 +719,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -1013,6 +1016,7 @@
 <span class="n">CallExceptionCases</span> <span class="o">=</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">CallExceptionCase</span><span class="p">]</span>
 
 <span class="n">OPT_ENV_MOD</span> <span class="o">=</span> <span class="s1">&#39;cli_command_parser.parser.environ&#39;</span>
+<span class="n">EXCLUDE_ACTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="n">help_action</span><span class="p">,)</span>
 
 
 <div class="viewcode-block" id="AssertRaisesWithStringContext"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext">[docs]</a><span class="k">class</span> <span class="nc">AssertRaisesWithStringContext</span><span class="p">:</span>
@@ -1062,7 +1066,7 @@
 
 <div class="viewcode-block" id="ParserTest.assert_parse_results"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results">[docs]</a>    <span class="k">def</span> <span class="nf">assert_parse_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="n">Expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">:</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">((</span><span class="n">help_action</span><span class="p">,))</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">EXCLUDE_ACTIONS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 

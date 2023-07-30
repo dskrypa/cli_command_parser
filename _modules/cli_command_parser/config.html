@@ -189,6 +189,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -315,6 +316,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -717,6 +719,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -1312,6 +1315,9 @@
 
     <span class="c1">#: Whether the default value for Parameters should be shown in help text, and related behavior</span>
     <span class="n">show_defaults</span><span class="p">:</span> <span class="n">ShowDefaults</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">)</span>
+
+    <span class="c1">#: Whether Parameters that support reading their values from env variables should include the var names in help text</span>
+    <span class="n">show_env_vars</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandConfig.cmd_alias_mode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode">[docs]</a>    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">cmd_alias_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CmdAliasMode</span><span class="p">:</span>

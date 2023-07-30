@@ -107,6 +107,9 @@ documentation generation as well.
   `enum flags <https://docs.python.org/3/library/enum.html#flag>`__ that can be combined.  May be overridden on a
   per-Parameter level by using the :ref:`parameters:parameters:show_default` param. See :class:`.ShowDefaults` for
   more info.
+:show_env_vars: Whether Parameters that support reading their values from environment variables should include the
+  variables' names in their help text.  May be overridden on a per-Parameter level by using the
+  :ref:`parameters:options:show_env_var` param.
 :cmd_alias_mode: Controls how subcommand aliases (alternate :ref:`choices<subcommand_cls_params>` specified for a
   given Command class that is registered as a subcommand / subclass of another Command) should be displayed in help
   text and documentation.  Supports :class:`.SubcommandAliasHelpMode` values (or string equivalents).  Alternatively,

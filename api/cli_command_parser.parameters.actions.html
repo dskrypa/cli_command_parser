@@ -192,6 +192,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -318,6 +319,7 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -720,6 +722,7 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -1064,7 +1067,7 @@ still be acceptable for the Parameter’s nargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.ParamAction.get_default">
-<span class="sig-name descname"><span class="pre">get_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">missing_default=&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#ParamAction.get_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.ParamAction.get_default" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command:</span> <span class="pre">CommandObj</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_default=&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#ParamAction.get_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.ParamAction.get_default" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1259,7 +1262,7 @@ still be acceptable for the Parameter’s nargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Append.get_default">
-<span class="sig-name descname"><span class="pre">get_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">missing_default=&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#Append.get_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.Append.get_default" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command:</span> <span class="pre">CommandObj</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_default=&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#Append.get_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.Append.get_default" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1363,7 +1366,7 @@ either a real value or a sequence of 1-char combinable versions of short option 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.AppendConst.get_default">
-<span class="sig-name descname"><span class="pre">get_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">missing_default=&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#AppendConst.get_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.AppendConst.get_default" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command:</span> <span class="pre">CommandObj</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_default=&lt;object</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#AppendConst.get_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.AppendConst.get_default" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

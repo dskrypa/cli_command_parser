@@ -192,6 +192,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -318,6 +319,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -720,6 +722,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -1001,7 +1004,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1039,7 +1042,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1068,7 +1071,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1142,7 +1145,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1179,7 +1182,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1214,7 +1217,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1243,7 +1246,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>
@@ -1283,7 +1286,7 @@
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose</span> <span class="pre">[VERBOSE]</span></code>, <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">[VERBOSE]</span></code></p></td>
-<td><p>Increase logging verbosity (can specify multiple times) (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+<td><p>Increase logging verbosity (can specify multiple times)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--env</span> <span class="pre">{dev|qa|uat|prod}</span></code>, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">{dev|qa|uat|prod}</span></code></p></td>
 <td><p>Environment to connect to (default: <code class="docutils literal notranslate"><span class="pre">'prod'</span></code>)</p></td>

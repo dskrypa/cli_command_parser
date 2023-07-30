@@ -38,6 +38,11 @@ Common parameters that are supported when initializing most Parameters:
 :default: The default value to use when no argument is provided.  When a Parameter is not required, this defaults
   to ``None`` if ``nargs`` would only accept 1 value, and to an empty list if multiple values would be accepted.  Not
   used if the Parameter is required.  Some specialized Parameters have different defaults.
+:default_cb: A default callback function may be provided instead of a static default value (they cannot both be
+  provided for the same Parameter).  It must be a function or other callable that can be called with no arguments.
+  Similar to when the ``default`` value would be used, it will only be called when no argument was provided.  It is
+  also possible to :ref:`register a method in a Command to be the default callback
+  <advanced:Dynamic Parameter Defaults>`.
 :required: Whether a Parameter must be provided or not.  Generally defaults to ``False``, but Positionals, for
   example, default to ``True``.
 :nargs: The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
@@ -102,6 +107,10 @@ Options support two additional initialization parameters:
   will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
   that they were provided.  When enabled, values from env variables take precedence over the default value.  When
   enabled and the Parameter is required, then either a CLI value or an env var value must be provided.
+:show_env_var: Whether this option's help text should include a hint about supported environment variables.  Ignored if
+  this option does not support reading from env variables (if it wasn't initialized with a value for ``env_var``).
+  If specified, this setting takes precedence over the :ref:`configuration:Usage & Help Text Options:show_env_vars`
+  setting configured at the Command level.
 
 .. note::
     Automatically abbreviated option strings are not supported.  To accept a particular option string, it must be

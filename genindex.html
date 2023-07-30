@@ -189,6 +189,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -315,6 +316,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -717,6 +719,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -1019,6 +1022,8 @@
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__call__">(cli_command_parser.inputs.time.DateTimeInput method)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.__call__">(cli_command_parser.inputs.time.TimeDelta method)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback.__call__">(cli_command_parser.parameters.base.DefaultCallback method)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.__call__">(cli_command_parser.parameters.choice_map.Action method)</a>
 </li>
@@ -1766,8 +1771,6 @@
         <li><a href="api/cli_command_parser.parameters.actions.html#module-cli_command_parser.parameters.actions">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.parameters.base
 
@@ -1775,6 +1778,8 @@
         <li><a href="api/cli_command_parser.parameters.base.html#module-cli_command_parser.parameters.base">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.parameters.choice_map
 
@@ -1903,6 +1908,8 @@
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.command">command (cli_command_parser.command_parameters.CommandParameters attribute)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed.params.command">(cli_command_parser.context.Context.get_parsed parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_context.params.command">(cli_command_parser.context.get_context parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed.params.command">(cli_command_parser.context.get_parsed parameter)</a>
@@ -2067,31 +2074,27 @@
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty.default">(cli_command_parser.parameters.base.AllowLeadingDashProperty attribute)</a>
 </li>
+        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.default">(cli_command_parser.parameters.base.Parameter attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.params.default">(cli_command_parser.parameters.base.Parameter parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.__call__.params.default">(cli_command_parser.parameters.choice_map.Action.__call__ parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register.params.default">(cli_command_parser.parameters.choice_map.Action.register parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.default">(cli_command_parser.parameters.options.Counter attribute)</a>
-</li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.params.default">(cli_command_parser.parameters.options.Counter parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.default">(cli_command_parser.parameters.options.Flag attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.params.default">(cli_command_parser.parameters.options.Flag parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option.default">(cli_command_parser.parameters.options.Option attribute)</a>
-</li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option.params.default">(cli_command_parser.parameters.options.Option parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.default">(cli_command_parser.parameters.options.TriFlag attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.params.default">(cli_command_parser.parameters.options.TriFlag parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional.params.default">(cli_command_parser.parameters.positionals.Positional parameter)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.default_cb">default_cb (cli_command_parser.parameters.base.Parameter attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.format.params.default_mode">default_mode (cli_command_parser.formatting.params.ChoiceGroup.format parameter)</a>
 
       <ul>
@@ -2114,6 +2117,8 @@
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional.__init_subclass__.params.default_ok">default_ok (cli_command_parser.parameters.base.BasePositional.__init_subclass__ parameter)</a>
 </li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback">DefaultCallback (class in cli_command_parser.parameters.base)</a>
+</li>
       <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.deferred">deferred (cli_command_parser.parser.CommandParser attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter.descendant_args">descendant_args() (cli_command_parser.conversion.command_builder.CollectionConverter method)</a>
@@ -2122,8 +2127,6 @@
         <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.descendant_args">(cli_command_parser.conversion.command_builder.ParserConverter method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CommandArgs.description">description (cli_command_parser.conversion.command_builder.CommandArgs attribute)</a>
 
       <ul>
@@ -2140,6 +2143,8 @@
         <li><a href="api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.params.description">(cli_command_parser.parameters.groups.ParamGroup parameter)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.RegexMode.DICT">DICT (cli_command_parser.inputs.patterns.RegexMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale">different_locale (class in cli_command_parser.inputs.time)</a>
@@ -2411,6 +2416,8 @@
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.format_description">format_description() (cli_command_parser.formatting.params.GroupHelpFormatter method)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.format_description">(cli_command_parser.formatting.params.OptionHelpFormatter method)</a>
+</li>
         <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_description">(cli_command_parser.formatting.params.ParamHelpFormatter method)</a>
 </li>
         <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.format_description">(cli_command_parser.formatting.params.TriFlagHelpFormatter method)</a>
@@ -2522,6 +2529,8 @@
 
       <ul>
         <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.func">(cli_command_parser.metadata.DynamicMetadata attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback.func">(cli_command_parser.parameters.base.DefaultCallback attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.func">(cli_command_parser.parameters.options.ActionFlag parameter)</a>
 </li>
@@ -2831,7 +2840,11 @@
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed.params.include_defaults">include_defaults (cli_command_parser.context.Context.get_parsed parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed.params.include_defaults">(cli_command_parser.context.get_parsed parameter)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.include_max">include_max (cli_command_parser.inputs.numeric.NumRange attribute)</a>
 
       <ul>
@@ -2901,6 +2914,8 @@
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">InvalidChoice</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.exceptions.html#cli_command_parser.inputs.exceptions.InvalidChoiceError">InvalidChoiceError</a>
+</li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback.is_method">is_method (cli_command_parser.parameters.base.DefaultCallback attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.is_option">is_option (cli_command_parser.conversion.command_builder.ParamConverter property)</a>
 </li>
@@ -3144,6 +3159,18 @@
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.metavar">(cli_command_parser.parameters.base.Parameter attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.params.metavar">(cli_command_parser.parameters.base.Parameter parameter)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.register_default_cb.params.method">method (cli_command_parser.parameters.base.Parameter.register_default_cb parameter)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb.params.method">(cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.register_default_cb.params.method">(cli_command_parser.parameters.options.Counter.register_default_cb parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.register_default_cb.params.method">(cli_command_parser.parameters.options.Flag.register_default_cb parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.register_default_cb.params.method">(cli_command_parser.parameters.options.TriFlag.register_default_cb parameter)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.__call__.params.method_or_choice">method_or_choice (cli_command_parser.parameters.choice_map.Action.__call__ parameter)</a>
@@ -3876,6 +3903,18 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register_command">register_command() (cli_command_parser.parameters.choice_map.SubCommand method)</a>
 </li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.register_default_cb">register_default_cb() (cli_command_parser.parameters.base.Parameter method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb">(cli_command_parser.parameters.choice_map.ChoiceMap method)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.register_default_cb">(cli_command_parser.parameters.options.Counter method)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.register_default_cb">(cli_command_parser.parameters.options.Flag method)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.register_default_cb">(cli_command_parser.parameters.options.TriFlag method)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.Script.register_parser">register_parser() (cli_command_parser.conversion.argparse_ast.Script class method)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.reject_ambiguous_pos_combos">reject_ambiguous_pos_combos (cli_command_parser.config.CommandConfig attribute)</a>
@@ -4051,6 +4090,10 @@
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults">show_defaults (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring">show_docstring (cli_command_parser.config.CommandConfig attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.show_env_var">show_env_var (cli_command_parser.parameters.base.BaseOption attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars">show_env_vars (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_tree">show_group_tree (cli_command_parser.config.CommandConfig attribute)</a>
 </li>

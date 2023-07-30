@@ -189,6 +189,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -315,6 +316,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -717,6 +719,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -967,17 +970,12 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">wcwidth</span> <span class="kn">import</span> <span class="n">wcswidth</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">wcswidth</span> <span class="o">=</span> <span class="nb">len</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">WCTextWrapper</span>
 <span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span>
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">wcswidth</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Strs</span><span class="p">,</span> <span class="n">OptStrs</span>
@@ -1004,8 +1002,9 @@
     <span class="n">term_width</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">terminal_width</span> <span class="o">-</span> <span class="n">tw_offset</span>
     <span class="n">usage_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">min_usage_column_width</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">usage_column_width</span> <span class="o">-</span> <span class="n">tw_offset</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">description</span><span class="p">:</span>
-        <span class="n">usage_line_iter</span> <span class="o">=</span> <span class="n">combine_and_wrap</span><span class="p">(</span><span class="n">usage_parts</span><span class="p">,</span> <span class="n">term_width</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">,</span> <span class="n">usage_delim</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line_prefix</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">usage_line_iter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">line_prefix</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">combine_and_wrap</span><span class="p">(</span><span class="n">usage_parts</span><span class="p">,</span> <span class="n">term_width</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">,</span> <span class="n">usage_delim</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="n">after_pad_width</span> <span class="o">=</span> <span class="n">usage_width</span> <span class="o">-</span> <span class="n">lpad</span>
     <span class="n">usage_lines</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">combine_and_wrap</span><span class="p">(</span><span class="n">usage_parts</span><span class="p">,</span> <span class="n">term_width</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">,</span> <span class="n">usage_delim</span><span class="p">))</span>
@@ -1075,20 +1074,16 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">full_line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">full_line</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
 
 
-<span class="k">def</span> <span class="nf">_normalize_column_width</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">column_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="n">max_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">wcswidth</span><span class="p">,</span> <span class="n">lines</span><span class="p">))</span> <span class="o">+</span> <span class="n">cont_indent</span>
-    <span class="k">if</span> <span class="n">max_width</span> <span class="o">&lt;=</span> <span class="n">column_width</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">lines</span>
-
-    <span class="n">tw</span> <span class="o">=</span> <span class="n">WCTextWrapper</span><span class="p">(</span><span class="n">column_width</span><span class="p">,</span> <span class="n">break_long_words</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">fixed</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">wcswidth</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">+</span> <span class="n">cont_indent</span> <span class="o">&gt;=</span> <span class="n">column_width</span><span class="p">:</span>
-            <span class="n">fixed</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tw</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fixed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fixed</span>
+<span class="k">def</span> <span class="nf">_normalize_column_width</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">column_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">wcswidth</span><span class="p">,</span> <span class="n">lines</span><span class="p">))</span> <span class="o">+</span> <span class="n">cont_indent</span> <span class="o">&lt;=</span> <span class="n">column_width</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">lines</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tw</span> <span class="o">=</span> <span class="n">WCTextWrapper</span><span class="p">(</span><span class="n">column_width</span><span class="p">,</span> <span class="n">break_long_words</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">wcswidth</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">+</span> <span class="n">cont_indent</span> <span class="o">&gt;=</span> <span class="n">column_width</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">tw</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">line</span>
 
 
 <span class="k">def</span> <span class="nf">_should_add_default</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">help_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">param_show_default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1107,7 +1102,7 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="line_iter"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter">[docs]</a><span class="k">def</span> <span class="nf">line_iter</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">Strs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<div class="viewcode-block" id="line_iter"><a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter">[docs]</a><span class="k">def</span> <span class="nf">line_iter</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">Strs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+&quot;&quot;&quot;</span>
     <span class="n">exhausted</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">column_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
@@ -1119,9 +1114,9 @@
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="n">column_iters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_iter</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
+    <span class="n">column_iters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_iter</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span> <span class="k">for</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">column_iters</span><span class="p">)</span>  <span class="c1"># pylint: disable=R1708</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="nb">next</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span> <span class="k">for</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">column_iters</span><span class="p">]</span>  <span class="c1"># pylint: disable=R1708</span>
         <span class="k">if</span> <span class="n">exhausted</span> <span class="o">==</span> <span class="n">column_count</span><span class="p">:</span>  <span class="c1"># `while exhausted &lt; column_count:` always results in 1 extra row</span>
             <span class="k">break</span>
         <span class="k">yield</span> <span class="n">row</span></div>

@@ -192,6 +192,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#dynamic-parameter-defaults">Dynamic Parameter Defaults</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced.html#post-run-context">Post-Run &amp; Context</a></li>
 <li class="toctree-l2"><a class="reference internal" href="advanced.html#accessing-raw-argument-values">Accessing Raw Argument Values</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="advanced.html#parsed-args-as-a-dictionary">Parsed Args as a Dictionary</a></li>
@@ -318,6 +319,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.add_help"><code class="docutils literal notranslate"><span class="pre">CommandConfig.add_help</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.use_type_metavar"><code class="docutils literal notranslate"><span class="pre">CommandConfig.use_type_metavar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_defaults"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_defaults</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_env_vars"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_env_vars</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode"><code class="docutils literal notranslate"><span class="pre">CommandConfig.cmd_alias_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
@@ -720,6 +722,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html">Choice_Map Module</a><ul>
@@ -1006,12 +1009,18 @@ the <code class="docutils literal notranslate"><span class="pre">show_defaults</
 to <code class="docutils literal notranslate"><span class="pre">None</span></code> if <code class="docutils literal notranslate"><span class="pre">nargs</span></code> would only accept 1 value, and to an empty list if multiple values would be accepted.  Not
 used if the Parameter is required.  Some specialized Parameters have different defaults.</p>
 </dd>
-<dt class="field-even" id="parameters:required">required<span class="colon">:</span></dt>
-<dd class="field-even"><p>Whether a Parameter must be provided or not.  Generally defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>, but Positionals, for
+<dt class="field-even" id="parameters:default_cb">default_cb<span class="colon">:</span></dt>
+<dd class="field-even"><p>A default callback function may be provided instead of a static default value (they cannot both be
+provided for the same Parameter).  It must be a function or other callable that can be called with no arguments.
+Similar to when the <code class="docutils literal notranslate"><span class="pre">default</span></code> value would be used, it will only be called when no argument was provided.  It is
+also possible to <a class="reference internal" href="advanced.html#dynamic-parameter-defaults"><span class="std std-ref">register a method in a Command to be the default callback</span></a>.</p>
+</dd>
+<dt class="field-odd" id="parameters:required">required<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether a Parameter must be provided or not.  Generally defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>, but Positionals, for
 example, default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
-<dt class="field-odd" id="parameters:nargs">nargs<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
+<dt class="field-even" id="parameters:nargs">nargs<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of values that are expected/required when the Parameter is specified.  Generally defaults to 1.
 When multiple arguments are accepted, they are collected in a list.  When only 0 - 1 arguments are accepted, they
 will be stored / returned as-is.  Supported values:</p>
 <blockquote>
@@ -1035,8 +1044,8 @@ even number of arguments, such as <code class="docutils literal notranslate"><sp
 </ul>
 </div></blockquote>
 </dd>
-<dt class="field-even" id="parameters:type">type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
+<dt class="field-odd" id="parameters:type">type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
 argument values.  It will be used before evaluating whether the value is in <code class="docutils literal notranslate"><span class="pre">choices</span></code>, if specified.  If <code class="docutils literal notranslate"><span class="pre">nargs</span></code>
 accepts multiple values, then this will be called on each value individually before appending it to the list of
 values.  By default, no transformation is performed, and values will be strings.  If not specified, but a type
@@ -1079,6 +1088,12 @@ be searched for a value when no value was provided via CLI.  If a value was prov
 will not be checked.  If multiple env variable names/keys were provided, then they will be checked in the order
 that they were provided.  When enabled, values from env variables take precedence over the default value.  When
 enabled and the Parameter is required, then either a CLI value or an env var value must be provided.</p>
+</dd>
+<dt class="field-even" id="options:show_env_var">show_env_var<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether this option’s help text should include a hint about supported environment variables.  Ignored if
+this option does not support reading from env variables (if it wasn’t initialized with a value for <code class="docutils literal notranslate"><span class="pre">env_var</span></code>).
+If specified, this setting takes precedence over the <a class="reference internal" href="configuration.html#usage &amp; help text options:show_env_vars"><span class="std std-ref">show_env_vars</span></a>
+setting configured at the Command level.</p>
 </dd>
 </dl>
 <div class="admonition note">
