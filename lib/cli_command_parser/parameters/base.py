@@ -154,15 +154,23 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes
       that extend Parameter, and must be registered via :class:`parameter_action`.
     :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.
-    :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this
-      parameter is not required; not used if it is required.
     :param required: Whether this parameter is required or not.  If it is required, then an exception will be
       raised if the user did not provide a value for this parameter.  Defaults to ``False``.
     :param metavar: The name to use as a placeholder for values in usage / help messages.
     :param help: A brief description of this parameter that will appear in ``--help`` text.
-    :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
+    :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this
+      parameter is not required; not used if it is required.
+    :param default_cb: A default callback function (or other callable) may be provided instead of a static default
+      value (they cannot both be provided).  If ``dcb_with_cmd`` is False (the default), then it must be callable with
+      no arguments, otherwise it must accept a single positional argument (the :class:`.Command` that contains this
+      Parameter).  Similar to when the ``default`` value would be used, it will only be called when no argument was
+      provided.  It is also possible to :ref:`register a method in a Command to be the default callback
+      <advanced:Dynamic Parameter Defaults>`.
+    :param dcb_with_cmd: Whether the provided ``default_cb`` should be called with the :class:`.Command` that contains
+      this Parameter.  Ignored if ``default_cb`` is not provided.
     :param show_default: Override the :attr:`.CommandConfig.show_defaults` setting for this parameter to always or
       never include the default value in usage / help messages.  Default: follow the ``show_defaults`` setting.
+    :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
     # region Attributes & Initialization
@@ -204,6 +212,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         required: Bool = False,
         default: Any = _NotSet,
         default_cb: DefaultFunc = None,
+        dcb_with_cmd: Bool = False,
         show_default: Bool = None,
         strict_default: Bool = False,
     ):
@@ -226,7 +235,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 )
             self.default = default
         elif default_cb is not None:
-            self.default_cb = DefaultCallback(default_cb)
+            self.default_cb = DefaultCallback(default_cb, dcb_with_cmd)
         self.strict_default = strict_default
         if show_default is not None:
             self.show_default = show_default
@@ -556,16 +565,16 @@ class AllowLeadingDashProperty:
 
 
 class DefaultCallback:
-    __slots__ = ('func', 'is_method')
+    __slots__ = ('func', 'use_cmd')
 
-    def __init__(self, func: CommandMethod | DefaultFunc, is_method: bool = False):
+    def __init__(self, func: CommandMethod | DefaultFunc, use_cmd: bool = False):
         self.func = func
-        self.is_method = is_method
+        self.use_cmd = use_cmd
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__}({self.func!r}, is_method={self.is_method})>'
+        return f'<{self.__class__.__name__}({self.func!r}, use_cmd={self.use_cmd})>'
 
     def __call__(self, command: CommandObj | None) -> T_co:
-        # If the func is not a method, then `command` must not be None, but the default callback is intentionally
-        # not called by ParamAction.get_default (and its subclasses) when command is None.
-        return self.func(command) if self.is_method else self.func()
+        # If the func isn't a method / doesn't accept the command, then `command` must not be None, but the default
+        # callback is intentionally not called by ParamAction.get_default (and its subclasses) when command is None.
+        return self.func(command) if self.use_cmd else self.func()

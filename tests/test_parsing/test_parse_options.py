@@ -360,6 +360,19 @@ class OptionTest(ParserTest):
         ]
         self.assert_parse_results_cases(Cmd, success_cases)
 
+    def test_default_cb_with_cmd_store(self):
+        class Cmd(Command):
+            foo = Flag('-f')
+            bar = Option('-b', default_cb=lambda s: str(s.foo), dcb_with_cmd=True)
+
+        success_cases = [
+            ([], {'foo': False, 'bar': 'False'}),
+            (['-f'], {'foo': True, 'bar': 'True'}),
+            (['-f', '-b=baz'], {'foo': True, 'bar': 'baz'}),
+            (['-b=baz'], {'foo': False, 'bar': 'baz'}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
     def test_default_cb_method_append(self):
         class Cmd(Command):
             foo = Flag('-f')
