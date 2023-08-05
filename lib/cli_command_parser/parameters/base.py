@@ -161,12 +161,12 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this
       parameter is not required; not used if it is required.
     :param default_cb: A default callback function (or other callable) may be provided instead of a static default
-      value (they cannot both be provided).  If ``dcb_with_cmd`` is False (the default), then it must be callable with
+      value (they cannot both be provided).  If ``cb_with_cmd`` is False (the default), then it must be callable with
       no arguments, otherwise it must accept a single positional argument (the :class:`.Command` that contains this
       Parameter).  Similar to when the ``default`` value would be used, it will only be called when no argument was
       provided.  It is also possible to :ref:`register a method in a Command to be the default callback
       <advanced:Dynamic Parameter Defaults>`.
-    :param dcb_with_cmd: Whether the provided ``default_cb`` should be called with the :class:`.Command` that contains
+    :param cb_with_cmd: Whether the provided ``default_cb`` should be called with the :class:`.Command` that contains
       this Parameter.  Ignored if ``default_cb`` is not provided.
     :param show_default: Override the :attr:`.CommandConfig.show_defaults` setting for this parameter to always or
       never include the default value in usage / help messages.  Default: follow the ``show_defaults`` setting.
@@ -212,7 +212,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         required: Bool = False,
         default: Any = _NotSet,
         default_cb: DefaultFunc = None,
-        dcb_with_cmd: Bool = False,
+        cb_with_cmd: Bool = False,
         show_default: Bool = None,
         strict_default: Bool = False,
     ):
@@ -235,7 +235,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 )
             self.default = default
         elif default_cb is not None:
-            self.default_cb = DefaultCallback(default_cb, dcb_with_cmd)
+            self.default_cb = DefaultCallback(default_cb, cb_with_cmd)
         self.strict_default = strict_default
         if show_default is not None:
             self.show_default = show_default

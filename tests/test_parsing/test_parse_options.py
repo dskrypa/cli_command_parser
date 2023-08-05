@@ -363,7 +363,7 @@ class OptionTest(ParserTest):
     def test_default_cb_with_cmd_store(self):
         class Cmd(Command):
             foo = Flag('-f')
-            bar = Option('-b', default_cb=lambda s: str(s.foo), dcb_with_cmd=True)
+            bar = Option('-b', default_cb=lambda s: str(s.foo), cb_with_cmd=True)
 
         success_cases = [
             ([], {'foo': False, 'bar': 'False'}),
