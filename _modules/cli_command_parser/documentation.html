@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -996,7 +996,9 @@
 <span class="c1"># region Render Script / Command RST</span>
 
 
-<div class="viewcode-block" id="render_script_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">[docs]</a><span class="k">def</span> <span class="nf">render_script_rst</span><span class="p">(</span>
+<div class="viewcode-block" id="render_script_rst">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">[docs]</a>
+<span class="k">def</span> <span class="nf">render_script_rst</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load all Commands from the file with the given path, and generate a single RST string based on those Commands&quot;&quot;&quot;</span>
@@ -1004,7 +1006,10 @@
     <span class="k">return</span> <span class="n">_render_commands_rst</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="render_command_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst">[docs]</a><span class="k">def</span> <span class="nf">render_command_rst</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="render_command_rst">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst">[docs]</a>
+<span class="k">def</span> <span class="nf">render_command_rst</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param command: The :class:`.Command` to document</span>
 <span class="sd">    :param fix_name: Whether the file name should be re-formatted from CamelCase / snake_case to separate Title Case</span>
@@ -1014,6 +1019,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">Context</span><span class="p">([],</span> <span class="n">command</span><span class="p">,</span> <span class="n">allow_argv_prog</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_formatter</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">format_rst</span><span class="p">(</span><span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_render_commands_rst</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1037,7 +1043,9 @@
 <span class="c1"># region Import and Load Commands</span>
 
 
-<div class="viewcode-block" id="load_commands"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands">[docs]</a><span class="k">def</span> <span class="nf">load_commands</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
+<div class="viewcode-block" id="load_commands">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands">[docs]</a>
+<span class="k">def</span> <span class="nf">load_commands</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load all of the commands from the file with the given path and return them as a dict of ``{name: Command}``.</span>
 
@@ -1062,7 +1070,10 @@
     <span class="k">return</span> <span class="n">commands</span></div>
 
 
-<div class="viewcode-block" id="filtered_commands"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.filtered_commands">[docs]</a><span class="k">def</span> <span class="nf">filtered_commands</span><span class="p">(</span><span class="n">obj_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
+
+<div class="viewcode-block" id="filtered_commands">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.filtered_commands">[docs]</a>
+<span class="k">def</span> <span class="nf">filtered_commands</span><span class="p">(</span><span class="n">obj_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">top_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
     <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">obj_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_is_command</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">)}</span>
     <span class="k">if</span> <span class="n">top_only</span><span class="p">:</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="n">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
@@ -1070,7 +1081,10 @@
     <span class="k">return</span> <span class="n">commands</span></div>
 
 
-<div class="viewcode-block" id="top_level_commands"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.top_level_commands">[docs]</a><span class="k">def</span> <span class="nf">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
+
+<div class="viewcode-block" id="top_level_commands">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.top_level_commands">[docs]</a>
+<span class="k">def</span> <span class="nf">top_level_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="n">Commands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Commands</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter the given commands to only the ones that do not have a parent present in the provided dict of commands&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">commands</span>
@@ -1092,7 +1106,10 @@
     <span class="k">return</span> <span class="n">filtered</span></div>
 
 
-<div class="viewcode-block" id="import_module"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.import_module">[docs]</a><span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+
+<div class="viewcode-block" id="import_module">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.import_module">[docs]</a>
+<span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Import the module / package from the given path&quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span>
@@ -1113,6 +1130,7 @@
     <span class="k">return</span> <span class="n">module</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">_is_command</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">CommandMeta</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Command</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
@@ -1123,7 +1141,9 @@
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="RstWriter"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter">[docs]</a><span class="k">class</span> <span class="nc">RstWriter</span><span class="p">:</span>
+<div class="viewcode-block" id="RstWriter">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter">[docs]</a>
+<span class="k">class</span> <span class="nc">RstWriter</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A helper class for generating RST documentation for a Python package and/or scripts containing Commands.</span>
 
@@ -1156,7 +1176,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">module_template</span> <span class="o">=</span> <span class="n">module_template</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_modules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">skip_modules</span><span class="p">)</span> <span class="k">if</span> <span class="n">skip_modules</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
 
-<div class="viewcode-block" id="RstWriter.document_script"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script">[docs]</a>    <span class="k">def</span> <span class="nf">document_script</span><span class="p">(</span>
+<div class="viewcode-block" id="RstWriter.document_script">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script">[docs]</a>
+    <span class="k">def</span> <span class="nf">document_script</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1197,7 +1219,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">write_rst</span><span class="p">(</span><span class="n">rst_name</span><span class="p">,</span> <span class="n">rst_str</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rst_name</span></div>
 
-<div class="viewcode-block" id="RstWriter.document_scripts"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_scripts">[docs]</a>    <span class="k">def</span> <span class="nf">document_scripts</span><span class="p">(</span>
+
+<div class="viewcode-block" id="RstWriter.document_scripts">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_scripts">[docs]</a>
+    <span class="k">def</span> <span class="nf">document_scripts</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">paths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
         <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1216,7 +1241,10 @@
                 <span class="n">name</span><span class="p">,</span> <span class="n">index_header</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span> <span class="n">names</span><span class="p">,</span> <span class="n">content_subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="n">caption</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">index_subdir</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="RstWriter.document_module"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_module">[docs]</a>    <span class="k">def</span> <span class="nf">document_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RstWriter.document_module">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_module">[docs]</a>
+    <span class="k">def</span> <span class="nf">document_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate an RST file to document a Python module.</span>
 
@@ -1228,7 +1256,10 @@
         <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> Module&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_rst</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">rendered</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RstWriter.document_package"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package">[docs]</a>    <span class="k">def</span> <span class="nf">document_package</span><span class="p">(</span>
+
+<div class="viewcode-block" id="RstWriter.document_package">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package">[docs]</a>
+    <span class="k">def</span> <span class="nf">document_package</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pkg_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">pkg_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -1278,6 +1309,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">contents</span></div>
 
+
     <span class="k">def</span> <span class="nf">_generate_code_rsts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pkg_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">pkg_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
@@ -1294,7 +1326,9 @@
 
         <span class="k">return</span> <span class="n">contents</span>
 
-<div class="viewcode-block" id="RstWriter.write_index"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.write_index">[docs]</a>    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span>
+<div class="viewcode-block" id="RstWriter.write_index">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.write_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1324,7 +1358,10 @@
         <span class="n">rendered</span> <span class="o">=</span> <span class="n">rst_toc_tree</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">content_fmt</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="n">caption</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_rst</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">rendered</span><span class="p">,</span> <span class="n">subdir</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RstWriter.write_rst"><a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.write_rst">[docs]</a>    <span class="k">def</span> <span class="nf">write_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RstWriter.write_rst">
+<a class="viewcode-back" href="../../api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.write_rst">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_rst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">target_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">subdir</span><span class="p">)</span> <span class="k">if</span> <span class="n">subdir</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">target_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">target_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1335,7 +1372,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
             <span class="c1"># Path.write_text on 3.8 does not support `newline`</span>
             <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">newline</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div></div>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

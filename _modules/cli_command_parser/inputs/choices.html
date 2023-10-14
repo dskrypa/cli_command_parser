@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -1040,7 +1040,9 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span>
 
 
-<div class="viewcode-block" id="Choices"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices">[docs]</a><span class="k">class</span> <span class="nc">Choices</span><span class="p">(</span><span class="n">_ChoicesBase</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<div class="viewcode-block" id="Choices">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices">[docs]</a>
+<span class="k">class</span> <span class="nc">Choices</span><span class="p">(</span><span class="n">_ChoicesBase</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that values are members of the collection of allowed values.</span>
 
@@ -1066,7 +1068,9 @@
     <span class="k">def</span> <span class="nf">_choices_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)))</span>
 
-<div class="viewcode-block" id="Choices.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="Choices.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.Choices.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_normalized</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
@@ -1079,10 +1083,14 @@
                 <span class="k">if</span> <span class="n">norm_value</span> <span class="o">==</span> <span class="n">choice</span><span class="o">.</span><span class="n">casefold</span><span class="p">():</span>
                     <span class="k">return</span> <span class="n">choice</span>
 
-        <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ChoiceMap"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap">[docs]</a><span class="k">class</span> <span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">Choices</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="ChoiceMap">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap">[docs]</a>
+<span class="k">class</span> <span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">Choices</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Similar to :class:`Choices`, but requires a mapping for allowed values.</span>
 
@@ -1100,7 +1108,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ChoiceMap.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="ChoiceMap.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.ChoiceMap.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_normalized</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1108,10 +1118,14 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_insensitive_map_choice</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_insensitive_map_choice</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="EnumChoices"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices">[docs]</a><span class="k">class</span> <span class="nc">EnumChoices</span><span class="p">(</span><span class="n">_ChoicesBase</span><span class="p">[</span><span class="n">EnumT</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="EnumChoices">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices">[docs]</a>
+<span class="k">class</span> <span class="nc">EnumChoices</span><span class="p">(</span><span class="n">_ChoicesBase</span><span class="p">[</span><span class="n">EnumT</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Similar to :class:`ChoiceMap`, but uses an Enum to validate / normalize input instead of the keys in a dict.</span>
 
@@ -1134,7 +1148,9 @@
     <span class="k">def</span> <span class="nf">_choices_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EnumChoices.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EnumT</span><span class="p">:</span>
+<div class="viewcode-block" id="EnumChoices.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.choices.html#cli_command_parser.inputs.choices.EnumChoices.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EnumT</span><span class="p">:</span>
         <span class="n">enum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
         <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_normalized</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1146,7 +1162,9 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_insensitive_map_choice</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_case_insensitive_map_choice</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

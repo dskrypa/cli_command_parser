@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -994,7 +994,9 @@
 <span class="c1"># region Metadata Descriptors</span>
 
 
-<div class="viewcode-block" id="MetadataBase"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase">[docs]</a><span class="k">class</span> <span class="nc">MetadataBase</span><span class="p">:</span>
+<div class="viewcode-block" id="MetadataBase">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase">[docs]</a>
+<span class="k">class</span> <span class="nc">MetadataBase</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;inheritable&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
@@ -1029,50 +1031,74 @@
                     <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
                     <span class="k">yield</span> <span class="n">attr</span><span class="p">,</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;__qualname__&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;func&#39;</span> <span class="k">else</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
-<div class="viewcode-block" id="MetadataBase.get_parent"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent">[docs]</a>    <span class="k">def</span> <span class="nf">get_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgramMetadata</span><span class="p">]:</span>
+<div class="viewcode-block" id="MetadataBase.get_parent">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgramMetadata</span><span class="p">]:</span>
         <span class="c1"># if (parent := instance.parent) and parent.distribution == instance.distribution:</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="n">instance</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="ow">and</span> <span class="n">parent</span><span class="o">.</span><span class="n">package</span> <span class="o">==</span> <span class="n">instance</span><span class="o">.</span><span class="n">package</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">parent</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="MetadataBase.get_value"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+<div class="viewcode-block" id="MetadataBase.get_value">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Metadata"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata">[docs]</a><span class="k">class</span> <span class="nc">Metadata</span><span class="p">(</span><span class="n">MetadataBase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Metadata">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata">[docs]</a>
+<span class="k">class</span> <span class="nc">Metadata</span><span class="p">(</span><span class="n">MetadataBase</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inheritable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
 
-<div class="viewcode-block" id="Metadata.get_value"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span></div></div>
+<div class="viewcode-block" id="Metadata.get_value">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.Metadata.get_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DynamicMetadata"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata">[docs]</a><span class="k">class</span> <span class="nc">DynamicMetadata</span><span class="p">(</span><span class="n">MetadataBase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DynamicMetadata">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata">[docs]</a>
+<span class="k">class</span> <span class="nc">DynamicMetadata</span><span class="p">(</span><span class="n">MetadataBase</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;func&#39;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ProgramMetadata</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">inheritable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inheritable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
 
-<div class="viewcode-block" id="DynamicMetadata.get_value"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">):</span>
+<div class="viewcode-block" id="DynamicMetadata.get_value">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DynamicMetadata.get_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ProgramMetadata</span><span class="p">):</span>
         <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span></div></div>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
 
 
-<div class="viewcode-block" id="dynamic_metadata"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.dynamic_metadata">[docs]</a><span class="k">def</span> <span class="nf">dynamic_metadata</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dynamic_metadata">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.dynamic_metadata">[docs]</a>
+<span class="k">def</span> <span class="nf">dynamic_metadata</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">DynamicMetadata</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">DynamicMetadata</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">)</span></div>
 
 
+
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="ProgramMetadata"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata">[docs]</a><span class="k">class</span> <span class="nc">ProgramMetadata</span><span class="p">:</span>
+<div class="viewcode-block" id="ProgramMetadata">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata">[docs]</a>
+<span class="k">class</span> <span class="nc">ProgramMetadata</span><span class="p">:</span>
     <span class="n">_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;parent&#39;</span><span class="p">}</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgramMetadata</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Metadata</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">inheritable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1102,7 +1128,9 @@
                 <span class="n">bad</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">))</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid arguments for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ProgramMetadata.for_command"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.for_command">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ProgramMetadata.for_command">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.for_command">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">for_command</span><span class="p">(</span>  <span class="c1"># pylint: disable=R0914</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span>
@@ -1146,6 +1174,7 @@
             <span class="n">doc_str</span><span class="o">=</span><span class="n">doc_str</span><span class="p">,</span>
         <span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1157,9 +1186,12 @@
             <span class="k">return</span> <span class="n">prog</span><span class="p">,</span> <span class="s1">&#39;class kwargs&#39;</span>
         <span class="k">return</span> <span class="n">_prog_finder</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_module</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ProgramMetadata.prog"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog">[docs]</a>    <span class="nd">@dynamic_metadata</span>
+<div class="viewcode-block" id="ProgramMetadata.prog">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog">[docs]</a>
+    <span class="nd">@dynamic_metadata</span>
     <span class="k">def</span> <span class="nf">prog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prog_and_src</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_doc_prog_and_src</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -1167,23 +1199,34 @@
             <span class="k">return</span> <span class="n">prog</span><span class="p">,</span> <span class="s1">&#39;class kwargs&#39;</span>
         <span class="k">return</span> <span class="n">_prog_finder</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_module</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ProgramMetadata.get_prog"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog">[docs]</a>    <span class="k">def</span> <span class="nf">get_prog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="ProgramMetadata.get_prog">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_prog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prog</span><span class="p">(</span><span class="n">allow_sys_argv</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
     <span class="k">def</span> <span class="nf">_get_prog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prog_and_src</span> <span class="k">if</span> <span class="n">allow_sys_argv</span> <span class="ow">or</span> <span class="n">allow_sys_argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_prog_and_src</span>
 
-<div class="viewcode-block" id="ProgramMetadata.doc_name"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name">[docs]</a>    <span class="nd">@dynamic_metadata</span><span class="p">(</span><span class="n">inheritable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ProgramMetadata.doc_name">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name">[docs]</a>
+    <span class="nd">@dynamic_metadata</span><span class="p">(</span><span class="n">inheritable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">doc_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doc_prog_and_src</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">stem</span></div>
 
+
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="ProgramMetadata.docs_url"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url">[docs]</a>    <span class="nd">@dynamic_metadata</span>
+<div class="viewcode-block" id="ProgramMetadata.docs_url">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url">[docs]</a>
+    <span class="nd">@dynamic_metadata</span>
     <span class="k">def</span> <span class="nf">docs_url</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_docs_url_from_repo_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ProgramMetadata.format_epilog"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog">[docs]</a>    <span class="k">def</span> <span class="nf">format_epilog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ProgramMetadata.format_epilog">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_epilog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">epilog</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">parts</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extended</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1196,7 +1239,10 @@
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Online documentation: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ProgramMetadata.get_doc_str"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_doc_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strip</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ProgramMetadata.get_doc_str">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_doc_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strip</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">doc_str</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg_doc_str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">strip</span><span class="p">:</span>
             <span class="n">doc_str</span> <span class="o">=</span> <span class="n">doc_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">doc_str</span><span class="p">:</span>
@@ -1204,11 +1250,16 @@
                 <span class="n">doc_str</span> <span class="o">=</span> <span class="n">doc_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">doc_str</span></div>
 
-<div class="viewcode-block" id="ProgramMetadata.get_description"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_inherited</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ProgramMetadata.get_description">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_inherited</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">description</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_inherited</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent_description</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">description</span><span class="p">):</span>  <span class="c1"># noqa</span>
                 <span class="k">return</span> <span class="n">description</span> <span class="k">if</span> <span class="n">parent_description</span> <span class="o">!=</span> <span class="n">description</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">description</span></div></div>
+        <span class="k">return</span> <span class="n">description</span></div>
+</div>
+
 
 
 <span class="k">def</span> <span class="nf">_repr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1223,8 +1274,12 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="se">\n</span><span class="si">{</span><span class="n">fields_str</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">prev_str</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
 
-<div class="viewcode-block" id="ProgFinder"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder">[docs]</a><span class="k">class</span> <span class="nc">ProgFinder</span><span class="p">:</span>
-<div class="viewcode-block" id="ProgFinder.mod_obj_prog_map"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.mod_obj_prog_map">[docs]</a>    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="ProgFinder">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder">[docs]</a>
+<span class="k">class</span> <span class="nc">ProgFinder</span><span class="p">:</span>
+<div class="viewcode-block" id="ProgFinder.mod_obj_prog_map">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.mod_obj_prog_map">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">mod_obj_prog_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="n">mod_obj_prog_map</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">entry_point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_console_scripts</span><span class="p">():</span>
@@ -1235,6 +1290,7 @@
         <span class="n">mod_obj_prog_map</span><span class="o">.</span><span class="n">default_factory</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Disable automatic defaults</span>
         <span class="k">return</span> <span class="n">mod_obj_prog_map</span></div>
 
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_get_console_scripts</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">EntryPoint</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1242,7 +1298,9 @@
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># Python 3.8 or 3.9</span>
             <span class="k">return</span> <span class="n">entry_points</span><span class="p">()[</span><span class="s1">&#39;console_scripts&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ProgFinder.normalize"><a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span>
+<div class="viewcode-block" id="ProgFinder.normalize">
+<a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.normalize">[docs]</a>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cmd_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgramMetadata</span><span class="p">],</span>
@@ -1268,6 +1326,7 @@
             <span class="k">return</span> <span class="n">argv_name</span><span class="p">,</span> <span class="s1">&#39;sys.argv&#39;</span>
 
         <span class="k">return</span> <span class="n">cmd_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span></div>
+
 
     <span class="k">def</span> <span class="nf">_from_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cmd_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
         <span class="c1"># TODO: Verify whether this is working for documentation generation...</span>
@@ -1310,6 +1369,7 @@
                 <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
+
 
 
 <span class="n">_prog_finder</span> <span class="o">=</span> <span class="n">ProgFinder</span><span class="p">()</span>

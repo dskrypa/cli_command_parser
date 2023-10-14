@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -994,7 +994,9 @@
 <span class="n">ActionFlags</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="CommandParameters"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters">[docs]</a><span class="k">class</span> <span class="nc">CommandParameters</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandParameters">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters">[docs]</a>
+<span class="k">class</span> <span class="nc">CommandParameters</span><span class="p">:</span>
     <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span>                                  <span class="c1">#: The Command associated with this CommandParameters object</span>
     <span class="n">formatter</span><span class="p">:</span> <span class="n">CommandHelpFormatter</span>                      <span class="c1">#: The formatter used for this Command&#39;s help text</span>
     <span class="n">command_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]</span>                 <span class="c1">#: The parent Command, if any</span>
@@ -1032,7 +1034,9 @@
 
     <span class="c1"># region PassThru Properties</span>
 
-<div class="viewcode-block" id="CommandParameters.pass_thru"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="CommandParameters.pass_thru">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PassThru</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span>
@@ -1040,13 +1044,19 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pass_thru</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="CommandParameters.has_nested_pass_thru"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.has_nested_pass_thru">[docs]</a>    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="CommandParameters.has_nested_pass_thru">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.has_nested_pass_thru">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_nested_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">_pass_thru</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_nested_params</span><span class="p">())</span></div>
 
+
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="CommandParameters.all_positionals"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals">[docs]</a>    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="CommandParameters.all_positionals">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">all_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
@@ -1055,7 +1065,10 @@
             <span class="k">pass</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span></div>
 
-<div class="viewcode-block" id="CommandParameters.get_positionals_to_parse"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse">[docs]</a>    <span class="k">def</span> <span class="nf">get_positionals_to_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CommandParameters.get_positionals_to_parse">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_positionals_to_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">positionals</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_positionals</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">positionals</span><span class="p">):</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
@@ -1063,7 +1076,10 @@
 
         <span class="k">return</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="CommandParameters.formatter"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter">[docs]</a>    <span class="nd">@cached_property</span>
+
+<div class="viewcode-block" id="CommandParameters.formatter">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHelpFormatter</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">.formatting.commands</span> <span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
 
@@ -1074,6 +1090,7 @@
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
         <span class="n">formatter</span><span class="o">.</span><span class="n">maybe_add_groups</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">formatter</span></div>
+
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_has_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1319,7 +1336,9 @@
 
     <span class="c1"># region Option Processing</span>
 
-<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span>
+<div class="viewcode-block" id="CommandParameters.short_option_to_param_value_pairs">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs">[docs]</a>
+    <span class="k">def</span> <span class="nf">short_option_to_param_value_pairs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="n">option</span><span class="p">,</span> <span class="n">eq</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
@@ -1347,9 +1366,12 @@
             <span class="c1"># Multi-char short options can never be combined with each other, but single-char ones can</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_option_map</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="kc">False</span></div>
 
+
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="CommandParameters.iter_params"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params">[docs]</a>    <span class="k">def</span> <span class="nf">iter_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+<div class="viewcode-block" id="CommandParameters.iter_params">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">iter_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">exclude</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_positionals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">g</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1358,12 +1380,17 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">pass_thru</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pass_thru</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">pass_thru</span></div>
 
-<div class="viewcode-block" id="CommandParameters.required_check_params"><a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params">[docs]</a>    <span class="k">def</span> <span class="nf">required_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CommandParameters.required_check_params">
+<a class="viewcode-back" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">required_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
         <span class="n">ignore</span> <span class="o">=</span> <span class="n">SubCommand</span>
         <span class="k">yield from</span> <span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_positionals</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ignore</span><span class="p">))</span>
         <span class="k">yield from</span> <span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">group</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">pass_thru</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_thru</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pass_thru</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pass_thru</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">pass_thru</span></div></div>
+            <span class="k">yield</span> <span class="n">pass_thru</span></div>
+</div>
+
 
 
 <span class="k">def</span> <span class="nf">_find_ambiguous_combos</span><span class="p">(</span>

@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -1001,7 +1001,9 @@
 <span class="c1"># region Config Option Enums</span>
 
 
-<div class="viewcode-block" id="ShowDefaults"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults">[docs]</a><span class="k">class</span> <span class="nc">ShowDefaults</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
+<div class="viewcode-block" id="ShowDefaults">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ShowDefaults">[docs]</a>
+<span class="k">class</span> <span class="nc">ShowDefaults</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Options for showing ``(default: &lt;default&gt;)`` in ``--help`` text.  Options can be combined, but</span>
 <span class="sd">    :attr:`ShowDefaults.NEVER` will override all other options.</span>
@@ -1035,7 +1037,10 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__or__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
-<div class="viewcode-block" id="OptionNameMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode">[docs]</a><span class="k">class</span> <span class="nc">OptionNameMode</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OptionNameMode">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode">[docs]</a>
+<span class="k">class</span> <span class="nc">OptionNameMode</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes.</span>
 
@@ -1085,6 +1090,7 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NONE</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
+
 <span class="n">OPT_NAME_MODE_ALIASES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">,</span>
     <span class="s1">&#39;_&#39;</span><span class="p">:</span> <span class="n">OptionNameMode</span><span class="o">.</span><span class="n">UNDERSCORE</span><span class="p">,</span>
@@ -1098,7 +1104,9 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="SubcommandAliasHelpMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode">[docs]</a><span class="k">class</span> <span class="nc">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="SubcommandAliasHelpMode">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode">[docs]</a>
+<span class="k">class</span> <span class="nc">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Options for how subcommand aliases (alternate :ref:`choices&lt;subcommand_cls_params&gt;` specified for a given Command</span>
 <span class="sd">    class that is registered as a subcommand / subclass of another Command) should be displayed in help text.</span>
@@ -1122,10 +1130,13 @@
     <span class="n">ALIAS</span> <span class="o">=</span> <span class="s1">&#39;alias&#39;</span>         <span class="c1"># Indicate the subcommand that it is an alias for; do not repeat the description</span></div>
 
 
+
 <span class="n">CmdAliasMode</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">SubcommandAliasHelpMode</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="AmbiguousComboMode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousComboMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="AmbiguousComboMode">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AmbiguousComboMode">[docs]</a>
+<span class="k">class</span> <span class="nc">AmbiguousComboMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Options for handling potentially ambiguous combinations of short forms of Option / Flag / etc. Parameters.</span>
 
@@ -1145,7 +1156,10 @@
     <span class="n">STRICT</span> <span class="o">=</span> <span class="s1">&#39;strict&#39;</span>           <span class="c1"># Reject multi-char short options that overlap with a single char one before parsing</span></div>
 
 
-<div class="viewcode-block" id="AllowLeadingDash"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AllowLeadingDash">[docs]</a><span class="k">class</span> <span class="nc">AllowLeadingDash</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AllowLeadingDash">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.AllowLeadingDash">[docs]</a>
+<span class="k">class</span> <span class="nc">AllowLeadingDash</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    How a given Parameter should handle values with a leading dash (``-``).  Only configurable at the Parameter level,</span>
 <span class="sd">    not the Command level.</span>
@@ -1175,13 +1189,16 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
 
+
 <span class="c1"># endregion</span>
 
 
 <span class="c1"># region Config Item Descriptors / Decorators</span>
 
 
-<div class="viewcode-block" id="ConfigItem"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">[docs]</a><span class="k">class</span> <span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
+<div class="viewcode-block" id="ConfigItem">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">[docs]</a>
+<span class="k">class</span> <span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
@@ -1224,7 +1241,10 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">!r}</span><span class="s1">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">)&gt;&#39;</span></div>
 
 
-<div class="viewcode-block" id="DynamicConfigItem"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem">[docs]</a><span class="k">class</span> <span class="nc">DynamicConfigItem</span><span class="p">(</span><span class="n">ConfigItem</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DynamicConfigItem">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem">[docs]</a>
+<span class="k">class</span> <span class="nc">DynamicConfigItem</span><span class="p">(</span><span class="n">ConfigItem</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]):</span>  <span class="c1"># noqa</span>
@@ -1237,14 +1257,20 @@
         <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="config_item"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.config_item">[docs]</a><span class="k">def</span> <span class="nf">config_item</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">):</span>
+
+<div class="viewcode-block" id="config_item">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.config_item">[docs]</a>
+<span class="k">def</span> <span class="nf">config_item</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">):</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">func</span><span class="p">:</span> <span class="n">DynamicConfigItem</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
+
 
 
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="CommandConfig"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig">[docs]</a><span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>
+<div class="viewcode-block" id="CommandConfig">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig">[docs]</a>
+<span class="k">class</span> <span class="nc">CommandConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration options for Commands.&quot;&quot;&quot;</span>
 
     <span class="c1"># Note: PyCharm may incorrectly think ConfigItem attrs are read only: https://youtrack.jetbrains.com/issue/PY-29770</span>
@@ -1319,13 +1345,16 @@
     <span class="c1">#: Whether Parameters that support reading their values from env variables should include the var names in help text</span>
     <span class="n">show_env_vars</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CommandConfig.cmd_alias_mode"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode">[docs]</a>    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<div class="viewcode-block" id="CommandConfig.cmd_alias_mode">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode">[docs]</a>
+    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">cmd_alias_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CmdAliasMode</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;How subcommand aliases should be displayed in help text.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span></div>
+
 
     <span class="c1">#: Whether Parameter `choices` values and Action / Subcommand choices should be sorted</span>
     <span class="n">sort_choices</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
@@ -1356,7 +1385,9 @@
     <span class="c1">#: Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width</span>
     <span class="n">min_usage_column_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CommandConfig.wrap_usage_str"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">[docs]</a>    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<div class="viewcode-block" id="CommandConfig.wrap_usage_str">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">[docs]</a>
+    <span class="nd">@config_item</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrap_usage_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wrap the basic usage string after the specified number of characters, or automatically based on terminal size</span>
@@ -1365,6 +1396,7 @@
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">positive_int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;a bool or a positive integer&#39;</span><span class="p">,</span> <span class="n">min_val</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
 
     <span class="c1"># endregion</span>
 
@@ -1396,11 +1428,15 @@
         <span class="n">settings</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[depth=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">maps</span><span class="p">)</span><span class="si">}</span><span class="s1">](</span><span class="si">{</span><span class="n">settings</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
-<div class="viewcode-block" id="CommandConfig.as_dict"><a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="CommandConfig.as_dict">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.as_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dict representing the configured options.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">}</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">}</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIELDS</span><span class="p">}</span></div>
+</div>
+
 
 
 <span class="n">DEFAULT_CONFIG</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">=</span> <span class="n">CommandConfig</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

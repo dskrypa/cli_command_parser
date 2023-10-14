@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -1004,7 +1004,9 @@
 <span class="n">TD</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;TD&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ParamBase"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase">[docs]</a><span class="k">class</span> <span class="nc">ParamBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="ParamBase">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase">[docs]</a>
+<span class="k">class</span> <span class="nc">ParamBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for :class:`Parameter` and :class:`.ParamGroup`.</span>
 
@@ -1039,14 +1041,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_name</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ParamBase.name"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.name">[docs]</a>    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+<div class="viewcode-block" id="ParamBase.name">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.name">[docs]</a>
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span></div>
+
 
     <span class="k">def</span> <span class="nf">_default_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">#</span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -1081,7 +1086,9 @@
 
     <span class="c1"># region Usage / Help Text</span>
 
-<div class="viewcode-block" id="ParamBase.formatter"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.formatter">[docs]</a>    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="ParamBase.formatter">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.formatter">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParamHelpFormatter</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..formatting.params</span> <span class="kn">import</span> <span class="n">ParamHelpFormatter</span>  <span class="c1"># Here due to circular dependency</span>
 
@@ -1092,23 +1099,36 @@
 
         <span class="k">return</span> <span class="n">formatter_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
-<div class="viewcode-block" id="ParamBase.show_in_help"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.show_in_help">[docs]</a>    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="ParamBase.show_in_help">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.show_in_help">[docs]</a>
+    <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="ParamBase.format_usage"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ParamBase.format_usage">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.format_usage">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience method for calling :meth:`.ParamHelpFormatter.format_usage`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParamBase.format_help"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ParamBase.format_help">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.format_help">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience method for calling :meth:`.ParamHelpFormatter.format_help`&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 
     <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">ParamBase</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter">[docs]</a>
+<span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">ParamBase</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for all other parameters.  It is not meant to be used directly.</span>
 
@@ -1118,15 +1138,23 @@
 <span class="sd">    :param action: The action to take on individual parsed values.  Actions must be defined as methods in classes</span>
 <span class="sd">      that extend Parameter, and must be registered via :class:`parameter_action`.</span>
 <span class="sd">    :param name: The name to use for this parameter.  Defaults to the name assigned to this parameter.</span>
-<span class="sd">    :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this</span>
-<span class="sd">      parameter is not required; not used if it is required.</span>
 <span class="sd">    :param required: Whether this parameter is required or not.  If it is required, then an exception will be</span>
 <span class="sd">      raised if the user did not provide a value for this parameter.  Defaults to ``False``.</span>
 <span class="sd">    :param metavar: The name to use as a placeholder for values in usage / help messages.</span>
 <span class="sd">    :param help: A brief description of this parameter that will appear in ``--help`` text.</span>
-<span class="sd">    :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
+<span class="sd">    :param default: The default value for this parameter if it is not specified.  Defaults to ``None`` if this</span>
+<span class="sd">      parameter is not required; not used if it is required.</span>
+<span class="sd">    :param default_cb: A default callback function (or other callable) may be provided instead of a static default</span>
+<span class="sd">      value (they cannot both be provided).  If ``cb_with_cmd`` is False (the default), then it must be callable with</span>
+<span class="sd">      no arguments, otherwise it must accept a single positional argument (the :class:`.Command` that contains this</span>
+<span class="sd">      Parameter).  Similar to when the ``default`` value would be used, it will only be called when no argument was</span>
+<span class="sd">      provided.  It is also possible to :ref:`register a method in a Command to be the default callback</span>
+<span class="sd">      &lt;advanced:Dynamic Parameter Defaults&gt;`.</span>
+<span class="sd">    :param cb_with_cmd: Whether the provided ``default_cb`` should be called with the :class:`.Command` that contains</span>
+<span class="sd">      this Parameter.  Ignored if ``default_cb`` is not provided.</span>
 <span class="sd">    :param show_default: Override the :attr:`.CommandConfig.show_defaults` setting for this parameter to always or</span>
 <span class="sd">      never include the default value in usage / help messages.  Default: follow the ``show_defaults`` setting.</span>
+<span class="sd">    :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># region Attributes &amp; Initialization</span>
@@ -1144,7 +1172,9 @@
     <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="Parameter.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="p">:</span> <span class="n">Strings</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ParamAction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.__init_subclass__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="p">:</span> <span class="n">Strings</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ParamAction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param repr_attrs: Additional attributes to include in the repr.</span>
 <span class="sd">        :param actions: Collection of ParamAction classes that this type of Parameter supports</span>
@@ -1157,6 +1187,7 @@
         <span class="k">if</span> <span class="n">repr_attrs</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_repr_attrs</span> <span class="o">=</span> <span class="n">repr_attrs</span></div>
 
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=R0913</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1168,6 +1199,7 @@
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1190,7 +1222,7 @@
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="k">elif</span> <span class="n">default_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="o">=</span> <span class="n">DefaultCallback</span><span class="p">(</span><span class="n">default_cb</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="o">=</span> <span class="n">DefaultCallback</span><span class="p">(</span><span class="n">default_cb</span><span class="p">,</span> <span class="n">cb_with_cmd</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strict_default</span> <span class="o">=</span> <span class="n">strict_default</span>
         <span class="k">if</span> <span class="n">show_default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">show_default</span> <span class="o">=</span> <span class="n">show_default</span>
@@ -1223,13 +1255,18 @@
             <span class="c1"># Choices present earlier would have already been converted</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="n">annotated_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Parameter.has_choices"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.has_choices">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="Parameter.has_choices">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.has_choices">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">type_attr</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_attr</span><span class="p">,</span> <span class="n">_ChoicesBase</span><span class="p">)</span> <span class="ow">and</span> <span class="n">type_attr</span><span class="o">.</span><span class="n">choices</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Parameter.register_default_cb"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.register_default_cb">[docs]</a>    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Parameter.register_default_cb">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.register_default_cb">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Intended to be used as a decorator to register a method in a Command to be used as the default callback for</span>
 <span class="sd">        this Parameter.  The method will only be called during parsing if no value was explicitly provided for this</span>
@@ -1253,6 +1290,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="o">=</span> <span class="n">DefaultCallback</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">method</span></div>
 
+
     <span class="c1"># endregion</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1271,13 +1309,21 @@
 
     <span class="c1"># region Parsing / Argument Handling</span>
 
-<div class="viewcode-block" id="Parameter.get_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_const">[docs]</a>    <span class="k">def</span> <span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.get_const">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_const">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_NotSet</span></div>
 
-<div class="viewcode-block" id="Parameter.get_env_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_env_const">[docs]</a>    <span class="k">def</span> <span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Parameter.get_env_const">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_env_const">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Parameter.prepare_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.prepare_value">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">short_combo</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">pre_action</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Parameter.prepare_value">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.prepare_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">short_combo</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">pre_action</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
         <span class="n">type_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
         <span class="k">if</span> <span class="n">type_func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">pre_action</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_func</span><span class="p">,</span> <span class="n">InputType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">type_func</span><span class="o">.</span><span class="n">is_valid_type</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">value</span>
@@ -1292,7 +1338,10 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unable to cast </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> to type=</span><span class="si">{</span><span class="n">type_func</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
 
-<div class="viewcode-block" id="Parameter.validate"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Parameter.validate">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.validate">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">==</span> <span class="n">AllowLeadingDash</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span>
@@ -1301,13 +1350,17 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">==</span> <span class="n">AllowLeadingDash</span><span class="o">.</span><span class="n">NEVER</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Parameter.is_valid_arg"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.is_valid_arg">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Parameter.is_valid_arg">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.is_valid_arg">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_valid_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span></div>
+
 
     <span class="c1"># endregion</span>
 
@@ -1332,7 +1385,9 @@
             <span class="n">command</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># Skip __get__ on subsequent accesses</span>
         <span class="k">return</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="Parameter.result_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.result_value">[docs]</a>    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">TD</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<div class="viewcode-block" id="Parameter.result_value">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.result_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">TD</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
@@ -1344,24 +1399,31 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">finalize_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
+
     <span class="n">result</span> <span class="o">=</span> <span class="n">result_value</span>
 
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Usage / Help Text</span>
 
-<div class="viewcode-block" id="Parameter.show_in_help"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.show_in_help">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="Parameter.show_in_help">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.show_in_help">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span>
-        <span class="k">return</span> <span class="kc">True</span></div></div>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</div>
+
 
     <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="BasePositional"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional">[docs]</a><span class="k">class</span> <span class="nc">BasePositional</span><span class="p">(</span><span class="n">Parameter</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BasePositional">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional">[docs]</a>
+<span class="k">class</span> <span class="nc">BasePositional</span><span class="p">(</span><span class="n">Parameter</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are</span>
 <span class="sd">    provided positionally, without prefixes.  It is not meant to be used directly.</span>
@@ -1378,7 +1440,9 @@
 
     <span class="n">_default_ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="BasePositional.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">default_ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0222</span>
+<div class="viewcode-block" id="BasePositional.__init_subclass__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional.__init_subclass__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">default_ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0222</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param default_ok: Whether default values are supported for this Parameter type</span>
 <span class="sd">        :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.</span>
@@ -1386,6 +1450,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">default_ok</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_default_ok</span> <span class="o">=</span> <span class="n">default_ok</span></div>
+
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
@@ -1400,7 +1465,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">default_cb</span><span class="o">=</span><span class="n">default_cb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseOption"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption">[docs]</a><span class="k">class</span> <span class="nc">BaseOption</span><span class="p">(</span><span class="n">Parameter</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BaseOption">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseOption</span><span class="p">(</span><span class="n">Parameter</span><span class="p">[</span><span class="n">T_co</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for :class:`.Option`, :class:`.Flag`, :class:`.Counter`, and any other keyword-like parameters that have</span>
 <span class="sd">    ``--long`` and ``-short`` prefixes before values.</span>
@@ -1472,18 +1540,27 @@
             <span class="n">option_strs</span><span class="o">.</span><span class="n">name_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">option_name_mode</span>
         <span class="n">option_strs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BaseOption.env_vars"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.env_vars">[docs]</a>    <span class="k">def</span> <span class="nf">env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">env_var</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env_var</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">env_var</span>
+<div class="viewcode-block" id="BaseOption.env_vars">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.env_vars">[docs]</a>
+    <span class="k">def</span> <span class="nf">env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_var</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="n">env_var</span></div>
-
-<div class="viewcode-block" id="BaseOption.get_const"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.get_const">[docs]</a>    <span class="k">def</span> <span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span></div></div>
+                <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_var</span></div>
 
 
-<div class="viewcode-block" id="AllowLeadingDashProperty"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty">[docs]</a><span class="k">class</span> <span class="nc">AllowLeadingDashProperty</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseOption.get_const">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.get_const">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AllowLeadingDashProperty">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty">[docs]</a>
+<span class="k">class</span> <span class="nc">AllowLeadingDashProperty</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Custom value normalizer/validator for the ``allow_leading_dash`` property of ``Positional`` and ``Option`` classes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1519,20 +1596,27 @@
             <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="DefaultCallback"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback">[docs]</a><span class="k">class</span> <span class="nc">DefaultCallback</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;func&#39;</span><span class="p">,</span> <span class="s1">&#39;is_method&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">CommandMethod</span> <span class="o">|</span> <span class="n">DefaultFunc</span><span class="p">,</span> <span class="n">is_method</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultCallback">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback">[docs]</a>
+<span class="k">class</span> <span class="nc">DefaultCallback</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;func&#39;</span><span class="p">,</span> <span class="s1">&#39;use_cmd&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">CommandMethod</span> <span class="o">|</span> <span class="n">DefaultFunc</span><span class="p">,</span> <span class="n">use_cmd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_method</span> <span class="o">=</span> <span class="n">is_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_cmd</span> <span class="o">=</span> <span class="n">use_cmd</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="si">!r}</span><span class="s1">, is_method=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">is_method</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="si">!r}</span><span class="s1">, use_cmd=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">use_cmd</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
-<div class="viewcode-block" id="DefaultCallback.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
-        <span class="c1"># If the func is not a method, then `command` must not be None, but the default callback is intentionally</span>
-        <span class="c1"># not called by ParamAction.get_default (and its subclasses) when command is None.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_method</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="DefaultCallback.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
+        <span class="c1"># If the func isn&#39;t a method / doesn&#39;t accept the command, then `command` must not be None, but the default</span>
+        <span class="c1"># callback is intentionally not called by ParamAction.get_default (and its subclasses) when command is None.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_cmd</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span></div>
+</div>
+
 </pre></div>
 
            </div>

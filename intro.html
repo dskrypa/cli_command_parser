@@ -12,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -964,7 +964,7 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
 <p>Simple scripts usually contain a single Command and implement a <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(self):</span></code> method in that Command to be
 called after arguments are parsed.</p>
 <p>Multiple Parameters can be specified as attributes inside the Command to define how CLI arguments will be parsed.</p>
@@ -997,9 +997,9 @@ Hello John!
 </pre></div>
 </div>
 <section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
 <section id="types">
-<h3>Types<a class="headerlink" href="#types" title="Permalink to this heading"></a></h3>
+<h3>Types<a class="headerlink" href="#types" title="Link to this heading"></a></h3>
 <p>Rather than needing to infer the type of parameter that will result from a combination of arguments when defining it,
 each distinct type has its own <a class="reference internal" href="parameters.html"><span class="doc">Parameter</span></a> class.  Commands may contain any number of Parameters to
 define how they will parse CLI arguments.</p>
@@ -1007,7 +1007,7 @@ define how they will parse CLI arguments.</p>
 <a class="reference internal" href="parameters.html"><span class="doc">others</span></a> as well, including <a class="reference internal" href="groups.html"><span class="doc">groups</span></a> that can be mutually exclusive or dependent.</p>
 </section>
 <section id="names">
-<h3>Names<a class="headerlink" href="#names" title="Permalink to this heading"></a></h3>
+<h3>Names<a class="headerlink" href="#names" title="Link to this heading"></a></h3>
 <p>Even without explicitly specifying the long form for the <code class="docutils literal notranslate"><span class="pre">name</span></code> <a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a> in the example above, it was
 automatically added based on the name of that Parameter attribute.  Following the
 <a class="reference external" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY principle</a>, the <code class="docutils literal notranslate"><span class="pre">--long</span></code> form for Options,
@@ -1026,15 +1026,15 @@ and/or short forms may be provided:</p>
 </section>
 </section>
 <section id="entry-points">
-<h2>Entry Points<a class="headerlink" href="#entry-points" title="Permalink to this heading"></a></h2>
+<h2>Entry Points<a class="headerlink" href="#entry-points" title="Link to this heading"></a></h2>
 <p>The example above contains only one Command and uses the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function to handle parsing arguments and running
-the Command.  By default, arguments will be parsed from <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a>, but it is also possible to pass a list
+the Command.  By default, arguments will be parsed from <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a>, but it is also possible to pass a list
 of strings as the first argument to parse arguments from that instead.</p>
 <p>More advanced programs may contain multiple Commands, and more complex entry points for commands are
 <a class="reference internal" href="commands.html#parse-run"><span class="std std-ref">also supported</span></a>.</p>
 </section>
 <section id="help-text">
-<h2>Help Text<a class="headerlink" href="#help-text" title="Permalink to this heading"></a></h2>
+<h2>Help Text<a class="headerlink" href="#help-text" title="Link to this heading"></a></h2>
 <p>Using the Hello World example again, we can see the automatically generated help text:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ hello_world.py -h
 usage: hello_world.py [--name NAME] [--help]

@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -967,7 +967,7 @@
            <div itemprop="articleBody">
              
   <section id="rest-api-wrapper">
-<h1>Rest Api Wrapper<a class="headerlink" href="#rest-api-wrapper" title="Permalink to this heading"></a></h1>
+<h1>Rest Api Wrapper<a class="headerlink" href="#rest-api-wrapper" title="Link to this heading"></a></h1>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="p">{</span><span class="n">show</span><span class="o">|</span><span class="n">sync</span><span class="o">|</span><span class="n">find</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1012,9 +1012,9 @@
 </tbody>
 </table>
 <section id="subcommands">
-<h2>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h2>
+<h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading"></a></h2>
 <section id="subcommand-show">
-<h3>Subcommand: show<a class="headerlink" href="#subcommand-show" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: show<a class="headerlink" href="#subcommand-show" title="Link to this heading"></a></h3>
 <p>Show an object</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">show</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">baz</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">ID</span> <span class="p">[</span><span class="n">ID</span> <span class="o">...</span><span class="p">]]</span>
 </pre></div>
@@ -1051,7 +1051,7 @@
 </table>
 </section>
 <section id="subcommand-sync">
-<h3>Subcommand: sync<a class="headerlink" href="#subcommand-sync" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: sync<a class="headerlink" href="#subcommand-sync" title="Link to this heading"></a></h3>
 <p>Sync group members</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">sync</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">role</span> <span class="p">{</span><span class="nb">all</span><span class="o">|</span><span class="n">admin</span><span class="o">|</span><span class="n">user</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">group</span> <span class="n">GROUP</span><span class="p">]</span>
 </pre></div>
@@ -1101,7 +1101,7 @@
 </table>
 </section>
 <section id="subcommand-find">
-<h3>Subcommand: find<a class="headerlink" href="#subcommand-find" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: find<a class="headerlink" href="#subcommand-find" title="Link to this heading"></a></h3>
 <p>Find objects</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">baz</span><span class="o">|</span><span class="n">bazs</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span>
 </pre></div>
@@ -1154,7 +1154,7 @@
 </table>
 </section>
 <section id="subcommand-find-foo">
-<h3>Subcommand: find foo<a class="headerlink" href="#subcommand-find-foo" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: find foo<a class="headerlink" href="#subcommand-find-foo" title="Link to this heading"></a></h3>
 <p>Find foo objects</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">foo</span> <span class="n">QUERY</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span>
 </pre></div>
@@ -1191,7 +1191,7 @@
 </table>
 </section>
 <section id="subcommand-find-bar">
-<h3>Subcommand: find bar<a class="headerlink" href="#subcommand-find-bar" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: find bar<a class="headerlink" href="#subcommand-find-bar" title="Link to this heading"></a></h3>
 <p>Find bar objects</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">bar</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pattern</span> <span class="n">PATTERN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span>
 </pre></div>
@@ -1226,7 +1226,7 @@
 </table>
 </section>
 <section id="subcommand-find-baz">
-<h3>Subcommand: find baz<a class="headerlink" href="#subcommand-find-baz" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: find baz<a class="headerlink" href="#subcommand-find-baz" title="Link to this heading"></a></h3>
 <p>Find baz objects</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">baz</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">foo</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bar</span> <span class="n">ID</span><span class="p">]</span>
 </pre></div>
@@ -1266,7 +1266,7 @@
 </table>
 </section>
 <section id="subcommand-find-bazs">
-<h3>Subcommand: find bazs<a class="headerlink" href="#subcommand-find-bazs" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: find bazs<a class="headerlink" href="#subcommand-find-bazs" title="Link to this heading"></a></h3>
 <p>Find baz objects</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">rest_api_wrapper</span><span class="o">.</span><span class="n">py</span> <span class="n">find</span> <span class="n">bazs</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">env</span> <span class="p">{</span><span class="n">dev</span><span class="o">|</span><span class="n">qa</span><span class="o">|</span><span class="n">uat</span><span class="o">|</span><span class="n">prod</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">limit</span> <span class="n">LIMIT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">foo</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bar</span> <span class="n">ID</span><span class="p">]</span>
 </pre></div>

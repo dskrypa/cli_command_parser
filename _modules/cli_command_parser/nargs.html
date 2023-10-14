@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -983,7 +983,9 @@
 <span class="n">NargsValue</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">REMAINDER</span><span class="p">)]</span>
 
 
-<div class="viewcode-block" id="Nargs"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs">[docs]</a><span class="k">class</span> <span class="nc">Nargs</span><span class="p">:</span>
+<div class="viewcode-block" id="Nargs">
+<a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs">[docs]</a>
+<span class="k">class</span> <span class="nc">Nargs</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper class for validating the number of values provided for a given :class:`.Parameter`.  Unifies the</span>
 <span class="sd">    handling of different ways of specifying the required number of values.</span>
@@ -1110,7 +1112,9 @@
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_orig</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Nargs.satisfied"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied">[docs]</a>    <span class="k">def</span> <span class="nf">satisfied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Nargs.satisfied">
+<a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied">[docs]</a>
+    <span class="k">def</span> <span class="nf">satisfied</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True if the minimum number of values have been provided to satisfy the requirements, and if the number</span>
 <span class="sd">        of values has not exceeded the maximum allowed.  Returns False if the count is below the minimum or above the</span>
@@ -1124,7 +1128,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span></div>
 
-<div class="viewcode-block" id="Nargs.max_reached"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached">[docs]</a>    <span class="k">def</span> <span class="nf">max_reached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed_values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Nargs.max_reached">
+<a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached">[docs]</a>
+    <span class="k">def</span> <span class="nf">max_reached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed_values</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param parsed_values: The value(s) parsed so far for a Parameter.</span>
 <span class="sd">        :return: True if ``parsed_values`` has a length and that length meets or exceeds the maximum count allowed,</span>
@@ -1134,16 +1141,26 @@
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">parsed_values</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Nargs.has_upper_bound"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound">[docs]</a>    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="Nargs.has_upper_bound">
+<a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_upper_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_upper_bound</span></div>
 
-<div class="viewcode-block" id="Nargs.upper_bound"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound">[docs]</a>    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="Nargs.upper_bound">
+<a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">upper_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_upper_bound</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_upper_bound</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="nargs_min_and_max_sums"><a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_and_max_sums">[docs]</a><span class="k">def</span> <span class="nf">nargs_min_and_max_sums</span><span class="p">(</span><span class="n">nargs_objects</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Nargs</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="nargs_min_and_max_sums">
+<a class="viewcode-back" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_and_max_sums">[docs]</a>
+<span class="k">def</span> <span class="nf">nargs_min_and_max_sums</span><span class="p">(</span><span class="n">nargs_objects</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Nargs</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
     <span class="n">min_sum</span><span class="p">,</span> <span class="n">max_sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
     <span class="n">iter_nargs</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">nargs_objects</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">iter_nargs</span><span class="p">:</span>
@@ -1158,6 +1175,7 @@
         <span class="n">min_sum</span> <span class="o">+=</span> <span class="n">obj</span><span class="o">.</span><span class="n">min</span>  <span class="c1"># Otherwise, it will not have anything to iterate over</span>
 
     <span class="k">return</span> <span class="n">min_sum</span><span class="p">,</span> <span class="n">max_sum</span></div>
+
 </pre></div>
 
            </div>

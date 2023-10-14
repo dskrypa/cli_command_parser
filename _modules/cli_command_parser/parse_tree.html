@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -983,7 +983,9 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PosNode&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="AnyWord"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.AnyWord">[docs]</a><span class="k">class</span> <span class="nc">AnyWord</span><span class="p">:</span>
+<div class="viewcode-block" id="AnyWord">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.AnyWord">[docs]</a>
+<span class="k">class</span> <span class="nc">AnyWord</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;nargs&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;remaining&#39;</span><span class="p">)</span>
 
     <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span>
@@ -1017,11 +1019,14 @@
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span></div>
 
 
+
 <span class="n">Word</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AnyWord</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 <span class="n">Target</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;BasePositional&#39;</span><span class="p">,</span> <span class="s1">&#39;CommandCls&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="PosNode"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode">[docs]</a><span class="k">class</span> <span class="nc">PosNode</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">Word</span><span class="p">,</span> <span class="s1">&#39;PosNode&#39;</span><span class="p">]):</span>
+<div class="viewcode-block" id="PosNode">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode">[docs]</a>
+<span class="k">class</span> <span class="nc">PosNode</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">Word</span><span class="p">,</span> <span class="s1">&#39;PosNode&#39;</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;links&#39;</span><span class="p">,</span> <span class="s1">&#39;param&#39;</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;word&#39;</span><span class="p">,</span> <span class="s1">&#39;_any_word&#39;</span><span class="p">,</span> <span class="s1">&#39;_any_node&#39;</span><span class="p">)</span>
 
     <span class="n">links</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Word</span><span class="p">,</span> <span class="n">PosNode</span><span class="p">]</span>
@@ -1043,8 +1048,11 @@
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># parent was None</span>
             <span class="k">pass</span>
 
-<div class="viewcode-block" id="PosNode.link_params"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.link_params">[docs]</a>    <span class="k">def</span> <span class="nf">link_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
+<div class="viewcode-block" id="PosNode.link_params">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.link_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">link_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_link_params</span><span class="p">(</span><span class="n">recursive</span><span class="p">))</span></div>
+
 
     <span class="k">def</span> <span class="nf">_link_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -1053,12 +1061,17 @@
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="k">yield from</span> <span class="n">node</span><span class="o">.</span><span class="n">_link_params</span><span class="p">(</span><span class="n">_has_upper_bound</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
 
-<div class="viewcode-block" id="PosNode.nargs_min_and_max"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max">[docs]</a>    <span class="k">def</span> <span class="nf">nargs_min_and_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="PosNode.nargs_min_and_max">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max">[docs]</a>
+    <span class="k">def</span> <span class="nf">nargs_min_and_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="n">nargs_min_and_max_sums</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">nargs</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_params</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
+
 
     <span class="c1"># region AnyWord Methods</span>
 
-<div class="viewcode-block" id="PosNode.any_word"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="PosNode.any_word">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">any_word</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyWord</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_any_word</span>
@@ -1069,7 +1082,10 @@
                 <span class="k">pass</span>
             <span class="k">raise</span></div>
 
-<div class="viewcode-block" id="PosNode.any_node"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node">[docs]</a>    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="PosNode.any_node">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">any_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosNode</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_any_node</span>
@@ -1080,13 +1096,17 @@
                 <span class="k">pass</span>
             <span class="k">raise</span></div>
 
-<div class="viewcode-block" id="PosNode.has_any"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any">[docs]</a>    <span class="k">def</span> <span class="nf">has_any</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="PosNode.has_any">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_any</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">any_word</span>  <span class="c1"># noqa</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="kc">True</span></div>
+
 
     <span class="k">def</span> <span class="nf">_create_child</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosNode</span><span class="p">:</span>
         <span class="c1"># Will raise ValueError if self.word has remaining &lt; 1</span>
@@ -1097,15 +1117,21 @@
 
     <span class="c1"># region Introspection</span>
 
-<div class="viewcode-block" id="PosNode.raw_path"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="PosNode.raw_path">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">raw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Word</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="n">word</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">word</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">word</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">raw_path</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
-<div class="viewcode-block" id="PosNode.path_repr"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.path_repr">[docs]</a>    <span class="k">def</span> <span class="nf">path_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="PosNode.path_repr">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.path_repr">[docs]</a>
+    <span class="k">def</span> <span class="nf">path_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">AnyWord</span><span class="p">)</span> <span class="k">else</span> <span class="nb">repr</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_path</span><span class="p">))</span></div>
+
 
     <span class="c1"># endregion</span>
 
@@ -1211,13 +1237,18 @@
 
     <span class="c1"># region Build Tree</span>
 
-<div class="viewcode-block" id="PosNode.build_tree"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.build_tree">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PosNode.build_tree">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.build_tree">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_tree</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosNode</span><span class="p">:</span>
         <span class="n">root</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">command</span><span class="p">)</span>
         <span class="n">process_params</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="p">[</span><span class="n">root</span><span class="p">],</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">all_positionals</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">root</span></div>
 
-<div class="viewcode-block" id="PosNode.update_node"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.update_node">[docs]</a>    <span class="k">def</span> <span class="nf">update_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="n">Word</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosNode</span><span class="p">:</span>
+
+<div class="viewcode-block" id="PosNode.update_node">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.update_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="n">Word</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosNode</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="o">*</span><span class="n">parts</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># The choice is None or Any</span>
@@ -1230,6 +1261,7 @@
             <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
                 <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_set_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Target</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PosNode</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
@@ -1272,14 +1304,18 @@
 
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="PosNode.print_tree"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree">[docs]</a>    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="PosNode.print_tree">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">- &lt;PosNode[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">word</span><span class="si">!r}</span><span class="s1">, links: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s1">, target=</span><span class="si">{</span><span class="n">_parse_tree_target_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span><span class="si">}</span><span class="s1">]&gt;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">recursive</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">indent</span> <span class="o">+=</span> <span class="mi">2</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">node</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">_has_upper_bound</span><span class="p">(</span><span class="n">node</span><span class="p">))</span></div></div>
+            <span class="n">node</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">_has_upper_bound</span><span class="p">(</span><span class="n">node</span><span class="p">))</span></div>
+</div>
+
 
 
 <span class="k">def</span> <span class="nf">_has_upper_bound</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1289,14 +1325,19 @@
         <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="process_params"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params">[docs]</a><span class="k">def</span> <span class="nf">process_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
+<div class="viewcode-block" id="process_params">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params">[docs]</a>
+<span class="k">def</span> <span class="nf">process_params</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="n">process_param</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">nodes</span></div>
 
 
-<div class="viewcode-block" id="process_param"><a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param">[docs]</a><span class="k">def</span> <span class="nf">process_param</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="process_param">
+<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param">[docs]</a>
+<span class="k">def</span> <span class="nf">process_param</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PosNode</span><span class="p">],</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PosNode</span><span class="p">]:</span>
     <span class="c1"># At each step, the number of branches grows</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">Choice</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">choices</span>  <span class="c1"># noqa</span>
@@ -1328,6 +1369,7 @@
     <span class="c1"># At this point, the param will take any word</span>
     <span class="n">word</span> <span class="o">=</span> <span class="n">AnyWord</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">update_node</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span></div>
+
 </pre></div>
 
            </div>

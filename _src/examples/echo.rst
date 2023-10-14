@@ -15,9 +15,9 @@ Write all of the provided arguments to stdout
 .. table::
     :widths: auto
 
-    +---------------------+-------------------+
-    | ``TEXT [TEXT ...]`` | The text to print |
-    +---------------------+-------------------+
+    +----------------+-------------------+
+    | ``[TEXT ...]`` | The text to print |
+    +----------------+-------------------+
 
 
 .. rubric:: Optional arguments

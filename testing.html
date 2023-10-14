@@ -12,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -964,13 +964,13 @@
            <div itemprop="articleBody">
              
   <section id="testing-commands">
-<h1>Testing Commands<a class="headerlink" href="#testing-commands" title="Permalink to this heading"></a></h1>
+<h1>Testing Commands<a class="headerlink" href="#testing-commands" title="Link to this heading"></a></h1>
 <p>Commands can be tested without necessarily doing anything special to work with them in a unit testing context.  When a
-Command runs normally, it does not call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> on a successful run, but it may do so if an unhandled
+Command runs normally, it does not call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> on a successful run, but it may do so if an unhandled
 exception is propagated.  Error handling <a class="reference internal" href="configuration.html#error-handling-options"><span class="std std-ref">can be disabled</span></a>, but sometimes
 you may still need to use <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">self.assertRaises(SystemExit)</span></code> in a test case if it is intentional / expected.</p>
 <section id="testing-parsing">
-<h2>Testing Parsing<a class="headerlink" href="#testing-parsing" title="Permalink to this heading"></a></h2>
+<h2>Testing Parsing<a class="headerlink" href="#testing-parsing" title="Link to this heading"></a></h2>
 <p>To ensure that particular combinations of arguments are parsed as expected, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse" title="cli_command_parser.commands.Command.parse"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse()</span></code></a> method can be
 used to parse arguments without running <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a> or triggering any actions.  Parsed attributes may be
 accessed directly (as they would be from within the Command when running normally), or gathered in a dict via
@@ -1003,10 +1003,10 @@ accessed directly (as they would be from within the Command when running normall
 </div>
 </section>
 <section id="test-helpers">
-<h2>Test Helpers<a class="headerlink" href="#test-helpers" title="Permalink to this heading"></a></h2>
-<p>A <a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams" title="cli_command_parser.testing.RedirectStreams"><code class="xref py py-class docutils literal notranslate"><span class="pre">RedirectStreams</span></code></a> <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#context-managers" title="(in Python v3.11)"><span class="xref std std-ref">context manager</span></a> is available to temporarily override both
+<h2>Test Helpers<a class="headerlink" href="#test-helpers" title="Link to this heading"></a></h2>
+<p>A <a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams" title="cli_command_parser.testing.RedirectStreams"><code class="xref py py-class docutils literal notranslate"><span class="pre">RedirectStreams</span></code></a> <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#context-managers" title="(in Python v3.12)"><span class="xref std std-ref">context manager</span></a> is available to temporarily override both
 <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, and optionally to provide input for <code class="docutils literal notranslate"><span class="pre">stdin</span></code>.  It’s also possible to use
-<a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stdout()</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stderr" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stderr()</span></code></a>, but this does both at once.</p>
+<a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stdout()</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stderr" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stderr()</span></code></a>, but this does both at once.</p>
 <p>To test the result of actually executing the program, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a> method can be used.  Using
 the same <code class="docutils literal notranslate"><span class="pre">hello_world.py</span></code> script as the above test, we can define some additional example test cases that check
 the output:</p>

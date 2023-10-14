@@ -12,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -964,12 +964,12 @@
            <div itemprop="articleBody">
              
   <section id="configuration">
-<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h1>
+<h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
 <p>Configuration options can be specified as keyword arguments when
 <a class="reference internal" href="commands.html#defining-commands"><span class="std std-ref">initializing Commands</span></a>.  It is also possible to provide either a dictionary of
 options or an instance of <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.</p>
 <section id="command-metadata">
-<h2>Command Metadata<a class="headerlink" href="#command-metadata" title="Permalink to this heading"></a></h2>
+<h2>Command Metadata<a class="headerlink" href="#command-metadata" title="Link to this heading"></a></h2>
 <p>The following options cannot be provided in a CommandConfig object or <code class="docutils literal notranslate"><span class="pre">config</span></code> dictionary, and must be specified as
 keyword arguments when defining a Command subclass.  All of these options are optional:</p>
 <dl class="field-list simple">
@@ -1005,17 +1005,17 @@ value will be used unless this parameter is provided.</p>
 <dd class="field-even"><p>Help text to be displayed as a SubCommand option.  Ignored for top-level commands.</p>
 </dd>
 <dt class="field-odd" id="command metadata:config">config<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a> object containing the config options (see below) to use.
+<dd class="field-odd"><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a> object containing the config options (see below) to use.
 May not be combined with separate kwargs that would be stored in a CommandConfig object.</p>
 </dd>
 </dl>
 </section>
 <section id="configuration-options">
-<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Permalink to this heading"></a></h2>
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
 <p>Configuration options supported by <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig" title="cli_command_parser.config.CommandConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CommandConfig</span></code></a>.  For convenience, they may also be specified as keyword
 arguments when defining a Command subclass:</p>
 <section id="error-handling-options">
-<h3>Error Handling Options<a class="headerlink" href="#error-handling-options" title="Permalink to this heading"></a></h3>
+<h3>Error Handling Options<a class="headerlink" href="#error-handling-options" title="Link to this heading"></a></h3>
 <dl class="field-list simple">
 <dt class="field-odd" id="error handling options:error_handler">error_handler<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> to be used by <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.__call__" title="cli_command_parser.commands.Command.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.__call__()</span></code></a> to wrap <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main" title="cli_command_parser.commands.Command.main"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.main()</span></code></a>, or
@@ -1029,7 +1029,7 @@ was raised in <a class="reference internal" href="api/cli_command_parser.command
 </dl>
 </section>
 <section id="parameter-options">
-<h3>Parameter Options<a class="headerlink" href="#parameter-options" title="Permalink to this heading"></a></h3>
+<h3>Parameter Options<a class="headerlink" href="#parameter-options" title="Link to this heading"></a></h3>
 <dl class="field-list simple">
 <dt class="field-odd" id="parameter options:allow_annotation_type">allow_annotation_type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether inferring Parameter types from type annotations should be enabled (default: True).
@@ -1041,7 +1041,7 @@ specified, then the default type (usually <code class="docutils literal notransl
 </dl>
 </section>
 <section id="actionflag-options">
-<h3>ActionFlag Options<a class="headerlink" href="#actionflag-options" title="Permalink to this heading"></a></h3>
+<h3>ActionFlag Options<a class="headerlink" href="#actionflag-options" title="Link to this heading"></a></h3>
 <dl class="field-list simple">
 <dt class="field-odd" id="actionflag options:multiple_action_flags">multiple_action_flags<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether multiple action_flag methods are allowed to run if they are all specified
@@ -1054,7 +1054,7 @@ method in a given CLI invocation (default: True)</p>
 </dl>
 </section>
 <section id="parsing-options">
-<h3>Parsing Options<a class="headerlink" href="#parsing-options" title="Permalink to this heading"></a></h3>
+<h3>Parsing Options<a class="headerlink" href="#parsing-options" title="Link to this heading"></a></h3>
 <dl class="field-list simple">
 <dt class="field-odd" id="parsing options:ignore_unknown">ignore_unknown<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether unknown arguments should be ignored (default: False / raise an exception when unknown
@@ -1091,7 +1091,7 @@ from even being defined.</p>
 </dl>
 </section>
 <section id="usage-help-text-options">
-<h3>Usage &amp; Help Text Options<a class="headerlink" href="#usage-help-text-options" title="Permalink to this heading"></a></h3>
+<h3>Usage &amp; Help Text Options<a class="headerlink" href="#usage-help-text-options" title="Link to this heading"></a></h3>
 <p>Options that affect what is shown in the usage and help text output.  Some of these options also affect RST
 documentation generation as well.</p>
 <dl class="field-list simple">
@@ -1161,7 +1161,7 @@ terminal size if <code class="docutils literal notranslate"><span class="pre">Tr
 </dl>
 </section>
 <section id="documentation-generation-options">
-<h3>Documentation Generation Options<a class="headerlink" href="#documentation-generation-options" title="Permalink to this heading"></a></h3>
+<h3>Documentation Generation Options<a class="headerlink" href="#documentation-generation-options" title="Link to this heading"></a></h3>
 <p>Options that only affect RST documentation generation.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="documentation generation options:show_docstring">show_docstring<span class="colon">:</span></dt>

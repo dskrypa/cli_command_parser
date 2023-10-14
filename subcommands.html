@@ -12,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -964,7 +964,7 @@
            <div itemprop="articleBody">
              
   <section id="subcommands">
-<h1>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h1>
+<h1>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading"></a></h1>
 <p>Subcommands provide a way of organizing Commands by separating distinct functionalities and options that are specific
 to those functionalities.</p>
 <p>For a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> to support subcommands, it must have a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> Parameter.  If other
@@ -998,7 +998,7 @@ Commands).</p>
 </dd>
 </dl>
 <section id="automatic-registration">
-<h2>Automatic Registration<a class="headerlink" href="#automatic-registration" title="Permalink to this heading"></a></h2>
+<h2>Automatic Registration<a class="headerlink" href="#automatic-registration" title="Link to this heading"></a></h2>
 <p>Given a <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> class has a <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a> Parameter, any classes that extend that Command will
 automatically be registered as subcommands of the Command that they extend.</p>
 <p id="subcommand-cls-params">When defining a subcommand class that extends a base Command, in addition to the other options that are supported when
@@ -1055,7 +1055,7 @@ bar
 </div>
 </section>
 <section id="nested-subcommands">
-<h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Permalink to this heading"></a></h2>
+<h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Link to this heading"></a></h2>
 <p>Using the example script that is a <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">fake wrapper around a hypothetical REST API</a>,
 we can see an example of two levels of subcommands, and another way that we can take advantage of inheritance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -1147,7 +1147,7 @@ Subcommands:
 have each subcommand define the method that is called by <code class="docutils literal notranslate"><span class="pre">main</span></code> to produce results.</p>
 </section>
 <section id="explicit-registration">
-<h2>Explicit Registration<a class="headerlink" href="#explicit-registration" title="Permalink to this heading"></a></h2>
+<h2>Explicit Registration<a class="headerlink" href="#explicit-registration" title="Link to this heading"></a></h2>
 <p>While subcommands will be automatically registered with their parent class as long as the parent class has a
 <a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a> parameter, it is also possible to have more control over that process.</p>
 <p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
@@ -1256,12 +1256,12 @@ bar
 </div>
 </section>
 <section id="shared-common-parameters">
-<h2>Shared Common Parameters<a class="headerlink" href="#shared-common-parameters" title="Permalink to this heading"></a></h2>
+<h2>Shared Common Parameters<a class="headerlink" href="#shared-common-parameters" title="Link to this heading"></a></h2>
 <p>In some situations, use cases arise for subcommands that are similar to each other but not to other subcommands of the
 same parent Command.  In these cases, it may be desirable to define the Parameters that are common to those similar
 subcommands in a common base class so they don’t need to be repeated in each subcommand class.</p>
 <p>This can be accomplished by defining a subclass of the target parent Command (which contains the <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a>
-Parameter that should be used to register the similar subcommands) that also extends <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code></a> to store
+Parameter that should be used to register the similar subcommands) that also extends <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code></a> to store
 the common Parameters.</p>
 <p>A <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py">full example</a> is available in the examples directory, but the basic
 pattern is the same as the following simplified example:</p>

@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -983,7 +983,9 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Path&#39;</span><span class="p">,</span> <span class="s1">&#39;File&#39;</span><span class="p">,</span> <span class="s1">&#39;Serialized&#39;</span><span class="p">,</span> <span class="s1">&#39;Json&#39;</span><span class="p">,</span> <span class="s1">&#39;Pickle&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="FileInput"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput">[docs]</a><span class="k">class</span> <span class="nc">FileInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="FileInput">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput">[docs]</a>
+<span class="k">class</span> <span class="nc">FileInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">exists</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">expand</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -1020,7 +1022,9 @@
         <span class="n">non_defaults</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">non_defaults</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
-<div class="viewcode-block" id="FileInput.fix_default"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.fix_default">[docs]</a>    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<div class="viewcode-block" id="FileInput.fix_default">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.fix_default">[docs]</a>
+    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fixes the default value to conform to the expected return type for this input.  Allows the default value for a</span>
 <span class="sd">        path to be provided as a string, for example.</span>
@@ -1029,7 +1033,10 @@
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FileInput.validated_path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.validated_path">[docs]</a>    <span class="k">def</span> <span class="nf">validated_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FileInput.validated_path">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.validated_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">validated_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">_Path</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path</span> <span class="o">:=</span> <span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
                 <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;A valid path is required&#39;</span><span class="p">)</span>
@@ -1058,10 +1065,14 @@
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;it is not readable&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="s1">&#39;it is not writable&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">path</span></div></div>
+        <span class="k">return</span> <span class="n">path</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Path"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">_Path</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="Path">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path">[docs]</a>
+<span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">_Path</span><span class="p">]):</span>
     <span class="c1"># noinspection PyUnresolvedReferences</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param exists: If set, then the provided path must already exist if True, or must not already exist if False.</span>
@@ -1079,11 +1090,17 @@
 <span class="sd">    :param fix_default: Whether default values should be normalized using :meth:`~FileInput.fix_default`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Path.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validated_path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="Path.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validated_path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="File"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FileWrapper</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]):</span>
+
+<div class="viewcode-block" id="File">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File">[docs]</a>
+<span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FileWrapper</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`.</span>
 <span class="sd">    :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.</span>
@@ -1126,14 +1143,20 @@
     <span class="k">def</span> <span class="nf">_prep_file_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">_Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileWrapper</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">FileWrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span>
 
-<div class="viewcode-block" id="File.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">FileWrapper</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+<div class="viewcode-block" id="File.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">FileWrapper</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_file_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validated_path</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lazy</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">wrapper</span>
-        <span class="k">return</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Serialized"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized">[docs]</a><span class="k">class</span> <span class="nc">Serialized</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Serialized">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized">[docs]</a>
+<span class="k">class</span> <span class="nc">Serialized</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param converter: Function to use to (de)serialize the given file, such as :func:`python:json.loads`,</span>
 <span class="sd">      :func:`python:json.dumps`, :func:`python:pickle.load`, etc.</span>
@@ -1156,7 +1179,10 @@
         <span class="k">return</span> <span class="n">FileWrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Json"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Json">[docs]</a><span class="k">class</span> <span class="nc">Json</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Json">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Json">[docs]</a>
+<span class="k">class</span> <span class="nc">Json</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1169,7 +1195,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dump</span> <span class="k">if</span> <span class="n">write</span> <span class="k">else</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Pickle"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Pickle">[docs]</a><span class="k">class</span> <span class="nc">Pickle</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Pickle">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Pickle">[docs]</a>
+<span class="k">class</span> <span class="nc">Pickle</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1185,6 +1214,7 @@
         <span class="n">write</span> <span class="o">=</span> <span class="n">allows_write</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pass_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span> <span class="k">if</span> <span class="n">write</span> <span class="k">else</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

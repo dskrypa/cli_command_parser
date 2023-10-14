@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -993,7 +993,9 @@
 <span class="c1">#  optionally injecting the selected choice into positional args for the decorated method, which may be main?</span>
 
 
-<div class="viewcode-block" id="Choice"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice">[docs]</a><span class="k">class</span> <span class="nc">Choice</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<div class="viewcode-block" id="Choice">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice">[docs]</a>
+<span class="k">class</span> <span class="nc">Choice</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used internally to store a value that can be provided as a choice for a parameter, and the target value / callable</span>
 <span class="sd">    associated with that choice.</span>
@@ -1012,15 +1014,24 @@
         <span class="n">target_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;, target=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice</span><span class="si">!r}{</span><span class="n">target_str</span><span class="si">}{</span><span class="n">help_str</span><span class="si">}</span><span class="s1">)&#39;</span>
 
-<div class="viewcode-block" id="Choice.format_usage"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice.format_usage">[docs]</a>    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="Choice.format_usage">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice.format_usage">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;(default)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice</span></div>
 
-<div class="viewcode-block" id="Choice.format_help"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice.format_help">[docs]</a>    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Choice.format_help">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice.format_help">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lpad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># Note: no longer called by formatters</span>
-        <span class="k">return</span> <span class="n">format_help_entry</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(),),</span> <span class="bp">self</span><span class="o">.</span><span class="n">help</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="n">lpad</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">format_help_entry</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(),),</span> <span class="bp">self</span><span class="o">.</span><span class="n">help</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">tw_offset</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="n">lpad</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ChoiceMap"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap">[docs]</a><span class="k">class</span> <span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Concatenate</span><span class="p">,)):</span>
+
+<div class="viewcode-block" id="ChoiceMap">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap">[docs]</a>
+<span class="k">class</span> <span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Concatenate</span><span class="p">,)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.</span>
 
@@ -1046,7 +1057,9 @@
     <span class="n">title</span><span class="p">:</span> <span class="n">OptStr</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">OptStr</span>
 
-<div class="viewcode-block" id="ChoiceMap.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>  <span class="c1"># pylint: disable=W0222</span>
+<div class="viewcode-block" id="ChoiceMap.__init_subclass__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.__init_subclass__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span>  <span class="c1"># pylint: disable=W0222</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1060,20 +1073,27 @@
         <span class="k">if</span> <span class="n">choice_validation_exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_choice_validation_exc</span> <span class="o">=</span> <span class="n">choice_validation_exc</span></div>
 
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;concatenate&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="ChoiceMap.register_default_cb"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb">[docs]</a>    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<div class="viewcode-block" id="ChoiceMap.register_default_cb">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">s do not support default callback methods&#39;</span><span class="p">)</span></div>
+
 
     <span class="c1"># region Choice Registration</span>
 
-<div class="viewcode-block" id="ChoiceMap.has_choices"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.has_choices">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChoiceMap.has_choices">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.has_choices">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_update_nargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1094,9 +1114,12 @@
         <span class="k">if</span> <span class="n">bad</span> <span class="o">:=</span> <span class="p">{</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">whitespace</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">printable</span><span class="p">}:</span>
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_choice_validation_exc</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - invalid characters: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ChoiceMap.register_choice"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_choice">[docs]</a>    <span class="k">def</span> <span class="nf">register_choice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="ChoiceMap.register_choice">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_choice">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_choice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_positional</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_register_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_register_choice</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># noqa</span>
@@ -1117,7 +1140,9 @@
 
     <span class="c1"># region Argument Handling</span>
 
-<div class="viewcode-block" id="ChoiceMap.validate"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ChoiceMap.validate">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.validate">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">choices</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_no_choices_error</span><span class="p">()</span>
 
@@ -1131,28 +1156,41 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">choices</span> <span class="k">if</span> <span class="n">c</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">InvalidChoice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">choices</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ChoiceMap.result_value"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.result_value">[docs]</a>    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">TD</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="ChoiceMap.result_value">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.result_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">result_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">TD</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_no_choices_error</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">result_value</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">)</span></div>
 
+
     <span class="n">result</span> <span class="o">=</span> <span class="n">result_value</span>
 
-<div class="viewcode-block" id="ChoiceMap.target"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.target">[docs]</a>    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<div class="viewcode-block" id="ChoiceMap.target">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.target">[docs]</a>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">result_value</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span><span class="o">.</span><span class="n">target</span></div>
+
 
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Usage / Help Text</span>
 
-<div class="viewcode-block" id="ChoiceMap.show_in_help"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.show_in_help">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChoiceMap.show_in_help">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.show_in_help">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span></div>
+</div>
+
 
     <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="SubCommand"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand">[docs]</a><span class="k">class</span> <span class="nc">SubCommand</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="o">=</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
+<div class="viewcode-block" id="SubCommand">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand">[docs]</a>
+<span class="k">class</span> <span class="nc">SubCommand</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">choice_validation_exc</span><span class="o">=</span><span class="n">CommandDefinitionError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used to indicate the position where a choice that results in delegating execution of the program to a sub-command</span>
 <span class="sd">    should be provided.</span>
@@ -1190,9 +1228,12 @@
         <span class="k">if</span> <span class="n">local_choices</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_register_local_choices</span><span class="p">(</span><span class="n">local_choices</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SubCommand.has_local_choices"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.has_local_choices">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="SubCommand.has_local_choices">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.has_local_choices">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_local_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
 
     <span class="k">def</span> <span class="nf">_register_local_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_choices</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1203,7 +1244,9 @@
         <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">help_text</span> <span class="ow">in</span> <span class="n">choice_help_iter</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_register_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help_text</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SubCommand.register_command"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register_command">[docs]</a>    <span class="k">def</span> <span class="nf">register_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCls</span><span class="p">:</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="SubCommand.register_command">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register_command">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCls</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">choice</span> <span class="o">=</span> <span class="n">camel_to_snake_case</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1221,7 +1264,10 @@
         <span class="n">command</span><span class="o">.</span><span class="n">_is_subcommand_</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># This is used indirectly by ``main()`` to filter out non-top-level Commands</span>
         <span class="k">return</span> <span class="n">command</span></div>
 
-<div class="viewcode-block" id="SubCommand.register"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+
+<div class="viewcode-block" id="SubCommand.register">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register">[docs]</a>
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">command_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCls</span><span class="p">],</span> <span class="n">CommandCls</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1248,11 +1294,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">command_or_choice</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
+
     <span class="k">def</span> <span class="nf">_no_choices_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">command_cls</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> has no sub Commands&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action">[docs]</a><span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">[</span><span class="n">MethodType</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Action">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action">[docs]</a>
+<span class="k">class</span> <span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">[</span><span class="n">MethodType</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Actions are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command` classes to</span>
 <span class="sd">    be registered as a callable to be executed based on a user&#39;s choice instead of separate sub Commands.</span>
@@ -1262,7 +1312,9 @@
 <span class="sd">    :class:`.Command` classes may make more sense.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Action.register_action"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register_action">[docs]</a>    <span class="k">def</span> <span class="nf">register_action</span><span class="p">(</span>
+<div class="viewcode-block" id="Action.register_action">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register_action">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_action</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">MethodType</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># noqa</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MethodType</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">help</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1284,7 +1336,10 @@
 
         <span class="k">return</span> <span class="n">method</span></div>
 
-<div class="viewcode-block" id="Action.register"><a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Action.register">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register">[docs]</a>
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">method_or_choice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MethodType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1324,7 +1379,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_action</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">method_or_choice</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span></div>
 
+
     <span class="fm">__call__</span> <span class="o">=</span> <span class="n">register</span></div>
+
 </pre></div>
 
            </div>

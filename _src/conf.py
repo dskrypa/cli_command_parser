@@ -15,7 +15,7 @@ from cli_command_parser.__version__ import __author__, __version__, __descriptio
 project = __description__
 version = release = __version__
 author = __author__
-copyright = '{}, {}'.format(datetime.now().strftime('%Y'), author)  # noqa
+copyright = f'{datetime.now().strftime("%Y")}, {author}'  # noqa
 
 extensions = [
     'field_list_refs',

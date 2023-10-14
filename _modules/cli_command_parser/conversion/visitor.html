@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -980,7 +980,9 @@
 <span class="n">_NoCall</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="scoped"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.scoped">[docs]</a><span class="k">def</span> <span class="nf">scoped</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="scoped">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.scoped">[docs]</a>
+<span class="k">def</span> <span class="nf">scoped</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_scoped_method</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">ScriptVisitor</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">new_child</span><span class="p">()</span>
@@ -992,14 +994,20 @@
     <span class="k">return</span> <span class="n">_scoped_method</span></div>
 
 
-<div class="viewcode-block" id="ScopedVisit"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScopedVisit">[docs]</a><span class="k">class</span> <span class="nc">ScopedVisit</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ScopedVisit">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScopedVisit">[docs]</a>
+<span class="k">class</span> <span class="nc">ScopedVisit</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ScriptVisitor</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">partial</span><span class="p">(</span><span class="n">scoped</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">),</span> <span class="n">instance</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ScriptVisitor"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor">[docs]</a><span class="k">class</span> <span class="nc">ScriptVisitor</span><span class="p">(</span><span class="n">NodeVisitor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScriptVisitor">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor">[docs]</a>
+<span class="k">class</span> <span class="nc">ScriptVisitor</span><span class="p">(</span><span class="n">NodeVisitor</span><span class="p">):</span>
     <span class="n">visit_FunctionDef</span> <span class="o">=</span> <span class="n">visit_AsyncFunctionDef</span> <span class="o">=</span> <span class="n">ScopedVisit</span><span class="p">()</span>
     <span class="n">visit_Lambda</span> <span class="o">=</span> <span class="n">ScopedVisit</span><span class="p">()</span>
     <span class="n">visit_ClassDef</span> <span class="o">=</span> <span class="n">ScopedVisit</span><span class="p">()</span>
@@ -1013,14 +1021,22 @@
         <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">track_refs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">track_refs_to</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ScriptVisitor.track_callable"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_callable">[docs]</a>    <span class="k">def</span> <span class="nf">track_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<div class="viewcode-block" id="ScriptVisitor.track_callable">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_callable">[docs]</a>
+    <span class="k">def</span> <span class="nf">track_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="p">[</span><span class="n">module</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cb</span></div>
 
-<div class="viewcode-block" id="ScriptVisitor.track_refs_to"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_refs_to">[docs]</a>    <span class="k">def</span> <span class="nf">track_refs_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">TrackedRef</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScriptVisitor.track_refs_to">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_refs_to">[docs]</a>
+    <span class="k">def</span> <span class="nf">track_refs_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">TrackedRef</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">module</span><span class="p">][</span><span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref</span></div>
 
-<div class="viewcode-block" id="ScriptVisitor.get_tracked_refs"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.get_tracked_refs">[docs]</a>    <span class="k">def</span> <span class="nf">get_tracked_refs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrackedRefMap</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ScriptVisitor.get_tracked_refs">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.get_tracked_refs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tracked_refs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrackedRefMap</span><span class="p">:</span>
         <span class="n">tracked_refs</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span><span class="p">:</span>
@@ -1028,27 +1044,36 @@
         <span class="n">tracked_refs</span><span class="o">.</span><span class="n">default_factory</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">tracked_refs</span></div>
 
+
     <span class="c1"># region Imports</span>
 
-<div class="viewcode-block" id="ScriptVisitor.visit_Import"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Import">[docs]</a>    <span class="k">def</span> <span class="nf">visit_Import</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Import</span><span class="p">):</span>
+<div class="viewcode-block" id="ScriptVisitor.visit_Import">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Import">[docs]</a>
+    <span class="k">def</span> <span class="nf">visit_Import</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Import</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">as_name</span> <span class="ow">in</span> <span class="n">imp_names</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">name_tracked_map</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found module import: </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">as_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tracked</span> <span class="ow">in</span> <span class="n">name_tracked_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">as_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tracked</span></div>
 
-<div class="viewcode-block" id="ScriptVisitor.visit_ImportFrom"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_ImportFrom">[docs]</a>    <span class="k">def</span> <span class="nf">visit_ImportFrom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ImportFrom</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScriptVisitor.visit_ImportFrom">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_ImportFrom">[docs]</a>
+    <span class="k">def</span> <span class="nf">visit_ImportFrom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ImportFrom</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name_tracked_map</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">as_name</span> <span class="ow">in</span> <span class="n">imp_names</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">tracked</span> <span class="o">:=</span> <span class="n">name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                     <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found tracked import: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">as_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">as_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tracked</span></div>
 
+
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Scope Changes</span>
 
-<div class="viewcode-block" id="ScriptVisitor.visit_For"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_For">[docs]</a>    <span class="nd">@scoped</span>
+<div class="viewcode-block" id="ScriptVisitor.visit_For">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_For">[docs]</a>
+    <span class="nd">@scoped</span>
     <span class="k">def</span> <span class="nf">visit_For</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">For</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Name</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1062,6 +1087,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_visit_for_elements</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ele_names</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
 
     <span class="n">visit_AsyncFor</span> <span class="o">=</span> <span class="n">visit_For</span>
 
@@ -1096,7 +1122,9 @@
 
     <span class="c1"># endregion</span>
 
-<div class="viewcode-block" id="ScriptVisitor.resolve_ref"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.resolve_ref">[docs]</a>    <span class="k">def</span> <span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">expr</span><span class="p">]):</span>
+<div class="viewcode-block" id="ScriptVisitor.resolve_ref">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.resolve_ref">[docs]</a>
+    <span class="k">def</span> <span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">expr</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Call</span><span class="p">):</span>
             <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit_Call</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="n">attr</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">attr</span>
@@ -1119,7 +1147,10 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="n">can_call</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ScriptVisitor.visit_withitem"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_withitem">[docs]</a>    <span class="k">def</span> <span class="nf">visit_withitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScriptVisitor.visit_withitem">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_withitem">[docs]</a>
+    <span class="k">def</span> <span class="nf">visit_withitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="n">context_expr</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">context_expr</span>
         <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">context_expr</span><span class="p">):</span>
             <span class="n">call</span> <span class="o">=</span> <span class="n">context_expr</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">context_expr</span><span class="p">,</span> <span class="n">Call</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1127,7 +1158,10 @@
             <span class="k">if</span> <span class="n">as_name</span> <span class="o">:=</span> <span class="n">item</span><span class="o">.</span><span class="n">optional_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">as_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="ScriptVisitor.visit_Assign"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Assign">[docs]</a>    <span class="k">def</span> <span class="nf">visit_Assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assign</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScriptVisitor.visit_Assign">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Assign">[docs]</a>
+    <span class="k">def</span> <span class="nf">visit_Assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assign</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">)):</span>  <span class="c1"># Assigning an alias to a variable</span>
             <span class="k">if</span> <span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
@@ -1138,13 +1172,20 @@
                 <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span>  <span class="c1"># noq</span></div>
 
-<div class="viewcode-block" id="ScriptVisitor.visit_Call"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Call">[docs]</a>    <span class="k">def</span> <span class="nf">visit_Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Call</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ScriptVisitor.visit_Call">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Call">[docs]</a>
+    <span class="k">def</span> <span class="nf">visit_Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Call</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">_NoCall</span></div></div>
+        <span class="k">return</span> <span class="n">_NoCall</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TrackedRef"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.TrackedRef">[docs]</a><span class="k">class</span> <span class="nc">TrackedRef</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TrackedRef">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.TrackedRef">[docs]</a>
+<span class="k">class</span> <span class="nc">TrackedRef</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -1160,11 +1201,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">module</span></div>
 
 
-<div class="viewcode-block" id="imp_names"><a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.imp_names">[docs]</a><span class="k">def</span> <span class="nf">imp_names</span><span class="p">(</span><span class="n">imp</span><span class="p">:</span> <span class="n">Import</span> <span class="o">|</span> <span class="n">ImportFrom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="imp_names">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.imp_names">[docs]</a>
+<span class="k">def</span> <span class="nf">imp_names</span><span class="p">(</span><span class="n">imp</span><span class="p">:</span> <span class="n">Import</span> <span class="o">|</span> <span class="n">ImportFrom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
     <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">imp</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span>
         <span class="n">as_name</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">name</span>
         <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">as_name</span></div>
+
 </pre></div>
 
            </div>

@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -1004,7 +1004,9 @@
 <span class="n">DEFAULT_DT_FMT</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span>
 
 
-<div class="viewcode-block" id="different_locale"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale">[docs]</a><span class="k">class</span> <span class="nc">different_locale</span><span class="p">:</span>
+<div class="viewcode-block" id="different_locale">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.different_locale">[docs]</a>
+<span class="k">class</span> <span class="nc">different_locale</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Context manager that allows the temporary use of an alternate locale for date/time parsing/formatting.</span>
 
@@ -1037,50 +1039,71 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="DTInput"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput">[docs]</a><span class="k">class</span> <span class="nc">DTInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DTInput">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput">[docs]</a>
+<span class="k">class</span> <span class="nc">DTInput</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;locale&#39;</span><span class="p">,)</span>
     <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">locale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Locale</span><span class="p">]</span>
 
-<div class="viewcode-block" id="DTInput.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DTInput.__init_subclass__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.__init_subclass__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param dt_type: Used in InvalidChoiceError / ValueError messages</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">dt_type</span> <span class="o">=</span> <span class="n">dt_type</span></div>
 
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">locale</span> <span class="o">=</span> <span class="n">locale</span>
 
-<div class="viewcode-block" id="DTInput.choice_str"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.choice_str">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="DTInput.choice_str">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.choice_str">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="DTInput.fix_default"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.fix_default">[docs]</a>    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="DTInput.fix_default">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.fix_default">[docs]</a>
+    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># region Calendar Unit Inputs</span>
 
 
-<div class="viewcode-block" id="DTFormatMode"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode">[docs]</a><span class="k">class</span> <span class="nc">DTFormatMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="DTFormatMode">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode">[docs]</a>
+<span class="k">class</span> <span class="nc">DTFormatMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="n">FULL</span> <span class="o">=</span> <span class="s1">&#39;full&#39;</span>                   <span class="c1">#: The full name of a given date/time unit</span>
     <span class="n">ABBREVIATION</span> <span class="o">=</span> <span class="s1">&#39;abbreviation&#39;</span>   <span class="c1">#: The abbreviation of a given date/time unit</span>
     <span class="n">NUMERIC</span> <span class="o">=</span> <span class="s1">&#39;numeric&#39;</span>             <span class="c1">#: The numeric representation of a given date/time unit</span>
     <span class="n">NUMERIC_ISO</span> <span class="o">=</span> <span class="s1">&#39;numeric_iso&#39;</span>     <span class="c1">#: The ISO numeric representation of a given date/time unit</span></div>
 
 
-<div class="viewcode-block" id="CalendarUnitInput"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput">[docs]</a><span class="k">class</span> <span class="nc">CalendarUnitInput</span><span class="p">(</span><span class="n">DTInput</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CalendarUnitInput">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput">[docs]</a>
+<span class="k">class</span> <span class="nc">CalendarUnitInput</span><span class="p">(</span><span class="n">DTInput</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="s1">&#39;abbreviation&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric&#39;</span><span class="p">,</span> <span class="s1">&#39;out_format&#39;</span><span class="p">,</span> <span class="s1">&#39;out_locale&#39;</span><span class="p">)</span>
     <span class="n">_formats</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span>
     <span class="n">_min_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="CalendarUnitInput.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">min_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="CalendarUnitInput.__init_subclass__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">min_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_min_index</span> <span class="o">=</span> <span class="n">min_index</span></div>
+
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1125,7 +1148,9 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
                 <span class="k">yield from</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">][</span><span class="n">min_index</span><span class="p">:],</span> <span class="n">min_index</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CalendarUnitInput.choices"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.choices">[docs]</a>    <span class="k">def</span> <span class="nf">choices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="CalendarUnitInput.choices">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.choices">[docs]</a>
+    <span class="k">def</span> <span class="nf">choices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">dow</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">()]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numeric</span><span class="p">:</span>
             <span class="n">mode</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;iso&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span>
@@ -1136,17 +1161,29 @@
             <span class="n">choices</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">choices</span></div>
 
-<div class="viewcode-block" id="CalendarUnitInput.choice_str"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.choice_str">[docs]</a>    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CalendarUnitInput.choice_str">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.choice_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">sort_choices</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="CalendarUnitInput.format_metavar"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.format_metavar">[docs]</a>    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CalendarUnitInput.format_metavar">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.format_metavar">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span></div>
 
-<div class="viewcode-block" id="CalendarUnitInput.parse_numeric"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse_numeric">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="CalendarUnitInput.parse_numeric">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse_numeric">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="CalendarUnitInput.parse"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CalendarUnitInput.parse">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse the date/time unit from the given value.</span>
 
@@ -1172,7 +1209,10 @@
 
         <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CalendarUnitInput.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CalendarUnitInput.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">normalized</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_index</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidChoiceError</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="p">)</span>
@@ -1182,10 +1222,14 @@
             <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_locale</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">names_or_abbreviations</span><span class="p">[</span><span class="n">normalized</span><span class="p">]</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected output format=</span><span class="si">{</span><span class="n">out_mode</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">normalized</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected output format=</span><span class="si">{</span><span class="n">out_mode</span><span class="si">!r}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">normalized</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Day"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day">[docs]</a><span class="k">class</span> <span class="nc">Day</span><span class="p">(</span><span class="n">CalendarUnitInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;day of the week&#39;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Day">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day">[docs]</a>
+<span class="k">class</span> <span class="nc">Day</span><span class="p">(</span><span class="n">CalendarUnitInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;day of the week&#39;</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;iso&#39;</span><span class="p">,)</span>
     <span class="n">_formats</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">day_name</span><span class="p">,</span>
@@ -1226,7 +1270,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iso</span> <span class="o">=</span> <span class="n">iso</span>
 
-<div class="viewcode-block" id="Day.parse_numeric"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_numeric">[docs]</a>    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="Day.parse_numeric">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.parse_numeric">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">dow_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1241,10 +1287,14 @@
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid weekday=</span><span class="si">{</span><span class="n">dow_num</span><span class="si">}</span><span class="s1"> - expected a value&#39;</span>
                 <span class="sa">f</span><span class="s1">&#39; between </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">day_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">) and </span><span class="si">{</span><span class="n">stop</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">day_name</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span>
-            <span class="p">)</span></div></div>
+            <span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Month"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month">[docs]</a><span class="k">class</span> <span class="nc">Month</span><span class="p">(</span><span class="n">CalendarUnitInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">min_index</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Month">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month">[docs]</a>
+<span class="k">class</span> <span class="nc">Month</span><span class="p">(</span><span class="n">CalendarUnitInput</span><span class="p">,</span> <span class="n">dt_type</span><span class="o">=</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">min_index</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">_formats</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">month_name</span><span class="p">,</span>
@@ -1280,7 +1330,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">numeric</span><span class="o">=</span><span class="n">numeric</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Month.parse_numeric"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month.parse_numeric">[docs]</a>    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="Month.parse_numeric">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Month.parse_numeric">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1293,13 +1345,17 @@
         <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">month</span><span class="si">=}</span><span class="s1"> - expected a value between 1 (</span><span class="si">{</span><span class="n">month_name</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">) and 12 (</span><span class="si">{</span><span class="n">month_name</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span>
-            <span class="p">)</span></div></div>
+            <span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="TimeDelta"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta">[docs]</a><span class="k">class</span> <span class="nc">TimeDelta</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
+<div class="viewcode-block" id="TimeDelta">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta">[docs]</a>
+<span class="k">class</span> <span class="nc">TimeDelta</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span> <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
@@ -1310,7 +1366,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
         <span class="c1"># TODO: min/max params like NumRange?</span>
 
-<div class="viewcode-block" id="TimeDelta.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+<div class="viewcode-block" id="TimeDelta.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>  <span class="c1"># allow comma or _ between thousands</span>
@@ -1321,27 +1379,40 @@
 
         <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="TimeDelta.fix_default"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.fix_default">[docs]</a>    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="TimeDelta.fix_default">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.fix_default">[docs]</a>
+    <span class="k">def</span> <span class="nf">fix_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TimeDelta.format_metavar"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.format_metavar">[docs]</a>    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div></div>
+
+<div class="viewcode-block" id="TimeDelta.format_metavar">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.format_metavar">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div>
+</div>
+
 
 
 <span class="c1"># region Date/Time Parse Inputs</span>
 
 
-<div class="viewcode-block" id="DateTimeInput"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput">[docs]</a><span class="k">class</span> <span class="nc">DateTimeInput</span><span class="p">(</span><span class="n">DTInput</span><span class="p">[</span><span class="n">DT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="DateTimeInput">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput">[docs]</a>
+<span class="k">class</span> <span class="nc">DateTimeInput</span><span class="p">(</span><span class="n">DTInput</span><span class="p">[</span><span class="n">DT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">DT</span><span class="p">]</span>
     <span class="n">_earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="DateTimeInput.__init_subclass__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__init_subclass__">[docs]</a>    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">DT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="DateTimeInput.__init_subclass__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__init_subclass__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">DT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="n">dt_type</span><span class="o">=</span><span class="nb">type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span></div>
+
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1367,19 +1438,25 @@
     <span class="k">def</span> <span class="nf">earliest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DT</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="n">normalize_dt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_earliest</span><span class="p">))</span>
 
-<div class="viewcode-block" id="DateTimeInput.earliest"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.earliest">[docs]</a>    <span class="nd">@earliest</span><span class="o">.</span><span class="n">setter</span>
+<div class="viewcode-block" id="DateTimeInput.earliest">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.earliest">[docs]</a>
+    <span class="nd">@earliest</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">earliest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_bound_combo</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_earliest</span> <span class="o">=</span> <span class="n">value</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">latest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DT</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="n">normalize_dt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">))</span>
 
-<div class="viewcode-block" id="DateTimeInput.latest"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.latest">[docs]</a>    <span class="nd">@latest</span><span class="o">.</span><span class="n">setter</span>
+<div class="viewcode-block" id="DateTimeInput.latest">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.latest">[docs]</a>
+    <span class="nd">@latest</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">latest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_bound_combo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_earliest</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span> <span class="o">=</span> <span class="n">value</span></div>
+
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_validate_bound_combo</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">raw_earliest</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">raw_latest</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">):</span>
@@ -1391,7 +1468,9 @@
                 <span class="sa">f</span><span class="s1">&#39; - </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">,</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">,</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="DateTimeInput.parse_dt"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.parse_dt">[docs]</a>    <span class="k">def</span> <span class="nf">parse_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+<div class="viewcode-block" id="DateTimeInput.parse_dt">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.parse_dt">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_dt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">different_locale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locale</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -1403,18 +1482,28 @@
             <span class="sa">f</span><span class="s1">&#39;Expected a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> matching one of the following formats: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="DateTimeInput.parse"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DateTimeInput.parse">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.parse">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_dt</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="DateTimeInput.choice_str"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.choice_str">[docs]</a>    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DateTimeInput.choice_str">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.choice_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">choice_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">choice_delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">)</span> <span class="k">if</span> <span class="n">sort_choices</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DateTimeInput.format_metavar"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.format_metavar">[docs]</a>    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DateTimeInput.format_metavar">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.format_metavar">[docs]</a>
+    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="s1">&#39;{&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_str</span><span class="p">(</span><span class="n">choice_delim</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
         <span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earliest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest</span>
         <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">,</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1"> &lt;= &#39;</span> <span class="k">if</span> <span class="n">earliest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; &lt;= </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">,</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">choices</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">]&#39;</span> <span class="k">if</span> <span class="n">prefix</span> <span class="ow">or</span> <span class="n">suffix</span> <span class="k">else</span> <span class="n">choices</span></div>
+
 
     <span class="k">def</span> <span class="nf">_validate_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">DT</span><span class="p">):</span>
         <span class="n">earliest</span><span class="p">,</span> <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earliest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest</span>
@@ -1429,13 +1518,19 @@
                 <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;after </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">earliest</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">check_earliest</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;before </span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">latest</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">dt_repr</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="si">}</span><span class="s1"> - a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dt_type</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1"> is required&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DateTimeInput.__call__"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
+<div class="viewcode-block" id="DateTimeInput.__call__">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__call__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DT</span><span class="p">:</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_bounds</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">parsed</span></div></div>
+        <span class="k">return</span> <span class="n">parsed</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">datetime</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DateTime">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime">[docs]</a>
+<span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">datetime</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1460,7 +1555,10 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Date"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date">[docs]</a><span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">date</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Date">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date">[docs]</a>
+<span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">date</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1485,7 +1583,10 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Time"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time">[docs]</a><span class="k">class</span> <span class="nc">Time</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">time</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Time">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time">[docs]</a>
+<span class="k">class</span> <span class="nc">Time</span><span class="p">(</span><span class="n">DateTimeInput</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">time</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1510,10 +1611,13 @@
         <span class="p">)</span></div>
 
 
+
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="dt_repr"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.dt_repr">[docs]</a><span class="k">def</span> <span class="nf">dt_repr</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="n">use_repr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="dt_repr">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.dt_repr">[docs]</a>
+<span class="k">def</span> <span class="nf">dt_repr</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="n">use_repr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">dt_str</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>  <span class="c1"># TypeError for date objects, ValueError for time objects</span>
@@ -1521,7 +1625,10 @@
     <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dt_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_repr</span> <span class="k">else</span> <span class="n">dt_str</span></div>
 
 
-<div class="viewcode-block" id="normalize_dt"><a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.normalize_dt">[docs]</a><span class="k">def</span> <span class="nf">normalize_dt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="normalize_dt">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.normalize_dt">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_dt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">value</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">):</span>
@@ -1537,6 +1644,7 @@
         <span class="sa">f</span><span class="s1">&#39;Unexpected datetime specifier type=</span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1">&#39;</span>
         <span class="s1">&#39; (expected datetime, date, time, timedelta, or None)&#39;</span>
     <span class="p">)</span></div>
+
 </pre></div>
 
            </div>

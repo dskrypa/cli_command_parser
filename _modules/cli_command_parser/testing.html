@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -1019,7 +1019,9 @@
 <span class="n">EXCLUDE_ACTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="n">help_action</span><span class="p">,)</span>
 
 
-<div class="viewcode-block" id="AssertRaisesWithStringContext"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext">[docs]</a><span class="k">class</span> <span class="nc">AssertRaisesWithStringContext</span><span class="p">:</span>
+<div class="viewcode-block" id="AssertRaisesWithStringContext">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext">[docs]</a>
+<span class="k">class</span> <span class="nc">AssertRaisesWithStringContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simplified version of the stdlib ``_AssertRaisesContext`` that tests whether the raised exception&#39;s string contains</span>
 <span class="sd">    the given text rather than matching it against a regex pattern.  This avoids the regex overhead when it isn&#39;t</span>
@@ -1047,7 +1049,10 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="ParserTest"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">[docs]</a><span class="k">class</span> <span class="nc">ParserTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">[docs]</a>
+<span class="k">class</span> <span class="nc">ParserTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="c1"># def setUp(self):</span>
     <span class="c1">#     print()</span>
     <span class="c1">#</span>
@@ -1055,38 +1060,58 @@
     <span class="c1">#     print()</span>
     <span class="c1">#     return super().subTest(*args, **kwargs)</span>
 
-<div class="viewcode-block" id="ParserTest.assert_dict_equal"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_dict_equal">[docs]</a>    <span class="k">def</span> <span class="nf">assert_dict_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ParserTest.assert_dict_equal">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_dict_equal">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_dict_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="s1">&#39;First argument is not a dictionary&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="s1">&#39;Second argument is not a dictionary&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">d1</span> <span class="o">!=</span> <span class="n">d2</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_formatMessage</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">d1</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="n">d2</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">format_dict_diff</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span><span class="w"> </span><span class="n">d2</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_raises_contains_str"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_raises_contains_str">[docs]</a>    <span class="k">def</span> <span class="nf">assert_raises_contains_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_exc</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="n">expected_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_raises_contains_str">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_raises_contains_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_raises_contains_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_exc</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="n">expected_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">AssertRaisesWithStringContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_exc</span><span class="p">,</span> <span class="n">expected_text</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_parse_results"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results">[docs]</a>    <span class="k">def</span> <span class="nf">assert_parse_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="n">Expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ParserTest.assert_parse_results">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_parse_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="n">Expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">:</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">EXCLUDE_ACTIONS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">parsed</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cmd</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_parse_results_cases"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results_cases">[docs]</a>    <span class="k">def</span> <span class="nf">assert_parse_results_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Case</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_parse_results_cases">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_results_cases">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_parse_results_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Case</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">argv</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assert_parse_results</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_env_parse_results"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_env_parse_results">[docs]</a>    <span class="k">def</span> <span class="nf">assert_env_parse_results</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ParserTest.assert_env_parse_results">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_env_parse_results">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_env_parse_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="n">Expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="n">OPT_ENV_MOD</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">assert_parse_results</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_env_parse_results_cases"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_env_parse_results_cases">[docs]</a>    <span class="k">def</span> <span class="nf">assert_env_parse_results_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">EnvCase</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_env_parse_results_cases">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_env_parse_results_cases">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_env_parse_results_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">EnvCase</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assert_env_parse_results</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_parse_fails"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_fails">[docs]</a>    <span class="k">def</span> <span class="nf">assert_parse_fails</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ParserTest.assert_parse_fails">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_fails">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_parse_fails</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span>
         <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span><span class="p">,</span>
@@ -1102,19 +1127,28 @@
             <span class="k">with</span> <span class="n">AssertRaisesWithStringContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_exc</span><span class="p">,</span> <span class="n">expected_pattern</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
                 <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_parse_fails_cases"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_fails_cases">[docs]</a>    <span class="k">def</span> <span class="nf">assert_parse_fails_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">ExcCases</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">ExcType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_parse_fails_cases">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_parse_fails_cases">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_parse_fails_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">ExcCases</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">ExcType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">argv</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">_iter_exc_cases</span><span class="p">(</span><span class="n">cases</span><span class="p">,</span> <span class="n">exc</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="s1">&#39;exception&#39;</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">AssertRaisesWithStringContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">pat</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
                     <span class="n">cmd_cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_argv_parse_fails_cases"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_argv_parse_fails_cases">[docs]</a>    <span class="k">def</span> <span class="nf">assert_argv_parse_fails_cases</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ParserTest.assert_argv_parse_fails_cases">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_argv_parse_fails_cases">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_argv_parse_fails_cases</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cmd_cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Argv</span><span class="p">],</span> <span class="n">exc</span><span class="p">:</span> <span class="n">ExcType</span> <span class="o">=</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience method for calling :meth:`.assert_parse_fails_cases` with a default exception type.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_parse_fails_cases</span><span class="p">(</span><span class="n">cmd_cls</span><span class="p">,</span> <span class="n">cases</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_call_fails"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_call_fails">[docs]</a>    <span class="k">def</span> <span class="nf">assert_call_fails</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ParserTest.assert_call_fails">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_call_fails">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_call_fails</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
         <span class="n">kwargs</span><span class="p">:</span> <span class="n">Kwargs</span><span class="p">,</span>
@@ -1125,13 +1159,19 @@
         <span class="k">with</span> <span class="n">AssertRaisesWithStringContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">expected_exc_msg</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
             <span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_call_fails_cases"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_call_fails_cases">[docs]</a>    <span class="k">def</span> <span class="nf">assert_call_fails_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">CallExceptionCase</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_call_fails_cases">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_call_fails_cases">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_call_fails_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">CallExceptionCase</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">_iter_exc_cases</span><span class="p">(</span><span class="n">cases</span><span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="s1">&#39;exception&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">AssertRaisesWithStringContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">pat</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
                     <span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_strings_equal"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_strings_equal">[docs]</a>    <span class="k">def</span> <span class="nf">assert_strings_equal</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ParserTest.assert_strings_equal">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_strings_equal">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_strings_equal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">actual</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">diff_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">trim</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">trim</span><span class="p">:</span>
@@ -1146,19 +1186,30 @@
             <span class="c1"># else:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s1">&#39;Strings did not match:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">diff</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_str_starts_with_line"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_str_starts_with_line">[docs]</a>    <span class="k">def</span> <span class="nf">assert_str_starts_with_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_str_starts_with_line">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_str_starts_with_line">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_str_starts_with_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">new_line</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">text</span><span class="p">[:</span><span class="n">new_line</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="ParserTest.assert_str_contains"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_str_contains">[docs]</a>    <span class="k">def</span> <span class="nf">assert_str_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">diff_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ParserTest.assert_str_contains">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.assert_str_contains">[docs]</a>
+    <span class="k">def</span> <span class="nf">assert_str_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">diff_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">sub_text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">format_diff</span><span class="p">(</span><span class="n">sub_text</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">diff_lines</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s1">&#39;String did not contain expected text:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">diff</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ParserTest.env_vars"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.env_vars">[docs]</a>    <span class="nd">@contextmanager</span>
+
+<div class="viewcode-block" id="ParserTest.env_vars">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest.env_vars">[docs]</a>
+    <span class="nd">@contextmanager</span>
     <span class="k">def</span> <span class="nf">env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">env_vars</span><span class="p">):</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">subTest</span><span class="p">(</span><span class="n">case</span><span class="o">=</span><span class="n">case</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span><span class="n">OPT_ENV_MOD</span><span class="p">,</span> <span class="n">env_vars</span><span class="p">):</span>
-            <span class="k">yield</span></div></div>
+            <span class="k">yield</span></div>
+</div>
+
 
 
 <span class="k">def</span> <span class="nf">_iter_exc_cases</span><span class="p">(</span><span class="n">cases</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ExcCases</span><span class="p">,</span> <span class="n">CallExceptionCases</span><span class="p">],</span> <span class="n">exc</span><span class="p">:</span> <span class="n">ExcType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -1182,7 +1233,9 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\x1b</span><span class="s1">[38;5;</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s1">m</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="se">\x1b</span><span class="s1">[0m</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">&#39;</span>
 
 
-<div class="viewcode-block" id="format_diff"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.format_diff">[docs]</a><span class="k">def</span> <span class="nf">format_diff</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;expected&#39;</span><span class="p">,</span> <span class="n">name_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  actual&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="format_diff">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.format_diff">[docs]</a>
+<span class="k">def</span> <span class="nf">format_diff</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;expected&#39;</span><span class="p">,</span> <span class="n">name_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  actual&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">sio</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
@@ -1199,7 +1252,10 @@
     <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="format_dict_diff"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.format_dict_diff">[docs]</a><span class="k">def</span> <span class="nf">format_dict_diff</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="format_dict_diff">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.format_dict_diff">[docs]</a>
+<span class="k">def</span> <span class="nf">format_dict_diff</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">formatted_a</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">formatted_b</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)):</span>
@@ -1231,10 +1287,13 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;- </span><span class="se">{{</span><span class="si">{</span><span class="n">kvs_a</span><span class="si">}</span><span class="se">}}\n</span><span class="s1">+ </span><span class="se">{{</span><span class="si">{</span><span class="n">kvs_b</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div>
 
 
+
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="RedirectStreams"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams">[docs]</a><span class="k">class</span> <span class="nc">RedirectStreams</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>
+<div class="viewcode-block" id="RedirectStreams">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams">[docs]</a>
+<span class="k">class</span> <span class="nc">RedirectStreams</span><span class="p">(</span><span class="n">AbstractContextManager</span><span class="p">):</span>
     <span class="n">_stdin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IO</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stdin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IO</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -1251,13 +1310,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
 
-<div class="viewcode-block" id="RedirectStreams.stdout"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams.stdout">[docs]</a>    <span class="nd">@property</span>
+<div class="viewcode-block" id="RedirectStreams.stdout">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams.stdout">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="RedirectStreams.stderr"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams.stderr">[docs]</a>    <span class="nd">@property</span>
+
+<div class="viewcode-block" id="RedirectStreams.stderr">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams.stderr">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">stderr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RedirectStreams</span><span class="p">:</span>
         <span class="n">streams</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;stdout&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span><span class="p">,</span> <span class="s1">&#39;stderr&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span><span class="p">}</span>
@@ -1274,15 +1339,21 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span></div>
 
 
+
 <span class="c1"># region Help / Usage / RST Text</span>
 
 
-<div class="viewcode-block" id="get_usage_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_usage_text">[docs]</a><span class="k">def</span> <span class="nf">get_usage_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="get_usage_text">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_usage_text">[docs]</a>
+<span class="k">def</span> <span class="nf">get_usage_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">with</span> <span class="n">cmd</span><span class="p">()</span><span class="o">.</span><span class="n">ctx</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="get_help_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_help_text">[docs]</a><span class="k">def</span> <span class="nf">get_help_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">Command</span><span class="p">],</span> <span class="n">terminal_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">199</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_help_text">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_help_text">[docs]</a>
+<span class="k">def</span> <span class="nf">get_help_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">Command</span><span class="p">],</span> <span class="n">terminal_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">199</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">Command</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">()</span>
 
@@ -1291,7 +1362,10 @@
         <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="get_rst_text"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text">[docs]</a><span class="k">def</span> <span class="nf">get_rst_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="get_rst_text">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.get_rst_text">[docs]</a>
+<span class="k">def</span> <span class="nf">get_rst_text</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">Command</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">Command</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">()</span>
 
@@ -1300,26 +1374,36 @@
         <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_rst</span><span class="p">()</span></div>
 
 
+
 <span class="c1"># endregion</span>
 
 
-<div class="viewcode-block" id="sealed_mock"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.sealed_mock">[docs]</a><span class="k">def</span> <span class="nf">sealed_mock</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="sealed_mock">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.sealed_mock">[docs]</a>
+<span class="k">def</span> <span class="nf">sealed_mock</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;return_value&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">mock</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">seal</span><span class="p">(</span><span class="n">mock</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">mock</span></div>
 
 
-<div class="viewcode-block" id="load_command"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.load_command">[docs]</a><span class="nd">@contextmanager</span>
+
+<div class="viewcode-block" id="load_command">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.load_command">[docs]</a>
+<span class="nd">@contextmanager</span>
 <span class="k">def</span> <span class="nf">load_command</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cmd_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContextManager</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">directory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">Context</span><span class="o">.</span><span class="n">for_prog</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">yield</span> <span class="n">load_commands</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="n">cmd_name</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="TemporaryDir"><a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir">[docs]</a><span class="k">class</span> <span class="nc">TemporaryDir</span><span class="p">(</span><span class="n">TemporaryDirectory</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TemporaryDir">
+<a class="viewcode-back" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir">[docs]</a>
+<span class="k">class</span> <span class="nc">TemporaryDir</span><span class="p">(</span><span class="n">TemporaryDirectory</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

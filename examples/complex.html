@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -967,7 +967,7 @@
            <div itemprop="articleBody">
              
   <section id="complex-example">
-<h1>Complex Example<a class="headerlink" href="#complex-example" title="Permalink to this heading"></a></h1>
+<h1>Complex Example<a class="headerlink" href="#complex-example" title="Link to this heading"></a></h1>
 <p>Simplified example of a complex set of Commands defined across multiple modules.</p>
 <p>The expected / intended use case would be for a program that would define an entry point like the following:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="o">=</span> <span class="n">examples</span><span class="o">.</span><span class="n">complex</span><span class="p">:</span><span class="n">main</span>
@@ -1016,9 +1016,9 @@ base Command so that the base Command is made aware of the presence of the subco
 </tbody>
 </table>
 <section id="subcommands">
-<h2>Subcommands<a class="headerlink" href="#subcommands" title="Permalink to this heading"></a></h2>
+<h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading"></a></h2>
 <section id="subcommand-hello">
-<h3>Subcommand: hello<a class="headerlink" href="#subcommand-hello" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: hello<a class="headerlink" href="#subcommand-hello" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">hello</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1038,7 +1038,7 @@ base Command so that the base Command is made aware of the presence of the subco
 </table>
 </section>
 <section id="subcommand-logs">
-<h3>Subcommand: logs<a class="headerlink" href="#subcommand-logs" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: logs<a class="headerlink" href="#subcommand-logs" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">logs</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1055,7 +1055,7 @@ base Command so that the base Command is made aware of the presence of the subco
 </table>
 </section>
 <section id="subcommand-update">
-<h3>Subcommand: update<a class="headerlink" href="#subcommand-update" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: update<a class="headerlink" href="#subcommand-update" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">user</span><span class="o">|</span><span class="n">group</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">ID</span> <span class="p">[</span><span class="n">ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1121,7 +1121,7 @@ base Command so that the base Command is made aware of the presence of the subco
 </table>
 </section>
 <section id="subcommand-update-foo">
-<h3>Subcommand: update foo<a class="headerlink" href="#subcommand-update-foo" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: update foo<a class="headerlink" href="#subcommand-update-foo" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">foo</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">user</span><span class="o">|</span><span class="n">group</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">ID</span> <span class="p">[</span><span class="n">ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1187,7 +1187,7 @@ base Command so that the base Command is made aware of the presence of the subco
 </table>
 </section>
 <section id="subcommand-update-bar">
-<h3>Subcommand: update bar<a class="headerlink" href="#subcommand-update-bar" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: update bar<a class="headerlink" href="#subcommand-update-bar" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">bar</span> <span class="p">{</span><span class="n">foo</span><span class="o">|</span><span class="n">bar</span><span class="o">|</span><span class="n">user</span><span class="o">|</span><span class="n">group</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">ID</span> <span class="p">[</span><span class="n">ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1253,7 +1253,7 @@ base Command so that the base Command is made aware of the presence of the subco
 </table>
 </section>
 <section id="subcommand-update-user">
-<h3>Subcommand: update user<a class="headerlink" href="#subcommand-update-user" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: update user<a class="headerlink" href="#subcommand-update-user" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">user</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">ID</span> <span class="p">[</span><span class="n">ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">location</span> <span class="n">LOCATION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">role</span> <span class="p">{</span><span class="n">admin</span><span class="o">|</span><span class="n">user</span><span class="p">}]</span>
 </pre></div>
 </div>
@@ -1301,7 +1301,7 @@ base Command so that the base Command is made aware of the presence of the subco
 </table>
 </section>
 <section id="subcommand-update-group">
-<h3>Subcommand: update group<a class="headerlink" href="#subcommand-update-group" title="Permalink to this heading"></a></h3>
+<h3>Subcommand: update group<a class="headerlink" href="#subcommand-update-group" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">complex_example</span><span class="o">.</span><span class="n">py</span> <span class="n">update</span> <span class="n">group</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span> <span class="p">[</span><span class="n">VERBOSE</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ids</span> <span class="n">ID</span> <span class="p">[</span><span class="n">ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">description</span> <span class="n">DESCRIPTION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">location</span> <span class="n">LOCATION</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">add</span> <span class="n">MEMBER</span> <span class="p">[</span><span class="n">MEMBER</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">remove</span> <span class="n">MEMBER</span> <span class="p">[</span><span class="n">MEMBER</span> <span class="o">...</span><span class="p">]]</span>
 </pre></div>
 </div>

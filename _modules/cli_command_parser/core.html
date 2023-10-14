@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -996,7 +996,9 @@
 <span class="n">META_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;prog&#39;</span><span class="p">,</span> <span class="s1">&#39;usage&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;epilog&#39;</span><span class="p">,</span> <span class="s1">&#39;doc_name&#39;</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="CommandMeta"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta">[docs]</a><span class="k">class</span> <span class="nc">CommandMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+<div class="viewcode-block" id="CommandMeta">
+<a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta">[docs]</a>
+<span class="k">class</span> <span class="nc">CommandMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
     <span class="c1"># noinspection PyUnresolvedReferences</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param choice: SubCommand value to map to this command.  If specified, this single choice value will override</span>
@@ -1120,18 +1122,23 @@
 
         <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="CommandMeta.config"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.config">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CommandMeta.config">
+<a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.config">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">T</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__config</span>     <span class="c1"># This attr is not overwritten for every subclass</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>      <span class="c1"># This means that the Command and all of its parents have no custom config</span>
             <span class="k">return</span> <span class="n">default</span></div>
 
+
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Metaclass-Managed Command Attributes</span>
 
-<div class="viewcode-block" id="CommandMeta.parent"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CommandMeta.parent">
+<a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.parent">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">include_abc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param cls: A Command class or object</span>
@@ -1161,7 +1168,10 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">__parents</span> <span class="o">=</span> <span class="n">first</span><span class="p">,</span> <span class="n">parent</span>
         <span class="k">return</span> <span class="n">first</span> <span class="k">if</span> <span class="n">include_abc</span> <span class="k">else</span> <span class="n">parent</span></div>
 
-<div class="viewcode-block" id="CommandMeta.params"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="CommandMeta.params">
+<a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.params">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span><span class="p">:</span>
         <span class="c1"># Late initialization is necessary to allow late assignment of Parameters for now</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1176,12 +1186,17 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">__params</span> <span class="o">=</span> <span class="n">params</span> <span class="o">=</span> <span class="n">CommandParameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">parent_params</span><span class="p">,</span> <span class="n">mcs</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">DEFAULT_CONFIG</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
-<div class="viewcode-block" id="CommandMeta.meta"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.meta">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="CommandMeta.meta">
+<a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.CommandMeta.meta">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">meta</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProgramMetadata</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">meta</span> <span class="o">:=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__metadata</span><span class="p">):</span>
             <span class="n">parent_meta</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">_from_parent</span><span class="p">(</span><span class="n">mcs</span><span class="o">.</span><span class="n">meta</span><span class="p">,</span> <span class="nb">type</span><span class="o">.</span><span class="n">mro</span><span class="p">(</span><span class="bp">cls</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">__metadata</span> <span class="o">=</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">ProgramMetadata</span><span class="o">.</span><span class="n">for_command</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_meta</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">meta</span></div></div>
+        <span class="k">return</span> <span class="n">meta</span></div>
+</div>
+
 
     <span class="c1"># endregion</span>
 
@@ -1224,7 +1239,9 @@
 <span class="n">get_params</span> <span class="o">=</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">params</span>
 
 
-<div class="viewcode-block" id="get_top_level_commands"><a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_top_level_commands">[docs]</a><span class="k">def</span> <span class="nf">get_top_level_commands</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_top_level_commands">
+<a class="viewcode-back" href="../../api/cli_command_parser.core.html#cli_command_parser.core.get_top_level_commands">[docs]</a>
+<span class="k">def</span> <span class="nf">get_top_level_commands</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">CommandCls</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a list of Command subclasses that are inferred to be direct subclasses of :class:`~commands.Command`.</span>
 
@@ -1232,6 +1249,7 @@
 <span class="sd">    enough for tests.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">cmd</span> <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">CommandMeta</span><span class="o">.</span><span class="n">_commands</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cmd</span><span class="o">.</span><span class="n">_is_subcommand_</span><span class="p">]</span></div>
+
 </pre></div>
 
            </div>

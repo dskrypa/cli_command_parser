@@ -12,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2cb3f4da"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -964,9 +964,9 @@
            <div itemprop="articleBody">
              
   <section id="advanced-usage">
-<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading"></a></h1>
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h1>
 <section id="dynamic-parameter-defaults">
-<h2>Dynamic Parameter Defaults<a class="headerlink" href="#dynamic-parameter-defaults" title="Permalink to this heading"></a></h2>
+<h2>Dynamic Parameter Defaults<a class="headerlink" href="#dynamic-parameter-defaults" title="Link to this heading"></a></h2>
 <p>In most cases, a simple default value for a given Parameter is sufficient, but sometimes it can be helpful to
 dynamically generate a default based on the runtime environment or the value of other parsed arguments.</p>
 <p>Most Parameters that support a using a <a class="reference internal" href="parameters.html#parameters:default_cb"><span class="std std-ref">default_cb</span></a> also support registering a method in a
@@ -984,7 +984,7 @@ Command as their default callback.  A very simple example that references anothe
 value was provided, then it would be the string <code class="docutils literal notranslate"><span class="pre">'True'</span></code> or <code class="docutils literal notranslate"><span class="pre">'False'</span></code>, depending on whether <code class="docutils literal notranslate"><span class="pre">--foo</span></code> was specified.</p>
 </section>
 <section id="post-run-context">
-<h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Permalink to this heading"></a></h2>
+<h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Link to this heading"></a></h2>
 <p>While Commands are intended to be self-contained, it is possible to interact with them after calling
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a>, which returns the instance of the executed Command.  Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -1044,9 +1044,9 @@ take precedence over any other ActionFlag.  There is special handling in the par
 action to be processed when parsing would otherwise fail.</p>
 </section>
 <section id="accessing-raw-argument-values">
-<h2>Accessing Raw Argument Values<a class="headerlink" href="#accessing-raw-argument-values" title="Permalink to this heading"></a></h2>
+<h2>Accessing Raw Argument Values<a class="headerlink" href="#accessing-raw-argument-values" title="Link to this heading"></a></h2>
 <section id="parsed-args-as-a-dictionary">
-<h3>Parsed Args as a Dictionary<a class="headerlink" href="#parsed-args-as-a-dictionary" title="Permalink to this heading"></a></h3>
+<h3>Parsed Args as a Dictionary<a class="headerlink" href="#parsed-args-as-a-dictionary" title="Link to this heading"></a></h3>
 <p>A <a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.get_parsed" title="cli_command_parser.context.get_parsed"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_parsed()</span></code></a> helper function exists for retrieving a dictionary of parsed arguments without needing to deal
 with the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> attribute like in the above example.  The get_parsed helper function will continue to work, even if
 a given command overrides the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> attribute with a different value.</p>
@@ -1059,7 +1059,7 @@ a given command overrides the <code class="docutils literal notranslate"><span c
 <span class="go">}</span>
 </pre></div>
 </div>
-<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.11)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
+<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
 parsed dict to only the keys that match that callable’s signature.  Only VAR_KEYWORD parameters (i.e., <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>) are
 excluded - if any parameters of the given callable cannot be passed as a keyword argument, that must be handled after
 calling get_parsed.</p>
@@ -1074,7 +1074,7 @@ calling get_parsed.</p>
 </div>
 </section>
 <section id="parameters-with-overridden-names">
-<h3>Parameters with Overridden Names<a class="headerlink" href="#parameters-with-overridden-names" title="Permalink to this heading"></a></h3>
+<h3>Parameters with Overridden Names<a class="headerlink" href="#parameters-with-overridden-names" title="Link to this heading"></a></h3>
 <p>In some cases, subcommands may have Parameters with names that override those defined in parent Commands.  A common
 example of this occurs when multiple levels of subcommands exist, where each level has a <code class="docutils literal notranslate"><span class="pre">sub_cmd</span> <span class="pre">=</span> <span class="pre">SubCommand()</span></code>.</p>
 <p>In such cases, it is sometimes necessary for a parent Command to know the raw parsed value for that Parameter.  The
@@ -1138,7 +1138,7 @@ level.  Example:</p>
 </section>
 </section>
 <section id="mixing-actions-actionflags">
-<h2>Mixing Actions &amp; ActionFlags<a class="headerlink" href="#mixing-actions-actionflags" title="Permalink to this heading"></a></h2>
+<h2>Mixing Actions &amp; ActionFlags<a class="headerlink" href="#mixing-actions-actionflags" title="Link to this heading"></a></h2>
 <p>The <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/bin/build_docs.py">build_docs.py</a> script that is used
 to build the documentation for this project is an example of a Command that includes both <a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a>
 methods and ActionFlags.  Additionally, some of the methods even have the two decorators stacked so that they can be
