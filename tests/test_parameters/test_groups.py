@@ -9,6 +9,8 @@ from cli_command_parser.exceptions import UsageError, CommandDefinitionError, Pa
 from cli_command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
 from cli_command_parser.testing import ParserTest
 
+MEMBER_REQ_PREFIX = 'at least one of the following arguments are required'
+
 
 class _GroupTest(ParserTest):
     def assert_cases_for_cmds(self, success_cases, fail_cases, *cmds, exc: Type[Exception] = None):
@@ -45,7 +47,7 @@ class GroupTest(_GroupTest):
         self.assertIs(Foo.baz.group, Foo.group)
 
     def test_reject_double_mutual(self):
-        with self.assertRaises(ParameterDefinitionError):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'cannot be both'):
             ParamGroup(mutually_dependent=True, mutually_exclusive=True)
 
     def test_register_all(self):
@@ -59,8 +61,7 @@ class GroupTest(_GroupTest):
         self.assertEqual(2, len(list(Foo.group)))
 
     def test_repr(self):
-        group = ParamGroup('foo', mutually_exclusive=True)
-        self.assertIn('m.exclusive=T', repr(group))
+        self.assertIn('m.exclusive=T', repr(ParamGroup('foo', mutually_exclusive=True)))
 
     def test_description(self):
         with Context():
@@ -82,7 +83,7 @@ class GroupTest(_GroupTest):
             (['-B'], {'bar': False, 'baz': True}),
             (['-bB'], {'bar': True, 'baz': True}),
         ]
-        fail_cases = [([], ParamsMissing, 'at least one of the following arguments are required')]
+        fail_cases = [([], ParamsMissing, MEMBER_REQ_PREFIX)]
         self.assert_cases_for_cmds(success_cases, fail_cases, Foo1, Foo2)
 
     def test_required_param_missing_from_non_required_group(self):
@@ -215,8 +216,6 @@ class MutuallyExclusiveGroupTest(_GroupTest):
             ['-a', '1', '-b', '2', '-c', '3'],
             ['-a', '1', '-b', '2', '-d', '3'],
             ['-a', '1', '-b', '2', '-e', '3'],
-            ['-a', '1', '-b', '2', '-f', '3'],
-            ['-a', '1', '-b', '2', '-f', '3'],
             ['-a', '1', '-b', '2', '-f', '3'],
             ['-c', '3'],
             ['-d', '3'],
@@ -521,6 +520,28 @@ class NestedGroupTest(_GroupTest):
         for cmd, args in cases:
             with self.subTest(cmd=cmd), self.assertRaises(ParamConflict):
                 cmd.parse_and_run(args)
+
+    def test_nested_me_md_required_group_error(self):
+        class Cmd(Command):
+            with ParamGroup(mutually_exclusive=True, required=True):
+                foo = Flag()
+                with ParamGroup(mutually_dependent=True):  # Bug happened without it being mutually dependent too
+                    bar = Option()
+                    baz = Option()
+
+        with self.assert_raises_contains_str(ParamsMissing, f'{MEMBER_REQ_PREFIX}: --foo, [--bar BAR + --baz BAZ]'):
+            Cmd.parse([])
+
+    def test_nested_me_norm_required_group_error(self):
+        class Cmd(Command):
+            with ParamGroup(mutually_exclusive=True, required=True):
+                foo = Flag()
+                with ParamGroup():
+                    bar = Option()
+                    baz = Option()
+
+        with self.assert_raises_contains_str(ParamsMissing, f'{MEMBER_REQ_PREFIX}: --foo, [--bar BAR, --baz BAZ]'):
+            Cmd.parse([])
 
 
 if __name__ == '__main__':
