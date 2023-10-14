@@ -44,15 +44,14 @@ class ParamHelpFormatter:
         except KeyError:
             pass
 
-        for p_cls, f_cls in reversed(tuple(cls._param_cls_fmt_cls_map.items())):  # tuple() only for 3.7 compatibility
+        for p_cls, f_cls in reversed(cls._param_cls_fmt_cls_map.items()):
             if issubclass(param_cls, p_cls):
                 return f_cls
 
         return ParamHelpFormatter
 
     def __new__(cls, param: ParamOrGroup):
-        fmt_cls = cls.for_param_cls(param.__class__) if cls is ParamHelpFormatter else cls
-        return super().__new__(fmt_cls)
+        return super().__new__(cls.for_param_cls(param.__class__) if cls is ParamHelpFormatter else cls)
 
     def __init__(self, param: ParamOrGroup):
         self.param = param
@@ -92,6 +91,19 @@ class ParamHelpFormatter:
                     return name.upper()
 
         return param.name.upper()
+
+    def _format_usage_metavar(self, full: Bool = True) -> str:
+        metavar = self.format_metavar()
+        if not full:
+            return metavar
+
+        nargs: Nargs = self.param.nargs
+        variable = nargs.variable and nargs.max != 1
+        if 0 in nargs:
+            return f'[{metavar} ...]' if variable else f'[{metavar}]'
+        elif variable:
+            return f'{metavar} [{metavar} ...]'
+        return metavar
 
     def format_basic_usage(self) -> str:
         """Format the Parameter for use in the ``usage:`` line"""
@@ -136,26 +148,18 @@ class ParamHelpFormatter:
 
 
 class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
+    param: BasePositional
+
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        metavar = self.format_metavar()
-        return metavar if not full or self.param.nargs == 1 else f'{metavar} [{metavar} ...]'
+        return self._format_usage_metavar(full)
 
 
 class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
-    def _format_usage_metavar(self) -> str:
-        metavar = self.format_metavar()
-        nargs: Nargs = self.param.nargs
-        variable = nargs.variable and nargs.max != 1
-        if 0 in nargs:
-            return f'[{metavar} ...]' if variable else f'[{metavar}]'
-        elif variable:
-            return f'{metavar} [{metavar} ...]'
-        return metavar
+    param: BaseOption
 
     def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:
-        param: BaseOption = self.param
-        opts = param.option_strs
-        if param.nargs == 0:
+        opts = self.param.option_strs
+        if self.param.nargs == 0:
             yield from opts.option_strs()
         else:
             metavar = self._format_usage_metavar()
@@ -178,9 +182,8 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
         if full:
             return delim.join(self.iter_usage_parts())
 
-        param: BaseOption = self.param
-        opt = param.option_strs.get_usage_opt()
-        if not include_meta or param.nargs == 0:
+        opt = self.param.option_strs.get_usage_opt()
+        if not include_meta or self.param.nargs == 0:
             return opt
         return f'{opt} {self._format_usage_metavar()}'
 
@@ -201,53 +204,52 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
     def format_description(self, rst: Bool = False, alt: bool = False) -> str:
         if not alt:
             return super().format_description(rst=rst)
-        if alt_help := self.param.alt_help:
-            return super().format_description(rst=rst, description=alt_help)
+        elif self.param.alt_help:
+            return super().format_description(rst=rst, description=self.param.alt_help)
         return ''
 
     def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
-        opts = self.param.option_strs
+        opts: TriFlagOptionStrings = self.param.option_strs
         primary = format_help_entry(opts.primary_option_strs(), self.format_description(), prefix, tw_offset)
         alt_desc = self.format_description(alt=True)
         alt_entry = format_help_entry(opts.alt_option_strs(), alt_desc, prefix, tw_offset, lpad=2 if alt_desc else 4)
         return f'{primary}\n{alt_entry}'
 
     def rst_rows(self) -> Iterator[Tuple[str, str]]:
-        opts = self.param.option_strs
+        opts: TriFlagOptionStrings = self.param.option_strs
         for alt in (False, True):
             usage = ', '.join(f'``{part}``' for part in opts.option_strs(alt))
-            description = self.format_description(rst=True, alt=alt)
-            yield usage, description
+            yield usage, self.format_description(rst=True, alt=alt)
 
 
 class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
+    param: ChoiceMap
+
     @cached_property
     def choice_groups(self) -> Iterable[ChoiceGroup]:
         return ChoiceGroup.group_choices(self.param.choices.values())
 
     def format_metavar(self) -> str:
-        param: ChoiceMap = self.param
-        if param.choices:
+        if self.param.choices:
             config = ctx.config
             choices = (str(c) for c in (c.choice for cg in self.choice_groups for c in cg.choices) if c is not None)
             if config.sort_choices:
                 choices = sorted(choices)
             return f'{{{config.choice_delim.join(choices)}}}'
         else:
-            return param.metavar or param.name.upper()
+            return self.param.metavar or self.param.name.upper()
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self.format_metavar()
 
     def format_help(self, prefix: str = '', tw_offset: int = 0) -> str:
-        param: ChoiceMap = self.param
-        help_entry = format_help_entry(self.iter_usage_parts(), param.description, prefix, tw_offset, lpad=2)
+        help_entry = format_help_entry(self.iter_usage_parts(), self.param.description, prefix, tw_offset, lpad=2)
         choices = self._format_choices(prefix, tw_offset)
         if ctx.config.sort_choices:
             choices = sorted(choices)
 
         parts = (
-            f'{prefix}{param.title or param._default_title}:',
+            f'{prefix}{self.param.title or self.param._default_title}:',
             help_entry,
             *choices,
             prefix.rstrip(),
@@ -264,8 +266,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         if ctx.config.sort_choices:
             rows = sorted(rows)
 
-        param = self.param
-        table = RstTable(param.title or param._default_title, param.description)
+        table = RstTable(self.param.title or self.param._default_title, self.param.description)
         table.add_rows(rows)
         return table
 
@@ -288,9 +289,8 @@ class ChoiceGroup:
     __slots__ = ('choice_strs', 'choices')
 
     def __init__(self, choice: Choice):
-        choice_str = choice.choice
         self.choices = [choice]
-        self.choice_strs = [choice_str] if choice_str else []
+        self.choice_strs = [choice.choice] if choice.choice else []
 
     @classmethod
     def group_choices(cls, choices: Iterable[Choice]) -> Iterable[ChoiceGroup]:
@@ -313,8 +313,8 @@ class ChoiceGroup:
 
     def add(self, choice: Choice):
         self.choices.append(choice)
-        if choice_str := choice.choice:
-            self.choice_strs.append(choice_str)
+        if choice.choice:
+            self.choice_strs.append(choice.choice)
 
     def format(self, default_mode: CmdAliasMode, tw_offset: int = 0, prefix: str = '') -> Iterator[str]:
         """
@@ -337,11 +337,10 @@ class ChoiceGroup:
         :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and
           the help text / description for that choice / alias.
         """
-        first = self.choices[0]
         # If it's not a Command, get_config will return None.  If it is a Command, then it will use its config.  If the
         # alias mode is not set on that target Command, but it is set on its parent, then this will use that parent's
         # setting.
-        if config := get_config(first.target):
+        if config := get_config(self.choices[0].target):
             mode = config.cmd_alias_mode or default_mode
         else:
             mode = default_mode
@@ -417,21 +416,20 @@ class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
 
 
 class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # pylint: disable=W0223
+    param: ParamGroup
     required_formatter_map: BoolFormatterMap = {True: '{{{}}}'.format, False: '[{}]'.format}
 
     def _get_choice_delim(self) -> str:
-        param: ParamGroup = self.param
-        if param.mutually_dependent:
+        if self.param.mutually_dependent:
             return ' + '
-        elif param.mutually_exclusive:
+        elif self.param.mutually_exclusive:
             return ' | '
         else:
             return ', '
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
-        choice_delim = self._get_choice_delim()
-        members = choice_delim.join(mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
-        return self.maybe_wrap_usage(choice_delim.join(members))
+        members = (mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
+        return self.maybe_wrap_usage(self._get_choice_delim().join(members))
 
     def format_description(self, rst: Bool = False, description: str = None) -> str:
         if description:
@@ -449,10 +447,9 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         return f'{adjective} arguments'
 
     def _get_spacer(self) -> str:
-        group = self.param
-        if group.mutually_exclusive:
+        if self.param.mutually_exclusive:
             return '\u00A6 '  # BROKEN BAR
-        elif group.mutually_dependent:
+        elif self.param.mutually_dependent:
             return '\u2551 '  # BOX DRAWINGS DOUBLE VERTICAL
         else:
             return '\u2502 '  # BOX DRAWINGS LIGHT VERTICAL
@@ -467,21 +464,18 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
           description.
         :return: The formatted help text.
         """
-        description = self.format_description()
-        parts = [f'{prefix}{description}:']
-
         if ctx.config.show_group_tree:
             spacer = prefix + self._get_spacer()
             tw_offset += 2
         else:
             spacer = prefix
 
-        nested, params = 0, 0
+        parts = [f'{prefix}{self.format_description()}:']
+        nested = params = 0
         for member in self.param.members:
             if not member.show_in_help:
                 continue
-
-            if isinstance(member, (ChoiceMap, ParamGroup)):
+            elif isinstance(member, (ChoiceMap, ParamGroup)):
                 nested += 1
                 parts.append(spacer.rstrip())  # Add space for readability
             else:
@@ -515,6 +509,5 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
 
 
 def _pad_and_quote(description: str, rst: bool) -> Tuple[str, str]:
-    pad = ' ' if description else ''
-    quote = '``' if rst else ''
-    return pad, quote
+    """Returns a 2-tuple of ``(pad char, quote string)``"""
+    return ' ' if description else '', '``' if rst else ''

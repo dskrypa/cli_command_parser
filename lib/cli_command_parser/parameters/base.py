@@ -75,8 +75,8 @@ class ParamBase(ABC):
 
     @property
     def name(self) -> str:
-        if (name := self._name) is not None:
-            return name
+        if self._name is not None:
+            return self._name
         return self._default_name()
 
     @name.setter
@@ -518,11 +518,11 @@ class BaseOption(Parameter[T_co], ABC):
         option_strs.update(name)
 
     def env_vars(self) -> Iterator[str]:
-        if env_var := self.env_var:
-            if isinstance(env_var, str):
-                yield env_var
+        if self.env_var:
+            if isinstance(self.env_var, str):
+                yield self.env_var
             else:
-                yield from env_var
+                yield from self.env_var
 
     def get_const(self, opt_str: OptStr = None):
         return self.const

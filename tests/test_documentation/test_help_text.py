@@ -377,6 +377,15 @@ usage: foo_bar.py [--abcdef ABCDEF]
     [--stuvwx STUVWX] [--yz YZ]"""
         self.assert_str_contains(expected, get_help_text(Foo, 50))
 
+    def test_positional_nargs_metavars(self):
+        for nargs, metavar in {'?': '[BAR]', '+': 'BAR [BAR ...]', '*': '[BAR ...]'}.items():
+            with self.subTest(nargs=nargs):
+
+                class Foo(Command):
+                    bar = Positional(nargs=nargs)
+
+                self.assert_str_contains(f'Positional arguments:\n  {metavar}\n', get_help_text(Foo))
+
     # region Show Env Vars
 
     def test_env_vars_shown(self):

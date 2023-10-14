@@ -95,16 +95,13 @@ class ParamGroup(ParamBase):
             return NotImplemented
         elif self in other.members:
             return True
-
-        group = self.group
-        other_group = other.group
-        if group != other_group:
-            if group is None:
+        elif self.group != other.group:
+            if self.group is None:
                 return False
-            elif other_group is None:
+            elif other.group is None:
                 return True
             else:
-                return group < other_group
+                return self.group < other.group
 
         # Even if a name was not explicitly provided, the auto-generated one from self._default_name() is returned here
         return self.name < other.name
@@ -208,9 +205,9 @@ class ParamGroup(ParamBase):
 
     @property
     def in_mutually_exclusive_group(self) -> bool:
-        if not (parent := self.group):
-            return False
-        return parent.mutually_exclusive
+        if not self.group:
+            return False  # This group has no parent group
+        return self.group.mutually_exclusive
 
     def validate(self):
         """
