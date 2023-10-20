@@ -3,7 +3,7 @@
 from unittest import main
 
 from cli_command_parser import Command, Option
-from cli_command_parser.exceptions import ParameterDefinitionError
+from cli_command_parser.exceptions import ParameterDefinitionError, BadArgument
 from cli_command_parser.inputs import Range, NumRange, InputValidationError
 from cli_command_parser.testing import ParserTest
 
@@ -161,7 +161,7 @@ class ParseInputTest(ParserTest):
             bar = Option(type=Range(range(10), fix_default=True), default='-10')
             baz = Option(type=Range(range(10), fix_default=False), default='-10')
 
-        with self.assert_raises_contains_str(InputValidationError, 'expected a value in the range'):
+        with self.assert_raises_contains_str(BadArgument, 'bad default value - expected a value in the range'):
             Foo().bar  # noqa
 
         self.assertEqual('-10', Foo().baz)
