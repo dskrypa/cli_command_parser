@@ -1395,7 +1395,12 @@
                     <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">missing_default</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">get_default</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">get_default</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">InputValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># At this point, a default value was provided, but it was not an acceptable value</span>
+                    <span class="c1"># TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?</span>
+                    <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;bad default value - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">finalize_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
