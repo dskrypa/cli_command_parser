@@ -385,7 +385,12 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                     raise MissingArgument(self)
                 return missing_default
             else:
-                return self.action.get_default(command, missing_default)
+                try:
+                    return self.action.get_default(command, missing_default)
+                except InputValidationError as e:
+                    # At this point, a default value was provided, but it was not an acceptable value
+                    # TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?
+                    raise BadArgument(self, f'bad default value - {e}') from e
 
         return self.action.finalize_value(value)
 

@@ -21,7 +21,9 @@ def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
         annotation = get_type_hints(command_cls)[attr]
     except (KeyError, NameError):  # KeyError due to attr missing; NameError for forward references
         return None
-
+    # Note: `inspect.get_annotations(obj)` returns a dict of where values are the string representations of the
+    # discovered annotations; values in the dict returned by `typing.get_type_hints` are the actual classes / typing
+    # aliases that were used, which are significantly more useful for this analysis.
     return get_annotation_value_type(annotation)
 
 
