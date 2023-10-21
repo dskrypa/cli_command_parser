@@ -377,7 +377,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             command.__dict__[self._attr_name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def result_value(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
+    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
+        """The final result / parsed value for this Parameter that is returned upon access as a descriptor."""
         value = ctx.get_parsed_value(self)
         if value is _NotSet:
             if self.required:
@@ -390,11 +391,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
                 except InputValidationError as e:
                     # At this point, a default value was provided, but it was not an acceptable value
                     # TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?
+                    #  Need to test choices - a non-acceptable choice may make sense as the default in some cases
                     raise BadArgument(self, f'bad default value - {e}') from e
 
         return self.action.finalize_value(value)
-
-    result = result_value
 
     # endregion
 

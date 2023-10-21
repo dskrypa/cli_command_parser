@@ -167,15 +167,13 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         if not any(c.startswith(prefix) for c in choices if c):
             raise InvalidChoice(self, prefix[:-1], choices)
 
-    def result_value(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
+    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
         if not self.choices:
             self._no_choices_error()
-        return super().result_value(command, missing_default)
-
-    result = result_value
+        return super().result(command, missing_default)
 
     def target(self) -> T:
-        return self.choices[self.result_value(None)].target
+        return self.choices[self.result(None)].target
 
     # endregion
 

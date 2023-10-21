@@ -189,7 +189,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             if params := self.params:
                 for param in params.iter_params(exclude):
                     if include_defaults or param in self._parsed:
-                        parsed[param.name] = param.result_value(command, default)
+                        parsed[param.name] = param.result(command, default)
 
         return parsed
 
