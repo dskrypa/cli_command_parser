@@ -154,18 +154,18 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     # region Argument Handling
 
     def validate(self, value: str, joined: Bool = False):
-        if not (choices := self.choices):
+        if not self.choices:
             self._no_choices_error()
 
         parsed = ctx.get_parsed_value(self)
         values = (value,) if parsed is _NotSet else (*parsed, value)
-        if (choice := ' '.join(values)) in choices:
+        if (choice := ' '.join(values)) in self.choices:
             return
         elif len(values) > self.nargs.max:
             raise BadArgument(self, 'too many values')
         prefix = choice + ' '
-        if not any(c.startswith(prefix) for c in choices if c):
-            raise InvalidChoice(self, prefix[:-1], choices)
+        if not any(c.startswith(prefix) for c in self.choices if c):
+            raise InvalidChoice(self, prefix[:-1], self.choices)
 
     def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
         if not self.choices:

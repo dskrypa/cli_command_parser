@@ -140,7 +140,7 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
     def _decompose(self) -> List[FlagEnum]:
         if self._name_ is None or '|' in self._name_:  # | check is for 3.11 where pseudo-members are assigned names
             val = self._value_
-            return sorted(mem for mem in self.__class__ if (mem_val := mem._value_) & val == mem_val)  # noqa
+            return sorted(mem for mem in self.__class__ if mem._value_ & val == mem._value_)  # noqa
         return [self]
 
     def __lt__(self, other: FlagEnum) -> bool:

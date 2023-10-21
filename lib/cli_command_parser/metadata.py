@@ -156,7 +156,7 @@ class ProgramMetadata:
         doc_name: str = None,
     ) -> ProgramMetadata:
         path, g = _path_and_globals(command, path)
-        if (cmd_module := command.__module__) != 'cli_command_parser.commands':
+        if command.__module__ != 'cli_command_parser.commands':
             # Prevent inheritors from getting docstrings from the base Command
             doc_str = g.get('__doc__')
             doc = command.__doc__
@@ -168,7 +168,7 @@ class ProgramMetadata:
             path=path,
             package=g.get('__package__'),
             module=g.get('__module__'),
-            cmd_module=cmd_module,
+            cmd_module=command.__module__,
             command=command.__qualname__,
             prog=prog,
             url=url or g.get('__url__'),

@@ -56,7 +56,7 @@ class different_locale:
 
     def __enter__(self):
         self._lock.acquire()
-        if not (locale := self.locale):
+        if not self.locale:
             return
         # locale.getlocale does not support LC_ALL, but `setlocale(LC_ALL)` with no locale to set will return a str
         # containing all of the current locale settings as `key1=val1;key2=val2;...;keyN=valN`
@@ -65,7 +65,7 @@ class different_locale:
         # to remain set to `English_United States.1252` on Windows 10, which resulted in incorrectly encoded results.
         # Using f'LC_CTYPE={locale};LC_TIME={locale}' seemed cleaner than setting LC_ALL in its entirety, but it
         # resulted in `locale.Error: unsupported locale setting` on Ubuntu/WSL.
-        setlocale(LC_ALL, locale)
+        setlocale(LC_ALL, self.locale)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.locale:
@@ -212,13 +212,13 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         normalized = self.parse(value)
         if normalized < self._min_index:
             raise InvalidChoiceError(value, self.choices(), self.dt_type)
-        elif (out_mode := self.out_format) in (DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO):
-            return self._formats[out_mode][normalized]
-        elif (names_or_abbreviations := self._formats.get(out_mode)) is not None:
+        elif self.out_format in (DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO):
+            return self._formats[self.out_format][normalized]
+        elif (names_or_abbreviations := self._formats.get(self.out_format)) is not None:
             with different_locale(self.out_locale):
                 return names_or_abbreviations[normalized]
 
-        raise ValueError(f'Unexpected output format={out_mode!r} for {self.dt_type}={normalized}')
+        raise ValueError(f'Unexpected output format={self.out_format!r} for {self.dt_type}={normalized}')
 
 
 class Day(CalendarUnitInput, dt_type='day of the week'):

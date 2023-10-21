@@ -64,7 +64,7 @@ class CommandParser:
         self._parse_args(ctx)
         self._validate_groups()
         missing = ctx.get_missing()
-        if (sub_cmd_param := self.params.sub_command) and (next_cmd := sub_cmd_param.target()) is not None:
+        if self.params.sub_command and (next_cmd := self.params.sub_command.target()) is not None:
             if missing and not ctx.categorized_action_flags[_PRE_INIT] and get_parent(next_cmd) is not ctx.command_cls:
                 raise ParamsMissing(missing)
             return next_cmd
@@ -179,20 +179,20 @@ class CommandParser:
 
     def handle_positional(self, arg: str):
         # log.debug(f'handle_positional({arg=})')
-        if positionals := self.positionals:
-            param: BasePositional = positionals.pop(0)
+        if self.positionals:
+            param: BasePositional = self.positionals.pop(0)
             if param.nargs.max is REMAINDER:
                 self.handle_remainder(param, arg)
             else:
                 try:
                     found = param.action.add_value(arg)
                 except UsageError:
-                    positionals.insert(0, param)
+                    self.positionals.insert(0, param)
                     raise
                 try:
                     self.consume_values(param, found=found)
                 except Backtrack:
-                    positionals.insert(0, param)
+                    self.positionals.insert(0, param)
                 else:
                     self._last = param
         else:
@@ -279,9 +279,9 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if positionals := self.positionals:
+        if self.positionals:
             can_pop = param.action.get_maybe_poppable_counts()
-            if rollback_count := _to_pop(positionals, can_pop, found - 1):
+            if rollback_count := _to_pop(self.positionals, can_pop, found - 1):
                 self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(param, rollback_count)))
                 return found - rollback_count
         return found
@@ -345,6 +345,9 @@ class CommandParser:
                 # log.debug(f'{value=} was rejected by {param=}', exc_info=True)
                 return self._finalize_consume(param, value, found, e)
 
+        # TODO: Positional(nargs='?') with no values will steal values intended for an Option(nargs='+')
+        #  (likely occurs with nargs='*' for the Positional as well)
+
         # log.debug(f'Ran out of values in deque while processing {param=}')
         if found >= 2 and self.config.allow_backtrack:
             found = self._maybe_backtrack(param, found)
@@ -364,8 +367,8 @@ class CommandParser:
         elif self._last and isinstance(param, BasePositional) and param.action.can_reset():
             self._maybe_backtrack_last(param, found)
 
-        s = '' if (n := nargs.min) == 1 else 's'
-        raise MissingArgument(param, f'expected {n} value{s}, but only found {found}')
+        s = '' if nargs.min == 1 else 's'
+        raise MissingArgument(param, f'expected {nargs.min} value{s}, but only found {found}')
 
 
 parse_args_and_get_next_cmd = CommandParser.parse_args_and_get_next_cmd

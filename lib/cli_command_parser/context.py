@@ -146,8 +146,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     @property
     def terminal_width(self) -> int:
         """Returns the current terminal width as the number of characters that fit on a single line."""
-        if (width := self._terminal_width) is not None:
-            return width
+        if self._terminal_width is not None:
+            return self._terminal_width
         return _TERMINAL.width
 
     def get_parsed(
@@ -178,16 +178,16 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         if command is None:
             command = self.command
         with self:
-            if recursive and (parent := self.parent):
-                parsed = parent.get_parsed(
+            if recursive and self.parent:
+                parsed = self.parent.get_parsed(
                     command, exclude=exclude, recursive=recursive, default=default, include_defaults=include_defaults
                 )
             else:
                 parsed = {}
 
             # TODO: Add way to get a nested dict with ParamGroup names as the keys of the nested sections?
-            if params := self.params:
-                for param in params.iter_params(exclude):
+            if self.params:
+                for param in self.params.iter_params(exclude):
                     if include_defaults or param in self._parsed:
                         parsed[param.name] = param.result(command, default)
 
