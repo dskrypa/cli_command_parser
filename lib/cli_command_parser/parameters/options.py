@@ -407,14 +407,8 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         # Allow the method to be called, regardless of whether it was specified
         if command is None:
             return self
+        # Note: If func is None, then CommandParameters._process_action_flags raises ParameterDefinitionError
         return partial(self.func, command)  # imitates a bound method
-
-    def result(self, command: CommandObj | None = None) -> Optional[Callable]:
-        if self.result_value(command):
-            if self.func:
-                return self.func
-            raise ParameterDefinitionError(f'No function was registered for {self}')
-        return None
 
 
 #: Alias for :class:`ActionFlag`

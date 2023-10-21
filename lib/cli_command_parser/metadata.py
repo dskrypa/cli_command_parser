@@ -60,7 +60,7 @@ class MetadataBase:
 
     def _attrs(self) -> Iterator[Tuple[str, Any]]:
         for base in self.__class__.mro()[:-1]:
-            for attr in base.__slots__:
+            for attr in base.__slots__:  # noqa
                 if attr != 'name':
                     value = getattr(self, attr)
                     yield attr, (getattr(value, '__qualname__', value) if attr == 'func' else repr(value))
@@ -276,7 +276,7 @@ class ProgFinder:
         try:
             return entry_points(group='console_scripts')  # noqa
         except TypeError:  # Python 3.8 or 3.9
-            return entry_points()['console_scripts']
+            return entry_points()['console_scripts']  # noqa
 
     def normalize(
         self,

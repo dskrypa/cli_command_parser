@@ -249,30 +249,12 @@ class ActionFlagTest(ParserTest):
         Foo.parse(['-f']).foo()
         self.assertTrue(mock.called)
 
-    def test_no_result(self):
-        mock = Mock()
-
-        class Foo(Command):
-            @action_flag('-b')
-            def bar(self):
-                mock()
-
-        foo = Foo.parse(['-b'])
-        self.assertIsInstance(Foo.bar, ActionFlag)
-        with foo.ctx:
-            self.assertFalse(Foo.bar.result()(foo))
-
     def test_no_func(self):
-        flag = ActionFlag()
-        with Context():
-            flag.action.add_const()
-            with self.assertRaises(ParameterDefinitionError):
-                flag.result()
+        class Foo(Command):
+            bar = ActionFlag()
 
-    def test_not_provided(self):
-        flag = ActionFlag()
-        with Context():
-            self.assertFalse(flag.result())
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'No function was registered'):
+            Foo.parse(['--bar'])
 
     def test_before_main_sorts_before_after_main(self):
         a, b = ActionFlag(before_main=False), ActionFlag(before_main=True)
