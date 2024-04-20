@@ -67,6 +67,7 @@ class ParamBase(ABC):
         self.required = required
         self.help = help
         self.hide = hide
+        # TODO: Make the --help flag a counter and allow some `hide=True` params to be shown with `-hh` or similar?
         self.name = name
         if param_groups := _group_stack.get(None):  # If truthy, there's at least 1 active ParamGroup
             param_groups[-1].register(self)  # This sets self.group = group

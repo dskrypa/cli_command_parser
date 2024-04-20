@@ -135,6 +135,7 @@ class ChoiceMap(Choices[T]):
 
     def __init__(self, choices: Mapping[Any, T], *args, **kwargs):
         super().__init__(choices, *args, **kwargs)
+        # TODO: Alternate ChoiceMap where values are used as help text, similar to SubCommand with local_choices
 
     def __call__(self, value: str) -> T:
         value = self._normalize(value)

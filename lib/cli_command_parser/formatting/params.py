@@ -447,6 +447,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         return f'{adjective} arguments'
 
     def _get_spacer(self) -> str:
+        # TODO: Config option to set these chars OR to have them just be spaces
         if self.param.mutually_exclusive:
             return '\u00A6 '  # BROKEN BAR
         elif self.param.mutually_dependent:
