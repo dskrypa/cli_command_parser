@@ -244,8 +244,8 @@ class ConfigItem(Generic[CV, DV]):
     def __set__(self, instance: CommandConfig, value: ConfigValue):
         if instance._read_only:
             raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
-        elif (type_func := self.type) is not None:
-            value = type_func(value)
+        elif self.type is not None:
+            value = self.type(value)
         instance._data[self.name] = value
 
     def __delete__(self, instance: CommandConfig):

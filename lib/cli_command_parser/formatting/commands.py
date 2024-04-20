@@ -70,8 +70,8 @@ class CommandHelpFormatter:
         params = self.params
         yield from params.all_positionals
         yield from params.options
-        if (pass_thru := params.pass_thru) is not None:
-            yield pass_thru
+        if params.pass_thru is not None:
+            yield params.pass_thru
 
     def _usage_parts(self, sub_cmd_choice: str = None, allow_sys_argv: Bool = True) -> Iterator[str]:
         yield 'usage:'
@@ -191,8 +191,8 @@ class CommandHelpFormatter:
             #  each choice value (should probably be configurable to explode or condense)
             choice_str = f'{choice_base} {cmd_name}' if choice_base else cmd_name
             yield from spaced_rst_header(f'Subcommand: {choice_str}', level)
-            if choice_help := choice.help:
-                yield choice_help
+            if choice.help:
+                yield choice.help
                 yield ''
 
             if (command := choice.target) is None:
@@ -200,10 +200,9 @@ class CommandHelpFormatter:
                 yield from self._cmd_rst_lines(config, choice_str, allow_sys_argv)
             else:
                 params = get_params(command)
-                formatter = params.formatter
-                yield from formatter._cmd_rst_lines(config, choice_str, allow_sys_argv)
+                yield from params.formatter._cmd_rst_lines(config, choice_str, allow_sys_argv)
                 if nested_sub_cmd := params.sub_command:
-                    yield from formatter._sub_cmds_rst_lines(
+                    yield from params.formatter._sub_cmds_rst_lines(
                         config, nested_sub_cmd, level, choice_str, depth + 1, allow_sys_argv
                     )
 

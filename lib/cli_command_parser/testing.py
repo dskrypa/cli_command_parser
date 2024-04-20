@@ -94,6 +94,9 @@ class ParserTest(TestCase):
     def assert_dict_equal(self, d1, d2, msg: str = None):
         self.assertIsInstance(d1, dict, 'First argument is not a dictionary')
         self.assertIsInstance(d2, dict, 'Second argument is not a dictionary')
+        self._assert_dict_equal(d1, d2, msg)
+
+    def _assert_dict_equal(self, d1, d2, msg: str = None):
         if d1 != d2:
             self.fail(self._formatMessage(msg, f'{d1} != {d2}\n{format_dict_diff(d1, d2)}'))
 
@@ -102,8 +105,7 @@ class ParserTest(TestCase):
 
     def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, msg: str = None) -> Command:
         cmd = cmd_cls.parse(argv)
-        parsed = cmd.ctx.get_parsed(cmd, exclude=EXCLUDE_ACTIONS)
-        self.assert_dict_equal(expected, parsed, msg)
+        self._assert_dict_equal(expected, cmd.ctx.get_parsed(cmd, exclude=EXCLUDE_ACTIONS), msg)
         return cmd
 
     def assert_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[Case], msg: str = None):
@@ -220,9 +222,7 @@ def _colored(text: str, color: int, end: str = '\n'):
 
 def format_diff(a: str, b: str, name_a: str = 'expected', name_b: str = '  actual', n: int = 3) -> str:
     sio = StringIO()
-    a = a.splitlines()
-    b = b.splitlines()
-    for i, line in enumerate(unified_diff(a, b, name_a, name_b, n=n, lineterm='')):
+    for i, line in enumerate(unified_diff(a.splitlines(), b.splitlines(), name_a, name_b, n=n, lineterm='')):
         if line.startswith('+') and i > 1:
             sio.write(_colored(line, 2))
         elif line.startswith('-') and i > 1:
@@ -262,9 +262,7 @@ def format_dict_diff(a: Dict[str, Any], b: Dict[str, Any]) -> str:
                     formatted_a.append(_colored(str_a, 2, ''))
                     formatted_b.append(_colored(str_b, 1, ''))
 
-    kvs_a = ', '.join(formatted_a)
-    kvs_b = ', '.join(formatted_b)
-    return f'- {{{kvs_a}}}\n+ {{{kvs_b}}}'
+    return f'- {{{", ".join(formatted_a)}}}\n+ {{{", ".join(formatted_b)}}}'
 
 
 # endregion

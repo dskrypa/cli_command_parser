@@ -67,6 +67,7 @@ class ParamBase(ABC):
         self.required = required
         self.help = help
         self.hide = hide
+        # TODO: Make the --help flag a counter and allow some `hide=True` params to be shown with `-hh` or similar?
         self.name = name
         if param_groups := _group_stack.get(None):  # If truthy, there's at least 1 active ParamGroup
             param_groups[-1].register(self)  # This sets self.group = group
@@ -270,8 +271,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     @property
     def has_choices(self) -> bool:
-        if type_attr := self.type:
-            return isinstance(type_attr, _ChoicesBase) and type_attr.choices
+        if self.type:
+            return isinstance(self.type, _ChoicesBase) and self.type.choices
         return False
 
     def register_default_cb(self, method: CommandMethod) -> CommandMethod:
@@ -302,8 +303,8 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     def __repr__(self) -> str:
         names = ('action', 'const', 'default', 'default_cb', 'type', 'choices', 'required', 'hide', 'help')
-        if extra_attrs := self._repr_attrs:
-            names = chain(names, extra_attrs)
+        if self._repr_attrs:
+            names = chain(names, self._repr_attrs)
 
         skip = (None, _NotSet)
         attrs = (
@@ -377,24 +378,22 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             command.__dict__[self._attr_name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def result_value(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
-        value = ctx.get_parsed_value(self)
-        if value is _NotSet:
-            if self.required:
-                if missing_default is _NotSet:
-                    raise MissingArgument(self)
-                return missing_default
-            else:
-                try:
-                    return self.action.get_default(command, missing_default)
-                except InputValidationError as e:
-                    # At this point, a default value was provided, but it was not an acceptable value
-                    # TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?
-                    raise BadArgument(self, f'bad default value - {e}') from e
-
-        return self.action.finalize_value(value)
-
-    result = result_value
+    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
+        """The final result / parsed value for this Parameter that is returned upon access as a descriptor."""
+        if (value := ctx.get_parsed_value(self)) is not _NotSet:
+            return self.action.finalize_value(value)
+        elif self.required:
+            if missing_default is _NotSet:
+                raise MissingArgument(self)
+            return missing_default
+        else:
+            try:
+                return self.action.get_default(command, missing_default)
+            except InputValidationError as e:
+                # At this point, a default value was provided when this param was defined, but it wasn't acceptable
+                # TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?
+                #  Need to test choices - a non-acceptable choice may make sense as the default in some cases
+                raise BadArgument(self, f'bad default value - {e}') from e
 
     # endregion
 
@@ -518,9 +517,9 @@ class BaseOption(Parameter[T_co], ABC):
 
     def __set_name__(self, command: CommandCls, name: str):
         super().__set_name__(command, name)
-        if not (option_strs := self.option_strs).name_mode:
-            option_strs.name_mode = self._config(command).option_name_mode
-        option_strs.update(name)
+        if not self.option_strs.name_mode:
+            self.option_strs.name_mode = self._config(command).option_name_mode
+        self.option_strs.update(name)
 
     def env_vars(self) -> Iterator[str]:
         if self.env_var:

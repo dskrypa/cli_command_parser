@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from importlib.metadata import entry_points, EntryPoint
+from importlib.metadata import entry_points, EntryPoint, Distribution
 from inspect import getmodule
 from pathlib import Path
 from sys import modules
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Type, Callable, Optional, Union, Iterator, Tuple, Dict
+from typing import TYPE_CHECKING, Any, Type, Callable, Optional, Union, Iterator, Tuple, Dict, Set
 from urllib.parse import urlparse
 
 from .context import ctx, NoActiveContext
@@ -60,7 +60,7 @@ class MetadataBase:
 
     def _attrs(self) -> Iterator[Tuple[str, Any]]:
         for base in self.__class__.mro()[:-1]:
-            for attr in base.__slots__:
+            for attr in base.__slots__:  # noqa
                 if attr != 'name':
                     value = getattr(self, attr)
                     yield attr, (getattr(value, '__qualname__', value) if attr == 'func' else repr(value))
@@ -111,15 +111,12 @@ def dynamic_metadata(func=None, *, inheritable: bool = True):
 class ProgramMetadata:
     _fields = {'parent'}
     parent: Optional[ProgramMetadata] = None
+    distribution: Distribution | None = Metadata(None, inheritable=False)
     path: Path = Metadata(None, inheritable=False)
     package: str = Metadata(None, inheritable=False)
     module: str = Metadata(None, inheritable=False)
     cmd_module: str = Metadata(None, inheritable=False)
     command: str = Metadata(None, inheritable=False)
-    url: str = Metadata(None)
-    docs_url: str = Metadata(None)
-    email: str = Metadata(None)
-    version: str = Metadata('')
     usage: str = Metadata(None)
     description: str = Metadata(None)
     epilog: str = Metadata(None)
@@ -156,7 +153,7 @@ class ProgramMetadata:
         doc_name: str = None,
     ) -> ProgramMetadata:
         path, g = _path_and_globals(command, path)
-        if (cmd_module := command.__module__) != 'cli_command_parser.commands':
+        if command.__module__ != 'cli_command_parser.commands':
             # Prevent inheritors from getting docstrings from the base Command
             doc_str = g.get('__doc__')
             doc = command.__doc__
@@ -165,10 +162,11 @@ class ProgramMetadata:
 
         return cls(
             parent=parent,
+            distribution=_dist_finder.dist_for_obj(command),
             path=path,
             package=g.get('__package__'),
             module=g.get('__module__'),
-            cmd_module=cmd_module,
+            cmd_module=command.__module__,
             command=command.__qualname__,
             prog=prog,
             url=url or g.get('__url__'),
@@ -211,13 +209,41 @@ class ProgramMetadata:
 
     @dynamic_metadata(inheritable=False)
     def doc_name(self) -> str:
+        # TODO: Bug: Explicitly provided value not used in rst page title sometimes?
         return Path(self._doc_prog_and_src[0]).stem
 
     # endregion
 
     @dynamic_metadata
+    def version(self) -> str:
+        if dist := self.distribution:
+            return dist.version
+        return ''
+
+    @dynamic_metadata
+    def email(self) -> OptStr:
+        if dist := self.distribution:
+            if email := dist.metadata['Author-email']:
+                # TODO: `Maintainer-email` instead if it's defined?  Is there a more appropriate key?
+                # https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata
+                return email
+        return None
+
+    @dynamic_metadata
+    def url(self) -> OptStr:
+        if (dist := self.distribution) and (urls := _dist_finder.get_urls(dist)):
+            for key in ('Source', 'Source Code', 'Home-page'):
+                if url := urls.get(key):
+                    return url
+        return None
+
+    @dynamic_metadata
     def docs_url(self) -> OptStr:
-        return _docs_url_from_repo_url(self.url)
+        if (dist := self.distribution) and (urls := _dist_finder.get_urls(dist)):
+            for key in ('Documentation', 'Docs', 'Doc', 'Home-page'):
+                if url := urls.get(key):
+                    return url
+        return _docs_url_from_repo_url(self.url)  # noqa
 
     def format_epilog(self, extended: Bool = True, allow_sys_argv: Bool = None) -> str:
         parts = [self.epilog] if self.epilog else []
@@ -276,7 +302,7 @@ class ProgFinder:
         try:
             return entry_points(group='console_scripts')  # noqa
         except TypeError:  # Python 3.8 or 3.9
-            return entry_points()['console_scripts']
+            return entry_points()['console_scripts']  # noqa
 
     def normalize(
         self,
@@ -349,6 +375,77 @@ class ProgFinder:
 
 
 _prog_finder = ProgFinder()
+
+
+class DistributionFinder:
+    def __init__(self):
+        self._dist_top_levels = {}
+        self._dist_urls = {}
+
+    @cached_property
+    def _distributions(self) -> dict[str, Distribution]:
+        # Note: Distribution.name was not added until 3.10, and it returns `self.metadata['Name']`
+        return {dist.metadata['Name']: dist for dist in Distribution.discover()}
+
+    def _get_top_levels(self, dist_name: str, dist: Distribution) -> Set[str]:
+        # dist_name = dist.metadata['Name']  # Distribution.name was not added until 3.10, and it returns this
+        if (top_levels := self._dist_top_levels.get(dist_name)) is not None:
+            return top_levels
+        elif raw := dist.read_text('top_level.txt'):
+            self._dist_top_levels[dist_name] = top_levels = {pkg for pkg in map(str.strip, raw.split()) if pkg}
+            return top_levels
+
+        # Below logic is copied from importlib.metadata._top_level_inferred from 3.10+
+        self._dist_top_levels[dist_name] = inferred = {
+            f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name for f in dist.files if f.suffix == '.py'
+        }
+        return inferred
+
+    def dist_for_pkg(self, pkg_name: str) -> Distribution | None:
+        for dist_name, dist in self._distributions.items():
+            if pkg_name in self._get_top_levels(dist_name, dist):
+                return dist
+        return None
+
+    def dist_for_obj(self, obj) -> Distribution | None:
+        try:
+            mod_name: str = obj.__module__
+        except AttributeError:
+            return None
+
+        if mod_name == '__main__':  # May need to handle __mp_main__ and similar too
+            return self._dist_for_obj_main(obj)
+        return self.dist_for_pkg(mod_name.split('.', 1)[0])
+
+    def _dist_for_obj_main(self, obj) -> Distribution | None:
+        # Note: getmodule returns the module object (obj.__module__ only provides the name)
+        if (module := getmodule(obj)) is None or not module.__package__:
+            return None
+
+        # The package name may have a prefix like `lib` not included in top_level when interactive
+        for part in module.__package__.split('.'):
+            if (dist := self.dist_for_pkg(part)) is not None:
+                return dist
+        return None
+
+    def get_urls(self, dist: Distribution) -> Dict[str, str]:
+        metadata = dist.metadata
+        dist_name = metadata['Name']
+        if (urls := self._dist_urls.get(dist_name)) is not None:
+            return urls
+
+        urls = {}
+        for key, val in metadata.items():
+            if key == 'Home-page':
+                urls[key] = val
+            elif key == 'Project-URL':
+                url_type, url = val.split(',', 1)
+                urls[url_type.strip()] = url.strip()
+        self._dist_urls[dist_name] = urls
+        return urls
+
+
+_dist_finder = DistributionFinder()
 
 
 def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Dict[str, Any]]:

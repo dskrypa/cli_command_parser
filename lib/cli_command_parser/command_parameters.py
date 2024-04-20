@@ -92,10 +92,10 @@ class CommandParameters:
         return self.positionals
 
     def get_positionals_to_parse(self, ctx: Context) -> List[BasePositional]:
-        if positionals := self.all_positionals:
-            for i, param in enumerate(positionals):
+        if self.all_positionals:
+            for i, param in enumerate(self.all_positionals):
                 if not ctx.num_provided(param):
-                    return [p for p in positionals[i:]]
+                    return [p for p in self.all_positionals[i:]]
 
         return []
 
@@ -391,15 +391,15 @@ class CommandParameters:
         else:
             yield from self.all_positionals
             yield from self.options
-        if (pass_thru := self.pass_thru) and pass_thru not in exclude:
-            yield pass_thru
+        if self.pass_thru and self.pass_thru not in exclude:
+            yield self.pass_thru
 
     def required_check_params(self) -> Iterator[Parameter]:
         ignore = SubCommand
         yield from (p for p in self.all_positionals if p.required and not p.group and not isinstance(p, ignore))
         yield from (p for p in self.options if p.required and not p.group)
-        if (pass_thru := self._pass_thru) and pass_thru.required and not pass_thru.group:
-            yield pass_thru
+        if self._pass_thru and self._pass_thru.required and not self._pass_thru.group:
+            yield self._pass_thru
 
 
 def _find_ambiguous_combos(

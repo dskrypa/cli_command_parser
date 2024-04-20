@@ -12,7 +12,7 @@ from .config import (
     AmbiguousComboMode,
     AllowLeadingDash,
 )
-from .commands import Command, main
+from .commands import Command, AsyncCommand, main
 from .context import Context, get_current_context, ctx, get_parsed, get_context, get_raw_arg
 from .exceptions import (
     CommandParserException,

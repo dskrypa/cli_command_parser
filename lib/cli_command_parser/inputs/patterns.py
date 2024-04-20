@@ -124,8 +124,8 @@ class Regex(PatternInput[RegexResult]):
         elif mode == RegexMode.GROUP:
             return m.group(self.group)
         elif mode == RegexMode.GROUPS:
-            if groups := self.groups:
-                return tuple(m.group(g) for g in groups)
+            if self.groups:
+                return tuple(m.group(g) for g in self.groups)
             return m.groups()
         else:  # mode == RegexMode.DICT
             return m.groupdict()

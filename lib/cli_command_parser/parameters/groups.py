@@ -60,8 +60,16 @@ class ParamGroup(ParamBase):
         hide: Bool = False,
     ):
         super().__init__(name=name, required=required, hide=hide)
+
+        # TODO: In a large group containing, say, 4 items, where 2 are mutually dependent / must both be provided if any
+        #  are provided, and 2 other items that are optional, but require those others to be defined, the
+        #  mutual_dependent / required handling needs to be refined.
+        #  Concrete example: fluentbit parser name/format are both required if either is specified, and a regex pattern
+        #  / type MAY be provided, but only if the name/format is also provided
+
         self._num = next(_GROUP_COUNTER)
         self.description = description
+        # TODO: Description from docstring just inside with block?  Is it possible?
         self.members = []
         if mutually_dependent and mutually_exclusive:
             name = self.name or 'Options'

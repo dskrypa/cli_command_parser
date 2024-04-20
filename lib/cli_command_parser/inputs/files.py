@@ -200,6 +200,9 @@ class Json(Serialized):
     def __init__(self, *, mode: str = 'rb', **kwargs):
         import json
 
+        # TODO: catch JSONDecodeError and provide a standardized cleaner error message (with a way to disable this error handling)
+        # TODO: Update docs to not suggest importing `inputs as i`
+
         write = allows_write(mode, True)
         kwargs['pass_file'] = write  # json.load just calls loads with f.read()
         super().__init__(json.dump if write else json.loads, mode=mode, **kwargs)

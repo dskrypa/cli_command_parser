@@ -31,9 +31,9 @@ class MetadataTest(ParserTest):
         self.assertRegex(meta_repr, r'\s{4}path=.*?/test_metadata.py')
 
     def test_metadata_self(self):
-        self.assertIsInstance(ProgramMetadata.url, Metadata)
+        self.assertIsInstance(ProgramMetadata.epilog, Metadata)
         self.assertIsInstance(ProgramMetadata.prog, DynamicMetadata)
-        self.assertEqual('Metadata(default=None, inheritable=True)', repr(ProgramMetadata.url))
+        self.assertEqual('Metadata(default=None, inheritable=True)', repr(ProgramMetadata.epilog))
         self.assertEqual('DynamicMetadata(func=ProgramMetadata.prog, inheritable=True)', repr(ProgramMetadata.prog))
 
     def test_bad_arg(self):

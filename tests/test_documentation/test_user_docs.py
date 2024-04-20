@@ -56,6 +56,7 @@ class UserDocsTest(TestCase):
     def test_command_kwargs_up_to_date(self):
         doc_params = set(get_doc_params('configuration.rst', 'Command Metadata', 'Configuration Options'))
 
+        # TODO: Missing url, doc_url, maybe more
         meta_kwargs = {'prog', 'usage', 'description', 'epilog', 'doc_name'}
         cmd_params = get_func_params(CommandMeta.__new__, ('mcs', 'name', 'bases', 'namespace', 'kwargs'))
 

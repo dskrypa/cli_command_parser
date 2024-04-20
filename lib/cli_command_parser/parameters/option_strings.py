@@ -139,9 +139,9 @@ class TriFlagOptionStrings(OptionStrings):
     @property
     def alt_allowed(self) -> Set[str]:
         allowed = set(self._alt_long)
-        if short := self._alt_short:
-            allowed.add(short)
-            allowed.add(short[1:])
+        if self._alt_short:
+            allowed.add(self._alt_short)
+            allowed.add(self._alt_short[1:])
         return allowed
 
     # @property

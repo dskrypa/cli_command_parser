@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from ast import NodeVisitor, AST, Assign, Call, For, Attribute, Name, Import, ImportFrom, expr
 from collections import ChainMap, defaultdict
 from functools import partial, wraps
@@ -43,7 +44,7 @@ class ScriptVisitor(NodeVisitor):
 
     def __init__(self, smart_loop_handling: bool = True, track_refs: Collection[TrackedRef] = ()):
         self.smart_loop_handling = smart_loop_handling
-        self.scopes = ChainMap()
+        self.scopes = ChainMap()  # ChainMap that tracks the var/class/func/etc names available in a given scope
         self._tracked_refs = set()
         self._mod_name_tracked_map = defaultdict(dict)
         for ref in track_refs:
@@ -74,11 +75,32 @@ class ScriptVisitor(NodeVisitor):
                     self.scopes[f'{as_name}.{name}'] = tracked
 
     def visit_ImportFrom(self, node: ImportFrom):
-        if name_tracked_map := self._mod_name_tracked_map.get(node.module):
-            for name, as_name in imp_names(node):
-                if tracked := name_tracked_map.get(name):
-                    log.debug(f'Found tracked import: {node.module}.{name} as {as_name}')
-                    self.scopes[as_name] = tracked
+        """
+        Processes a ``from module import names`` statement.  If the module name matches one from which members were
+        registered to be tracked, then the imported names (and any ``as`` aliases) are processed.  Members with
+        canonical names that match an item that was registered to be tracked are added to the current scope / variable
+        namespace.
+
+        Relative module imports are handled fuzzily - no attempt is made to determine the fully qualified module name
+        for the source file or to resolve what the relative import's fully qualified module name would be.  This may
+        result in incorrect items being tracked if the name matched a tracked name in the matched tracked module.
+        """
+        if level := node.level:
+            # For absolute imports, the level is 0
+            # For relative imports, the level is a positive int, representing the number of relative package levels
+            matches = re.compile(r'[^.]+\.' * level + re.escape(node.module) + '$').search
+            for module, name_tracked_map in self._mod_name_tracked_map.items():
+                if matches(module):
+                    log.debug(f'Found fuzzy relative name match for {"." * level + node.module!r} to {module=}')
+                    self._maybe_track_import_from(node, name_tracked_map)
+        elif name_tracked_map := self._mod_name_tracked_map.get(node.module):
+            self._maybe_track_import_from(node, name_tracked_map)
+
+    def _maybe_track_import_from(self, node: ImportFrom, name_tracked_map):
+        for name, as_name in imp_names(node):
+            if tracked := name_tracked_map.get(name):
+                log.debug(f'Found tracked import: {node.module}.{name} as {as_name}')
+                self.scopes[as_name] = tracked
 
     # endregion
 

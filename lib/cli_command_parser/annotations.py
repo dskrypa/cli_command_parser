@@ -17,6 +17,7 @@ __all__ = ['get_descriptor_value_type']
 
 
 def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
+    # TODO: Optimize this to cache get_type_hints for a given class?
     try:
         annotation = get_type_hints(command_cls)[attr]
     except (KeyError, NameError):  # KeyError due to attr missing; NameError for forward references
