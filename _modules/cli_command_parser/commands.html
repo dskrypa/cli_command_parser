@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.commands &mdash; CLI Command Parser 2023.10.20 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx_paramlinks.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,7 +16,7 @@
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../_static/documentation_options.js?v=c95eaf9e"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -253,6 +255,16 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._after_main_"><code class="docutils literal notranslate"><span class="pre">Command._after_main_()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand"><code class="docutils literal notranslate"><span class="pre">AsyncCommand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_run"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.parse_and_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_await"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.parse_and_await()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.__call__"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.__call__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._pre_init_actions_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._pre_init_actions_()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._before_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._before_main_()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.main"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._after_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._after_main_()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
@@ -402,6 +414,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.conversion.argparse_utils.html">Argparse_Utils Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.ArgumentParser"><code class="docutils literal notranslate"><span class="pre">ArgumentParser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.SubParsersAction"><code class="docutils literal notranslate"><span class="pre">SubParsersAction</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.conversion.cli.html">Cli Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter"><code class="docutils literal notranslate"><span class="pre">ParserConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert"><code class="docutils literal notranslate"><span class="pre">Convert</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint"><code class="docutils literal notranslate"><span class="pre">Pprint</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.conversion.command_builder.html">Command_Builder Module</a><ul>
@@ -652,14 +670,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.dynamic_metadata"><code class="docutils literal notranslate"><span class="pre">dynamic_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.parent"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.parent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.distribution"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.distribution</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.path"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.package"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.package</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.cmd_module"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.cmd_module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.command"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.command</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.usage"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.usage</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.description"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.epilog</span></code></a></li>
@@ -669,6 +685,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.prog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_prog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_prog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.doc_name"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.doc_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.email"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.email</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.docs_url"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.docs_url</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.format_epilog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str"><code class="docutils literal notranslate"><span class="pre">ProgramMetadata.get_doc_str()</span></code></a></li>
@@ -678,6 +697,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder"><code class="docutils literal notranslate"><span class="pre">ProgFinder</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.mod_obj_prog_map"><code class="docutils literal notranslate"><span class="pre">ProgFinder.mod_obj_prog_map</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.normalize"><code class="docutils literal notranslate"><span class="pre">ProgFinder.normalize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DistributionFinder"><code class="docutils literal notranslate"><span class="pre">DistributionFinder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DistributionFinder.dist_for_pkg"><code class="docutils literal notranslate"><span class="pre">DistributionFinder.dist_for_pkg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DistributionFinder.dist_for_obj"><code class="docutils literal notranslate"><span class="pre">DistributionFinder.dist_for_obj()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.DistributionFinder.get_urls"><code class="docutils literal notranslate"><span class="pre">DistributionFinder.get_urls()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -865,6 +890,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.str_to_bool"><code class="docutils literal notranslate"><span class="pre">str_to_bool()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.positive_int"><code class="docutils literal notranslate"><span class="pre">positive_int()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.maybe_await"><code class="docutils literal notranslate"><span class="pre">maybe_await()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -979,6 +1005,7 @@
 <span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">get_or_create_context</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamConflict</span>
 <span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">parse_args_and_get_next_cmd</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">maybe_await</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span>
@@ -993,6 +1020,9 @@
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a>
 <span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">CommandMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The main class that other Commands should extend.&quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: Make the distinction between help/description clearer, or merge them?</span>
+    <span class="c1"># TODO: Pull help text from docstring for subcommands if not specified as help=?</span>
 
     <span class="c1">#: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by</span>
     <span class="c1">#: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.</span>
@@ -1130,6 +1160,23 @@
         <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
 
 
+    <span class="k">def</span> <span class="nf">_check_param_conflicts_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: --help should take precedence over input validation - right now, if a Path input expecting a</span>
+        <span class="c1">#  non-existent file receives a file that exists, that error is reported instead of showing help text</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span>
+        <span class="n">n_flags</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">action_flag_count</span>
+        <span class="k">if</span> <span class="n">n_flags</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="n">n_flags</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">all_action_flags</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">before</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">categorized_action_flags</span><span class="p">[</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">]:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">([</span><span class="n">action</span><span class="p">,</span> <span class="o">*</span><span class="n">before</span><span class="p">],</span> <span class="s1">&#39;combining an action with action flags is disabled&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_run_actions_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">phase</span><span class="p">):</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
 <div class="viewcode-block" id="Command._pre_init_actions_">
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command._pre_init_actions_">[docs]</a>
     <span class="k">def</span> <span class="nf">_pre_init_actions_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1143,20 +1190,8 @@
 <span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: --help should take precedence over input validation - right now, if a Path input expecting a</span>
-        <span class="c1">#  non-existent file receives a file that exists, that error is reported instead of showing help text</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span>
-        <span class="n">n_flags</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">action_flag_count</span>
-        <span class="k">if</span> <span class="n">n_flags</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">multiple_action_flags</span> <span class="ow">and</span> <span class="n">n_flags</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">all_action_flags</span><span class="p">,</span> <span class="s1">&#39;combining multiple action flags is disabled&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">before</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">categorized_action_flags</span><span class="p">[</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">]:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
-            <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">([</span><span class="n">action</span><span class="p">,</span> <span class="o">*</span><span class="n">before</span><span class="p">],</span> <span class="s1">&#39;combining an action with action flags is disabled&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">PRE_INIT</span><span class="p">):</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param_conflicts_</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_actions_</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">PRE_INIT</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Command._init_command_">
@@ -1191,8 +1226,7 @@
 <span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">):</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_actions_</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Command.main">
@@ -1234,8 +1268,135 @@
 <span class="sd">        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">AFTER_MAIN</span><span class="p">):</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_actions_</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">AFTER_MAIN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AsyncCommand">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand">[docs]</a>
+<span class="k">class</span> <span class="nc">AsyncCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Asynchronous version of the main class that other Commands should extend.</span>
+
+<span class="sd">    To run an AsyncCommand, both :func:`main` and :meth:`.parse_and_run` can be used as if running a synchronous</span>
+<span class="sd">    :class:`Command`.  The asynchronous version of :meth:`.parse_and_run` handles calling :func:`python:asyncio.run`.</span>
+
+<span class="sd">    For applications that need more direct control over how the event loop is run, :meth:`.parse_and_await` can be</span>
+<span class="sd">    used instead.</span>
+
+<span class="sd">    All `_sunder_` methods supported by :class:`Command` may be overridden with either synchronous or async versions,</span>
+<span class="sd">    and :class:`~.choice_map.Action` target methods may similarly be defined either way as well.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AsyncCommand.parse_and_run">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_run">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronous version of :meth:`Command.parse_and_run`.  Argument parsing is handled synchronously, then</span>
+<span class="sd">        :func:`python:asyncio.run` is called with the parsed command&#39;s :meth:`.__call__` coroutine.</span>
+
+<span class="sd">        For applications that need more direct control over how the event loop is run, :meth:`.parse_and_await` can be</span>
+<span class="sd">        used instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">asyncio</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_error_handler</span><span class="p">():</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span>
+        <span class="k">except</span> <span class="ne">UnboundLocalError</span><span class="p">:</span>  <span class="c1"># There was an error handled during parsing, so self was not defined</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="AsyncCommand.parse_and_await">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_await">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">parse_and_await</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Coroutine alternative to :meth:`.parse_and_run`.  This method does NOT call :func:`python:asyncio.run` - it is</span>
+<span class="sd">        meant to be used as ``await MyCommand.parse_and_await()`` with an existing event loop.</span>
+
+<span class="sd">        Simpler applications can likely use the easier :func:`main` function or :meth:`.parse_and_run` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_or_create_context</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_error_handler</span><span class="p">():</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span>
+        <span class="k">except</span> <span class="ne">UnboundLocalError</span><span class="p">:</span>  <span class="c1"># There was an error handled during parsing, so self was not defined</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="AsyncCommand.__call__">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.__call__">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command.__call__`.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Command__ctx</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_error_handler</span><span class="p">():</span>  <span class="c1"># noqa</span>
+            <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pre_init_actions_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_command_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_before_main_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">always_run_after_main</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Caught exception - running _after_main_ before propagating&#39;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_after_main_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+                <span class="k">raise</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_after_main_</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_run_actions_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command._run_actions_`.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Command__ctx</span><span class="o">.</span><span class="n">iter_action_flags</span><span class="p">(</span><span class="n">phase</span><span class="p">):</span>  <span class="c1"># noqa</span>
+            <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AsyncCommand._pre_init_actions_">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._pre_init_actions_">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_pre_init_actions_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command._pre_init_actions_`.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_param_conflicts_</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_actions_</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">PRE_INIT</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AsyncCommand._before_main_">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._before_main_">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_before_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command._before_main_`.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_actions_</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">BEFORE_MAIN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AsyncCommand.main">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.main">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command.main`.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Command__ctx</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">action_after_action_flags</span><span class="p">):</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">await</span> <span class="n">maybe_await</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="n">target</span><span class="p">()(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="n">actions_taken</span></div>
+
+
+<div class="viewcode-block" id="AsyncCommand._after_main_">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._after_main_">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_after_main_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command._after_main_`.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_actions_</span><span class="p">(</span><span class="n">ActionPhase</span><span class="o">.</span><span class="n">AFTER_MAIN</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
 </div>
 
 
@@ -1286,7 +1447,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Doug Skrypa.</p>
+    <p>&#169; Copyright 2024, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

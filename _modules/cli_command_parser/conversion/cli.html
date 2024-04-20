@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.parameters.groups &mdash; CLI Command Parser 2023.10.20 documentation</title>
+  <title>cli_command_parser.conversion.cli &mdash; CLI Command Parser 2023.10.20 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
@@ -976,7 +976,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">cli_command_parser.parameters.groups</li>
+      <li class="breadcrumb-item active">cli_command_parser.conversion.cli</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
@@ -987,308 +987,84 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for cli_command_parser.parameters.groups</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Parameter Groups</span>
+  <h1>Source code for cli_command_parser.conversion.cli</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="sd">:author: Doug Skrypa</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Positional</span><span class="p">,</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">main</span>
+<span class="kn">from</span> <span class="nn">cli_command_parser.inputs</span> <span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">IPath</span>
 
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParamsMissing</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">ParamBase</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">_group_stack</span>
-<span class="kn">from</span> <span class="nn">.pass_thru</span> <span class="kn">import</span> <span class="n">PassThru</span>
-
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamList</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
-
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParamGroup&#39;</span><span class="p">]</span>
-
-<span class="n">_GROUP_COUNTER</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>  <span class="c1"># Used to track group definition order for help text sorting purposes</span>
+<span class="n">arg_parser</span> <span class="o">=</span> <span class="s1">&#39;argparse.ArgumentParser&#39;</span>
+<span class="n">cli_cp_cmd</span> <span class="o">=</span> <span class="s1">&#39;cli-command-parser Command&#39;</span>
 
 
-<div class="viewcode-block" id="ParamGroup">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup">[docs]</a>
-<span class="k">class</span> <span class="nc">ParamGroup</span><span class="p">(</span><span class="n">ParamBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A group of parameters.  Intended to be used as a context manager, where group members are defined inside the</span>
-<span class="sd">    ``with`` block.  Allows arbitrary levels of nesting, including mutually dependent groups inside mutually exclusive</span>
-<span class="sd">    groups, and vice versa.</span>
+<div class="viewcode-block" id="ParserConverter">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter">[docs]</a>
+<span class="k">class</span> <span class="nc">ParserConverter</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Tool to convert an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1"> into a </span><span class="si">{</span><span class="n">cli_cp_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">no_smart_for</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-S&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable &quot;smart&quot; for loop handling that attempts to dedupe common subparser params&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="s1">&#39;Common&#39;</span><span class="p">):</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
+        <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
 
-<span class="sd">    :param name: The name of this group, to appear in help messages.</span>
-<span class="sd">    :param description: A brief description for this group, to appear in help messages.</span>
-<span class="sd">    :param mutually_exclusive: ``True`` if parameters in this group are mutually exclusive, ``False`` otherwise.</span>
-<span class="sd">      I.e., if one parameter in this group is provided, then no other parameter in this group will be allowed.</span>
-<span class="sd">      Cannot be combined with ``mutually_dependent``.</span>
-<span class="sd">    :param mutually_dependent: ``True`` if parameters in this group are mutually dependent, ``False`` otherwise.</span>
-<span class="sd">      I.e., if one parameter in this group is provided, then all other parameters in this group must also be</span>
-<span class="sd">      provided.  Cannot be combined with ``mutually_exclusive``.</span>
-<span class="sd">    :param required: Whether at least one parameter in this group is required or not.  If it is required, then an</span>
-<span class="sd">      exception will be raised if the user did not provide a value for any parameters in this group.  Defaults to</span>
-<span class="sd">      ``False``.</span>
-<span class="sd">    :param hide: If ``True``, this group of parameters will not be included in usage / help messages.  Defaults to</span>
-<span class="sd">      ``False``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">_num</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">members</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]</span>
-    <span class="n">mutually_exclusive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">mutually_dependent</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mutually_exclusive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">mutually_dependent</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">hide</span><span class="o">=</span><span class="n">hide</span><span class="p">)</span>
-
-        <span class="c1"># TODO: In a large group containing, say, 4 items, where 2 are mutually dependent / must both be provided if any</span>
-        <span class="c1">#  are provided, and 2 other items that are optional, but require those others to be defined, the</span>
-        <span class="c1">#  mutual_dependent / required handling needs to be refined.</span>
-        <span class="c1">#  Concrete example: fluentbit parser name/format are both required if either is specified, and a regex pattern</span>
-        <span class="c1">#  / type MAY be provided, but only if the name/format is also provided</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_num</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_GROUP_COUNTER</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
-        <span class="c1"># TODO: Description from docstring just inside with block?  Is it possible?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="n">mutually_exclusive</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;Options&#39;</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;group=</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> cannot be both mutually_exclusive and mutually_dependent&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="o">=</span> <span class="n">mutually_exclusive</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="o">=</span> <span class="n">mutually_dependent</span>
-
-    <span class="k">def</span> <span class="nf">_default_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="c1"># Overrides the default id(self) based name to provide a stable sort order for groups in --help text</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">#</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="si">:</span><span class="s1">06d</span><span class="si">}</span><span class="s1">&#39;</span>
-
-    <span class="c1"># region Boilerplate Methods</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">exclusive</span><span class="p">,</span> <span class="n">dependent</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">members</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1">, </span><span class="si">{</span><span class="n">members</span><span class="si">=}</span><span class="s1">, m.</span><span class="si">{</span><span class="n">exclusive</span><span class="si">=!s}</span><span class="s1">, m.</span><span class="si">{</span><span class="n">dependent</span><span class="si">=!s}</span><span class="s1">]&gt;&#39;</span>
-
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamGroup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
-            <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mutually_exclusive&#39;</span><span class="p">,</span> <span class="s1">&#39;mutually_dependent&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;members&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamGroup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="c1"># Sort order places nested groups before their parent groups</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">NotImplemented</span>
-        <span class="k">elif</span> <span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">elif</span> <span class="n">other</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">group</span>
-
-        <span class="c1"># Even if a name was not explicitly provided, the auto-generated one from self._default_name() is returned here</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
-
-    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns True if the given :class:`Parameter` or :class:`ParamGroup` is a member of this group, False otherwise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
-
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]:</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
-
-    <span class="c1"># endregion</span>
-
-    <span class="c1"># region Active Group Methods</span>
-
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParamGroup</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A ParamGroup can be used as a context manager, where all Parameters (and ParamGroups) defined inside the</span>
-<span class="sd">        ``with`` block will be registered as members of that group.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">_group_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-            <span class="n">_group_stack</span><span class="o">.</span><span class="n">set</span><span class="p">([</span><span class="bp">self</span><span class="p">])</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
-        <span class="n">_group_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-
-    <span class="c1"># endregion</span>
-
-    <span class="c1"># region Membership Methods</span>
-
-<div class="viewcode-block" id="ParamGroup.add">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.add">[docs]</a>
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the given parameter without storing a back-reference.  Primary use case is for help text only groups.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
+<div class="viewcode-block" id="ParserConverter._init_command_">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter._init_command_">[docs]</a>
+    <span class="k">def</span> <span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ParamGroup.extend">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.extend">[docs]</a>
-    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the given parameters without storing a back-reference.  Primary use case is for help text only groups.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+<div class="viewcode-block" id="ParserConverter.script">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter.script">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">cli_command_parser.conversion</span> <span class="kn">import</span> <span class="n">Script</span>
 
-
-<div class="viewcode-block" id="ParamGroup.register">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.register">[docs]</a>
-    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">):</span>
-                <span class="n">cls_name</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Cannot add </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> to </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s1"> parameters cannot be mutually exclusive&#39;</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Cannot add </span><span class="si">{</span><span class="n">param</span><span class="si">=}</span><span class="s1"> to </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> - required parameters cannot be mutually exclusive&#39;</span>
-                    <span class="s1">&#39; (but the group can be required)&#39;</span>
-                <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
-        <span class="n">param</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">self</span></div>
-
-
-<div class="viewcode-block" id="ParamGroup.register_all">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.register_all">[docs]</a>
-    <span class="k">def</span> <span class="nf">register_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]):</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
-
-
-    <span class="c1"># endregion</span>
-
-    <span class="c1"># region Argument Handling</span>
-
-    <span class="k">def</span> <span class="nf">_categorize_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ParamList</span><span class="p">,</span> <span class="n">ParamList</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called after parsing to group this group&#39;s members by whether they were provided or not.&quot;&quot;&quot;</span>
-        <span class="n">provided</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">num_provided</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-                <span class="n">provided</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span>
-
-    <span class="k">def</span> <span class="nf">_check_conflicts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provided</span><span class="p">:</span> <span class="n">ParamList</span><span class="p">,</span> <span class="n">missing</span><span class="p">:</span> <span class="n">ParamList</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validates that the provided / missing parameters are acceptable based on the mutual exclusivity / dependency</span>
-<span class="sd">        configured for this group.</span>
-
-<span class="sd">        :raises: :class:`.ParamsMissing` if this is a :paramref:`.ParamGroup.mutually_dependent` group and some but not</span>
-<span class="sd">          all members were provided.</span>
-<span class="sd">        :raises: :class:`.ParamConflict` if this is a :paramref:`.ParamGroup.mutually_exclusive` group and multiple</span>
-<span class="sd">          members were provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">):</span>
-            <span class="k">return</span>
-
-        <span class="c1"># log.debug(f&#39;{self}: Checking group conflicts in {provided=}, {missing=}&#39;)</span>
-        <span class="c1"># log.debug(f&#39;{self}: Checking group conflicts in provided={len(provided)}, missing={len(missing)}&#39;)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="n">provided</span> <span class="ow">and</span> <span class="n">missing</span><span class="p">:</span>
-            <span class="n">p_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">provided</span><span class="p">)</span>
-            <span class="n">be</span> <span class="o">=</span> <span class="s1">&#39;was&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;were&#39;</span>
-            <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;because </span><span class="si">{</span><span class="n">p_str</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">be</span><span class="si">}</span><span class="s1"> provided&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_exclusive</span> <span class="ow">and</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamConflict</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="s1">&#39;they are mutually exclusive - only one is allowed&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="ParamGroup.in_mutually_exclusive_group">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.in_mutually_exclusive_group">[docs]</a>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">in_mutually_exclusive_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># This group has no parent group</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">mutually_exclusive</span></div>
-
-
-<div class="viewcode-block" id="ParamGroup.validate">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.validate">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validate mutual dependency / exclusivity of members and that required members have been provided when they are</span>
-<span class="sd">        expected to be (based on mutual dependence/exclusivity and nesting).</span>
-
-<span class="sd">        This method is called during parsing, after initially parsing arguments, before evaluating whether a subcommand</span>
-<span class="sd">        choice was provided.  Groups are validated in order, starting from the inner-most groups and working outward so</span>
-<span class="sd">        that nested groups are validated before any group that they are a member of.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">provided</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categorize_params</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">provided</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_conflicts</span><span class="p">(</span><span class="n">provided</span><span class="p">,</span> <span class="n">missing</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">req_any</span><span class="p">,</span> <span class="n">req_all</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classify_required</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">provided</span> <span class="ow">and</span> <span class="n">req_any</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="ow">not</span> <span class="n">req_all</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">provided</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_mutually_exclusive_group</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">req_missing</span> <span class="o">:=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">missing</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">required</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">req_missing</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span> <span class="nf">_classify_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of (req_any, req_all)&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutually_dependent</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-
-    <span class="c1"># endregion</span>
-
-    <span class="c1"># region Usage / Help Text</span>
-
-<div class="viewcode-block" id="ParamGroup.contains_positional">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.contains_positional">[docs]</a>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">contains_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="c1"># Used by the help text formatter when grouping parameters / groups</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ParamGroup.contains_required">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.contains_required">[docs]</a>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">contains_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">required</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ParamGroup.show_in_help">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.groups.html#cli_command_parser.parameters.groups.ParamGroup.show_in_help">[docs]</a>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">show_in_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hide</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="n">script</span> <span class="o">=</span> <span class="n">Script</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_smart_for</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="n">script</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">script</span></div>
 </div>
 
 
-    <span class="c1"># endregion</span>
+
+<div class="viewcode-block" id="Convert">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert">[docs]</a>
+<span class="k">class</span> <span class="nc">Convert</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">add_methods</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-methods&#39;</span><span class="p">,</span> <span class="s1">&#39;-M&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Do not include boilerplate methods in Commands&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Convert.main">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert.main">[docs]</a>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">cli_command_parser.conversion</span> <span class="kn">import</span> <span class="n">convert_script</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">convert_script</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Pprint">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint">[docs]</a>
+<span class="k">class</span> <span class="nc">Pprint</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Pprint.main">
+<a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint.main">[docs]</a>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">parsers</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 
            </div>
