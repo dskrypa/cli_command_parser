@@ -261,7 +261,7 @@ class AsyncCommand(Command, ABC):
     Asynchronous version of the main class that other Commands should extend.
 
     To run an AsyncCommand, both :func:`main` and :meth:`.parse_and_run` can be used as if running a synchronous
-    :class:`Command`.  The asynchronous version of :meth:`.parse_and_run` handles calling :func:`py:asyncio.run`.
+    :class:`Command`.  The asynchronous version of :meth:`.parse_and_run` handles calling :func:`python:asyncio.run`.
 
     For applications that need more direct control over how the event loop is run, :meth:`.parse_and_await` can be
     used instead.
@@ -274,7 +274,7 @@ class AsyncCommand(Command, ABC):
     def parse_and_run(cls, argv=None, **kwargs):
         """
         Asynchronous version of :meth:`Command.parse_and_run`.  Argument parsing is handled synchronously, then
-        :func:`py:asyncio.run` is called with the parsed command's :meth:`.__call__` coroutine.
+        :func:`python:asyncio.run` is called with the parsed command's :meth:`.__call__` coroutine.
 
         For applications that need more direct control over how the event loop is run, :meth:`.parse_and_await` can be
         used instead.
@@ -296,7 +296,7 @@ class AsyncCommand(Command, ABC):
     @classmethod
     async def parse_and_await(cls, argv=None, **kwargs):
         """
-        Coroutine alternative to :meth:`.parse_and_run`.  This method does NOT call :func:`py:asyncio.run` - it is
+        Coroutine alternative to :meth:`.parse_and_run`.  This method does NOT call :func:`python:asyncio.run` - it is
         meant to be used as ``await MyCommand.parse_and_await()`` with an existing event loop.
 
         Simpler applications can likely use the easier :func:`main` function or :meth:`.parse_and_run` instead.
@@ -314,6 +314,7 @@ class AsyncCommand(Command, ABC):
             return self
 
     async def __call__(self, *args, **kwargs) -> int:
+        """Asynchronous version of :meth:`Command.__call__`."""
         with self._Command__ctx as ctx, ctx.get_error_handler():  # noqa
             await maybe_await(self._pre_init_actions_(*args, **kwargs))
             await maybe_await(self._init_command_(*args, **kwargs))
@@ -331,17 +332,21 @@ class AsyncCommand(Command, ABC):
         return ctx.actions_taken
 
     async def _run_actions_(self, phase: ActionPhase, args: tuple, kwargs: dict):
+        """Asynchronous version of :meth:`Command._run_actions_`."""
         for param in self._Command__ctx.iter_action_flags(phase):  # noqa
             await maybe_await(param.func(self, *args, **kwargs))
 
     async def _pre_init_actions_(self, *args, **kwargs):
+        """Asynchronous version of :meth:`Command._pre_init_actions_`."""
         self._check_param_conflicts_()
         await self._run_actions_(ActionPhase.PRE_INIT, args, kwargs)
 
     async def _before_main_(self, *args, **kwargs):
+        """Asynchronous version of :meth:`Command._before_main_`."""
         await self._run_actions_(ActionPhase.BEFORE_MAIN, args, kwargs)
 
     async def main(self, *args, **kwargs) -> Optional[int]:
+        """Asynchronous version of :meth:`Command.main`."""
         with self._Command__ctx as ctx:  # noqa
             action = get_params(self).action
             if action is not None and (ctx.actions_taken == 0 or ctx.config.action_after_action_flags):
@@ -351,6 +356,7 @@ class AsyncCommand(Command, ABC):
         return ctx.actions_taken
 
     async def _after_main_(self, *args, **kwargs):
+        """Asynchronous version of :meth:`Command._after_main_`."""
         await self._run_actions_(ActionPhase.AFTER_MAIN, args, kwargs)
 
 
