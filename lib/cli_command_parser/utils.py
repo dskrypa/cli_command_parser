@@ -7,9 +7,10 @@ Utilities for working with terminals, strings, and Enums.
 from __future__ import annotations
 
 from enum import Flag, EnumMeta
+from inspect import isawaitable
 from shutil import get_terminal_size
 from time import monotonic
-from typing import Any, Callable, TypeVar, List
+from typing import Any, Callable, TypeVar, Awaitable, List
 
 try:
     from enum import CONFORM
@@ -22,6 +23,7 @@ except ImportError:
     wcwidth = len
 
 FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
+T = TypeVar('T')
 _NotSet = object()
 
 # region Text Processing / Formatting
@@ -184,3 +186,9 @@ def positive_int(value: Any, expected: str = 'a positive integer', min_val: int 
     if value < min_val:
         raise ValueError(f'Invalid {value=} - expected {expected} >= {min_val}')
     return value
+
+
+async def maybe_await(obj: T | Awaitable[T]) -> T:
+    if isawaitable(obj):
+        return await obj
+    return obj

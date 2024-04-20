@@ -15,6 +15,7 @@ from .core import CommandMeta, get_top_level_commands, get_params
 from .context import Context, ActionPhase, get_or_create_context
 from .exceptions import ParamConflict
 from .parser import parse_args_and_get_next_cmd
+from .utils import maybe_await
 
 if TYPE_CHECKING:
     from .typing import Bool, CommandObj
@@ -27,6 +28,9 @@ Argv = Sequence[str]
 
 class Command(ABC, metaclass=CommandMeta):
     """The main class that other Commands should extend."""
+
+    # TODO: Make the distinction between help/description clearer, or merge them?
+    # TODO: Pull help text from docstring for subcommands if not specified as help=?
 
     #: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by
     #: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.
@@ -155,17 +159,7 @@ class Command(ABC, metaclass=CommandMeta):
 
         return ctx.actions_taken
 
-    def _pre_init_actions_(self, *args, **kwargs):
-        """
-        The first method called by :meth:`.__call__` (before :meth:`.main` and others).
-
-        Validates the number of ActionFlags that were specified, and calls all of the specified
-        :func:`~.options.before_main` / :obj:`~.options.action_flag` actions such as ``--help`` that were
-        defined with ``before_main=True`` and ``always_available=True`` in their configured order.
-
-        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
-        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
-        """
+    def _check_param_conflicts_(self):
         # TODO: --help should take precedence over input validation - right now, if a Path input expecting a
         #  non-existent file receives a file that exists, that error is reported instead of showing help text
         ctx = self.__ctx
@@ -178,8 +172,23 @@ class Command(ABC, metaclass=CommandMeta):
             if action is not None and not ctx.config.action_after_action_flags:
                 raise ParamConflict([action, *before], 'combining an action with action flags is disabled')
 
-        for param in ctx.iter_action_flags(ActionPhase.PRE_INIT):
+    def _run_actions_(self, phase: ActionPhase, args: tuple, kwargs: dict):
+        for param in self.__ctx.iter_action_flags(phase):
             param.func(self, *args, **kwargs)
+
+    def _pre_init_actions_(self, *args, **kwargs):
+        """
+        The first method called by :meth:`.__call__` (before :meth:`.main` and others).
+
+        Validates the number of ActionFlags that were specified, and calls all of the specified
+        :func:`~.options.before_main` / :obj:`~.options.action_flag` actions such as ``--help`` that were
+        defined with ``before_main=True`` and ``always_available=True`` in their configured order.
+
+        :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
+        :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
+        """
+        self._check_param_conflicts_()
+        self._run_actions_(ActionPhase.PRE_INIT, args, kwargs)
 
     def _init_command_(self, *args, **kwargs):
         """
@@ -208,8 +217,7 @@ class Command(ABC, metaclass=CommandMeta):
         :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
         :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
         """
-        for param in self.__ctx.iter_action_flags(ActionPhase.BEFORE_MAIN):
-            param.func(self, *args, **kwargs)
+        self._run_actions_(ActionPhase.BEFORE_MAIN, args, kwargs)
 
     def main(self, *args, **kwargs) -> Optional[int]:
         """
@@ -245,8 +253,105 @@ class Command(ABC, metaclass=CommandMeta):
         :param args: Positional arguments to pass to the :obj:`~.options.action_flag` methods
         :param kwargs: Keyword arguments to pass to the :obj:`~.options.action_flag` methods
         """
-        for param in self.__ctx.iter_action_flags(ActionPhase.AFTER_MAIN):
-            param.func(self, *args, **kwargs)
+        self._run_actions_(ActionPhase.AFTER_MAIN, args, kwargs)
+
+
+class AsyncCommand(Command, ABC):
+    """
+    Asynchronous version of the main class that other Commands should extend.
+
+    To run an AsyncCommand, both :func:`main` and :meth:`.parse_and_run` can be used as if running a synchronous
+    :class:`Command`.  The asynchronous version of :meth:`.parse_and_run` handles calling :func:`py:asyncio.run`.
+
+    For applications that need more direct control over how the event loop is run, :meth:`.parse_and_await` can be
+    used instead.
+
+    All `_sunder_` methods supported by :class:`Command` may be overridden with either synchronous or async versions,
+    and :class:`~.choice_map.Action` target methods may similarly be defined either way as well.
+    """
+
+    @classmethod
+    def parse_and_run(cls, argv=None, **kwargs):
+        """
+        Asynchronous version of :meth:`Command.parse_and_run`.  Argument parsing is handled synchronously, then
+        :func:`py:asyncio.run` is called with the parsed command's :meth:`.__call__` coroutine.
+
+        For applications that need more direct control over how the event loop is run, :meth:`.parse_and_await` can be
+        used instead.
+        """
+        import asyncio
+
+        ctx = get_or_create_context(cls, argv)
+        with ctx.get_error_handler():
+            self = cls.parse(argv)
+
+        try:
+            self
+        except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
+            return None
+        else:
+            asyncio.run(self(**kwargs))
+            return self
+
+    @classmethod
+    async def parse_and_await(cls, argv=None, **kwargs):
+        """
+        Coroutine alternative to :meth:`.parse_and_run`.  This method does NOT call :func:`py:asyncio.run` - it is
+        meant to be used as ``await MyCommand.parse_and_await()`` with an existing event loop.
+
+        Simpler applications can likely use the easier :func:`main` function or :meth:`.parse_and_run` instead.
+        """
+        ctx = get_or_create_context(cls, argv)
+        with ctx.get_error_handler():
+            self = cls.parse(argv)
+
+        try:
+            self
+        except UnboundLocalError:  # There was an error handled during parsing, so self was not defined
+            return None
+        else:
+            await maybe_await(self(**kwargs))
+            return self
+
+    async def __call__(self, *args, **kwargs) -> int:
+        with self._Command__ctx as ctx, ctx.get_error_handler():  # noqa
+            await maybe_await(self._pre_init_actions_(*args, **kwargs))
+            await maybe_await(self._init_command_(*args, **kwargs))
+            await maybe_await(self._before_main_(*args, **kwargs))
+            try:
+                await maybe_await(self.main(*args, **kwargs))
+            except BaseException:
+                if ctx.config.always_run_after_main:
+                    log.debug('Caught exception - running _after_main_ before propagating', exc_info=True)
+                    await maybe_await(self._after_main_(*args, **kwargs))
+                raise
+            else:
+                await maybe_await(self._after_main_(*args, **kwargs))
+
+        return ctx.actions_taken
+
+    async def _run_actions_(self, phase: ActionPhase, args: tuple, kwargs: dict):
+        for param in self._Command__ctx.iter_action_flags(phase):  # noqa
+            await maybe_await(param.func(self, *args, **kwargs))
+
+    async def _pre_init_actions_(self, *args, **kwargs):
+        self._check_param_conflicts_()
+        await self._run_actions_(ActionPhase.PRE_INIT, args, kwargs)
+
+    async def _before_main_(self, *args, **kwargs):
+        await self._run_actions_(ActionPhase.BEFORE_MAIN, args, kwargs)
+
+    async def main(self, *args, **kwargs) -> Optional[int]:
+        with self._Command__ctx as ctx:  # noqa
+            action = get_params(self).action
+            if action is not None and (ctx.actions_taken == 0 or ctx.config.action_after_action_flags):
+                ctx.actions_taken += 1
+                await maybe_await(action.target()(self, *args, **kwargs))
+
+        return ctx.actions_taken
+
+    async def _after_main_(self, *args, **kwargs):
+        await self._run_actions_(ActionPhase.AFTER_MAIN, args, kwargs)
 
 
 def main(argv: Argv = None, return_command: Bool = False, **kwargs) -> Optional[CommandObj]:
