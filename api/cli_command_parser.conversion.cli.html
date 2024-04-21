@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#asyncio-applications">Asyncio Applications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#advanced">Advanced</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#inheritance">Inheritance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#overriding-command-methods">Overriding Command Methods</a><ul>
@@ -161,6 +162,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../inputs.html#manual-input-validation">Manual Input Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a><ul>
@@ -1030,22 +1032,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.conversion.cli.ParserConverter._init_command_">
 <span class="sig-name descname"><span class="pre">_init_command_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/conversion/cli.html#ParserConverter._init_command_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.cli.ParserConverter._init_command_" title="Link to this definition"></a></dt>
-<dd><p>Called by <a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__" title="cli_command_parser.parameters.options.ActionFlag.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a> after <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command._pre_init_actions_" title="cli_command_parser.commands.Command._pre_init_actions_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_pre_init_actions_()</span></code></a> and before <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_before_main_()</span></code></a>.</p>
-<p>Safe to override without calling <code class="docutils literal notranslate"><span class="pre">super()._init_command_()</span></code> - the base implementation is a placeholder
-intended to allow subclasses to perform initialization tasks.  This method is called after actions like
-<code class="docutils literal notranslate"><span class="pre">--help</span></code> have been processed, so more resource-intensive initialization operations or those that may have
-side effects that should not occur when the application does nothing should be placed here instead of in
-<code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
-<p>Actions like initializing logging are recommended to be placed in this method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.conversion.cli.ParserConverter._init_command_.params.args"></span><strong>args</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.conversion.cli.ParserConverter._init_command_.params.args">¶</a> – Positional arguments that were passed to <a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__" title="cli_command_parser.parameters.options.ActionFlag.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a></p></li>
-<li><p><span class="target" id="cli_command_parser.conversion.cli.ParserConverter._init_command_.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.conversion.cli.ParserConverter._init_command_.params.kwargs">¶</a> – Keyword arguments that were passed to <a class="reference internal" href="cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__" title="cli_command_parser.parameters.options.ActionFlag.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cli_command_parser.conversion.cli.ParserConverter.script">
@@ -1073,25 +1060,7 @@ side effects that should not occur when the application does nothing should be p
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.conversion.cli.Convert.main">
 <span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/conversion/cli.html#Convert.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.cli.Convert.main" title="Link to this definition"></a></dt>
-<dd><p>Primary method that is called when running a Command.</p>
-<p>If any arguments were specified that are associated with triggering a method that was decorated / registered as
-a positional <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a>’s target method, then that method is called here.</p>
-<p>Commands that do not have any positional <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Actions</span></code></a> can override this method, and do
-<strong>not</strong> need to call <code class="docutils literal notranslate"><span class="pre">super().main(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
-<p>Initialization code that is common for all actions, or that should be run before <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_before_main_()</span></code></a> should
-be placed in <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.conversion.cli.Convert.main.params.args"></span><strong>args</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.conversion.cli.Convert.main.params.args">¶</a> – Positional arguments to pass to the action method</p></li>
-<li><p><span class="target" id="cli_command_parser.conversion.cli.Convert.main.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.conversion.cli.Convert.main.params.kwargs">¶</a> – Keyword arguments to pass to the action method</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The total number of actions that were taken so far</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1108,25 +1077,7 @@ be placed in <code class="docutils literal notranslate"><span class="pre">__init
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.conversion.cli.Pprint.main">
 <span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/conversion/cli.html#Pprint.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.conversion.cli.Pprint.main" title="Link to this definition"></a></dt>
-<dd><p>Primary method that is called when running a Command.</p>
-<p>If any arguments were specified that are associated with triggering a method that was decorated / registered as
-a positional <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Action</span></code></a>’s target method, then that method is called here.</p>
-<p>Commands that do not have any positional <a class="reference internal" href="cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action" title="cli_command_parser.parameters.choice_map.Action"><code class="xref py py-class docutils literal notranslate"><span class="pre">Actions</span></code></a> can override this method, and do
-<strong>not</strong> need to call <code class="docutils literal notranslate"><span class="pre">super().main(*args,</span> <span class="pre">**kwargs)</span></code>.</p>
-<p>Initialization code that is common for all actions, or that should be run before <a class="reference internal" href="cli_command_parser.commands.html#cli_command_parser.commands.Command._before_main_" title="cli_command_parser.commands.Command._before_main_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_before_main_()</span></code></a> should
-be placed in <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.conversion.cli.Pprint.main.params.args"></span><strong>args</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.conversion.cli.Pprint.main.params.args">¶</a> – Positional arguments to pass to the action method</p></li>
-<li><p><span class="target" id="cli_command_parser.conversion.cli.Pprint.main.params.kwargs"></span><strong>kwargs</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.conversion.cli.Pprint.main.params.kwargs">¶</a> – Keyword arguments to pass to the action method</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The total number of actions that were taken so far</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 

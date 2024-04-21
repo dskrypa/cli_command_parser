@@ -98,7 +98,8 @@ be parsed, a list of strings may also be provided when using either approach::
 
 ----
 
-.. [1] The only other methods that do not have ``__dunder__`` or ``_sunder_`` names.
+.. [1] The listed methods are the only ones other than ``main`` in the Command interface that do not have ``__dunder__``
+       or ``_sunder_`` names.  AsyncCommand (see `Asyncio Applications`_) defines one more.
 .. [2] Almost any.  A :ref:`ctx <advanced:Post-Run & Context>` attribute is defined for convenience, but is 100% safe
        to override.  See :ref:`commands:Overriding Command Methods` for more info about other methods.
 .. [3] The :func:`~.commands.main` function selects the top-level class that is known to extend :class:`.Command`,
@@ -106,6 +107,29 @@ be parsed, a list of strings may also be provided when using either approach::
        about how :func:`~.commands.main` picks that class and handles multiple commands, see its API documentation.
 
 ----
+
+
+Asyncio Applications
+====================
+
+Commands in applications that use :doc:`asyncio <python:library/asyncio>` should extend :class:`~.AsyncCommand` instead
+of :class:`~.Command`.  The ``main`` method within Command classes that extend AsyncCommand should generally be defined
+as an ``async`` method / :ref:`coroutine <python:coroutine>`.  For example::
+
+    class MyAsyncCommand(AsyncCommand):
+        async def main(self):
+            ...
+
+
+To run an AsyncCommand, both :func:`~.commands.main` and :meth:`~.AsyncCommand.parse_and_run` can be used as if running
+a synchronous :class:`~.Command` (as described `above <#parse-run>`__).  The asynchronous version of
+:meth:`~.AsyncCommand.parse_and_run` handles calling :func:`python:asyncio.run`.
+
+For applications that need more direct control over how the event loop is run, :meth:`~.AsyncCommand.parse_and_await`
+can be used instead.
+
+All of the `supported _sunder_ methods <#supported-sunder-methods>`__ may be overridden with either synchronous or
+async versions, and :ref:`parameters:Action` methods may similarly be defined either way as well.
 
 
 Advanced

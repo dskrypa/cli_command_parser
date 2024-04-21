@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#asyncio-applications">Asyncio Applications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#advanced">Advanced</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#inheritance">Inheritance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#overriding-command-methods">Overriding Command Methods</a><ul>
@@ -161,6 +162,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../inputs.html#manual-input-validation">Manual Input Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a><ul>
@@ -1097,19 +1099,7 @@ action should be taken as if it was specified via a CLI argument.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.register_default_cb">
 <span class="sig-name descname"><span class="pre">register_default_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Flag.register_default_cb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Flag.register_default_cb" title="Link to this definition"></a></dt>
-<dd><p>Intended to be used as a decorator to register a method in a Command to be used as the default callback for
-this Parameter.  The method will only be called during parsing if no value was explicitly provided for this
-Parameter.  The decorated method is returned unchanged, so it can still be called directly if necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="target" id="cli_command_parser.parameters.options.Flag.register_default_cb.params.method"></span><strong>method</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Flag.register_default_cb.params.method">¶</a> – A method that does not accept any arguments (except <code class="docutils literal notranslate"><span class="pre">self</span></code>), and returns the value that should
-be used for this Parameter.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The method, unchanged.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.options.Flag.get_env_const">
@@ -1191,19 +1181,7 @@ whether this TriFlag’s normal action should be taken as if it was specified vi
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.options.TriFlag.register_default_cb">
 <span class="sig-name descname"><span class="pre">register_default_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandMethod</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CommandMethod</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#TriFlag.register_default_cb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.TriFlag.register_default_cb" title="Link to this definition"></a></dt>
-<dd><p>Intended to be used as a decorator to register a method in a Command to be used as the default callback for
-this Parameter.  The method will only be called during parsing if no value was explicitly provided for this
-Parameter.  The decorated method is returned unchanged, so it can still be called directly if necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="target" id="cli_command_parser.parameters.options.TriFlag.register_default_cb.params.method"></span><strong>method</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.TriFlag.register_default_cb.params.method">¶</a> – A method that does not accept any arguments (except <code class="docutils literal notranslate"><span class="pre">self</span></code>), and returns the value that should
-be used for this Parameter.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The method, unchanged.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.options.TriFlag.get_const">
@@ -1321,19 +1299,7 @@ the user-provided value will be added verbatim - it will NOT be multiplied by <c
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.register_default_cb">
 <span class="sig-name descname"><span class="pre">register_default_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandMethod</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CommandMethod</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/options.html#Counter.register_default_cb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.options.Counter.register_default_cb" title="Link to this definition"></a></dt>
-<dd><p>Intended to be used as a decorator to register a method in a Command to be used as the default callback for
-this Parameter.  The method will only be called during parsing if no value was explicitly provided for this
-Parameter.  The decorated method is returned unchanged, so it can still be called directly if necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="target" id="cli_command_parser.parameters.options.Counter.register_default_cb.params.method"></span><strong>method</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.options.Counter.register_default_cb.params.method">¶</a> – A method that does not accept any arguments (except <code class="docutils literal notranslate"><span class="pre">self</span></code>), and returns the value that should
-be used for this Parameter.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The method, unchanged.</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.options.Counter.prepare_value">

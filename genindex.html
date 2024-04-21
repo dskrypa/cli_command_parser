@@ -63,6 +63,7 @@
 <li class="toctree-l2"><a class="reference internal" href="commands.html#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#asyncio-applications">Asyncio Applications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#advanced">Advanced</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="commands.html#inheritance">Inheritance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="commands.html#overriding-command-methods">Overriding Command Methods</a><ul>
@@ -158,6 +159,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="inputs.html#manual-input-validation">Manual Input Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
@@ -1296,10 +1298,10 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.allow_argv_prog">allow_argv_prog (cli_command_parser.context.Context attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.allow_backtrack">allow_backtrack (cli_command_parser.config.CommandConfig attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.allow_backtrack">allow_backtrack (cli_command_parser.config.CommandConfig attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.allow_dash">allow_dash (cli_command_parser.inputs.files.FileInput attribute)</a>
 
       <ul>
@@ -1408,12 +1410,6 @@
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main.params.args">(cli_command_parser.commands.Command.main parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgCollection.args">(cli_command_parser.conversion.argparse_ast.ArgCollection attribute)</a>
-</li>
-        <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert.main.params.args">(cli_command_parser.conversion.cli.Convert.main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter._init_command_.params.args">(cli_command_parser.conversion.cli.ParserConverter._init_command_ parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint.main.params.args">(cli_command_parser.conversion.cli.Pprint.main parameter)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.ArgumentParser">ArgumentParser (class in cli_command_parser.conversion.argparse_utils)</a>
@@ -1829,6 +1825,8 @@
         <li><a href="api/cli_command_parser.nargs.html#module-cli_command_parser.nargs">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.parameters.actions
 
@@ -1836,8 +1834,6 @@
         <li><a href="api/cli_command_parser.parameters.actions.html#module-cli_command_parser.parameters.actions">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli_command_parser.parameters.base
 
@@ -1952,20 +1948,8 @@
 </li>
       <li><a href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.combine_and_wrap">combine_and_wrap() (in module cli_command_parser.formatting.utils)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.add_value.params.combo">combo (cli_command_parser.parameters.actions.Append.add_value parameter)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.combo">(cli_command_parser.parameters.actions.BasicConstAction.add_value parameter)</a>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.combo">combo (cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.add_value.params.combo">(cli_command_parser.parameters.actions.Concatenate.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Count.add_value.params.combo">(cli_command_parser.parameters.actions.Count.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.combo">(cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store.add_value.params.combo">(cli_command_parser.parameters.actions.Store.add_value parameter)</a>
-</li>
-      </ul></li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.combo_option_map">combo_option_map (cli_command_parser.command_parameters.CommandParameters attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command">Command (class in cli_command_parser.commands)</a>
@@ -2269,15 +2253,11 @@
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.dt_type">dt_type (cli_command_parser.inputs.time.CalendarUnitInput attribute)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__.params.dt_type">(cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__ parameter)</a>
-</li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Date.dt_type">(cli_command_parser.inputs.time.Date attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTime.dt_type">(cli_command_parser.inputs.time.DateTime attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.dt_type">(cli_command_parser.inputs.time.DateTimeInput attribute)</a>
-</li>
-        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DateTimeInput.__init_subclass__.params.dt_type">(cli_command_parser.inputs.time.DateTimeInput.__init_subclass__ parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Day.dt_type">(cli_command_parser.inputs.time.Day attribute)</a>
 </li>
@@ -3048,20 +3028,8 @@
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.add_value.params.joined">joined (cli_command_parser.parameters.actions.Append.add_value parameter)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.joined">(cli_command_parser.parameters.actions.BasicConstAction.add_value parameter)</a>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.joined">joined (cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.add_value.params.joined">(cli_command_parser.parameters.actions.Concatenate.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Count.add_value.params.joined">(cli_command_parser.parameters.actions.Count.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.joined">(cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store.add_value.params.joined">(cli_command_parser.parameters.actions.Store.add_value parameter)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Json">Json (class in cli_command_parser.inputs.files)</a>
@@ -3088,12 +3056,6 @@
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run.params.kwargs">(cli_command_parser.commands.Command.parse_and_run parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.main.params.kwargs">(cli_command_parser.commands.main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert.main.params.kwargs">(cli_command_parser.conversion.cli.Convert.main parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter._init_command_.params.kwargs">(cli_command_parser.conversion.cli.ParserConverter._init_command_ parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint.main.params.kwargs">(cli_command_parser.conversion.cli.Pprint.main parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.kwargs">(cli_command_parser.documentation.RstWriter.document_script parameter)</a>
 </li>
@@ -3267,17 +3229,7 @@
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.register_default_cb.params.method">method (cli_command_parser.parameters.base.Parameter.register_default_cb parameter)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb.params.method">(cli_command_parser.parameters.choice_map.ChoiceMap.register_default_cb parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.register_default_cb.params.method">(cli_command_parser.parameters.options.Counter.register_default_cb parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.register_default_cb.params.method">(cli_command_parser.parameters.options.Flag.register_default_cb parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.register_default_cb.params.method">(cli_command_parser.parameters.options.TriFlag.register_default_cb parameter)</a>
-</li>
-      </ul></li>
       <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.__call__.params.method_or_choice">method_or_choice (cli_command_parser.parameters.choice_map.Action.__call__ parameter)</a>
 
       <ul>
@@ -3621,20 +3573,8 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.add_value.params.opt">opt (cli_command_parser.parameters.actions.Append.add_value parameter)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.opt">(cli_command_parser.parameters.actions.BasicConstAction.add_value parameter)</a>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.opt">opt (cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.add_value.params.opt">(cli_command_parser.parameters.actions.Concatenate.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Count.add_value.params.opt">(cli_command_parser.parameters.actions.Count.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.opt">(cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store.add_value.params.opt">(cli_command_parser.parameters.actions.Store.add_value parameter)</a>
-</li>
-      </ul></li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option">Option (class in cli_command_parser.parameters.options)</a>
 </li>
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.option_map">option_map (cli_command_parser.command_parameters.CommandParameters attribute)</a>
@@ -4547,17 +4487,7 @@
 </li>
         <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput.parse.params.value">(cli_command_parser.inputs.time.CalendarUnitInput.parse parameter)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.add_value.params.value">(cli_command_parser.parameters.actions.Append.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.value">(cli_command_parser.parameters.actions.BasicConstAction.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.add_value.params.value">(cli_command_parser.parameters.actions.Concatenate.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Count.add_value.params.value">(cli_command_parser.parameters.actions.Count.add_value parameter)</a>
-</li>
         <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.value">(cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
-</li>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store.add_value.params.value">(cli_command_parser.parameters.actions.Store.add_value parameter)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ValueMixin">ValueMixin (class in cli_command_parser.parameters.actions)</a>
@@ -4566,14 +4496,14 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter.verbose">verbose (cli_command_parser.conversion.cli.ParserConverter attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.version">version (cli_command_parser.metadata.ProgramMetadata attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Assign">visit_Assign() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_AsyncFor">visit_AsyncFor() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_AsyncFunctionDef">visit_AsyncFunctionDef (cli_command_parser.conversion.visitor.ScriptVisitor attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Call">visit_Call() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>

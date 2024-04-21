@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#asyncio-applications">Asyncio Applications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#advanced">Advanced</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#inheritance">Inheritance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#overriding-command-methods">Overriding Command Methods</a><ul>
@@ -161,6 +162,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../inputs.html#manual-input-validation">Manual Input Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a><ul>
@@ -1102,12 +1104,7 @@ locales (at least on Windows).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/time.html#CalendarUnitInput.__init_subclass__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="target" id="cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__.params.dt_type"></span><strong>dt_type</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.time.CalendarUnitInput.__init_subclass__.params.dt_type">¶</a> – Used in InvalidChoiceError / ValueError messages</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.CalendarUnitInput.full">
@@ -1173,8 +1170,7 @@ weekdays.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.CalendarUnitInput.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/inputs/time.html#CalendarUnitInput.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.time.CalendarUnitInput.__call__" title="Link to this definition"></a></dt>
-<dd><p>Process the parsed argument and convert it to the desired type</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.CalendarUnitInput.dt_type">
@@ -1232,8 +1228,7 @@ weekdays.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.TimeDelta.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.12)"><span class="pre">timedelta</span></a></span></span><a class="reference internal" href="../_modules/cli_command_parser/inputs/time.html#TimeDelta.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.time.TimeDelta.__call__" title="Link to this definition"></a></dt>
-<dd><p>Process the parsed argument and convert it to the desired type</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.TimeDelta.fix_default">
@@ -1254,12 +1249,7 @@ weekdays.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.DateTimeInput.__init_subclass__">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DT</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/time.html#DateTimeInput.__init_subclass__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.time.DateTimeInput.__init_subclass__" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="target" id="cli_command_parser.inputs.time.DateTimeInput.__init_subclass__.params.dt_type"></span><strong>dt_type</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.inputs.time.DateTimeInput.__init_subclass__.params.dt_type">¶</a> – Used in InvalidChoiceError / ValueError messages</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.DateTimeInput.formats">
@@ -1299,8 +1289,7 @@ weekdays.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.DateTimeInput.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DT</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/inputs/time.html#DateTimeInput.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.time.DateTimeInput.__call__" title="Link to this definition"></a></dt>
-<dd><p>Process the parsed argument and convert it to the desired type</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.time.DateTimeInput.locale">

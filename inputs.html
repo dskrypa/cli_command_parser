@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="commands.html#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html#asyncio-applications">Asyncio Applications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html#advanced">Advanced</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="commands.html#inheritance">Inheritance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="commands.html#overriding-command-methods">Overriding Command Methods</a><ul>
@@ -161,6 +162,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#manual-input-validation">Manual Input Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
@@ -1476,6 +1478,53 @@ Supported units: days, seconds, microseconds, milliseconds, minutes, hours, week
 </dl>
 </section>
 </section>
+</section>
+<section id="manual-input-validation">
+<h2>Manual Input Validation<a class="headerlink" href="#manual-input-validation" title="Link to this heading"></a></h2>
+<p>Sometime it just isn’t easy to define an input validator that can be used by a Parameter, and user input needs to be
+validated after parsing is complete.  In such cases, the recommended approach for informing users that they provided
+invalid arguments / values would be to raise <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.UsageError" title="cli_command_parser.exceptions.UsageError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsageError</span></code></a> or <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.BadArgument" title="cli_command_parser.exceptions.BadArgument"><code class="xref py py-class docutils literal notranslate"><span class="pre">BadArgument</span></code></a>.  Use <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.UsageError" title="cli_command_parser.exceptions.UsageError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsageError</span></code></a>
+to provide a custom message, or <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.BadArgument" title="cli_command_parser.exceptions.BadArgument"><code class="xref py py-class docutils literal notranslate"><span class="pre">BadArgument</span></code></a> to show the usage string for the parameter in question with an
+optional custom message.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">main</span>
+
+<span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">foo</span> <span class="o">==</span> <span class="s1">&#39;foo&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">foo</span><span class="p">,</span> <span class="s2">&quot;Any value other than &#39;foo&#39; is allowed&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">foo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UsageError</span><span class="p">(</span><span class="s1">&#39;Expected different values for --foo and --bar&#39;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You provided foo=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">foo</span><span class="si">!r}</span><span class="s1">, bar=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Example outputs (with the above example saved in a file called <code class="docutils literal notranslate"><span class="pre">foo_bar.py</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ foo_bar.py --foo=foo
+argument --foo FOO / -f FOO: Any value other than &#39;foo&#39; is allowed
+
+$ foo_bar.py --foo=123
+You provided foo=&#39;123&#39;, bar=None
+
+$ foo_bar.py --foo=123 --bar=123
+Expected different values for --foo and --bar
+
+$ foo_bar.py --foo=123 --bar=456
+You provided foo=&#39;123&#39;, bar=&#39;456&#39;
+</pre></div>
+</div>
+<p>Note that when passing the Parameter to BadArgument, the Parameter itself must be used, not the parsed value.
+To access the <code class="docutils literal notranslate"><span class="pre">foo</span></code> Option instead of its parsed value, the above example used <code class="docutils literal notranslate"><span class="pre">self.__class__.foo</span></code>.
+An alternative approach that could be used in this example would be to use <code class="docutils literal notranslate"><span class="pre">type(self).foo</span></code>.</p>
+<p>Raising an exception like this instead of calling <code class="docutils literal notranslate"><span class="pre">sys.exit(1)</span></code> from the command makes it easy to both exit and
+provide the user with an informative message with a single line / statement.  It also makes it easier to unit test.</p>
+<p>To further customize handling of exceptions raised from within a Command, see <a class="reference internal" href="error_handlers.html"><span class="doc">Error Handling</span></a>.</p>
 </section>
 </section>
 

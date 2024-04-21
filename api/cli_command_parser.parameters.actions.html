@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#defining-commands">Defining Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#command-methods-attributes">Command Methods &amp; Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#parse-run">Parse &amp; Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#asyncio-applications">Asyncio Applications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../commands.html#advanced">Advanced</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#inheritance">Inheritance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../commands.html#overriding-command-methods">Overriding Command Methods</a><ul>
@@ -161,6 +162,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../inputs.html#manual-input-validation">Manual Input Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a><ul>
@@ -1024,10 +1026,7 @@ variables.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.ParamAction.__init_subclass__">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default:</span> <span class="pre">~cli_command_parser.parameters.actions.TD</span> <span class="pre">=</span> <span class="pre">&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepts_values:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepts_consts:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#ParamAction.__init_subclass__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.ParamAction.__init_subclass__" title="Link to this definition"></a></dt>
-<dd><p>This method is called when a class is subclassed.</p>
-<p>The default implementation does nothing. It may be
-overridden to extend subclasses.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.ParamAction.param">
@@ -1161,10 +1160,7 @@ still be acceptable for the Parameter’s nargs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.ConstMixin.__init_subclass__">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#ConstMixin.__init_subclass__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.ConstMixin.__init_subclass__" title="Link to this definition"></a></dt>
-<dd><p>This method is called when a class is subclassed.</p>
-<p>The default implementation does nothing. It may be
-overridden to extend subclasses.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.ConstMixin.set_const">
@@ -1195,23 +1191,7 @@ overridden to extend subclasses.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Store.add_value">
 <span class="sig-name descname"><span class="pre">add_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joined</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Found</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#Store.add_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.Store.add_value" title="Link to this definition"></a></dt>
-<dd><p>Execute this action for the given Parameter and value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Store.add_value.params.value"></span><strong>value</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Store.add_value.params.value">¶</a> – The value that was provided, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Store.add_value.params.opt"></span><strong>opt</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Store.add_value.params.opt">¶</a> – The option string that preceded the given value in the case of optional params, or that
-represents a flag so a constant value can be stored, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Store.add_value.params.combo"></span><strong>combo</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Store.add_value.params.combo">¶</a> – Only True when a short option was provided, where the option string was combined with
-either a real value or a sequence of 1-char combinable versions of short option strings.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Store.add_value.params.joined"></span><strong>joined</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Store.add_value.params.joined">¶</a> – True if the value was provided as <code class="docutils literal notranslate"><span class="pre">--option=value</span></code>, False otherwise.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The number of new values discovered</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Store.would_accept">
@@ -1247,23 +1227,7 @@ either a real value or a sequence of 1-char combinable versions of short option 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Append.add_value">
 <span class="sig-name descname"><span class="pre">add_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joined</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Found</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#Append.add_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.Append.add_value" title="Link to this definition"></a></dt>
-<dd><p>Execute this action for the given Parameter and value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Append.add_value.params.value"></span><strong>value</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Append.add_value.params.value">¶</a> – The value that was provided, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Append.add_value.params.opt"></span><strong>opt</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Append.add_value.params.opt">¶</a> – The option string that preceded the given value in the case of optional params, or that
-represents a flag so a constant value can be stored, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Append.add_value.params.combo"></span><strong>combo</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Append.add_value.params.combo">¶</a> – Only True when a short option was provided, where the option string was combined with
-either a real value or a sequence of 1-char combinable versions of short option strings.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Append.add_value.params.joined"></span><strong>joined</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Append.add_value.params.joined">¶</a> – True if the value was provided as <code class="docutils literal notranslate"><span class="pre">--option=value</span></code>, False otherwise.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The number of new values discovered</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Append.would_accept">
@@ -1325,23 +1289,7 @@ still be acceptable for the Parameter’s nargs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.BasicConstAction.add_value">
 <span class="sig-name descname"><span class="pre">add_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joined</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Found</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#BasicConstAction.add_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.BasicConstAction.add_value" title="Link to this definition"></a></dt>
-<dd><p>Execute this action for the given Parameter and value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.parameters.actions.BasicConstAction.add_value.params.value"></span><strong>value</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.value">¶</a> – The value that was provided, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.BasicConstAction.add_value.params.opt"></span><strong>opt</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.opt">¶</a> – The option string that preceded the given value in the case of optional params, or that
-represents a flag so a constant value can be stored, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.BasicConstAction.add_value.params.combo"></span><strong>combo</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.combo">¶</a> – Only True when a short option was provided, where the option string was combined with
-either a real value or a sequence of 1-char combinable versions of short option strings.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.BasicConstAction.add_value.params.joined"></span><strong>joined</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.BasicConstAction.add_value.params.joined">¶</a> – True if the value was provided as <code class="docutils literal notranslate"><span class="pre">--option=value</span></code>, False otherwise.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The number of new values discovered</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.BasicConstAction.would_accept">
@@ -1419,23 +1367,7 @@ either a real value or a sequence of 1-char combinable versions of short option 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Count.add_value">
 <span class="sig-name descname"><span class="pre">add_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joined</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Found</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#Count.add_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.Count.add_value" title="Link to this definition"></a></dt>
-<dd><p>Execute this action for the given Parameter and value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Count.add_value.params.value"></span><strong>value</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Count.add_value.params.value">¶</a> – The value that was provided, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Count.add_value.params.opt"></span><strong>opt</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Count.add_value.params.opt">¶</a> – The option string that preceded the given value in the case of optional params, or that
-represents a flag so a constant value can be stored, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Count.add_value.params.combo"></span><strong>combo</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Count.add_value.params.combo">¶</a> – Only True when a short option was provided, where the option string was combined with
-either a real value or a sequence of 1-char combinable versions of short option strings.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Count.add_value.params.joined"></span><strong>joined</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Count.add_value.params.joined">¶</a> – True if the value was provided as <code class="docutils literal notranslate"><span class="pre">--option=value</span></code>, False otherwise.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The number of new values discovered</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Count.accepts_consts">
@@ -1461,23 +1393,7 @@ either a real value or a sequence of 1-char combinable versions of short option 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Concatenate.add_value">
 <span class="sig-name descname"><span class="pre">add_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joined</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Found</span></span></span><a class="reference internal" href="../_modules/cli_command_parser/parameters/actions.html#Concatenate.add_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.parameters.actions.Concatenate.add_value" title="Link to this definition"></a></dt>
-<dd><p>Execute this action for the given Parameter and value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Concatenate.add_value.params.value"></span><strong>value</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Concatenate.add_value.params.value">¶</a> – The value that was provided, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Concatenate.add_value.params.opt"></span><strong>opt</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Concatenate.add_value.params.opt">¶</a> – The option string that preceded the given value in the case of optional params, or that
-represents a flag so a constant value can be stored, if any.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Concatenate.add_value.params.combo"></span><strong>combo</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Concatenate.add_value.params.combo">¶</a> – Only True when a short option was provided, where the option string was combined with
-either a real value or a sequence of 1-char combinable versions of short option strings.</p></li>
-<li><p><span class="target" id="cli_command_parser.parameters.actions.Concatenate.add_value.params.joined"></span><strong>joined</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.parameters.actions.Concatenate.add_value.params.joined">¶</a> – True if the value was provided as <code class="docutils literal notranslate"><span class="pre">--option=value</span></code>, False otherwise.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The number of new values discovered</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cli_command_parser.parameters.actions.Concatenate.finalize_default">
