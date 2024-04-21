@@ -66,6 +66,7 @@ autodoc_default_options = {
     'ignore-module-all': True,
 }
 autodoc_typehints_format = 'short'
+autodoc_inherit_docstrings = False
 
 templates_path = [docs_dir.joinpath('_templates').as_posix()]
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
