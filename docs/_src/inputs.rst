@@ -461,3 +461,57 @@ input is initialized.
 
 :unit: The time unit to use when initializing a :class:`python:datetime.timedelta` object with the parsed value.
   Supported units: days, seconds, microseconds, milliseconds, minutes, hours, weeks
+
+
+Manual Input Validation
+=======================
+
+Sometime it just isn't easy to define an input validator that can be used by a Parameter, and user input needs to be
+validated after parsing is complete.  In such cases, the recommended approach for informing users that they provided
+invalid arguments / values would be to raise :class:`~.UsageError` or :class:`~.BadArgument`.  Use :class:`~.UsageError`
+to provide a custom message, or :class:`~.BadArgument` to show the usage string for the parameter in question with an
+optional custom message.
+
+Example usage::
+
+    from cli_command_parser import Command, Option, UsageError, BadArgument, main
+
+    class MyCommand(Command):
+        foo = Option('-f')
+        bar = Option('-b')
+
+        def main(self):
+            if self.foo == 'foo':
+                raise BadArgument(self.__class__.foo, "Any value other than 'foo' is allowed")
+            elif self.foo == self.bar:
+                raise UsageError('Expected different values for --foo and --bar')
+
+            print(f'You provided foo={self.foo!r}, bar={self.bar!r}')
+
+    if __name__ == '__main__':
+        main()
+
+
+Example outputs (with the above example saved in a file called ``foo_bar.py``)::
+
+    $ foo_bar.py --foo=foo
+    argument --foo FOO / -f FOO: Any value other than 'foo' is allowed
+
+    $ foo_bar.py --foo=123
+    You provided foo='123', bar=None
+
+    $ foo_bar.py --foo=123 --bar=123
+    Expected different values for --foo and --bar
+
+    $ foo_bar.py --foo=123 --bar=456
+    You provided foo='123', bar='456'
+
+
+Note that when passing the Parameter to BadArgument, the Parameter itself must be used, not the parsed value.
+To access the ``foo`` Option instead of its parsed value, the above example used ``self.__class__.foo``.
+An alternative approach that could be used in this example would be to use ``type(self).foo``.
+
+Raising an exception like this instead of calling ``sys.exit(1)`` from the command makes it easy to both exit and
+provide the user with an informative message with a single line / statement.  It also makes it easier to unit test.
+
+To further customize handling of exceptions raised from within a Command, see :doc:`error_handlers`.

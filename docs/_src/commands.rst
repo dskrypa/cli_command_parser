@@ -98,7 +98,8 @@ be parsed, a list of strings may also be provided when using either approach::
 
 ----
 
-.. [1] The only other methods that do not have ``__dunder__`` or ``_sunder_`` names.
+.. [1] The listed methods are the only ones other than ``main`` in the Command interface that do not have ``__dunder__``
+       or ``_sunder_`` names.  AsyncCommand (see `Asyncio Applications`_) defines one more.
 .. [2] Almost any.  A :ref:`ctx <advanced:Post-Run & Context>` attribute is defined for convenience, but is 100% safe
        to override.  See :ref:`commands:Overriding Command Methods` for more info about other methods.
 .. [3] The :func:`~.commands.main` function selects the top-level class that is known to extend :class:`.Command`,

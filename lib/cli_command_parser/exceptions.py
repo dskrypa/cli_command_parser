@@ -123,7 +123,6 @@ class UsageError(CommandParserException):
     """Base exception for user errors"""
 
     message: str = None
-    # TODO: Document that this is a recommended exception type to use when performing manual input validation
 
 
 class ParamUsageError(UsageError):
