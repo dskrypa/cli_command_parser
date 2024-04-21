@@ -5,8 +5,9 @@ Utilities for extracting types from annotations.
 """
 
 from collections.abc import Collection, Iterable
+from functools import lru_cache
 from inspect import isclass
-from typing import Union, Optional, get_type_hints, get_origin, get_args as _get_args  # pylint: disable=C0412
+from typing import Union, Optional, get_type_hints as _get_type_hints, get_origin, get_args as _get_args
 
 try:
     from types import NoneType
@@ -15,9 +16,10 @@ except ImportError:  # Added in 3.10
 
 __all__ = ['get_descriptor_value_type']
 
+get_type_hints = lru_cache()(_get_type_hints)  # Cache the attr:annotation mapping for each Command class
+
 
 def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
-    # TODO: Optimize this to cache get_type_hints for a given class?
     try:
         annotation = get_type_hints(command_cls)[attr]
     except (KeyError, NameError):  # KeyError due to attr missing; NameError for forward references

@@ -20,7 +20,7 @@ from .utils import maybe_await
 if TYPE_CHECKING:
     from .typing import Bool, CommandObj
 
-__all__ = ['Command', 'main']
+__all__ = ['Command', 'AsyncCommand', 'main']
 log = logging.getLogger(__name__)
 
 Argv = Sequence[str]
