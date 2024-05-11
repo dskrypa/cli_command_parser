@@ -7,11 +7,11 @@ Parameter Groups
 from __future__ import annotations
 
 from itertools import count
-from typing import TYPE_CHECKING, Optional, Iterable, Iterator, Tuple, List
+from typing import TYPE_CHECKING, Iterable, Iterator, Optional
 
 from ..context import ctx
-from ..exceptions import ParameterDefinitionError, CommandDefinitionError, ParamConflict, ParamsMissing
-from .base import ParamBase, BasePositional, BaseOption, _group_stack
+from ..exceptions import CommandDefinitionError, ParamConflict, ParameterDefinitionError, ParamsMissing
+from .base import BaseOption, BasePositional, ParamBase, _group_stack
 from .pass_thru import PassThru
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class ParamGroup(ParamBase):
 
     _num: int
     description: Optional[str]
-    members: List[ParamOrGroup]
+    members: list[ParamOrGroup]
     mutually_exclusive: Bool = False
     mutually_dependent: Bool = False
 
@@ -177,7 +177,7 @@ class ParamGroup(ParamBase):
 
     # region Argument Handling
 
-    def _categorize_params(self) -> Tuple[ParamList, ParamList]:
+    def _categorize_params(self) -> tuple[ParamList, ParamList]:
         """Called after parsing to group this group's members by whether they were provided or not."""
         provided = []
         missing = []
@@ -238,7 +238,7 @@ class ParamGroup(ParamBase):
             if req_missing := [p for p in missing if p.required]:
                 raise ParamsMissing(req_missing)
 
-    def _classify_required(self) -> Tuple[bool, bool]:
+    def _classify_required(self) -> tuple[bool, bool]:
         """Returns a tuple of (req_any, req_all)"""
         if self.mutually_dependent and (self.required or any(p.required for p in self.members)):
             return True, True

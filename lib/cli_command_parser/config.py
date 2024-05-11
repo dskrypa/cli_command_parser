@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import ChainMap
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Type, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Type, TypeVar, Union, overload
 
 from .utils import FixedFlag, MissingMixin, _NotSet, positive_int
 
@@ -440,7 +440,7 @@ class CommandConfig:
         settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False).items())
         return f'<{self.__class__.__name__}[depth={len(self._data.maps)}]({settings})>'
 
-    def as_dict(self, full: Bool = True) -> Dict[str, Any]:
+    def as_dict(self, full: Bool = True) -> dict[str, Any]:
         """Return a dict representing the configured options."""
         if full:
             return {key: getattr(self, key) for key in self.FIELDS}

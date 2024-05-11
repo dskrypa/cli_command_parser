@@ -6,11 +6,11 @@ Utilities for working with terminals, strings, and Enums.
 
 from __future__ import annotations
 
-from enum import Flag, EnumMeta
+from enum import EnumMeta, Flag
 from inspect import isawaitable
 from shutil import get_terminal_size
 from time import monotonic
-from typing import Any, Callable, TypeVar, Awaitable, List
+from typing import Any, Awaitable, Callable, TypeVar
 
 try:
     from enum import CONFORM
@@ -139,7 +139,7 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
 
         raise KeyError
 
-    def _decompose(self) -> List[FlagEnum]:
+    def _decompose(self) -> list[FlagEnum]:
         if self._name_ is None or '|' in self._name_:  # | check is for 3.11 where pseudo-members are assigned names
             val = self._value_
             return sorted(mem for mem in self.__class__ if mem._value_ & val == mem._value_)  # noqa

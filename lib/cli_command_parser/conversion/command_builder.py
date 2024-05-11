@@ -3,18 +3,20 @@ from __future__ import annotations
 import keyword
 import logging
 from abc import ABC, abstractmethod
-from ast import literal_eval, Attribute, Name, GeneratorExp, Subscript, DictComp, ListComp, SetComp, Constant, Str
+from ast import Attribute, Constant, DictComp, GeneratorExp, ListComp, Name, SetComp, Str, Subscript, literal_eval
 from dataclasses import dataclass, fields
 from functools import cached_property
 from itertools import count
-from typing import TYPE_CHECKING, Union, Optional, Iterator, Iterable, Type, TypeVar, Generic, List, Tuple
+from typing import TYPE_CHECKING, Generic, Iterable, Iterator, Optional, Type, TypeVar, Union
 
 from cli_command_parser.nargs import Nargs
-from .argparse_ast import AC, ParserArg, ArgGroup, MutuallyExclusiveGroup, AstArgumentParser, Script
+
+from .argparse_ast import AC, ArgGroup, AstArgumentParser, MutuallyExclusiveGroup, ParserArg, Script
 from .utils import collection_contents, unparse
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import OptStr
+
     from .argparse_ast import ArgCollection
 
 __all__ = ['convert_script']
@@ -65,7 +67,7 @@ class Converter(Generic[AC], ABC):
         return cls.for_ast_callable(ast_obj)(ast_obj, *args, **kwargs)
 
     @classmethod
-    def init_group(cls: Type[C], parent: CollectionConverter, ast_objs: List[AC]) -> ConverterGroup[C]:
+    def init_group(cls: Type[C], parent: CollectionConverter, ast_objs: list[AC]) -> ConverterGroup[C]:
         return ConverterGroup(parent, cls, [cls(ast_obj, parent) for ast_obj in ast_objs])
 
     def convert(self, indent: int = 0) -> str:
@@ -79,7 +81,7 @@ class Converter(Generic[AC], ABC):
 class ConverterGroup(Generic[C]):
     __slots__ = ('parent', 'member_type', 'members')
 
-    def __init__(self, parent: CollectionConverter, member_type: Type[C], members: List[C]):
+    def __init__(self, parent: CollectionConverter, member_type: Type[C], members: list[C]):
         self.parent = parent
         self.member_type = member_type
         self.members = members
@@ -127,7 +129,7 @@ class CollectionConverter(Converter[AC], ABC):
         return self._name_mode or (self.parent.name_mode if self.parent else None)
 
     @cached_property
-    def grouped_children(self) -> List[ConverterGroup[ParamConverter | GroupConverter | Converter]]:
+    def grouped_children(self) -> list[ConverterGroup[ParamConverter | GroupConverter | Converter]]:
         return [self.for_ast_callable(cg_cls).init_group(self, cg) for cg_cls, cg in self.ast_obj.grouped_children()]
 
     def descendant_args(self) -> Iterator[ParamConverter]:
@@ -173,7 +175,7 @@ class ParserConverter(CollectionConverter[AstArgumentParser], converts=AstArgume
         self.add_methods = add_methods
 
     @cached_property
-    def sub_parser_converters(self) -> List[ParserConverter]:
+    def sub_parser_converters(self) -> list[ParserConverter]:
         cls, add_methods = self.__class__, self.add_methods
         return [cls(sub_parser, self, self.counter, add_methods=add_methods) for sub_parser in self.ast_obj.sub_parsers]
 
@@ -250,7 +252,7 @@ class ParserConverter(CollectionConverter[AstArgumentParser], converts=AstArgume
         return name.title().replace(' ', '').replace('_', '').replace('-', '')
 
     @cached_property
-    def _choices(self) -> Tuple[OptStr, OptStr]:
+    def _choices(self) -> tuple[OptStr, OptStr]:
         if not self.is_sub_parser:
             return None, None
         name = self.ast_obj.init_func_kwargs.get('name')
@@ -339,7 +341,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
         return self.num < other.num
 
     @classmethod
-    def init_group(cls, parent: CollectionConverter, args: List[ParserArg]) -> ParamConverterGroup:
+    def init_group(cls, parent: CollectionConverter, args: list[ParserArg]) -> ParamConverterGroup:
         return ParamConverterGroup(parent, cls, [cls(arg, parent, i) for i, arg in enumerate(args)])
 
     def format_lines(self, indent: int = 4) -> Iterator[str]:
@@ -391,7 +393,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
     # region Arg Processing
 
     @cached_property
-    def cmd_option_strs(self) -> List[str]:
+    def cmd_option_strs(self) -> list[str]:
         if not self.is_option:
             return []
         long, short, plain = self._grouped_opt_strs
@@ -407,7 +409,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
     def get_pos_args(self) -> Iterable[str]:
         return (repr(arg) for arg in self.cmd_option_strs)
 
-    def get_cls_and_kwargs(self) -> Tuple[str, BaseArgs]:
+    def get_cls_and_kwargs(self) -> tuple[str, BaseArgs]:
         kwargs = self.ast_obj.init_func_kwargs.copy()
         if (help_arg := kwargs.get('help')) and help_arg in self.ast_obj.get_tracked_refs('argparse', 'SUPPRESS', ()):
             kwargs.update({'hide': 'True', 'help': None})
@@ -462,7 +464,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
     # endregion
 
     @cached_property
-    def _grouped_opt_strs(self) -> Tuple[List[str], List[str], List[str]]:
+    def _grouped_opt_strs(self) -> tuple[list[str], list[str], list[str]]:
         option_strs = (literal_eval(opt) for opt in self.ast_obj.init_func_args)
         long, short, plain = [], [], []
         for opt in option_strs:
@@ -516,7 +518,7 @@ class ParamConverterGroup(ConverterGroup[ParamConverter]):
 class BaseArgs:
     help: OptStr = None
 
-    def _to_str(self, args: Tuple[str, ...], end_fields: List[str]) -> str:
+    def _to_str(self, args: tuple[str, ...], end_fields: list[str]) -> str:
         skip = set(end_fields)
         keys = [f.name for f in fields(self) if f.name not in skip] + end_fields
         kv_iter = ((key, getattr(self, key)) for key in keys)

@@ -13,20 +13,19 @@ from contextlib import AbstractContextManager
 from contextvars import ContextVar
 from enum import Enum
 from functools import cached_property
-from inspect import Signature, Parameter as _Parameter
-from typing import TYPE_CHECKING, Any, Callable, Union, Sequence, Optional, Iterator, Collection, cast
-from typing import Dict, Tuple, List
+from inspect import Parameter as _Parameter, Signature
+from typing import TYPE_CHECKING, Any, Callable, Collection, Iterator, Optional, Sequence, Union, cast
 
-from .config import CommandConfig, DEFAULT_CONFIG
+from .config import DEFAULT_CONFIG, CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
 from .exceptions import NoActiveContext
-from .utils import _NotSet, Terminal
+from .utils import Terminal, _NotSet
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
-    from .parameters import Parameter, Option, ActionFlag
-    from .typing import Bool, ParamOrGroup, CommandType, CommandObj, AnyConfig, OptStr, StrSeq, PathLike  # noqa
+    from .parameters import ActionFlag, Option, Parameter
+    from .typing import AnyConfig, Bool, CommandObj, CommandType, OptStr, ParamOrGroup, PathLike, StrSeq  # noqa
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
@@ -49,7 +48,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     allow_argv_prog: Bool = True
     _command_obj: CommandObj = None
     _terminal_width: Optional[int]
-    _provided: Dict[ParamOrGroup, int]
+    _provided: dict[ParamOrGroup, int]
 
     def __init__(
         self,
@@ -158,7 +157,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         recursive: Bool = True,
         default: Any = None,
         include_defaults: Bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Returns all of the parsed arguments as a dictionary.
 
@@ -247,7 +246,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         """Not intended to be called by users.  Used by Parameters during parsing to handle nargs."""
         return self._provided[param]
 
-    def get_missing(self) -> List[Parameter]:
+    def get_missing(self) -> list[Parameter]:
         """Not intended to be called by users.  Used during parsing to determine if any Parameters are missing."""
         return [p for p in self.params.required_check_params() if not self._provided[p]]
 
@@ -260,7 +259,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     # region Actions
 
     @cached_property
-    def _parsed_action_flags(self) -> Tuple[int, List[ActionFlag], List[ActionFlag]]:
+    def _parsed_action_flags(self) -> tuple[int, list[ActionFlag], list[ActionFlag]]:
         """
         Not intended to be accessed by users.  Returns a tuple containing the total number of action flags provided, the
         action flags to run before main, and the action flags to run after main.
@@ -281,13 +280,13 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return self._parsed_action_flags[0]
 
     @cached_property
-    def all_action_flags(self) -> List[ActionFlag]:
+    def all_action_flags(self) -> list[ActionFlag]:
         """Not intended to be accessed by users.  Returns all parsed action flags."""
         _, before_main, after_main = self._parsed_action_flags
         return before_main + after_main
 
     @cached_property
-    def categorized_action_flags(self) -> Dict[ActionPhase, Sequence[ActionFlag]]:
+    def categorized_action_flags(self) -> dict[ActionPhase, Sequence[ActionFlag]]:
         """
         Not intended to be accessed by users.  Returns a dict of parsed action flags, categorized by the
         :class:`ActionPhase` during which they will run.
@@ -321,7 +320,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
 
 def _normalize_config(
-    config: AnyConfig, kwargs: Dict[str, Any], parent: Context | None, command: CommandType | None
+    config: AnyConfig, kwargs: dict[str, Any], parent: Context | None, command: CommandType | None
 ) -> CommandConfig:
     if config is not None:
         if kwargs:
@@ -469,7 +468,7 @@ def get_context(command: Command) -> Context:
 
 def get_parsed(
     command: Command, to_call: Callable = None, default: Any = None, include_defaults: Bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.
 

@@ -5,14 +5,14 @@ repos:
       - id: ruff-check
         name: ruff-check
         entry: ruff
-        args: ['check', '--fix']
+        args: ['check', '--fix', '--no-cache']
         language: system
         types: [python]
         stages: [commit]
       - id: ruff-format
         name: ruff-format
         entry: ruff
-        args: [format]
+        args: ['format', '--no-cache']
         language: system
         types: [python]
         stages: [commit]

@@ -9,7 +9,7 @@ from __future__ import annotations
 from functools import partial
 from string import printable, whitespace
 from types import MethodType
-from typing import Callable, Collection, Dict, Generic, Mapping, NoReturn, Optional, Type, TypeVar, Union
+from typing import Callable, Collection, Generic, Mapping, NoReturn, Optional, Type, TypeVar, Union
 
 from ..context import ctx
 from ..exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
@@ -78,7 +78,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     _choice_validation_exc = ParameterDefinitionError
     _default_title: str = 'Choices'
     nargs = Nargs('+')
-    choices: Dict[str, Choice[T]]
+    choices: dict[str, Choice[T]]
     title: OptStr
     description: OptStr
 

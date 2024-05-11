@@ -9,19 +9,19 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Optional, Callable, Union, TypeVar, NoReturn, Literal, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, Optional, TypeVar, Union
 
-from ..exceptions import ParameterDefinitionError, BadArgument, CommandDefinitionError, ParamUsageError, ParserExit
+from ..exceptions import BadArgument, CommandDefinitionError, ParameterDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..typing import T_co, TypeFunc
 from ..utils import _NotSet, str_to_bool
-from .actions import Store, StoreConst, Append, AppendConst, Count
-from .base import BaseOption, AllowLeadingDashProperty
+from .actions import Append, AppendConst, Count, Store, StoreConst
+from .base import AllowLeadingDashProperty, BaseOption
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
-    from ..typing import Bool, ChoicesType, InputTypeFunc, CommandCls, CommandObj, OptStr, LeadingDash, CommandMethod
+    from ..typing import Bool, ChoicesType, CommandCls, CommandMethod, CommandObj, InputTypeFunc, LeadingDash, OptStr
 
 __all__ = [
     'Option',
@@ -188,7 +188,7 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
     def register_default_cb(self, method):
         raise ParameterDefinitionError(f'{self.__class__.__name__}s do not support default callback methods')
 
-    def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TD], bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[Union[TC, TD], bool]:
         try:
             parsed = self.type(value)
         except Exception as e:
@@ -241,12 +241,12 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
     option_strs: TriFlagOptionStrings
     alt_help: OptStr = None
     default: TD
-    consts: Tuple[TC, TA]
+    consts: tuple[TC, TA]
 
     def __init__(
         self,
         *option_strs: str,
-        consts: Tuple[TC, TA] = (True, False),
+        consts: tuple[TC, TA] = (True, False),
         alt_prefix: str = None,
         alt_long: str = None,
         alt_short: str = None,
@@ -304,7 +304,7 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
         else:
             return self.consts[0]
 
-    def get_env_const(self, value: str, env_var: str) -> Tuple[Union[TC, TA, TD], bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[Union[TC, TA, TD], bool]:
         try:
             parsed = self.type(value)
         except Exception as e:

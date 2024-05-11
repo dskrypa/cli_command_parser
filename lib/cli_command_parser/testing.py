@@ -10,12 +10,12 @@ from __future__ import annotations
 import sys
 from contextlib import AbstractContextManager, contextmanager
 from difflib import unified_diff
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any, Iterable, Type, Union, Callable, IO, ContextManager, Dict, List, Tuple
+from typing import IO, TYPE_CHECKING, Any, Callable, ContextManager, Dict, Iterable, List, Tuple, Type, Union
 from unittest import TestCase
-from unittest.mock import Mock, seal, patch
+from unittest.mock import Mock, patch, seal
 
 from .commands import Command
 from .context import Context
@@ -235,7 +235,7 @@ def format_diff(a: str, b: str, name_a: str = 'expected', name_b: str = '  actua
     return sio.getvalue()
 
 
-def format_dict_diff(a: Dict[str, Any], b: Dict[str, Any]) -> str:
+def format_dict_diff(a: dict[str, Any], b: dict[str, Any]) -> str:
     formatted_a = []
     formatted_b = []
     for key in sorted(set(a) | set(b)):

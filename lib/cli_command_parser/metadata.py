@@ -9,15 +9,15 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from importlib.metadata import entry_points, EntryPoint, Distribution
+from importlib.metadata import Distribution, EntryPoint, entry_points
 from inspect import getmodule
 from pathlib import Path
 from sys import modules
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Type, Callable, Optional, Union, Iterator, Tuple, Dict, Set
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Type, Union
 from urllib.parse import urlparse
 
-from .context import ctx, NoActiveContext
+from .context import NoActiveContext, ctx
 
 if TYPE_CHECKING:
     from .typing import Bool, CommandType, OptStr
@@ -58,7 +58,7 @@ class MetadataBase:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({", ".join(f"{a}={v}" for a, v in self._attrs())})'
 
-    def _attrs(self) -> Iterator[Tuple[str, Any]]:
+    def _attrs(self) -> Iterator[tuple[str, Any]]:
         for base in self.__class__.mro()[:-1]:
             for attr in base.__slots__:  # noqa
                 if attr != 'name':
@@ -186,7 +186,7 @@ class ProgramMetadata:
     # region Program Name Properties
 
     @cached_property
-    def _prog_and_src(self) -> Tuple[str, str]:
+    def _prog_and_src(self) -> tuple[str, str]:
         if prog := self.__dict__.get('prog'):
             return prog, 'class kwargs'
         return _prog_finder.normalize(self.path, self.parent, None, self.cmd_module, self.command)
@@ -196,7 +196,7 @@ class ProgramMetadata:
         return self._prog_and_src[0]
 
     @cached_property
-    def _doc_prog_and_src(self) -> Tuple[str, str]:
+    def _doc_prog_and_src(self) -> tuple[str, str]:
         if prog := self.__dict__.get('prog'):
             return prog, 'class kwargs'
         return _prog_finder.normalize(self.path, self.parent, False, self.cmd_module, self.command)
@@ -204,7 +204,7 @@ class ProgramMetadata:
     def get_prog(self, allow_sys_argv: Bool = None) -> str:
         return self._get_prog(allow_sys_argv)[0]
 
-    def _get_prog(self, allow_sys_argv: Bool = None) -> Tuple[str, str]:
+    def _get_prog(self, allow_sys_argv: Bool = None) -> tuple[str, str]:
         return self._prog_and_src if allow_sys_argv or allow_sys_argv is None else self._doc_prog_and_src
 
     @dynamic_metadata(inheritable=False)
@@ -287,7 +287,7 @@ def _repr(obj, indent=0) -> str:
 
 class ProgFinder:
     @cached_property
-    def mod_obj_prog_map(self) -> Dict[str, Dict[str, str]]:
+    def mod_obj_prog_map(self) -> dict[str, dict[str, str]]:
         mod_obj_prog_map = defaultdict(dict)
         for entry_point in self._get_console_scripts():
             module, obj = map(str.strip, entry_point.value.split(':', 1))
@@ -298,7 +298,7 @@ class ProgFinder:
         return mod_obj_prog_map
 
     @classmethod
-    def _get_console_scripts(cls) -> Tuple[EntryPoint, ...]:
+    def _get_console_scripts(cls) -> tuple[EntryPoint, ...]:
         try:
             return entry_points(group='console_scripts')  # noqa
         except TypeError:  # Python 3.8 or 3.9
@@ -311,7 +311,7 @@ class ProgFinder:
         allow_sys_argv: Bool,
         cmd_module: str,
         cmd_name: str,
-    ) -> Tuple[OptStr, str]:
+    ) -> tuple[OptStr, str]:
         if ep_name := self._from_entry_point(cmd_module, cmd_name):
             return ep_name, 'entry_points'
 
@@ -387,7 +387,7 @@ class DistributionFinder:
         # Note: Distribution.name was not added until 3.10, and it returns `self.metadata['Name']`
         return {dist.metadata['Name']: dist for dist in Distribution.discover()}
 
-    def _get_top_levels(self, dist_name: str, dist: Distribution) -> Set[str]:
+    def _get_top_levels(self, dist_name: str, dist: Distribution) -> set[str]:
         # dist_name = dist.metadata['Name']  # Distribution.name was not added until 3.10, and it returns this
         if (top_levels := self._dist_top_levels.get(dist_name)) is not None:
             return top_levels
@@ -428,7 +428,7 @@ class DistributionFinder:
                 return dist
         return None
 
-    def get_urls(self, dist: Distribution) -> Dict[str, str]:
+    def get_urls(self, dist: Distribution) -> dict[str, str]:
         metadata = dist.metadata
         dist_name = metadata['Name']
         if (urls := self._dist_urls.get(dist_name)) is not None:
@@ -448,7 +448,7 @@ class DistributionFinder:
 _dist_finder = DistributionFinder()
 
 
-def _path_and_globals(command: CommandType, path: Path = None) -> Tuple[Path, Dict[str, Any]]:
+def _path_and_globals(command: CommandType, path: Path = None) -> tuple[Path, dict[str, Any]]:
     module = getmodule(command)  # Returns the module object (obj.__module__ just provides the name of the module)
     if path is None:
         try:

@@ -9,17 +9,28 @@ from typing import TYPE_CHECKING
 from unittest import main
 from unittest.mock import Mock, patch
 
-from cli_command_parser.conversion.argparse_ast import Script, AstArgumentParser, AstCallable
-from cli_command_parser.conversion.argparse_ast import AddVisitedChild, visit_func
+from cli_command_parser.conversion.argparse_ast import (
+    AddVisitedChild,
+    AstArgumentParser,
+    AstCallable,
+    Script,
+    visit_func,
+)
 from cli_command_parser.conversion.argparse_utils import ArgumentParser, SubParsersAction
-from cli_command_parser.conversion.command_builder import Converter, ParserConverter, ParamConverter, convert_script
-from cli_command_parser.conversion.command_builder import ConversionError
-from cli_command_parser.conversion.utils import get_name_repr, collection_contents
-from cli_command_parser.conversion.visitor import ScriptVisitor, TrackedRefMap, TrackedRef
+from cli_command_parser.conversion.command_builder import (
+    ConversionError,
+    Converter,
+    ParamConverter,
+    ParserConverter,
+    convert_script,
+)
+from cli_command_parser.conversion.utils import collection_contents, get_name_repr
+from cli_command_parser.conversion.visitor import ScriptVisitor, TrackedRef
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 if TYPE_CHECKING:
     from cli_command_parser.conversion.argparse_ast import InitNode
+    from cli_command_parser.conversion.visitor import TrackedRefMap
 
 
 PACKAGE = 'cli_command_parser.conversion'
@@ -397,7 +408,7 @@ class AstUtilsTest(ParserTest):
     def test_get_name_repr_call(self):
         node = ast.parse('foo()').body[0]
         self.assertEqual('foo', get_name_repr(node.value))  # noqa # Tests the isinstance(node, Call) line
-        self.assertEqual('foo()', get_name_repr(node))      # noqa # Tests the isinstance(node, AST) line
+        self.assertEqual('foo()', get_name_repr(node))  # noqa # Tests the isinstance(node, AST) line
 
 
 class AstCallableTest(ParserTest):

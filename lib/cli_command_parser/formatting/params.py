@@ -8,7 +8,7 @@ Parameter usage / help text formatters
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Callable, Dict, Iterable, Iterator, Tuple, Type
+from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Type
 
 from ..config import CmdAliasMode, SubcommandAliasHelpMode
 from ..context import ctx
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..parameters.option_strings import TriFlagOptionStrings
     from ..typing import Bool, OptStr, ParamOrGroup
 
-BoolFormatterMap = Dict[bool, Callable[[str], str]]
+    BoolFormatterMap = dict[bool, Callable[[str], str]]
 
 
 class ParamHelpFormatter:
@@ -137,11 +137,11 @@ class ParamHelpFormatter:
         usage = self.format_usage(include_meta=True, full=True)
         return f'``{usage}``'
 
-    def rst_row(self) -> Tuple[str, str]:
+    def rst_row(self) -> tuple[str, str]:
         """Returns a tuple of (usage, description)"""
         return self.rst_usage(), self.format_description(rst=True)
 
-    def rst_rows(self) -> Iterator[Tuple[str, str]]:
+    def rst_rows(self) -> Iterator[tuple[str, str]]:
         yield self.rst_row()
 
     # endregion
@@ -215,7 +215,7 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
         alt_entry = format_help_entry(opts.alt_option_strs(), alt_desc, prefix, tw_offset, lpad=2 if alt_desc else 4)
         return f'{primary}\n{alt_entry}'
 
-    def rst_rows(self) -> Iterator[Tuple[str, str]]:
+    def rst_rows(self) -> Iterator[tuple[str, str]]:
         opts: TriFlagOptionStrings = self.param.option_strs
         for alt in (False, True):
             usage = ', '.join(f'``{part}``' for part in opts.option_strs(alt))
@@ -270,7 +270,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         table.add_rows(rows)
         return table
 
-    def _format_rst_rows(self) -> Iterator[Tuple[str, OptStr]]:
+    def _format_rst_rows(self) -> Iterator[tuple[str, OptStr]]:
         mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
         for choice_group in self.choice_groups:
             for choice, usage, description in choice_group.prepare(mode):
@@ -327,7 +327,7 @@ class ChoiceGroup:
         for choice, usage, description in self.prepare(default_mode):
             yield format_help_entry((usage,), description, lpad=4, tw_offset=tw_offset, prefix=prefix)
 
-    def prepare(self, default_mode: CmdAliasMode) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+    def prepare(self, default_mode: CmdAliasMode) -> Iterator[tuple[Choice, OptStr, OptStr]]:
         """
         Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias
         mode.
@@ -354,7 +354,7 @@ class ChoiceGroup:
         else:  # Treat as a format string
             yield from self.prepare_aliases(mode)
 
-    def prepare_combined(self) -> Tuple[Choice, OptStr, OptStr]:
+    def prepare_combined(self) -> tuple[Choice, OptStr, OptStr]:
         """
         Prepare this group's Choices for inclusion in help text / documentation by combining all aliases into a single
         entry.
@@ -370,7 +370,7 @@ class ChoiceGroup:
 
         return first, usage, first.help
 
-    def prepare_aliases(self, format_str: str = 'Alias of: {choice}') -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+    def prepare_aliases(self, format_str: str = 'Alias of: {choice}') -> Iterator[tuple[Choice, OptStr, OptStr]]:
         """
         Prepare this group's Choices for inclusion in help text / documentation using an alternate description for
         aliases.
@@ -402,7 +402,7 @@ class ChoiceGroup:
             for choice_str in choice_strs:
                 yield first, choice_str, format_str.format(choice=first_str, alias=choice_str, help=help_str)
 
-    def prepare_repeated(self) -> Iterator[Tuple[Choice, OptStr, OptStr]]:
+    def prepare_repeated(self) -> Iterator[tuple[Choice, OptStr, OptStr]]:
         """
         Prepare this group's Choices for inclusion in help text / documentation with no modifications.  Choices that
         are considered aliases are simply repeated as if they were not aliases.
@@ -509,6 +509,6 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         return table
 
 
-def _pad_and_quote(description: str, rst: bool) -> Tuple[str, str]:
+def _pad_and_quote(description: str, rst: bool) -> tuple[str, str]:
     """Returns a 2-tuple of ``(pad char, quote string)``"""
     return ' ' if description else '', '``' if rst else ''

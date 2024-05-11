@@ -6,16 +6,16 @@ variables.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator, Iterable, Callable, Union, Sequence, TypeVar, NoReturn, List
+from typing import TYPE_CHECKING, Callable, Iterable, Iterator, NoReturn, Sequence, TypeVar, Union
 
 from ..context import ctx
-from ..exceptions import BadArgument, MissingArgument, InvalidChoice, TooManyArguments, ParamUsageError, ParamConflict
+from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParamConflict, ParamUsageError, TooManyArguments
 from ..inputs import InputType
 from ..nargs import Nargs
 from ..utils import _NotSet, camel_to_snake_case
 
 if TYPE_CHECKING:
-    from ..typing import CommandObj, Param, Bool, T_co
+    from ..typing import Bool, CommandObj, Param, T_co
 
 __all__ = [
     'ParamAction',
@@ -123,7 +123,7 @@ class ParamAction(ABC):
 
     # region Backtracking
 
-    def get_maybe_poppable_counts(self) -> List[int]:
+    def get_maybe_poppable_counts(self) -> list[int]:
         """
         :return: The indexes on which the parsed values may be split such that the remaining number of values will
           still be acceptable for the Parameter's nargs.
@@ -318,7 +318,7 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
 
     # region Backtracking
 
-    def get_maybe_poppable_counts(self) -> List[int]:
+    def get_maybe_poppable_counts(self) -> list[int]:
         """
         :return: The indexes on which the parsed values may be split such that the remaining number of values will
           still be acceptable for the Parameter's nargs.
@@ -525,7 +525,7 @@ class StoreAll(Store):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_values(self, values: List[str], *, opt: str = None, combo: bool = False) -> Found:
+    def add_values(self, values: list[str], *, opt: str = None, combo: bool = False) -> Found:
         param = self.param
         ctx.record_action(param)
 

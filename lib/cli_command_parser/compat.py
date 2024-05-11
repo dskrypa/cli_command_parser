@@ -8,8 +8,9 @@ The :class:`WCTextWrapper` in this module extends the stdlib :class:`python:text
 characters.
 """
 
+from __future__ import annotations
+
 from textwrap import TextWrapper
-from typing import List
 
 from .utils import wcswidth
 
@@ -24,7 +25,7 @@ class WCTextWrapper(TextWrapper):
     optional ``wcwidth`` dependency is available).  Minimal formatting changes are applied.  No logic has been changed.
     """
 
-    def _wrap_chunks(self, chunks: List[str]) -> List[str]:
+    def _wrap_chunks(self, chunks: list[str]) -> list[str]:
         """
         _wrap_chunks(chunks : [string]) -> [string]
 

@@ -24,7 +24,7 @@ RegexResult = TypeVar('RegexResult', str, Match, Tuple[str, ...], Dict[str, str]
 
 class PatternInput(InputType[T], ABC):
     __slots__ = ('patterns',)
-    patterns: Tuple[Pattern, ...]
+    patterns: tuple[Pattern, ...]
 
     def _pattern_strings(self, sort: bool = False) -> Sequence[str]:
         patterns = [p.pattern for p in self.patterns]

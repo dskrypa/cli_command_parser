@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Optional, Collection, Iterable, Iterator, MutableMapping, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping, Optional, Union
 
 from .exceptions import AmbiguousParseTree
 from .nargs import nargs_min_and_max_sums
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .nargs import Nargs
     from .parameters.base import BasePositional
     from .parameters.choice_map import Choice
-    from .typing import OptStr, CommandCls
+    from .typing import CommandCls, OptStr
 
 __all__ = ['PosNode']
 
@@ -60,7 +60,7 @@ Target = Union['BasePositional', 'CommandCls', None]
 class PosNode(MutableMapping[Word, 'PosNode']):
     __slots__ = ('links', 'param', 'parent', 'target', 'word', '_any_word', '_any_node')
 
-    links: Dict[Word, PosNode]
+    links: dict[Word, PosNode]
     param: Optional[BasePositional]
     parent: Optional[PosNode]
     target: Target
@@ -79,7 +79,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
         except TypeError:  # parent was None
             pass
 
-    def link_params(self, recursive: bool = False) -> Set[BasePositional]:
+    def link_params(self, recursive: bool = False) -> set[BasePositional]:
         return set(self._link_params(recursive))
 
     def _link_params(self, recursive: bool = False) -> Iterator[BasePositional]:
@@ -89,7 +89,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
             for node in self.values():
                 yield from node._link_params(_has_upper_bound(node))
 
-    def nargs_min_and_max(self) -> Tuple[int, Union[int, float]]:
+    def nargs_min_and_max(self) -> tuple[int, Union[int, float]]:
         return nargs_min_and_max_sums(p.nargs for p in self.link_params(True))
 
     # region AnyWord Methods
@@ -134,7 +134,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     # region Introspection
 
     @property
-    def raw_path(self) -> Tuple[Word, ...]:
+    def raw_path(self) -> tuple[Word, ...]:
         word = self.word
         if not word:
             return ()
@@ -325,17 +325,17 @@ def _has_upper_bound(node) -> bool:
         return True
 
 
-def process_params(command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> Set[PosNode]:
+def process_params(command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> set[PosNode]:
     for param in params:
         nodes = process_param(command, nodes, param)
 
     return nodes
 
 
-def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePositional) -> Set[PosNode]:
+def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePositional) -> set[PosNode]:
     # At each step, the number of branches grows
     try:
-        choices: Dict[OptStr, Choice] = param.choices  # noqa
+        choices: dict[OptStr, Choice] = param.choices  # noqa
     except AttributeError:  # It was not a ChoiceMap param
         pass
     else:

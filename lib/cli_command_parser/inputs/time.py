@@ -22,7 +22,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import Collection, Dict, Iterator, Literal, Optional, Sequence, Tuple, Type, TypeVar, Union, overload
+from typing import Collection, Iterator, Literal, Optional, Sequence, Type, TypeVar, Union, overload
 
 from ..typing import Bool, Locale, T, TimeBound
 from ..utils import MissingMixin
@@ -112,7 +112,7 @@ class DTFormatMode(MissingMixin, Enum):
 
 class CalendarUnitInput(DTInput[Union[str, int]], ABC):
     __slots__ = ('full', 'abbreviation', 'numeric', 'out_format', 'out_locale')
-    _formats: Dict[DTFormatMode, Sequence[Union[str, int]]]
+    _formats: dict[DTFormatMode, Sequence[Union[str, int]]]
     _min_index: int = 0
 
     def __init_subclass__(cls, min_index: int = 0, **kwargs):
@@ -152,7 +152,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         if self.out_format not in self._formats:
             raise ValueError(f'Unsupported out_format={self.out_format} for {self.__class__.__name__} inputs')
 
-    def _values(self) -> Iterator[Tuple[int, str]]:
+    def _values(self) -> Iterator[tuple[int, str]]:
         if not self.full and not self.abbreviation:
             return
         min_index = self._min_index
