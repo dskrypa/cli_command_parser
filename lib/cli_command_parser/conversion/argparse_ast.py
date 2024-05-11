@@ -5,24 +5,24 @@ import logging
 import sys
 from argparse import ArgumentParser
 from ast import AST, Assign, Call, withitem
-from functools import partial, cached_property
-from inspect import Signature, BoundArguments
+from functools import cached_property, partial
+from inspect import BoundArguments, Signature
 from pathlib import Path
-from typing import TYPE_CHECKING, Union, Optional, Callable, Collection, TypeVar, Generic, Type, Iterator
-from typing import List, Tuple, Dict, Set
+from typing import TYPE_CHECKING, Callable, Collection, Generic, Iterator, Type, TypeVar, Union
 
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
 from .utils import get_name_repr, iter_module_parents, unparse
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import PathLike
-    from .visitor import TrackedRefMap, TrackedRef
+
+    from .visitor import TrackedRef, TrackedRefMap
 
 __all__ = ['ParserArg', 'ArgGroup', 'MutuallyExclusiveGroup', 'AstArgumentParser', 'SubParser', 'Script']
 log = logging.getLogger(__name__)
 
 InitNode = Union[Call, Assign, withitem]
-OptCall = Optional[Call]
+OptCall = Union[Call, None]
 ParserCls = Type['AstArgumentParser']
 ParserObj = TypeVar('ParserObj', bound='AstArgumentParser')
 RepresentedCallable = TypeVar('RepresentedCallable', bound=Callable)
@@ -33,7 +33,7 @@ _NotSet = object()
 
 class Script:
     _parser_classes = {}
-    path: Optional[Path]
+    path: Union[Path, None]
 
     def __init__(self, src_text: str, smart_loop_handling: bool = True, path: PathLike = None):
         self.smart_loop_handling = smart_loop_handling
@@ -49,7 +49,7 @@ class Script:
         return f'<{self.__class__.__name__}[{parsers=}{location}]>'
 
     @property
-    def mod_cls_to_ast_cls_map(self) -> Dict[str, Dict[str, ParserCls]]:
+    def mod_cls_to_ast_cls_map(self) -> dict[str, dict[str, ParserCls]]:
         return self._parser_classes
 
     @classmethod
@@ -72,7 +72,7 @@ class Script:
         return parser
 
     @cached_property
-    def parsers(self) -> List[ParserObj]:
+    def parsers(self) -> list[ParserObj]:
         from .visitor import ScriptVisitor, TrackedRef  # noqa: F811
 
         track_refs = (TrackedRef('argparse.REMAINDER'), TrackedRef('argparse.SUPPRESS'))
@@ -97,7 +97,7 @@ class visit_func:
         self.func = func
 
     def __set_name__(self, owner: Type[AstCallable], name: str):
-        if owner._add_visit_func(name):      # This check is only to enable a low-value unit test...
+        if owner._add_visit_func(name):  # This check is only to enable a low-value unit test...
             setattr(owner, name, self.func)  # There's no need to keep the descriptor - replace self with func
 
     def __get__(self, instance, owner):
@@ -162,7 +162,7 @@ class AstCallable:
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}[{self.init_call_repr()}]>'
 
-    def get_tracked_refs(self, module: str, name: str, default: D = _NotSet) -> Union[Set[str], D]:
+    def get_tracked_refs(self, module: str, name: str, default: D = _NotSet) -> Union[set[str], D]:
         for tracked_ref, refs in self._tracked_refs.items():
             if tracked_ref.module == module and tracked_ref.name == name:
                 return refs
@@ -193,7 +193,7 @@ class AstCallable:
         return self.signature.bind(*args, **{kw.arg: kw.value for kw in self.call_kwargs})
 
     @cached_property
-    def init_func_args(self) -> List[str]:
+    def init_func_args(self) -> list[str]:
         try:
             args = self._init_func_bound.args[1:]
         except (TypeError, AttributeError):  # No represents func
@@ -201,7 +201,7 @@ class AstCallable:
         return [unparse(arg) for arg in args]
 
     @cached_property
-    def init_func_raw_kwargs(self) -> Dict[str, AST]:
+    def init_func_raw_kwargs(self) -> dict[str, AST]:
         try:
             kwargs = self._init_func_bound.arguments
         except (TypeError, AttributeError):  # No represents func
@@ -215,11 +215,11 @@ class AstCallable:
                 kwargs.update(kwargs.pop('kwargs'))
             return kwargs
 
-    def _init_func_kwargs(self) -> Dict[str, str]:
+    def _init_func_kwargs(self) -> dict[str, str]:
         return {key: unparse(val) for key, val in self.init_func_raw_kwargs.items()}
 
     @cached_property
-    def init_func_kwargs(self) -> Dict[str, str]:
+    def init_func_kwargs(self) -> dict[str, str]:
         return self._init_func_kwargs()
 
     def init_call_repr(self) -> str:
@@ -244,8 +244,8 @@ class ParserArg(AstCallable, represents=ArgumentParser.add_argument):
 class ArgCollection(AstCallable):
     parent: ArgCollection | Script
     _children = ('args', 'groups')
-    args: List[ParserArg]
-    groups: List[ArgGroup]
+    args: list[ParserArg]
+    groups: list[ArgGroup]
     add_argument = AddVisitedChild(ParserArg, 'args')
 
     def __init_subclass__(cls, children: Collection[str] = (), **kwargs):
@@ -261,7 +261,7 @@ class ArgCollection(AstCallable):
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}: ``{self.init_call_repr()}``>'
 
-    def _add_child(self, cls: Type[AC], container: List[AC], node: InitNode, call: Call, refs: TrackedRefMap) -> AC:
+    def _add_child(self, cls: Type[AC], container: list[AC], node: InitNode, call: Call, refs: TrackedRefMap) -> AC:
         child = cls(node, self, refs, call)
         container.append(child)
         return child
@@ -274,7 +274,7 @@ class ArgCollection(AstCallable):
     def add_argument_group(self, node: InitNode, call: Call, tracked_refs: TrackedRefMap):
         return self._add_child(ArgGroup, self.groups, node, call, tracked_refs)
 
-    def grouped_children(self) -> Iterator[Tuple[Type[AC], List[AC]]]:
+    def grouped_children(self) -> Iterator[tuple[Type[AC], list[AC]]]:
         yield ParserArg, self.args
         yield ArgGroup, self.groups
 
@@ -311,7 +311,7 @@ class SubparsersAction(AstCallable, represents=_ArgumentParser.add_subparsers):
 
 @Script.register_parser
 class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub_parsers',)):
-    sub_parsers: List[SubParser]
+    sub_parsers: list[SubParser]
     add_subparsers = AddVisitedChild(SubparsersAction, '_subparsers_actions')
 
     def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call = None):
@@ -333,7 +333,7 @@ class SubParser(AstArgumentParser, represents=_SubParsersAction.add_parser):
     sp_parent: SubparsersAction
 
     @cached_property
-    def init_func_kwargs(self) -> Dict[str, str]:
+    def init_func_kwargs(self) -> dict[str, str]:
         kwargs = self.sp_parent.init_func_kwargs.copy()
         kwargs.update(self._init_func_kwargs())
         return kwargs

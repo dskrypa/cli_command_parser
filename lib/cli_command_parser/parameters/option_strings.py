@@ -6,9 +6,9 @@ Containers for option strings
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Collection, Union, Iterator, List, Set, Tuple
+from typing import TYPE_CHECKING, Collection, Iterator, List, Optional, Set, Tuple, Union
 
-from ..config import OptionNameMode, DEFAULT_CONFIG
+from ..config import DEFAULT_CONFIG, OptionNameMode
 from ..exceptions import ParameterDefinitionError
 from ..utils import _NotSet
 
@@ -199,8 +199,8 @@ def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:
     """Split long and short option strings and ensure that all of the provided option strings are valid."""
     long_opts, short_opts, bad_opts, bad_short = set(), set(), [], []
     for opt in opt_strs:
-        if not opt:     # Ignore None / empty strings / etc
-            continue    # Only raise an exception if invalid values that were intended to be used were provided
+        if not opt:  # Ignore None / empty strings / etc
+            continue  # Only raise an exception if invalid values that were intended to be used were provided
         elif not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt:
             bad_opts.append(opt)
         elif opt.startswith('--'):

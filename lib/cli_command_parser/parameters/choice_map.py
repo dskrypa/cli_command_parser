@@ -7,12 +7,12 @@ ChoiceMap Parameters
 from __future__ import annotations
 
 from functools import partial
-from string import whitespace, printable
-from typing import Type, TypeVar, Generic, Optional, Callable, Union, Collection, Mapping, NoReturn, Dict
+from string import printable, whitespace
 from types import MethodType
+from typing import Callable, Collection, Dict, Generic, Mapping, NoReturn, Optional, Type, TypeVar, Union
 
 from ..context import ctx
-from ..exceptions import ParameterDefinitionError, BadArgument, InvalidChoice, CommandDefinitionError
+from ..exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
 from ..typing import Bool, CommandCls, CommandObj
@@ -135,7 +135,11 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         self._register_choice(choice, target, help)
 
     def _register_choice(
-        self, choice: OptStr, target: Optional[T] = _NotSet, help: str = None, local: bool = False  # noqa
+        self,
+        choice: OptStr,
+        target: Optional[T] = _NotSet,
+        help: str = None,  # noqa
+        local: bool = False,
     ):
         try:
             existing = self.choices[choice]
@@ -256,7 +260,11 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         return command
 
     def register(
-        self, command_or_choice: Union[str, CommandCls] = None, *, choice: str = None, help: str = None  # noqa
+        self,
+        command_or_choice: Union[str, CommandCls] = None,
+        *,
+        choice: str = None,
+        help: str = None,  # noqa
     ) -> Callable[[CommandCls], CommandCls]:
         """
         Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`.Command` as the
@@ -297,7 +305,11 @@ class Action(ChoiceMap[MethodType], title='Actions'):
     """
 
     def register_action(
-        self, choice: OptStr, method: MethodType, help: str = None, default: Bool = False  # noqa
+        self,
+        choice: OptStr,
+        method: MethodType,
+        help: str = None,  # noqa
+        default: Bool = False,
     ) -> MethodType:
         if help is None:
             try:

@@ -8,21 +8,21 @@ Parameter usage / help text formatters
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Type, Callable, Iterator, Iterable, Tuple, Dict
+from typing import TYPE_CHECKING, Callable, Dict, Iterable, Iterator, Tuple, Type
 
-from ..config import SubcommandAliasHelpMode, CmdAliasMode
+from ..config import CmdAliasMode, SubcommandAliasHelpMode
 from ..context import ctx
 from ..core import get_config
-from ..parameters.base import BasePositional, BaseOption
-from ..parameters.choice_map import ChoiceMap, Choice
 from ..parameters import ParamGroup, PassThru, TriFlag
+from ..parameters.base import BaseOption, BasePositional
+from ..parameters.choice_map import Choice, ChoiceMap
 from .restructured_text import RstTable
-from .utils import format_help_entry, _should_add_default
+from .utils import _should_add_default, format_help_entry
 
 if TYPE_CHECKING:
     from ..nargs import Nargs
     from ..parameters.option_strings import TriFlagOptionStrings
-    from ..typing import Bool, ParamOrGroup, OptStr
+    from ..typing import Bool, OptStr, ParamOrGroup
 
 BoolFormatterMap = Dict[bool, Callable[[str], str]]
 
@@ -449,7 +449,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
     def _get_spacer(self) -> str:
         # TODO: Config option to set these chars OR to have them just be spaces
         if self.param.mutually_exclusive:
-            return '\u00A6 '  # BROKEN BAR
+            return '\u00a6 '  # BROKEN BAR
         elif self.param.mutually_dependent:
             return '\u2551 '  # BOX DRAWINGS DOUBLE VERTICAL
         else:

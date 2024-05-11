@@ -3,7 +3,6 @@ Base classes and helpers for Parameters and Groups
 
 :author: Doug Skrypa
 """
-# pylint: disable=R0801
 
 from __future__ import annotations
 
@@ -12,24 +11,23 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Type, Generic, Optional, Callable, Collection, Union, Iterator, TypeVar, overload
-from typing import NoReturn, Dict, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Collection, Generic, Iterator, NoReturn, Type, TypeVar, Union, overload
 
 from ..annotations import get_descriptor_value_type
-from ..config import CommandConfig, OptionNameMode, AllowLeadingDash, DEFAULT_CONFIG
+from ..config import DEFAULT_CONFIG, AllowLeadingDash, CommandConfig, OptionNameMode
 from ..context import Context, ctx, get_current_context
-from ..exceptions import ParameterDefinitionError, BadArgument, MissingArgument, InvalidChoice
+from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParameterDefinitionError
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
-from ..nargs import Nargs, REMAINDER
-from ..typing import T_co, DefaultFunc, CommandMethod
+from ..nargs import REMAINDER, Nargs
+from ..typing import CommandMethod, DefaultFunc, T_co
 from ..utils import _NotSet
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from ..formatting.params import ParamHelpFormatter
-    from ..typing import OptStr, OptStrs, Strings, Bool, CommandCls, CommandObj, CommandAny, Param, LeadingDash
+    from ..typing import Bool, CommandAny, CommandCls, CommandObj, LeadingDash, OptStr, OptStrs, Param, Strings
     from .actions import ParamAction
     from .groups import ParamGroup
 
@@ -51,6 +49,7 @@ class ParamBase(ABC):
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
+    # fmt: off
     # Class Attributes
     missing_hint: str = None        #: Hint to provide if this param/group is missing
     # Instance Attributes
@@ -61,6 +60,7 @@ class ParamBase(ABC):
     required: Bool                  #: Whether this param/group is required
     help: str                       #: The description for this param/group that will appear in ``--help`` text
     hide: Bool                      #: Whether this param/group should be hidden in ``--help`` text
+    # fmt: on
 
     def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
         self.__doc__ = help  # Prevent this class's docstring from showing up for params in generated documentation
@@ -81,7 +81,7 @@ class ParamBase(ABC):
         return self._default_name()
 
     @name.setter
-    def name(self, value: Optional[str]):
+    def name(self, value: Union[str, None]):
         if value is not None:
             self._name = value
 
@@ -99,7 +99,7 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
 
-    def _ctx(self, command: CommandAny = None) -> Optional[Context]:
+    def _ctx(self, command: CommandAny = None) -> Union[Context, None]:
         if context := get_current_context(True):
             return context
         if command is None:
@@ -176,18 +176,20 @@ class Parameter(ParamBase, Generic[T_co], ABC):
 
     # region Attributes & Initialization
 
+    # fmt: off
     # Class attributes
-    _action_map: Dict[str, Type[ParamAction]] = {}
-    _repr_attrs: Optional[Strings] = None           #: Attributes to include in ``repr()`` output
+    _action_map: dict[str, Type[ParamAction]] = {}
+    _repr_attrs: Union[Strings, None] = None                            #: Attributes to include in ``repr()`` output
     # Instance attributes with class defaults
     metavar: str = None
-    nargs: Nargs                                    # Expected to be set in subclasses
-    type: Optional[Callable[[str], T_co]] = None    # Expected to be set in subclasses
-    allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC  # Set in some subclasses
+    nargs: Nargs                                                        # Expected to be set in subclasses
+    type: Union[Callable[[str], T_co], None] = None                     # Expected to be set in subclasses
+    allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
     default = _NotSet
     default_cb: DefaultCallback | None = None
     show_default: Bool = None
     strict_default: Bool = False
+    # fmt: on
 
     def __init_subclass__(cls, repr_attrs: Strings = None, actions: Collection[Type[ParamAction]] = None, **kwargs):
         """
@@ -320,7 +322,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def get_const(self, opt_str: OptStr = None):
         return _NotSet
 
-    def get_env_const(self, value: str, env_var: str) -> Tuple[T_co, bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[T_co, bool]:
         return _NotSet, False
 
     def prepare_value(self, value: str, short_combo: Bool = False, pre_action: Bool = False) -> T_co:
@@ -338,7 +340,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         except Exception as e:
             raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
 
-    def validate(self, value: Optional[T_co], joined: Bool = False):
+    def validate(self, value: Union[T_co, None], joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
@@ -360,12 +362,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # region Parse Results / Argument Value Handling
 
     @overload
-    def __get__(self: Param, command: None, owner: CommandCls) -> Param:
-        ...
+    def __get__(self: Param, command: None, owner: CommandCls) -> Param: ...
 
     @overload
-    def __get__(self, command: CommandObj, owner: CommandCls) -> Optional[T_co]:
-        ...
+    def __get__(self, command: CommandObj, owner: CommandCls) -> Union[T_co, None]: ...
 
     def __get__(self, command, owner):
         if command is None:
@@ -545,7 +545,7 @@ class AllowLeadingDashProperty:
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    def __get__(self, instance: Optional[Parameter], owner) -> Union[AllowLeadingDash, AllowLeadingDashProperty]:
+    def __get__(self, instance: Union[Parameter, None], owner) -> Union[AllowLeadingDash, AllowLeadingDashProperty]:
         if instance is None:
             return self
         return instance.__dict__.get(self.name, self.default)

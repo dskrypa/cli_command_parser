@@ -12,12 +12,12 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Collection, Dict, Iterator, List, Optional, Set, Tuple
 
-from .config import CommandConfig, AmbiguousComboMode
-from .exceptions import CommandDefinitionError, ParameterDefinitionError, AmbiguousShortForm, AmbiguousCombo
-from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
-from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, help_action
+from .config import AmbiguousComboMode, CommandConfig
+from .exceptions import AmbiguousCombo, AmbiguousShortForm, CommandDefinitionError, ParameterDefinitionError
+from .parameters import Action, ActionFlag, ParamGroup, PassThru, SubCommand, help_action
+from .parameters.base import BaseOption, BasePositional, ParamBase, Parameter
 
 if TYPE_CHECKING:
     from .context import Context
@@ -31,6 +31,7 @@ ActionFlags = List[ActionFlag]
 
 
 class CommandParameters:
+    # fmt: off
     command: CommandCls                                  #: The Command associated with this CommandParameters object
     formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
     command_parent: Optional[CommandCls]                 #: The parent Command, if any
@@ -46,6 +47,7 @@ class CommandParameters:
     positionals: List[BasePositional]                    #: List of positional Parameters
     _deferred_positionals: List[BasePositional] = ()     #: Positional Parameters that are deferred to sub commands
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
+    # fmt: on
 
     def __init__(
         self,

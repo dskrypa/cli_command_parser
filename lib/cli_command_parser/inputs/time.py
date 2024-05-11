@@ -17,15 +17,14 @@ Custom date/time input handlers for Parameters.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from calendar import day_name, day_abbr, month_name, month_abbr
-from datetime import datetime, date, time, timedelta
+from calendar import day_abbr, day_name, month_abbr, month_name
+from datetime import date, datetime, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import Union, Iterator, Collection, Sequence, Optional, TypeVar, Type, Literal, overload
-from typing import Tuple, Dict
+from typing import Collection, Dict, Iterator, Literal, Optional, Sequence, Tuple, Type, TypeVar, Union, overload
 
-from ..typing import T, Bool, Locale, TimeBound
+from ..typing import Bool, Locale, T, TimeBound
 from ..utils import MissingMixin
 from .base import InputType
 from .exceptions import InputValidationError, InvalidChoiceError
@@ -103,10 +102,12 @@ class DTInput(InputType[T], ABC):
 
 
 class DTFormatMode(MissingMixin, Enum):
+    # fmt: off
     FULL = 'full'                   #: The full name of a given date/time unit
     ABBREVIATION = 'abbreviation'   #: The abbreviation of a given date/time unit
     NUMERIC = 'numeric'             #: The numeric representation of a given date/time unit
     NUMERIC_ISO = 'numeric_iso'     #: The ISO numeric representation of a given date/time unit
+    # fmt: on
 
 
 class CalendarUnitInput(DTInput[Union[str, int]], ABC):
