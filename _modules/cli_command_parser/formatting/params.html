@@ -1000,23 +1000,23 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span>
 
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">SubcommandAliasHelpMode</span><span class="p">,</span> <span class="n">CmdAliasMode</span>
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">CmdAliasMode</span><span class="p">,</span> <span class="n">SubcommandAliasHelpMode</span>
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">get_config</span>
-<span class="kn">from</span> <span class="nn">..parameters.base</span> <span class="kn">import</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">BaseOption</span>
-<span class="kn">from</span> <span class="nn">..parameters.choice_map</span> <span class="kn">import</span> <span class="n">ChoiceMap</span><span class="p">,</span> <span class="n">Choice</span>
 <span class="kn">from</span> <span class="nn">..parameters</span> <span class="kn">import</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">TriFlag</span>
+<span class="kn">from</span> <span class="nn">..parameters.base</span> <span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span>
+<span class="kn">from</span> <span class="nn">..parameters.choice_map</span> <span class="kn">import</span> <span class="n">Choice</span><span class="p">,</span> <span class="n">ChoiceMap</span>
 <span class="kn">from</span> <span class="nn">.restructured_text</span> <span class="kn">import</span> <span class="n">RstTable</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">format_help_entry</span><span class="p">,</span> <span class="n">_should_add_default</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_should_add_default</span><span class="p">,</span> <span class="n">format_help_entry</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
     <span class="kn">from</span> <span class="nn">..parameters.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
 
-<span class="n">BoolFormatterMap</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span>
+    <span class="n">BoolFormatterMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter">
@@ -1163,14 +1163,14 @@
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_row">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_row">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">rst_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of (usage, description)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst_usage</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">rst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_rows">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_rows">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst_row</span><span class="p">()</span></div>
 </div>
 
@@ -1280,7 +1280,7 @@
 
 <div class="viewcode-block" id="TriFlagHelpFormatter.rst_rows">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.rst_rows">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="n">opts</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">option_strs</span>
         <span class="k">for</span> <span class="n">alt</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="n">usage</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;``</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s1">``&#39;</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">option_strs</span><span class="p">(</span><span class="n">alt</span><span class="p">))</span>
@@ -1354,7 +1354,7 @@
         <span class="k">return</span> <span class="n">table</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_format_rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">_format_rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cmd_alias_mode</span> <span class="ow">or</span> <span class="n">SubcommandAliasHelpMode</span><span class="o">.</span><span class="n">ALIAS</span>
         <span class="k">for</span> <span class="n">choice_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_groups</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">choice_group</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
@@ -1425,7 +1425,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias</span>
 <span class="sd">        mode.</span>
@@ -1455,7 +1455,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_combined">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_combined">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation by combining all aliases into a single</span>
 <span class="sd">        entry.</span>
@@ -1474,7 +1474,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_aliases">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation using an alternate description for</span>
 <span class="sd">        aliases.</span>
@@ -1509,7 +1509,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_repeated">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_repeated">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation with no modifications.  Choices that</span>
 <span class="sd">        are considered aliases are simply repeated as if they were not aliases.</span>
@@ -1569,7 +1569,7 @@
     <span class="k">def</span> <span class="nf">_get_spacer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># TODO: Config option to set these chars OR to have them just be spaces</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\u00A6</span><span class="s1"> &#39;</span>  <span class="c1"># BROKEN BAR</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\u00a6</span><span class="s1"> &#39;</span>  <span class="c1"># BROKEN BAR</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">mutually_dependent</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\u2551</span><span class="s1"> &#39;</span>  <span class="c1"># BOX DRAWINGS DOUBLE VERTICAL</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1636,7 +1636,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_pad_and_quote</span><span class="p">(</span><span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_pad_and_quote</span><span class="p">(</span><span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a 2-tuple of ``(pad char, quote string)``&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s1">&#39; &#39;</span> <span class="k">if</span> <span class="n">description</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;``&#39;</span> <span class="k">if</span> <span class="n">rst</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
 </pre></div>

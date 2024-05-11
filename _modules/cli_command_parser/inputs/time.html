@@ -1009,15 +1009,14 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">calendar</span> <span class="kn">import</span> <span class="n">day_name</span><span class="p">,</span> <span class="n">day_abbr</span><span class="p">,</span> <span class="n">month_name</span><span class="p">,</span> <span class="n">month_abbr</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">calendar</span> <span class="kn">import</span> <span class="n">day_abbr</span><span class="p">,</span> <span class="n">day_name</span><span class="p">,</span> <span class="n">month_abbr</span><span class="p">,</span> <span class="n">month_name</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">locale</span> <span class="kn">import</span> <span class="n">LC_ALL</span><span class="p">,</span> <span class="n">setlocale</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">RLock</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">overload</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">T</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Locale</span><span class="p">,</span> <span class="n">TimeBound</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Locale</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">TimeBound</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">MissingMixin</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
@@ -1112,18 +1111,20 @@
 <div class="viewcode-block" id="DTFormatMode">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTFormatMode">[docs]</a>
 <span class="k">class</span> <span class="nc">DTFormatMode</span><span class="p">(</span><span class="n">MissingMixin</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="c1"># fmt: off</span>
     <span class="n">FULL</span> <span class="o">=</span> <span class="s1">&#39;full&#39;</span>                   <span class="c1">#: The full name of a given date/time unit</span>
     <span class="n">ABBREVIATION</span> <span class="o">=</span> <span class="s1">&#39;abbreviation&#39;</span>   <span class="c1">#: The abbreviation of a given date/time unit</span>
     <span class="n">NUMERIC</span> <span class="o">=</span> <span class="s1">&#39;numeric&#39;</span>             <span class="c1">#: The numeric representation of a given date/time unit</span>
     <span class="n">NUMERIC_ISO</span> <span class="o">=</span> <span class="s1">&#39;numeric_iso&#39;</span>     <span class="c1">#: The ISO numeric representation of a given date/time unit</span></div>
 
+    <span class="c1"># fmt: on</span>
 
 
 <div class="viewcode-block" id="CalendarUnitInput">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput">[docs]</a>
 <span class="k">class</span> <span class="nc">CalendarUnitInput</span><span class="p">(</span><span class="n">DTInput</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="s1">&#39;abbreviation&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric&#39;</span><span class="p">,</span> <span class="s1">&#39;out_format&#39;</span><span class="p">,</span> <span class="s1">&#39;out_locale&#39;</span><span class="p">)</span>
-    <span class="n">_formats</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span>
+    <span class="n">_formats</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DTFormatMode</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span>
     <span class="n">_min_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="CalendarUnitInput.__init_subclass__">
@@ -1166,7 +1167,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formats</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported out_format=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_format</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> inputs&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbreviation</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">min_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_index</span>
