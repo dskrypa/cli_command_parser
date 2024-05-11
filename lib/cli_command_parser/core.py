@@ -8,25 +8,24 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Optional, Union, TypeVar, Callable, Iterable, Collection, Any, Mapping, Iterator
-from typing import Dict, Tuple, List
+from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Mapping, Optional, TypeVar, Union
 from warnings import warn
 from weakref import WeakSet
 
 from .command_parameters import CommandParameters
-from .config import CommandConfig, DEFAULT_CONFIG
+from .config import DEFAULT_CONFIG, CommandConfig
 from .exceptions import CommandDefinitionError
 from .metadata import ProgramMetadata
 
 if TYPE_CHECKING:
-    from .typing import Config, AnyConfig, CommandCls, CommandAny, OptStr
+    from .typing import AnyConfig, CommandAny, CommandCls, Config, OptStr
+
+    Bases = Union[tuple[type, ...], Iterable[type]]
+    Choices = Union[Mapping[str, Optional[str]], Collection[str]]
+    OptChoices = Optional[Choices]
+    T = TypeVar('T')
 
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadata', 'get_top_level_commands']
-
-Bases = Union[Tuple[type, ...], Iterable[type]]
-Choices = Union[Mapping[str, Optional[str]], Collection[str]]
-OptChoices = Optional[Choices]
-T = TypeVar('T')
 
 _NotSet = object()
 META_KEYS = {'prog', 'usage', 'description', 'epilog', 'doc_name'}
@@ -69,7 +68,7 @@ class CommandMeta(ABCMeta, type):
     _commands = WeakSet()
 
     @classmethod
-    def __prepare__(mcs, name: str, bases: Bases, **kwargs) -> Dict[str, Any]:
+    def __prepare__(mcs, name: str, bases: Bases, **kwargs) -> dict[str, Any]:
         """Called before ``__new__`` and before evaluating the contents of a class."""
         return {
             '_CommandMeta__params': None,  # Prevent commands from inheriting parent params
@@ -82,7 +81,7 @@ class CommandMeta(ABCMeta, type):
         mcs,
         name: str,
         bases: Bases,
-        namespace: Dict[str, Any],
+        namespace: dict[str, Any],
         *,
         choice: str = _NotSet,
         choices: Choices = None,
@@ -141,7 +140,7 @@ class CommandMeta(ABCMeta, type):
     # region Config Methods
 
     @classmethod
-    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: Dict[str, Any]) -> Config:
+    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: dict[str, Any]) -> Config:
         if config is not None:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')
@@ -159,8 +158,8 @@ class CommandMeta(ABCMeta, type):
     @classmethod
     def config(mcs, cls: CommandAny, default: T = None) -> Union[CommandConfig, T]:
         try:
-            return cls.__config     # This attr is not overwritten for every subclass
-        except AttributeError:      # This means that the Command and all of its parents have no custom config
+            return cls.__config  # This attr is not overwritten for every subclass
+        except AttributeError:  # This means that the Command and all of its parents have no custom config
             return default
 
     # endregion
@@ -230,7 +229,7 @@ def _mro(cmd_cls):
         return cmd_cls, type.mro(cmd_cls)[1:-1]
 
 
-def _choice_items(choice: OptStr, choices: OptChoices) -> Iterator[Tuple[OptStr, OptStr]]:
+def _choice_items(choice: OptStr, choices: OptChoices) -> Iterator[tuple[OptStr, OptStr]]:
     if not choices:
         # Automatic use of the subcommand class name is handled by SubCommand.register_command when choice is None
         if choice is not None:  # Allow an explicit None to be used to prevent registration
@@ -260,7 +259,7 @@ get_metadata = CommandMeta.meta
 get_params = CommandMeta.params
 
 
-def get_top_level_commands() -> List[CommandCls]:
+def get_top_level_commands() -> list[CommandCls]:
     """
     Returns a list of Command subclasses that are inferred to be direct subclasses of :class:`~commands.Command`.
 

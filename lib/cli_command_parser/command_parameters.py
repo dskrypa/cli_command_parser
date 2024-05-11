@@ -12,25 +12,26 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Collection, Iterator, List, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Collection, Iterator, Optional
 
-from .config import CommandConfig, AmbiguousComboMode
-from .exceptions import CommandDefinitionError, ParameterDefinitionError, AmbiguousShortForm, AmbiguousCombo
-from .parameters.base import ParamBase, Parameter, BaseOption, BasePositional
-from .parameters import SubCommand, PassThru, ActionFlag, ParamGroup, Action, help_action
+from .config import AmbiguousComboMode, CommandConfig
+from .exceptions import AmbiguousCombo, AmbiguousShortForm, CommandDefinitionError, ParameterDefinitionError
+from .parameters import Action, ActionFlag, ParamGroup, PassThru, SubCommand, help_action
+from .parameters.base import BaseOption, BasePositional, ParamBase, Parameter
 
 if TYPE_CHECKING:
     from .context import Context
     from .formatting.commands import CommandHelpFormatter
     from .typing import CommandCls, Strings
 
-__all__ = ['CommandParameters']
+    OptionMap = dict[str, BaseOption]
+    ActionFlags = list[ActionFlag]
 
-OptionMap = Dict[str, BaseOption]
-ActionFlags = List[ActionFlag]
+__all__ = ['CommandParameters']
 
 
 class CommandParameters:
+    # fmt: off
     command: CommandCls                                  #: The Command associated with this CommandParameters object
     formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
     command_parent: Optional[CommandCls]                 #: The parent Command, if any
@@ -39,13 +40,14 @@ class CommandParameters:
     _pass_thru: Optional[PassThru] = None                #: A PassThru Parameter, if specified
     sub_command: Optional[SubCommand] = None             #: A SubCommand Parameter, if specified
     action_flags: ActionFlags                            #: List of action flags
-    split_action_flags: Tuple[ActionFlags, ActionFlags]  #: Action flags split by before/after main
-    options: List[BaseOption]                            #: List of optional Parameters
+    split_action_flags: tuple[ActionFlags, ActionFlags]  #: Action flags split by before/after main
+    options: list[BaseOption]                            #: List of optional Parameters
     combo_option_map: OptionMap                          #: Mapping of {short opt: Parameter} (no dash characters)
-    groups: List[ParamGroup]                             #: List of ParamGroup objects
-    positionals: List[BasePositional]                    #: List of positional Parameters
-    _deferred_positionals: List[BasePositional] = ()     #: Positional Parameters that are deferred to sub commands
+    groups: list[ParamGroup]                             #: List of ParamGroup objects
+    positionals: list[BasePositional]                    #: List of positional Parameters
+    _deferred_positionals: list[BasePositional] = ()     #: Positional Parameters that are deferred to sub commands
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
+    # fmt: on
 
     def __init__(
         self,
@@ -83,7 +85,7 @@ class CommandParameters:
     # endregion
 
     @cached_property
-    def all_positionals(self) -> List[BasePositional]:
+    def all_positionals(self) -> list[BasePositional]:
         try:
             if not self.parent.sub_command:
                 return self.parent.all_positionals + self.positionals
@@ -91,7 +93,7 @@ class CommandParameters:
             pass
         return self.positionals
 
-    def get_positionals_to_parse(self, ctx: Context) -> List[BasePositional]:
+    def get_positionals_to_parse(self, ctx: Context) -> list[BasePositional]:
         if self.all_positionals:
             for i, param in enumerate(self.all_positionals):
                 if not ctx.num_provided(param):
@@ -170,13 +172,13 @@ class CommandParameters:
         self._process_options(options)
         self._process_groups(groups)
 
-    def _process_groups(self, groups: Set[ParamGroup]):
+    def _process_groups(self, groups: set[ParamGroup]):
         if self.parent:
             self.groups = sorted((*self.parent.groups, *groups)) if groups else self.parent.groups.copy()
         else:
             self.groups = sorted(groups) if groups else []
 
-    def _process_positionals(self, params: List[BasePositional]):
+    def _process_positionals(self, params: list[BasePositional]):
         unfollowable = action_or_sub_cmd = split_index = None
         if self.parent and (deferred := self.parent._deferred_positionals):
             params = deferred + params
@@ -216,7 +218,7 @@ class CommandParameters:
 
         self.positionals = params
 
-    def _process_options(self, params: List[BaseOption]):
+    def _process_options(self, params: list[BaseOption]):
         if parent := self.parent:
             option_map = parent.option_map.copy()
             combo_option_map = parent.combo_option_map.copy()
@@ -298,7 +300,7 @@ class CommandParameters:
     # region Ambiguous Short Combo Handling
 
     @cached_property
-    def _classified_combo_options(self) -> Tuple[OptionMap, OptionMap]:
+    def _classified_combo_options(self) -> tuple[OptionMap, OptionMap]:
         multi_char_combos = {}
         items = self.combo_option_map.items()
         for combo, param in items:
@@ -308,7 +310,7 @@ class CommandParameters:
         return {}, multi_char_combos
 
     @cached_property
-    def _potentially_ambiguous_combo_opts(self) -> Dict[str, Tuple[BaseOption, OptionMap]]:
+    def _potentially_ambiguous_combo_opts(self) -> dict[str, tuple[BaseOption, OptionMap]]:
         return _find_ambiguous_combos(*self._classified_combo_options)
 
     @cached_property
@@ -357,7 +359,7 @@ class CommandParameters:
 
     def short_option_to_param_value_pairs(
         self, option: str
-    ) -> Tuple[List[Tuple[str, BaseOption, Optional[str]]], bool]:
+    ) -> tuple[list[tuple[str, BaseOption, Optional[str]]], bool]:
         option, eq, value = option.partition('=')
         if eq:  # An `=` was present in the string
             # Note: if the option is not in this Command's option_map, the KeyError is handled by CommandParser
@@ -404,7 +406,7 @@ class CommandParameters:
 
 def _find_ambiguous_combos(
     single_char_combos: OptionMap, multi_char_combos: OptionMap
-) -> Dict[str, Tuple[BaseOption, OptionMap]]:
+) -> dict[str, tuple[BaseOption, OptionMap]]:
     ambiguous_combo_options = {}
     for combo, param in multi_char_combos.items():
         if singles := {c: single_char_combos[c] for c in combo if c in single_char_combos}:

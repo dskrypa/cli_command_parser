@@ -6,7 +6,7 @@ Helpers for handling ``nargs=...`` for Parameters.
 
 from __future__ import annotations
 
-from typing import Any, Union, Optional, Sequence, Collection, Iterable, Tuple, Set, FrozenSet
+from typing import Any, Collection, FrozenSet, Iterable, Optional, Sequence, Set, Tuple, Union
 
 __all__ = ['Nargs', 'NargsValue', 'REMAINDER', 'nargs_min_and_max_sums']
 
@@ -179,7 +179,7 @@ class Nargs:
         return self.max if self._has_upper_bound else float('inf')
 
 
-def nargs_min_and_max_sums(nargs_objects: Iterable[Nargs]) -> Tuple[int, Union[int, float]]:
+def nargs_min_and_max_sums(nargs_objects: Iterable[Nargs]) -> tuple[int, Union[int, float]]:
     min_sum, max_sum = 0, 0
     iter_nargs = iter(nargs_objects)
     for obj in iter_nargs:

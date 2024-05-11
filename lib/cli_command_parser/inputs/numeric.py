@@ -8,9 +8,9 @@ Custom numeric input handlers for Parameters
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union, Optional
+from typing import Optional, Union
 
-from ..typing import Bool, NT, Number, NumType, RngType
+from ..typing import NT, Bool, Number, NumType, RngType
 from .base import InputType
 from .exceptions import InputValidationError
 
@@ -161,8 +161,8 @@ class NumRange(NumericInput[NT]):
                 )
 
         self.snap = snap
-        self.min = self.type(min) if min is not None else min   # for floats especially, such as a range like 0~1, this
-        self.max = self.type(max) if max is not None else max   # helps to highlight the type in reprs
+        self.min = self.type(min) if min is not None else min  # for floats especially, such as a range like 0~1, this
+        self.max = self.type(max) if max is not None else max  # helps to highlight the type in reprs
         self.include_min = include_min
         self.include_max = include_max
 

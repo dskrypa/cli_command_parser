@@ -6,9 +6,9 @@ Containers for option strings
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Collection, Union, Iterator, List, Set, Tuple
+from typing import TYPE_CHECKING, Collection, Iterator, Optional, Union
 
-from ..config import OptionNameMode, DEFAULT_CONFIG
+from ..config import DEFAULT_CONFIG, OptionNameMode
 from ..exceptions import ParameterDefinitionError
 from ..utils import _NotSet
 
@@ -23,10 +23,10 @@ class OptionStrings:
 
     __slots__ = ('name_mode', '_long', '_short', 'combinable', '_display_long')
     name_mode: Optional[OptionNameMode]
-    combinable: Set[str]
-    _display_long: Set[str]
-    _long: Set[str]
-    _short: Set[str]
+    combinable: set[str]
+    _display_long: set[str]
+    _long: set[str]
+    _short: set[str]
 
     def __init__(self, option_strs: Collection[str], name_mode: Union[OptionNameMode, str, None] = _NotSet):
         self.name_mode = OptionNameMode(name_mode) if name_mode is not _NotSet else None
@@ -69,19 +69,19 @@ class OptionStrings:
             if mode_val & 8:  # OptionNameMode.BOTH_UNDERSCORE = OptionNameMode.DASH | 4 | 8
                 self._display_long.add(option)
 
-    def get_sets(self) -> Tuple[Set[str], Set[str]]:
+    def get_sets(self) -> tuple[set[str], set[str]]:
         return self._long, self._short
 
     @property
-    def long(self) -> List[str]:
+    def long(self) -> list[str]:
         return sorted(self._long, key=_options_sort_key)
 
     @property
-    def short(self) -> List[str]:
+    def short(self) -> list[str]:
         return sorted(self._short, key=_options_sort_key)
 
     @property
-    def display_long(self) -> List[str]:
+    def display_long(self) -> list[str]:
         return sorted(self._display_long, key=_options_sort_key)
 
     def get_usage_opt(self) -> str:
@@ -100,7 +100,7 @@ class TriFlagOptionStrings(OptionStrings):
     __slots__ = ('_alt_prefix', '_alt_long', '_alt_short')
     _alt_prefix: Optional[str]
     _alt_short: Optional[str]
-    _alt_long: Union[Set[str], Tuple[str]]
+    _alt_long: Union[set[str], tuple[str]]
 
     def has_long(self) -> Bool:
         """Whether any primary / non-alternate long option strings were defined"""
@@ -137,7 +137,7 @@ class TriFlagOptionStrings(OptionStrings):
                 self._display_long.add(option)
 
     @property
-    def alt_allowed(self) -> Set[str]:
+    def alt_allowed(self) -> set[str]:
         allowed = set(self._alt_long)
         if self._alt_short:
             allowed.add(self._alt_short)
@@ -149,11 +149,11 @@ class TriFlagOptionStrings(OptionStrings):
     #     return [opt for opt in self.long if opt not in self._alt_long]
 
     @property
-    def display_long_primary(self) -> List[str]:
+    def display_long_primary(self) -> list[str]:
         return [opt for opt in self.display_long if opt not in self._alt_long]
 
     @property
-    def short_primary(self) -> List[str]:
+    def short_primary(self) -> list[str]:
         return [opt for opt in self.short if opt != self._alt_short]
 
     # @property
@@ -161,11 +161,11 @@ class TriFlagOptionStrings(OptionStrings):
     #     return sorted(self._alt_long, key=_options_sort_key)
 
     @property
-    def display_long_alt(self) -> List[str]:
+    def display_long_alt(self) -> list[str]:
         return [opt for opt in self.display_long if opt in self._alt_long]
 
     @property
-    def short_alt(self) -> List[str]:
+    def short_alt(self) -> list[str]:
         return [self._alt_short] if self._alt_short else []
 
     def primary_option_strs(self) -> Iterator[str]:
@@ -195,12 +195,12 @@ def _options_sort_key(opt: str):
     return -len(opt), opt
 
 
-def _split_options(opt_strs: Collection[str]) -> Tuple[Set[str], Set[str]]:
+def _split_options(opt_strs: Collection[str]) -> tuple[set[str], set[str]]:
     """Split long and short option strings and ensure that all of the provided option strings are valid."""
     long_opts, short_opts, bad_opts, bad_short = set(), set(), [], []
     for opt in opt_strs:
-        if not opt:     # Ignore None / empty strings / etc
-            continue    # Only raise an exception if invalid values that were intended to be used were provided
+        if not opt:  # Ignore None / empty strings / etc
+            continue  # Only raise an exception if invalid values that were intended to be used were provided
         elif not 0 < opt.count('-', 0, 3) < 3 or opt.endswith('-') or '=' in opt:
             bad_opts.append(opt)
         elif opt.startswith('--'):

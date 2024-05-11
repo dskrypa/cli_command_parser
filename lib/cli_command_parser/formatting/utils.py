@@ -6,7 +6,7 @@ Utils for usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Any, Collection, Sequence, Iterator, Iterable, List
+from typing import TYPE_CHECKING, Any, Collection, Iterable, Iterator, Optional, Sequence
 
 from ..compat import WCTextWrapper
 from ..config import ShowDefaults
@@ -14,7 +14,7 @@ from ..context import ctx
 from ..utils import _NotSet, wcswidth
 
 if TYPE_CHECKING:
-    from ..typing import Bool, Strs, OptStrs
+    from ..typing import Bool, OptStrs, Strs
 
 __all__ = ['format_help_entry', 'line_iter']
 
@@ -104,7 +104,7 @@ def _description_start_line(usage: Iterable[str], max_usage_width: int) -> int:
     return line
 
 
-def _single_line_strs(lines: Strs) -> List[str]:
+def _single_line_strs(lines: Strs) -> list[str]:
     if isinstance(lines, str):
         lines = (lines,)
     return [line for full_line in lines for line in full_line.splitlines()]
@@ -138,7 +138,7 @@ def _should_add_default(default: Any, help_text: Optional[str], param_show_defau
         return bool(default)
 
 
-def line_iter(*columns: Strs) -> Iterator[List[str, ...]]:
+def line_iter(*columns: Strs) -> Iterator[list[str, ...]]:
     """More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+"""
     exhausted = 0
     column_count = len(columns)

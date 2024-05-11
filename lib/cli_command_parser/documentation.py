@@ -12,18 +12,18 @@ from abc import ABC
 from collections import defaultdict
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, Mapping, Any, List, Dict
+from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
 from .commands import Command
 from .context import Context
-from .core import CommandMeta, get_params, get_parent, get_metadata
-from .formatting.commands import get_formatter, NameFunc
+from .core import CommandMeta, get_metadata, get_params, get_parent
+from .formatting.commands import NameFunc, get_formatter
 from .formatting.restructured_text import MODULE_TEMPLATE, rst_header, rst_toc_tree
 
 if TYPE_CHECKING:
-    from .typing import Bool, PathLike, CommandCls, Strings
+    from .typing import Bool, CommandCls, PathLike, Strings
 
-    Commands = Dict[str, CommandCls]
+    Commands = dict[str, CommandCls]
 
 __all__ = ['render_script_rst', 'render_command_rst', 'load_commands', 'RstWriter']
 log = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ def load_commands(path: PathLike, top_only: Bool = False, include_abc: Bool = Fa
     return commands
 
 
-def filtered_commands(obj_map: Dict[str, Any], top_only: Bool = False, include_abc: Bool = False) -> Commands:
+def filtered_commands(obj_map: dict[str, Any], top_only: Bool = False, include_abc: Bool = False) -> Commands:
     commands = {key: val for key, val in obj_map.items() if not key.startswith('__') and _is_command(val, include_abc)}
     if top_only:
         commands = top_level_commands(commands)
@@ -276,7 +276,7 @@ class RstWriter:
         empty: Bool = False,
         caption: str = None,
         max_depth: int = 4,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         :param pkg_name: The name of the package to document
         :param pkg_path: The path to the package
@@ -314,7 +314,7 @@ class RstWriter:
         )
         return contents
 
-    def _generate_code_rsts(self, pkg_name: str, pkg_path: Path, subdir: str = None, max_depth: int = 4) -> List[str]:
+    def _generate_code_rsts(self, pkg_name: str, pkg_path: Path, subdir: str = None, max_depth: int = 4) -> list[str]:
         contents = []
         for path in pkg_path.iterdir():
             if path.is_dir():

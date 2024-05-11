@@ -21,7 +21,7 @@ from __future__ import annotations
 import platform
 import sys
 from collections import ChainMap
-from typing import Type, Callable, Union, Optional, Iterator, Dict
+from typing import Callable, Iterator, Optional, Type, Union
 
 from .exceptions import CommandParserException
 
@@ -33,8 +33,8 @@ HandlerFunc = Callable[[BaseException], Optional[bool]]
 
 class ErrorHandler:
     __slots__ = ('exc_handler_map',)
-    _exc_handler_map: Dict[Type[BaseException], Handler] = {}
-    exc_handler_map: Dict[Type[BaseException], Handler]
+    _exc_handler_map: dict[Type[BaseException], Handler] = {}
+    exc_handler_map: dict[Type[BaseException], Handler]
 
     def __init__(self):
         self.exc_handler_map = {}

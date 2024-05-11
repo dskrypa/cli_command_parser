@@ -2,18 +2,20 @@ from __future__ import annotations
 
 import logging
 import re
-from ast import NodeVisitor, AST, Assign, Call, For, Attribute, Name, Import, ImportFrom, expr
+from ast import AST, Assign, Attribute, Call, For, Import, ImportFrom, Name, NodeVisitor, expr
 from collections import ChainMap, defaultdict
 from functools import partial, wraps
-from typing import Iterator, Union, Callable, Collection, Tuple, List, Dict, Set
+from typing import TYPE_CHECKING, Callable, Collection, Iterator, Union
 
 from .argparse_ast import AstArgumentParser
 from .utils import get_name_repr
 
+if TYPE_CHECKING:
+    TrackedRefMap = dict['TrackedRef', set[str]]
+
 __all__ = ['ScriptVisitor', 'TrackedRef']
 log = logging.getLogger(__name__)
 
-TrackedRefMap = Dict['TrackedRef', Set[str]]
 _NoCall = object()
 
 
@@ -123,7 +125,7 @@ class ScriptVisitor(NodeVisitor):
 
     visit_AsyncFor = visit_For
 
-    def _visit_for_smart(self, node: For, loop_var: str, ele_names: List[str]):
+    def _visit_for_smart(self, node: For, loop_var: str, ele_names: list[str]):
         log.debug(f'Attempting smart for loop visit for {loop_var=} in {ele_names=}')
         refs = [ref for ref in (self.scopes.get(name) for name in ele_names) if ref]
         # log.debug(f'  > Found {len(refs)=}, {len(ele_names)=}')
@@ -141,7 +143,7 @@ class ScriptVisitor(NodeVisitor):
         log.debug('Falling back to generic loop handling')
         self._visit_for_elements(node, loop_var, ele_names)
 
-    def _visit_for_elements(self, node: For, loop_var: str, ele_names: List[str]):
+    def _visit_for_elements(self, node: For, loop_var: str, ele_names: list[str]):
         visited_any = False
         for name in ele_names:
             if ref := self.scopes.get(name):
@@ -218,7 +220,7 @@ class TrackedRef:
         return self.name == other.name and self.module == other.module
 
 
-def imp_names(imp: Import | ImportFrom) -> Iterator[Tuple[str, str]]:
+def imp_names(imp: Import | ImportFrom) -> Iterator[tuple[str, str]]:
     for alias in imp.names:
         name = alias.name
         as_name = alias.asname or name

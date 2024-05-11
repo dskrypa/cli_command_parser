@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import ChainMap
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Any, Union, Callable, Type, TypeVar, Generic, overload, Dict
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Type, TypeVar, Union, overload
 
 from .utils import FixedFlag, MissingMixin, _NotSet, positive_int
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .error_handling import ErrorHandler
     from .formatting.commands import CommandHelpFormatter
     from .formatting.params import ParamHelpFormatter
-    from .typing import Bool, ParamOrGroup, CommandType
+    from .typing import Bool, CommandType, ParamOrGroup
 
 __all__ = [
     'CommandConfig',
@@ -49,11 +49,13 @@ class ShowDefaults(FixedFlag):
     is equivalent to ``ShowDefaults.MISSING | ShowDefaults.NEVER``, which will result in no default values being shown.
     """
 
+    # fmt: off
     NEVER = 1       #: Never include the default value in help text
     MISSING = 2     #: Only include the default value if ``default:`` is not already present
     TRUTHY = 4      #: Only include the default value if it is treated as True in a boolean context
     NON_EMPTY = 8   #: Only include the default value if it is not ``None`` or an empty container
     ANY = 16        #: Any default value, regardless of truthiness, will be included
+    # fmt: on
 
     @classmethod
     def _missing_(cls, value: Union[str, int]) -> ShowDefaults:
@@ -104,6 +106,7 @@ class OptionNameMode(FixedFlag):
         - ``'underscore'`` or ``'dash'`` or ``'both'`` or ``'both_underscore'`` or ``'both_dash'`` or ``'none'``
     """
 
+    # fmt: off
     UNDERSCORE = 1
     DASH = 2
     BOTH = 3                # = 1|2
@@ -111,6 +114,7 @@ class OptionNameMode(FixedFlag):
     BOTH_UNDERSCORE = 15    # & 8  -> show only underscore version
     BOTH_DASH = 23          # & 16 -> show only dash version
     NONE = 32
+    # fmt: on
 
     @classmethod
     def _missing_(cls, value: Union[str, int, None]) -> OptionNameMode:
@@ -153,9 +157,11 @@ class SubcommandAliasHelpMode(MissingMixin, Enum):
       ``Alias of: <first choice/alias value>``.
     """
 
+    # fmt: off
     REPEAT = 'repeat'       # Repeat the description as if it was a separate subcommand
     COMBINE = 'combine'     # Combine aliases onto a single line
     ALIAS = 'alias'         # Indicate the subcommand that it is an alias for; do not repeat the description
+    # fmt: on
 
 
 CmdAliasMode = Union[SubcommandAliasHelpMode, str]
@@ -176,9 +182,11 @@ class AmbiguousComboMode(MissingMixin, Enum):
       input.
     """
 
+    # fmt: off
     IGNORE = 'ignore'           # Ignore potentially ambiguous combinations of short options entirely
     PERMISSIVE = 'permissive'   # Allow multi-char short options that overlap with a single char one for exact matches
     STRICT = 'strict'           # Reject multi-char short options that overlap with a single char one before parsing
+    # fmt: on
 
 
 class AllowLeadingDash(Enum):
@@ -193,9 +201,11 @@ class AllowLeadingDash(Enum):
     :NEVER: Never allow values with a leading dash.
     """
 
+    # fmt: off
     NUMERIC = 'numeric'     # Allow a leading dash when the value is numeric
     ALWAYS = 'always'       # Always allow a leading dash
     NEVER = 'never'         # Never allow a leading dash
+    # fmt: on
 
     @classmethod
     def _missing_(cls, value):
@@ -229,12 +239,10 @@ class ConfigItem(Generic[CV, DV]):
         owner.FIELDS.add(name)
 
     @overload
-    def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[CV, DV]:
-        ...
+    def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[CV, DV]: ...
 
     @overload
-    def __get__(self, instance: CommandConfig, owner: Type[CommandConfig]) -> ConfigValue:
-        ...
+    def __get__(self, instance: CommandConfig, owner: Type[CommandConfig]) -> ConfigValue: ...
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -432,7 +440,7 @@ class CommandConfig:
         settings = ', '.join(f'{k}={v!r}' for k, v in self.as_dict(False).items())
         return f'<{self.__class__.__name__}[depth={len(self._data.maps)}]({settings})>'
 
-    def as_dict(self, full: Bool = True) -> Dict[str, Any]:
+    def as_dict(self, full: Bool = True) -> dict[str, Any]:
         """Return a dict representing the configured options."""
         if full:
             return {key: getattr(self, key) for key in self.FIELDS}

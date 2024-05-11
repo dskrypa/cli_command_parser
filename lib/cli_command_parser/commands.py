@@ -9,10 +9,10 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, Type, Sequence, Optional, overload
+from typing import TYPE_CHECKING, Optional, Sequence, Type, overload
 
-from .core import CommandMeta, get_top_level_commands, get_params
-from .context import Context, ActionPhase, get_or_create_context
+from .context import ActionPhase, Context, get_or_create_context
+from .core import CommandMeta, get_params, get_top_level_commands
 from .exceptions import ParamConflict
 from .parser import parse_args_and_get_next_cmd
 from .utils import maybe_await
@@ -54,12 +54,12 @@ class Command(ABC, metaclass=CommandMeta):
     @classmethod
     @overload
     def parse_and_run(cls: Type[CommandObj], argv: Argv = None, **kwargs) -> Optional[CommandObj]:
-        ...  # These overloads indicate that an instance of the same type or another may be returned
+        # These overloads indicate that an instance of the same type or another may be returned
+        ...
 
     @classmethod
     @overload
-    def parse_and_run(cls, argv: Argv = None, **kwargs) -> Optional[CommandObj]:
-        ...
+    def parse_and_run(cls, argv: Argv = None, **kwargs) -> Optional[CommandObj]: ...
 
     @classmethod
     def parse_and_run(cls, argv=None, **kwargs):
@@ -94,13 +94,11 @@ class Command(ABC, metaclass=CommandMeta):
 
     @classmethod
     @overload
-    def parse(cls: Type[CommandObj], argv: Argv = None) -> CommandObj:
-        ...
+    def parse(cls: Type[CommandObj], argv: Argv = None) -> CommandObj: ...
 
     @classmethod
     @overload
-    def parse(cls, argv: Argv = None) -> CommandObj:
-        ...
+    def parse(cls, argv: Argv = None) -> CommandObj: ...
 
     @classmethod
     def parse(cls, argv=None):

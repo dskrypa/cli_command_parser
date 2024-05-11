@@ -9,20 +9,27 @@ from __future__ import annotations
 import logging
 from collections import deque
 from os import environ
-from typing import TYPE_CHECKING, Optional, Iterable, Deque, List
+from typing import TYPE_CHECKING, Deque, Iterable, Optional
 
-from .core import get_parent
 from .context import ActionPhase, Context
-from .exceptions import UsageError, ParamUsageError, NoSuchOption, MissingArgument, ParamsMissing
-from .exceptions import Backtrack, NextCommand
+from .core import get_parent
+from .exceptions import (
+    Backtrack,
+    MissingArgument,
+    NextCommand,
+    NoSuchOption,
+    ParamsMissing,
+    ParamUsageError,
+    UsageError,
+)
 from .nargs import REMAINDER, nargs_min_and_max_sums
+from .parameters.base import BaseOption, BasePositional, Parameter
 from .parse_tree import PosNode
-from .parameters.base import Parameter, BasePositional, BaseOption
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .config import CommandConfig
-    from .typing import CommandType, OptStr, Bool
+    from .typing import Bool, CommandType, OptStr
 
 __all__ = ['CommandParser', 'parse_args_and_get_next_cmd']
 log = logging.getLogger(__name__)
@@ -37,9 +44,9 @@ class CommandParser:
 
     arg_deque: Optional[Deque[str]]
     config: CommandConfig
-    deferred: Optional[List[str]]
+    deferred: Optional[list[str]]
     params: CommandParameters
-    positionals: List[BasePositional]
+    positionals: list[BasePositional]
     _last: Optional[Parameter]
 
     def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
@@ -374,7 +381,7 @@ class CommandParser:
 parse_args_and_get_next_cmd = CommandParser.parse_args_and_get_next_cmd
 
 
-def _to_pop(positionals: Iterable[BasePositional], can_pop: List[int], available: int, req_mod: int = 0) -> int:
+def _to_pop(positionals: Iterable[BasePositional], can_pop: list[int], available: int, req_mod: int = 0) -> int:
     if not can_pop:
         return 0
 

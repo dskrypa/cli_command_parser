@@ -7,12 +7,12 @@ Utilities for formatting data using RST markup
 from __future__ import annotations
 
 from itertools import starmap
-from typing import TYPE_CHECKING, Union, Iterator, Iterable, Any, TypeVar, Sequence, Mapping, Dict, Tuple, List
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence, TypeVar, Union
 
 from .utils import line_iter
 
 if TYPE_CHECKING:
-    from ..typing import OptStr, Bool, Strings
+    from ..typing import Bool, OptStr, Strings
 
 __all__ = ['rst_bar', 'rst_list_table', 'RstTable']
 
@@ -62,7 +62,7 @@ def spaced_rst_header(text: str, level: int = 1, before: bool = True) -> Iterato
 
 
 def _rst_directive(
-    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: Bool = False
+    directive: str, args: str = None, options: dict[str, Any] = None, indent: int = 4, check: Bool = False
 ) -> Iterator[str]:
     yield f'.. {directive}:: {args}' if args else f'.. {directive}::'
     if options:
@@ -73,7 +73,7 @@ def _rst_directive(
 
 
 def rst_directive(
-    directive: str, args: str = None, options: Dict[str, Any] = None, indent: int = 4, check: Bool = False
+    directive: str, args: str = None, options: dict[str, Any] = None, indent: int = 4, check: Bool = False
 ) -> str:
     return '\n'.join(_rst_directive(directive, args, options, indent, check))
 
@@ -100,7 +100,7 @@ def rst_toc_tree(name: str, content_fmt: str, contents: Strings, max_depth: int 
     return '\n'.join(_rst_toc_tree(name, content_fmt, contents, max_depth, **kwargs))
 
 
-def rst_list_table(data: Dict[str, str], value_pad: int = 20) -> str:
+def rst_list_table(data: dict[str, str], value_pad: int = 20) -> str:
     max_key = max(map(len, data))
     max_val = max(map(len, data.values()))
     widths = f'{max_key} {max_val + value_pad}'
@@ -252,7 +252,7 @@ class RstTable:
         return '\n'.join(self.iter_build())
 
 
-def _widths(columns: Iterable[OptStr]) -> Tuple[bool, List[int]]:
+def _widths(columns: Iterable[OptStr]) -> tuple[bool, list[int]]:
     widths = []
     any_new_line = False
     for column in columns:

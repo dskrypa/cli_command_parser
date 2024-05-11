@@ -11,7 +11,7 @@ import re
 from abc import ABC
 from enum import Enum
 from fnmatch import translate
-from typing import TypeVar, Union, Collection, Sequence, Pattern, Match, Tuple, Dict
+from typing import Collection, Dict, Match, Pattern, Sequence, Tuple, TypeVar, Union
 
 from ..utils import MissingMixin
 from .base import InputType, T
@@ -24,7 +24,7 @@ RegexResult = TypeVar('RegexResult', str, Match, Tuple[str, ...], Dict[str, str]
 
 class PatternInput(InputType[T], ABC):
     __slots__ = ('patterns',)
-    patterns: Tuple[Pattern, ...]
+    patterns: tuple[Pattern, ...]
 
     def _pattern_strings(self, sort: bool = False) -> Sequence[str]:
         patterns = [p.pattern for p in self.patterns]
@@ -45,11 +45,13 @@ class PatternInput(InputType[T], ABC):
 class RegexMode(MissingMixin, Enum):
     """The RegexMode for a given Regex input governs the type of value it returns during parsing."""
 
+    # fmt: off
     STRING = 'string'   #: Return the full original string if it matches a given pattern
     MATCH = 'match'     #: Return a :ref:`Match <python:match-objects>` object
     GROUP = 'group'     #: Return the string from the specified capturing group
     GROUPS = 'groups'   #: Return a tuple containing all captured groups, or specific captured groups
     DICT = 'dict'       #: Return a dictionary containing all named capturing groups and their captured values
+    # fmt: on
 
     @classmethod
     def normalize(cls, value: Union[str, RegexMode, None], group, groups) -> RegexMode:
