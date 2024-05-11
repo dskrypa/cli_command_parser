@@ -1,12 +1,18 @@
 fail_fast: true
 repos:
-  - repo: https://github.com/grantjenks/blue
-    rev: v0.9.1
+  - repo: local
     hooks:
-      - id: blue
+      - id: ruff-check
+        name: ruff-check
+        entry: ruff
+        args: ['check', '--fix']
+        language: system
         types: [python]
-  - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
-    hooks:
-      - id: flake8
+        stages: [commit]
+      - id: ruff-format
+        name: ruff-format
+        entry: ruff
+        args: [format]
+        language: system
         types: [python]
+        stages: [commit]
