@@ -9,12 +9,12 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
-from typing import Union, Optional
+from typing import Optional, Union
 
-from ..typing import Bool, T, PathLike, Converter
+from ..typing import Bool, Converter, PathLike, T
 from .base import InputType
 from .exceptions import InputValidationError
-from .utils import InputParam, StatMode, FileWrapper, allows_write, fix_windows_path
+from .utils import FileWrapper, InputParam, StatMode, allows_write, fix_windows_path
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 
@@ -201,7 +201,6 @@ class Json(Serialized):
         import json
 
         # TODO: catch JSONDecodeError and provide a standardized cleaner error message (with a way to disable this error handling)
-        # TODO: Update docs to not suggest importing `inputs as i`
 
         write = allows_write(mode, True)
         kwargs['pass_file'] = write  # json.load just calls loads with f.read()
