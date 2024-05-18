@@ -79,8 +79,8 @@ functionality for directly reading or writing to the provided path.
 Using another snippet from the above :gh_examples:`example <custom_inputs.py>`::
 
     class InputsExample(Command):
-        in_file = Option('-f', type=i.File(allow_dash=True, lazy=False), help='The path to a file to read')
-        out_file: i.FileWrapper = Option('-o', type=i.File(allow_dash=True, mode='w'), help='The path to a file to write')
+        in_file = Option('-f', type=File(allow_dash=True, lazy=False), help='The path to a file to read')
+        out_file: FileWrapper = Option('-o', type=File(allow_dash=True, mode='w'), help='The path to a file to write')
 
         def main(self):
             if self.in_file:
@@ -137,7 +137,7 @@ option will be overridden if provided.
 Adding another snippet to the above :gh_examples:`example <custom_inputs.py>`::
 
     class InputsExample(Command):
-        json: i.FileWrapper = Option('-j', type=i.Json(allow_dash=True), help='The path to a file containing json')
+        json: FileWrapper = Option('-j', type=Json(allow_dash=True), help='The path to a file containing json')
 
         def main(self):
             if self.json:

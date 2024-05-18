@@ -177,6 +177,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../documentation.html#help-text">Help Text</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../documentation.html#help-text-breakdown">Help Text Breakdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../documentation.html#parameter-list-formatting">Parameter List Formatting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../documentation.html#group-formatting">Group Formatting</a></li>
 </ul>
 </li>
@@ -335,12 +337,13 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_tree"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_tree</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.group_tree_spacers"><code class="docutils literal notranslate"><span class="pre">CommandConfig.group_tree_spacers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_type"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.command_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.command_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.param_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.param_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.extended_epilog"><code class="docutils literal notranslate"><span class="pre">CommandConfig.extended_epilog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.strict_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.strict_usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
@@ -581,7 +584,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.format_help_entry"><code class="docutils literal notranslate"><span class="pre">format_help_entry()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.combine_and_wrap"><code class="docutils literal notranslate"><span class="pre">combine_and_wrap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper"><code class="docutils literal notranslate"><span class="pre">PartWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter"><code class="docutils literal notranslate"><span class="pre">line_iter()</span></code></a></li>
 </ul>
 </li>
@@ -1000,8 +1003,10 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">ChainMap</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">whitespace</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
 
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">CommandDefinitionError</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">FixedFlag</span><span class="p">,</span> <span class="n">MissingMixin</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">positive_int</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -1237,6 +1242,13 @@
 <div class="viewcode-block" id="ConfigItem">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">[docs]</a>
 <span class="k">class</span> <span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A single configurable setting in the :class:`CommandConfig`.</span>
+
+<span class="sd">    :param default: Default config value to use if no explicit value is provided</span>
+<span class="sd">    :param type: A class or other callable that will be called to validate/normalize provided values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
@@ -1254,9 +1266,10 @@
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConfigValue</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># instance is None</span>
             <span class="k">return</span> <span class="bp">self</span>
-        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ConfigValue</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
@@ -1281,6 +1294,8 @@
 <div class="viewcode-block" id="DynamicConfigItem">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem">[docs]</a>
 <span class="k">class</span> <span class="nc">DynamicConfigItem</span><span class="p">(</span><span class="n">ConfigItem</span><span class="p">):</span>
+    <span class="c1"># A ConfigItem with a setter :paramref:`.ConfigItem.type` defined as a method in :class:`CommandConfig`.</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]):</span>  <span class="c1"># noqa</span>
@@ -1401,6 +1416,38 @@
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
     <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
+<div class="viewcode-block" id="CommandConfig.group_tree_spacers">
+<a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.group_tree_spacers">[docs]</a>
+    <span class="nd">@config_item</span><span class="p">((</span><span class="s1">&#39;</span><span class="se">\u00a6</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\u2551</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\u2502</span><span class="s1"> &#39;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">group_tree_spacers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The spacer characters to use at the beginning of each line when :attr:`.show_group_tree` is True.</span>
+
+<span class="sd">        The default spacers:</span>
+
+<span class="sd">        +--------------------+-----------+------------------------------+</span>
+<span class="sd">        | Parameter Type     | Character | Character Name               |</span>
+<span class="sd">        +====================+===========+==============================+</span>
+<span class="sd">        | Mutually Exclusive | \u00a6         | BROKEN BAR                   |</span>
+<span class="sd">        +--------------------+-----------+------------------------------+</span>
+<span class="sd">        | Mutually dependent | \u2551         | BOX DRAWINGS DOUBLE VERTICAL |</span>
+<span class="sd">        +--------------------+-----------+------------------------------+</span>
+<span class="sd">        | Other              | \u2502         | BOX DRAWINGS LIGHT VERTICAL  |</span>
+<span class="sd">        +--------------------+-----------+------------------------------+</span>
+
+<span class="sd">        :param value: A 3-tuple (or other sequence with 3 items) of spacer strings to be used for</span>
+<span class="sd">          (mutually exclusive, mutually dependent, other) group members, respectively.</span>
+<span class="sd">        :return: The validated and normalized value (or the default value if this property is accessed without</span>
+<span class="sd">          providing explicit values)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Note: extra spaces in the docstring table are intentional - the escape sequences each collapse to one char</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1"> &#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">whitespace</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid group_tree_spacers=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected a 3-tuple of 2-character strings&#39;</span>
+        <span class="p">)</span></div>
+
+
     <span class="c1">#: Whether mutually exclusive / dependent groups should include that fact in their descriptions</span>
     <span class="n">show_group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
@@ -1415,18 +1462,19 @@
     <span class="c1">#: they were successfully detected</span>
     <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
-    <span class="c1">#: Width (in characters) for the usage column in help text</span>
+    <span class="c1">#: Width (in characters) for the usage column in help text, after which the parameter descriptions begin.</span>
     <span class="n">usage_column_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 
-    <span class="c1">#: Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width</span>
-    <span class="n">min_usage_column_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="c1">#: Whether the :attr:`.usage_column_width` should be enforced for parameters with usage text parts that exceed it.</span>
+    <span class="c1">#: By default, that setting only defines where the parameter descriptions begin.</span>
+    <span class="n">strict_usage_column_width</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandConfig.wrap_usage_str">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">[docs]</a>
     <span class="nd">@config_item</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrap_usage_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Wrap the basic usage string after the specified number of characters, or automatically based on terminal size</span>
+<span class="sd">        Wrap the basic usage line after the specified number of characters, or automatically based on terminal size</span>
 <span class="sd">        if ``True`` is specified instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>

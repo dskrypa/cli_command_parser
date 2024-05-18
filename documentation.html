@@ -180,6 +180,8 @@
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#help-text">Help Text</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#help-text-breakdown">Help Text Breakdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-list-formatting">Parameter List Formatting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#group-formatting">Group Formatting</a></li>
 </ul>
 </li>
@@ -338,12 +340,13 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.sort_choices"><code class="docutils literal notranslate"><span class="pre">CommandConfig.sort_choices</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.choice_delim"><code class="docutils literal notranslate"><span class="pre">CommandConfig.choice_delim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_tree"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_tree</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.group_tree_spacers"><code class="docutils literal notranslate"><span class="pre">CommandConfig.group_tree_spacers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_group_type"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_group_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.command_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.command_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.param_formatter"><code class="docutils literal notranslate"><span class="pre">CommandConfig.param_formatter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.extended_epilog"><code class="docutils literal notranslate"><span class="pre">CommandConfig.extended_epilog</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.usage_column_width</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.min_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.min_usage_column_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.strict_usage_column_width"><code class="docutils literal notranslate"><span class="pre">CommandConfig.strict_usage_column_width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str"><code class="docutils literal notranslate"><span class="pre">CommandConfig.wrap_usage_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_docstring"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_docstring</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.show_inherited_descriptions"><code class="docutils literal notranslate"><span class="pre">CommandConfig.show_inherited_descriptions</span></code></a></li>
@@ -584,7 +587,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.format_help_entry"><code class="docutils literal notranslate"><span class="pre">format_help_entry()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.combine_and_wrap"><code class="docutils literal notranslate"><span class="pre">combine_and_wrap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper"><code class="docutils literal notranslate"><span class="pre">PartWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter"><code class="docutils literal notranslate"><span class="pre">line_iter()</span></code></a></li>
 </ul>
 </li>
@@ -1004,6 +1007,62 @@ It is also possible to <a class="reference internal" href="configuration.html#us
 <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlag</span></a> to replace it, using a combination of
 <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.always_available" title="cli_command_parser.parameters.options.ActionFlag"><code class="xref py py-paramref docutils literal notranslate"><span class="pre">always_available=True</span></code></a>, <code class="docutils literal notranslate"><span class="pre">before_main=True</span></code>, and <code class="docutils literal notranslate"><span class="pre">order=-1</span></code> (or another
 number that is lower than any other ActionFlag in the Command).</p>
+<section id="help-text-breakdown">
+<h3>Help Text Breakdown<a class="headerlink" href="#help-text-breakdown" title="Link to this heading"></a></h3>
+<p>To clarify what parts of help text are affected by different configuration options, the following screenshot has boxes
+around each major section, which will be defined below:</p>
+<img alt="Screenshot of the help text from hello_world.py, with boxes drawn around sections and numbered labels" src="_images/help_text_diagram.png" />
+<ol class="arabic simple">
+<li><p><strong>Usage line</strong>: Example script invocation with basic usage info</p></li>
+<li><p><strong>Command description</strong>: Description provided as the <code class="docutils literal notranslate"><span class="pre">description='...'</span></code> class kwarg when defining a Command, or
+as the class docstring within the Command.</p></li>
+<li><p><strong>Parameter list</strong>: List of available parameters, with their usage info and descriptions</p></li>
+<li><p><strong>Usage column</strong>: Column within the parameter list that contains only usage info</p></li>
+<li><p><strong>Parameter descriptions</strong>: Column within the parameter list that contains the help text that was defined for each
+Parameter via <code class="docutils literal notranslate"><span class="pre">help='...'</span></code></p></li>
+<li><p><strong>Epilog</strong>: Footer for help text, with optional automatically detected content based on project metadata</p></li>
+</ol>
+</section>
+<section id="parameter-list-formatting">
+<h3>Parameter List Formatting<a class="headerlink" href="#parameter-list-formatting" title="Link to this heading"></a></h3>
+<p>The width of the usage column can be adjusted via the <a class="reference internal" href="configuration.html#usage &amp; help text options:usage_column_width"><span class="std std-ref">usage_column_width</span></a>
+setting.</p>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">usage_column_width</span></code> is not strictly enforced.  This means that if a given parameter has multiple
+usage parts (e.g, an <code class="docutils literal notranslate"><span class="pre">Option</span></code> with both long and short option strings) and the combined parts would exceed that width,
+they will be combined and use only one line.  The parameter’s description (<code class="docutils literal notranslate"><span class="pre">help='...'</span></code> value) will begin on the next
+line.</p>
+<p>The following example Command will be used to demonstrate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="n">very_long_name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;FOO&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Example description&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The example Command’s help text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">very</span><span class="o">-</span><span class="n">long</span><span class="o">-</span><span class="n">name</span> <span class="n">FOO</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+
+<span class="n">Optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">--</span><span class="n">very</span><span class="o">-</span><span class="n">long</span><span class="o">-</span><span class="n">name</span> <span class="n">FOO</span><span class="p">,</span> <span class="o">-</span><span class="n">v</span> <span class="n">FOO</span>
+                              <span class="n">Example</span> <span class="n">description</span>
+  <span class="o">--</span><span class="n">help</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span>                  <span class="n">Show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="configuration.html#usage &amp; help text options:strict_usage_column_width"><span class="std std-ref">strict_usage_column_width</span></a> setting can be used to enforce the usage
+column width so that the usage parts will be split, and the description can begin on the same line as the first usage
+part.</p>
+<p>The same example Command as above, updated to use that setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">strict_usage_column_width</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">very_long_name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;FOO&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Example description&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The updated help text:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">very</span><span class="o">-</span><span class="n">long</span><span class="o">-</span><span class="n">name</span> <span class="n">FOO</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">help</span><span class="p">]</span>
+
+<span class="n">Optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">--</span><span class="n">very</span><span class="o">-</span><span class="n">long</span><span class="o">-</span><span class="n">name</span> <span class="n">FOO</span><span class="p">,</span>       <span class="n">Example</span> <span class="n">description</span>
+    <span class="o">-</span><span class="n">v</span> <span class="n">FOO</span>
+  <span class="o">--</span><span class="n">help</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span>                  <span class="n">Show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+</pre></div>
+</div>
+</section>
 <section id="group-formatting">
 <h3>Group Formatting<a class="headerlink" href="#group-formatting" title="Link to this heading"></a></h3>
 <p>To add a visual indicator for groups of parameters, specify <code class="docutils literal notranslate"><span class="pre">show_group_tree=True</span></code>.  Example:</p>
@@ -1018,6 +1077,8 @@ resulting help text:</p>
 terminal.  When using PuTTY, make sure the <code class="docutils literal notranslate"><span class="pre">Remote</span> <span class="pre">character</span> <span class="pre">set</span></code> (in the <code class="docutils literal notranslate"><span class="pre">Window</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">Translation</span></code> config
 category) is configured to use <code class="docutils literal notranslate"><span class="pre">UTF-8</span></code>:</p>
 <img alt="Screenshot of the &quot;Remote character set&quot; setting location in a PuTTY configuration window" src="_images/putty_utf-8.png" />
+<p>The characters used as prefixes for each line can be configured via the
+<a class="reference internal" href="configuration.html#usage &amp; help text options:group_tree_spacers"><span class="std std-ref">group_tree_spacers</span></a> setting.</p>
 </section>
 </section>
 <section id="restructuredtext">
