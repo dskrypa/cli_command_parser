@@ -8,22 +8,22 @@ from __future__ import annotations
 
 from functools import cached_property
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Union, Type, Callable, Iterator, Iterable, Optional
+from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Optional, Type, Union
 
-from ..context import ctx, NoActiveContext
-from ..core import get_params, get_metadata
+from ..context import NoActiveContext, ctx
+from ..core import get_metadata, get_params
 from ..parameters.groups import ParamGroup
-from ..utils import camel_to_snake_case, _NotSet
+from ..utils import _NotSet, camel_to_snake_case
 from .restructured_text import RstTable, spaced_rst_header
-from .utils import combine_and_wrap
+from .utils import PartWrapper
 
 if TYPE_CHECKING:
-    from ..core import CommandMeta
     from ..command_parameters import CommandParameters
     from ..config import CommandConfig
+    from ..core import CommandMeta
     from ..metadata import ProgramMetadata
-    from ..parameters import Parameter, BasePositional, BaseOption, SubCommand, PassThru
-    from ..typing import Bool, CommandType, CommandCls, CommandAny
+    from ..parameters import BaseOption, BasePositional, Parameter, PassThru, SubCommand
+    from ..typing import Bool, CommandAny, CommandCls, CommandType
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -69,7 +69,10 @@ class CommandHelpFormatter:
     def _iter_params(self) -> Iterator[Union[BasePositional, BaseOption, PassThru]]:
         params = self.params
         yield from params.all_positionals
+        # TODO: Add configurable option to reduce usage line noise, so something like [options] is displayed instead of
+        #  every option+metavar, while positionals are retained?
         yield from params.options
+        # TODO: Should groups be respected for the usage line?
         if params.pass_thru is not None:
             yield params.pass_thru
 
@@ -100,7 +103,7 @@ class CommandHelpFormatter:
 
         parts = self._usage_parts(sub_cmd_choice, allow_sys_argv)
         if wrap_usage_str:
-            return '\n'.join(combine_and_wrap(parts, wrap_usage_str, cont_indent, delim))
+            return PartWrapper(wrap_usage_str, cont_indent, delim).join('', parts)
         return delim.join(parts)
 
     def format_help(self, allow_sys_argv: Bool = True) -> str:

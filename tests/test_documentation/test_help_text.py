@@ -4,21 +4,27 @@ from __future__ import annotations
 
 from abc import ABC
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Sequence, Iterable, Any, ContextManager, Tuple, Dict
+from typing import TYPE_CHECKING, Any, ContextManager, Iterable, Sequence
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-from cli_command_parser import Command, no_exit_handler, Context, ShowDefaults
+from cli_command_parser import Command, Context, ShowDefaults, no_exit_handler
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
-from cli_command_parser.formatting.params import ParamHelpFormatter, PositionalHelpFormatter, ChoiceGroup
+from cli_command_parser.formatting.params import ChoiceGroup, ParamHelpFormatter, PositionalHelpFormatter
 from cli_command_parser.formatting.restructured_text import RstTable
 from cli_command_parser.inputs import Date, Day
-from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action, Choice
-from cli_command_parser.parameters import Positional, Counter, ParamGroup, Option, Flag, PassThru, action_flag, TriFlag
-from cli_command_parser.testing import ParserTest, RedirectStreams, get_rst_text, get_help_text, get_usage_text
-from cli_command_parser.testing import sealed_mock
+from cli_command_parser.parameters import Counter, Flag, Option, ParamGroup, PassThru, Positional, TriFlag, action_flag
+from cli_command_parser.parameters.choice_map import Action, Choice, ChoiceMap, SubCommand
+from cli_command_parser.testing import (
+    ParserTest,
+    RedirectStreams,
+    get_help_text,
+    get_rst_text,
+    get_usage_text,
+    sealed_mock,
+)
 
 if TYPE_CHECKING:
     from cli_command_parser.typing import CommandCls
@@ -431,17 +437,53 @@ usage: foo_bar.py [--abcdef ABCDEF]
 
     # endregion
 
+    def test_long_usage_parts_with_no_desc_wrapped(self):
+        class Foo(Command, strict_usage_column_width=True):
+            bar = Option('-b', metavar='BAR_BAR_BAR_BAR_BAR')
+
+        self.assert_str_contains('\n  --bar BAR_BAR_BAR_BAR_BAR,\n    -b BAR_BAR_BAR_BAR_BAR\n', get_help_text(Foo))
+
+    def test_long_usage_parts_with_no_desc_not_wrapped(self):
+        class Foo(Command):
+            bar = Option('-b', metavar='BAR_BAR_BAR_BAR_BAR')
+
+        self.assert_str_contains('\n  --bar BAR_BAR_BAR_BAR_BAR, -b BAR_BAR_BAR_BAR_BAR\n', get_help_text(Foo))
+
+    def test_long_1_part_usage_with_desc_wrapped(self):
+        class Foo(Command):
+            bar = Option(metavar='BAR_BAR_BAR_BAR_BAR_B', help='The bar to baz')
+
+        # This usage string would leave only 1 space between the usage and description
+        expected = '\n  --bar BAR_BAR_BAR_BAR_BAR_B\n' + ' ' * 30 + 'The bar to baz\n'
+        self.assert_str_contains(expected, get_help_text(Foo))
+
+    def test_long_1_part_usage_with_desc_not_wrapped(self):
+        class Foo(Command):
+            bar = Option(metavar='BAR_BAR_BAR_BAR_BAR_', help='The bar to baz')  # 1 less char than the above test
+
+        self.assert_str_contains('\n  --bar BAR_BAR_BAR_BAR_BAR_  The bar to baz\n', get_help_text(Foo))
+
+    def test_test_long_usage_parts_with_long_desc_wrapped(self):
+        class Foo(Command, strict_usage_column_width=True):
+            bar = Option('-b', metavar='BAR_BAR_BAR_BAR_BAR', help='The bar to baz or the foo to bar and baz')
+
+        expected = (
+            '\n  --bar BAR_BAR_BAR_BAR_BAR,  The bar to baz or the'
+            '\n    -b BAR_BAR_BAR_BAR_BAR    foo to bar and baz\n'
+        )
+        self.assert_str_contains(expected, get_help_text(Foo, terminal_width=52))
+
 
 class SubcommandHelpAndRstTest(ParserTest):
     @contextmanager
     def assert_help_and_rst_match(
         self,
         mode: str,
-        param_help_map: Dict[str, str],
+        param_help_map: dict[str, str],
         help_header: str,
         cmd_mode: str = None,
-        sc_kwargs: Dict[str, Any] = None,
-        cmd_kwargs: Dict[str, Any] = None,
+        sc_kwargs: dict[str, Any] = None,
+        cmd_kwargs: dict[str, Any] = None,
     ) -> ContextManager[CommandCls]:
         if not cmd_kwargs:
             cmd_kwargs = {}
@@ -606,14 +648,14 @@ class SubcommandHelpAndRstTest(ParserTest):
                     pass
 
 
-def prep_expected_help_text(help_header: str, param_help_map: Dict[str, str], indent: int = 4) -> str:
+def prep_expected_help_text(help_header: str, param_help_map: dict[str, str], indent: int = 4) -> str:
     prefix = ' ' * indent
     kf = f'{prefix}{{:s}}\n'.format
     hf = f'{prefix}{{:<25s}} {{}}\n'.format
     return help_header + ''.join(hf(k, v) if v else kf(k) for k, v in param_help_map.items())
 
 
-def prep_expected_rst(table_fmt_str: str, param_help_map: Dict[str, str]) -> str:
+def prep_expected_rst(table_fmt_str: str, param_help_map: dict[str, str]) -> str:
     rf = table_fmt_str.format
     table = RstTable.from_dict({f'``{k}``': v for k, v in param_help_map.items()}, use_table_directive=False)
     return ''.join(rf(line) for line in table.iter_build() if line)
@@ -789,45 +831,65 @@ Optional arguments:
         self.assert_strings_equal(expected, get_help_text(AnsiColorTest), diff_lines=7, trim=True)
 
     def test_nested_show_tree(self):
-        expected = """
-usage: foo.py [--foo FOO] [--arg-a ARG_A] [--arg-b ARG_B] [--arg-y ARG_Y] [--arg-z ARG_Z] [--bar] [--baz] [--help]
+        expected_fmt = """
+usage: foo.py [--foo FOO] [--arg-a ARG_A] [--arg-b ARG_B] [--arg-y Y_VALUE] [--arg-z Z_VALUE] [--bar] [--baz] [--help]
 
 Optional arguments:
-│ --foo FOO, -f FOO         Do foo
-│ --help, -h                Show this help message and exit
-│
+{o}--foo FOO, -f FOO         {i}Do foo
+{o}--help, -h                {i}Show this help message and exit
+{o}
 Mutually exclusive options:
-¦ --arg-a ARG_A, -a ARG_A   A
-¦ --arg-b ARG_B, -b ARG_B   B
-¦
-¦ Mutually dependent options:
-¦ ║ --arg-y ARG_Y, -y ARG_Y
-¦ ║                         Y
-¦ ║ --arg-z ARG_Z, -z ARG_Z
-¦ ║                         Z
-¦ ║
-¦
-¦ Optional arguments:
-¦ │ --bar
-¦ │ --baz
-¦ │
-¦
+{e}--arg-a ARG_A, -a ARG_A   {i}A
+{e}--arg-b ARG_B, -b ARG_B   {i}B
+{e}
+{eh}Mutually dependent options:
+{ed}--arg-y Y_VALUE, -y Y_VALUE
+{ed}{s}                      Y
+{ed}--arg-z Z_VALUE, -z Z_VALUE
+{ed}{s}                      Z
+{ed}
+{e}
+{eh}Optional arguments:
+{eo}--bar
+{eo}--baz
+{eo}
+{e}
         """.strip()
 
-        class Foo(Command, show_group_tree=True, prog='foo.py'):
-            foo = Option('-f', help='Do foo')
-            with ParamGroup(mutually_exclusive=True):
-                arg_a = Option('-a', help='A')
-                arg_b = Option('-b', help='B')
-                with ParamGroup(mutually_dependent=True):
-                    arg_y = Option('-y', help='Y')
-                    arg_z = Option('-z', help='Z')
-                with ParamGroup():
-                    bar = Flag()
-                    baz = Flag()
+        cases = [
+            ((), {'e': '¦ ', 'd': '║ ', 'o': '│ '}),
+            (('¦', '║', '│'), {'e': '¦ ', 'd': '║ ', 'o': '│ '}),
+            (('~ ', '+ ', '@ '), {'e': '~ ', 'd': '+ ', 'o': '@ '}),
+            (('~~~', '+++', '@@@'), {'e': '~~~ ', 'd': '+++ ', 'o': '@@@ ', 's': '', 'i': ''}),
+            (('  ', '  ', '  '), {'e': '  ', 'd': '  ', 'o': '  '}),
+            ((' ', ' ', ' '), {'e': '  ', 'd': '', 'o': '  ', 's': '      ', 'ed': '  ', 'eo': '  ', 'eh': ' '}),
+            (('', '', ''), {'e': '  ', 'd': '  ', 'o': '  ', 's': '      ', 'ed': '  ', 'eo': '  ', 'eh': ''}),
+        ]
+        for spacers, render_vars in cases:
+            with self.subTest(spacers=spacers):
+                kwargs = {'group_tree_spacers': spacers} if spacers else {}
+                render_vars.setdefault('eh', render_vars['e'])
+                render_vars.setdefault('ed', render_vars['e'] + render_vars['d'])
+                render_vars.setdefault('eo', render_vars['e'] + render_vars['o'])
+                render_vars.setdefault('s', '    ')
+                render_vars.setdefault('i', '  ')
 
-        help_text = get_help_text(Foo).rstrip()
-        self.assert_strings_equal(expected, help_text, diff_lines=7, trim=True)
+                expected = '\n'.join(map(str.rstrip, expected_fmt.format(**render_vars).splitlines()))
+
+                class Foo(Command, show_group_tree=True, prog='foo.py', **kwargs):
+                    foo = Option('-f', help='Do foo')
+                    with ParamGroup(mutually_exclusive=True):
+                        arg_a = Option('-a', help='A')
+                        arg_b = Option('-b', help='B')
+                        with ParamGroup(mutually_dependent=True):
+                            arg_y = Option('-y', metavar='Y_VALUE', help='Y')
+                            arg_z = Option('-z', metavar='Z_VALUE', help='Z')
+                        with ParamGroup():
+                            bar = Flag()
+                            baz = Flag()
+
+                help_text = get_help_text(Foo).rstrip()
+                self.assert_strings_equal(expected, help_text, diff_lines=7, trim=True)
 
 
 class FormatterTest(ParserTest):
@@ -909,7 +971,7 @@ Optional arguments:
         self.assert_str_contains(expected, get_help_text(Foo))
 
 
-def _get_output(command: CommandCls, args: Sequence[str]) -> Tuple[str, str]:
+def _get_output(command: CommandCls, args: Sequence[str]) -> tuple[str, str]:
     with RedirectStreams() as streams:
         command.parse_and_run(args)
 

@@ -118,6 +118,10 @@ documentation generation as well.
 :choice_delim: Delimiter to use between choices in usage / help text.  Defaults to ``|``.
 :show_group_tree: Whether there should be a visual indicator in help text for the parameters that are members
   of a given group.  See :ref:`documentation:Group Formatting` for more info.  (default: False)
+:group_tree_spacers: The spacer characters to use at the beginning of each line when ``show_group_tree`` is True.
+  Must be a 3-tuple (or other sequence with 3 items) of spacer strings to be used for
+  (mutually exclusive, mutually dependent, other) group members, respectively.  See
+  :attr:`.CommandConfig.group_tree_spacers` for more information about the default values.
 :show_group_type: Whether mutually exclusive / dependent groups should include that fact in their
   descriptions (default: True)
 :command_formatter: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a
@@ -126,12 +130,14 @@ documentation generation as well.
 :param_formatter: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a
   :class:`.ParamHelpFormatter` (or a class that implements the same methods).
 :extended_epilog: Whether the program version, author email, and documentation URL should be included in the
-  help text epilog, if they were successfully detected (default: True)
-:usage_column_width: Width (in characters) for the usage column in help text.  Defaults to 30.
-:min_usage_column_width: Minimum width (in characters) for the usage column in help text after adjusting for group
-  indentation / terminal width.  Defaults to 20.
-:wrap_usage_str: Wrap the basic usage string after the specified number of characters, or automatically based on
-  terminal size if ``True`` is specified instead.
+  help text :ref:`epilog <documentation:Help Text Breakdown>`, if they were successfully detected (default: True).
+:usage_column_width: Width (in characters) for the :ref:`usage column <documentation:Help Text Breakdown>` in help text.
+  Defaults to 30.
+:strict_usage_column_width: Whether the ``usage_column_width`` should be enforced for parameters with usage text parts
+  that exceed it.  By default, that setting only defines where the parameter descriptions begin.
+  See :ref:`documentation:Parameter List Formatting` for more details.  Defaults to False.
+:wrap_usage_str: Wrap the basic :ref:`usage line <documentation:Help Text Breakdown>` after the specified number of
+  characters, or automatically based on terminal size if ``True`` is specified instead (default: False).
 
 
 Documentation Generation Options
