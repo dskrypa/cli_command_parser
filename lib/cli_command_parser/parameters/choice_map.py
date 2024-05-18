@@ -51,9 +51,9 @@ class Choice(Generic[T]):
     def format_usage(self) -> str:
         return '(default)' if self.choice is None else self.choice
 
-    def format_help(self, lpad: int = 4, tw_offset: int = 0, prefix: str = '') -> str:
+    def format_help(self, lpad: int = 4, prefix: str = '') -> str:
         # Note: no longer called by formatters
-        return format_help_entry((self.format_usage(),), self.help, prefix, tw_offset, lpad=lpad)
+        return format_help_entry((self.format_usage(),), self.help, prefix, lpad=lpad)
 
 
 class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):

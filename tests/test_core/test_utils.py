@@ -6,10 +6,9 @@ from unittest import main
 from unittest.mock import Mock, patch, seal
 
 import cli_command_parser.utils
-from cli_command_parser.utils import camel_to_snake_case, Terminal, short_repr, FixedFlag, wcswidth
-from cli_command_parser.formatting.utils import _description_start_line, _normalize_column_width, _single_line_strs
-from cli_command_parser.formatting.utils import combine_and_wrap
+from cli_command_parser.formatting.utils import PartWrapper, _normalize_column_width, _single_line_strs
 from cli_command_parser.testing import ParserTest
+from cli_command_parser.utils import FixedFlag, Terminal, camel_to_snake_case, short_repr, wcswidth
 
 
 class UtilsTest(ParserTest):
@@ -20,15 +19,16 @@ class UtilsTest(ParserTest):
 
     def test_terminal_width_refresh(self):
         with patch('cli_command_parser.utils.get_terminal_size', return_value=(123, 1)):
-            term = Terminal(0.01)
-            self.assertEqual(123, term.width)
+            self.assertEqual(123, Terminal(0.01).width)
 
     def test_descr_start_middle(self):
-        usage = ['a' * 10, 'a' * 15, 'a' * 5]
-        self.assertEqual(2, _description_start_line(usage, 5))
+        wrapper = PartWrapper(1, delim='')
+        wrapper.join('', ['a' * 10, 'a' * 15, 'a' * 5])
+        self.assertEqual([10, 15, 5], wrapper._widths)
+        self.assertEqual(2, wrapper._get_description_start_line(5))
 
     def test_descr_start_no_usage(self):
-        self.assertEqual(0, _description_start_line((), -5))
+        self.assertEqual(0, PartWrapper()._get_description_start_line(-5))
 
     def test_normalize_column_uneven(self):
         result = list(_normalize_column_width(('a' * 10, 'b' * 3), 5))
@@ -59,7 +59,7 @@ class UtilsTest(ParserTest):
      --lll, --mmm, --nnn, --ooo, --ppp,
      --qqq, --rrr, --sss, --ttt, --uuu,
      --vvv, --www, --xxx, --yyy, --zzz
-        """
+        """.strip()
         expected_40_5 = """
 --aaa, --bbb, --ccc, --ddd, --eee,
      --fff, --ggg, --hhh, --iii, --jjj,
@@ -67,19 +67,27 @@ class UtilsTest(ParserTest):
      --ppp, --qqq, --rrr, --sss, --ttt,
      --uuu, --vvv, --www, --xxx, --yyy,
      --zzz
-        """
+        """.strip()
         expected_80 = """
 --aaa, --bbb, --ccc, --ddd, --eee, --fff, --ggg, --hhh, --iii, --jjj, --kkk,
 --lll, --mmm, --nnn, --ooo, --ppp, --qqq, --rrr, --sss, --ttt, --uuu, --vvv,
 --www, --xxx, --yyy, --zzz
-        """
+        """.strip()
         expected_full = """
 --aaa, --bbb, --ccc, --ddd, --eee, --fff, --ggg, --hhh, --iii, --jjj, --kkk, --lll, --mmm, --nnn, --ooo, --ppp, --qqq, --rrr, --sss, --ttt, --uuu, --vvv, --www, --xxx, --yyy, --zzz
-        """
-        cases = [(43, 5, expected_43_5), (40, 5, expected_40_5), (80, 0, expected_80), (183, 0, expected_full)]
-        for width, indent, expected in cases:
+        """.strip()
+        cases = [
+            (43, 5, 5, expected_43_5),
+            (40, 5, 6, expected_40_5),
+            (80, 0, 3, expected_80),
+            (183, 0, 1, expected_full),
+        ]
+        for width, indent, line_count, expected in cases:
             with self.subTest(width=width, indent=indent):
-                self.assert_strings_equal(expected.strip(), '\n'.join(combine_and_wrap(parts, width, indent)))
+                wrapper = PartWrapper(width, cont_indent=indent)
+                self.assert_strings_equal(expected, '\n'.join(wrapper.combine_and_wrap(parts)))
+                self.assertEqual(line_count, len(wrapper._widths))
+                self.assertEqual([len(line) for line in expected.splitlines()], wrapper._widths)
 
     def test_fixed_flag_no_conform(self):
         # This test is purely for coverage in 3.11 where this would always be set

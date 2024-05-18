@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from collections import ChainMap
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Type, TypeVar, Union, overload
+from string import whitespace
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Sequence, Type, TypeVar, Union, overload
 
+from .exceptions import CommandDefinitionError
 from .utils import FixedFlag, MissingMixin, _NotSet, positive_int
 
 if TYPE_CHECKING:
@@ -228,6 +230,13 @@ class AllowLeadingDash(Enum):
 
 
 class ConfigItem(Generic[CV, DV]):
+    """
+    A single configurable setting in the :class:`CommandConfig`.
+
+    :param default: Default config value to use if no explicit value is provided
+    :param type: A class or other callable that will be called to validate/normalize provided values
+    """
+
     __slots__ = ('default', 'type', 'name')
 
     def __init__(self, default: DV, type: Callable[..., CV] = None):  # noqa
@@ -245,9 +254,10 @@ class ConfigItem(Generic[CV, DV]):
     def __get__(self, instance: CommandConfig, owner: Type[CommandConfig]) -> ConfigValue: ...
 
     def __get__(self, instance, owner):
-        if instance is None:
+        try:
+            return instance._data.get(self.name, self.default)
+        except AttributeError:  # instance is None
             return self
-        return instance._data.get(self.name, self.default)
 
     def __set__(self, instance: CommandConfig, value: ConfigValue):
         if instance._read_only:
@@ -269,6 +279,8 @@ class ConfigItem(Generic[CV, DV]):
 
 
 class DynamicConfigItem(ConfigItem):
+    # A ConfigItem with a setter :paramref:`.ConfigItem.type` defined as a method in :class:`CommandConfig`.
+
     __slots__ = ('__doc__',)
 
     def __init__(self, default: DV, type: Callable[..., CV]):  # noqa
@@ -380,6 +392,35 @@ class CommandConfig:
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
     show_group_tree: Bool = ConfigItem(False, bool)
 
+    @config_item(('\u00a6 ', '\u2551 ', '\u2502 '))
+    def group_tree_spacers(self, value: tuple[str, str, str] | Sequence[str]) -> tuple[str, str, str]:
+        """
+        The spacer characters to use at the beginning of each line when :attr:`.show_group_tree` is True.
+
+        The default spacers:
+
+        +--------------------+-----------+------------------------------+
+        | Parameter Type     | Character | Character Name               |
+        +====================+===========+==============================+
+        | Mutually Exclusive | \u00a6         | BROKEN BAR                   |
+        +--------------------+-----------+------------------------------+
+        | Mutually dependent | \u2551         | BOX DRAWINGS DOUBLE VERTICAL |
+        +--------------------+-----------+------------------------------+
+        | Other              | \u2502         | BOX DRAWINGS LIGHT VERTICAL  |
+        +--------------------+-----------+------------------------------+
+
+        :param value: A 3-tuple (or other sequence with 3 items) of spacer strings to be used for
+          (mutually exclusive, mutually dependent, other) group members, respectively.
+        :return: The validated and normalized value (or the default value if this property is accessed without
+          providing explicit values)
+        """
+        # Note: extra spaces in the docstring table are intentional - the escape sequences each collapse to one char
+        if isinstance(value, Sequence) and len(value) == 3 and all(isinstance(v, str) for v in value):
+            return tuple(f'{v} ' if v and v[-1] not in whitespace else v for v in value)  # noqa
+        raise CommandDefinitionError(
+            f'Invalid group_tree_spacers={value!r} - expected a 3-tuple of 2-character strings'
+        )
+
     #: Whether mutually exclusive / dependent groups should include that fact in their descriptions
     show_group_type: Bool = ConfigItem(True, bool)
 
@@ -394,16 +435,17 @@ class CommandConfig:
     #: they were successfully detected
     extended_epilog: Bool = ConfigItem(True, bool)
 
-    #: Width (in characters) for the usage column in help text
+    #: Width (in characters) for the usage column in help text, after which the parameter descriptions begin.
     usage_column_width: int = ConfigItem(30, int)
 
-    #: Min width (in chars) for the usage column in help text after adjusting for group indentation / terminal width
-    min_usage_column_width: int = ConfigItem(20, int)
+    #: Whether the :attr:`.usage_column_width` should be enforced for parameters with usage text parts that exceed it.
+    #: By default, that setting only defines where the parameter descriptions begin.
+    strict_usage_column_width: bool = ConfigItem(False, bool)
 
     @config_item(False)
     def wrap_usage_str(self, value: Any) -> Union[int, bool]:
         """
-        Wrap the basic usage string after the specified number of characters, or automatically based on terminal size
+        Wrap the basic usage line after the specified number of characters, or automatically based on terminal size
         if ``True`` is specified instead.
         """
         if value is True or value is False:

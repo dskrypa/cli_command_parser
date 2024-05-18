@@ -4,9 +4,10 @@ from itertools import product, starmap
 from operator import or_
 from unittest import TestCase, main
 
-from cli_command_parser import Command, SubCommand, CommandConfig, ShowDefaults, AllowLeadingDash, OptionNameMode
+from cli_command_parser import AllowLeadingDash, Command, CommandConfig, OptionNameMode, ShowDefaults, SubCommand
+from cli_command_parser.config import DEFAULT_CONFIG, ConfigItem
 from cli_command_parser.core import get_config
-from cli_command_parser.config import ConfigItem, DEFAULT_CONFIG
+from cli_command_parser.exceptions import CommandDefinitionError
 from cli_command_parser.testing import ParserTest
 
 
@@ -147,6 +148,21 @@ class ConfigTest(ParserTest):
         self.assertEqual(0, CommandConfig(sub_cmd_doc_depth=0).sub_cmd_doc_depth)
         self.assertEqual(1, CommandConfig(sub_cmd_doc_depth=1).sub_cmd_doc_depth)
         self.assertEqual(123, CommandConfig(sub_cmd_doc_depth=123).sub_cmd_doc_depth)
+
+    def test_validate_group_tree_spacers(self):
+        cases = ['ab', [1, 2, 3], '', 123, None, (), {}, ('a', 'b', None), {'a': 1, 'b': 2, 'c': 3}, list('abcd')]
+        for case in cases:
+            with self.subTest(case=case):
+                with self.assert_raises_contains_str(CommandDefinitionError, 'Invalid group_tree_spacers='):
+                    CommandConfig(group_tree_spacers=case)
+
+    def test_default_group_tree_spacers(self):
+        self.assertEqual(('\u00a6 ', '\u2551 ', '\u2502 '), CommandConfig().group_tree_spacers)
+
+    def test_group_tree_spacers_value(self):
+        self.assertEqual(('$ ', '% ', '# '), CommandConfig(group_tree_spacers=('$ ', '% ', '# ')).group_tree_spacers)
+        self.assertEqual(('$ ', '% ', '# '), CommandConfig(group_tree_spacers='$%#').group_tree_spacers)
+        self.assertEqual(('\t', '\t', '\t'), CommandConfig(group_tree_spacers=list('\t\t\t')).group_tree_spacers)
 
 
 if __name__ == '__main__':
