@@ -27,18 +27,18 @@ around each major section, which will be defined below:
 
 #. **Usage line**: Example script invocation with basic usage info
 #. **Command description**: Description provided as the ``description='...'`` class kwarg when defining a Command, or
-  as the class docstring within the Command.
+   as the class docstring within the Command.
 #. **Parameter list**: List of available parameters, with their usage info and descriptions
 #. **Usage column**: Column within the parameter list that contains only usage info
 #. **Parameter descriptions**: Column within the parameter list that contains the help text that was defined for each
-  Parameter via ``help='...'``
+   Parameter via ``help='...'``
 #. **Epilog**: Footer for help text, with optional automatically detected content based on project metadata
 
 
 Parameter List Formatting
 -------------------------
 
-The width of the usage column can be adjusted via the :ref:`<configuration:Usage & Help Text Options:usage_column_width>`
+The width of the usage column can be adjusted via the :ref:`configuration:Usage & Help Text Options:usage_column_width`
 setting.
 
 By default, the ``usage_column_width`` is not strictly enforced.  This means that if a given parameter has multiple
@@ -62,7 +62,7 @@ The example Command's help text::
       --help, -h                  Show this help message and exit
 
 
-The :ref:`<configuration:Usage & Help Text Options:strict_usage_column_width>` setting can be used to enforce the usage
+The :ref:`configuration:Usage & Help Text Options:strict_usage_column_width` setting can be used to enforce the usage
 column width so that the usage parts will be split, and the description can begin on the same line as the first usage
 part.
 
@@ -105,8 +105,8 @@ category) is configured to use ``UTF-8``:
   :alt: Screenshot of the "Remote character set" setting location in a PuTTY configuration window
 
 
-The characters used as prefixes for each line can be configured via the :ref:`group_tree_spacers
-<configuration:Usage & Help Text Options:group_tree_spacers>` setting.
+The characters used as prefixes for each line can be configured via the
+:ref:`configuration:Usage & Help Text Options:group_tree_spacers` setting.
 
 
 reStructuredText
