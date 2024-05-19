@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-from datetime import datetime, date, timedelta, time
+from datetime import date, datetime, time, timedelta
 from unittest import main
 from unittest.mock import patch
 
-from cli_command_parser import Command, Option, BadArgument
-from cli_command_parser.inputs.time import Day, Month, DateTime, Date, Time, different_locale, normalize_dt, dt_repr
-from cli_command_parser.inputs import TimeDelta, InvalidChoiceError, InputValidationError
+from cli_command_parser import BadArgument, Command, Option
+from cli_command_parser.inputs import InputValidationError, InvalidChoiceError, TimeDelta
+from cli_command_parser.inputs.time import Date, DateTime, Day, Month, Time, different_locale, dt_repr, normalize_dt
 from cli_command_parser.testing import ParserTest, get_help_text
 
 # fmt: off
@@ -221,6 +221,10 @@ class TimeDeltaInputTest(ParserTest):
         with self.assert_raises_contains_str(TypeError, 'Invalid unit='):
             TimeDelta('foo')  # noqa
 
+    def test_num_range_requires_min_lt_max(self):
+        with self.assert_raises_contains_str(ValueError, 'min must be less than max'):
+            TimeDelta('minutes', min=10, max=0)
+
     def test_default_handling(self):
         class Foo(Command):
             foo = Option(type=TimeDelta('days'))
@@ -256,6 +260,59 @@ class TimeDeltaInputTest(ParserTest):
         self.assert_parse_fails(
             Foo, ['-b', 'potato'], BadArgument, "Invalid numeric hours='potato' - expected an integer or float"
         )
+
+    def test_min_max_parsing(self):
+        class Foo(Command):
+            bar = Option('-b', type=TimeDelta('hours', min=1), default=2)
+            baz = Option('-B', type=TimeDelta('hours', max=10), default=2)
+
+        two_hours = timedelta(hours=2)
+        success_cases = [
+            ([], {'bar': two_hours, 'baz': two_hours}),
+            (['-b', '123'], {'bar': timedelta(hours=123), 'baz': two_hours}),
+            (['-b', '5'], {'bar': timedelta(hours=5), 'baz': two_hours}),
+            (['-b', '4.5'], {'bar': timedelta(hours=4.5), 'baz': two_hours}),
+            (['-B', '-5'], {'baz': timedelta(hours=-5), 'bar': two_hours}),
+            (['-B', '5'], {'baz': timedelta(hours=5), 'bar': two_hours}),
+            (['-B', '4.5'], {'baz': timedelta(hours=4, minutes=30), 'bar': two_hours}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails(Foo, ['-b', '-5'], BadArgument, 'expected a value in the range 1 <= hours')
+        self.assert_parse_fails(Foo, ['-B', '123'], BadArgument, 'expected a value in the range hours < 10')
+
+    def test_min_and_max_parsing(self):
+        class Foo(Command):
+            bar = Option('-b', type=TimeDelta('hours', min=1, max=10), default=2)
+
+        cases = [
+            ([], timedelta(hours=2)),
+            (['-b', '1'], timedelta(hours=1)),
+            (['-b', '4.5'], timedelta(hours=4, minutes=30)),
+            (['-b', '5'], timedelta(hours=5)),
+        ]
+        for args, expected in cases:
+            with self.subTest(args=args, expected=expected):
+                self.assertEqual(expected, Foo.parse(args).bar)
+
+        self.assert_parse_fails(Foo, ['-b', '-5'], BadArgument, 'expected a value in the range 1 <= hours < 10')
+        self.assert_parse_fails(Foo, ['-b', '15'], BadArgument, 'expected a value in the range 1 <= hours < 10')
+
+    def test_int_only(self):
+        class Foo(Command):
+            bar = Option('-b', type=TimeDelta('hours', int_only=True), default=2)
+
+        cases = [
+            ([], timedelta(hours=2)),
+            (['-b', '-1'], timedelta(hours=-1)),
+            (['-b', '5'], timedelta(hours=5)),
+        ]
+        for args, expected in cases:
+            with self.subTest(args=args, expected=expected):
+                self.assertEqual(expected, Foo.parse(args).bar)
+
+        self.assert_parse_fails(Foo, ['-b', 'abc'], BadArgument, 'Invalid .* - expected an integer$', regex=True)
+        self.assert_parse_fails(Foo, ['-b', '4.5'], BadArgument, 'expected an integer, not a float')
+        self.assert_parse_fails(Foo, ['-b', '-3.5'], BadArgument, 'expected an integer, not a float')
 
 
 class DateTimeInputTest(ParserTest):

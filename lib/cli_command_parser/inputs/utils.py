@@ -10,17 +10,17 @@ import sys
 import warnings
 from contextlib import contextmanager
 from pathlib import Path
-from stat import S_IFMT, S_IFDIR, S_IFCHR, S_IFBLK, S_IFREG, S_IFIFO, S_IFLNK, S_IFSOCK
-from typing import TYPE_CHECKING, Union, Any, TextIO, BinaryIO, ContextManager
+from stat import S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFMT, S_IFREG, S_IFSOCK
+from typing import TYPE_CHECKING, Any, BinaryIO, ContextManager, TextIO, Union
 from weakref import finalize
 
 from ..utils import FixedFlag
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
-    from ..typing import Bool, FP, Converter
+    from ..typing import FP, Bool, Converter, Number
 
-__all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path']
+__all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path', 'range_str', 'RangeMixin']
 
 
 class InputParam:
@@ -214,3 +214,36 @@ def fix_windows_path(path: Path) -> Path:
         return alt_path
     else:
         return path
+
+
+def range_str(min_val: Number, max_val: Number, include_min: Bool, include_max: Bool, var: str = 'N') -> str:
+    if min_val is not None:
+        min_str = f'{min_val} {"<=" if include_min else "<"} '
+    else:
+        min_str = ''
+
+    if max_val is not None:
+        max_str = f' {"<=" if include_max else "<"} {max_val}'
+    else:
+        max_str = ''
+
+    return f'{min_str}{var}{max_str}'
+
+
+class RangeMixin:
+    __slots__ = ()  # It isn't possible to use 2+ bases when they both have content in __slots__
+    min: Number
+    max: Number
+    include_min: bool
+    include_max: bool
+
+    def value_lt_min(self, value: Number) -> bool:
+        if self.min is not None:
+            # Bad if < when inclusive, bad if <= when exclusive
+            return (value < self.min) if self.include_min else (value <= self.min)
+        return False
+
+    def value_gt_max(self, value: Number) -> bool:
+        if self.max is not None:
+            return (value > self.max) if self.include_max else (value >= self.max)
+        return False
