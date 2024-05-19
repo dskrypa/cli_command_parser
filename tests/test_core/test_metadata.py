@@ -3,12 +3,21 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
-from unittest.mock import patch, Mock, seal
+from unittest.mock import Mock, patch, seal
 
 from cli_command_parser import Command, Context, main as ccp_main
-from cli_command_parser.core import CommandMeta
-from cli_command_parser.metadata import ProgramMetadata, Metadata, DynamicMetadata, ProgFinder, dynamic_metadata
-from cli_command_parser.metadata import _path_and_globals, _description, _prog_finder, EntryPoint
+from cli_command_parser.core import CommandMeta, get_metadata
+from cli_command_parser.metadata import (
+    DynamicMetadata,
+    EntryPoint,
+    Metadata,
+    ProgFinder,
+    ProgramMetadata,
+    _description,
+    _path_and_globals,
+    _prog_finder,
+    dynamic_metadata,
+)
 from cli_command_parser.testing import ParserTest
 
 MODULE = 'cli_command_parser.metadata'
@@ -60,7 +69,7 @@ class MetadataTest(ParserTest):
             Baz
             """
 
-        self.assertEqual('Foo\nBar\nBaz\n', Bar.__class__.meta(Bar).description)
+        self.assertEqual('Foo\nBar\nBaz\n', get_metadata(Bar).description)
 
     def test_empty_doc_ignored(self):
         self.assertIs(None, _description(None, '\n\n'))

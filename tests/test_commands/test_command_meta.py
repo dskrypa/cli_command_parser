@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+from abc import ABC
 from unittest import TestCase, main
 
 from cli_command_parser import Command, CommandConfig
-from cli_command_parser.core import CommandMeta, get_config, get_parent, get_params, _choice_items
+from cli_command_parser.core import CommandMeta, _choice_items, get_config, get_params, get_parent
 from cli_command_parser.exceptions import CommandDefinitionError
 
 _get_config = CommandMeta.config
@@ -139,7 +140,16 @@ class TestCommandMeta(TestCase):
             pass
 
         self.assertIs(Command, get_parent(Foo))
-        self.assertIs(Command, get_parent(Foo()))
+        self.assertIs(Command, get_parent(Foo()))  # This returns cached results
+
+    def test_get_parent_abc(self):
+        class Foo(Command, ABC):
+            pass
+
+        self.assertIsNone(Foo._CommandMeta__parents)  # noqa
+        self.assertIs(Command, get_parent(Foo()))  # This first ensures coverage for the _mro func
+        self.assertIsNotNone(Foo._CommandMeta__parents)  # noqa
+        self.assertIs(Command, get_parent(Foo))  # This returns cached results
 
     def test_init_subclass_kwargs_allowed(self):
         class Foo(Command):

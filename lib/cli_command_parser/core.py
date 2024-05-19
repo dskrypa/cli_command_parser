@@ -94,11 +94,14 @@ class CommandMeta(ABCMeta, type):
             namespace['_CommandMeta__config'] = config
 
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
+        if metadata:
+            # If no overrides were provided, then this is skipped, and it will be initialized lazily later
+            # This must be set before calling _maybe_register_sub_cmd so overrides are available during registration
+            cls.__metadata = ProgramMetadata.for_command(cls, parent=mcs._from_parent(mcs.meta, bases), **metadata)
+
         if ABC not in bases:
             mcs._commands.add(cls)
             mcs._maybe_register_sub_cmd(cls, choice, choices, help)
-        if metadata:  # If no overrides were provided, then initialize lazily later
-            cls.__metadata = ProgramMetadata.for_command(cls, parent=mcs._from_parent(mcs.meta, bases), **metadata)
 
         return cls
 
