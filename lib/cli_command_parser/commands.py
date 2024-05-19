@@ -29,9 +29,6 @@ Argv = Sequence[str]
 class Command(ABC, metaclass=CommandMeta):
     """The main class that other Commands should extend."""
 
-    # TODO: Make the distinction between help/description clearer, or merge them?
-    # TODO: Pull help text from docstring for subcommands if not specified as help=?
-
     #: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by
     #: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.
     ctx: Context

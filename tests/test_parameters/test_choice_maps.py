@@ -4,8 +4,8 @@ from unittest import main
 from unittest.mock import Mock
 
 from cli_command_parser import Command, Context
-from cli_command_parser.exceptions import CommandDefinitionError, BadArgument, InvalidChoice, ParameterDefinitionError
-from cli_command_parser.parameters.choice_map import SubCommand, Action, Choice
+from cli_command_parser.exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
+from cli_command_parser.parameters.choice_map import Action, Choice, SubCommand
 from cli_command_parser.testing import ParserTest
 
 
@@ -104,9 +104,12 @@ class ChoiceMapTest(ParserTest):
         class Foo(Command):
             sub = SubCommand()
 
-        Foo.sub.register(Mock(__name__='bar'))
-        with self.assertRaisesRegex(CommandDefinitionError, 'Invalid choice=.*with parent=None - already assigned to'):
-            Foo.sub.register(Mock(__name__='bar'))
+        class Bar(Command):
+            pass
+
+        Foo.sub.register(Bar)
+        with self.assertRaisesRegex(CommandDefinitionError, 'Invalid choice=.*with parent=.* - already assigned to'):
+            Foo.sub.register(Bar)
 
     def test_redundant_sub_cmd_choice_rejected(self):
         class Foo(Command):

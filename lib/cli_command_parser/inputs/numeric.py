@@ -13,6 +13,7 @@ from typing import Optional, Union
 from ..typing import NT, Bool, Number, NumType, RngType
 from .base import InputType
 from .exceptions import InputValidationError
+from .utils import RangeMixin, range_str
 
 __all__ = ['Range', 'NumRange']
 
@@ -102,7 +103,7 @@ class Range(NumericInput[NT]):
         raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
 
-class NumRange(NumericInput[NT]):
+class NumRange(RangeMixin, NumericInput[NT]):
     """
     A range of integers or floats, optionally only bounded on one side.
 
@@ -122,10 +123,6 @@ class NumRange(NumericInput[NT]):
 
     __slots__ = ('type', 'snap', 'min', 'max', 'include_min', 'include_max')
     snap: bool
-    min: Number
-    max: Number
-    include_min: bool
-    include_max: bool
 
     def __init__(
         self,
@@ -170,17 +167,7 @@ class NumRange(NumericInput[NT]):
         return f'<{self.__class__.__name__}({self.type!r}, snap={self.snap!r})[{self._range_str()}]>'
 
     def _range_str(self, var: str = 'N') -> str:
-        if self.min is not None:
-            min_str = f'{self.min} {"<=" if self.include_min else "<"} '
-        else:
-            min_str = ''
-
-        if self.max is not None:
-            max_str = f' {"<=" if self.include_max else "<"} {self.max}'
-        else:
-            max_str = ''
-
-        return f'{min_str}{var}{max_str}'
+        return range_str(self.min, self.max, self.include_min, self.include_max, var)
 
     def handle_invalid(self, bound: Number, inclusive: bool, snap_dir: int) -> Number:
         """
@@ -199,11 +186,9 @@ class NumRange(NumericInput[NT]):
 
     def __call__(self, value: str) -> NT:
         value = self.type(value)
-        if self.min is not None:
-            # Bad if < when inclusive, bad if <= when exclusive
-            if (value < self.min) if self.include_min else (value <= self.min):
-                return self.handle_invalid(self.min, self.include_min, 1)
-        if self.max is not None:
-            if (value > self.max) if self.include_max else (value >= self.max):
-                return self.handle_invalid(self.max, self.include_max, -1)
-        return value
+        if self.value_lt_min(value):
+            return self.handle_invalid(self.min, self.include_min, 1)
+        elif self.value_gt_max(value):
+            return self.handle_invalid(self.max, self.include_max, -1)
+        else:
+            return value

@@ -9,7 +9,7 @@ from __future__ import annotations
 from functools import partial
 from string import printable, whitespace
 from types import MethodType
-from typing import Callable, Collection, Generic, Mapping, NoReturn, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Collection, Generic, Mapping, NoReturn, Optional, Type, TypeVar, Union
 
 from ..context import ctx
 from ..exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
@@ -19,6 +19,9 @@ from ..typing import Bool, CommandCls, CommandObj
 from ..utils import _NotSet, camel_to_snake_case, short_repr
 from .actions import Concatenate
 from .base import BasePositional
+
+if TYPE_CHECKING:
+    from ..metadata import ProgramMetadata
 
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
 
@@ -246,6 +249,13 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
             choice = camel_to_snake_case(command.__name__)
         else:
             self._validate_positional(choice)
+
+        if help is None:
+            # This approach was used because importing get_metadata from core would result in a circular dependency
+            meta: ProgramMetadata = command.__class__.meta(command)
+            # print(f'Registering {choice=} -> {command=} w/ {meta.description=}, {meta.parent=}')
+            if meta.description and (not meta.parent or meta.parent.description != meta.description):
+                help = meta.description  # noqa
 
         try:
             self.register_choice(choice, command, help)

@@ -6,7 +6,7 @@ from unittest import main
 from unittest.mock import patch
 
 from cli_command_parser import Command, SubCommand
-from cli_command_parser.documentation import load_commands, render_command_rst, RstWriter
+from cli_command_parser.documentation import RstWriter, load_commands, render_command_rst
 from cli_command_parser.testing import ParserTest, TemporaryDir
 
 THIS_FILE = Path(__file__).resolve()
@@ -109,16 +109,17 @@ class CommandRstTest(ParserTest):
 
     def test_unique_description_included(self):
         for show in (True, False):
+            with self.subTest(show=show):
 
-            class Foo(Command, description='foobarbaz', show_inherited_descriptions=show):
-                sub = SubCommand()
+                class Foo(Command, description='foobarbaz', show_inherited_descriptions=show):
+                    sub = SubCommand()
 
-            class Bar(Foo, description='bazbarfoo'):
-                pass
+                class Bar(Foo, description='bazbarfoo'):
+                    pass
 
-            rendered = render_command_rst(Foo)
-            self.assertEqual(1, rendered.count('\nfoobarbaz\n'))
-            self.assertEqual(1, rendered.count('\nbazbarfoo\n'))
+                rendered = render_command_rst(Foo)
+                self.assertEqual(1, rendered.count('\nfoobarbaz\n'))
+                self.assertEqual(2, rendered.count('\nbazbarfoo\n'))
 
     def test_basic_subcommand_no_help(self):
         expected = THIS_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')

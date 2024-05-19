@@ -4,10 +4,10 @@ from abc import ABC
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, SubCommand, Counter, Option, Positional, Flag, TriFlag, ParamGroup
+from cli_command_parser import Command, Counter, Flag, Option, ParamGroup, Positional, SubCommand, TriFlag
 from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, UsageError
 from cli_command_parser.formatting.commands import get_formatter
-from cli_command_parser.testing import RedirectStreams, ParserTest, get_help_text
+from cli_command_parser.testing import ParserTest, RedirectStreams, get_help_text
 
 
 class SubCommandTest(ParserTest):
@@ -88,6 +88,61 @@ class SubCommandTest(ParserTest):
             pass
 
         self.assertEqual({}, Foo.sub.choices)
+
+    def test_help_from_description_kwarg(self):
+        class Foo(Command):
+            """Foo docstring"""
+
+            sub: SubCommand = SubCommand()
+
+        class Bar(Foo, description='Bar description'):
+            pass
+
+        self.assertEqual('Bar description', Foo.sub.choices['bar'].help)
+
+    def test_help_from_description_docstring(self):
+        class Foo(Command):
+            """Foo docstring"""
+
+            sub: SubCommand = SubCommand()
+
+        class Bar(Foo):
+            """Bar docstring"""
+
+        self.assertEqual('Bar docstring', Foo.sub.choices['bar'].help)
+
+    def test_help_from_help_kwarg(self):
+        class Foo(Command):
+            """Foo docstring"""
+
+            sub: SubCommand = SubCommand()
+
+        class Bar(Foo, help='Bar help'):
+            pass
+
+        self.assertEqual('Bar help', Foo.sub.choices['bar'].help)
+
+    def test_help_from_help_not_desc_kwarg(self):
+        class Foo(Command):
+            """Foo docstring"""
+
+            sub: SubCommand = SubCommand()
+
+        class Bar(Foo, description='Bar description', help='Bar help'):
+            pass
+
+        self.assertEqual('Bar help', Foo.sub.choices['bar'].help)
+
+    def test_empty_help_from_help_not_desc_kwarg(self):
+        class Foo(Command):
+            """Foo docstring"""
+
+            sub: SubCommand = SubCommand()
+
+        class Bar(Foo, description='Bar description', help=''):
+            pass
+
+        self.assertEqual('', Foo.sub.choices['bar'].help)
 
     # endregion
 
@@ -213,8 +268,8 @@ class SubCommandTest(ParserTest):
         class D(B):
             y = Positional()
 
-        self.assertEqual('1', A.parse(['b', 'c', '1']).x)
-        self.assertEqual('2', A.parse(['b', 'd', '2']).y)
+        self.assertEqual('1', A.parse(['b', 'c', '1']).x)  # noqa
+        self.assertEqual('2', A.parse(['b', 'd', '2']).y)  # noqa
 
     def test_middle_abc_subcommand(self):
         class Base(Command):

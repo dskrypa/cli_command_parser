@@ -24,16 +24,17 @@ from locale import LC_ALL, setlocale
 from threading import RLock
 from typing import Collection, Iterator, Literal, Optional, Sequence, Type, TypeVar, Union, overload
 
-from ..typing import Bool, Locale, T, TimeBound
+from ..typing import Bool, Locale, Number, T, TimeBound
 from ..utils import MissingMixin
 from .base import InputType
 from .exceptions import InputValidationError, InvalidChoiceError
+from .utils import RangeMixin, range_str
 
 __all__ = ['DTFormatMode', 'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time']
 
 DT = TypeVar('DT')
-TimeUnit = Literal['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']
-_TIMEDELTA_UNITS = {'days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks'}
+TimeUnit = Literal['microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks']
+_TIMEDELTA_UNITS = {'microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks'}
 DEFAULT_DATE_FMT = '%Y-%m-%d'
 DEFAULT_TIME_FMT = '%H:%M:%S'
 DEFAULT_DT_FMT = '%Y-%m-%d %H:%M:%S'
@@ -227,8 +228,8 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
     _formats = {
         DTFormatMode.FULL: day_name,
         DTFormatMode.ABBREVIATION: day_abbr,
-        DTFormatMode.NUMERIC: range(7),
-        DTFormatMode.NUMERIC_ISO: range(1, 8),
+        DTFormatMode.NUMERIC: range(7),  # 0 = Monday; 6  = Sunday
+        DTFormatMode.NUMERIC_ISO: range(1, 8),  # 1 = Monday; 7 = Sunday
     }
 
     @overload
@@ -336,27 +337,54 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
 # endregion
 
 
-class TimeDelta(InputType[timedelta]):
-    __slots__ = ('unit',)
+class TimeDelta(RangeMixin, InputType[timedelta]):
+    __slots__ = ('unit', 'min', 'max', 'include_min', 'include_max', 'int_only')
 
-    def __init__(self, unit: TimeUnit, fix_default: Bool = True):
+    def __init__(
+        self,
+        unit: TimeUnit,
+        *,
+        min: Number = None,  # noqa
+        max: Number = None,  # noqa
+        include_min: Bool = True,
+        include_max: Bool = False,
+        int_only: Bool = False,
+        fix_default: Bool = True,
+    ):
         unit = unit.lower()
         if unit not in _TIMEDELTA_UNITS:
             raise TypeError(f'Invalid {unit=} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
+        elif min is not None and max is not None and min >= max:
+            raise ValueError(f'Invalid {min=} >= {max=} - min must be less than max')
+
         super().__init__(fix_default)
         self.unit = unit
-        # TODO: min/max params like NumRange?
+        self.min = min
+        self.max = max
+        self.include_min = include_min
+        self.include_max = include_max
+        self.int_only = int_only
 
     def __call__(self, value: Union[str, int, float]) -> timedelta:
         if isinstance(value, str):
             try:
                 value = float(value.replace(',', '').replace('_', ''))  # allow comma or _ between thousands
             except ValueError as e:
-                raise InputValidationError(
-                    f'Invalid numeric {self.unit}={value!r} - expected an integer or float'
-                ) from e
+                exp_type = 'integer' if self.int_only else 'integer or float'
+                raise self._invalid(value, f'expected an {exp_type}') from e
+
+        if self.value_lt_min(value) or self.value_gt_max(value):
+            raise self._invalid(value, f'expected a value in the range {self._range_str()}')
+        elif self.int_only and int(value) != value:
+            raise self._invalid(value, f'expected an integer, not a {value.__class__.__name__}')
 
         return timedelta(**{self.unit: value})
+
+    def _invalid(self, value: Number, message: str) -> InputValidationError:
+        return InputValidationError(f'Invalid numeric {self.unit}={value!r} - {message}')
+
+    def _range_str(self) -> str:
+        return range_str(self.min, self.max, self.include_min, self.include_max, self.unit)
 
     def fix_default(self, value: Union[int, float, timedelta, None]) -> Optional[timedelta]:
         if value is None or isinstance(value, timedelta) or not self._fix_default:
@@ -364,7 +392,7 @@ class TimeDelta(InputType[timedelta]):
         return self(value)
 
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
-        return f'{{{self.unit}}}'
+        return f'{{{self._range_str()}}}'
 
 
 # region Date/Time Parse Inputs
