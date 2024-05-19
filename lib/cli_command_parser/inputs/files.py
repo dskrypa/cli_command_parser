@@ -11,7 +11,7 @@ from abc import ABC
 from pathlib import Path as _Path
 from typing import Optional, Union
 
-from ..typing import Bool, Converter, PathLike, T
+from ..typing import FP, Bool, Converter, PathLike, T
 from .base import InputType
 from .exceptions import InputValidationError
 from .utils import FileWrapper, InputParam, StatMode, allows_write, fix_windows_path
@@ -197,14 +197,28 @@ class Json(Serialized):
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """
 
-    def __init__(self, *, mode: str = 'rb', **kwargs):
+    def __init__(self, *, mode: str = 'rb', wrap_errors: bool = True, **kwargs):
         import json
 
-        # TODO: catch JSONDecodeError and provide a standardized cleaner error message (with a way to disable this error handling)
-
         write = allows_write(mode, True)
-        kwargs['pass_file'] = write  # json.load just calls loads with f.read()
-        super().__init__(json.dump if write else json.loads, mode=mode, **kwargs)
+        kwargs['pass_file'] = True
+        super().__init__(json.dump if write else self._load_json, mode=mode, **kwargs)
+        self.wrap_errors = wrap_errors
+
+    def _load_json(self, f: FP):
+        from json import JSONDecodeError, load
+
+        try:
+            return load(f)
+        except JSONDecodeError as e:
+            if self.wrap_errors:
+                if name := getattr(f, 'name', None):
+                    msg = f'json from file={name!r} - are you sure it contains properly formatted json?'
+                else:
+                    msg = "the provided json content - are you sure it's properly formatted json?"
+                raise InputValidationError(f'Unable to load {msg} - error: {e}') from e
+            else:
+                raise
 
 
 class Pickle(Serialized):

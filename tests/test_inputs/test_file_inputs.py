@@ -8,14 +8,14 @@ from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import ContextManager
-from unittest import main, TestCase
-from unittest.mock import patch, Mock, PropertyMock, call
+from unittest import TestCase, main
+from unittest.mock import Mock, PropertyMock, call, patch
 
-from cli_command_parser import Command, Positional, Option
+from cli_command_parser import Command, Option, Positional
 from cli_command_parser.exceptions import BadArgument
-from cli_command_parser.inputs import Path as PathInput, File, Serialized, Json, Pickle, StatMode
+from cli_command_parser.inputs import File, Json, Path as PathInput, Pickle, Serialized, StatMode
 from cli_command_parser.inputs.exceptions import InputValidationError
-from cli_command_parser.inputs.utils import InputParam, FileWrapper, fix_windows_path
+from cli_command_parser.inputs.utils import FileWrapper, InputParam, fix_windows_path
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 PKG = 'cli_command_parser.inputs'
@@ -355,14 +355,6 @@ class ReadFileTest(ParserTest):
         with RedirectStreams(StringIO('test')):
             self.assertEqual('test', File(allow_dash=True, lazy=False)('-'))
 
-    def test_json_read_stdin(self):
-        with RedirectStreams('{"a": 1, "b": 2}'):
-            self.assertEqual({'a': 1, 'b': 2}, Json(allow_dash=True, lazy=False, mode='r')('-'))
-
-    def test_json_read_stdin_bytes(self):
-        with RedirectStreams(b'{"a": 1, "b": 2}'):
-            self.assertEqual({'a': 1, 'b': 2}, Json(allow_dash=True, lazy=False, mode='rb')('-'))
-
     def test_file_read_text(self):
         with temp_path('a') as a:
             a.write_text('test')
@@ -381,7 +373,7 @@ class ReadFileTest(ParserTest):
         with temp_path() as tmp_path:
             b = tmp_path.joinpath('b')
             b.mkdir()
-            with self.assertRaises(InputValidationError):
+            with self.assert_raises_contains_str(InputValidationError, 'Unable to open'):
                 File(lazy=False, type='any')(b.as_posix())
 
     def test_cmd_read_error(self):
@@ -393,6 +385,36 @@ class ReadFileTest(ParserTest):
             b.mkdir()
             with self.assert_raises_contains_str(BadArgument, 'Unable to open'):
                 Foo.parse_and_run(['-b', b.as_posix()])
+
+
+class ReadJsonTest(ParserTest):
+    def test_json_read_stdin(self):
+        with RedirectStreams('{"a": 1, "b": 2}'):
+            self.assertEqual({'a': 1, 'b': 2}, Json(allow_dash=True, lazy=False, mode='r')('-'))
+
+    def test_json_read_stdin_bytes(self):
+        with RedirectStreams(b'{"a": 1, "b": 2}'):
+            self.assertEqual({'a': 1, 'b': 2}, Json(allow_dash=True, lazy=False, mode='rb')('-'))
+
+    def test_json_read_stdin_invalid(self):
+        with self.assert_raises_contains_str(InputValidationError, 'the provided json content - are you sure'):
+            with RedirectStreams('{"a": 1, "b": 2]'):
+                Json(allow_dash=True, lazy=False, mode='r')('-')
+
+    def test_read_invalid_json(self):
+        expected_error = r"json from file='.+?' - are you sure it contains properly formatted json\?"
+        with temp_path() as tmp_path:
+            data_path = tmp_path.joinpath('data.txt')
+            data_path.write_text('test\n123')
+
+            with self.subTest(lazy=False), self.assertRaisesRegex(InputValidationError, expected_error):
+                Json(lazy=False)(data_path.as_posix())
+
+            with self.subTest(lazy=True), self.assertRaisesRegex(InputValidationError, expected_error):
+                Json(lazy=True)(data_path.as_posix()).read()
+
+            with self.subTest(wrap_errors=False), self.assertRaises(json.JSONDecodeError):
+                Json(lazy=False, wrap_errors=False)(data_path.as_posix())
 
 
 class ParseInputTest(ParserTest):
