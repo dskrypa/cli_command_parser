@@ -650,6 +650,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin"><code class="docutils literal notranslate"><span class="pre">RangeMixin</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1005,17 +1007,17 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">stat</span> <span class="kn">import</span> <span class="n">S_IFMT</span><span class="p">,</span> <span class="n">S_IFDIR</span><span class="p">,</span> <span class="n">S_IFCHR</span><span class="p">,</span> <span class="n">S_IFBLK</span><span class="p">,</span> <span class="n">S_IFREG</span><span class="p">,</span> <span class="n">S_IFIFO</span><span class="p">,</span> <span class="n">S_IFLNK</span><span class="p">,</span> <span class="n">S_IFSOCK</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">ContextManager</span>
+<span class="kn">from</span> <span class="nn">stat</span> <span class="kn">import</span> <span class="n">S_IFBLK</span><span class="p">,</span> <span class="n">S_IFCHR</span><span class="p">,</span> <span class="n">S_IFDIR</span><span class="p">,</span> <span class="n">S_IFIFO</span><span class="p">,</span> <span class="n">S_IFLNK</span><span class="p">,</span> <span class="n">S_IFMT</span><span class="p">,</span> <span class="n">S_IFREG</span><span class="p">,</span> <span class="n">S_IFSOCK</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">finalize</span>
 
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">FixedFlag</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">Converter</span>
+    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">FP</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Converter</span><span class="p">,</span> <span class="n">Number</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;InputParam&#39;</span><span class="p">,</span> <span class="s1">&#39;StatMode&#39;</span><span class="p">,</span> <span class="s1">&#39;FileWrapper&#39;</span><span class="p">,</span> <span class="s1">&#39;fix_windows_path&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;InputParam&#39;</span><span class="p">,</span> <span class="s1">&#39;StatMode&#39;</span><span class="p">,</span> <span class="s1">&#39;FileWrapper&#39;</span><span class="p">,</span> <span class="s1">&#39;fix_windows_path&#39;</span><span class="p">,</span> <span class="s1">&#39;range_str&#39;</span><span class="p">,</span> <span class="s1">&#39;RangeMixin&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="InputParam">
@@ -1235,6 +1237,51 @@
         <span class="k">return</span> <span class="n">alt_path</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="range_str">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str">[docs]</a>
+<span class="k">def</span> <span class="nf">range_str</span><span class="p">(</span><span class="n">min_val</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">max_val</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">include_min</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">include_max</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">min_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_val</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;&lt;=&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">include_min</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&lt;&quot;</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">min_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">max_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="s2">&quot;&lt;=&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">include_max</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&lt;&quot;</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">max_val</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_str</span><span class="si">}{</span><span class="n">var</span><span class="si">}{</span><span class="n">max_str</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="RangeMixin">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin">[docs]</a>
+<span class="k">class</span> <span class="nc">RangeMixin</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>  <span class="c1"># It isn&#39;t possible to use 2+ bases when they both have content in __slots__</span>
+    <span class="nb">min</span><span class="p">:</span> <span class="n">Number</span>
+    <span class="nb">max</span><span class="p">:</span> <span class="n">Number</span>
+    <span class="n">include_min</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">include_max</span><span class="p">:</span> <span class="nb">bool</span>
+
+<div class="viewcode-block" id="RangeMixin.value_lt_min">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.value_lt_min">[docs]</a>
+    <span class="k">def</span> <span class="nf">value_lt_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Bad if &lt; when inclusive, bad if &lt;= when exclusive</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span> <span class="k">else</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="RangeMixin.value_gt_max">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.value_gt_max">[docs]</a>
+    <span class="k">def</span> <span class="nf">value_gt_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span> <span class="k">else</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</div>
 
 </pre></div>
 

@@ -650,6 +650,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin"><code class="docutils literal notranslate"><span class="pre">RangeMixin</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1025,9 +1027,6 @@
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command">[docs]</a>
 <span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">CommandMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The main class that other Commands should extend.&quot;&quot;&quot;</span>
-
-    <span class="c1"># TODO: Make the distinction between help/description clearer, or merge them?</span>
-    <span class="c1"># TODO: Pull help text from docstring for subcommands if not specified as help=?</span>
 
     <span class="c1">#: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by</span>
     <span class="c1">#: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.</span>

@@ -650,6 +650,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin"><code class="docutils literal notranslate"><span class="pre">RangeMixin</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1019,16 +1021,17 @@
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">RLock</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Locale</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">TimeBound</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Locale</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">TimeBound</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">MissingMixin</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">InputType</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">RangeMixin</span><span class="p">,</span> <span class="n">range_str</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DTFormatMode&#39;</span><span class="p">,</span> <span class="s1">&#39;Day&#39;</span><span class="p">,</span> <span class="s1">&#39;Month&#39;</span><span class="p">,</span> <span class="s1">&#39;TimeDelta&#39;</span><span class="p">,</span> <span class="s1">&#39;DateTime&#39;</span><span class="p">,</span> <span class="s1">&#39;Date&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">]</span>
 
 <span class="n">DT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;DT&#39;</span><span class="p">)</span>
-<span class="n">TimeUnit</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;microseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;milliseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;minutes&#39;</span><span class="p">,</span> <span class="s1">&#39;hours&#39;</span><span class="p">,</span> <span class="s1">&#39;weeks&#39;</span><span class="p">]</span>
-<span class="n">_TIMEDELTA_UNITS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;microseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;milliseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;minutes&#39;</span><span class="p">,</span> <span class="s1">&#39;hours&#39;</span><span class="p">,</span> <span class="s1">&#39;weeks&#39;</span><span class="p">}</span>
+<span class="n">TimeUnit</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;microseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;milliseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;minutes&#39;</span><span class="p">,</span> <span class="s1">&#39;hours&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;weeks&#39;</span><span class="p">]</span>
+<span class="n">_TIMEDELTA_UNITS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;microseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;milliseconds&#39;</span><span class="p">,</span> <span class="s1">&#39;seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;minutes&#39;</span><span class="p">,</span> <span class="s1">&#39;hours&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;weeks&#39;</span><span class="p">}</span>
 <span class="n">DEFAULT_DATE_FMT</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span>
 <span class="n">DEFAULT_TIME_FMT</span> <span class="o">=</span> <span class="s1">&#39;%H:%M:%S&#39;</span>
 <span class="n">DEFAULT_DT_FMT</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span>
@@ -1266,8 +1269,8 @@
     <span class="n">_formats</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">:</span> <span class="n">day_name</span><span class="p">,</span>
         <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">:</span> <span class="n">day_abbr</span><span class="p">,</span>
-        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
-        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>  <span class="c1"># 0 = Monday; 6  = Sunday</span>
+        <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">NUMERIC_ISO</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>  <span class="c1"># 1 = Monday; 7 = Sunday</span>
     <span class="p">}</span>
 
     <span class="nd">@overload</span>
@@ -1387,16 +1390,33 @@
 
 <div class="viewcode-block" id="TimeDelta">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta">[docs]</a>
-<span class="k">class</span> <span class="nc">TimeDelta</span><span class="p">(</span><span class="n">InputType</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,)</span>
+<span class="k">class</span> <span class="nc">TimeDelta</span><span class="p">(</span><span class="n">RangeMixin</span><span class="p">,</span> <span class="n">InputType</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;include_min&#39;</span><span class="p">,</span> <span class="s1">&#39;include_max&#39;</span><span class="p">,</span> <span class="s1">&#39;int_only&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span> <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">unit</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="nb">min</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="nb">max</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">include_min</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_max</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">int_only</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">unit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TIMEDELTA_UNITS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">unit</span><span class="si">=}</span><span class="s1"> - expected one of: </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_TIMEDELTA_UNITS</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">min</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="nb">min</span><span class="si">=}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="nb">max</span><span class="si">=}</span><span class="s1"> - min must be less than max&#39;</span><span class="p">)</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
-        <span class="c1"># TODO: min/max params like NumRange?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span> <span class="o">=</span> <span class="n">include_min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span> <span class="o">=</span> <span class="n">include_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">int_only</span> <span class="o">=</span> <span class="n">int_only</span>
 
 <div class="viewcode-block" id="TimeDelta.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.__call__">[docs]</a>
@@ -1405,12 +1425,22 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>  <span class="c1"># allow comma or _ between thousands</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Invalid numeric </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected an integer or float&#39;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                <span class="n">exp_type</span> <span class="o">=</span> <span class="s1">&#39;integer&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_only</span> <span class="k">else</span> <span class="s1">&#39;integer or float&#39;</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invalid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;expected an </span><span class="si">{</span><span class="n">exp_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_lt_min</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_gt_max</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invalid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_only</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invalid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;expected an integer, not a </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span></div>
 
+
+    <span class="k">def</span> <span class="nf">_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InputValidationError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid numeric </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_range_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">range_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TimeDelta.fix_default">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.fix_default">[docs]</a>
@@ -1423,7 +1453,7 @@
 <div class="viewcode-block" id="TimeDelta.format_metavar">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.format_metavar">[docs]</a>
     <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span></div>
 </div>
 
 

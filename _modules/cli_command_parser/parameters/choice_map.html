@@ -650,6 +650,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin"><code class="docutils literal notranslate"><span class="pre">RangeMixin</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1004,7 +1006,7 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">printable</span><span class="p">,</span> <span class="n">whitespace</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
@@ -1014,6 +1016,9 @@
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">camel_to_snake_case</span><span class="p">,</span> <span class="n">short_repr</span>
 <span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">Concatenate</span>
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasePositional</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..metadata</span> <span class="kn">import</span> <span class="n">ProgramMetadata</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SubCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;Action&#39;</span><span class="p">,</span> <span class="s1">&#39;Choice&#39;</span><span class="p">,</span> <span class="s1">&#39;ChoiceMap&#39;</span><span class="p">]</span>
 
@@ -1284,6 +1289,13 @@
             <span class="n">choice</span> <span class="o">=</span> <span class="n">camel_to_snake_case</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_positional</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">help</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># This approach was used because importing get_metadata from core would result in a circular dependency</span>
+            <span class="n">meta</span><span class="p">:</span> <span class="n">ProgramMetadata</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="c1"># print(f&#39;Registering {choice=} -&gt; {command=} w/ {meta.description=}, {meta.parent=}&#39;)</span>
+            <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent</span> <span class="ow">or</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">description</span> <span class="o">!=</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span><span class="p">):</span>
+                <span class="n">help</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span>  <span class="c1"># noqa</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>

@@ -650,6 +650,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin"><code class="docutils literal notranslate"><span class="pre">RangeMixin</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -2930,11 +2932,19 @@
       <ul>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.params.include_max">(cli_command_parser.inputs.numeric.NumRange parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.include_max">(cli_command_parser.inputs.time.TimeDelta attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.include_max">(cli_command_parser.inputs.utils.RangeMixin attribute)</a>
+</li>
       </ul></li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.include_min">include_min (cli_command_parser.inputs.numeric.NumRange attribute)</a>
 
       <ul>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.params.include_min">(cli_command_parser.inputs.numeric.NumRange parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.include_min">(cli_command_parser.inputs.time.TimeDelta attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.include_min">(cli_command_parser.inputs.utils.RangeMixin attribute)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.handle_invalid.params.inclusive">inclusive (cli_command_parser.inputs.numeric.NumRange.handle_invalid parameter)</a>
@@ -2998,6 +3008,8 @@
       <li><a href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType">InputType (class in cli_command_parser.inputs.base)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.exceptions.html#cli_command_parser.inputs.exceptions.InputValidationError">InputValidationError</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.int_only">int_only (cli_command_parser.inputs.time.TimeDelta attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.InvalidChoice">InvalidChoice</a>
 </li>
@@ -3194,6 +3206,10 @@
       <ul>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.params.max">(cli_command_parser.inputs.numeric.NumRange parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.max">(cli_command_parser.inputs.time.TimeDelta attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.max">(cli_command_parser.inputs.utils.RangeMixin attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max">(cli_command_parser.nargs.Nargs attribute)</a>
 </li>
       </ul></li>
@@ -3261,6 +3277,10 @@
 
       <ul>
         <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.params.min">(cli_command_parser.inputs.numeric.NumRange parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta.min">(cli_command_parser.inputs.time.TimeDelta attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.min">(cli_command_parser.inputs.utils.RangeMixin attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.min">(cli_command_parser.nargs.Nargs attribute)</a>
 </li>
@@ -3945,6 +3965,10 @@
         <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.range">(cli_command_parser.nargs.Nargs attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str">range_str() (in module cli_command_parser.inputs.utils)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin">RangeMixin (class in cli_command_parser.inputs.utils)</a>
+</li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path">raw_path (cli_command_parser.parse_tree.PosNode property)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.read">read() (cli_command_parser.inputs.utils.FileWrapper method)</a>
@@ -4517,6 +4541,10 @@
         <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value.params.value">(cli_command_parser.parameters.actions.ParamAction.add_value parameter)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.value_gt_max">value_gt_max() (cli_command_parser.inputs.utils.RangeMixin method)</a>
+</li>
+      <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.value_lt_min">value_lt_min() (cli_command_parser.inputs.utils.RangeMixin method)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ValueMixin">ValueMixin (class in cli_command_parser.parameters.actions)</a>
 </li>
       <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable">variable (cli_command_parser.nargs.Nargs attribute)</a>
@@ -4527,10 +4555,10 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Assign">visit_Assign() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
 </li>
-      <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_AsyncFor">visit_AsyncFor() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_AsyncFor">visit_AsyncFor() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
+</li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_AsyncFunctionDef">visit_AsyncFunctionDef (cli_command_parser.conversion.visitor.ScriptVisitor attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Call">visit_Call() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
