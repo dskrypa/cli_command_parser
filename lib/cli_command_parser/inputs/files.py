@@ -188,6 +188,11 @@ class Serialized(File):
         self.converter = converter
         self.pass_file = pass_file
 
+    def __repr__(self) -> str:
+        non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items() if k != 'converter')
+        # `converter` must be excluded to prevent infinite recursion when an instance method is stored in that attr
+        return f'<{self.__class__.__name__}({non_defaults})>'
+
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
         return FileWrapper(path, self.mode, self.encoding, self.errors, self.converter, self.pass_file, self.parents)
 

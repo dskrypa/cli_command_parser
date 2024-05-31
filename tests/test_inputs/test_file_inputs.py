@@ -273,6 +273,11 @@ class FileInputTest(TestCase):
         self.assertEqual('123', cmd.bar)
         self.assertIsNone(cmd.baz)
 
+    def test_reprs(self):
+        for input_cls in (PathInput, File, Json, Pickle):
+            with self.subTest(input_cls=input_cls):
+                self.assertTrue(repr(input_cls()).startswith(f'<{input_cls.__name__}('))
+
 
 class WriteFileTest(TestCase):
     def test_plain_write_with(self):
