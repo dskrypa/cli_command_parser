@@ -85,15 +85,18 @@ class FileInput(InputType[T], ABC):
             path = path.resolve()
         if self.exists is not None:
             if self.exists and not path.exists():
-                raise InputValidationError('it does not exist')
+                raise InputValidationError('the provided path does not exist')
             elif not self.exists and path.exists():
-                raise InputValidationError('it already exists')
+                raise InputValidationError('the provided path already exists')
+
         if self.type != StatMode.ANY and path.exists() and not self.type.matches(path.stat().st_mode):
+            # TODO: Indicate what the discovered type was
             raise InputValidationError(f'expected a {self.type}')
+
         if self.readable and not os.access(path, os.R_OK):
-            raise InputValidationError('it is not readable')
+            raise InputValidationError('the provided path is not readable')
         if self.writable and not os.access(path, os.W_OK):
-            raise InputValidationError('it is not writable')
+            raise InputValidationError('the provided path is not writable')
         return path
 
 
