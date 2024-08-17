@@ -10,6 +10,7 @@ import logging
 import sys
 from abc import ABC
 from collections import defaultdict
+from fnmatch import fnmatch
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
@@ -170,7 +171,7 @@ class RstWriter:
     :param ext: The file extension / suffix (including the leading ``.``) to use for output.
     :param module_template: The format string to use when generating RST for Python modules.
     :param skip_modules: A collection of module names (using ``package.module`` notation) that should be skipped
-      when documenting a Python package via :meth:`.document_package`.
+      when documenting a Python package via :meth:`.document_package`.  Supports fnmatch / glob wildcards.
     """
 
     def __init__(
@@ -319,11 +320,13 @@ class RstWriter:
         for path in pkg_path.iterdir():
             if path.is_dir():
                 sub_pkg_name = f'{pkg_name}.{path.name}'
-                if self.document_package(sub_pkg_name, path, subdir, max_depth=max_depth):
+                if sub_pkg_name in self.skip_modules or any(fnmatch(sub_pkg_name, pat) for pat in self.skip_modules):
+                    continue
+                elif self.document_package(sub_pkg_name, path, subdir, max_depth=max_depth):
                     contents.append(sub_pkg_name)
             elif path.is_file() and path.suffix == '.py' and not path.name.startswith('__'):
                 name = f'{pkg_name}.{path.stem}'
-                if name in self.skip_modules:
+                if name in self.skip_modules or any(fnmatch(name, pat) for pat in self.skip_modules):
                     continue
                 contents.append(name)
                 self.document_module(name, subdir)
