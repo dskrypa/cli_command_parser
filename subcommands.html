@@ -1052,7 +1052,7 @@ provided via <code class="docutils literal notranslate"><span class="pre">choice
 <dd class="field-odd"><p>The help text to display for the subcommand when viewing the parent Command’s help text.</p>
 </dd>
 </dl>
-<p>Given the following overly-simplistic <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">basic example</a>:</p>
+<p>Given the following overly-simplistic <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">basic example</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
 
@@ -1089,7 +1089,7 @@ bar
 </section>
 <section id="nested-subcommands">
 <h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Link to this heading"></a></h2>
-<p>Using the example script that is a <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">fake wrapper around a hypothetical REST API</a>,
+<p>Using the example script that is a <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">fake wrapper around a hypothetical REST API</a>,
 we can see an example of two levels of subcommands, and another way that we can take advantage of inheritance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
@@ -1183,7 +1183,7 @@ have each subcommand define the method that is called by <code class="docutils l
 <h2>Explicit Registration<a class="headerlink" href="#explicit-registration" title="Link to this heading"></a></h2>
 <p>While subcommands will be automatically registered with their parent class as long as the parent class has a
 <a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a> parameter, it is also possible to have more control over that process.</p>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
+<p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
@@ -1296,7 +1296,7 @@ subcommands in a common base class so they don’t need to be repeated in each s
 <p>This can be accomplished by defining a subclass of the target parent Command (which contains the <a class="reference internal" href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand" title="cli_command_parser.parameters.choice_map.SubCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubCommand</span></code></a>
 Parameter that should be used to register the similar subcommands) that also extends <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">abc.ABC</span></code></a> to store
 the common Parameters.</p>
-<p>A <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py">full example</a> is available in the examples directory, but the basic
+<p>A <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py">full example</a> is available in the examples directory, but the basic
 pattern is the same as the following simplified example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">Option</span>

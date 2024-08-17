@@ -1231,7 +1231,7 @@ taken as if it was specified via a CLI argument.</p>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py">Example command</a>:</p>
+<p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py">Example command</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>  <span class="c1"># the default ``default`` value is False</span>
     <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1418,7 +1418,7 @@ Option/Flag/etc).  To reject all values beginning with a dash, including numbers
 <code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.NEVER</span></code>.</p>
 </dd>
 </dl>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py">Example command</a>:</p>
+<p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py">Example command</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
 
@@ -1480,7 +1480,7 @@ must be specified - the method name is not automatically used when <code class="
 registered as the default for a given Action.</p>
 </dd>
 </dl>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses actions:</p>
+<p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses actions:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The action to take&#39;</span><span class="p">)</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
@@ -1557,7 +1557,7 @@ space.</p>
 <dd class="field-even"><p>Not supported.</p>
 </dd>
 </dl>
-<p><a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py">Example command</a>:</p>
+<p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py">Example command</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Wrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">hosts</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The hosts on which the given command should be run&#39;</span><span class="p">)</span>
     <span class="n">command</span> <span class="o">=</span> <span class="n">PassThru</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>

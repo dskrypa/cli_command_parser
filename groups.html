@@ -1034,7 +1034,7 @@ will be raised if the user did not provide a value for any Parameters in the gro
 text.</p>
 </dd>
 </dl>
-<p>One <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> use case for a basic group is to indicate that common arguments are
+<p>One <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> use case for a basic group is to indicate that common arguments are
 accepted by all subcommands:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
@@ -1081,7 +1081,7 @@ raised.  The <code class="docutils literal notranslate"><span class="pre">tasks<
 have a name / description that will be displayed in <code class="docutils literal notranslate"><span class="pre">--help</span></code> text, just like they can for normal groups.</p>
 </div>
 <p>By making a group both mutually exclusive and required, we can ensure that one argument is always provided.  Given the
-following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> snippet:</p>
+following <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> snippet:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="s1">&#39;bazs&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Filter Choices&#39;</span><span class="p">,</span> <span class="n">mutually_exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;NAME&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects related to the foo object with the specified name&#39;</span><span class="p">)</span>
@@ -1124,7 +1124,7 @@ its parameters.</p>
 <h2>Combining Group Types<a class="headerlink" href="#combining-group-types" title="Link to this heading"></a></h2>
 <p>When nesting a basic group inside of a mutually exclusive group, the members of the basic group can be combined, but
 none of the inner basic group members can be combined with the members of the outer exclusive group.  Given the
-following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> snippet:</p>
+following <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">example</a> snippet:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Sync</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Sync group members&#39;</span><span class="p">):</span>
     <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">mutually_exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -1220,7 +1220,7 @@ then <code class="docutils literal notranslate"><span class="pre">x</span></code
 </section>
 <section id="examples">
 <h4>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h4>
-<p>The following <a class="reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py">example</a> demonstrates combinations in both directions for
+<p>The following <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/grouped_action_flags.py">example</a> demonstrates combinations in both directions for
 nested mutually exclusive / dependent groups using <a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlags</span></a> that simply print their
 corresponding letter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GroupedFlags</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
