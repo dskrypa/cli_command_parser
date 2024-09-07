@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadata', 'get_top_level_commands']
 
 _NotSet = object()
-META_KEYS = {'prog', 'usage', 'description', 'epilog', 'doc_name'}
+META_KEYS = {'prog', 'usage', 'description', 'epilog', 'doc_name', 'path', 'url', 'docs_url', 'email', 'version'}
 
 
 class CommandMeta(ABCMeta, type):

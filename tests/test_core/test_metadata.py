@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+from inspect import Signature
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 from unittest.mock import Mock, patch, seal
 
 from cli_command_parser import Command, Context, main as ccp_main
-from cli_command_parser.core import CommandMeta, get_metadata
+from cli_command_parser.core import META_KEYS, CommandMeta, get_metadata
 from cli_command_parser.metadata import (
     DynamicMetadata,
     EntryPoint,
@@ -113,6 +114,12 @@ class MetadataTest(ParserTest):
     def test_docs_url_not_https(self):
         self.assertIs(None, ProgramMetadata.for_command(Foo, url='hxxps://test.com/fake').docs_url)
 
+    def test_docs_url_via_command_kwarg(self):
+        class Bar(Command, docs_url='hxxps://test.com/fake'):
+            pass
+
+        self.assertEqual('hxxps://test.com/fake', get_metadata(Bar).docs_url)
+
     # endregion
 
     # region Path & Globals
@@ -128,6 +135,15 @@ class MetadataTest(ParserTest):
         self.assertEqual(path, _path_and_globals(Foo, path)[0])
 
     # endregion
+
+    def test_command_kwargs_include_all_meta_kwargs(self):
+        meta_kwargs = set(Signature.from_callable(ProgramMetadata.for_command).parameters)
+        meta_kwargs -= {'command', 'parent'}  # Kwargs not intended to be provided by users
+        self.assertEqual(
+            META_KEYS,
+            meta_kwargs,
+            'cli_command_parser.core.META_KEYS need to be updated to match ProgramMetadata.for_command kwargs',
+        )
 
 
 class MetadataProgTest(TestCase):
