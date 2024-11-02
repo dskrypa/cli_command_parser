@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -6,19 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Error Handling &mdash; CLI Command Parser 2024.09.07 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=c314d63d"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c314d63d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,9 +37,6 @@
           <a href="index.html" class="icon icon-home">
             CLI Command Parser
           </a>
-              <div class="version">
-                2024.09.07
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -220,7 +215,6 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.annotations.html">Annotations Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type"><code class="docutils literal notranslate"><span class="pre">get_annotation_value_type()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.command_parameters.html">Command_Parameters Module</a><ul>
@@ -583,6 +577,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable"><code class="docutils literal notranslate"><span class="pre">RstTable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
@@ -1009,8 +1005,8 @@ calling the exception’s <a class="reference internal" href="api/cli_command_pa
 <div><ol class="arabic simple">
 <li><dl class="simple">
 <dt><a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a>:</dt><dd><ul class="simple">
-<li><p>Catches <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyboardInterrupt" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code></a> and calls <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></p></li>
-<li><p>Catches <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BrokenPipeError" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">BrokenPipeError</span></code></a> and takes no further action (it prevents a stack trace from being
+<li><p>Catches <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyboardInterrupt" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code></a> and calls <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></p></li>
+<li><p>Catches <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BrokenPipeError" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">BrokenPipeError</span></code></a> and takes no further action (it prevents a stack trace from being
 printed for it)</p></li>
 </ul>
 </dd>
@@ -1023,7 +1019,7 @@ printed for it)</p></li>
 <li><p>The default error handler</p></li>
 <li><p>Handles everything that <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a> does</p></li>
 <li><p>The only difference between this handler and <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.error_handler" title="cli_command_parser.error_handling.error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_handler</span></code></a> is that an additional
-handler is registered only when running on Windows to catch <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">OSError</span></code></a> and work around a bug
+handler is registered only when running on Windows to catch <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">OSError</span></code></a> and work around a bug
 related to the broken pipe error number: <code class="xref py py-func docutils literal notranslate"><span class="pre">handle_win_os_pipe_error()</span></code></p></li>
 </ul>
 </dd>
@@ -1062,16 +1058,16 @@ related to the broken pipe error number: <code class="xref py py-func docutils l
 <h2>Defining Error Handlers<a class="headerlink" href="#defining-error-handlers" title="Link to this heading"></a></h2>
 <p>To define an error handler function for an additional exception class, the <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.ErrorHandler" title="cli_command_parser.error_handling.ErrorHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a> object can be used
 as a decorator on the function that will handle the exception.</p>
-<p>Similar to <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#object.__exit__" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">object.__exit__()</span></code></a>, if the error handler function returns a truthy value, then the exception
+<p>Similar to <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#object.__exit__" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">object.__exit__()</span></code></a>, if the error handler function returns a truthy value, then the exception
 will be considered handled.  Behavior differs in the case of <code class="docutils literal notranslate"><span class="pre">0</span></code>, which will be treated as a value with which
-<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> should be called.  In fact, <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> will be called with any truthy value other
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> should be called.  In fact, <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> will be called with any truthy value other
 than <code class="docutils literal notranslate"><span class="pre">True</span></code> that is returned by the error handler function.</p>
 <p>To indicate that the error was not handled, and that any other (less specific) error handlers that may match the
 exception should be tried, the handler function should return <code class="docutils literal notranslate"><span class="pre">False</span></code> or any other falsey value (other than <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p>
-<p>Alternatively, the handler function may call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> directly, if desired.  Similar to <code class="docutils literal notranslate"><span class="pre">__exit__</span></code>,
+<p>Alternatively, the handler function may call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> directly, if desired.  Similar to <code class="docutils literal notranslate"><span class="pre">__exit__</span></code>,
 the exception that was passed to the handler function should NOT be re-raised by the handler function.</p>
 <p>If no handler function can be found for a given exception, or if none of them indicate that the exception was handled
-or should result in a call to <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a>, then the exception will be propagated as usual (which should
+or should result in a call to <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a>, then the exception will be propagated as usual (which should
 result in the traceback being printed by the interpreter).</p>
 <p>Example of adding a handler for a custom <code class="docutils literal notranslate"><span class="pre">MyException</span></code> exception to the default
 <a class="reference internal" href="api/cli_command_parser.error_handling.html#cli_command_parser.error_handling.extended_error_handler" title="cli_command_parser.error_handling.extended_error_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_error_handler</span></code></a>:</p>

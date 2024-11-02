@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,19 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.metadata &mdash; CLI Command Parser 2024.09.07 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx_paramlinks.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=c314d63d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c314d63d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -36,9 +34,6 @@
           <a href="../../index.html" class="icon icon-home">
             CLI Command Parser
           </a>
-              <div class="version">
-                2024.09.07
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -217,7 +212,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.annotations.html">Annotations Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type"><code class="docutils literal notranslate"><span class="pre">get_annotation_value_type()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html">Command_Parameters Module</a><ul>
@@ -580,6 +574,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable"><code class="docutils literal notranslate"><span class="pre">RstTable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
@@ -1004,6 +1000,8 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span> <span class="nn">importlib.metadata</span> <span class="kn">import</span> <span class="n">Distribution</span><span class="p">,</span> <span class="n">EntryPoint</span><span class="p">,</span> <span class="n">entry_points</span>
@@ -1021,6 +1019,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ProgramMetadata&#39;</span><span class="p">]</span>
 
+<span class="n">WINDOWS</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;windows&#39;</span>
 <span class="n">DEFAULT_FILE_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;UNKNOWN&#39;</span>
 
 
@@ -1296,12 +1295,14 @@
 <a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog">[docs]</a>
     <span class="k">def</span> <span class="nf">format_epilog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">epilog</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="c1"># TODO: Add support for epilog_format format string?</span>
         <span class="k">if</span> <span class="n">parts</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extended</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">version</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
             <span class="n">version</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; [ver. </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">]&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="p">:</span>
+            <span class="c1"># TODO: add support_url metadata entry and use that instead of email, if present?</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Report </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prog</span><span class="p">(</span><span class="n">allow_sys_argv</span><span class="p">)</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s1"> bugs to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">url</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Online documentation: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1322,6 +1323,7 @@
 <div class="viewcode-block" id="ProgramMetadata.get_description">
 <a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_description">[docs]</a>
     <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_inherited</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+        <span class="c1"># TODO: Description template for subcommands?</span>
         <span class="k">if</span> <span class="n">description</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_inherited</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent_description</span> <span class="o">:=</span> <span class="n">parent</span><span class="o">.</span><span class="n">description</span><span class="p">):</span>  <span class="c1"># noqa</span>
                 <span class="k">return</span> <span class="n">description</span> <span class="k">if</span> <span class="n">parent_description</span> <span class="o">!=</span> <span class="n">description</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1363,7 +1365,7 @@
     <span class="k">def</span> <span class="nf">_get_console_scripts</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">EntryPoint</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">entry_points</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="s1">&#39;console_scripts&#39;</span><span class="p">)</span>  <span class="c1"># noqa</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># Python 3.8 or 3.9</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># Python 3.9</span>
             <span class="k">return</span> <span class="n">entry_points</span><span class="p">()[</span><span class="s1">&#39;console_scripts&#39;</span><span class="p">]</span>  <span class="c1"># noqa</span>
 
 <div class="viewcode-block" id="ProgFinder.normalize">
@@ -1451,9 +1453,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dist_urls</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_all_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Distribution</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Distribution</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]]:</span>
+        <span class="n">normal</span><span class="p">,</span> <span class="n">editable</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">Distribution</span><span class="o">.</span><span class="n">discover</span><span class="p">():</span>
+            <span class="c1"># Note: Distribution.name was not added until 3.10, and it returns `self.metadata[&#39;Name&#39;]`</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">dist</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">existing</span> <span class="o">:=</span> <span class="n">normal</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">path</span> <span class="o">:=</span> <span class="n">_get_editable_path</span><span class="p">(</span><span class="n">existing</span><span class="p">):</span>
+                    <span class="n">editable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">path</span> <span class="o">:=</span> <span class="n">_get_editable_path</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+                    <span class="n">editable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                    <span class="n">normal</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># A third case is not really expected here...</span>
+                    <span class="n">normal</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">normal</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+
+        <span class="k">return</span> <span class="n">normal</span><span class="p">,</span> <span class="n">editable</span>
+
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Distribution</span><span class="p">]:</span>
-        <span class="c1"># Note: Distribution.name was not added until 3.10, and it returns `self.metadata[&#39;Name&#39;]`</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">dist</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]:</span> <span class="n">dist</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">Distribution</span><span class="o">.</span><span class="n">discover</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_distributions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_editable_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Distribution</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_distributions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_get_top_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="n">Distribution</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="c1"># dist_name = dist.metadata[&#39;Name&#39;]  # Distribution.name was not added until 3.10, and it returns this</span>
@@ -1493,12 +1518,29 @@
 
     <span class="k">def</span> <span class="nf">_dist_for_obj_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Distribution</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Note: getmodule returns the module object (obj.__module__ only provides the name)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">module</span> <span class="o">:=</span> <span class="n">getmodule</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">module</span><span class="o">.</span><span class="n">__package__</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">module</span> <span class="o">:=</span> <span class="n">getmodule</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">module</span><span class="o">.</span><span class="n">__package__</span><span class="p">:</span>
+            <span class="c1"># This may occur for top-level scripts that are in a bin/ directory or similar, with a Command that was</span>
+            <span class="c1"># defined in that file instead of in the package that represents the library code for that project</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">__loader__</span><span class="o">.</span><span class="n">path</span>  <span class="c1"># noqa</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist_for_main_loader_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
         <span class="c1"># The package name may have a prefix like `lib` not included in top_level when interactive</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">__package__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_for_pkg</span><span class="p">(</span><span class="n">part</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dist</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_dist_for_main_loader_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Distribution</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_str</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">src_path</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editable_distributions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">src_path</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">dist</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -1521,6 +1563,25 @@
         <span class="k">return</span> <span class="n">urls</span></div>
 </div>
 
+
+
+<span class="k">def</span> <span class="nf">_get_editable_path</span><span class="p">(</span><span class="n">dist</span><span class="p">:</span> <span class="n">Distribution</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">direct_url</span> <span class="o">:=</span> <span class="n">dist</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s1">&#39;direct_url.json&#39;</span><span class="p">)):</span>  <span class="c1"># read_text suppresses errors</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">direct_url</span><span class="p">)</span>
+    <span class="c1"># direct_url content: &#39;{&quot;dir_info&quot;: {&quot;editable&quot;: true}, &quot;url&quot;: &quot;file:///C:/Users/...&quot;}&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">url</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dir_info&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;editable&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># This is not expected</span>
+
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>  <span class="c1"># This is not expected</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span>
+    <span class="k">if</span> <span class="n">WINDOWS</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;:/&#39;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">[:</span><span class="mi">4</span><span class="p">]:</span>  <span class="c1"># The uri path has a leading / before the drive letter</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
 
 <span class="n">_dist_finder</span> <span class="o">=</span> <span class="n">DistributionFinder</span><span class="p">()</span>

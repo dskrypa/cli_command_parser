@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -6,19 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Commands &mdash; CLI Command Parser 2024.09.07 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=c314d63d"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c314d63d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,9 +37,6 @@
           <a href="index.html" class="icon icon-home">
             CLI Command Parser
           </a>
-              <div class="version">
-                2024.09.07
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -220,7 +215,6 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.annotations.html">Annotations Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type"><code class="docutils literal notranslate"><span class="pre">get_annotation_value_type()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.command_parameters.html">Command_Parameters Module</a><ul>
@@ -583,6 +577,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable"><code class="docutils literal notranslate"><span class="pre">RstTable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
@@ -1055,7 +1051,7 @@ can be used as the primary entry point for the program:</p>
 </pre></div>
 </div>
 <p><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> automatically<a class="footnote-reference brackets" href="#id6" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> finds the top-level Command that you defined, parses arguments from
-<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a>, and runs your command.</p>
+<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a>, and runs your command.</p>
 <p>There’s no need to call <code class="docutils literal notranslate"><span class="pre">parse</span></code> or <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> directly, but <code class="docutils literal notranslate"><span class="pre">parse_and_run</span></code> can be used as
 a drop-in replacement for <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> for a specific Command.  Using the same Echo command as in the
 above example:</p>
@@ -1063,7 +1059,7 @@ above example:</p>
     <span class="n">Echo</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>By default, <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> will use <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a> as the source
+<p>By default, <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> will use <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.argv" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.argv</span></code></a> as the source
 of arguments to parse.  If desired for testing purposes, or if there is a need to modify arguments before letting them
 be parsed, a list of strings may also be provided when using either approach:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
@@ -1101,9 +1097,9 @@ about how <a class="reference internal" href="api/cli_command_parser.commands.ht
 <hr class="docutils" />
 <section id="asyncio-applications">
 <h2>Asyncio Applications<a class="headerlink" href="#asyncio-applications" title="Link to this heading"></a></h2>
-<p>Commands in applications that use <a class="reference external" href="https://docs.python.org/3/library/asyncio.html" title="(in Python v3.12)"><span class="xref std std-doc">asyncio</span></a> should extend <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand" title="cli_command_parser.commands.AsyncCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncCommand</span></code></a> instead
+<p>Commands in applications that use <a class="reference external" href="https://docs.python.org/3/library/asyncio.html" title="(in Python v3.13)"><span class="xref std std-doc">asyncio</span></a> should extend <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand" title="cli_command_parser.commands.AsyncCommand"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncCommand</span></code></a> instead
 of <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>.  The <code class="docutils literal notranslate"><span class="pre">main</span></code> method within Command classes that extend AsyncCommand should generally be defined
-as an <code class="docutils literal notranslate"><span class="pre">async</span></code> method / <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#coroutine" title="(in Python v3.12)"><span class="xref std std-ref">coroutine</span></a>.  For example:</p>
+as an <code class="docutils literal notranslate"><span class="pre">async</span></code> method / <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#coroutine" title="(in Python v3.13)"><span class="xref std std-ref">coroutine</span></a>.  For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyAsyncCommand</span><span class="p">(</span><span class="n">AsyncCommand</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span>
@@ -1111,7 +1107,7 @@ as an <code class="docutils literal notranslate"><span class="pre">async</span><
 </div>
 <p>To run an AsyncCommand, both <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main" title="cli_command_parser.commands.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a> and <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_run" title="cli_command_parser.commands.AsyncCommand.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> can be used as if running
 a synchronous <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> (as described <a class="reference external" href="#parse-run">above</a>).  The asynchronous version of
-<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_run" title="cli_command_parser.commands.AsyncCommand.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> handles calling <a class="reference external" href="https://docs.python.org/3/library/asyncio-runner.html#asyncio.run" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">asyncio.run()</span></code></a>.</p>
+<a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_run" title="cli_command_parser.commands.AsyncCommand.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_run()</span></code></a> handles calling <a class="reference external" href="https://docs.python.org/3/library/asyncio-runner.html#asyncio.run" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">asyncio.run()</span></code></a>.</p>
 <p>For applications that need more direct control over how the event loop is run, <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.parse_and_await" title="cli_command_parser.commands.AsyncCommand.parse_and_await"><code class="xref py py-meth docutils literal notranslate"><span class="pre">parse_and_await()</span></code></a>
 can be used instead.</p>
 <p>All of the <a class="reference external" href="#supported-sunder-methods">supported _sunder_ methods</a> may be overridden with either synchronous or

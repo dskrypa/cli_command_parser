@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -6,19 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Testing Commands &mdash; CLI Command Parser 2024.09.07 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=c314d63d"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c314d63d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,9 +37,6 @@
           <a href="index.html" class="icon icon-home">
             CLI Command Parser
           </a>
-              <div class="version">
-                2024.09.07
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -220,7 +215,6 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.annotations.html">Annotations Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type"><code class="docutils literal notranslate"><span class="pre">get_annotation_value_type()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.command_parameters.html">Command_Parameters Module</a><ul>
@@ -583,6 +577,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable"><code class="docutils literal notranslate"><span class="pre">RstTable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
@@ -999,7 +995,7 @@
   <section id="testing-commands">
 <h1>Testing Commands<a class="headerlink" href="#testing-commands" title="Link to this heading"></a></h1>
 <p>Commands can be tested without necessarily doing anything special to work with them in a unit testing context.  When a
-Command runs normally, it does not call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> on a successful run, but it may do so if an unhandled
+Command runs normally, it does not call <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.exit" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> on a successful run, but it may do so if an unhandled
 exception is propagated.  Error handling <a class="reference internal" href="configuration.html#error-handling-options"><span class="std std-ref">can be disabled</span></a>, but sometimes
 you may still need to use <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">self.assertRaises(SystemExit)</span></code> in a test case if it is intentional / expected.</p>
 <section id="testing-parsing">
@@ -1037,9 +1033,9 @@ accessed directly (as they would be from within the Command when running normall
 </section>
 <section id="test-helpers">
 <h2>Test Helpers<a class="headerlink" href="#test-helpers" title="Link to this heading"></a></h2>
-<p>A <a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams" title="cli_command_parser.testing.RedirectStreams"><code class="xref py py-class docutils literal notranslate"><span class="pre">RedirectStreams</span></code></a> <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#context-managers" title="(in Python v3.12)"><span class="xref std std-ref">context manager</span></a> is available to temporarily override both
+<p>A <a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.RedirectStreams" title="cli_command_parser.testing.RedirectStreams"><code class="xref py py-class docutils literal notranslate"><span class="pre">RedirectStreams</span></code></a> <a class="reference external" href="https://docs.python.org/3/reference/datamodel.html#context-managers" title="(in Python v3.13)"><span class="xref std std-ref">context manager</span></a> is available to temporarily override both
 <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, and optionally to provide input for <code class="docutils literal notranslate"><span class="pre">stdin</span></code>.  It’s also possible to use
-<a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stdout()</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stderr" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stderr()</span></code></a>, but this does both at once.</p>
+<a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stdout()</span></code></a> and/or <a class="reference external" href="https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stderr" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">contextlib.redirect_stderr()</span></code></a>, but this does both at once.</p>
 <p>To test the result of actually executing the program, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a> method can be used.  Using
 the same <code class="docutils literal notranslate"><span class="pre">hello_world.py</span></code> script as the above test, we can define some additional example test cases that check
 the output:</p>

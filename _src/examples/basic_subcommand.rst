@@ -8,21 +8,16 @@ Basic Subcommand
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+-----------------------------+
-    | Subcommands | .. table::                  |
-    |             |     :widths: auto           |
-    |             |                             |
-    |             |     +---------+-----------+ |
-    |             |     | ``foo`` | Print foo | |
-    |             |     +---------+-----------+ |
-    |             |     | ``bar`` | Print bar | |
-    |             |     +---------+-----------+ |
-    +-------------+-----------------------------+
+    +---------+-----------+
+    | ``foo`` | Print foo |
+    +---------+-----------+
+    | ``bar`` | Print bar |
+    +---------+-----------+
 
 
 .. rubric:: Optional arguments

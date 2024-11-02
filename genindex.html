@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,19 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; CLI Command Parser 2024.09.07 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=c314d63d"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c314d63d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,9 +34,6 @@
           <a href="index.html" class="icon icon-home">
             CLI Command Parser
           </a>
-              <div class="version">
-                2024.09.07
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -217,7 +212,6 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.annotations.html">Annotations Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type"><code class="docutils literal notranslate"><span class="pre">get_descriptor_value_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type"><code class="docutils literal notranslate"><span class="pre">get_annotation_value_type()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.command_parameters.html">Command_Parameters Module</a><ul>
@@ -580,6 +574,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree"><code class="docutils literal notranslate"><span class="pre">rst_toc_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table"><code class="docutils literal notranslate"><span class="pre">rst_list_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable"><code class="docutils literal notranslate"><span class="pre">RstTable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.formatting.utils.html">Utils Module</a><ul>
@@ -1487,8 +1483,6 @@
 </li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.BadArgument">BadArgument</a>
 </li>
-      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.bar">bar() (cli_command_parser.formatting.restructured_text.RstTable method)</a>
-</li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.BaseArgs">BaseArgs (class in cli_command_parser.conversion.command_builder)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption">BaseOption (class in cli_command_parser.parameters.base)</a>
@@ -1499,10 +1493,10 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.ActionPhase.BEFORE_MAIN">BEFORE_MAIN (cli_command_parser.context.ActionPhase attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.before_main">before_main (cli_command_parser.parameters.options.ActionFlag parameter)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.before_main">before_main() (in module cli_command_parser.parameters.options)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.BLOCK">BLOCK (cli_command_parser.inputs.utils.StatMode attribute)</a>
@@ -1514,6 +1508,10 @@
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode.BOTH_UNDERSCORE">BOTH_UNDERSCORE (cli_command_parser.config.OptionNameMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.handle_invalid.params.bound">bound (cli_command_parser.inputs.numeric.NumRange.handle_invalid parameter)</a>
+</li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.brd_bottom">brd_bottom (cli_command_parser.formatting.restructured_text.Cell attribute)</a>
+</li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.brd_right">brd_right (cli_command_parser.formatting.restructured_text.Cell attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.build_tree">build_tree() (cli_command_parser.parse_tree.PosNode class method)</a>
 </li>
@@ -1551,7 +1549,9 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.params.cb_with_cmd">cb_with_cmd (cli_command_parser.parameters.base.Parameter parameter)</a>
 </li>
-      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.bar.params.char">char (cli_command_parser.formatting.restructured_text.RstTable.bar parameter)</a>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell">Cell (class in cli_command_parser.formatting.restructured_text)</a>
+</li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.cells">cells (cli_command_parser.formatting.restructured_text.Row attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.CHARACTER">CHARACTER (cli_command_parser.inputs.utils.StatMode attribute)</a>
 </li>
@@ -2623,8 +2623,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type">get_annotation_value_type() (in module cli_command_parser.annotations)</a>
 </li>
-      <li><a href="api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_args">get_args() (in module cli_command_parser.annotations)</a>
-</li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.get_cls_and_kwargs">get_cls_and_kwargs() (cli_command_parser.conversion.command_builder.ParamConverter method)</a>
 </li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_config">get_config() (in module cli_command_parser.core)</a>
@@ -2845,19 +2843,23 @@
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.ContextProxy.has_parsed_value">(cli_command_parser.context.ContextProxy method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound">has_upper_bound (cli_command_parser.nargs.Nargs property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_package.params.header">header (cli_command_parser.documentation.RstWriter.document_package parameter)</a>
 
       <ul>
         <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.write_index.params.header">(cli_command_parser.documentation.RstWriter.write_index parameter)</a>
 </li>
+        <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.header">(cli_command_parser.formatting.restructured_text.Row attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.add_row.params.header">(cli_command_parser.formatting.restructured_text.RstTable.add_row parameter)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.params.headers">headers (cli_command_parser.formatting.restructured_text.RstTable parameter)</a>
+</li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.height">height (cli_command_parser.formatting.restructured_text.Cell attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.BaseArgs.help">help (cli_command_parser.conversion.command_builder.BaseArgs attribute)</a>
 
@@ -3141,6 +3143,8 @@
       </ul></li>
       <li><a href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter">line_iter() (in module cli_command_parser.formatting.utils)</a>
 </li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.lines">lines (cli_command_parser.formatting.restructured_text.Cell attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.LINK">LINK (cli_command_parser.inputs.utils.StatMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.link_params">link_params() (cli_command_parser.parse_tree.PosNode method)</a>
@@ -3151,10 +3155,10 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.literal_eval_or_none">literal_eval_or_none() (in module cli_command_parser.conversion.command_builder)</a>
 </li>
-      <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.load_command">load_command() (in module cli_command_parser.testing)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.load_command">load_command() (in module cli_command_parser.testing)</a>
+</li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.load_commands">load_commands() (in module cli_command_parser.documentation)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Choice.local">local (cli_command_parser.parameters.choice_map.Choice attribute)</a>
@@ -4031,10 +4035,30 @@
 </li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_command_rst">render_command_rst() (in module cli_command_parser.documentation)</a>
 </li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.render_lines">render_lines() (cli_command_parser.formatting.restructured_text.Cell method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.render_lines">(cli_command_parser.formatting.restructured_text.Row method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.render_lower_bar">render_lower_bar() (cli_command_parser.formatting.restructured_text.Cell method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.render_lower_bar">(cli_command_parser.formatting.restructured_text.Row method)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.render_script_rst">render_script_rst() (in module cli_command_parser.documentation)</a>
 </li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.render_upper_bar">render_upper_bar() (cli_command_parser.formatting.restructured_text.Cell method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.render_upper_bar">(cli_command_parser.formatting.restructured_text.Row method)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.SubcommandAliasHelpMode.REPEAT">REPEAT (cli_command_parser.config.SubcommandAliasHelpMode attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.documentation.html#cli_command_parser.documentation.RstWriter.document_script.params.replacements">replacements (cli_command_parser.documentation.RstWriter.document_script parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__.params.repr_attrs">repr_attrs (cli_command_parser.parameters.base.Parameter.__init_subclass__ parameter)</a>
@@ -4045,8 +4069,6 @@
         <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.represents">(cli_command_parser.conversion.argparse_ast.AstCallable attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.ArgGroup.represents">represents() (cli_command_parser.conversion.argparse_ast.ArgGroup method)</a>
 
       <ul>
@@ -4101,7 +4123,7 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.roll_back_parsed_values">roll_back_parsed_values() (cli_command_parser.context.Context method)</a>
 </li>
-      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.rows">rows (cli_command_parser.formatting.restructured_text.RstTable attribute)</a>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row">Row (class in cli_command_parser.formatting.restructured_text)</a>
 </li>
       <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_bar">rst_bar() (in module cli_command_parser.formatting.restructured_text)</a>
 </li>
@@ -4343,6 +4365,8 @@
       </ul></li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.AssertRaisesWithStringContext.test_case">test_case (cli_command_parser.testing.AssertRaisesWithStringContext attribute)</a>
 </li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.text">text (cli_command_parser.formatting.restructured_text.Cell attribute)</a>
+</li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.Time">Time (class in cli_command_parser.inputs.time)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.TimeDelta">TimeDelta (class in cli_command_parser.inputs.time)</a>
@@ -4381,10 +4405,10 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_refs_to">track_refs_to() (cli_command_parser.conversion.visitor.ScriptVisitor method)</a>
 </li>
-      <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.TrackedRef">TrackedRef (class in cli_command_parser.conversion.visitor)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.TrackedRef">TrackedRef (class in cli_command_parser.conversion.visitor)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">TriFlag (class in cli_command_parser.parameters.options)</a>
 </li>
       <li><a href="api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter">TriFlagHelpFormatter (class in cli_command_parser.formatting.params)</a>
@@ -4597,9 +4621,15 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.Terminal.width">width (cli_command_parser.utils.Terminal property)</a>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.width">width (cli_command_parser.formatting.restructured_text.Cell attribute)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.Terminal.width">(cli_command_parser.utils.Terminal property)</a>
 </li>
-      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.widths">widths (cli_command_parser.formatting.restructured_text.RstTable attribute)</a>
+      </ul></li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.widths">widths (cli_command_parser.formatting.restructured_text.RstTable property)</a>
+</li>
+      <li><a href="api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.widths">widths() (cli_command_parser.formatting.restructured_text.Row method)</a>
 </li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.word">word (cli_command_parser.parse_tree.PosNode attribute)</a>
 </li>
