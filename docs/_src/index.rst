@@ -3,7 +3,7 @@ CLI Command Parser
 
 |downloads| |py_version| |coverage_badge| |build_status| |Ruff|
 
-.. |py_version| image:: https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20-blue
+.. |py_version| image:: https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20-blue
     :target: https://pypi.org/project/cli-command-parser/
 
 .. |coverage_badge| image:: https://codecov.io/gh/dskrypa/cli_command_parser/branch/main/graph/badge.svg
