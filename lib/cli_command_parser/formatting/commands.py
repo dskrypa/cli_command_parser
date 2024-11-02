@@ -12,9 +12,10 @@ from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Optional, Type, 
 
 from ..context import NoActiveContext, ctx
 from ..core import get_metadata, get_params
+from ..parameters.choice_map import ChoiceMap
 from ..parameters.groups import ParamGroup
 from ..utils import _NotSet, camel_to_snake_case
-from .restructured_text import RstTable, spaced_rst_header
+from .restructured_text import spaced_rst_header
 from .utils import PartWrapper
 
 if TYPE_CHECKING:
@@ -47,6 +48,7 @@ class CommandHelpFormatter:
         for group in groups:
             if group.group:  # prevent duplicates
                 continue
+
             if group.contains_positional:
                 self.pos_group.add(group)
             else:
@@ -162,14 +164,17 @@ class CommandHelpFormatter:
             yield description
             yield ''
 
-        # TODO: The subcommand names in the group containing subcommand targets should link to their respective
-        #  subcommand sections
-        for group in self.groups:
+        if self.pos_group.show_in_help:
             # TODO: Nested subcommands' local choices should not repeat the `subcommands` positional arguments section
             #  that includes the nested subcommand choice being documented
+            if len(members := self.pos_group.members) == 1 and isinstance(members[0], ChoiceMap):
+                yield from members[0].formatter.rst_table().iter_build()  # noqa
+            else:
+                yield from self.pos_group.formatter.rst_table().iter_build()
+
+        for group in self.groups[1:]:
             if group.show_in_help:
-                table: RstTable = group.formatter.rst_table()  # noqa
-                yield from table.iter_build()
+                yield from group.formatter.rst_table().iter_build()
 
         if include_epilog and (epilog := self._meta.format_epilog(config.extended_epilog, allow_sys_argv)):
             yield epilog

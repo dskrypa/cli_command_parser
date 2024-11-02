@@ -15,6 +15,7 @@ from .base import BaseOption, BasePositional, ParamBase, _group_stack
 from .pass_thru import PassThru
 
 if TYPE_CHECKING:
+    from ..formatting.params import GroupHelpFormatter
     from ..typing import Bool, ParamList, ParamOrGroup
 
 __all__ = ['ParamGroup']
@@ -48,6 +49,7 @@ class ParamGroup(ParamBase):
     members: list[ParamOrGroup]
     mutually_exclusive: Bool = False
     mutually_dependent: Bool = False
+    formatter: GroupHelpFormatter
 
     def __init__(
         self,
@@ -201,6 +203,11 @@ class ParamGroup(ParamBase):
         """
         if not (self.mutually_dependent or self.mutually_exclusive):
             return
+
+        # TODO: Use case: partially mutually dependent group - outer mutually dependent group where within the group,
+        #  some params are required if any members are provided, but not all members (which may be groups themselves)
+        #  are always required.  If those optional members are provided, then the required members must be required,
+        #  but not the inverse.
 
         # log.debug(f'{self}: Checking group conflicts in {provided=}, {missing=}')
         # log.debug(f'{self}: Checking group conflicts in provided={len(provided)}, missing={len(missing)}')

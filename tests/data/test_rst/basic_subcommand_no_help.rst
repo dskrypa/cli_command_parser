@@ -8,19 +8,14 @@ basic_subcommand_no_help
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+--------------------+
-    | Subcommands | .. table::         |
-    |             |     :widths: auto  |
-    |             |                    |
-    |             |     +---------+--+ |
-    |             |     | ``foo`` |  | |
-    |             |     +---------+--+ |
-    +-------------+--------------------+
+    +---------+--+
+    | ``foo`` |  |
+    +---------+--+
 
 
 Subcommands

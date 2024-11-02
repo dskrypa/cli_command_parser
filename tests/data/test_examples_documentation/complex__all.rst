@@ -20,23 +20,18 @@ base Command so that the base Command is made aware of the presence of the subco
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+-----------------------+
-    | Subcommands | .. table::            |
-    |             |     :widths: auto     |
-    |             |                       |
-    |             |     +------------+--+ |
-    |             |     | ``hello``  |  | |
-    |             |     +------------+--+ |
-    |             |     | ``logs``   |  | |
-    |             |     +------------+--+ |
-    |             |     | ``update`` |  | |
-    |             |     +------------+--+ |
-    +-------------+-----------------------+
+    +------------+--+
+    | ``hello``  |  |
+    +------------+--+
+    | ``logs``   |  |
+    +------------+--+
+    | ``update`` |  |
+    +------------+--+
 
 
 .. rubric:: Optional arguments
@@ -108,25 +103,20 @@ Subcommand: update
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+----------------------+
-    | Subcommands | .. table::           |
-    |             |     :widths: auto    |
-    |             |                      |
-    |             |     +-----------+--+ |
-    |             |     | ``foo``   |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``bar``   |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``user``  |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``group`` |  | |
-    |             |     +-----------+--+ |
-    +-------------+----------------------+
+    +-----------+--+
+    | ``foo``   |  |
+    +-----------+--+
+    | ``bar``   |  |
+    +-----------+--+
+    | ``user``  |  |
+    +-----------+--+
+    | ``group`` |  |
+    +-----------+--+
 
 
 .. rubric:: Optional arguments
@@ -176,25 +166,20 @@ Subcommand: update foo
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+----------------------+
-    | Subcommands | .. table::           |
-    |             |     :widths: auto    |
-    |             |                      |
-    |             |     +-----------+--+ |
-    |             |     | ``foo``   |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``bar``   |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``user``  |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``group`` |  | |
-    |             |     +-----------+--+ |
-    +-------------+----------------------+
+    +-----------+--+
+    | ``foo``   |  |
+    +-----------+--+
+    | ``bar``   |  |
+    +-----------+--+
+    | ``user``  |  |
+    +-----------+--+
+    | ``group`` |  |
+    +-----------+--+
 
 
 .. rubric:: Optional arguments
@@ -244,25 +229,20 @@ Subcommand: update bar
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+----------------------+
-    | Subcommands | .. table::           |
-    |             |     :widths: auto    |
-    |             |                      |
-    |             |     +-----------+--+ |
-    |             |     | ``foo``   |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``bar``   |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``user``  |  | |
-    |             |     +-----------+--+ |
-    |             |     | ``group`` |  | |
-    |             |     +-----------+--+ |
-    +-------------+----------------------+
+    +-----------+--+
+    | ``foo``   |  |
+    +-----------+--+
+    | ``bar``   |  |
+    +-----------+--+
+    | ``user``  |  |
+    +-----------+--+
+    | ``group`` |  |
+    +-----------+--+
 
 
 .. rubric:: Optional arguments
