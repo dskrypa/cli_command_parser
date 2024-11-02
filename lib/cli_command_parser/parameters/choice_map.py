@@ -21,6 +21,7 @@ from .actions import Concatenate
 from .base import BasePositional
 
 if TYPE_CHECKING:
+    from ..formatting.params import ChoiceMapHelpFormatter
     from ..metadata import ProgramMetadata
 
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
@@ -84,6 +85,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     choices: dict[str, Choice[T]]
     title: OptStr
     description: OptStr
+    formatter: ChoiceMapHelpFormatter
 
     def __init_subclass__(  # pylint: disable=W0222
         cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs

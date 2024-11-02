@@ -494,7 +494,7 @@ class SubcommandHelpAndRstTest(ParserTest):
 
         with self.subTest(mode=mode, **cmd_kwargs):
             expected_help = prep_expected_help_text(help_header, param_help_map)
-            expected_rst = prep_expected_rst('    |             |     {:<13s} |\n', param_help_map)
+            expected_rst = prep_expected_rst('    {:<13s}', param_help_map)
 
             class Foo(Command, **cmd_kwargs):
                 sub_cmd = SubCommand(**sc_kwargs)
@@ -658,7 +658,7 @@ def prep_expected_help_text(help_header: str, param_help_map: dict[str, str], in
 def prep_expected_rst(table_fmt_str: str, param_help_map: dict[str, str]) -> str:
     rf = table_fmt_str.format
     table = RstTable.from_dict({f'``{k}``': v for k, v in param_help_map.items()}, use_table_directive=False)
-    return ''.join(rf(line) for line in table.iter_build() if line)
+    return '\n'.join(rf(line).rstrip() for line in table.iter_build() if line)
 
 
 class ShowDefaultsTest(TestCase):

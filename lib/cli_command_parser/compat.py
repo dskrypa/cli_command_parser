@@ -1,9 +1,4 @@
 """
-Compatibility / Patch module - used to back-port features to Python 3.7 and to avoid breaking changes in Enum/Flag in
-3.11.
-
-Contains stdlib CPython functions / classes from Python 3.8 and 3.10.
-
 The :class:`WCTextWrapper` in this module extends the stdlib :class:`python:textwrap.TextWrapper` to support wide
 characters.
 """
@@ -15,8 +10,6 @@ from textwrap import TextWrapper
 from .utils import wcswidth
 
 __all__ = ['WCTextWrapper']
-
-# region textwrap
 
 
 class WCTextWrapper(TextWrapper):
@@ -119,6 +112,3 @@ class WCTextWrapper(TextWrapper):
                     break
 
         return lines
-
-
-# endregion

@@ -12,19 +12,14 @@ Test case for RST documentation generation.
 test
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+--------------------------+
-    | Subcommands | .. table::               |
-    |             |     :widths: auto        |
-    |             |                          |
-    |             |     +---------+--------+ |
-    |             |     | ``sub`` | do foo | |
-    |             |     +---------+--------+ |
-    +-------------+--------------------------+
+    +---------+--------+
+    | ``sub`` | do foo |
+    +---------+--------+
 
 
 .. rubric:: Optional arguments

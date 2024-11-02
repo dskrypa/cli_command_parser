@@ -16,7 +16,7 @@ from ..core import get_config
 from ..parameters import ParamGroup, PassThru, TriFlag
 from ..parameters.base import BaseOption, BasePositional
 from ..parameters.choice_map import Choice, ChoiceMap
-from .restructured_text import RstTable
+from .restructured_text import Cell, Row, RstTable
 from .utils import _should_add_default, format_help_entry
 
 if TYPE_CHECKING:
@@ -223,6 +223,8 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
 
 
 class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
+    """Formatter for :class:`SubCommand` and :class:`Action` parameters (and any other params that extend ChoiceMap)"""
+
     param: ChoiceMap
 
     @cached_property
@@ -269,6 +271,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
 
     def _format_rst_rows(self) -> Iterator[tuple[str, OptStr]]:
         mode = ctx.config.cmd_alias_mode or SubcommandAliasHelpMode.ALIAS
+        # TODO: The subcommand names should link to their respective subcommand sections
         for choice_group in self.choice_groups:
             for choice, usage, description in choice_group.prepare(mode):
                 yield f'``{usage}``', description
@@ -492,15 +495,19 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         table = RstTable(self.format_description())
         # TODO: non-nested when config.show_group_tree is False; maybe separate options for rst vs help
         for member in self.param.members:
-            if member.show_in_help:
-                formatter = member.formatter
-                try:
-                    sub_table: RstTable = formatter.rst_table()  # noqa
-                except AttributeError:
-                    table.add_rows(formatter.rst_rows())
-                else:
-                    sub_table.show_title = False
-                    table.add_row(sub_table.title, str(sub_table))
+            if not member.show_in_help:
+                continue
+
+            formatter = member.formatter
+            try:
+                sub_table: RstTable = formatter.rst_table()  # noqa
+            except AttributeError:
+                table.add_rows(formatter.rst_rows())
+            else:
+                table._add_row(Row([Cell(str(sub_table), ext_right=True), Cell()]))
+                # If a config option to switch to the old way is added later, the old approach:
+                # sub_table.show_title = False
+                # table.add_row(sub_table.title, str(sub_table))
 
         return table
 

@@ -20,23 +20,18 @@ base Command so that the base Command is made aware of the presence of the subco
 
 
 
-.. rubric:: Positional arguments
+.. rubric:: Subcommands
 
 .. table::
     :widths: auto
 
-    +-------------+-----------------------+
-    | Subcommands | .. table::            |
-    |             |     :widths: auto     |
-    |             |                       |
-    |             |     +------------+--+ |
-    |             |     | ``hello``  |  | |
-    |             |     +------------+--+ |
-    |             |     | ``logs``   |  | |
-    |             |     +------------+--+ |
-    |             |     | ``update`` |  | |
-    |             |     +------------+--+ |
-    +-------------+-----------------------+
+    +------------+--+
+    | ``hello``  |  |
+    +------------+--+
+    | ``logs``   |  |
+    +------------+--+
+    | ``update`` |  |
+    +------------+--+
 
 
 .. rubric:: Optional arguments

@@ -7,6 +7,8 @@ Program metadata introspection for use in usage, help text, and documentation.
 
 from __future__ import annotations
 
+import json
+import platform
 from collections import defaultdict
 from functools import cached_property
 from importlib.metadata import Distribution, EntryPoint, entry_points
@@ -24,6 +26,7 @@ if TYPE_CHECKING:
 
 __all__ = ['ProgramMetadata']
 
+WINDOWS = platform.system().lower() == 'windows'
 DEFAULT_FILE_NAME: str = 'UNKNOWN'
 
 
@@ -247,12 +250,14 @@ class ProgramMetadata:
 
     def format_epilog(self, extended: Bool = True, allow_sys_argv: Bool = None) -> str:
         parts = [self.epilog] if self.epilog else []
+        # TODO: Add support for epilog_format format string?
         if parts and not extended:
             return parts[0]
 
         if version := self.version:
             version = f' [ver. {version}]'
         if self.email:
+            # TODO: add support_url metadata entry and use that instead of email, if present?
             parts.append(f'Report {self.get_prog(allow_sys_argv)}{version} bugs to {self.email}')
         if url := self.docs_url or self.url:
             parts.append(f'Online documentation: {url}')
@@ -267,6 +272,7 @@ class ProgramMetadata:
         return doc_str
 
     def get_description(self, allow_inherited: Bool = True) -> OptStr:
+        # TODO: Description template for subcommands?
         if description := self.description:
             if not allow_inherited and (parent := self.parent) and (parent_description := parent.description):  # noqa
                 return description if parent_description != description else None
@@ -301,7 +307,7 @@ class ProgFinder:
     def _get_console_scripts(cls) -> tuple[EntryPoint, ...]:
         try:
             return entry_points(group='console_scripts')  # noqa
-        except TypeError:  # Python 3.8 or 3.9
+        except TypeError:  # Python 3.9
             return entry_points()['console_scripts']  # noqa
 
     def normalize(
@@ -383,9 +389,32 @@ class DistributionFinder:
         self._dist_urls = {}
 
     @cached_property
+    def _all_distributions(self) -> tuple[dict[str, Distribution], dict[str, tuple[Distribution, Path]]]:
+        normal, editable = {}, {}
+        for dist in Distribution.discover():
+            # Note: Distribution.name was not added until 3.10, and it returns `self.metadata['Name']`
+            if not (name := dist.metadata.get('Name')):
+                continue
+            elif existing := normal.get(name):
+                if path := _get_editable_path(existing):
+                    editable[name] = (dist, path)
+                elif path := _get_editable_path(dist):
+                    editable[name] = (existing, path)
+                    normal[name] = dist
+                else:  # A third case is not really expected here...
+                    normal[name] = dist
+            else:
+                normal[name] = dist
+
+        return normal, editable
+
+    @cached_property
     def _distributions(self) -> dict[str, Distribution]:
-        # Note: Distribution.name was not added until 3.10, and it returns `self.metadata['Name']`
-        return {dist.metadata['Name']: dist for dist in Distribution.discover()}
+        return self._all_distributions[0]
+
+    @cached_property
+    def _editable_distributions(self) -> dict[str, tuple[Distribution, Path]]:
+        return self._all_distributions[1]
 
     def _get_top_levels(self, dist_name: str, dist: Distribution) -> set[str]:
         # dist_name = dist.metadata['Name']  # Distribution.name was not added until 3.10, and it returns this
@@ -419,12 +448,29 @@ class DistributionFinder:
 
     def _dist_for_obj_main(self, obj) -> Distribution | None:
         # Note: getmodule returns the module object (obj.__module__ only provides the name)
-        if (module := getmodule(obj)) is None or not module.__package__:
+        if (module := getmodule(obj)) is None:
             return None
+        elif not module.__package__:
+            # This may occur for top-level scripts that are in a bin/ directory or similar, with a Command that was
+            # defined in that file instead of in the package that represents the library code for that project
+            try:
+                path = module.__loader__.path  # noqa
+            except AttributeError:
+                return None
+            else:
+                return self._dist_for_main_loader_path(path)
 
         # The package name may have a prefix like `lib` not included in top_level when interactive
         for part in module.__package__.split('.'):
             if (dist := self.dist_for_pkg(part)) is not None:
+                return dist
+
+        return None
+
+    def _dist_for_main_loader_path(self, path_str: str) -> Distribution | None:
+        path = Path(path_str).resolve()
+        for name, (dist, src_path) in self._editable_distributions.items():
+            if path.is_relative_to(src_path):
                 return dist
         return None
 
@@ -443,6 +489,25 @@ class DistributionFinder:
                 urls[url_type.strip()] = url.strip()
         self._dist_urls[dist_name] = urls
         return urls
+
+
+def _get_editable_path(dist: Distribution) -> Path | None:
+    if not (direct_url := dist.read_text('direct_url.json')):  # read_text suppresses errors
+        return None
+
+    data = json.loads(direct_url)
+    # direct_url content: '{"dir_info": {"editable": true}, "url": "file:///C:/Users/..."}'
+    if not (url := data.get('url')) or not data.get('dir_info', {}).get('editable'):
+        return None  # This is not expected
+
+    parsed = urlparse(url)
+    if parsed.scheme != 'file':  # This is not expected
+        return None
+
+    path = parsed.path
+    if WINDOWS and path.startswith('/') and ':/' in path[:4]:  # The uri path has a leading / before the drive letter
+        path = path[1:]
+    return Path(path).resolve()
 
 
 _dist_finder = DistributionFinder()

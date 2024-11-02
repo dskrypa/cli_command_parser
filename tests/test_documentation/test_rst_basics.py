@@ -2,7 +2,15 @@
 
 from unittest import main
 
-from cli_command_parser.formatting.restructured_text import rst_bar, rst_header, rst_list_table, rst_directive, RstTable
+from cli_command_parser.formatting.restructured_text import (
+    Cell,
+    Row,
+    RstTable,
+    rst_bar,
+    rst_directive,
+    rst_header,
+    rst_list_table,
+)
 from cli_command_parser.testing import ParserTest
 
 
@@ -42,6 +50,9 @@ class RstTableTest(ParserTest):
     def test_table_repr(self):
         self.assertTrue(repr(RstTable()).startswith('<RstTable[use_table_directive='))
 
+    def test_cell_repr(self):
+        self.assert_strings_equal("<Cell['one\\ntwo', width=3, height=2]>", repr(Cell('one\ntwo')))
+
     def test_table_insert(self):
         table = RstTable(use_table_directive=False)
         table.add_row('x', 'y', 'z')
@@ -72,6 +83,35 @@ class RstTableTest(ParserTest):
         rows = [{'foo': '123', 'bar': '234'}, {'foo': '345', 'bar': '456'}]
         table = RstTable.from_dicts(rows, columns=('foo',), use_table_directive=False)
         self.assert_strings_equal('+-----+\n| 123 |\n+-----+\n| 345 |\n+-----+\n', str(table))
+
+    def test_table_with_extended_cells(self):
+        rows = [
+            Row([Cell('a'), Cell('b'), Cell('c'), Cell('d')], True),
+            Row([Cell('one\ntwo', ext_below=True), Cell('three and four', ext_right=True), Cell(), Cell('abc')]),
+            Row([Cell(), Cell('five'), Cell('six', ext_right=True), Cell()]),
+            Row([Cell('def'), Cell('ghi'), Cell('jkl'), Cell('mno')]),
+            Row([Cell('1'), Cell('2'), Cell('3', ext_right=True, ext_below=True), Cell(ext_below=True)]),
+            Row([Cell('4'), Cell('5'), Cell(ext_right=True), Cell()]),
+        ]
+        table = RstTable(use_table_directive=False)
+        table._add_rows(rows)
+        expected = """
++-----+----------------+-----+-----+
+| a   | b              | c   | d   |
++=====+================+=====+=====+
+| one | three and four       | abc |
+| two |                      |     |
+|     +----------------+-----+-----+
+|     | five           | six       |
++-----+----------------+-----+-----+
+| def | ghi            | jkl | mno |
++-----+----------------+-----+-----+
+| 1   | 2              | 3         |
++-----+----------------+           +
+| 4   | 5              |           |
++-----+----------------+-----+-----+
+        """.strip()
+        self.assert_strings_equal(expected, str(table), trim=True)
 
 
 if __name__ == '__main__':
