@@ -7,7 +7,7 @@ Utilities for extracting types from annotations.
 from collections.abc import Collection, Iterable
 from functools import lru_cache
 from inspect import isclass
-from typing import Union, Optional, get_type_hints as _get_type_hints, get_origin, get_args as _get_args
+from typing import Optional, Union, get_args, get_origin, get_type_hints as _get_type_hints
 
 try:
     from types import NoneType
@@ -40,15 +40,6 @@ def get_annotation_value_type(annotation, from_union: bool = True, from_collecti
     elif from_union and origin is Union:
         return _type_from_union(annotation)
     return None
-
-
-def get_args(annotation) -> tuple:
-    """
-    Wrapper around :func:`python:typing.get_args` for 3.7~8 compatibility, to make it behave more like it does in 3.9+
-    """
-    if getattr(annotation, '_special', False):  # 3.7-3.8 generic collection alias with no content types
-        return ()
-    return _get_args(annotation)
 
 
 def _type_from_union(annotation) -> Optional[type]:

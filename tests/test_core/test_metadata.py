@@ -162,7 +162,7 @@ class MetadataProgTest(TestCase):
     def test_entry_points_old(self):
         entry_points = {'console_scripts': ep_scripts(('bar.py', 'foo:bar'), ('baz.py', 'foo:baz'))}
         expected = {'foo': {'bar': 'bar.py', 'baz': 'baz.py'}}
-        with patch(f'{MODULE}.entry_points', side_effect=[TypeError, entry_points]):  # Simulate py 3.8/3.9
+        with patch(f'{MODULE}.entry_points', side_effect=[TypeError, entry_points]):  # Simulate py 3.9
             self.assertDictEqual(expected, ProgFinder().mod_obj_prog_map)
 
     def test_entry_points_new(self):

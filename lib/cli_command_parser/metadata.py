@@ -307,7 +307,7 @@ class ProgFinder:
     def _get_console_scripts(cls) -> tuple[EntryPoint, ...]:
         try:
             return entry_points(group='console_scripts')  # noqa
-        except TypeError:  # Python 3.8 or 3.9
+        except TypeError:  # Python 3.9
             return entry_points()['console_scripts']  # noqa
 
     def normalize(

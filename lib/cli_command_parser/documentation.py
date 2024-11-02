@@ -372,6 +372,6 @@ class RstWriter:
         path = target_dir.joinpath(name + self.ext)
         log.debug(f'{prefix} {path.as_posix()}')
         if not self.dry_run:
-            # Path.write_text on 3.8 does not support `newline`
+            # Path.write_text on 3.9 does not support `newline`
             with path.open('w', encoding=self.encoding, newline=self.newline) as f:
                 f.write(content)
