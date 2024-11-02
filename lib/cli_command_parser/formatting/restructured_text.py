@@ -6,10 +6,7 @@ Utilities for formatting data using RST markup
 
 from __future__ import annotations
 
-from itertools import starmap
 from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence, TypeVar, Union
-
-from .utils import line_iter
 
 if TYPE_CHECKING:
     from ..typing import Bool, OptStr, Strings
@@ -119,7 +116,7 @@ class RstTable:
       body of this table.
     """
 
-    __slots__ = ('title', 'subtitle', 'show_title', 'use_table_directive', 'rows', 'widths')
+    __slots__ = ('title', 'subtitle', 'show_title', 'use_table_directive', '_rows', '_widths', '_updated')
 
     def __init__(
         self,
@@ -134,8 +131,9 @@ class RstTable:
         self.subtitle = subtitle
         self.show_title = show_title
         self.use_table_directive = use_table_directive
-        self.rows = []
-        self.widths = []
+        self._rows = []
+        self._widths = ()
+        self._updated = False
         if headers:
             self.add_row(*headers, header=True)
 
@@ -163,6 +161,13 @@ class RstTable:
         table.add_kv_rows(data)
         return table
 
+    @property
+    def widths(self) -> tuple[int, ...]:
+        if self._updated:
+            self._widths = tuple(max(col) for col in zip(*(row.widths() for row in self._rows)))
+            self._updated = False
+        return self._widths
+
     def add_dict_rows(self, rows: RowMaps, columns: Sequence[T] = None, add_header: Bool = False):
         """Add a row for each dict in the given sequence of rows, where the keys represent the columns."""
         if not columns:
@@ -180,8 +185,11 @@ class RstTable:
         self.add_rows(data.items())
 
     def add_rows(self, rows: Iterable[Iterable[OptStr]]):
-        for row in rows:
-            self.add_row(*row)
+        self._add_rows(Row([Cell(c or '') for c in columns]) for columns in rows)
+
+    def _add_rows(self, rows: Iterable[Row]):
+        self._rows.extend(rows)
+        self._updated = True
 
     def add_row(self, *columns: OptStr, index: int = None, header: bool = False):
         """
@@ -192,34 +200,18 @@ class RstTable:
           the list of rows.
         :param header: If True, this row will be treated as a header row.  Does not affect insertion order.
         """
-        any_new_line, widths = _widths(columns)
-        if self.widths:
-            self.widths = tuple(starmap(max, zip(self.widths, widths)))
-        else:
-            self.widths = tuple(widths)
+        self._add_row(Row([Cell(c or '') for c in columns], header), index)
 
-        columns = tuple(c or '' for c in columns)
+    def _add_row(self, row: Row, index: int = None):
         if index is None:
-            self.rows.append((header, any_new_line, columns))
+            self._rows.append(row)
         else:
-            self.rows.insert(index, (header, any_new_line, columns))
-
-    def bar(self, char: str = '-') -> str:
-        """
-        :param char: The character to use for the bar.  Defaults to ``-`` (for normal rows).  Use ``=`` below a header
-          row.  See :du_rst:`Grid Tables<grid-tables>` for more info.
-        :return: The formatted bar string
-        """
-        pre = '    ' if self.use_table_directive else ''
-        return '+'.join([pre, *(char * (w + 2) for w in self.widths), ''])
-
-    def _get_row_format(self) -> str:
-        pre = '    ' if self.use_table_directive else ''
-        return '|'.join([pre, *(f' {{:<{w}s}} ' for w in self.widths), ''])
+            self._rows.insert(index, row)
+        self._updated = True
 
     def __repr__(self) -> str:
         return (
-            f'<RstTable[use_table_directive={self.use_table_directive}, rows={len(self.rows)},'
+            f'<RstTable[use_table_directive={self.use_table_directive}, rows={len(self._rows)},'
             f' title={self.title!r}, widths={self.widths}]>'
         )
 
@@ -230,38 +222,85 @@ class RstTable:
             yield ''
 
         if self.use_table_directive:
-            options = {'subtitle': self.subtitle, 'widths': 'auto'}
-            yield from _rst_directive('table', options=options, check=True)
+            yield from _rst_directive('table', options={'subtitle': self.subtitle, 'widths': 'auto'}, check=True)
             yield ''
-
-        bar, header_bar = self.bar(), self.bar('=')
-        format_row = self._get_row_format().format
-        yield bar
-        for header, any_new_line, row in self.rows:
-            if any_new_line:
-                for line in line_iter(*row):
-                    yield format_row(*line)
-            else:
-                yield format_row(*row)
-
-            yield header_bar if header else bar
+            for line in self._iter_render():
+                yield '    ' + line
+        else:
+            yield from self._iter_render()
 
         yield ''
+
+    def _iter_render(self) -> Iterator[str]:
+        col_widths = self.widths
+        yield self._rows[0].render_upper_bar(col_widths)
+        for row in self._rows:
+            yield from row.render_lines(col_widths)
 
     def __str__(self) -> str:
         return '\n'.join(self.iter_build())
 
 
-def _widths(columns: Iterable[OptStr]) -> tuple[bool, list[int]]:
-    widths = []
-    any_new_line = False
-    for column in columns:
-        if not column:
-            widths.append(0)
-        elif '\n' in column:
-            any_new_line = True
-            widths.append(max(map(len, column.splitlines())))
-        else:
-            widths.append(len(column))
+class Cell:
+    __slots__ = ('text', 'lines', 'width', 'height', 'brd_bottom', 'brd_right')
 
-    return any_new_line, widths
+    def __init__(self, text: str = '', *, ext_right: bool = False, ext_below: bool = False):
+        self.text = text
+        if text:
+            self.lines = text.splitlines()
+            self.width = max(map(len, self.lines))
+            self.height = len(self.lines)
+        else:
+            self.lines = ['']
+            self.width = 0
+            self.height = 1
+
+        self.brd_bottom = not ext_below
+        self.brd_right = not ext_right
+
+    def render_upper_bar(self, width: int) -> str:
+        return ('-' * (width + 2)) + ('+' if self.brd_bottom else '|')
+
+    def render_lower_bar(self, width: int, char: str = '-') -> str:
+        if not self.brd_bottom:
+            char = ' '
+        return (char * (width + 2)) + ('+' if self.brd_bottom or self.brd_right else ' ')
+
+    def render_lines(self, width: int, max_lines: int) -> Iterator[str]:
+        format_line = f' {{:<{width}s}} {"|" if self.brd_right else " "}'.format
+        for line in self.lines:
+            yield format_line(line)
+
+        for _ in range(self.height, max_lines):
+            yield format_line('')
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__}[{self.text!r}, width={self.width}, height={self.height}]>'
+
+
+class Row:
+    __slots__ = ('cells', 'header')
+
+    def __init__(self, cells: list[Cell], header: bool = False):
+        self.cells = cells
+        self.header = header
+
+    def widths(self) -> Iterator[int]:
+        for cell in self.cells:
+            yield cell.width
+
+    def render_upper_bar(self, widths: Sequence[int]) -> str:
+        return '+' + ''.join(cell.render_upper_bar(w) for cell, w in zip(self.cells, widths))
+
+    def render_lower_bar(self, widths: Sequence[int]) -> str:
+        char = '=' if self.header else '-'
+        first = '+' if self.cells[0].brd_bottom else '|'
+        return first + ''.join(cell.render_lower_bar(w, char) for cell, w in zip(self.cells, widths))
+
+    def render_lines(self, widths: Sequence[int]) -> Iterator[str]:
+        max_lines = max(cell.height for cell in self.cells)
+        renderers = [cell.render_lines(w, max_lines) for cell, w in zip(self.cells, widths)]
+        for cell_strs in zip(*renderers):
+            yield '|' + ''.join(cell_strs)
+
+        yield self.render_lower_bar(widths)
