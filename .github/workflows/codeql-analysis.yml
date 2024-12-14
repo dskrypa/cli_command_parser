@@ -5,7 +5,7 @@
 # or to provide custom queries or build logic.
 #
 name: "CodeQL"
-
+permissions: read-all  # Declare default permissions as read only.
 on:
   push:
     branches: ["main"]
@@ -26,8 +26,6 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
-      actions: read
-      contents: read
       security-events: write
     strategy:
       fail-fast: false
