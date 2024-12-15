@@ -36,6 +36,9 @@ log = logging.getLogger(__name__)
 
 _PRE_INIT = ActionPhase.PRE_INIT
 
+# TODO: When an invalid choice for a positional is provided with -h / --help, the invalid choice error is shown instead
+#  of help, but help should be shown instead
+
 
 class CommandParser:
     """Stateful parser used for a single pass of argument parsing"""
@@ -111,8 +114,6 @@ class CommandParser:
         self._parse_env_vars(ctx)
 
     def _parse_env_vars(self, ctx: Context):
-        # TODO: It would be helpful to store arg provenance for error messages, especially for a conflict between
-        #  mutually exclusive params when they were provided via env
         for param in ctx.missing_options_with_env_var():
             for env_var in param.env_vars():
                 try:
@@ -220,7 +221,7 @@ class CommandParser:
         self, opt: str, param: BaseOption, value: OptStr, combo: bool = False, joined: Bool = False
     ):
         if value is not None:
-            param.action.add_value(value, opt=opt, combo=combo, joined=joined)
+            param.action.add_value(value, combo=combo, joined=joined)
         elif param.action.accepts_consts and not param.action.accepts_values:
             param.action.add_const(opt=opt, combo=combo)
         elif not self.consume_values(param) and param.action.accepts_consts:

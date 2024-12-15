@@ -192,9 +192,9 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
         try:
             parsed = self.type(value)
         except Exception as e:
-            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
+            raise ParamUsageError(self, f'unable to parse {value=} from env var={env_var!r}: {e}') from e
         if self.use_env_value and parsed != self.const and parsed != self.default:
-            raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
+            raise BadArgument(self, f'invalid value={parsed!r} from env var={env_var!r}')
         return parsed, self.use_env_value
 
 
@@ -308,10 +308,10 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
         try:
             parsed = self.type(value)
         except Exception as e:
-            raise ParamUsageError(self, f'unable to parse {value=} from {env_var=}: {e}') from e
+            raise ParamUsageError(self, f'unable to parse {value=} from env var={env_var!r}: {e}') from e
         if self.use_env_value:
             if parsed not in self.consts and parsed != self.default:
-                raise BadArgument(self, f'invalid value={parsed!r} from {env_var=}')
+                raise BadArgument(self, f'invalid value={parsed!r} from env var={env_var!r}')
             return parsed, True
         else:
             const = self.consts[0] if parsed else self.consts[1]
@@ -491,14 +491,15 @@ class Counter(BaseOption[int], actions=(Count,)):
             self.default_cb = None
         return super().register_default_cb(method)
 
-    def prepare_value(self, value: Optional[str], short_combo: bool = False) -> int:
+    def prepare_value(self, value: Optional[str], short_combo: bool = False, env_var: str = None) -> int:
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
             combinable = self.option_strs.combinable
             if short_combo and combinable and all(c in combinable for c in value):
                 return len(value) + 1  # +1 for the -short that preceded this value
-            raise BadArgument(self, f'bad counter {value=}') from e
+            suffix = f' from env var={env_var!r}' if env_var else ''
+            raise BadArgument(self, f'bad counter {value=}{suffix}') from e
 
     prepare_validation_value = prepare_value
 

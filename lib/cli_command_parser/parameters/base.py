@@ -325,19 +325,22 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def get_env_const(self, value: str, env_var: str) -> tuple[T_co, bool]:
         return _NotSet, False
 
-    def prepare_value(self, value: str, short_combo: Bool = False) -> T_co:
+    def prepare_value(self, value: str, short_combo: Bool = False, env_var: str = None) -> T_co:
         if self.type is None:
             return value
         try:
             return self.type(value)
         except InvalidChoiceError as e:
-            raise InvalidChoice(self, e.invalid, e.choices) from e
+            raise InvalidChoice(self, e.invalid, e.choices, env_var) from e
         except InputValidationError as e:
-            raise BadArgument(self, str(e)) from e
+            suffix = f' from env var={env_var!r}' if env_var else ''
+            raise BadArgument(self, f'invalid input{suffix} - {e}') from e
         except (TypeError, ValueError) as e:
-            raise BadArgument(self, f'bad {value=} for type={self.type!r}: {e}') from e
+            suffix = f' from env var={env_var!r}' if env_var else ''
+            raise BadArgument(self, f'bad {value=} for type={self.type!r}{suffix}: {e}') from e
         except Exception as e:
-            raise BadArgument(self, f'unable to cast {value=} to type={self.type!r}') from e
+            suffix = f' from env var={env_var!r}' if env_var else ''
+            raise BadArgument(self, f'unable to cast {value=} to type={self.type!r}{suffix}') from e
 
     def prepare_validation_value(self, value: str, short_combo: Bool = False) -> T_co:
         if self.type is None or (isinstance(self.type, InputType) and self.type.is_valid_type(value)):
