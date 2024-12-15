@@ -3,10 +3,17 @@
 from itertools import product
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, TriFlag, Counter, AmbiguousComboMode, ParamConflict, ParamsMissing
+from cli_command_parser import AmbiguousComboMode, Command, Counter, Flag, Option, ParamConflict, ParamsMissing, TriFlag
 from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import NoSuchOption, UsageError, MissingArgument, AmbiguousCombo, AmbiguousShortForm
-from cli_command_parser.exceptions import ParamUsageError, BadArgument
+from cli_command_parser.exceptions import (
+    AmbiguousCombo,
+    AmbiguousShortForm,
+    BadArgument,
+    MissingArgument,
+    NoSuchOption,
+    ParamUsageError,
+    UsageError,
+)
 from cli_command_parser.testing import ParserTest
 
 
@@ -251,7 +258,7 @@ class ParseFlagsTest(ParserTest):
                 self.assert_env_parse_results_cases(Foo, cases)
 
                 with self.env_vars('invalid value', BAR='foo'):
-                    with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
+                    with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env var='):
                         Foo.parse([])
 
     def test_env_vars(self):
@@ -337,7 +344,7 @@ class ParseFlagsTest(ParserTest):
 
         for val in ('1', 'true', '0', 'false'):
             with self.env_vars(f'invalid value={val}', BAR=val):
-                with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
+                with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env var='):
                     Foo.parse([])
 
     def test_custom_env_var_const_use_value(self):
@@ -355,7 +362,7 @@ class ParseFlagsTest(ParserTest):
 
         for val in ('1', 'true', '0', 'false'):
             with self.env_vars(f'invalid value={val}', BAR=val):
-                with self.assertRaisesRegex(BadArgument, 'invalid value=.*? from env_var='):
+                with self.assertRaisesRegex(BadArgument, 'invalid value=.*? from env var='):
                     Foo.parse([])
 
     def test_env_var_append_const(self):
@@ -452,7 +459,7 @@ class ParseTriFlagsTest(ParserTest):
                 self.assert_env_parse_results_cases(Foo, cases)
 
                 with self.env_vars('invalid value', BAR='foo'):
-                    with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
+                    with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env var='):
                         Foo.parse([])
 
     def test_env_var_use_value_default(self):
@@ -473,11 +480,11 @@ class ParseTriFlagsTest(ParserTest):
 
         for val in ('1', 'true', '0', 'false'):
             with self.env_vars(f'invalid value={val}', BAR=val):
-                with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env_var='):
+                with self.assertRaisesRegex(ParamUsageError, 'unable to parse value=.*? from env var='):
                     Foo.parse([])
 
         with self.env_vars(f'invalid value={val}', BAR='abc'):
-            with self.assertRaisesRegex(BadArgument, 'invalid value=.*? from env_var='):
+            with self.assertRaisesRegex(BadArgument, 'invalid value=.*? from env var='):
                 Foo.parse([])
 
     # endregion

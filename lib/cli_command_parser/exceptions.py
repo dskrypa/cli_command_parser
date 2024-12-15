@@ -8,14 +8,14 @@ Exceptions for Command Parser
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Optional, Collection, Mapping
+from typing import TYPE_CHECKING, Any, Collection, Mapping, Optional
 
 from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
-    from .parameters import Parameter, BaseOption
+    from .parameters import BaseOption, Parameter
+    from .parse_tree import PosNode, Target, Word
     from .typing import ParamOrGroup
-    from .parse_tree import PosNode, Word, Target
 
 __all__ = [
     'CommandParserException',
@@ -211,13 +211,13 @@ class BadArgument(ParamUsageError):
 class InvalidChoice(BadArgument):
     """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
 
-    def __init__(self, param: Optional[Parameter], invalid: Any, choices: Collection[Any]):
+    def __init__(self, param: Optional[Parameter], invalid: Any, choices: Collection[Any], env_var: str = None):
+        src = f' from env var={env_var!r}' if env_var else ''
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
-            bad_str = f'choices: {", ".join(map(repr, invalid))}'
+            bad_str = f'choices{src}: {", ".join(map(repr, invalid))}'
         else:
-            bad_str = f'choice: {invalid!r}'
-        choices_str = ', '.join(map(repr, choices))
-        super().__init__(param, f'invalid {bad_str} (choose from: {choices_str})')
+            bad_str = f'choice{src}: {invalid!r}'
+        super().__init__(param, f'invalid {bad_str} (choose from: {", ".join(map(repr, choices))})')
 
 
 class MissingArgument(BadArgument):

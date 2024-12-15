@@ -3,7 +3,7 @@
 from unittest import main
 
 from cli_command_parser import Command, Counter, Flag
-from cli_command_parser.exceptions import NoSuchOption, ParameterDefinitionError, BadArgument
+from cli_command_parser.exceptions import BadArgument, NoSuchOption, ParameterDefinitionError
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.utils import _NotSet
 
@@ -158,8 +158,7 @@ class CounterTest(ParserTest):
         self.assert_env_parse_results_cases(Foo, cases)
 
         with self.env_vars('invalid value', BAR='foo'):
-            # TODO: Improve this error so it indicates which env var had a bad value
-            with self.assert_raises_contains_str(BadArgument, "bad counter value='foo'"):
+            with self.assert_raises_contains_str(BadArgument, "bad counter value='foo' from env var='BAR'"):
                 Foo.parse([])
 
     # endregion
