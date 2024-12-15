@@ -26,7 +26,7 @@ class NumericInput(InputType[NT], ABC):
 
     def is_valid_type(self, value: str) -> bool:
         """
-        Called during parsing when :meth:`.Parameter.would_accept` is called to determine if the value would be
+        Called during parsing when :meth:`.ParamAction.would_accept` is called to determine if the value would be
         accepted later for processing / conversion when called.
 
         :param value: The parsed argument to validate
