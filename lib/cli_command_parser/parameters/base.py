@@ -325,20 +325,25 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def get_env_const(self, value: str, env_var: str) -> tuple[T_co, bool]:
         return _NotSet, False
 
-    def prepare_value(self, value: str, short_combo: Bool = False, pre_action: Bool = False) -> T_co:
-        type_func = self.type
-        if type_func is None or (pre_action and isinstance(type_func, InputType) and type_func.is_valid_type(value)):
+    def prepare_value(self, value: str, short_combo: Bool = False) -> T_co:
+        if self.type is None:
             return value
         try:
-            return type_func(value)
+            return self.type(value)
         except InvalidChoiceError as e:
             raise InvalidChoice(self, e.invalid, e.choices) from e
         except InputValidationError as e:
             raise BadArgument(self, str(e)) from e
         except (TypeError, ValueError) as e:
-            raise BadArgument(self, f'bad {value=} for type={type_func!r}: {e}') from e
+            raise BadArgument(self, f'bad {value=} for type={self.type!r}: {e}') from e
         except Exception as e:
-            raise BadArgument(self, f'unable to cast {value=} to type={type_func!r}') from e
+            raise BadArgument(self, f'unable to cast {value=} to type={self.type!r}') from e
+
+    def prepare_validation_value(self, value: str, short_combo: Bool = False) -> T_co:
+        if self.type is None or (isinstance(self.type, InputType) and self.type.is_valid_type(value)):
+            return value
+        else:
+            return self.prepare_value(value, short_combo)
 
     def validate(self, value: Union[T_co, None], joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':

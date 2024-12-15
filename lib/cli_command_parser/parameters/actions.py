@@ -106,7 +106,7 @@ class ParamAction(ABC):
 
     def would_accept(self, value: str, combo: bool = False) -> bool:
         try:
-            normalized = self.param.prepare_value(value, combo, True)
+            normalized = self.param.prepare_validation_value(value, combo)
         except BadArgument:
             return False
         return self.param.is_valid_arg(normalized)
