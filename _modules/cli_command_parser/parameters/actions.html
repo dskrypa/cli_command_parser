@@ -1075,26 +1075,32 @@
 <div class="viewcode-block" id="ParamAction.add_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_value">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute this action for the given Parameter and value.</span>
 
 <span class="sd">        :param value: The value that was provided, if any.</span>
-<span class="sd">        :param opt: The option string that preceded the given value in the case of optional params, or that</span>
-<span class="sd">          represents a flag so a constant value can be stored, if any.</span>
 <span class="sd">        :param combo: Only True when a short option was provided, where the option string was combined with</span>
 <span class="sd">          either a real value or a sequence of 1-char combinable versions of short option strings.</span>
 <span class="sd">        :param joined: True if the value was provided as ``--option=value``, False otherwise.</span>
+<span class="sd">        :param env_var: The name of the environment variable that was used as the source of the given value, if</span>
+<span class="sd">          applicable.</span>
 <span class="sd">        :return: The number of new values discovered</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
+<div class="viewcode-block" id="ParamAction.add_env_value">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_env_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_env_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">env_var</span><span class="o">=</span><span class="n">env_var</span><span class="p">)</span></div>
+
+
     <span class="c1"># Note: Not used yet</span>
-    <span class="c1"># def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -&gt; Found:</span>
+    <span class="c1"># def add_values(self, values: Sequence[str], *, combo: bool = False) -&gt; Found:</span>
     <span class="c1">#     added = 0</span>
     <span class="c1">#     for value in values:</span>
-    <span class="c1">#         added += self.add_value(value, opt=opt, combo=combo)</span>
+    <span class="c1">#         added += self.add_value(value, combo=combo)</span>
     <span class="c1">#     return added</span>
 
 <div class="viewcode-block" id="ParamAction.add_const">
@@ -1102,12 +1108,6 @@
     <span class="k">def</span> <span class="nf">add_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">MissingArgument</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ParamAction.add_env_value">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.add_env_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_env_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
     <span class="c1"># endregion</span>
@@ -1118,7 +1118,7 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.would_accept">[docs]</a>
     <span class="k">def</span> <span class="nf">would_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_validation_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">BadArgument</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">is_valid_arg</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span></div>
@@ -1276,7 +1276,7 @@
 
 <div class="viewcode-block" id="ConstMixin.add_env_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ConstMixin.add_env_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_env_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_env_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
         <span class="n">const</span><span class="p">,</span> <span class="n">use_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">get_env_const</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">env_var</span><span class="p">)</span>
         <span class="c1"># The const may only be _NotSet once StoreValueOrConst / AppendValueOrConst are put into use</span>
         <span class="c1"># if const is _NotSet:  # It does not support storing constants</span>
@@ -1307,16 +1307,16 @@
 
 <div class="viewcode-block" id="Store.add_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store.add_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">,</span> <span class="n">env_var</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">joined</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span></div>
 
 
     <span class="c1"># Note: Not used yet</span>
-    <span class="c1"># def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -&gt; Found:</span>
+    <span class="c1"># def add_values(self, values: Sequence[str], *, combo: bool = False) -&gt; Found:</span>
     <span class="c1">#     ctx.record_action(self.param)</span>
     <span class="c1">#     if not values:</span>
     <span class="c1">#         raise MissingArgument(self.param)</span>
@@ -1352,16 +1352,16 @@
 
 <div class="viewcode-block" id="Append.add_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.add_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">,</span> <span class="n">env_var</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">append_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span></div>
 
 
     <span class="c1"># Note: Not used yet</span>
-    <span class="c1"># def add_values(self, values: Sequence[str], *, opt: str = None, combo: bool = False) -&gt; Found:</span>
+    <span class="c1"># def add_values(self, values: Sequence[str], *, combo: bool = False) -&gt; Found:</span>
     <span class="c1">#     ctx.record_action(self.param)</span>
     <span class="c1">#     if not values:</span>
     <span class="c1">#         raise MissingArgument(self.param)</span>
@@ -1475,7 +1475,7 @@
 
 <div class="viewcode-block" id="BasicConstAction.add_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.add_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;does not accept values, but </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> was provided&#39;</span><span class="p">)</span></div>
 
@@ -1588,9 +1588,9 @@
 
 <div class="viewcode-block" id="Count.add_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Count.add_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">,</span> <span class="n">env_var</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">joined</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span></div>
@@ -1609,7 +1609,7 @@
 
 <div class="viewcode-block" id="Concatenate.add_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.add_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">is_valid_arg</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)):</span>
@@ -1660,7 +1660,7 @@
 
 <div class="viewcode-block" id="StoreAll.add_values">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreAll.add_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Found</span><span class="p">:</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 
