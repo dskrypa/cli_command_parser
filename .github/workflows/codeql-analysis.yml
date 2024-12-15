@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         language: ["python"]
-        python-version: ["3.12"]
+        python-version: ["3.13"]
 
     steps:
       - name: Checkout repository
@@ -42,20 +42,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        # Manual definition for this is intended to avoid installing many unnecessary packages
-        # Note: The CODEQL_PYTHON line sets an env var to direct CodeQL to the correct Py interpreter as suggested by:
-        # https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#analyzing-python-dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[wcwidth]
-          echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
-
       - name: Initialize CodeQL
         uses: github/codeql-action/init@df409f7d9260372bd5f19e5b04e83cb3c43714ae # v3.27.9
         with:
           languages: ${{ matrix.language }}
-          setup-python-dependencies: false
           # source-root: lib
           # If you wish to specify custom queries, you can do so here or in a config file.
           # By default, queries listed here will override any specified in a config file.
