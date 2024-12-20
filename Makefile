@@ -6,6 +6,9 @@ init:
 docs:
 	bin/build_docs.py -uco
 
+tag:
+	bin/tag.py
+
 publish:
 	rm -rf dist
 	pip install twine build -U --require-virtualenv
@@ -13,5 +16,5 @@ publish:
 	twine upload dist/*
 	rm -rf lib/cli_command_parser.egg-info
 
-tag:
-	bin/tag.py
+sign:
+	for f in dist/*; do echo "Signing $${f}"; gpg --armor --detach-sign $${f}; done
