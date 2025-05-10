@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from unittest import main
+from unittest.mock import Mock
 
 from cli_command_parser.testing import ParserTest
 
@@ -49,6 +50,17 @@ class MiscTest(ParserTest):
         with self.assertRaises(RuntimeError):  # The unexpected exception was allowed to propagate
             with self.assert_raises_contains_str(ValueError, 'foo'):
                 raise RuntimeError('foo')
+
+    def test_assert_parse_results_ok(self):
+        cmd = Mock(ctx=Mock(get_parsed=Mock(return_value={'foo': 'bar'})))
+        cmd_cls = Mock(parse=Mock(return_value=cmd))
+        self.assertIs(cmd, self.assert_parse_results(cmd_cls, [], {'foo': 'bar'}))
+
+    def test_assert_parse_results_fail(self):
+        cmd = Mock(ctx=Mock(get_parsed=Mock(return_value={'foo': 'bar'})))
+        cmd_cls = Mock(parse=Mock(return_value=cmd))
+        with self.assertRaises(AssertionError):
+            self.assert_parse_results(cmd_cls, [], {'foo': 'baz'})
 
 
 if __name__ == '__main__':
