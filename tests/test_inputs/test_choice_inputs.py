@@ -201,6 +201,27 @@ class ParseInputTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    def test_choice_map_default_fixed(self):
+        class Foo(Command):
+            bar = Option('-b', default='a', type=ChoiceMap({'a': 'ABC', 'x': 'XYZ'}))
+
+        success_cases = [([], {'bar': 'ABC'}), (['-b', 'a'], {'bar': 'ABC'}), (['-b', 'x'], {'bar': 'XYZ'})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_choice_map_default_in_values(self):
+        class Foo(Command):
+            bar = Option('-b', default='ABC', type=ChoiceMap({'a': 'ABC', 'x': 'XYZ'}))
+
+        success_cases = [([], {'bar': 'ABC'}), (['-b', 'a'], {'bar': 'ABC'}), (['-b', 'x'], {'bar': 'XYZ'})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_choice_map_default_not_fixed(self):
+        class Foo(Command):
+            bar = Option('-b', default='a', type=ChoiceMap({'a': 'ABC', 'x': 'XYZ'}), strict_default=True)
+
+        success_cases = [([], {'bar': 'a'}), (['-b', 'a'], {'bar': 'ABC'}), (['-b', 'x'], {'bar': 'XYZ'})]
+        self.assert_parse_results_cases(Foo, success_cases)
+
 
 if __name__ == '__main__':
     # import logging

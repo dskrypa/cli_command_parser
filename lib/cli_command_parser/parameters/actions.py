@@ -145,6 +145,8 @@ class ParamAction(ABC):
         return self.default
 
     def finalize_default(self, value):
+        if self.param.strict_default:
+            return value
         if (type_func := self.param.type) and isinstance(type_func, InputType):
             return type_func.fix_default(value)
         return value

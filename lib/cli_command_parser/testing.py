@@ -94,9 +94,6 @@ class ParserTest(TestCase):
     def assert_dict_equal(self, d1, d2, msg: str = None):
         self.assertIsInstance(d1, dict, 'First argument is not a dictionary')
         self.assertIsInstance(d2, dict, 'Second argument is not a dictionary')
-        self._assert_dict_equal(d1, d2, msg)
-
-    def _assert_dict_equal(self, d1, d2, msg: str = None):
         if d1 != d2:
             self.fail(self._formatMessage(msg, f'{d1} != {d2}\n{format_dict_diff(d1, d2)}'))
 
@@ -105,7 +102,9 @@ class ParserTest(TestCase):
 
     def assert_parse_results(self, cmd_cls: CommandCls, argv: Argv, expected: Expected, msg: str = None) -> Command:
         cmd = cmd_cls.parse(argv)
-        self._assert_dict_equal(expected, cmd.ctx.get_parsed(cmd, exclude=EXCLUDE_ACTIONS), msg)
+        parsed = cmd.ctx.get_parsed(cmd, exclude=EXCLUDE_ACTIONS)
+        if expected != parsed:
+            self.fail(msg or f'Expected results ({expected}) != {parsed=}\n{format_dict_diff(expected, parsed)}')
         return cmd
 
     def assert_parse_results_cases(self, cmd_cls: CommandCls, cases: Iterable[Case], msg: str = None):

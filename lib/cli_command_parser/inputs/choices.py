@@ -147,6 +147,12 @@ class ChoiceMap(Choices[T]):
 
         return self._case_insensitive_map_choice(value)
 
+    def fix_default(self, value: Any) -> T:
+        if value in self.choices.values():
+            return value
+        else:
+            return self(value)
+
 
 class EnumChoices(_ChoicesBase[EnumT]):
     """
